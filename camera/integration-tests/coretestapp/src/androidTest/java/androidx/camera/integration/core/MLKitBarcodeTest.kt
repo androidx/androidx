@@ -20,6 +20,7 @@ import android.content.Context
 import android.util.Log
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
@@ -65,14 +66,15 @@ class MLKitBarcodeTest(
     companion object {
         private const val DETECT_TIMEOUT = 5_000L
         private const val TAG = "MLKitVisionTest"
-
-        // TODO(b/189279877) Add different CameraXConfig (Camera2Config, CameraPipeConfig)
-        //  as parameters.
+        private val size480p = Size(640, 480)
+        private val size720p = Size(1280, 720)
         @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
+        @Parameterized.Parameters
         fun data() = listOf(
-            arrayOf(Size(640, 480), Camera2Config.defaultConfig()),
-            arrayOf(Size(1280, 720), Camera2Config.defaultConfig())
+            arrayOf(size480p, Camera2Config.defaultConfig()),
+            arrayOf(size720p, Camera2Config.defaultConfig()),
+            arrayOf(size480p, CameraPipeConfig.defaultConfig()),
+            arrayOf(size720p, CameraPipeConfig.defaultConfig())
         )
     }
 

@@ -32,7 +32,9 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.sqlite.db.SimpleSQLiteQuery;
+import androidx.sqlite.db.SupportSQLiteCompat;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteStatement;
@@ -189,17 +191,18 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public Cursor query(final SupportSQLiteQuery supportQuery,
             CancellationSignal cancellationSignal) {
-        return mDelegate.rawQueryWithFactory(new SQLiteDatabase.CursorFactory() {
-            @Override
-            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
-                    String editTable, SQLiteQuery query) {
-                supportQuery.bindTo(new FrameworkSQLiteProgram(query));
-                return new SQLiteCursor(masterQuery, editTable, query);
-            }
-        }, supportQuery.getSql(), EMPTY_STRING_ARRAY, null, cancellationSignal);
+        return SupportSQLiteCompat.Api16Impl.rawQueryWithFactory(mDelegate, supportQuery.getSql(),
+                EMPTY_STRING_ARRAY, null, cancellationSignal, new SQLiteDatabase.CursorFactory() {
+                    @Override
+                    public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
+                            String editTable, SQLiteQuery query) {
+                        supportQuery.bindTo(new FrameworkSQLiteProgram(query));
+                        return new SQLiteCursor(masterQuery, editTable, query);
+                    }
+                });
     }
 
     @Override
@@ -298,9 +301,9 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void setForeignKeyConstraintsEnabled(boolean enable) {
-        mDelegate.setForeignKeyConstraintsEnabled(enable);
+        SupportSQLiteCompat.Api16Impl.setForeignKeyConstraintsEnabled(mDelegate, enable);
     }
 
     @Override
@@ -309,15 +312,15 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void disableWriteAheadLogging() {
-        mDelegate.disableWriteAheadLogging();
+        SupportSQLiteCompat.Api16Impl.disableWriteAheadLogging(mDelegate);
     }
 
     @Override
-    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public boolean isWriteAheadLoggingEnabled() {
-        return mDelegate.isWriteAheadLoggingEnabled();
+        return SupportSQLiteCompat.Api16Impl.isWriteAheadLoggingEnabled(mDelegate);
     }
 
     @Override

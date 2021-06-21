@@ -19,7 +19,7 @@ package androidx.testutils
 import android.os.Bundle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.navigation.testing.TestNavigatorState
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,19 +39,15 @@ class TestNavigatorTest {
         val destination = testNavigator.createDestination()
         val args = Bundle()
         testNavigator.navigate(listOf(state.createBackStackEntry(destination, args)), null, null)
-        assertEquals(
-            "TestNavigator back stack size is 1 after navigate",
-            1,
-            testNavigator.backStack.size
-        )
+        assertWithMessage("TestNavigator back stack size is 1 after navigate")
+            .that(testNavigator.backStack.size)
+            .isEqualTo(1)
         val current = testNavigator.current
-        assertEquals(
-            "last() returns last destination navigated to",
-            destination, current.destination
-        )
-        assertEquals(
-            "last() returns arguments Bundle",
-            args, current.arguments
-        )
+        assertWithMessage("last() returns last destination navigated to")
+            .that(current.destination)
+            .isEqualTo(destination)
+        assertWithMessage("last() returns arguments Bundle")
+            .that(current.arguments)
+            .isEqualTo(args)
     }
 }

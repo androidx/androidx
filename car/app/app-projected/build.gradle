@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import static androidx.build.dependencies.DependenciesKt.*
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -24,10 +23,40 @@ plugins {
 }
 
 dependencies {
-    annotationProcessor(NULLAWAY)
+    implementation(project(":car:app:app"))
+    annotationProcessor(libs.nullaway)
 
     implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.annotation:annotation-experimental:1.1.0")
+
+    testImplementation("junit:junit:4.13")
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.truth)
+    testImplementation project(path: ':car:app:app-testing')
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 23
+        multiDexEnabled = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    lintOptions {
+        // We rely on keeping a bunch of private variables in the library for serialization.
+        disable("BanKeepAnnotation")
+    }
+    buildFeatures {
+        aidl = true
+    }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {

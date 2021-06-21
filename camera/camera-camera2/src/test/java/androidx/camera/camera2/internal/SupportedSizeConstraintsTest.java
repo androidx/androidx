@@ -65,14 +65,13 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * Unit tests for {@link ExcludedSupportedSizesContainer}'s usage within

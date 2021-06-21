@@ -16,8 +16,6 @@
 
 package androidx.webkit.internal;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.webkit.WebViewRenderProcess;
 
@@ -85,7 +83,6 @@ public class WebViewRenderProcessImpl extends WebViewRenderProcess {
         return renderer;
     }
 
-    @SuppressLint("NewApi")
     @Override
     public boolean terminate() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_VIEW_RENDERER_TERMINATE;

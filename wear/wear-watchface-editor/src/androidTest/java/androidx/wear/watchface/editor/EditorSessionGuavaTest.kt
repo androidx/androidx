@@ -27,7 +27,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
@@ -35,8 +35,8 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.CanvasComplication
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.WatchFaceId
@@ -46,6 +46,7 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CompletableDeferred
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -72,7 +73,7 @@ public class EditorSessionGuavaTest {
             mockInvalidateCallback
         )
     private val leftComplication =
-        Complication.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { _, _, -> mockLeftCanvasComplication },
             listOf(
@@ -83,7 +84,7 @@ public class EditorSessionGuavaTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
-            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -94,7 +95,7 @@ public class EditorSessionGuavaTest {
             mockInvalidateCallback
         )
     private val rightComplication =
-        Complication.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             RIGHT_COMPLICATION_ID,
             { _, _, -> mockRightCanvasComplication },
             listOf(
@@ -105,22 +106,23 @@ public class EditorSessionGuavaTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
-            ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+            ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
-        complications: List<Complication>,
+        complicationSlots: List<ComplicationSlot>,
         watchFaceId: WatchFaceId = testInstanceId,
         previewReferenceTimeMillis: Long = 12345
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
-        val complicationsManager = ComplicationsManager(complications, userStyleRepository)
-        complicationsManager.watchState = placeholderWatchState
+        val complicationSlotsManager =
+            ComplicationSlotsManager(complicationSlots, userStyleRepository)
+        complicationSlotsManager.watchState = placeholderWatchState
 
         WatchFace.registerEditorDelegate(testComponentName, editorDelegate)
-        Mockito.`when`(editorDelegate.complicationsManager).thenReturn(complicationsManager)
+        Mockito.`when`(editorDelegate.complicationSlotsManager).thenReturn(complicationSlotsManager)
         Mockito.`when`(editorDelegate.userStyleSchema).thenReturn(userStyleRepository.schema)
         Mockito.`when`(editorDelegate.userStyle).thenReturn(userStyleRepository.userStyle)
         Mockito.`when`(editorDelegate.screenBounds).thenReturn(screenBounds)
@@ -184,12 +186,14 @@ public class EditorSessionGuavaTest {
             ComplicationType.LONG_TEXT,
             provider3
         )
-        TestComplicationHelperActivity.resultIntent = Intent().apply {
-            putExtra(
-                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
-                chosenComplicationProviderInfo.toWireComplicationProviderInfo()
-            )
-        }
+        TestComplicationHelperActivity.resultIntent = CompletableDeferred(
+            Intent().apply {
+                putExtra(
+                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                    chosenComplicationProviderInfo.toWireComplicationProviderInfo()
+                )
+            }
+        )
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
             listOf(leftComplication, rightComplication)
@@ -210,7 +214,7 @@ public class EditorSessionGuavaTest {
             ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         assertThat(chosenComplicationProvider).isNotNull()
         checkNotNull(chosenComplicationProvider)
-        assertThat(chosenComplicationProvider.complicationId).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(chosenComplicationProvider.complicationSlotId).isEqualTo(LEFT_COMPLICATION_ID)
         assertEquals(
             chosenComplicationProviderInfo,
             chosenComplicationProvider.complicationProviderInfo

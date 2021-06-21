@@ -50,7 +50,8 @@ public class MetadataTest {
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class CameraMetadataTest {
-    @Test fun cameraMetadataIsNotEqual() {
+    @Test
+    fun cameraMetadataIsNotEqual() {
         val metadata1 = FakeCameraMetadata(
             mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
             mapOf(FakeMetadata.TEST_KEY to 42)
@@ -67,7 +68,9 @@ public class CameraMetadataTest {
     @Test
     public fun canRetrieveCameraCharacteristicsOrCameraMetadataViaInterface() {
         val metadata = FakeCameraMetadata(
-            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
+            mapOf(
+                CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT
+            ),
             mapOf(FakeMetadata.TEST_KEY to 42)
         )
 

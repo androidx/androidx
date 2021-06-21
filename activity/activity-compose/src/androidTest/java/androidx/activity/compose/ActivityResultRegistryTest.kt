@@ -208,7 +208,7 @@ class ActivityResultRegistryTest {
         composeTestRule.runOnIdle {
             assertThat(counter).isEqualTo(0)
         }
-        launchChannel.offer(true)
+        launchChannel.trySend(true)
         composeTestRule.runOnIdle {
             registry.dispatchResult(code, RESULT_OK, Intent())
             assertThat(counter).isEqualTo(1)

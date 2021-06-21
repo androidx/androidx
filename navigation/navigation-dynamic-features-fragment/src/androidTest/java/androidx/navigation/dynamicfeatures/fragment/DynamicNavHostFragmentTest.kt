@@ -26,7 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.android.play.core.splitinstall.SplitInstallManager
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,14 +52,15 @@ public class DynamicNavHostFragmentTest {
                     .commitNow()
             }
         }
-        assertEquals(fragment.createSplitInstallManager(), fragment.createSplitInstallManager())
+        assertThat(fragment.createSplitInstallManager())
+            .isEqualTo(fragment.createSplitInstallManager())
     }
 
     @UiThreadTest
     @Test
     public fun create_noArgs() {
         val fragment = DynamicNavHostFragment.create(R.id.nav_host)
-        assertEquals(fragment.arguments!!.size(), 1)
+        assertThat(fragment.arguments!!.size()).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -71,7 +72,7 @@ public class DynamicNavHostFragmentTest {
                 putInt("Test", 1)
             }
         )
-        assertEquals(fragment.arguments!!.size(), 2)
+        assertThat(fragment.arguments!!.size()).isEqualTo(2)
     }
 }
 

@@ -19,6 +19,8 @@ package androidx.benchmark.macro
 import android.app.Instrumentation
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.profileinstaller.ProfileInstallReceiver
+import androidx.profileinstaller.ProfileInstaller
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.junit.AssumptionViolatedException
@@ -57,6 +59,16 @@ public sealed class CompilationMode(
     }
 
     /**
+     * Partial pre-compilation based on bundled baseline profile.
+     *
+     * Note: this mode is only supported for APKs that have the profileinstaller library
+     * included, and have been built by AGP 7.0+ to package the baseline profile in the APK.
+     */
+    public object BaselineProfile : CompilationMode("speed-profile") {
+        public override fun toString(): String = "BaselineProfile"
+    }
+
+    /**
      * Full ahead-of-time compilation.
      */
     public object Speed : CompilationMode("speed") {
@@ -91,6 +103,49 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
 
     if (this == CompilationMode.None || this == CompilationMode.Interpreted) {
         return // nothing to do
+    }
+    if (this == CompilationMode.BaselineProfile) {
+        // For baseline profiles, if the profileinstaller library is included in the APK, then we
+        // triggering this broadcast will cause the baseline profile to get installed
+        // synchronously, instead of waiting for the
+        val action = ProfileInstallReceiver.ACTION_INSTALL_PROFILE
+        val result = device.executeShellCommand("am broadcast -a $action -p $packageName")
+            .substringAfter("Broadcast completed: result=")
+            .trim()
+            .toIntOrNull()
+        when (result) {
+            null,
+            // 0 is returned by the platform by default, and also if no broadcast receiver
+            // receives the broadcast.
+            0 -> {
+                throw RuntimeException(
+                    "The baseline profile install broadcast was not received. This most likely " +
+                        "means that the profileinstaller library is not in the target APK. It " +
+                        "must be in order to use CompilationMode.BaselineProfile."
+                )
+            }
+            ProfileInstaller.RESULT_INSTALL_SUCCESS,
+            ProfileInstaller.RESULT_ALREADY_INSTALLED -> {
+                // success!
+            }
+            ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION -> {
+                throw RuntimeException("Baseline profiles aren't supported on this device version")
+            }
+            ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND -> {
+                throw RuntimeException("No baseline profile was found in the target apk.")
+            }
+            ProfileInstaller.RESULT_NOT_WRITABLE,
+            ProfileInstaller.RESULT_DESIRED_FORMAT_UNSUPPORTED,
+            ProfileInstaller.RESULT_IO_EXCEPTION,
+            ProfileInstaller.RESULT_PARSE_EXCEPTION -> {
+                throw RuntimeException("Baseline Profile wasn't successfully installed")
+            }
+            else -> {
+                throw RuntimeException(
+                    "unrecognized ProfileInstaller result code: $result"
+                )
+            }
+        }
     }
     if (this is CompilationMode.SpeedProfile) {
         repeat(this.warmupIterations) {

@@ -28,6 +28,6 @@
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"Erabiltzaileak bertan behera utzi du autentifikazioa"</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Erabili pasahitza"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Ez da ezarri PIN koderik, eredurik edo pasahitzik."</string>
-    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Gailuak ez du onartzen PIN kode, eredu edo pasahitzik."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Gailuak ez du onartzen PIN, eredu edo pasahitzik."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Hatz-markaren ikonoa"</string>
 </resources>

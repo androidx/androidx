@@ -27,14 +27,17 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
+import androidx.core.os.HandlerCompat;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
@@ -69,26 +72,45 @@ import java.util.concurrent.Executor;
  *
  * @hide
  */
+@SuppressLint("BanKeepAnnotation")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteWorkManagerClient extends RemoteWorkManager {
 
+    /* The session timeout. */
+    private static final long SESSION_TIMEOUT_MILLIS = 60 * 1000;
+
+    // Synthetic access
     static final String TAG = Logger.tagWithPrefix("RemoteWorkManagerClient");
+
+    // Synthetic access
+    Session mSession;
 
     final Context mContext;
     final WorkManagerImpl mWorkManager;
     final Executor mExecutor;
     final Object mLock;
 
-    private Session mSession;
+    private volatile long mSessionIndex;
+    private final long mSessionTimeout;
+    private final Handler mHandler;
+    private final SessionTracker mSessionTracker;
 
-    @SuppressLint("BanKeepAnnotation")
-    @Keep
     public RemoteWorkManagerClient(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
+        this(context, workManager, SESSION_TIMEOUT_MILLIS);
+    }
+
+    public RemoteWorkManagerClient(
+            @NonNull Context context,
+            @NonNull WorkManagerImpl workManager,
+            long sessionTimeout) {
         mContext = context.getApplicationContext();
         mWorkManager = workManager;
         mExecutor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
         mLock = new Object();
         mSession = null;
+        mSessionTracker = new SessionTracker(this);
+        mSessionTimeout = sessionTimeout;
+        mHandler = HandlerCompat.createAsync(Looper.getMainLooper());
     }
 
     @NonNull
@@ -266,7 +288,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     public ListenableFuture<byte[]> execute(
             @NonNull final RemoteDispatcher<IWorkManagerImpl> dispatcher) {
-        return execute(getSession(), dispatcher, new RemoteCallback());
+        return execute(getSession(), dispatcher, new SessionRemoteCallback(this));
     }
 
     /**
@@ -276,6 +298,68 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     public ListenableFuture<IWorkManagerImpl> getSession() {
         return getSession(newIntent(mContext));
+    }
+
+    /**
+     * @return The application {@link Context}.
+     */
+    @NonNull
+    public Context getContext() {
+        return mContext;
+    }
+
+    /**
+     * @return The session timeout in milliseconds.
+     */
+    public long getSessionTimeout() {
+        return mSessionTimeout;
+    }
+
+    /**
+     * @return The current {@link Session} in use by {@link RemoteWorkManagerClient}.
+     */
+    @Nullable
+    public Session getCurrentSession() {
+        return mSession;
+    }
+
+    /**
+     * @return The {@link Handler} managing session timeouts.
+     */
+    @NonNull
+    public Handler getSessionHandler() {
+        return mHandler;
+    }
+
+    /**
+     * @return the {@link SessionTracker} instance.
+     */
+    @NonNull
+    public SessionTracker getSessionTracker() {
+        return mSessionTracker;
+    }
+
+    /**
+     * @return The {@link Object} session lock.
+     */
+    @NonNull
+    public Object getSessionLock() {
+        return mLock;
+    }
+
+    /**
+     * @return The background {@link Executor} used by {@link RemoteWorkManagerClient}.
+     */
+    @NonNull
+    public Executor getExecutor() {
+        return mExecutor;
+    }
+
+    /**
+     * @return The session index.
+     */
+    public long getSessionIndex() {
+        return mSessionIndex;
     }
 
     @NonNull
@@ -316,6 +400,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @VisibleForTesting
     ListenableFuture<IWorkManagerImpl> getSession(@NonNull Intent intent) {
         synchronized (mLock) {
+            mSessionIndex += 1;
             if (mSession == null) {
                 Logger.get().debug(TAG, "Creating a new session");
                 mSession = new Session(this);
@@ -328,6 +413,8 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                     unableToBind(mSession, throwable);
                 }
             }
+            // Reset session tracker.
+            mHandler.removeCallbacks(mSessionTracker);
             return mSession.mFuture;
         }
     }
@@ -390,6 +477,13 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
 
         @Override
         public void onBindingDied(@NonNull ComponentName name) {
+            onBindingDied();
+        }
+
+        /**
+         * Clean-up client when a binding dies.
+         */
+        public void onBindingDied() {
             Logger.get().debug(TAG, "Binding died");
             mFuture.setException(new RuntimeException("Binding died"));
             mClient.cleanUp();
@@ -400,6 +494,62 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
             Logger.get().error(TAG, "Unable to bind to service");
             mFuture.setException(
                     new RuntimeException(String.format("Cannot bind to service %s", name)));
+        }
+    }
+
+    /**
+     * An extension of {@link RemoteCallback} that kills a {@link Session} after a timeout has
+     * elapsed.
+     */
+    public static class SessionRemoteCallback extends RemoteCallback {
+        private final RemoteWorkManagerClient mClient;
+
+        public SessionRemoteCallback(@NonNull RemoteWorkManagerClient client) {
+            mClient = client;
+        }
+
+        @Override
+        protected void onRequestCompleted() {
+            super.onRequestCompleted();
+            Handler handler = mClient.getSessionHandler();
+            SessionTracker tracker = mClient.getSessionTracker();
+            // Start tracking for session timeout.
+            // These callbacks are removed when the session timeout has expired or when getSession()
+            // is called.
+            handler.postDelayed(tracker, mClient.getSessionTimeout());
+        }
+    }
+
+    /**
+     * A {@link Runnable} that enforces a TTL for a {@link RemoteWorkManagerClient} session.
+     */
+    public static class SessionTracker implements Runnable {
+        private static final String TAG = Logger.tagWithPrefix("SessionHandler");
+        private final RemoteWorkManagerClient mClient;
+
+        public SessionTracker(@NonNull RemoteWorkManagerClient client) {
+            mClient = client;
+        }
+
+        @Override
+        public void run() {
+            final long preLockIndex = mClient.getSessionIndex();
+            synchronized (mClient.getSessionLock()) {
+                final long sessionIndex = mClient.getSessionIndex();
+                final Session currentSession = mClient.getCurrentSession();
+                // We check for a session index here. This is because if the index changes
+                // while we acquire a lock, that would mean that a new session request came through.
+                if (currentSession != null) {
+                    if (preLockIndex == sessionIndex) {
+                        Logger.get().debug(TAG, "Unbinding service");
+                        mClient.getContext().unbindService(currentSession);
+                        // Cleanup as well.
+                        currentSession.onBindingDied();
+                    } else {
+                        Logger.get().debug(TAG, "Ignoring request to unbind.");
+                    }
+                }
+            }
         }
     }
 }

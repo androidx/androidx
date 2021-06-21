@@ -241,10 +241,16 @@ class MediaRoute2Provider extends MediaRouteProvider {
             return;
         }
 
-        List<String> selectedRouteIds =
-                MediaRouter2Utils.getRouteIds(routingController.getSelectedRoutes());
-        MediaRouteDescriptor initialRouteDescriptor = MediaRouter2Utils.toMediaRouteDescriptor(
-                routingController.getSelectedRoutes().get(0));
+        List<MediaRoute2Info> selectedRoutes = routingController.getSelectedRoutes();
+        if (selectedRoutes.isEmpty()) {
+            Log.w(TAG, "setDynamicRouteDescriptors: No selected routes. This may happen "
+                    + "when the selected routes become invalid."
+                    + "routingController=" + routingController);
+            return;
+        }
+        List<String> selectedRouteIds = MediaRouter2Utils.getRouteIds(selectedRoutes);
+        MediaRouteDescriptor initialRouteDescriptor =
+                MediaRouter2Utils.toMediaRouteDescriptor(selectedRoutes.get(0));
 
         MediaRouteDescriptor groupDescriptor = null;
         // TODO: Add RoutingController#getName() and use it in Android S+

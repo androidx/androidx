@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+    api(libs.javapoet)
+    api(libs.kotlinPoet)
+    implementation("androidx.annotation:annotation:1.1.0")
+    implementation(libs.guava)
+    implementation(libs.autoCommon)
+    implementation(libs.autoValueAnnotations)
+
+    implementation(libs.kotlinMetadataJvm)
+    implementation(libs.intellijAnnotations)
+    implementation(libs.kspApi)
+    implementation(libs.kotlinStdlibJdk8) // KSP defines older version as dependency, force update.
+
+    testImplementation(libs.googleCompileTesting)
+    testImplementation(libs.junit)
+    testImplementation(libs.jsr250)
+    testImplementation(libs.kotlinCompileTestingKsp)
+    testImplementation(libs.ksp)
+    testImplementation(project(":room:room-compiler-processing-testing"))
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+                "-Xopt-in=kotlin.RequiresOptIn",
+                "-Xopt-in=kotlin.contracts.ExperimentalContracts",
+                "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
+        ]
+    }
+}
+
+tasks.withType(Test).configureEach {
+    // TODO: re-enable once b/177660733 is fixed.
+   it.systemProperty("androidx.room.compiler.processing.strict", "false")
+}
+
+androidx {
+    name = "AndroidX Room XProcessor"
+    type = LibraryType.ANNOTATION_PROCESSOR_UTILS
+    mavenGroup = LibraryGroups.ROOM
+    inceptionYear = "2020"
+    description = "Processing Environment Abstraction for AndroidX Room"
+}

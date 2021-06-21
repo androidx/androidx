@@ -28,8 +28,8 @@ import androidx.test.platform.app.InstrumentationRegistry
  * ```
  * android {
  *     defaultConfig {
- *         testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors',
- *                 'CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED'
+ *         testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] =
+ *             "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED"
  *     }
  * }
  * ```

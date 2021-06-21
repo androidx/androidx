@@ -36,4 +36,11 @@ public final class SetUserVisibleHintViolation extends Violation {
     public boolean isVisibleToUser() {
         return mIsVisibleToUser;
     }
+
+    @NonNull
+    @Override
+    public String getMessage() {
+        return "Attempting to set user visible hint to " + mIsVisibleToUser + " for fragment "
+                + mFragment;
+    }
 }

@@ -54,6 +54,7 @@ import androidx.slice.view.R;
  * Supports displaying {@link androidx.slice.core.SliceActionImpl}s.
  * @hide
  */
+@SuppressWarnings("AppCompatCustomView")
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
 public class SliceActionView extends FrameLayout implements View.OnClickListener,

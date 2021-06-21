@@ -312,7 +312,7 @@ public final class TestAppAuthenticatorBuilder {
      */
     // This class is provided so that apps can inject a configurable AppAuthenticator for their
     // tests, so it needs access to the restricted test APIs.
-    @SuppressLint("RestrictedApi")
+    @SuppressLint({"RestrictedApi", "VisibleForTests"})
     @NonNull
     public AppAuthenticator build() throws AppAuthenticatorXmlException, IOException {
         // Obtain the config from the AppAuthenticator class to ensure that the provided XML is

@@ -4,8 +4,7 @@
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
 # > Task :docs-runner:dokkaJavaPublicDocs
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
-\$CHECKOUT/prebuilts/androidx/external/.+\.kotlin_module: error: module was compiled with an incompatible version of Kotlin\. The binary version of its metadata is [0-9]+\.[0-9]+\.[0-9]+, expected version is [0-9]+\.[0-9]+\.[0-9]+\.
-\$OUT_DIR/.+\.kotlin_module: error: module was compiled with an incompatible version of Kotlin\. The binary version of its metadata is [0-9]+\.[0-9]+\.[0-9]+, expected version is [0-9]+\.[0-9]+\.[0-9]+\.
+.*\.kotlin_module: error: module was compiled with an incompatible version of Kotlin\. The binary version of its metadata is [0-9]+\.[0-9]+\.[0-9]+, expected version is [0-9]+\.[0-9]+\.[0-9]+\.
 WARN: The registry key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' accessed, but not loaded yet
 PROGRESS: Rendering
 No docs found on supertype with \{@inheritDoc\} method .*
@@ -155,6 +154,9 @@ updated local\.properties
 # > Configure project :compose:test\-utils
 The following Kotlin source sets were configured but not added to any Kotlin compilation:
 \* androidAndroidTestRelease
+\* androidTestFixtures
+\* androidTestFixturesDebug
+\* androidTestFixturesRelease
 \* androidTestRelease
 \* test
 You can add a source set to a target's compilation by connecting it with the compilation's default source set using 'dependsOn'\.
@@ -169,6 +171,7 @@ Execution optimizations have been disabled for [0-9]+ invalid unit\(s\) of work 
 Please consult deprecation warnings for more details\.
 See https\:\/\/docs\.gradle\.org\/[0-9]+\.[0-9]+\.[0-9]+\/userguide\/command_line_interface\.html\#sec\:command_line_warnings
 BUILD SUCCESSFUL in .*
+The remote build cache was disabled during the build due to errors\.
 [0-9]+ actionable task: [0-9]+ executed
 # > Task :doclava:compileJava
 Note\: Some input files use or override a deprecated API\.
@@ -181,6 +184,8 @@ Note\: Recompile with \-Xlint\:unchecked for details\.
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
 application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other declarations but no other declaration present
+\$OUT_DIR/androidx/wear/compose/compose\-material\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/profileinstaller/profileinstaller\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/slice\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/appcompat/appcompat\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -514,18 +519,6 @@ There were failing tests\. See the report at: .*.html
 # > Task :compose:ui:ui:processDebugUnitTestManifest
 \$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
 \$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/manifestMerger[0-9]+\.xml Warning:
-# > Task *:lintDebug
-# TODO: b/182321297 remove when this message isn't printed
-Lint: Unknown issue id "ComposableNaming"
-Lint: Unknown issue id "ComposableLambdaParameterNaming"
-Lint: Unknown issue id "ComposableLambdaParameterPosition"
-Lint: Unknown issue id "CompositionLocalNaming"
-Lint: Unknown issue id "ComposableModifierFactory"
-Lint: Unknown issue id "InvalidColorHexValue"
-Lint: Unknown issue id "MissingColorAlphaChannel"
-Lint: Unknown issue id "ModifierFactoryExtensionFunction"
-Lint: Unknown issue id "ModifierFactoryReturnType"
-Lint: Unknown issue id "ModifierParameter"
 # > Task :compose:foundation:foundation:reportLibraryMetrics
 Stripped invalid locals information from [0-9]+ methods\.
 Methods with invalid locals information:
@@ -565,6 +558,9 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 # > Task :contentpager:contentpager:compileDebugAndroidTestJavaWithJavac
 # > Task :docs-public:dokkaKotlinDocs
 No documentation for .*
+Found an unresolved type in androidx\.compose\.animation\.AnimatedContentScope\$using\(androidx\.compose\.animation\.ContentTransform, androidx\.compose\.animation\.SizeTransform\) \(AnimatedContent\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.BroadcastFrameClock\$cancel\(\) \(BroadcastFrameClock\.kt:[0-9]+\)
+Found an unresolved type in androidx\.datastore\.rxjava[0-9]+\.RxDataStore\$dispose\(\) \(RxDataStore\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
@@ -594,6 +590,9 @@ Found an unresolved type in androidx\.slice\.builders\$list\(android\.content\.C
 # See b/180023439 for hiltNavGraphViewModel warning.
 Found an unresolved type in androidx\.hilt\.navigation\.compose\$hiltNavGraphViewModel\(androidx\.navigation\.NavController, kotlin\.String\) \(NavHostController\.kt:[0-9]+\)
 Unresolved link to .*
+Found an unresolved type in androidx\.compose\.foundation\.MutatorMutex\$mutate\(androidx\.compose\.foundation\.MutatePriority, kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.MutatorMutex\.mutate\.R\)\)\) \(MutatorMutex\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.foundation\.MutatorMutex\$mutateWith\(androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.T, androidx\.compose\.foundation\.MutatePriority, kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.T, androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.R\)\)\) \(MutatorMutex\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.foundation\.gestures\$detectTapGestures\(androidx\.compose\.ui\.input\.pointer\.PointerInputScope, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.gestures\.PressGestureScope, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\)\) \(TapGestureDetector\.kt:[0-9]+\)
 Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setInitialLoadKey\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Key\) \(RxPagedListBuilder\.kt:[0-9]+\)
 Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Value\)\)\) \(RxPagedListBuilder\.kt:[0-9]+\)
 Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setNotifyScheduler\(io\.reactivex\.rxjava[0-9]+\.core\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
@@ -690,6 +689,7 @@ Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sameMethodNameMerger,
 Extension: org\.jetbrains\.dokka\.base\.DokkaBase/fallbackMerger,
 Extension: org\.jetbrains\.dokka\.base\.DokkaBase/docTagToContentConverter,
 Extension: com\.google\.devsite\.DevsitePlugin/translator,
+Extension: com\.google\.devsite\.DevsitePlugin/hideFilter,
 Extension: org\.jetbrains\.dokka\.base\.DokkaBase/extensionsExtractor,
 Extension: org\.jetbrains\.dokka\.base\.DokkaBase/undocumentedCodeReporter,
 Extension: org\.jetbrains\.dokka\.base\.DokkaBase/inheritorsExtractor,
@@ -739,6 +739,14 @@ Creating pages\: *[0-9]+
 Transforming pages\: *[0-9]+
 Rendering\: *[0-9]+
 WARNING\: unable to find what is referred to by
+@param _value
+in DClass ObservableWatchData
+@param currentUserStyleRepository,
+@param watchState
+in DClass Renderer
+@param bounds
+in DClass Complication
+in DClass ComplicationSlot
 @param maxSlotsToRetainForReuse
 in DClass SubcomposeLayoutState
 @param initVal
@@ -880,6 +888,12 @@ in DClass PointerId
 @param downChange
 in DClass ConsumedData
 @param id,
+@param canvasComplicationFactory,
+@param supportedTypes,
+@param defaultProviderPolicy,
+@param boundsType,
+@param bounds,
+@param complicationTapFilter
 @param uptimeMillis,
 @param position,
 @param pressed,
@@ -1082,8 +1096,7 @@ Unknown flag --class-dir: Use --help for usage information
 Scanning .+: \.*
 \.+
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
-\$SUPPORT/compose/ui/ui\-tooling/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-.*Unknown issue id.*
+\$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 No issues found.*
 Incorrect detector reported disabled issue.*
 Scanning .* \(Phase 2\):
@@ -1091,6 +1104,12 @@ dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see
 # > Task :camera:camera-camera2-pipe:reportLibraryMetrics
 Info: Stripped invalid locals information from [0-9]+ methods\.
 Info: Methods with invalid locals information:
+java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\.openComplicationProviderChooser\$suspendImpl\(androidx\.wear\.watchface\.editor\.BaseEditorSession, int, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.DraggableKt\$draggable\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Type information in locals\-table is inconsistent\. Cannot constrain type: @Nullable androidx\.compose\.foundation\.gestures\.DragLogic \{\} for value: v[0-9]+\(\$this\$invokeSuspend_u[0-9]+lambda_u[0-9]+d[0-9]+\) by constraint INT\.
+java\.lang\.Object androidx\.compose\.ui\.platform\.GlobalSnapshotManager\$ensureStarted\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.wear\.watchface\.WatchFaceService\$EngineWrapper\.createWatchFaceImpl\(android\.icu\.util\.Calendar, androidx\.wear\.watchface\.ComplicationSlotsManager, androidx\.wear\.watchface\.style\.CurrentUserStyleRepository, kotlinx\.coroutines\.CompletableDeferred, kotlinx\.coroutines\.CompletableDeferred, androidx\.wear\.watchface\.WatchState, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.wear\.watchface\.WatchFaceService\$EngineWrapper\.setUserStyle\$wear_watchface_release\(androidx\.wear\.watchface\.style\.data\.UserStyleWireFormat, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\$fetchComplicationsData\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.CameraDevicesKt\$find\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.VirtualCameraManager\$requestLoop\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
@@ -1130,3 +1149,17 @@ Stripped invalid locals information from [0-9]+ method\.
 java\.lang\.Object androidx\.compose\.foundation\.demos\.ListDemosKt\$ListHoistedStateDemo\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 # > Task :compose:runtime:runtime-saveable-lint:compileKotlin
 at org\.jetbrains\.kotlin\.compilerRunner\.GradleCompilerRunnerWithWorkers\$GradleKotlinCompilerWorkAction\.execute\(GradleCompilerRunnerWithWorkers\.kt\:[0-9]+\)
+# > Task :buildSrc:jetpad-integration:compileJava
+Could not store entry [0-9a-f]{32} in remote build cache: Storing entry at 'http://gradle\-remote\-cache\.uplink\.goog:[0-9]+/cache/[0-9a-f]{32}' response status [0-9]+: Uplink Bad Gateway
+# > Task :profileinstaller:profileinstaller-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/profileinstaller/profileinstaller\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+WARNING:Software Components will not be created automatically for Maven publishing from Android Gradle Plugin 8\.0\..*
+# > Task :wear:wear-watchface:compileReleaseKotlin
+w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/WatchFaceService\.kt: \([0-9]+, [0-9]+\): Parameter 'surfaceHolder' is never used
+# > Task :lint-checks:integration-tests:copyDebugAndroidLintReports
+Copying lint text report to .*
+# > Task :wear:compose:compose-material-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/wear/compose/material/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Configure project :ads-identifier
+WARNING\:The option setting \'android\.experimental\.enableArtProfiles\=true\' is experimental\.
+The current default is \'false\'\.

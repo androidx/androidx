@@ -26,11 +26,9 @@ import android.os.RemoteException;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
@@ -39,7 +37,6 @@ import androidx.car.app.utils.RemoteUtils;
  *
  * @hide
  */
-@OptIn(markerClass = ExperimentalCarApi.class)
 @RestrictTo(LIBRARY)
 public class InputCallbackDelegateImpl implements InputCallbackDelegate {
     @Keep

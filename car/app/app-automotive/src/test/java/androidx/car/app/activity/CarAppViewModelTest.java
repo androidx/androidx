@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
 import android.content.ComponentName;
@@ -33,6 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Tests for {@link CarAppViewModel} */
 @RunWith(RobolectricTestRunner.class)
@@ -45,52 +47,91 @@ public class CarAppViewModelTest {
 
     private final Application mApplication = ApplicationProvider.getApplicationContext();
     private CarAppViewModel mCarAppViewModel;
+    private CarAppActivity mCarAppActivity = mock(CarAppActivity.class);
     private ICarAppActivity mICarAppActivity;
+    private ShadowLooper mMainLooper;
+    private final ServiceConnectionManager mServiceConnectionManager =
+            mock(ServiceConnectionManager.class);
 
     @Before
     public void setUp() {
         mCarAppViewModel = new CarAppViewModel(mApplication, TEST_COMPONENT_NAME);
+        mCarAppViewModel.setActivity(mCarAppActivity);
         mICarAppActivity = mock(ICarAppActivity.class);
+        mMainLooper = shadowOf(mApplication.getMainLooper());
     }
 
     @Test
-    public void testSetup() {
+    public void constructor() {
         assertThat(mCarAppViewModel.getServiceConnectionManager()).isNotNull();
         assertThat(mCarAppViewModel.getServiceConnectionManager().getServiceComponentName())
                 .isEqualTo(TEST_COMPONENT_NAME);
         assertThat(mCarAppViewModel.getServiceDispatcher()).isNotNull();
+        assertThat(mCarAppViewModel.getError().getValue()).isNull();
+        assertThat(mCarAppViewModel.getState().getValue()).isEqualTo(CarAppViewModel.State.IDLE);
     }
 
     @Test
-    public void testBind_serviceConnectionManager_invoke() {
-        ServiceConnectionManager serviceConnectionManager = mock(ServiceConnectionManager.class);
-        mCarAppViewModel.setServiceConnectionManager(serviceConnectionManager);
+    public void bind_startsConnection() {
+        mCarAppViewModel.setServiceConnectionManager(mServiceConnectionManager);
         mCarAppViewModel.bind(TEST_INTENT, mICarAppActivity, TEST_DISPLAY_ID);
 
-        verify(serviceConnectionManager).bind(TEST_INTENT, mICarAppActivity, TEST_DISPLAY_ID);
+        verify(mServiceConnectionManager).bind(TEST_INTENT, mICarAppActivity, TEST_DISPLAY_ID);
+
+        mMainLooper.idle();
+
+        assertThat(mCarAppViewModel.getState().getValue())
+                .isEqualTo(CarAppViewModel.State.CONNECTING);
     }
 
     @Test
-    public void testUnbind_serviceConnectionManager_invoke() {
-        ServiceConnectionManager serviceConnectionManager = mock(ServiceConnectionManager.class);
-        mCarAppViewModel.setServiceConnectionManager(serviceConnectionManager);
+    public void unbind_disconnects() {
+        mCarAppViewModel.setServiceConnectionManager(mServiceConnectionManager);
         mCarAppViewModel.unbind();
 
-        verify(serviceConnectionManager).unbind();
+        verify(mServiceConnectionManager).unbind();
+
+        mMainLooper.idle();
+
+        assertThat(mCarAppViewModel.getState().getValue()).isEqualTo(CarAppViewModel.State.IDLE);
     }
 
     @Test
-    public void testErrorHandler_capturesErrorEvent() {
-        ErrorHandler.ErrorType errorType = ErrorHandler.ErrorType.HOST_ERROR;
-        Throwable exception = new IllegalStateException();
+    public void onError_unbinds() {
+        mCarAppViewModel.setServiceConnectionManager(mServiceConnectionManager);
+        mCarAppViewModel.onError(ErrorHandler.ErrorType.HOST_ERROR);
 
-        ErrorHandler errorHandler =
-                mCarAppViewModel.getServiceConnectionManager().getErrorHandler();
-        errorHandler.onError(errorType, exception);
+        verify(mServiceConnectionManager).unbind();
 
-        CarAppViewModel.ErrorEvent errorEvent = mCarAppViewModel.getErrorEvent().getValue();
-        assertThat(errorEvent).isNotNull();
-        assertThat(errorEvent.getErrorType()).isEqualTo(errorType);
-        assertThat(errorEvent.getException()).isEqualTo(exception);
+        mMainLooper.idle();
+
+        assertThat(mCarAppViewModel.getState().getValue()).isEqualTo(CarAppViewModel.State.ERROR);
+        assertThat(mCarAppViewModel.getError().getValue())
+                .isEqualTo(ErrorHandler.ErrorType.HOST_ERROR);
+    }
+
+    @Test
+    public void onConnect_clearsError() {
+        mCarAppViewModel.onConnect();
+
+        mMainLooper.idle();
+
+        assertThat(mCarAppViewModel.getState().getValue())
+                .isEqualTo(CarAppViewModel.State.CONNECTED);
+        assertThat(mCarAppViewModel.getError().getValue()).isNull();
+    }
+
+    @Test
+    public void retryBind_clearsErrorAndBinds() {
+        mCarAppViewModel.setServiceConnectionManager(mServiceConnectionManager);
+        mCarAppViewModel.retryBinding();
+
+        verify(mCarAppActivity).recreate();
+
+        mMainLooper.idle();
+
+        assertThat(mCarAppViewModel.getState().getValue())
+                .isEqualTo(CarAppViewModel.State.CONNECTING);
+        assertThat(mCarAppViewModel.getError().getValue()).isNull();
     }
 }

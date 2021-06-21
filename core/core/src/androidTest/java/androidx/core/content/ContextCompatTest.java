@@ -445,7 +445,7 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         return ((size * tdensity) + (sdensity >> 1)) / sdensity;
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void testCheckSelfPermissionNull() {
         ContextCompat.checkSelfPermission(mContext, null);
     }

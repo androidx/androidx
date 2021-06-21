@@ -63,19 +63,20 @@ public class DelegatingWorkerFactory extends WorkerFactory {
 
     @Override
     @Nullable
-    public final ListenableWorker createWorker(@NonNull Context context,
-            @NonNull String workerClass, @NonNull WorkerParameters parameters) {
+    public final ListenableWorker createWorker(@NonNull Context appContext,
+            @NonNull String workerClassName, @NonNull WorkerParameters workerParameters) {
 
         for (WorkerFactory factory : mFactories) {
             try {
                 ListenableWorker worker = factory.createWorker(
-                        context, workerClass, parameters);
+                        appContext, workerClassName, workerParameters);
                 if (worker != null) {
                     return worker;
                 }
             } catch (Throwable throwable) {
                 String message =
-                        String.format("Unable to instantiate a ListenableWorker (%s)", workerClass);
+                        String.format("Unable to instantiate a ListenableWorker (%s)",
+                                workerClassName);
                 Logger.get().error(TAG, message, throwable);
                 throw throwable;
             }

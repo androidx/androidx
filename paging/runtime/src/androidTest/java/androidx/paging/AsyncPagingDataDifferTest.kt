@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.MainDispatcherRule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -112,6 +113,7 @@ class AsyncPagingDataDifferTest {
         workerDispatcher = Dispatchers.Main
     )
 
+    @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
     fun performDiff_fastPathLoadStates() = testScope.runBlockingTest {
         val loadEvents = mutableListOf<CombinedLoadStates>()
@@ -168,6 +170,7 @@ class AsyncPagingDataDifferTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
     fun performDiff_fastPathLoadStatesFlow() = testScope.runBlockingTest {
         val loadEvents = mutableListOf<CombinedLoadStates>()
@@ -368,6 +371,7 @@ class AsyncPagingDataDifferTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
     fun submitData_guaranteesOrder() = testScope.runBlockingTest {
         val pager = Pager(config = PagingConfig(2, enablePlaceholders = false), initialKey = 50) {
@@ -447,6 +451,7 @@ class AsyncPagingDataDifferTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
     fun submitData_doesNotCancelCollectionsCoroutine() = testScope.runBlockingTest {
         lateinit var source1: TestPagingSource
@@ -508,6 +513,7 @@ class AsyncPagingDataDifferTest {
         job2.cancelAndJoin()
     }
 
+    @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
     fun loadStateFlowSynchronouslyUpdates() = testScope.runBlockingTest {
         var combinedLoadStates: CombinedLoadStates? = null

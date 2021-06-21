@@ -16,9 +16,11 @@
 
 package androidx.datastore.migrations
 
-import android.annotation.SuppressLint
+import androidx.annotation.DoNotInline
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.datastore.core.DataMigration
 import java.io.File
 import java.io.IOException
@@ -173,23 +175,20 @@ private constructor(
         keySet.clear()
     }
 
-    // TODO(b/170429111): Fix the unsafe new API call.
-    @SuppressLint("UnsafeNewApiCall")
     private fun deleteSharedPreferences(context: Context, name: String) {
-        if (android.os.Build.VERSION.SDK_INT >= 24) {
-            if (!context.deleteSharedPreferences(name)) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            if (!Api24Impl.deleteSharedPreferences(context, name)) {
                 throw IOException("Unable to delete SharedPreferences: $name")
             }
-            return
+        } else {
+            // Context.deleteSharedPreferences is SDK 24+, so we have to reproduce the definition
+            val prefsFile = getSharedPrefsFile(context, name)
+            val prefsBackup = getSharedPrefsBackup(prefsFile)
+
+            // Silently continue if we aren't able to delete the Shared Preferences File.
+            prefsFile.delete()
+            prefsBackup.delete()
         }
-
-        // Context.deleteSharedPreferences is SDK 24+, so we have to reproduce the definition
-        val prefsFile = getSharedPrefsFile(context, name)
-        val prefsBackup = getSharedPrefsBackup(prefsFile)
-
-        // Silently continue if we aren't able to delete the Shared Preferences File.
-        prefsFile.delete()
-        prefsBackup.delete()
     }
 
     // ContextImpl.getSharedPreferencesPath is private, so we have to reproduce the definition
@@ -200,6 +199,15 @@ private constructor(
 
     // SharedPreferencesImpl.makeBackupFile is private, so we have to reproduce the definition
     private fun getSharedPrefsBackup(prefsFile: File) = File(prefsFile.path + ".bak")
+
+    @RequiresApi(24)
+    private object Api24Impl {
+        @JvmStatic
+        @DoNotInline
+        fun deleteSharedPreferences(context: Context, name: String): Boolean {
+            return context.deleteSharedPreferences(name)
+        }
+    }
 }
 
 /**

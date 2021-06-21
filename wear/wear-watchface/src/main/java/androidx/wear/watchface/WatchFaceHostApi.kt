@@ -45,7 +45,7 @@ public interface WatchFaceHostApi {
 
     /**
      * Sets ContentDescriptionLabels for text-to-speech screen readers to make your
-     * complications, buttons, and any other text on your watchface accessible.
+     * [ComplicationSlot]s, buttons, and any other text on your watchface accessible.
      *
      * Each label is a region of the screen in absolute coordinates, along with
      * time-dependent text. The regions must not overlap.
@@ -53,7 +53,7 @@ public interface WatchFaceHostApi {
      * You must set all labels at the same time; previous labels will be cleared. An empty
      * array clears all labels.
      *
-     * In addition to labeling your complications, please include a label that will read the
+     * In addition to labeling your [ComplicationSlot]s, please include a label that will read the
      * current time. You can use [android.support.wearable.watchface.accessibility
      * .AccessibilityUtils.makeTimeAsComplicationText] to generate the proper
      * [android.support.wearable.complications.ComplicationText].
@@ -64,10 +64,10 @@ public interface WatchFaceHostApi {
     public fun updateContentDescriptionLabels()
 
     /**
-     * Sets the complications which are active in the watchface. Complication data will be
-     * received for these ids.
+     * Sets the complicationSlots which are active in the watchface. ComplicationSlot data will be
+     * received for these ids. This is to support the pre-android R flow.
      *
-     * Any ids not in the provided [watchFaceComplicationIds] will be considered inactive.
+     * Any ids not in the provided [complicationSlotIds] will be considered inactive.
      *
      * If providers and complication data types have been configured, the data received will
      * match the type chosen by the user. If no provider has been configured, data of type
@@ -76,17 +76,17 @@ public interface WatchFaceHostApi {
      * Ids here are chosen by the watch face to represent each complication and can be any
      * integer.
      */
-    public fun setActiveComplications(watchFaceComplicationIds: IntArray)
+    public fun setActiveComplicationSlots(complicationSlotIds: IntArray)
 
     /**
      * Accepts a list of custom providers to attempt to set as the default provider for the
-     * specified watch face complication id. The custom providers are tried in turn, if the
+     * specified watch face [ComplicationSlot] id. The custom providers are tried in turn, if the
      * first doesn't exist then the next one is tried and so on. If none of them exist then the
      * specified system provider is set as the default instead.
      *
      * This will do nothing if the providers are not installed, or if the specified type is
      * not supported by the providers, or if the user has already selected a provider for the
-     * complication.
+     * [ComplicationSlot].
      *
      * Note that if the watch face has not yet been granted the `RECEIVE_COMPLICATION_DATA`
      * permission, it will not be able to receive data from the provider unless the provider is
@@ -99,7 +99,7 @@ public interface WatchFaceHostApi {
      * this method, but the watch face will receive placeholder data of type
      * [ComplicationData.TYPE_NO_PERMISSION] until the permission has been granted.
      *
-     * @param watchFaceComplicationId The watch face's ID for the complication
+     * @param complicationSlotId The [ComplicationSlot] id.
      * @param providers The list of non-system providers to try in order before falling back to
      * fallbackSystemProvider. This list may be null.
      * @param fallbackSystemProvider The system provider to use if none of the providers could be
@@ -108,7 +108,7 @@ public interface WatchFaceHostApi {
      * defined in [ComplicationData].
      */
     public fun setDefaultComplicationProviderWithFallbacks(
-        watchFaceComplicationId: Int,
+        complicationSlotId: Int,
         providers: List<ComponentName>?,
         @ProviderId fallbackSystemProvider: Int,
         type: Int
@@ -117,7 +117,4 @@ public interface WatchFaceHostApi {
     /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */
     @UiThread
     public fun invalidate()
-
-    /** Signals a style change has occurred. */
-    public fun onUserStyleChanged()
 }

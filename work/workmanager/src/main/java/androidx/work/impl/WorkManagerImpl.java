@@ -367,15 +367,15 @@ public class WorkManagerImpl extends WorkManager {
     @Override
     @NonNull
     public Operation enqueue(
-            @NonNull List<? extends WorkRequest> workRequests) {
+            @NonNull List<? extends WorkRequest> requests) {
 
         // This error is not being propagated as part of the Operation, as we want the
         // app to crash during development. Having no workRequests is always a developer error.
-        if (workRequests.isEmpty()) {
+        if (requests.isEmpty()) {
             throw new IllegalArgumentException(
                     "enqueue needs at least one WorkRequest.");
         }
-        return new WorkContinuationImpl(this, workRequests).enqueue();
+        return new WorkContinuationImpl(this, requests).enqueue();
     }
 
     @Override
@@ -554,10 +554,11 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     @NonNull
-    public LiveData<List<WorkInfo>> getWorkInfosForUniqueWorkLiveData(@NonNull String name) {
+    public LiveData<List<WorkInfo>> getWorkInfosForUniqueWorkLiveData(
+            @NonNull String uniqueWorkName) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
-                workSpecDao.getWorkStatusPojoLiveDataForName(name);
+                workSpecDao.getWorkStatusPojoLiveDataForName(uniqueWorkName);
         return LiveDataUtils.dedupedMappedLiveDataFor(
                 inputLiveData,
                 WorkSpec.WORK_INFO_MAPPER,
@@ -566,9 +567,10 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     @NonNull
-    public ListenableFuture<List<WorkInfo>> getWorkInfosForUniqueWork(@NonNull String name) {
+    public ListenableFuture<List<WorkInfo>> getWorkInfosForUniqueWork(
+            @NonNull String uniqueWorkName) {
         StatusRunnable<List<WorkInfo>> runnable =
-                StatusRunnable.forUniqueWork(this, name);
+                StatusRunnable.forUniqueWork(this, uniqueWorkName);
         mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
         return runnable.getFuture();
     }

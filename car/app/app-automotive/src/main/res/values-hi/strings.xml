@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_action_finish" msgid="7621130025103996211">"ऐप्लिकेशन बंद करें"</string>
+    <string name="error_action_update_host" msgid="4802951804749609593">"अपडेट देखें"</string>
+    <string name="error_action_retry" msgid="985347670495166517">"फिर से कोशिश करें"</string>
+    <string name="error_message_client_side_error" msgid="3323186720368387787">"ऐप्लिकेशन में गड़बड़ी है. कृपया इस गड़बड़ी की शिकायत ऐप्लिकेशन डेवलपर से करें"</string>
+    <string name="error_message_host_error" msgid="5484419926049675696">"सिस्टम की गड़बड़ी"</string>
+    <string name="error_message_host_connection_lost" msgid="5723205987837759151">"सिस्टम कुछ समय के लिए उपलब्ध नहीं है"</string>
+    <string name="error_message_host_not_found" msgid="3241065067065670113">"सिस्टम को अपडेट करने की ज़रूरत है"</string>
+    <string name="error_message_host_incompatible" msgid="160406216155183851">"सिस्टम को अपडेट करने की ज़रूरत है"</string>
+    <string name="error_message_multiple_hosts" msgid="2591031904206928207">"कई होस्ट होने की वजह से सिस्टम काम नहीं कर रहा है"</string>
+    <string name="error_message_unknown_error" msgid="1918523834689044166">"सिस्टम इस गड़बड़ी को नहीं पहचान पाया"</string>
+</resources>

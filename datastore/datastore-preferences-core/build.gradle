@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.BundleInsideHelper
 import androidx.build.LibraryGroups
 import androidx.build.Publish
@@ -35,12 +34,12 @@ dependencies {
             path: ":datastore:datastore-preferences-core:datastore-preferences-proto",
             configuration: "export"
     ))
-    api(KOTLIN_STDLIB)
+    api(libs.kotlinStdlib)
     api(project(":datastore:datastore-core"))
 
-    testImplementation(JUNIT)
-    testImplementation(KOTLIN_COROUTINES_TEST)
-    testImplementation(KOTLIN_TEST)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinTest)
 }
 
 androidx {

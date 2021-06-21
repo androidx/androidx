@@ -23,8 +23,7 @@ import androidx.navigation.get
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,15 +46,12 @@ class TestNavigatorDestinationBuilderTest {
         val graph = navHostFragment.createGraph(startDestination = DESTINATION_ID) {
             fragment<BuilderTestFragment>(DESTINATION_ID)
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ID in graph
-        )
-        assertEquals(
-            "Fragment class should be set to BuilderTestFragment",
-            BuilderTestFragment::class.java.name,
-            (graph[DESTINATION_ID] as FragmentNavigator.Destination).className
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
+        assertWithMessage("Fragment class should be set to BuilderTestFragment")
+            .that((graph[DESTINATION_ID] as FragmentNavigator.Destination).className)
+            .isEqualTo(BuilderTestFragment::class.java.name)
     }
 
     @Suppress("DEPRECATION")
@@ -70,19 +66,15 @@ class TestNavigatorDestinationBuilderTest {
                 label = LABEL
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ID in graph
-        )
-        assertEquals(
-            "Fragment class should be set to BuilderTestFragment",
-            BuilderTestFragment::class.java.name,
-            (graph[DESTINATION_ID] as FragmentNavigator.Destination).className
-        )
-        assertEquals(
-            "Fragment should have label set",
-            LABEL, graph[DESTINATION_ID].label
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
+        assertWithMessage("Fragment class should be set to BuilderTestFragment")
+            .that((graph[DESTINATION_ID] as FragmentNavigator.Destination).className)
+            .isEqualTo(BuilderTestFragment::class.java.name)
+        assertWithMessage("Fragment should have label set")
+            .that(graph[DESTINATION_ID].label)
+            .isEqualTo(LABEL)
     }
 
     @UiThreadTest
@@ -94,15 +86,12 @@ class TestNavigatorDestinationBuilderTest {
         val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
             fragment<BuilderTestFragment>(DESTINATION_ROUTE)
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ROUTE in graph
-        )
-        assertEquals(
-            "Fragment class should be set to BuilderTestFragment",
-            BuilderTestFragment::class.java.name,
-            (graph[DESTINATION_ROUTE] as FragmentNavigator.Destination).className
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("Fragment class should be set to BuilderTestFragment")
+            .that((graph[DESTINATION_ROUTE] as FragmentNavigator.Destination).className)
+            .isEqualTo(BuilderTestFragment::class.java.name)
     }
 
     @UiThreadTest
@@ -116,19 +105,15 @@ class TestNavigatorDestinationBuilderTest {
                 label = LABEL
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ROUTE in graph
-        )
-        assertEquals(
-            "Fragment class should be set to BuilderTestFragment",
-            BuilderTestFragment::class.java.name,
-            (graph[DESTINATION_ROUTE] as FragmentNavigator.Destination).className
-        )
-        assertEquals(
-            "Fragment should have label set",
-            LABEL, graph[DESTINATION_ROUTE].label
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("Fragment class should be set to BuilderTestFragment")
+            .that((graph[DESTINATION_ROUTE] as FragmentNavigator.Destination).className)
+            .isEqualTo(BuilderTestFragment::class.java.name)
+        assertWithMessage("Fragment should have label set")
+            .that(graph[DESTINATION_ROUTE].label)
+            .isEqualTo(LABEL)
     }
 }
 

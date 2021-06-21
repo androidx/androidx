@@ -15,10 +15,16 @@
  */
 package androidx.car.app.hardware.info;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.OnCarDataListener;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 
 /**
@@ -27,95 +33,131 @@ import java.util.concurrent.Executor;
  */
 @RequiresCarApi(3)
 public interface CarSensors {
+
+    /**
+     * Defines the possible update rates that properties, sensors, and actions can be requested
+     * with.
+     *
+     * @hide
+     */
+    @IntDef({
+            UPDATE_RATE_NORMAL,
+            UPDATE_RATE_UI,
+            UPDATE_RATE_FASTEST,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY)
+    @interface UpdateRate {
+    }
+
+    /**
+     * Car hardware info, sensor, or action should be fetched at its default rate.
+     */
+    @UpdateRate
+    int UPDATE_RATE_NORMAL = 1;
+
+    /**
+     * Car hardware property, sensor, or action should be fetched at a rate consistent with
+     * drawing UI to a screen.
+     */
+    @UpdateRate
+    int UPDATE_RATE_UI = 2;
+
+    /**
+     * Car hardware property, sensor, or action should be fetched at its fastest possible rate.
+     */
+    @UpdateRate
+    int UPDATE_RATE_FASTEST = 3;
+
     /**
      * Setup an ongoing listener to receive {@link Accelerometer} data from the car hardware.
      *
-     * <p>If the listener was added previously then previous params are updated with the new params.
-     *
-     * @param params   the parameters for this request. Use {@link Accelerometer.Params#getDefault}
-     *                 as a default
+     * @param rate     the maximum rate at which the data will be returned through the provided
+     *                 listener. You may use {@link #UPDATE_RATE_NORMAL} as a good default in most
+     *                 cases
      * @param executor the executor which will be used for invoking the listener
-     * @param listener the listener to use
+     * @param listener the listener that will be invoked when data is available. If the listener
+     *                 was added previously then previous rate is updated with the new rate.
      */
-    void addAccelerometerListener(@NonNull Accelerometer.Params params,
-            @NonNull Executor executor,
+    void addAccelerometerListener(@UpdateRate int rate,
+            @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<Accelerometer> listener);
 
     /**
      * Remove an ongoing listener for {@link Accelerometer} information.
      *
-     * <p>If the listener is not currently added, this call will be ignored.
-     *
-     * @param listener the listener to use
+     * @param listener the listener to remove. If the listener is not currently added, then nothing
+     *                 will be removed.
      */
     void removeAccelerometerListener(@NonNull OnCarDataListener<Accelerometer> listener);
 
     /**
      * Setup an ongoing listener to receive {@link Gyroscope} data from the car hardware.
      *
-     * <p>If the listener was added previously then previous params are updated with the new params.
-     *
-     * @param params   the parameters for this request. Use {@link Gyroscope.Params#getDefault}
-     *                 as a default
+     * @param rate     the maximum rate at which the data will be returned through the provided
+     *                 listener. You may use {@link #UPDATE_RATE_NORMAL} as a good default in most
+     *                 cases
      * @param executor the executor which will be used for invoking the listener
-     * @param listener the listener to use
+     * @param listener the listener that will be invoked when data is available. If the listener
+     *                 was added previously then previous rate is updated with the new rate.
      */
-    void addGyroscopeListener(@NonNull Gyroscope.Params params,
-            @NonNull Executor executor,
+    void addGyroscopeListener(@UpdateRate int rate,
+            @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<Gyroscope> listener);
 
     /**
      * Remove an ongoing listener for {@link Gyroscope} information.
      *
-     * <p>If the listener is not currently added, this call will be ignored.
-     *
-     * @param listener the listener to use
+     * @param listener the listener to remove. If the listener is not currently added, then nothing
+     *                 will be removed.
      */
     void removeGyroscopeListener(@NonNull OnCarDataListener<Gyroscope> listener);
 
     /**
      * Setup an ongoing listener to receive {@link Compass} data from the car hardware.
      *
-     * <p>If the listener was added previously then previous params are updated with the new params.
+     * <p>If the listener was added previously then previous rate is updated with the new rate.
      *
-     * @param params   the parameters for this request. Use {@link Compass.Params#getDefault}
-     *                 as a default
+     * @param rate     the maximum rate at which the data will be returned through the provided
+     *                 listener. You may use {@link #UPDATE_RATE_NORMAL} as a good default in most
+     *                 cases
      * @param executor the executor which will be used for invoking the listener
-     * @param listener the listener to use
+     * @param listener the listener that will be invoked when data is available. If the listener
+     *                 was added previously then previous rate is updated with the new rate.
      */
-    void addCompassListener(@NonNull Compass.Params params,
-            @NonNull Executor executor,
+    void addCompassListener(@UpdateRate int rate,
+            @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<Compass> listener);
 
     /**
      * Remove an ongoing listener for {@link Compass} information.
      *
-     * <p>If the listener is not currently added, this call will be ignored.
-     *
-     * @param listener the listener to use
+     * @param listener the listener to remove. If the listener is not currently added, then nothing
+     *                 will be removed.
      */
     void removeCompassListener(@NonNull OnCarDataListener<Compass> listener);
 
     /**
      * Setup an ongoing listener to receive {@link CarHardwareLocation} data from the car hardware.
      *
-     * <p>If the listener was added previously then previous params are updated with the new params.
+     * <p>If the listener was added previously then previous rate is updated with the new rate.
      *
-     * @param params   the parameters for this request. Use
-     *                 {@link CarHardwareLocation.Params#getDefault}  as a default
+     * @param rate     the maximum rate at which the data will be returned through the provided
+     *                 listener. You may use {@link #UPDATE_RATE_NORMAL} as a good default in most
+     *                 cases
      * @param executor the executor which will be used for invoking the listener
-     * @param listener the listener to use
+     * @param listener the listener that will be invoked when data is available. If the listener
+     *                 was added previously then previous rate is updated with the new rate.
      */
-    void addCarHardwareLocationListener(@NonNull CarHardwareLocation.Params params,
-            @NonNull Executor executor,
+    void addCarHardwareLocationListener(@UpdateRate int rate,
+            @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<CarHardwareLocation> listener);
 
     /**
      * Remove an ongoing listener for {@link CarHardwareLocation} information.
      *
-     * <p>If the listener is not currently added, this call will be ignored.
-     *
-     * @param listener the listener to use
+     * @param listener the listener to remove. If the listener is not currently added, then nothing
+     *                 will be removed.
      */
     void removeCarHardwareLocationListener(
             @NonNull OnCarDataListener<CarHardwareLocation> listener);

@@ -57,10 +57,10 @@ public class ComplicationProviderServiceTest {
     private IComplicationManager mRemoteManager;
     private IComplicationManager.Stub mLocalManager = new IComplicationManager.Stub() {
         @Override
-        public void updateComplicationData(int complicationId,
+        public void updateComplicationData(int complicationSlotId,
                 android.support.wearable.complications.ComplicationData data)
                 throws RemoteException {
-            mRemoteManager.updateComplicationData(complicationId, data);
+            mRemoteManager.updateComplicationData(complicationSlotId, data);
         }
     };
 
@@ -77,7 +77,7 @@ public class ComplicationProviderServiceTest {
                 listener.onComplicationData(
                         new LongTextComplicationData.Builder(
                                 new PlainComplicationText.Builder(
-                                        "hello " + request.getComplicationId()
+                                        "hello " + request.getComplicationInstanceId()
                                 ).build(),
                                 ComplicationText.EMPTY
                         ).build()

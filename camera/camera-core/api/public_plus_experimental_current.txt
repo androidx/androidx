@@ -36,6 +36,7 @@ package androidx.camera.core {
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
     method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method public boolean hasFlashUnit();
+    method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
   }
 
   public final class CameraInfoUnavailableException extends java.lang.Exception {
@@ -113,17 +114,19 @@ package androidx.camera.core {
   }
 
   public final class CameraXConfig {
-    method @androidx.camera.core.ExperimentalAvailableCamerasLimiter public androidx.camera.core.CameraSelector? getAvailableCamerasLimiter(androidx.camera.core.CameraSelector?);
-    method @androidx.camera.core.ExperimentalLogging public int getMinimumLoggingLevel();
+    method public androidx.camera.core.CameraSelector? getAvailableCamerasLimiter(androidx.camera.core.CameraSelector?);
+    method public java.util.concurrent.Executor? getCameraExecutor(java.util.concurrent.Executor?);
+    method public int getMinimumLoggingLevel();
+    method public android.os.Handler? getSchedulerHandler(android.os.Handler?);
   }
 
   public static final class CameraXConfig.Builder {
     method public androidx.camera.core.CameraXConfig build();
     method public static androidx.camera.core.CameraXConfig.Builder fromConfig(androidx.camera.core.CameraXConfig);
-    method @androidx.camera.core.ExperimentalAvailableCamerasLimiter public androidx.camera.core.CameraXConfig.Builder setAvailableCamerasLimiter(androidx.camera.core.CameraSelector);
+    method public androidx.camera.core.CameraXConfig.Builder setAvailableCamerasLimiter(androidx.camera.core.CameraSelector);
     method public androidx.camera.core.CameraXConfig.Builder setCameraExecutor(java.util.concurrent.Executor);
-    method @androidx.camera.core.ExperimentalLogging public androidx.camera.core.CameraXConfig.Builder setMinimumLoggingLevel(@IntRange(from=android.util.Log.DEBUG, to=android.util.Log.ERROR) int);
-    method @androidx.camera.core.ExperimentalCustomizableThreads public androidx.camera.core.CameraXConfig.Builder setSchedulerHandler(android.os.Handler);
+    method public androidx.camera.core.CameraXConfig.Builder setMinimumLoggingLevel(@IntRange(from=android.util.Log.DEBUG, to=android.util.Log.ERROR) int);
+    method public androidx.camera.core.CameraXConfig.Builder setSchedulerHandler(android.os.Handler);
   }
 
   public static interface CameraXConfig.Provider {
@@ -134,16 +137,7 @@ package androidx.camera.core {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
   }
 
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAvailableCamerasLimiter {
-  }
-
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCustomizableThreads {
-  }
-
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
-  }
-
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLogging {
   }
 
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroup {

@@ -83,10 +83,10 @@ class FlowAsLiveDataTest {
         var closeCalled = false
         val ld = callbackFlow {
             testScope.launch {
-                offer(1)
-                offer(2)
+                trySend(1)
+                trySend(2)
                 delay(1000)
-                offer(3)
+                trySend(3)
             }
             awaitClose {
                 closeCalled = true

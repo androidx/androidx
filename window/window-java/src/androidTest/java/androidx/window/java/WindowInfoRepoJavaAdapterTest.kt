@@ -42,10 +42,10 @@ public class WindowInfoRepoJavaAdapterTest {
     public fun testCurrentWindowMetrics_delegatesToRepo() {
         val expected = WindowMetrics(Rect(0, 1, 2, 3))
         val mockRepo = mock<WindowInfoRepo>()
-        whenever(mockRepo.currentWindowMetrics()).thenReturn(expected)
+        whenever(mockRepo.currentWindowMetrics).thenReturn(expected)
         val unitUnderTest = WindowInfoRepoJavaAdapter(mockRepo)
 
-        val acutal = unitUnderTest.currentWindowMetrics()
+        val acutal = unitUnderTest.currentWindowMetrics
 
         assertEquals(expected, acutal)
     }
@@ -54,10 +54,10 @@ public class WindowInfoRepoJavaAdapterTest {
     public fun testMaximumWindowMetrics_delegatesToRepo() {
         val expected = WindowMetrics(Rect(0, 1, 2, 3))
         val mockRepo = mock<WindowInfoRepo>()
-        whenever(mockRepo.maximumWindowMetrics()).thenReturn(expected)
+        whenever(mockRepo.maximumWindowMetrics).thenReturn(expected)
         val unitUnderTest = WindowInfoRepoJavaAdapter(mockRepo)
 
-        val acutal = unitUnderTest.maximumWindowMetrics()
+        val acutal = unitUnderTest.maximumWindowMetrics
 
         assertEquals(expected, acutal)
     }
@@ -71,7 +71,7 @@ public class WindowInfoRepoJavaAdapterTest {
         )
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepo>()
-        whenever(mockRepo.windowLayoutInfo()).thenReturn(flowOf(expected))
+        whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
         val unitUnderTest = WindowInfoRepoJavaAdapter(mockRepo)
         val testConsumer = TestConsumer<WindowLayoutInfo>()
 
@@ -89,7 +89,7 @@ public class WindowInfoRepoJavaAdapterTest {
         )
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepo>()
-        whenever(mockRepo.windowLayoutInfo()).thenReturn(flowOf(expected))
+        whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
         val unitUnderTest = WindowInfoRepoJavaAdapter(mockRepo)
         val testConsumer = TestConsumer<WindowLayoutInfo>()
 
@@ -110,14 +110,14 @@ public class WindowInfoRepoJavaAdapterTest {
         val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepo>()
         val channel = Channel<WindowLayoutInfo>()
-        whenever(mockRepo.windowLayoutInfo()).thenReturn(channel.receiveAsFlow())
+        whenever(mockRepo.windowLayoutInfo).thenReturn(channel.receiveAsFlow())
         val unitUnderTest = WindowInfoRepoJavaAdapter(mockRepo)
         val testConsumer = TestConsumer<WindowLayoutInfo>()
 
         unitUnderTest.addWindowLayoutInfoListener(Runnable::run, testConsumer)
         unitUnderTest.addWindowLayoutInfoListener(Runnable::run, mock())
         unitUnderTest.removeWindowLayoutInfoListener(testConsumer)
-        val accepted = channel.offer(info)
+        val accepted = channel.trySend(info).isSuccess
 
         assertTrue(accepted)
         testConsumer.assertEmpty()

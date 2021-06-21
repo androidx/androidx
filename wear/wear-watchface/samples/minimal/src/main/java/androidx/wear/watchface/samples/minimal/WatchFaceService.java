@@ -19,7 +19,7 @@ package androidx.wear.watchface.samples.minimal;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
-import androidx.wear.watchface.ComplicationsManager;
+import androidx.wear.watchface.ComplicationSlotsManager;
 import androidx.wear.watchface.ListenableWatchFaceService;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
@@ -39,7 +39,7 @@ public class WatchFaceService extends ListenableWatchFaceService {
     @Override
     protected ListenableFuture<WatchFace> createWatchFaceFuture(
             @NotNull SurfaceHolder surfaceHolder, @NotNull WatchState watchState,
-            @NonNull ComplicationsManager complicationsManager,
+            @NonNull ComplicationSlotsManager complicationSlotsManager,
             @NonNull CurrentUserStyleRepository currentUserStyleRepository) {
         Renderer renderer =
                 new WatchFaceRenderer(surfaceHolder, currentUserStyleRepository, watchState);

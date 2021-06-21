@@ -19,6 +19,7 @@ package androidx.camera.video.internal.encoder
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.media.CamcorderProfile
+import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaRecorder
@@ -43,6 +44,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -51,7 +53,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.inOrder
@@ -73,6 +77,7 @@ class VideoEncoderTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    private var currentSurface: Surface? = null
 
     private lateinit var videoEncoderConfig: VideoEncoderConfig
     private lateinit var videoEncoder: EncoderImpl
@@ -122,11 +127,6 @@ class VideoEncoderTest {
 
     @After
     fun tearDown() {
-        // Since the mVideoEncoder is late initialized, check the status before end test.
-        if (this::videoEncoder.isInitialized) {
-            videoEncoder.release()
-        }
-
         camera?.apply {
             instrumentation.runOnMainSync {
                 removeUseCases(setOf(previewForVideoEncoder, preview))
@@ -195,6 +195,50 @@ class VideoEncoderTest {
         verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
     }
 
+    @Test
+    fun pauseResumeVideoEncoder_getChronologicalData() {
+        val dataList = ArrayList<EncodedData>()
+
+        videoEncoder.start()
+        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        videoEncoder.pause()
+        verify(videoEncoderCallback, noInvocation(2000L, 10000L)).onEncodedData(any())
+
+        // Save all values before clear invocations
+        var startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(videoEncoderCallback, atLeastOnce()).onEncodedData(startCaptor.capture())
+        dataList.addAll(startCaptor.allValues)
+        clearInvocations(videoEncoderCallback)
+
+        videoEncoder.start()
+        val resumeCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(
+            videoEncoderCallback,
+            timeout(15000L).atLeast(5)
+        ).onEncodedData(resumeCaptor.capture())
+        dataList.addAll(resumeCaptor.allValues)
+
+        verifyDataInChronologicalOrder(dataList)
+    }
+
+    @Test
+    fun resumeVideoEncoder_firstEncodedDataIsKeyFrame() {
+        videoEncoder.start()
+        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        videoEncoder.pause()
+        verify(videoEncoderCallback, noInvocation(2000L, 10000L)).onEncodedData(any())
+
+        clearInvocations(videoEncoderCallback)
+
+        videoEncoder.start()
+        val captor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(videoEncoderCallback, timeout(15000L).atLeastOnce()).onEncodedData(captor.capture())
+
+        assertThat(isKeyFrame(captor.value.bufferInfo)).isTrue()
+    }
+
     private fun initVideoEncoder() {
         val cameraId: Int = (camera?.cameraInfo as CameraInfoInternal).cameraId.toInt()
 
@@ -237,12 +281,17 @@ class VideoEncoderTest {
         (videoEncoder.input as Encoder.SurfaceInput).setOnSurfaceUpdateListener(
             mainExecutor,
             { surface: Surface ->
+                currentSurface = surface
                 previewForVideoEncoder.setSurfaceProvider { request: SurfaceRequest ->
                     request.provideSurface(
                         surface,
-                        CameraXExecutors.directExecutor(),
+                        mainExecutor,
                         {
-                            surface.release()
+                            if (it.surface != currentSurface) {
+                                it.surface.release()
+                            } else {
+                                videoEncoder.release()
+                            }
                         }
                     )
                 }
@@ -272,5 +321,17 @@ class VideoEncoderTest {
             MediaRecorder.VideoEncoder.DEFAULT -> MediaFormat.MIMETYPE_VIDEO_AVC
             else -> MediaFormat.MIMETYPE_VIDEO_AVC
         }
+    }
+
+    private fun verifyDataInChronologicalOrder(encodedDataList: List<EncodedData>) {
+        // For each item indexed by n and n+1, verify that the timestamp of n is less than n+1.
+        encodedDataList.take(encodedDataList.size - 1).forEachIndexed { index, _ ->
+            assertThat(encodedDataList[index].presentationTimeUs)
+                .isLessThan(encodedDataList[index + 1].presentationTimeUs)
+        }
+    }
+
+    private fun isKeyFrame(bufferInfo: MediaCodec.BufferInfo): Boolean {
+        return bufferInfo.flags and MediaCodec.BUFFER_FLAG_KEY_FRAME != 0
     }
 }

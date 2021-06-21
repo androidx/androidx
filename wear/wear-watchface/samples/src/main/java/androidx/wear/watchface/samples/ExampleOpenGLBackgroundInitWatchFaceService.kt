@@ -24,7 +24,7 @@ import android.opengl.GLES20
 import android.opengl.GLUtils
 import android.opengl.Matrix
 import android.view.SurfaceHolder
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
@@ -46,7 +46,7 @@ class ExampleOpenGLBackgroundInitWatchFaceService() : WatchFaceService() {
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         // Init is performed on a worker thread, however all rendering is done on the UiThread so
@@ -93,7 +93,7 @@ internal class MainThreadRenderer(
     private lateinit var minuteHandQuad: Gles2TexturedTriangleList
     private lateinit var hourHandQuad: Gles2TexturedTriangleList
 
-    override fun onGlContextCreated() {
+    override fun onBackgroundThreadGlContextCreated() {
         triangleTextureProgram = Gles2TexturedTriangleList.Program()
         backgroundQuad = createTexturedQuad(
             triangleTextureProgram, -10f, -10f, 20f, 20f
@@ -148,7 +148,7 @@ internal class MainThreadRenderer(
         }
     }
 
-    override fun onGlSurfaceCreated(width: Int, height: Int) {
+    override fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
         GLES20.glEnable(GLES20.GL_TEXTURE_2D)
 
         // Update the projection matrix based on the new aspect ratio.

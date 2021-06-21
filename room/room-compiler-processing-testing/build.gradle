@@ -1,0 +1,90 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+}
+
+dependencies {
+    implementation("androidx.annotation:annotation:1.1.0")
+    api(project(":room:room-compiler-processing"))
+    implementation(libs.kotlinStdlib)
+    implementation(libs.kspApi)
+    implementation(libs.kotlinStdlibJdk8) // KSP defines older version as dependency, force update.
+    implementation(libs.ksp)
+    implementation(libs.googleCompileTesting)
+    implementation(libs.kotlinCompileTestingKsp)
+    // specify these to match the kotlin compiler version in AndroidX rather than what KSP or KCT
+    // uses
+    implementation(libs.kotlinCompilerEmbeddable)
+    implementation(libs.kotlinDaemonEmbeddable)
+    implementation(libs.kotlinAnnotationProcessingEmbeddable)
+}
+
+/**
+ * Create a properties file with versions that can be read from the test helper to setup test
+ * projects.
+ * see: b/178725084
+ */
+def testPropsOutDir = project.layout.buildDirectory.dir("test-config")
+def writeTestPropsTask = tasks.register("prepareTestConfiguration", WriteProperties.class) {
+    description = "Generates a properties file with the current environment for compilation tests"
+    setOutputFile(testPropsOutDir.map {
+        it.file("androidx.room.compiler.processing.util.CompilationTestCapabilities.Config" +
+                ".properties")
+    })
+    property("kotlinVersion", libs.versions.kotlin.get())
+    property("kspVersion", libs.versions.ksp.get())
+}
+
+java {
+    sourceSets {
+        main {
+            resources.srcDir(testPropsOutDir)
+        }
+    }
+}
+
+tasks.named("sourceJar").configure {
+    dependsOn(writeTestPropsTask)
+}
+tasks.named("processResources").configure {
+    dependsOn(writeTestPropsTask)
+}
+// enable opt in only for tests so that we don't create non experimental APIs by mistake
+// in the source.
+tasks.named("compileTestKotlin", KotlinCompile.class).configure {
+    it.kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+                "-Xopt-in=kotlin.RequiresOptIn",
+                "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
+        ]
+    }
+}
+
+androidx {
+    name = "AndroidX Room XProcessor Testing"
+    type = LibraryType.ANNOTATION_PROCESSOR_UTILS
+    mavenGroup = LibraryGroups.ROOM
+    inceptionYear = "2020"
+    description = "Testing helpers for Room XProcessing APIs"
+}

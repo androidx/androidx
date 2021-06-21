@@ -59,9 +59,9 @@ public class EmojiEditTextHelperTest {
         mEmojiEditTextHelper = new EmojiEditTextHelper(mEditText);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testGetKeyListener_withNull_throwsException() {
-        mEmojiEditTextHelper.getKeyListener(null);
+    @Test
+    public void testGetKeyListener_withNull_returnsNull() {
+        assertNull(mEmojiEditTextHelper.getKeyListener(null));
     }
 
     @Test

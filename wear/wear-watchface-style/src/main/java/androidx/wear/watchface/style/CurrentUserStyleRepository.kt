@@ -143,7 +143,7 @@ public class UserStyleData(
  *
  * @param userStyleSettings The user configurable style categories associated with this watch face.
  * Empty if the watch face doesn't support user styling. Note we allow at most one
- * [UserStyleSetting.ComplicationsUserStyleSetting] and one
+ * [UserStyleSetting.ComplicationSlotsUserStyleSetting] and one
  * [UserStyleSetting.CustomValueUserStyleSetting]
  * in the list.
  */
@@ -151,12 +151,12 @@ public class UserStyleSchema(
     public val userStyleSettings: List<UserStyleSetting>
 ) {
     init {
-        var complicationsUserStyleSettingCount = 0
+        var complicationSlotsUserStyleSettingCount = 0
         var customValueUserStyleSettingCount = 0
         for (setting in userStyleSettings) {
             when (setting) {
-                is UserStyleSetting.ComplicationsUserStyleSetting ->
-                    complicationsUserStyleSettingCount++
+                is UserStyleSetting.ComplicationSlotsUserStyleSetting ->
+                    complicationSlotsUserStyleSettingCount++
 
                 is UserStyleSetting.CustomValueUserStyleSetting ->
                     customValueUserStyleSettingCount++
@@ -164,8 +164,8 @@ public class UserStyleSchema(
         }
 
         // This requirement makes it easier to implement companion editors.
-        require(complicationsUserStyleSettingCount <= 1) {
-            "At most only one ComplicationsUserStyleSetting is allowed"
+        require(complicationSlotsUserStyleSettingCount <= 1) {
+            "At most only one ComplicationSlotsUserStyleSetting is allowed"
         }
 
         // There's a hard limit to how big Schema + UserStyle can be and since this data is sent

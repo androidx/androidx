@@ -72,12 +72,12 @@ public class RequestPermissionScreen extends Screen {
                         }));
 
         Action action = new Action.Builder()
-                .setTitle("Grant Permission")
+                .setTitle("Grant Access")
                 .setBackgroundColor(CarColor.GREEN)
                 .setOnClickListener(listener)
                 .build();
 
         return new MessageTemplate.Builder(message).addAction(action).setHeaderAction(
-                Action.BACK).build();
+                Action.APP_ICON).build();
     }
 }

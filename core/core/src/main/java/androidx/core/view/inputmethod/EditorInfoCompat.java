@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,7 @@ import static android.text.InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
@@ -46,6 +47,7 @@ import java.lang.annotation.Retention;
 /**
  * Helper for accessing features in {@link EditorInfo} in a backwards compatible fashion.
  */
+@SuppressLint("PrivateConstructorForUtilityClass") // Already launched with public constructor
 public final class EditorInfoCompat {
 
     /**
@@ -177,7 +179,7 @@ public final class EditorInfoCompat {
      * int, Bundle)} is not supported on this editor
      */
     @NonNull
-    public static String[] getContentMimeTypes(EditorInfo editorInfo) {
+    public static String[] getContentMimeTypes(@NonNull EditorInfo editorInfo) {
         if (Build.VERSION.SDK_INT >= 25) {
             final String[] result = editorInfo.contentMimeTypes;
             return result != null ? result : EMPTY_STRING_ARRAY;
@@ -210,7 +212,7 @@ public final class EditorInfoCompat {
     public static void setInitialSurroundingText(@NonNull EditorInfo editorInfo,
             @NonNull CharSequence sourceText) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Impl30.setInitialSurroundingSubText(editorInfo, sourceText, /* subTextStart= */ 0);
+            Api30Impl.setInitialSurroundingSubText(editorInfo, sourceText, /* subTextStart= */ 0);
         } else {
             setInitialSurroundingSubText(editorInfo, sourceText, /* subTextStart= */ 0);
         }
@@ -234,7 +236,7 @@ public final class EditorInfoCompat {
             @NonNull CharSequence subText, int subTextStart) {
         Preconditions.checkNotNull(subText);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Impl30.setInitialSurroundingSubText(editorInfo, subText, subTextStart);
+            Api30Impl.setInitialSurroundingSubText(editorInfo, subText, subTextStart);
             return;
         }
 
@@ -292,18 +294,17 @@ public final class EditorInfoCompat {
                 ? 0 : sourceSelLength;
 
         // Distribute rest of length quota to TextBeforeCursor and TextAfterCursor in 4:1 ratio.
-        final int subTextBeforeCursorLength = selStart;
         final int subTextAfterCursorLength = subText.length() - selEnd;
         final int maxLengthMinusSelection = MEMORY_EFFICIENT_TEXT_LENGTH - newSelLength;
         final int possibleMaxBeforeCursorLength =
-                Math.min(subTextBeforeCursorLength, (int) (0.8 * maxLengthMinusSelection));
+                Math.min(selStart, (int) (0.8 * maxLengthMinusSelection));
         int newAfterCursorLength = Math.min(subTextAfterCursorLength,
                 maxLengthMinusSelection - possibleMaxBeforeCursorLength);
-        int newBeforeCursorLength = Math.min(subTextBeforeCursorLength,
+        int newBeforeCursorLength = Math.min(selStart,
                 maxLengthMinusSelection - newAfterCursorLength);
 
         // As trimming may happen at the head of TextBeforeCursor, calculate new starting position.
-        int newBeforeCursorHead = subTextBeforeCursorLength - newBeforeCursorLength;
+        int newBeforeCursorHead = selStart - newBeforeCursorLength;
 
         // We don't want to cut surrogate pairs in the middle. Exam that at the new head and tail.
         if (isCutOnSurrogate(subText,
@@ -354,7 +355,7 @@ public final class EditorInfoCompat {
     public static CharSequence getInitialTextBeforeCursor(@NonNull EditorInfo editorInfo,
             int length, int flags) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return Impl30.getInitialTextBeforeCursor(editorInfo, length, flags);
+            return Api30Impl.getInitialTextBeforeCursor(editorInfo, length, flags);
         }
 
         if (editorInfo.extras == null) {
@@ -389,7 +390,7 @@ public final class EditorInfoCompat {
     @Nullable
     public static CharSequence getInitialSelectedText(@NonNull EditorInfo editorInfo, int flags) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return Impl30.getInitialSelectedText(editorInfo, flags);
+            return Api30Impl.getInitialSelectedText(editorInfo, flags);
         }
 
         if (editorInfo.extras == null) {
@@ -397,10 +398,10 @@ public final class EditorInfoCompat {
         }
 
         // Swap selection start and end if necessary.
-        final int correctedTextSelStart = editorInfo.initialSelStart > editorInfo.initialSelEnd
-                ? editorInfo.initialSelEnd : editorInfo.initialSelStart;
-        final int correctedTextSelEnd = editorInfo.initialSelStart > editorInfo.initialSelEnd
-                ? editorInfo.initialSelStart : editorInfo.initialSelEnd;
+        final int correctedTextSelStart = Math.min(editorInfo.initialSelStart,
+                editorInfo.initialSelEnd);
+        final int correctedTextSelEnd = Math.max(editorInfo.initialSelStart,
+                editorInfo.initialSelEnd);
 
         final int selectionHead = editorInfo.extras.getInt(CONTENT_SELECTION_HEAD_KEY);
         final int selectionEnd = editorInfo.extras.getInt(CONTENT_SELECTION_END_KEY);
@@ -435,7 +436,7 @@ public final class EditorInfoCompat {
     public static CharSequence getInitialTextAfterCursor(@NonNull EditorInfo editorInfo, int length,
             int flags) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return Impl30.getInitialTextAfterCursor(editorInfo, length, flags);
+            return Api30Impl.getInitialTextAfterCursor(editorInfo, length, flags);
         }
 
         if (editorInfo.extras == null) {
@@ -523,13 +524,12 @@ public final class EditorInfoCompat {
 
     /** @deprecated This type should not be instantiated as it contains only static methods. */
     @Deprecated
-    @SuppressWarnings("PrivateConstructorForUtilityClass")
     public EditorInfoCompat() {
     }
 
     @RequiresApi(30)
-    private static class Impl30 {
-        private Impl30() {}
+    private static class Api30Impl {
+        private Api30Impl() {}
 
         static void setInitialSurroundingSubText(@NonNull EditorInfo editorInfo,
                 CharSequence sourceText, int subTextStart) {

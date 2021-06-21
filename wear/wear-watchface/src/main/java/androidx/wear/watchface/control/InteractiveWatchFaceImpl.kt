@@ -145,6 +145,6 @@ internal class InteractiveWatchFaceImpl(
     override fun bringAttentionToComplication(id: Int) {
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getUserStyleSchema"
-        ) { watchFaceImpl -> watchFaceImpl.complicationsManager.displayPressedAnimation(id) }
+        ) { watchFaceImpl -> watchFaceImpl.complicationSlotsManager.displayPressedAnimation(id) }
     }
 }

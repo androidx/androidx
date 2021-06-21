@@ -23,9 +23,13 @@ import static androidx.camera.video.QualitySelector.QUALITY_SD;
 
 import android.util.Range;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 
 import com.google.auto.value.AutoValue;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Video specification that is options to config video encoding.
@@ -63,6 +67,24 @@ public abstract class VideoSpec {
                     .thenTry(QUALITY_SD)
                     .finallyTry(QUALITY_FHD, FALLBACK_STRATEGY_HIGHER);
 
+    /**
+     * The aspect ratio representing no preference for aspect ratio.
+     *
+     * <p>Using this value with {@link Builder#setAspectRatio(int)} allows the video frame
+     * producer to choose an appropriate aspect ratio based on its current state.
+     */
+    static final int ASPECT_RATIO_AUTO = -1;
+    /** The aspect ratio with width 16 by height 9. */
+    static final int ASPECT_RATIO_4_3 = androidx.camera.core.AspectRatio.RATIO_4_3;
+    /** The aspect ratio with width 4 by height 3. */
+    static final int ASPECT_RATIO_16_9 = androidx.camera.core.AspectRatio.RATIO_16_9;
+
+    /** @hide */
+    @IntDef({ASPECT_RATIO_AUTO, ASPECT_RATIO_4_3, ASPECT_RATIO_16_9})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface AspectRatio {
+    }
+
     // Restrict constructor to same package
     VideoSpec() {
     }
@@ -73,7 +95,8 @@ public abstract class VideoSpec {
         return new AutoValue_VideoSpec.Builder()
                 .setQualitySelector(QUALITY_SELECTOR_AUTO)
                 .setFrameRate(FRAME_RATE_RANGE_AUTO)
-                .setBitrate(BITRATE_RANGE_AUTO);
+                .setBitrate(BITRATE_RANGE_AUTO)
+                .setAspectRatio(ASPECT_RATIO_AUTO);
     }
 
     /** Gets the {@link QualitySelector}. */
@@ -87,6 +110,10 @@ public abstract class VideoSpec {
     /** Gets the bitrate. */
     @NonNull
     public abstract Range<Integer> getBitrate();
+
+    /** Gets the aspect ratio. */
+    @AspectRatio
+    abstract int getAspectRatio();
 
     /**
      * Returns a {@link Builder} instance with the same property values as this instance.
@@ -129,6 +156,17 @@ public abstract class VideoSpec {
          */
         @NonNull
         public abstract Builder setBitrate(@NonNull Range<Integer> bitrate);
+
+        /**
+         * Sets the aspect ratio.
+         *
+         * <p>Available values for aspect ratio are {@link #ASPECT_RATIO_16_9},
+         * {@link #ASPECT_RATIO_4_3} and {@link #ASPECT_RATIO_AUTO}.
+         *
+         * <p>If not set, defaults to {@link #ASPECT_RATIO_AUTO}.
+         */
+        @NonNull
+        abstract Builder setAspectRatio(@AspectRatio int aspectRatio);
 
         /** Builds the VideoSpec instance. */
         @NonNull

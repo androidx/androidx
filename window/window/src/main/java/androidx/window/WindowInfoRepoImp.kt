@@ -31,13 +31,13 @@ import kotlinx.coroutines.flow.callbackFlow
  * [WindowMetrics] for the given [Activity].
  *
  * @param activity that the provided window is based on.
- * @param windowBoundsHelper a helper to calculate the [WindowMetrics] for the [Activity].
+ * @param windowMetricsCalculator a helper to calculate the [WindowMetrics] for the [Activity].
  * @param windowBackend a helper to provide the [WindowLayoutInfo].
  */
 @ExperimentalCoroutinesApi
 internal class WindowInfoRepoImp(
     private val activity: Activity,
-    private val windowBoundsHelper: WindowBoundsHelper,
+    private val windowMetricsCalculator: WindowMetricsCalculator,
     private val windowBackend: WindowBackend
 ) : WindowInfoRepo {
 
@@ -58,9 +58,10 @@ internal class WindowInfoRepoImp(
      * @see maximumWindowMetrics
      * @see android.view.WindowManager.getCurrentWindowMetrics
      */
-    override fun currentWindowMetrics(): WindowMetrics {
-        return WindowMetrics(windowBoundsHelper.computeCurrentWindowBounds(activity))
-    }
+    override val currentWindowMetrics: WindowMetrics
+        get() {
+            return windowMetricsCalculator.computeCurrentWindowMetrics(activity)
+        }
 
     /**
      * Returns the largest [WindowMetrics] an app may expect in the current system state.
@@ -87,18 +88,20 @@ internal class WindowInfoRepoImp(
      * @see currentWindowMetrics
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
-    override fun maximumWindowMetrics(): WindowMetrics {
-        return WindowMetrics(windowBoundsHelper.computeMaximumWindowBounds(activity))
-    }
+    override val maximumWindowMetrics: WindowMetrics
+        get() {
+            return windowMetricsCalculator.computeMaximumWindowMetrics(activity)
+        }
 
     /**
      * A [Flow] of window layout changes in the current visual [Context].
      *
      * @see Activity.onAttachedToWindow
      */
-    override fun windowLayoutInfo(): Flow<WindowLayoutInfo> = callbackFlow {
-        val callback = Consumer<WindowLayoutInfo> { info -> offer(info) }
-        windowBackend.registerLayoutChangeCallback(activity, Runnable::run, callback)
-        awaitClose { windowBackend.unregisterLayoutChangeCallback(callback) }
-    }.buffer(capacity = UNLIMITED)
+    override val windowLayoutInfo: Flow<WindowLayoutInfo>
+        get() = callbackFlow {
+            val callback = Consumer<WindowLayoutInfo> { info -> trySend(info) }
+            windowBackend.registerLayoutChangeCallback(activity, Runnable::run, callback)
+            awaitClose { windowBackend.unregisterLayoutChangeCallback(callback) }
+        }.buffer(capacity = UNLIMITED)
 }

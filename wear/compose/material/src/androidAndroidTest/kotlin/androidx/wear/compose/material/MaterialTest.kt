@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -42,12 +44,17 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.isUnspecified
+import androidx.compose.ui.unit.toSize
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import kotlin.math.abs
 import kotlin.math.round
 
 /**
@@ -55,6 +62,8 @@ import kotlin.math.round
  */
 val BigTestMaxWidth = 5000.dp
 val BigTestMaxHeight = 5000.dp
+
+internal const val TEST_TAG = "test-item"
 
 fun ComposeContentTestRule.setContentWithTheme(
     modifier: Modifier = Modifier,
@@ -111,7 +120,7 @@ fun assertTextStyleEquals(expectedStyle: TextStyle, actualStyle: TextStyle) {
 }
 
 @Composable
-fun CreateImage(iconLabel: String = "TestIcon") {
+fun TestImage(iconLabel: String = "TestIcon") {
     val testImage = Icons.Outlined.Add
     Image(
         testImage, iconLabel,
@@ -120,6 +129,17 @@ fun CreateImage(iconLabel: String = "TestIcon") {
         alignment = Alignment.Center
     )
 }
+
+@Composable
+fun TestIcon(modifier: Modifier = Modifier, iconLabel: String = "TestIcon") {
+    val testImage = Icons.Outlined.Add
+    Icon(
+        imageVector = testImage, contentDescription = iconLabel,
+        modifier = modifier
+            .testTag(iconLabel)
+    )
+}
+
 /**
  * assertContainsColor - uses a threshold on an ImageBitmap's color distribution
  * to check that a UI element is predominantly the expected color.
@@ -157,6 +177,79 @@ fun ImageBitmap.printHistogramToLog(expectedColor: Color): ImageBitmap {
     }
 
     return this
+}
+
+/**
+ * Asserts that the layout of this node has height equal to [expectedHeight].
+ *
+ * @throws AssertionError if comparison fails.
+ */
+internal fun SemanticsNodeInteraction.assertHeightIsEqualTo(
+    expectedHeight: Dp,
+    tolerance: Dp = Dp(0.5f)
+):
+    SemanticsNodeInteraction {
+        return withUnclippedBoundsInRoot {
+            it.height.assertIsEqualTo(expectedHeight, "height", tolerance)
+        }
+    }
+
+private fun SemanticsNodeInteraction.withUnclippedBoundsInRoot(
+    assertion: (DpRect) -> Unit
+): SemanticsNodeInteraction {
+    val node = fetchSemanticsNode("Failed to retrieve bounds of the node.")
+    val bounds = with(node.root!!.density) {
+        node.unclippedBoundsInRoot.let {
+            DpRect(it.left.toDp(), it.top.toDp(), it.right.toDp(), it.bottom.toDp())
+        }
+    }
+    assertion.invoke(bounds)
+    return this
+}
+
+private val SemanticsNode.unclippedBoundsInRoot: Rect
+    get() {
+        return if (layoutInfo.isPlaced) {
+            Rect(positionInRoot, size.toSize())
+        } else {
+            Dp.Unspecified.value.let { Rect(it, it, it, it) }
+        }
+    }
+
+/**
+ * Returns if this value is equal to the [reference], within a given [tolerance]. If the
+ * reference value is [Float.NaN], [Float.POSITIVE_INFINITY] or [Float.NEGATIVE_INFINITY], this
+ * only returns true if this value is exactly the same (tolerance is disregarded).
+ */
+private fun Dp.isWithinTolerance(reference: Dp, tolerance: Dp): Boolean {
+    return when {
+        reference.isUnspecified -> this.isUnspecified
+        reference.value.isInfinite() -> this.value == reference.value
+        else -> abs(this.value - reference.value) <= tolerance.value
+    }
+}
+
+/**
+ * Asserts that this value is equal to the given [expected] value.
+ *
+ * Performs the comparison with the given [tolerance] or the default one if none is provided. It is
+ * recommended to use tolerance when comparing positions and size coming from the framework as there
+ * can be rounding operation performed by individual layouts so the values can be slightly off from
+ * the expected ones.
+ *
+ * @param expected The expected value to which this one should be equal to.
+ * @param subject Used in the error message to identify which item this assertion failed on.
+ * @param tolerance The tolerance within which the values should be treated as equal.
+ *
+ * @throws AssertionError if comparison fails.
+ */
+private fun Dp.assertIsEqualTo(expected: Dp, subject: String, tolerance: Dp = Dp(.5f)) {
+    if (!isWithinTolerance(expected, tolerance)) {
+        // Comparison failed, report the error in DPs
+        throw AssertionError(
+            "Actual $subject is $this, expected $expected (tolerance: $tolerance)"
+        )
+    }
 }
 
 private fun ImageBitmap.histogram(): MutableMap<Color, Long> {

@@ -216,7 +216,7 @@ package androidx.appcompat.app {
     method public androidx.appcompat.app.AlertDialog! show();
   }
 
-  public class AppCompatActivity extends androidx.fragment.app.FragmentActivity implements androidx.appcompat.app.ActionBarDrawerToggle.DelegateProvider androidx.appcompat.app.AppCompatCallback androidx.core.app.TaskStackBuilder.SupportParentable {
+  public class AppCompatActivity extends androidx.fragment.app.FragmentActivity implements androidx.appcompat.app.ActionBarDrawerToggle.DelegateProvider androidx.appcompat.app.AppCompatCallback androidx.lifecycle.LifecycleOwner androidx.core.app.TaskStackBuilder.SupportParentable {
     ctor public AppCompatActivity();
     ctor @ContentView public AppCompatActivity(@LayoutRes int);
     method public androidx.appcompat.app.AppCompatDelegate getDelegate();
@@ -461,7 +461,7 @@ package androidx.appcompat.widget {
     method public boolean onMenuItemClick(android.view.MenuItem!);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatAutoCompleteTextView extends android.widget.AutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
+  public class AppCompatAutoCompleteTextView extends android.widget.AutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatAutoCompleteTextView(android.content.Context);
     ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet?, int);
@@ -473,7 +473,7 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatButton extends android.widget.Button implements androidx.core.widget.AutoSizeableTextView androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
+  public class AppCompatButton extends android.widget.Button implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatButton(android.content.Context);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet?, int);
@@ -494,7 +494,7 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatCheckBox extends android.widget.CheckBox implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
+  public class AppCompatCheckBox extends android.widget.CheckBox implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
     ctor public AppCompatCheckBox(android.content.Context);
     ctor public AppCompatCheckBox(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatCheckBox(android.content.Context, android.util.AttributeSet?, int);
@@ -509,25 +509,21 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatCheckedTextView extends android.widget.CheckedTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCheckedTextView {
+  public class AppCompatCheckedTextView extends android.widget.CheckedTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView {
     ctor public AppCompatCheckedTextView(android.content.Context);
     ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet?, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCheckMarkTintList();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCheckMarkTintMode();
     method public boolean isEmojiCompatEnabled();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
     method public void setEmojiCompatEnabled(boolean);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCheckMarkTintList(android.content.res.ColorStateList?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCheckMarkTintMode(android.graphics.PorterDuff.Mode?);
     method public void setTextAppearance(android.content.Context, int);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatEditText extends android.widget.EditText implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.OnReceiveContentViewBehavior androidx.core.view.TintableBackgroundView {
+  public class AppCompatEditText extends android.widget.EditText implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.OnReceiveContentViewBehavior androidx.core.view.TintableBackgroundView {
     ctor public AppCompatEditText(android.content.Context);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet?, int);
@@ -542,37 +538,29 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatImageButton extends android.widget.ImageButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableImageSourceView {
+  public class AppCompatImageButton extends android.widget.ImageButton implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatImageButton(android.content.Context);
     ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet?, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportImageTintList();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportImageTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportImageTintList(android.content.res.ColorStateList?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatImageView extends android.widget.ImageView implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableImageSourceView {
+  public class AppCompatImageView extends android.widget.ImageView implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatImageView(android.content.Context);
     ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet?, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportImageTintList();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportImageTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportImageTintList(android.content.res.ColorStateList?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
+  public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context);
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet?, int);
@@ -584,7 +572,7 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
+  public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
     ctor public AppCompatRadioButton(android.content.Context!);
     ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet?);
     ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet?, int);
@@ -611,7 +599,7 @@ package androidx.appcompat.widget {
     ctor public AppCompatSeekBar(android.content.Context, android.util.AttributeSet?, int);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatSpinner extends android.widget.Spinner implements androidx.core.view.TintableBackgroundView {
+  public class AppCompatSpinner extends android.widget.Spinner implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatSpinner(android.content.Context);
     ctor public AppCompatSpinner(android.content.Context, int);
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet?);
@@ -625,7 +613,7 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatTextView extends android.widget.TextView implements androidx.core.widget.AutoSizeableTextView androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
+  public class AppCompatTextView extends android.widget.TextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatTextView(android.content.Context);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet?, int);
@@ -649,7 +637,7 @@ package androidx.appcompat.widget {
     method public void setTextMetricsParamsCompat(androidx.core.text.PrecomputedTextCompat.Params);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatToggleButton extends android.widget.ToggleButton implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView {
+  public class AppCompatToggleButton extends android.widget.ToggleButton implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView {
     ctor public AppCompatToggleButton(android.content.Context);
     ctor public AppCompatToggleButton(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatToggleButton(android.content.Context, android.util.AttributeSet?, int);
@@ -783,6 +771,7 @@ package androidx.appcompat.widget {
     method public android.view.Menu getMenu();
     method public android.view.MenuInflater getMenuInflater();
     method public void inflate(@MenuRes int);
+    method public void setForceShowIcon(boolean);
     method public void setGravity(int);
     method public void setOnDismissListener(androidx.appcompat.widget.PopupMenu.OnDismissListener?);
     method public void setOnMenuItemClickListener(androidx.appcompat.widget.PopupMenu.OnMenuItemClickListener?);

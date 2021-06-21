@@ -16,19 +16,17 @@
 
 import androidx.build.SdkResourceGenerator
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
 }
 
 dependencies {
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
     testImplementation(gradleTestKit())
 }
 
@@ -41,4 +39,6 @@ tasks.findByPath("test").dependsOn(
         tasks.findByPath(":room:room-migration:publish"),
         tasks.findByPath(":room:room-compiler:publish"),
         tasks.findByPath(":room:room-compiler-processing:publish"),
+        tasks.findByPath(":sqlite:sqlite:publish"),
+        tasks.findByPath(":sqlite:sqlite-framework:publish"),
 )

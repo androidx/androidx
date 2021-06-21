@@ -20,6 +20,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
@@ -81,11 +82,14 @@ import androidx.compose.ui.unit.TextUnit
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
- * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated. A
+ * [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ * text, baselines and other details. The callback can be used to add additional decoration or
+ * functionality to the text. For example, to draw selection around the text.
  * @param style Style configuration for the text such as color, font, line height etc.
  */
 @Composable
-fun Text(
+public fun Text(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -170,11 +174,14 @@ fun Text(
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
  * @param inlineContent A map store composables that replaces certain ranges of the text. It's
  * used to insert composables into text layout. Check [InlineTextContent] for more information.
- * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated. A
+ * [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ * text, baselines and other details. The callback can be used to add additional decoration or
+ * functionality to the text. For example, to draw selection around the text.
  * @param style Style configuration for the text such as color, font, line height etc.
  */
 @Composable
-fun Text(
+public fun Text(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -230,7 +237,8 @@ fun Text(
  *
  * @see ProvideTextStyle
  */
-val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { TextStyle.Default }
+public val LocalTextStyle: ProvidableCompositionLocal<TextStyle> =
+    compositionLocalOf(structuralEqualityPolicy()) { TextStyle.Default }
 
 // TODO: b/156598010 remove this and replace with fold definition on the backing CompositionLocal
 /**
@@ -241,7 +249,7 @@ val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { TextStyle.
  * @see LocalTextStyle
  */
 @Composable
-fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
+public fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)
     CompositionLocalProvider(LocalTextStyle provides mergedStyle, content = content)
 }

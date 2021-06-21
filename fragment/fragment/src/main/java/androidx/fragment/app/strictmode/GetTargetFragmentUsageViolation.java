@@ -25,4 +25,10 @@ public final class GetTargetFragmentUsageViolation extends TargetFragmentUsageVi
     GetTargetFragmentUsageViolation(@NonNull Fragment fragment) {
         super(fragment);
     }
+
+    @NonNull
+    @Override
+    public String getMessage() {
+        return "Attempting to get target fragment from fragment " + mFragment;
+    }
 }

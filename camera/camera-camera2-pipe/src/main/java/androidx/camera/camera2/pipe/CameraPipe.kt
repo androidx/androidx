@@ -99,7 +99,7 @@ public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfi
      * External may be used if the underlying implementation needs to delegate to another library
      * or system.
      */
-    class External(private val threadConfig: ThreadConfig = ThreadConfig()) {
+    class External(threadConfig: ThreadConfig = ThreadConfig()) {
         private val component: ExternalCameraPipeComponent = DaggerExternalCameraPipeComponent
             .builder()
             .threadConfigModule(ThreadConfigModule(threadConfig))

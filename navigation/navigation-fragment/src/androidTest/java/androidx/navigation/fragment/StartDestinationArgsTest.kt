@@ -27,8 +27,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.navigation.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,8 +46,8 @@ class StartDestinationArgsTest {
     @Test
     fun testNavigateInOnResume() {
         val startArgs = activityRule.activity.startArgs
-        assertNotNull(startArgs)
-        assertEquals(TEST_ARG_VALUE, startArgs?.getString(TEST_ARG))
+        assertThat(startArgs).isNotNull()
+        assertThat(startArgs?.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
     }
 }
 

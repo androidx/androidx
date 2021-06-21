@@ -15,6 +15,7 @@
  */
 package androidx.wear.compose.material
 
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
@@ -29,4 +30,4 @@ import androidx.compose.ui.graphics.Color
  *
  * Defaults to [Color.White] if no color has been explicitly set.
  */
-val LocalContentColor = compositionLocalOf { Color.White }
+public val LocalContentColor: ProvidableCompositionLocal<Color> = compositionLocalOf { Color.White }

@@ -18,7 +18,6 @@ package androidx.car.app.activity;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -42,13 +41,13 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class ServiceDispatcherTest {
-    private ErrorHandler mErrorHandler;
+    private CarAppViewModel mViewModel;
     private ServiceDispatcher mServiceDispatcher;
 
     @Before
     public void setup() {
-        mErrorHandler = mock(ErrorHandler.class);
-        mServiceDispatcher = new ServiceDispatcher(mErrorHandler, () -> false);
+        mViewModel = mock(CarAppViewModel.class);
+        mServiceDispatcher = new ServiceDispatcher(mViewModel, () -> false);
     }
 
     @Test
@@ -62,7 +61,7 @@ public class ServiceDispatcherTest {
                 componentName, 0);
 
         mServiceDispatcher.setOnBindingListener(() -> true);
-        mServiceDispatcher.dispatch(call);
+        mServiceDispatcher.dispatch("test", call);
 
         verify(rendererService, times(1)).onNewIntent(intent, componentName, 0);
     }
@@ -72,7 +71,7 @@ public class ServiceDispatcherTest {
         ServiceDispatcher.OneWayCall call = mock(ServiceDispatcher.OneWayCall.class);
 
         mServiceDispatcher.setOnBindingListener(() -> false);
-        mServiceDispatcher.dispatch(call);
+        mServiceDispatcher.dispatch("test", call);
 
         verify(call, never()).invoke();
     }
@@ -84,10 +83,10 @@ public class ServiceDispatcherTest {
         };
 
         mServiceDispatcher.setOnBindingListener(() -> true);
-        mServiceDispatcher.dispatch(call);
+        mServiceDispatcher.dispatch("test", call);
 
-        verify(mErrorHandler, times(1))
-                .onError(eq(ErrorHandler.ErrorType.HOST_ERROR), any());
+        verify(mViewModel, times(1))
+                .onError(eq(ErrorHandler.ErrorType.HOST_ERROR));
     }
 
     @Test
@@ -95,7 +94,7 @@ public class ServiceDispatcherTest {
         ServiceDispatcher.ReturnCall<Integer> call = () -> 123;
 
         mServiceDispatcher.setOnBindingListener(() -> true);
-        Integer result = mServiceDispatcher.fetch(234, call);
+        Integer result = mServiceDispatcher.fetch("test", 234, call);
 
         assertThat(result).isEqualTo(123);
     }
@@ -107,7 +106,7 @@ public class ServiceDispatcherTest {
         ServiceDispatcher.ReturnCall<Integer> call = mock(ServiceDispatcher.ReturnCall.class);
 
         mServiceDispatcher.setOnBindingListener(() -> false);
-        Integer result = mServiceDispatcher.fetch(234, call);
+        Integer result = mServiceDispatcher.fetch("test", 234, call);
 
         verify(call, never()).invoke();
         assertThat(result).isEqualTo(234);
@@ -120,10 +119,10 @@ public class ServiceDispatcherTest {
         };
 
         mServiceDispatcher.setOnBindingListener(() -> true);
-        Integer result = mServiceDispatcher.fetch(234, call);
+        Integer result = mServiceDispatcher.fetch("test", 234, call);
 
-        verify(mErrorHandler, times(1))
-                .onError(eq(ErrorHandler.ErrorType.HOST_ERROR), any());
+        verify(mViewModel, times(1))
+                .onError(eq(ErrorHandler.ErrorType.HOST_ERROR));
         assertThat(result).isEqualTo(234);
     }
 }

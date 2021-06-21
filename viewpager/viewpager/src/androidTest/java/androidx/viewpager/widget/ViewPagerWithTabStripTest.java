@@ -30,7 +30,6 @@ import androidx.viewpager.test.R;
 /**
  * Provides assertions that depend on the interactive nature of <code>PagerTabStrip</code>.
  */
-@FlakyTest(bugId = 112265192)
 public class ViewPagerWithTabStripTest extends BaseViewPagerTest<ViewPagerWithTabStripActivity> {
     public ViewPagerWithTabStripTest() {
         super(ViewPagerWithTabStripActivity.class);

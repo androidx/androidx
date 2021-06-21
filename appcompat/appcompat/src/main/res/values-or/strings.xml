@@ -31,7 +31,7 @@
     <string name="abc_activity_chooser_view_see_all" msgid="1189761859438369441">"ସବୁ ଦେଖନ୍ତୁ"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="9055268688411532828">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> ସହ ସେୟାର୍‍ କରନ୍ତୁ"</string>
     <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"ଏହାଙ୍କ ସହ ସେୟାର୍‌ କରନ୍ତୁ"</string>
-    <string name="abc_capital_on" msgid="884982626291842264">"ଅନ୍"</string>
+    <string name="abc_capital_on" msgid="884982626291842264">"ଚାଲୁ ଅଛି"</string>
     <string name="abc_capital_off" msgid="4215997306490295099">"ବନ୍ଦ"</string>
     <string name="search_menu_title" msgid="6264217191555673260">"Search"</string>
     <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"ମେନୁ"</string>
@@ -43,5 +43,5 @@
     <string name="abc_menu_function_shortcut_label" msgid="375214403600139847">"Function+"</string>
     <string name="abc_menu_space_shortcut_label" msgid="5473865519181928982">"ସ୍ପେସ୍‍"</string>
     <string name="abc_menu_enter_shortcut_label" msgid="7986526966204849475">"ଏଣ୍ଟର୍"</string>
-    <string name="abc_menu_delete_shortcut_label" msgid="838001238306846836">"ଡିଲିଟ୍‍"</string>
+    <string name="abc_menu_delete_shortcut_label" msgid="838001238306846836">"ଡିଲିଟ୍‌ କରନ୍ତୁ"</string>
 </resources>

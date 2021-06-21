@@ -21,6 +21,7 @@ import androidx.navigation.NavType.Companion.FloatType
 import androidx.navigation.NavType.Companion.IntType
 import androidx.navigation.NavType.Companion.LongType
 import androidx.navigation.NavType.Companion.ReferenceType
+import androidx.navigation.NavType.Companion.StringArrayType
 import androidx.navigation.NavType.Companion.StringType
 
 // region IntType
@@ -78,5 +79,14 @@ fun stringArgument(
 
 fun nullableStringArgument() = NavArgument.Builder().setType(StringType)
     .setIsNullable(true)
+    .build()
+// endregion
+
+// region StringArrayType
+fun stringArrayArgument(
+    defaultValue: Array<String>?
+) = NavArgument.Builder().setType(StringArrayType)
+    .setIsNullable(true)
+    .setDefaultValue(defaultValue)
     .build()
 // endregion

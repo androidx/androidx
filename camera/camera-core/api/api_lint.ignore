@@ -9,10 +9,6 @@ BuilderSetStyle: androidx.camera.core.FocusMeteringAction.Builder#disableAutoCan
 
 MissingGetterMatchingBuilder: androidx.camera.core.CameraSelector.Builder#addCameraFilter(androidx.camera.core.CameraFilter):
     androidx.camera.core.CameraSelector does not declare a `getCameraFilters()` method matching method androidx.camera.core.CameraSelector.Builder.addCameraFilter(androidx.camera.core.CameraFilter)
-MissingGetterMatchingBuilder: androidx.camera.core.CameraXConfig.Builder#setCameraExecutor(java.util.concurrent.Executor):
-    androidx.camera.core.CameraXConfig does not declare a `getCameraExecutor()` method matching method androidx.camera.core.CameraXConfig.Builder.setCameraExecutor(java.util.concurrent.Executor)
-MissingGetterMatchingBuilder: androidx.camera.core.CameraXConfig.Builder#setSchedulerHandler(android.os.Handler):
-    androidx.camera.core.CameraXConfig does not declare a `getSchedulerHandler()` method matching method androidx.camera.core.CameraXConfig.Builder.setSchedulerHandler(android.os.Handler)
 MissingGetterMatchingBuilder: androidx.camera.core.FocusMeteringAction.Builder#addPoint(androidx.camera.core.MeteringPoint):
     androidx.camera.core.FocusMeteringAction does not declare a `getPoints()` method matching method androidx.camera.core.FocusMeteringAction.Builder.addPoint(androidx.camera.core.MeteringPoint)
 MissingGetterMatchingBuilder: androidx.camera.core.FocusMeteringAction.Builder#addPoint(androidx.camera.core.MeteringPoint, int):

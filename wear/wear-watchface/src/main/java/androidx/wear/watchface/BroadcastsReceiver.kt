@@ -20,45 +20,48 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 
 /**
  * This class decouples [BroadcastEventObserver]s from the actual broadcast event receivers to make
  * testing easier.
+ * @hide
  */
-internal class BroadcastsReceiver constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class BroadcastsReceiver constructor(
     private val context: Context,
     private val observer: BroadcastEventObserver
 ) {
 
-    interface BroadcastEventObserver {
+    public interface BroadcastEventObserver {
         /** Called when we receive [Intent.ACTION_TIME_TICK]. */
         @UiThread
-        fun onActionTimeTick()
+        public fun onActionTimeTick()
 
         /** Called when we receive [Intent.ACTION_TIMEZONE_CHANGED]. */
         @UiThread
-        fun onActionTimeZoneChanged()
+        public fun onActionTimeZoneChanged()
 
         /** Called when we receive [Intent.ACTION_TIME_CHANGED]. */
         @UiThread
-        fun onActionTimeChanged()
+        public fun onActionTimeChanged()
 
         /** Called when we receive [Intent.ACTION_BATTERY_LOW]. */
         @UiThread
-        fun onActionBatteryLow()
+        public fun onActionBatteryLow()
 
         /** Called when we receive [Intent.ACTION_BATTERY_OKAY]. */
         @UiThread
-        fun onActionBatteryOkay()
+        public fun onActionBatteryOkay()
 
         /** Called when we receive [Intent.ACTION_POWER_CONNECTED]. */
         @UiThread
-        fun onActionPowerConnected()
+        public fun onActionPowerConnected()
 
         /** Called when we receive [WatchFaceImpl.MOCK_TIME_INTENT]. */
         @UiThread
-        fun onMockTime(intent: Intent)
+        public fun onMockTime(intent: Intent)
     }
 
     internal val actionTimeTickReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -127,7 +130,7 @@ internal class BroadcastsReceiver constructor(
         context.registerReceiver(mockTimeReceiver, IntentFilter(WatchFaceImpl.MOCK_TIME_INTENT))
     }
 
-    fun onDestroy() {
+    public fun onDestroy() {
         context.unregisterReceiver(actionTimeTickReceiver)
         context.unregisterReceiver(actionTimeZoneReceiver)
         context.unregisterReceiver(actionTimeReceiver)

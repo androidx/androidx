@@ -18,11 +18,9 @@ package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.ExperimentalAvailableCamerasLimiter;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 
@@ -39,7 +37,6 @@ public final class FakeAppConfig {
     private static final String CAMERA_ID_1 = "1";
 
     /** Generates a fake {@link CameraXConfig}. */
-    @OptIn(markerClass = ExperimentalAvailableCamerasLimiter.class)
     @NonNull
     public static CameraXConfig create() {
         return create(null);
@@ -49,7 +46,6 @@ public final class FakeAppConfig {
      * Generates a fake {@link CameraXConfig} with the provided {@linkplain CameraSelector
      * available cameras limiter}.
      */
-    @ExperimentalAvailableCamerasLimiter
     @NonNull
     public static CameraXConfig create(@Nullable CameraSelector availableCamerasSelector) {
         final CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2, ignored3) -> {

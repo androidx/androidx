@@ -20,6 +20,7 @@ package androidx.concurrent.futures
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
+@OptIn(DelicateCoroutinesApi::class)
 class ListenableFutureTest {
     private var actionIndex = AtomicInteger()
     private var finished = AtomicBoolean()

@@ -119,7 +119,6 @@ internal class AndroidMSessionFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config
 ) : CaptureSessionFactory {
-    @SuppressLint("NewApi")
     override fun create(
         cameraDevice: CameraDeviceWrapper,
         surfaces: Map<StreamId, Surface>,

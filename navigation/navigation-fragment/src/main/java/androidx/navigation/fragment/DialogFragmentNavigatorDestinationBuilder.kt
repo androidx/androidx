@@ -26,6 +26,8 @@ import kotlin.reflect.KClass
 
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
+ *
+ * @param id the destination's unique id
  */
 @Suppress("Deprecation")
 @Deprecated(
@@ -38,6 +40,9 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
 
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
+ *
+ * @param id the destination's unique id
+ * @param builder the builder used to construct the fragment destination
  */
 @Suppress("Deprecation")
 @Deprecated(
@@ -56,6 +61,8 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
 )
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
+ *
+ * @param route the destination's unique route
  */
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     route: String
@@ -63,6 +70,9 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
 
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
+ *
+ * @param route the destination's unique route
+ * @param builder the builder used to construct the fragment destination
  */
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     route: String,
@@ -84,6 +94,14 @@ public class DialogFragmentNavigatorDestinationBuilder :
 
     private var fragmentClass: KClass<out DialogFragment>
 
+    /**
+     * DSL for constructing a new [DialogFragmentNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param id the destination's unique id
+     * @param fragmentClass the class name of the DialogFragment to show when you navigate to this
+     * destination
+     */
     @Suppress("Deprecation")
     @Deprecated(
         "Use routes to build your DialogFragmentNavigatorDestination instead",
@@ -100,6 +118,14 @@ public class DialogFragmentNavigatorDestinationBuilder :
         this.fragmentClass = fragmentClass
     }
 
+    /**
+     * DSL for constructing a new [DialogFragmentNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the destination's unique route
+     * @param fragmentClass the class name of the DialogFragment to show when you navigate to this
+     * destination
+     */
     public constructor(
         navigator: DialogFragmentNavigator,
         route: String,

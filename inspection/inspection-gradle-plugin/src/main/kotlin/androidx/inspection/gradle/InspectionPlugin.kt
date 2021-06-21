@@ -80,6 +80,8 @@ class InspectionPlugin : Plugin<Project> {
         project.apply(plugin = "com.google.protobuf")
         project.plugins.all {
             if (it is ProtobufPlugin) {
+                // https://github.com/google/protobuf-gradle-plugin/issues/505
+                @Suppress("DEPRECATION")
                 val protobufConvention = project.convention.getPlugin<ProtobufConvention>()
                 protobufConvention.protobuf.apply {
                     protoc {

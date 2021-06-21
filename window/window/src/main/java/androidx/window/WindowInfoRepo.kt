@@ -16,7 +16,11 @@
 
 package androidx.window
 
+import android.app.Activity
 import android.content.Context
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -41,7 +45,7 @@ public interface WindowInfoRepo {
      * @see maximumWindowMetrics
      * @see android.view.WindowManager.getCurrentWindowMetrics
      */
-    public fun currentWindowMetrics(): WindowMetrics
+    public val currentWindowMetrics: WindowMetrics
 
     /**
      * Returns the largest [WindowMetrics] an app may expect in the current system state.
@@ -61,17 +65,63 @@ public interface WindowInfoRepo {
      * areas of the display are not available to windows created for the associated [Context].
      * For example, devices with foldable displays that wrap around the enclosure may split the
      * physical display into different regions, one for the front and one for the back, each acting
-     * as different logical displays. In this case [getMaximumWindowMetrics] would return
+     * as different logical displays. In this case [maximumWindowMetrics] would return
      * the region describing the side of the device the associated [context's][Context]
      * window is placed.
      *
      * @see currentWindowMetrics
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
-    public fun maximumWindowMetrics(): WindowMetrics
+    public val maximumWindowMetrics: WindowMetrics
 
     /**
      * A [Flow] of [WindowLayoutInfo] that contains all the available features.
      */
-    public fun windowLayoutInfo(): Flow<WindowLayoutInfo>
+    public val windowLayoutInfo: Flow<WindowLayoutInfo>
+
+    public companion object {
+
+        private var decorator: WindowInfoRepoDecorator = EmptyDecorator
+
+        @JvmStatic
+        @ExperimentalCoroutinesApi
+        public fun create(activity: Activity): WindowInfoRepo {
+            val taggedRepo = activity.getTag(R.id.androidx_window_activity_scope) as? WindowInfoRepo
+            val repo = taggedRepo ?: activity.getOrCreateTag(R.id.androidx_window_activity_scope) {
+                WindowInfoRepoImp(
+                    activity,
+                    WindowMetricsCalculatorCompat,
+                    ExtensionWindowBackend.getInstance(activity)
+                )
+            }
+            return decorator.decorate(repo)
+        }
+
+        @JvmStatic
+        @RestrictTo(LIBRARY_GROUP)
+        public fun overrideDecorator(overridingDecorator: WindowInfoRepoDecorator) {
+            decorator = overridingDecorator
+        }
+
+        @JvmStatic
+        @RestrictTo(LIBRARY_GROUP)
+        public fun reset() {
+            decorator = EmptyDecorator
+        }
+    }
+}
+
+@RestrictTo(LIBRARY_GROUP)
+public interface WindowInfoRepoDecorator {
+    /**
+     * Returns an instance of [WindowInfoRepo] associated to the [Activity]
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public fun decorate(repo: WindowInfoRepo): WindowInfoRepo
+}
+
+private object EmptyDecorator : WindowInfoRepoDecorator {
+    override fun decorate(repo: WindowInfoRepo): WindowInfoRepo {
+        return repo
+    }
 }

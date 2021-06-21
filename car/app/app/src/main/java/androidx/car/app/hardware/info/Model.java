@@ -32,15 +32,6 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(3)
 public final class Model {
-
-    /** Model request parameters. */
-    @SuppressWarnings("PrivateConstructorForUtilityClass")
-    public static final class Params {
-        public static @NonNull Params getDefault() {
-            return new Params();
-        }
-    }
-
     @Keep
     @NonNull
     private final CarValue<String> mName;
@@ -112,12 +103,9 @@ public final class Model {
 
     /** A builder of {@link Model}. */
     public static final class Builder {
-        @Nullable
-        CarValue<String> mName;
-        @Nullable
-        CarValue<Integer> mYear;
-        @Nullable
-        CarValue<String> mManufacturer;
+        CarValue<String> mName = CarValue.UNIMPLEMENTED_STRING;
+        CarValue<Integer> mYear = CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<String> mManufacturer = CarValue.UNIMPLEMENTED_STRING;
 
         /**
          * Sets the car model name.
@@ -154,21 +142,9 @@ public final class Model {
 
         /**
          * Constructs the {@link Model} defined by this builder.
-         *
-         * <p>Any fields which have not been set are added with {@code null} value and
-         * {@link CarValue#STATUS_UNIMPLEMENTED}.
          */
         @NonNull
         public Model build() {
-            if (mName == null) {
-                mName = CarValue.UNIMPLEMENTED_STRING;
-            }
-            if (mYear == null) {
-                mYear = CarValue.UNIMPLEMENTED_INTEGER;
-            }
-            if (mManufacturer == null) {
-                mManufacturer = CarValue.UNIMPLEMENTED_STRING;
-            }
             return new Model(this);
         }
 

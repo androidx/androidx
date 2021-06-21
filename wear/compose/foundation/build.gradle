@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 import androidx.build.RunApiTasks
-import androidx.build.AndroidXUiPlugin
-
-import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.AndroidXComposePlugin
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
 }
 
-AndroidXUiPlugin.applyAndConfigureKotlinPlugin(project)
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
@@ -36,7 +35,7 @@ dependencies {
 }
 
 
-if(AndroidXUiPlugin.isMultiplatformEnabled(project)) {
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     kotlin {
         android()
         jvm("desktop")
@@ -47,10 +46,10 @@ if(AndroidXUiPlugin.isMultiplatformEnabled(project)) {
          */
         sourceSets {
             commonMain.dependencies {
-                implementation(KOTLIN_STDLIB_COMMON)
+                implementation(libs.kotlinStdlibCommon)
             }
             jvmMain.dependencies {
-                implementation(KOTLIN_STDLIB)
+                implementation(libs.kotlinStdlib)
             }
             androidMain {
                 dependsOn(jvmMain)
@@ -63,10 +62,10 @@ if(AndroidXUiPlugin.isMultiplatformEnabled(project)) {
                 implementation(kotlin("test-junit"))
             }
             androidAndroidTest.dependencies {
-                implementation(ANDROIDX_TEST_EXT_JUNIT)
-                implementation(ANDROIDX_TEST_RULES)
-                implementation(ANDROIDX_TEST_RUNNER)
-                implementation(TRUTH)
+                implementation(libs.testExtJunit)
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.truth)
             }
         }
     }

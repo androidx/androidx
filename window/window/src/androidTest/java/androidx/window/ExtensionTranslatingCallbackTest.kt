@@ -26,25 +26,19 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
 public class ExtensionTranslatingCallbackTest {
 
-    private lateinit var windowBoundsHelper: TestWindowBoundsHelper
+    private lateinit var extensionAdapter: ExtensionAdapter
 
     @Before
     public fun setUp() {
-        windowBoundsHelper = TestWindowBoundsHelper()
-        windowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS)
-        WindowBoundsHelper.setForTesting(windowBoundsHelper)
-    }
-
-    @After
-    public fun tearDown() {
-        WindowBoundsHelper.setForTesting(null)
+        val windowMetricsCalculator = TestWindowMetricsCalculator()
+        windowMetricsCalculator.setCurrentBounds(WINDOW_BOUNDS)
+        extensionAdapter = ExtensionAdapter(windowMetricsCalculator)
     }
 
     @Test
@@ -66,7 +60,7 @@ public class ExtensionTranslatingCallbackTest {
         val expected = WindowLayoutInfo(expectedFeatures)
         val mockCallback = mock<ExtensionCallbackInterface>()
         val extensionTranslatingCallback =
-            ExtensionTranslatingCallback(mockCallback, ExtensionAdapter())
+            ExtensionTranslatingCallback(mockCallback, extensionAdapter)
         extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo)
         val captor = argumentCaptor<WindowLayoutInfo>()
         verify(mockCallback)
@@ -96,7 +90,7 @@ public class ExtensionTranslatingCallbackTest {
         )
         val mockCallback = mock<ExtensionCallbackInterface>()
         val extensionTranslatingCallback =
-            ExtensionTranslatingCallback(mockCallback, ExtensionAdapter())
+            ExtensionTranslatingCallback(mockCallback, extensionAdapter)
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
         val mockActivity = mock<Activity>()
         extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo)
@@ -128,7 +122,7 @@ public class ExtensionTranslatingCallbackTest {
         )
         val mockCallback = mock<ExtensionCallbackInterface>()
         val extensionTranslatingCallback =
-            ExtensionTranslatingCallback(mockCallback, ExtensionAdapter())
+            ExtensionTranslatingCallback(mockCallback, extensionAdapter)
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
         val mockActivity = mock<Activity>()
         extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo)

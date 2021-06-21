@@ -20,6 +20,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.channels.ClosedSendChannelException
+import kotlinx.coroutines.channels.onClosed
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicInteger
@@ -64,19 +66,10 @@ internal class SimpleActor<T>(
 
             messageQueue.close(ex)
 
-            var msg = try {
-                messageQueue.poll()
-            } catch (rethrownEx: Throwable) {
-                return@invokeOnCompletion
-            }
-
-            while (msg != null) {
-                onUndeliveredElement(msg, ex)
-                try {
-                    msg = messageQueue.poll()
-                } catch (rethrownEx: Throwable) {
-                    return@invokeOnCompletion
-                }
+            while (true) {
+                messageQueue.tryReceive().getOrNull()?.let { msg ->
+                    onUndeliveredElement(msg, ex)
+                } ?: break
             }
         }
     }
@@ -107,7 +100,11 @@ internal class SimpleActor<T>(
          */
 
         // should never return false bc the channel capacity is unlimited
-        check(messageQueue.offer(msg))
+        check(
+            messageQueue.trySend(msg)
+                .onClosed { throw it ?: ClosedSendChannelException("Channel was closed normally") }
+                .isSuccess
+        )
 
         // If the number of remaining messages was 0, there is no active consumer, since it quits
         // consuming once remaining messages hits 0. We must kick off a new consumer.

@@ -16,7 +16,6 @@
 
 package androidx.webkit;
 
-import android.annotation.SuppressLint;
 import android.webkit.WebSettings;
 
 import androidx.annotation.IntDef;
@@ -58,7 +57,6 @@ public class WebSettingsCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#OFF_SCREEN_PRERASTER}.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setOffscreenPreRaster(@NonNull WebSettings settings, boolean enabled) {
@@ -84,7 +82,6 @@ public class WebSettingsCompat {
      * @return {@code true} if this WebView will raster tiles when it is
      * offscreen but attached to a window.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getOffscreenPreRaster(@NonNull WebSettings settings) {
@@ -117,7 +114,6 @@ public class WebSettingsCompat {
      *
      * @param enabled Whether Safe Browsing is enabled.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingEnabled(@NonNull WebSettings settings, boolean enabled) {
@@ -142,7 +138,6 @@ public class WebSettingsCompat {
      *
      * @return {@code true} if Safe Browsing is enabled and {@code false} otherwise.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getSafeBrowsingEnabled(@NonNull WebSettings settings) {
@@ -180,7 +175,6 @@ public class WebSettingsCompat {
      *
      * @param menuItems an integer field flag for the menu items to be disabled.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setDisabledActionModeMenuItems(@NonNull WebSettings settings,
@@ -207,7 +201,6 @@ public class WebSettingsCompat {
      *
      * @return all the disabled menu item flags combined with bitwise OR.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @MenuItemFlags int getDisabledActionModeMenuItems(@NonNull WebSettings settings) {
@@ -239,7 +232,6 @@ public class WebSettingsCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWillSuppressErrorPage(@NonNull WebSettings settings,
@@ -268,7 +260,6 @@ public class WebSettingsCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean willSuppressErrorPage(@NonNull WebSettings settings) {
@@ -344,7 +335,6 @@ public class WebSettingsCompat {
      * @param forceDarkMode the force dark mode to set.
      * @see #getForceDark
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setForceDark(@NonNull WebSettings settings,
@@ -373,7 +363,6 @@ public class WebSettingsCompat {
      * @return the currently set force dark mode.
      * @see #setForceDark
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @ForceDark int getForceDark(@NonNull WebSettings settings) {
@@ -457,7 +446,6 @@ public class WebSettingsCompat {
      * @param forceDarkBehavior the force dark strategy to set.
      * @see #getForceDarkStrategy
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK_STRATEGY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setForceDarkStrategy(@NonNull WebSettings settings,
@@ -485,7 +473,6 @@ public class WebSettingsCompat {
      * @return the currently set force dark strategy.
      * @see #setForceDarkStrategy
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK_STRATEGY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @ForceDarkStrategy int getForceDarkStrategy(@NonNull WebSettings settings) {

@@ -855,6 +855,22 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateFromOnDestinationChangedListener() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+
+        var lastReceivedDestinationId = -1
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            lastReceivedDestinationId = destination.id
+            if (destination.id == R.id.start_test) {
+                navController.navigate(R.id.second_test)
+            }
+        }
+        assertThat(lastReceivedDestinationId).isEqualTo(R.id.second_test)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateArgs() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_arguments)
@@ -1637,6 +1653,27 @@ class NavControllerTest {
 
         navController.navigate(R.id.finish_self)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionPopNestedGraph() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate(R.id.navigate_pop_base)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate(R.id.navigate_start_pop_base)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
     }
 

@@ -215,7 +215,7 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
 
     // Suppressing 'ObsoleteSdkInt' as this code is shared between APKs with different min SDK
     // levels
-    @SuppressLint({"UnsafeNewApiCall", "ObsoleteSdkInt"})
+    @SuppressLint("ObsoleteSdkInt")
     private void sendNotification(CharSequence title, CharSequence text, String channelId,
             CharSequence channelName, int notificationId, int importance) {
         CarNotificationManager carNotificationManager =

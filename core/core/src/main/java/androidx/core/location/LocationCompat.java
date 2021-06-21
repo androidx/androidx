@@ -142,11 +142,20 @@ public final class LocationCompat {
         } else {
             Bundle extras = location.getExtras();
             if (extras == null) {
-                extras = new Bundle();
-                extras.putBoolean(EXTRA_IS_MOCK, true);
-                location.setExtras(extras);
+                if (mock) {
+                    extras = new Bundle();
+                    extras.putBoolean(EXTRA_IS_MOCK, true);
+                    location.setExtras(extras);
+                }
             } else {
-                extras.putBoolean(EXTRA_IS_MOCK, true);
+                if (mock) {
+                    extras.putBoolean(EXTRA_IS_MOCK, true);
+                } else {
+                    extras.remove(EXTRA_IS_MOCK);
+                    if (extras.isEmpty()) {
+                        location.setExtras(null);
+                    }
+                }
             }
         }
     }

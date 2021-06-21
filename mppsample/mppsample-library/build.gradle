@@ -16,8 +16,6 @@
 
 import androidx.build.Publish
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("kotlin-multiplatform")
     id("AndroidXPlugin")
@@ -39,13 +37,13 @@ kotlin {
         // included (implicit "dependsOn") in all sourcesets in the Kotlin MPP presets.
         commonMain {
             dependencies {
-                implementation(KOTLIN_STDLIB_COMMON)
+                implementation(libs.kotlinStdlibCommon)
             }
         }
         commonTest {
             dependencies {
-                implementation(KOTLIN_TEST_COMMON)
-                implementation(KOTLIN_TEST_ANNOTATIONS_COMMON)
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
             }
         }
         // Note that although we don't have androidXYZ/ directories, Android targets are still
@@ -62,25 +60,25 @@ kotlin {
         }
         jvmMain {
             dependencies {
-                implementation(KOTLIN_STDLIB_JDK8)
+                implementation(libs.kotlinStdlibJdk8)
             }
         }
         // jvmTest differs from androidTest in that it fails at compile-time if any android
         // dependencies are included, whereas androidTest fails at runtime only if they are used.
         jvmTest {
             dependencies {
-                implementation(KOTLIN_TEST)
-                implementation(KOTLIN_TEST_JUNIT)
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestJunit)
             }
         }
         jsMain {
             dependencies {
-                implementation(KOTLIN_STDLIB_JS)
+                implementation(libs.kotlinStdlibJs)
             }
         }
         jsTest {
             dependencies {
-                implementation(KOTLIN_TEST_JS)
+                implementation(libs.kotlinTestJs)
             }
         }
     }

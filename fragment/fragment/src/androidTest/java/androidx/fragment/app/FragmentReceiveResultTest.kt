@@ -60,7 +60,7 @@ class FragmentReceiveResultTest {
     @Test
     @UiThreadTest
     fun testNoFragmentOnActivityResult() {
-        activity.supportFragmentManager.saveAllState()
+        activity.supportFragmentManager.saveAllStateInternal()
 
         // 0xffff is the request code for the startActivityResult launcher in FragmentManager
         activity.onActivityResult(0xffff, Activity.RESULT_OK, Intent())

@@ -40,7 +40,7 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
     override fun createWatchFaceFuture(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ListenableFuture<WatchFace> {
         return Futures.immediateFuture(
@@ -68,10 +68,14 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
     suspend fun createWatchFaceForTest(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ): WatchFace =
-        createWatchFace(surfaceHolder, watchState, complicationsManager, currentUserStyleRepository)
+    ): WatchFace = createWatchFace(
+        surfaceHolder,
+        watchState,
+        complicationSlotsManager,
+        currentUserStyleRepository
+    )
 }
 
 @RunWith(ListenableWatchFaceServiceTestRunner::class)
@@ -84,13 +88,14 @@ public class ListenableWatchFaceServiceTest {
         runBlocking {
             val currentUserStyleRepository =
                 CurrentUserStyleRepository(UserStyleSchema(emptyList()))
-            val complicationsManager = ComplicationsManager(emptyList(), currentUserStyleRepository)
+            val complicationsSlotManager =
+                ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
 
             // Make sure the ListenableFuture<> to kotlin coroutine bridge works.
             val watchFace = service.createWatchFaceForTest(
                 mockSurfaceHolder,
                 MutableWatchState().asWatchState(),
-                complicationsManager,
+                complicationsSlotManager,
                 currentUserStyleRepository
             )
 

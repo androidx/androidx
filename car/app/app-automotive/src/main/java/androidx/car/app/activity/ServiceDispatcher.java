@@ -18,7 +18,9 @@ package androidx.car.app.activity;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.os.DeadObjectException;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -75,8 +77,8 @@ public class ServiceDispatcher {
     }
 
     /** Dispatches the given {@link OneWayCall}. This is a non-blocking call. */
-    public void dispatch(@NonNull OneWayCall call) {
-        fetch(null, (ReturnCall<Void>) () -> {
+    public void dispatch(@NonNull String description, @NonNull OneWayCall call) {
+        fetch(description, null, (ReturnCall<Void>) () -> {
             call.invoke();
             return null;
         });
@@ -92,20 +94,30 @@ public class ServiceDispatcher {
      */
     // TODO(b/184697399): Remove two-way calls as these are blocking.
     @Nullable
-    public <T> T fetch(@Nullable T fallbackValue, @NonNull ReturnCall<T> call) {
+    public <T> T fetch(@NonNull String description, @Nullable T fallbackValue,
+            @NonNull ReturnCall<T> call) {
         if (!mOnBindingListener.isBound()) {
             // Avoid dispatching messages if we are not bound to the service
             return fallbackValue;
         }
         try {
             // TODO(b/184697267): Implement ANR (application not responding) checks
-            return call.invoke();
+            Log.d(LogTags.TAG, "Dispatching: " + description);
+            T value = call.invoke();
+            Log.d(LogTags.TAG, "Dispatching: " + description + " finished");
+            return value;
+        } catch (DeadObjectException e) {
+            Log.e(LogTags.TAG, "Connection lost", e);
+            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_CONNECTION_LOST);
         } catch (RemoteException e) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_ERROR, e);
+            Log.e(LogTags.TAG, "Remote exception (host render service)", e);
+            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_ERROR);
         } catch (BundlerException e) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.CLIENT_SIDE_ERROR, e);
+            Log.e(LogTags.TAG, "Bundler exception (protocol)", e);
+            mErrorHandler.onError(ErrorHandler.ErrorType.CLIENT_SIDE_ERROR);
         } catch (RuntimeException e) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.UNKNOWN_ERROR, e);
+            Log.e(LogTags.TAG, "Runtime exception (unknown)", e);
+            mErrorHandler.onError(ErrorHandler.ErrorType.UNKNOWN_ERROR);
         }
         return fallbackValue;
     }

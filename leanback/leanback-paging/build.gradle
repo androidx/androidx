@@ -2,7 +2,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -15,20 +14,20 @@ dependencies {
     api("androidx.leanback:leanback:1.1.0-beta01")
     api("androidx.paging:paging-runtime:3.0.0-beta03")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
-    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-espresso"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":internal-testutils-paging"))
-    androidTestImplementation(KOTLIN_TEST)
-    androidTestImplementation(KOTLIN_COROUTINES_TEST)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
 }

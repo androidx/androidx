@@ -31,25 +31,24 @@ internal class ActionBarOnDestinationChangedListener(
     private val activity: AppCompatActivity,
     configuration: AppBarConfiguration
 ) : AbstractAppBarOnDestinationChangedListener(
-    activity.drawerToggleDelegate!!.actionBarThemedContext,
+    checkNotNull(activity.drawerToggleDelegate) {
+        "Activity $activity does not have an DrawerToggleDelegate set"
+    }.actionBarThemedContext,
     configuration
 ) {
     override fun setTitle(title: CharSequence?) {
-        val actionBar = activity.supportActionBar
-        require(actionBar != null) {
+        val actionBar = checkNotNull(activity.supportActionBar) {
             "Activity $activity does not have an ActionBar set via setSupportActionBar()"
         }
-        actionBar.setTitle(title)
+        actionBar.title = title
     }
 
     override fun setNavigationIcon(icon: Drawable?, @StringRes contentDescription: Int) {
-        val actionBar = activity.supportActionBar
-        require(actionBar != null) {
+        val actionBar = checkNotNull(activity.supportActionBar) {
             "Activity $activity does not have an ActionBar set via setSupportActionBar()"
         }
-        actionBar.setDisplayHomeAsUpEnabled(true)
-        val delegate = activity.drawerToggleDelegate
-        require(delegate != null) {
+        actionBar.setDisplayHomeAsUpEnabled(icon != null)
+        val delegate = checkNotNull(activity.drawerToggleDelegate) {
             "Activity $activity does not have an DrawerToggleDelegate set"
         }
         delegate.setActionBarUpIndicator(icon, contentDescription)

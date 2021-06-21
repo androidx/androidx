@@ -33,12 +33,14 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,6 +82,7 @@ class CachingTest {
                 size = 9
             )
         )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
     }
 
     @Test
@@ -104,6 +107,7 @@ class CachingTest {
                 size = 9
             )
         )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
     }
 
     @Test
@@ -138,6 +142,7 @@ class CachingTest {
                 it.copy(metadata = "0")
             }
         )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
     }
 
     @Test
@@ -172,6 +177,7 @@ class CachingTest {
                 it.copy(metadata = "1")
             }
         )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
     }
 
     @Test
@@ -211,6 +217,7 @@ class CachingTest {
                 it.copy(metadata = "0_2")
             }
         )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
     }
 
     @Test
@@ -222,7 +229,7 @@ class CachingTest {
         assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
         val items = runBlocking {
             pageFlow.collectItemsUntilSize(9) {
-                // see https://b/146676984
+                // see http://b/146676984
                 delay(10)
             }
         }
@@ -231,6 +238,21 @@ class CachingTest {
             generation = 0,
             start = 0,
             size = 9
+        )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+        val items2 = runBlocking {
+            pageFlow.collectItemsUntilSize(21) {
+                // see http://b/146676984
+                delay(10)
+            }
+        }
+        assertThat(items2).isEqualTo(
+            buildItems(
+                version = 0,
+                generation = 0,
+                start = 0,
+                size = 21
+            )
         )
         assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
         assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
@@ -246,7 +268,7 @@ class CachingTest {
     fun cachedWithPassiveCollector() = testScope.runBlockingTest {
         val flow = buildPageFlow().cachedIn(testScope, tracker)
         val passive = ItemCollector(flow)
-        passive.collectIn(testScope)
+        passive.collectPassivelyIn(testScope)
         testScope.runCurrent()
         // collecting on the paged source will trigger initial page
         assertThat(passive.items()).isEqualTo(
@@ -268,7 +290,7 @@ class CachingTest {
         assertThat(flow.collectItemsUntilSize(9)).isEqualTo(firstList)
         assertThat(passive.items()).isEqualTo(firstList)
         val passive2 = ItemCollector(flow)
-        passive2.collectIn(testScope)
+        passive2.collectPassivelyIn(testScope)
         testScope.runCurrent()
         // a new passive one should receive all existing items immediately
         assertThat(passive2.items()).isEqualTo(firstList)
@@ -287,9 +309,80 @@ class CachingTest {
         assertThat(passive2.items()).isEqualTo(secondList)
     }
 
-    private fun buildPageFlow(): Flow<PagingData<Item>> {
+    /**
+     * Test that, when cache is active but there is no active downstream collectors, intermediate
+     * invalidations create new PagingData BUT a new collector only sees the latest one.
+     */
+    @Test
+    public fun unusedPagingDataIsNeverCollectedByNewDownstream(): Unit = testScope.runBlockingTest {
+        val factory = StringPagingSource.VersionedFactory()
+        val flow = buildPageFlow(factory).cachedIn(testScope, tracker)
+        val collector = ItemCollector(flow)
+        val job = SupervisorJob()
+        val subScope = CoroutineScope(coroutineContext + job)
+        collector.collectPassivelyIn(subScope)
+        testScope.runCurrent()
+        assertThat(collector.items()).isEqualTo(
+            buildItems(
+                version = 0,
+                generation = 0,
+                start = 0,
+                size = 3
+            )
+        )
+        // finish that collector
+        job.cancelAndJoin()
+        assertThat(factory.nextVersion).isEqualTo(1)
+        repeat(10) {
+            factory.invalidateLatest()
+            testScope.runCurrent()
+        }
+        runCurrent()
+        // next version is 11, the last paged data we've created has version 10
+        assertThat(factory.nextVersion).isEqualTo(11)
+
+        // create another collector from shared, should only receive 1 paging data and that
+        // should be the latest because previous PagingData is invalidated
+        val collector2 = ItemCollector(flow)
+        collector2.collectPassivelyIn(testScope)
+        testScope.runCurrent()
+        assertThat(collector2.items()).isEqualTo(
+            buildItems(
+                version = 10,
+                generation = 0,
+                start = 0,
+                size = 3
+            )
+        )
+        assertThat(collector2.receivedPagingDataCount).isEqualTo(1)
+        testScope.runCurrent()
+        assertThat(factory.nextVersion).isEqualTo(11)
+        val activeCollection = flow.collectItemsUntilSize(9)
+        assertThat(activeCollection).isEqualTo(
+            buildItems(
+                version = 10,
+                generation = 0,
+                start = 0,
+                size = 9
+            )
+        )
+        testScope.runCurrent()
+        // make sure passive collector received those items as well
+        assertThat(collector2.items()).isEqualTo(
+            buildItems(
+                version = 10,
+                generation = 0,
+                start = 0,
+                size = 9
+            )
+        )
+    }
+
+    private fun buildPageFlow(
+        factory: StringPagingSource.VersionedFactory = StringPagingSource.VersionedFactory()
+    ): Flow<PagingData<Item>> {
         return Pager(
-            pagingSourceFactory = StringPagingSource.VersionedFactory()::create,
+            pagingSourceFactory = factory::create,
             config = PagingConfig(
                 pageSize = 3,
                 prefetchDistance = 1,
@@ -300,45 +393,70 @@ class CachingTest {
         ).flow
     }
 
+    /**
+     * Used for assertions internally to ensure we don't get some data with wrong generation
+     * during collection. This shouldn't happen but happened during development so it is best to
+     * add assertions for it.
+     */
+    private val PagingData<Item>.version
+        get(): Int {
+            return (
+                (receiver as PageFetcher<*, *>.PagerUiReceiver<*, *>)
+                    .pageFetcherSnapshot.pagingSource as StringPagingSource
+                ).version
+        }
+
     private suspend fun Flow<PagingData<Item>>.collectItemsUntilSize(
         expectedSize: Int,
         onEach: (suspend () -> Unit)? = null
     ): List<Item> {
-        val pageData = this.first()
-        val items = mutableListOf<Item>()
-        val receiver = pageData.receiver
-        var loadedPageCount = 0
-        pageData.flow.filterIsInstance<PageEvent.Insert<Item>>()
-            .onEach {
-                onEach?.invoke()
-            }
-            .onEach {
-                items.addAll(
-                    it.pages.flatMap {
-                        it.data
+        return this
+            .mapLatest { pagingData ->
+                val expectedVersion = pagingData.version
+                val items = mutableListOf<Item>()
+                yield() // this yield helps w/ cancellation wrt mapLatest
+                val receiver = pagingData.receiver
+                var loadedPageCount = 0
+                pagingData.flow.filterIsInstance<PageEvent.Insert<Item>>()
+                    .onEach {
+                        onEach?.invoke()
                     }
-                )
-                loadedPageCount += it.pages.size
-                if (items.size < expectedSize) {
-                    receiver.accessHint(
-                        ViewportHint.Access(
-                            pageOffset = loadedPageCount - 1,
-                            indexInPage = it.pages.last().data.size - 1,
-                            presentedItemsBefore = it.pages.sumOf { it.data.size } - 1,
-                            presentedItemsAfter = 0,
-                            originalPageOffsetFirst =
-                                it.pages.first().originalPageOffsets.minOrNull()!!,
-                            originalPageOffsetLast =
-                                it.pages.last().originalPageOffsets.maxOrNull()!!
+                    .onEach {
+                        items.addAll(
+                            it.pages.flatMap {
+                                assertThat(
+                                    it.data.map { it.pagingSourceId }.toSet()
+                                ).containsExactly(
+                                    expectedVersion
+                                )
+                                it.data
+                            }
                         )
-                    )
-                } else {
-                    throw AbortCollectionException()
-                }
-            }
-            .catch { }
-            .toList()
-        return items
+                        loadedPageCount += it.pages.size
+                        if (items.size < expectedSize) {
+                            receiver.accessHint(
+                                ViewportHint.Access(
+                                    pageOffset = loadedPageCount - 1,
+                                    indexInPage = it.pages.last().data.size - 1,
+                                    presentedItemsBefore = it.pages.sumOf { it.data.size } - 1,
+                                    presentedItemsAfter = 0,
+                                    originalPageOffsetFirst =
+                                        it.pages.first().originalPageOffsets.minOrNull()!!,
+                                    originalPageOffsetLast =
+                                        it.pages.last().originalPageOffsets.maxOrNull()!!
+                                )
+                            )
+                        } else {
+                            throw AbortCollectionException()
+                        }
+                    }.catch { ex ->
+                        if (ex !is AbortCollectionException) {
+                            throw ex
+                        }
+                    }
+                    .toList()
+                items
+            }.first()
     }
 
     /**
@@ -349,7 +467,13 @@ class CachingTest {
     ) {
         private var items: List<Item> = emptyList()
         private var job: Job? = null
-        fun collectIn(scope: CoroutineScope) {
+        var receivedPagingDataCount = 0
+            private set
+
+        /**
+         * Collect w/o calling any UI hints so it more like observing the stream w/o affecting it.
+         */
+        fun collectPassivelyIn(scope: CoroutineScope) {
             check(job == null) {
                 "don't call collect twice"
             }
@@ -360,6 +484,7 @@ class CachingTest {
 
         private suspend fun collectPassively() {
             source.collect {
+                receivedPagingDataCount ++
                 // clear to latest
                 val list = mutableListOf<Item>()
                 items = list
@@ -375,7 +500,7 @@ class CachingTest {
     }
 
     private class StringPagingSource(
-        private val version: Int
+        val version: Int
     ) : PagingSource<Int, Item>() {
         private var generation = -1
 
@@ -426,8 +551,13 @@ class CachingTest {
         }
 
         class VersionedFactory {
-            private var version = 0
-            fun create() = StringPagingSource(version++)
+            var nextVersion = 0
+                private set
+            private var latestSource: StringPagingSource? = null
+            fun create() = StringPagingSource(nextVersion++).also {
+                latestSource = it
+            }
+            fun invalidateLatest() = latestSource?.invalidate()
         }
     }
 

@@ -30,20 +30,20 @@ public abstract class ListenableWatchFaceService : WatchFaceService() {
     protected abstract fun createWatchFaceFuture(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ListenableFuture<WatchFace>
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace = CompletableDeferred<WatchFace>().apply {
         val future = createWatchFaceFuture(
             surfaceHolder,
             watchState,
-            complicationsManager,
+            complicationSlotsManager,
             currentUserStyleRepository
         )
         future.addListener(

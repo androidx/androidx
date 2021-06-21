@@ -37,7 +37,7 @@ internal class ExtensionCompat @VisibleForTesting constructor(
 ) : ExtensionInterfaceCompat {
     constructor(context: Context) : this(
         ExtensionProvider.getExtensionImpl(context),
-        ExtensionAdapter()
+        ExtensionAdapter(WindowMetricsCalculatorCompat)
     ) {
         requireNotNull(windowExtension) { "Extension provider returned null" }
     }

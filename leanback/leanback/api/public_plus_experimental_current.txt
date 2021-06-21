@@ -1894,7 +1894,7 @@ package androidx.leanback.widget {
   public final class GridLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager {
     ctor public GridLayoutManager();
     method public androidx.recyclerview.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
-    method public void setOrientation(@androidx.recyclerview.widget.RecyclerView.Orientation int);
+    method public void setOrientation(int);
   }
 
   public class GuidanceStylist implements androidx.leanback.widget.FragmentAnimationProvider {

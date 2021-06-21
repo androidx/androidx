@@ -28,6 +28,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
     })
+    androidTestImplementation(libs.multidex)
 }
 
 android {
@@ -36,6 +37,9 @@ android {
     }
     aaptOptions {
         additionalParameters "--no-version-transitions"
+    }
+    defaultConfig {
+        multiDexEnabled = true
     }
 }
 

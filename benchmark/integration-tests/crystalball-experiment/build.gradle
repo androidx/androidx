@@ -51,7 +51,7 @@ android {
         testInstrumentationRunnerArgument "cpuusage-collector:disable_per_pkg", "true"
 
         // TotalPssMetricListener
-        testInstrumentationRunnerArgument "totalpss-collector:process-names", "androidx.ui.demos"
+        testInstrumentationRunnerArgument "totalpss-collector:process-names", "androidx.compose.integration.demos"
 
         // JankListener (disable)
         testInstrumentationRunnerArgument "jank-listener:log", "true"

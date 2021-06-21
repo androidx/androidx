@@ -105,7 +105,13 @@ public object RobolectricCameras {
     fun open(cameraId: CameraId): FakeCamera {
         check(initializedCameraIds.contains(cameraId))
         val characteristics = cameraManager.getCameraCharacteristics(cameraId.value)
-        val metadata = Camera2CameraMetadata(cameraId, false, characteristics, emptyMap())
+        val metadata = Camera2CameraMetadata(
+            cameraId,
+            false,
+            characteristics,
+            FakeCameraMetadataProvider(),
+            emptyMap()
+        )
 
         @Suppress("SyntheticAccessor")
         val callback = CameraStateCallback(cameraId)

@@ -74,35 +74,7 @@ public class FakeRequestProcessor(
         defaultParameters: Map<*, Any?>,
         requiredParameters: Map<*, Any?>,
         defaultListeners: List<Request.Listener>
-    ): Boolean {
-        val requestSequence =
-            createRequestSequence(
-                repeating = false,
-                listOf(request),
-                defaultParameters,
-                requiredParameters,
-                defaultListeners
-            )
-
-        if (rejectRequests) {
-            check(eventChannel.offer(Event(requestSequence = requestSequence, rejected = true)))
-            return false
-        }
-
-        val signal = synchronized(lock) {
-            requestSequenceQueue.add(requestSequence)
-            pendingSequence?.also {
-                pendingSequence = null
-            }
-        }
-        requestSequence.invokeOnSequenceCreated()
-        requestSequence.invokeOnSequenceSubmitted()
-        signal?.complete(requestSequence)
-
-        check(eventChannel.offer(Event(requestSequence = requestSequence, submit = true)))
-
-        return true
-    }
+    ): Boolean = submit(listOf(request), defaultParameters, requiredParameters, defaultListeners)
 
     override fun submit(
         requests: List<Request>,
@@ -119,7 +91,11 @@ public class FakeRequestProcessor(
                 defaultListeners
             )
         if (rejectRequests) {
-            check(eventChannel.offer(Event(requestSequence = requestSequence, rejected = true)))
+            check(
+                eventChannel
+                    .trySend(Event(requestSequence = requestSequence, rejected = true))
+                    .isSuccess
+            )
             return false
         }
 
@@ -133,7 +109,11 @@ public class FakeRequestProcessor(
         requestSequence.invokeOnSequenceSubmitted()
         signal?.complete(requestSequence)
 
-        check(eventChannel.offer(Event(requestSequence = requestSequence, submit = true)))
+        check(
+            eventChannel
+                .trySend(Event(requestSequence = requestSequence, submit = true))
+                .isSuccess
+        )
 
         return true
     }
@@ -153,7 +133,11 @@ public class FakeRequestProcessor(
                 defaultListeners
             )
         if (rejectRequests) {
-            check(eventChannel.offer(Event(requestSequence = requestSequence, rejected = true)))
+            check(
+                eventChannel
+                    .trySend(Event(requestSequence = requestSequence, rejected = true))
+                    .isSuccess
+            )
             return false
         }
 
@@ -167,7 +151,11 @@ public class FakeRequestProcessor(
         requestSequence.invokeOnSequenceSubmitted()
         signal?.complete(requestSequence)
 
-        check(eventChannel.offer(Event(requestSequence = requestSequence, startRepeating = true)))
+        check(
+            eventChannel
+                .trySend(Event(requestSequence = requestSequence, startRepeating = true))
+                .isSuccess
+        )
         return true
     }
 
@@ -180,7 +168,7 @@ public class FakeRequestProcessor(
         for (sequence in requestSequencesToAbort) {
             sequence.invokeOnSequenceAborted()
         }
-        check(eventChannel.offer(Event(abort = true)))
+        check(eventChannel.trySend(Event(abort = true)).isSuccess)
     }
 
     override fun stopRepeating() {
@@ -190,14 +178,14 @@ public class FakeRequestProcessor(
             }
         }
         requestSequence?.invokeOnSequenceAborted()
-        check(eventChannel.offer(Event(stop = true)))
+        check(eventChannel.trySend(Event(stop = true)).isSuccess)
     }
 
     override fun close() {
         synchronized(lock) {
             rejectRequests = true
         }
-        check(eventChannel.offer(Event(close = true)))
+        check(eventChannel.trySend(Event(close = true)).isSuccess)
     }
 
     /**

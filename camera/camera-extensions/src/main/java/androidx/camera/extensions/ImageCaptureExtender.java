@@ -33,6 +33,7 @@ import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
@@ -42,7 +43,6 @@ import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.Config;
-import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
@@ -59,7 +59,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Class for using an OEM provided extension on image capture.
+ *
+ * @deprecated Use
+ * {@link ExtensionsManager#isExtensionAvailable(CameraProvider, CameraSelector, int)}
+ * to check whether extension function can support with the given {@link CameraSelector}. Use
+ * {@link ExtensionsManager#getExtensionEnabledCameraSelector(CameraProvider, CameraSelector, int)}
+ * to get a {@link CameraSelector} for the specific extension mode, then use it to bind the use
+ * cases to a lifecycle owner.
  */
+@Deprecated
 public abstract class ImageCaptureExtender {
     private static final String TAG = "ImageCaptureExtender";
     static final Config.Option<Integer> OPTION_IMAGE_CAPTURE_EXTENDER_MODE =
@@ -230,10 +238,10 @@ public abstract class ImageCaptureExtender {
 
         if (isMismatched) {
             ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
+                    ExtensionsErrorListener.ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
         } else if (!isPreviewExtenderEnabled) {
             ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
+                    ExtensionsErrorListener.ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
         }
     }
 

@@ -75,7 +75,7 @@ public class BiometricManagerTest {
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.Q)
+    @Config(minSdk = Build.VERSION_CODES.Q, maxSdk = 29)
     public void testCanAuthenticate_ReturnsError_WhenManagerReturnsNoneEnrolled_OnApi29AndAbove() {
         final android.hardware.biometrics.BiometricManager frameworkBiometricManager =
                 mock(android.hardware.biometrics.BiometricManager.class);
@@ -98,7 +98,7 @@ public class BiometricManagerTest {
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.Q)
+    @Config(minSdk = Build.VERSION_CODES.Q, maxSdk = 29)
     public void testCanAuthenticate_ReturnsError_WhenManagerReturnsNoHardware_OnApi29AndAbove() {
         final android.hardware.biometrics.BiometricManager frameworkBiometricManager =
                 mock(android.hardware.biometrics.BiometricManager.class);

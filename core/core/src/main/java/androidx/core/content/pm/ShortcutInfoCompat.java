@@ -879,7 +879,6 @@ public class ShortcutInfoCompat {
         /**
          * Creates a {@link ShortcutInfoCompat} instance.
          */
-        @SuppressLint("UnsafeNewApiCall")
         @NonNull
         public ShortcutInfoCompat build() {
             // Verify the arguments

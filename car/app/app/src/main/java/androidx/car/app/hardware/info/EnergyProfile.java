@@ -30,6 +30,7 @@ import androidx.car.app.hardware.common.CarValue;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Objects;
 
 /** Information about car hardware fuel profile such as fuel types and connector ports. */
@@ -115,14 +116,6 @@ public final class EnergyProfile {
     @EvConnectorType
     public static final int EVCONNECTOR_TYPE_OTHER = 101;
 
-    /** Energy profile request parameters. */
-    @SuppressWarnings("PrivateConstructorForUtilityClass")
-    public static final class Params {
-        public static @NonNull Params getDefault() {
-            return new Params();
-        }
-    }
-
     /**
      * Possible Fual types.
      *
@@ -176,11 +169,11 @@ public final class EnergyProfile {
 
     @Keep
     @NonNull
-    private final CarValue<Integer[]> mEvConnectorTypes;
+    private final CarValue<List<Integer>> mEvConnectorTypes;
 
     @Keep
     @NonNull
-    private final CarValue<Integer[]> mFuelTypes;
+    private final CarValue<List<Integer>> mFuelTypes;
 
     /**
      *  Returns an array of the available EV connectors.
@@ -190,7 +183,7 @@ public final class EnergyProfile {
      *  is known but not in the current list {@link #EVCONNECTOR_TYPE_UNKNOWN} will be returned.
      */
     @NonNull
-    public CarValue<Integer[]> getEvConnectorTypes() {
+    public CarValue<List<Integer>> getEvConnectorTypes() {
         return requireNonNull(mEvConnectorTypes);
     }
 
@@ -202,7 +195,7 @@ public final class EnergyProfile {
      *  {@link #EVCONNECTOR_TYPE_UNKNOWN} will be returned.
      */
     @NonNull
-    public CarValue<Integer[]> getFuelTypes() {
+    public CarValue<List<Integer>> getFuelTypes() {
         return requireNonNull(mFuelTypes);
     }
 
@@ -238,16 +231,14 @@ public final class EnergyProfile {
 
     /** Constructs an empty instance, used by serialization code. */
     private EnergyProfile() {
-        mEvConnectorTypes = CarValue.UNIMPLEMENTED_INTEGER_ARRAY;
-        mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_ARRAY;
+        mEvConnectorTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
+        mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
     }
 
     /** A builder of {@link EnergyProfile}. */
     public static final class Builder {
-        @Nullable
-        CarValue<Integer[]> mEvConnectorTypes;
-        @Nullable
-        CarValue<Integer[]> mFuelTypes;
+        CarValue<List<Integer>> mEvConnectorTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
+        CarValue<List<Integer>> mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
 
         /**
          * Sets the cars EV connector types.
@@ -255,7 +246,7 @@ public final class EnergyProfile {
          * @throws NullPointerException if {@code evConnectorTypes} is {@code null}
          */
         @NonNull
-        public Builder setEvConnectorTypes(@NonNull CarValue<Integer[]> evConnectorTypes) {
+        public Builder setEvConnectorTypes(@NonNull CarValue<List<Integer>> evConnectorTypes) {
             mEvConnectorTypes = requireNonNull(evConnectorTypes);
             return this;
         }
@@ -266,7 +257,7 @@ public final class EnergyProfile {
          * @throws NullPointerException if {@code fuelTypes} is {@code null}
          */
         @NonNull
-        public Builder setFuelTypes(@NonNull CarValue<Integer[]> fuelTypes) {
+        public Builder setFuelTypes(@NonNull CarValue<List<Integer>> fuelTypes) {
             mFuelTypes = requireNonNull(fuelTypes);
             return this;
         }
@@ -279,12 +270,6 @@ public final class EnergyProfile {
          */
         @NonNull
         public EnergyProfile build() {
-            if (mEvConnectorTypes == null) {
-                mEvConnectorTypes = CarValue.UNIMPLEMENTED_INTEGER_ARRAY;
-            }
-            if (mFuelTypes == null) {
-                mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_ARRAY;
-            }
             return new EnergyProfile(this);
         }
 

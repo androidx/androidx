@@ -40,10 +40,9 @@ import androidx.fragment.app.FragmentTransaction;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    // Possible values for this intent key (case-insensitive): "PreviewView", "CameraView".
+    // Possible values for this intent key (case-insensitive): "PreviewView"
     private static final String INTENT_EXTRA_VIEW_TYPE = "view_type";
     private static final String VIEW_TYPE_PREVIEW_VIEW = "PreviewView";
-    private static final String VIEW_TYPE_CAMERA_VIEW = "CameraView";
 
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{
@@ -60,15 +59,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Get extra option for checking whether it need to be implemented with PreviewView
+        // Get extra option for checking whether it needs to be implemented with PreviewView
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             final String viewTypeString = bundle.getString(INTENT_EXTRA_VIEW_TYPE);
-            final boolean isViewTypeValid =
-                    viewTypeString != null && (viewTypeString.equalsIgnoreCase(
-                            VIEW_TYPE_PREVIEW_VIEW) || viewTypeString.equalsIgnoreCase(
-                            VIEW_TYPE_CAMERA_VIEW));
-            if (isViewTypeValid && viewTypeString.equalsIgnoreCase(VIEW_TYPE_PREVIEW_VIEW)) {
+            if (VIEW_TYPE_PREVIEW_VIEW.equalsIgnoreCase(viewTypeString)) {
                 mMode = Mode.PREVIEW_VIEW;
             }
         }

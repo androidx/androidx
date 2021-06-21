@@ -78,11 +78,11 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     int mElementType;
 
     /**
-     * Optional ID of a single complication to render highlighted, only used with
+     * Optional ID of a single complication slot to render highlighted, only used with
      * {@link #ELEMENT_TYPE_COMPLICATION}.
      */
     @ParcelField(4)
-    int mElementComplicationId;
+    int mElementComplicationSlotId;
 
     /**
      * Optional UserStyleSetting to render highlighted, only non-null with
@@ -115,14 +115,14 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
             int drawMode,
             int watchFaceLayerSetBitfield,
             int elementType,
-            int complicationId,
+            int complicationSlotId,
             @Nullable String elementUserStyleSettingId,
             @ColorInt int highlightTint,
             @ColorInt int backgroundTint) {
         mDrawMode = drawMode;
         mWatchFaceLayerSetBitfield = watchFaceLayerSetBitfield;
         mElementType = elementType;
-        mElementComplicationId = complicationId;
+        mElementComplicationSlotId = complicationSlotId;
         mElementUserStyleSettingId = elementUserStyleSettingId;
         mHighlightTint = highlightTint;
         mBackgroundTint = backgroundTint;
@@ -153,8 +153,8 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
         return mElementType;
     }
 
-    public int getElementComplicationId() {
-        return mElementComplicationId;
+    public int getElementComplicationSlotId() {
+        return mElementComplicationSlotId;
     }
 
     @Nullable

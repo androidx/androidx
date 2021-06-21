@@ -68,6 +68,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     implementation(project(":benchmark:benchmark-common"))
+    implementation(project(":profileinstaller:profileinstaller"))
     implementation(libs.testCore)
     implementation(libs.testUiautomator)
     implementation(libs.wireRuntime)

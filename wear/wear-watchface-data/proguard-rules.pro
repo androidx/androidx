@@ -18,3 +18,9 @@
 -keep public class android.support.wearable.complications.ComplicationData { *; }
 -keep public class android.support.wearable.complications.ComplicationProviderInfo  { *; }
 -keep public class android.support.wearable.complications.ComplicationText { *; }
+-keep public class android.support.wearable.complications.ComplicationTextTemplate  { *; }
+-keep public class android.support.wearable.complications.TimeDependentText { *; }
+-keep public class android.support.wearable.complications.TimeDifferenceText { *; }
+-keep public class android.support.wearable.complications.TimeFormatText { *; }
+
+

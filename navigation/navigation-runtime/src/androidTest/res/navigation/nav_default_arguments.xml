@@ -90,6 +90,11 @@
             app:argType="string" />
 
         <argument
+            android:name="test_string_array"
+            android:defaultValue="@null"
+            app:argType="string[]" />
+
+        <argument
             android:name="test_long"
             android:defaultValue="456789013456L" />
         <argument

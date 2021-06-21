@@ -41,9 +41,9 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class ComplicationRenderParams implements VersionedParcelable, Parcelable {
 
-    /** ID of the complication we want to take a screen short of. */
+    /** ID of the complication slot we want to take a screen short of. */
     @ParcelField(1)
-    int mComplicationId;
+    int mComplicationSlotId;
 
     /** The {@link RenderParametersWireFormat} to render with. */
     @ParcelField(2)
@@ -75,20 +75,20 @@ public class ComplicationRenderParams implements VersionedParcelable, Parcelable
     ComplicationRenderParams() {}
 
     public ComplicationRenderParams(
-            int complicationId,
+            int complicationSlotId,
             @NonNull RenderParametersWireFormat renderParametersWireFormats,
             long calendarTimeMillis,
             @Nullable ComplicationData complicationData,
             @Nullable UserStyleWireFormat userStyle) {
-        mComplicationId = complicationId;
+        mComplicationSlotId = complicationSlotId;
         mRenderParametersWireFormats = renderParametersWireFormats;
         mCalendarTimeMillis = calendarTimeMillis;
         mComplicationData = complicationData;
         mUserStyle = userStyle;
     }
 
-    public int getComplicationId() {
-        return mComplicationId;
+    public int getComplicationSlotId() {
+        return mComplicationSlotId;
     }
 
     @NonNull

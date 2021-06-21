@@ -19,7 +19,7 @@ import android.graphics.Rect
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.wear.watchface.CanvasType
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ListenableWatchFaceService
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.Renderer
@@ -58,7 +58,7 @@ private class TestAsyncListenableWatchFaceService :
     override fun createWatchFaceFuture(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ListenableFuture<WatchFace> {
         val future = SettableFuture.create<WatchFace>()
@@ -77,10 +77,14 @@ private class TestAsyncListenableWatchFaceService :
     suspend fun createWatchFaceForTest(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
-        complicationsManager: ComplicationsManager,
+        complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ): WatchFace =
-        createWatchFace(surfaceHolder, watchState, complicationsManager, currentUserStyleRepository)
+    ): WatchFace = createWatchFace(
+        surfaceHolder,
+        watchState,
+        complicationSlotsManager,
+        currentUserStyleRepository
+    )
 }
 
 /**
@@ -98,11 +102,12 @@ public class AsyncListenableWatchFaceServiceTest {
         runBlocking {
             val currentUserStyleRepository =
                 CurrentUserStyleRepository(UserStyleSchema(emptyList()))
-            val complicationsManager = ComplicationsManager(emptyList(), currentUserStyleRepository)
+            val complicationSlotsManager =
+                ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
             val watchFace = service.createWatchFaceForTest(
                 mockSurfaceHolder,
                 MutableWatchState().asWatchState(),
-                complicationsManager,
+                complicationSlotsManager,
                 currentUserStyleRepository
             )
 

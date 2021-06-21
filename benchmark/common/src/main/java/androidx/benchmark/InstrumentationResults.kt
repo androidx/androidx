@@ -23,6 +23,7 @@ import java.text.NumberFormat
 
 /**
  * Provides a way to capture all the instrumentation results which needs to be reported.
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class InstrumentationResultScope(public val bundle: Bundle = Bundle()) {
@@ -60,6 +61,7 @@ public class InstrumentationResultScope(public val bundle: Bundle = Bundle()) {
 
 /**
  * Provides way to report additional results via `Instrumentation.sendStatus()` / `addResult()`.
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object InstrumentationResults {

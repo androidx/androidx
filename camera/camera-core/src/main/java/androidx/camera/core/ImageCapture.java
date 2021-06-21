@@ -1871,8 +1871,8 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * Exposed internally so that CameraView can overwrite the flip horizontal flag for front
-         * camera. External core API users shouldn't need this be cause they are the one who
+         * Exposed internally so that CameraController can overwrite the flip horizontal flag for
+         * front camera. External core API users shouldn't need this because they are the ones who
          * created the {@link Metadata}.
          *
          * @hide

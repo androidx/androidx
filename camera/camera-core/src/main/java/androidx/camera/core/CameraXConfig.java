@@ -65,8 +65,8 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
      * of CameraX.
      *
      * <p>{@linkplain
-     * androidx.camera.lifecycle.ProcessCameraProvider#getInstance(android.content.Context) An
-     * example} of how this is used can be found in the {@link androidx.camera.lifecycle} package.
+     * androidx.camera.lifecycle.ProcessCameraProvider#getInstance(android.content.Context)
+     * Examples} of how this is used can be found in the {@link androidx.camera.lifecycle} package.
      */
     public interface Provider {
         /** Returns the configuration to use for initializing an instance of CameraX. */
@@ -153,44 +153,43 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     }
 
     /**
-     * Returns the camera executor.
+     * Returns the camera executor which CameraX will use to drive the camera stack.
      *
-     * @hide
+     * @see Builder#setCameraExecutor(Executor)
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public Executor getCameraExecutor(@Nullable Executor valueIfMissing) {
         return mConfig.retrieveOption(OPTION_CAMERA_EXECUTOR, valueIfMissing);
     }
 
     /**
-     * Returns the scheduling handler.
+     * Returns the scheduling handler that CameraX will use internally for scheduling future tasks.
      *
-     * @hide
+     * @see Builder#setSchedulerHandler(Handler)
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public Handler getSchedulerHandler(@Nullable Handler valueIfMissing) {
         return mConfig.retrieveOption(OPTION_SCHEDULER_HANDLER, valueIfMissing);
     }
 
     /**
-     * Returns the minimum logging level.
+     * Returns the minimum logging level to be used for CameraX logs.
+     *
+     * @see Builder#setMinimumLoggingLevel(int)
      */
-    @ExperimentalLogging
     public int getMinimumLoggingLevel() {
         return mConfig.retrieveOption(OPTION_MIN_LOGGING_LEVEL, Logger.DEFAULT_MIN_LOG_LEVEL);
     }
 
     /**
      * Returns the {@link CameraSelector} used to determine the available cameras.
+     *
+     * @see Builder#setAvailableCamerasLimiter(CameraSelector)
      */
-    @ExperimentalAvailableCamerasLimiter
     @Nullable
     public CameraSelector getAvailableCamerasLimiter(@Nullable CameraSelector valueIfMissing) {
         return mConfig.retrieveOption(OPTION_AVAILABLE_CAMERAS_LIMITER, valueIfMissing);
     }
-
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -316,7 +315,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
          *
          * @see #setCameraExecutor(Executor)
          */
-        @ExperimentalCustomizableThreads
         @NonNull
         public Builder setSchedulerHandler(@NonNull Handler handler) {
             getMutableConfig().insertOption(OPTION_SCHEDULER_HANDLER, handler);
@@ -331,12 +329,14 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
          * <p>
          * When not specified, the default minimum logging level used inside CameraX is
          * {@link Log#DEBUG}.
+         * <p>
+         * For apps that want to reduce the logs produced by CameraX, set it to {@link Log#ERROR}
+         * to avoid all logs except for error.
          *
          * @param logLevel The minimum logging level, which should be {@link Log#DEBUG},
          *                 {@link Log#INFO}, {@link Log#WARN} or {@link Log#ERROR}.
          * @return This {@link Builder} instance.
          */
-        @ExperimentalLogging
         @NonNull
         public Builder setMinimumLoggingLevel(
                 @IntRange(from = Log.DEBUG, to = Log.ERROR) int logLevel) {
@@ -361,7 +361,6 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
          * cameras, it can set this configuration with {@link CameraSelector#DEFAULT_BACK_CAMERA}
          * and then CameraX will avoid initializing front facing cameras to reduce the latency.
          */
-        @ExperimentalAvailableCamerasLimiter
         @NonNull
         public Builder setAvailableCamerasLimiter(
                 @NonNull CameraSelector availableCameraSelector) {

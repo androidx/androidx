@@ -1,8 +1,38 @@
 // Signature format: 4.0
+package androidx.wear.tiles.client {
+
+  public interface TileProviderClient {
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> getApiVersion();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> onTileAdded();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> onTileEnter();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> onTileLeave();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> onTileRemoved();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> resourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile!> tileRequest(androidx.wear.tiles.RequestBuilders.TileRequest);
+  }
+
+}
+
+package androidx.wear.tiles.connection {
+
+  public final class DefaultTileProviderClient implements androidx.wear.tiles.client.TileProviderClient {
+    ctor public DefaultTileProviderClient(android.content.Context context, android.content.ComponentName componentName, kotlinx.coroutines.CoroutineScope coroutineScope, kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
+    ctor public DefaultTileProviderClient(android.content.Context context, android.content.ComponentName componentName, java.util.concurrent.Executor executor);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer> getApiVersion();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileAdded();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileEnter();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileLeave();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileRemoved();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> resourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> tileRequest(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
+  }
+
+}
+
 package androidx.wear.tiles.manager {
 
-  public final class TileClient implements java.lang.AutoCloseable {
-    ctor public TileClient(android.content.Context context, android.content.ComponentName component, android.view.ViewGroup parentView);
+  public final class TileUiClient implements java.lang.AutoCloseable {
+    ctor public TileUiClient(android.content.Context context, android.content.ComponentName component, android.view.ViewGroup parentView);
     method @MainThread public void close();
     method @MainThread public void connect();
   }

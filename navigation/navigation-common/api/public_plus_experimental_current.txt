@@ -72,8 +72,6 @@ package androidx.navigation {
     method public androidx.navigation.NavType<java.lang.Object> getType();
     method public boolean isDefaultValuePresent();
     method public boolean isNullable();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void putDefaultValue(String name, android.os.Bundle bundle);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean verify(String name, android.os.Bundle bundle);
     property public final Object? defaultValue;
     property public final boolean isDefaultValuePresent;
     property public final boolean isNullable;
@@ -108,39 +106,25 @@ package androidx.navigation {
     method public androidx.navigation.NavDestination getDestination();
     method public String getId();
     method public androidx.lifecycle.Lifecycle getLifecycle();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.lifecycle.Lifecycle.State getMaxLifecycle();
     method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event event);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void replaceArguments(android.os.Bundle? newArgs);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void saveState(android.os.Bundle outBundle);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setArguments(android.os.Bundle? p);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setMaxLifecycle(androidx.lifecycle.Lifecycle.State maxState);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void updateState();
     property public final android.os.Bundle? arguments;
     property public final androidx.navigation.NavDestination destination;
     property public final String id;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.lifecycle.Lifecycle.State maxLifecycle;
     property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
   }
 
   public final class NavDeepLink {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public NavDeepLink(String uri);
     method public String? getAction();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.os.Bundle? getMatchingArguments(android.net.Uri deepLink, java.util.Map<java.lang.String,androidx.navigation.NavArgument> arguments);
     method public String? getMimeType();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getMimeTypeMatchRating(String mimeType);
     method public String? getUriPattern();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isExactDeepLink();
     property public final String? action;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final boolean isExactDeepLink;
     property public final String? mimeType;
     property public final String? uriPattern;
   }
 
   public static final class NavDeepLink.Builder {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public NavDeepLink.Builder();
     method public androidx.navigation.NavDeepLink build();
     method public static androidx.navigation.NavDeepLink.Builder fromAction(String action);
     method public static androidx.navigation.NavDeepLink.Builder fromMimeType(String mimeType);
@@ -171,8 +155,6 @@ package androidx.navigation {
   }
 
   public class NavDeepLinkRequest {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public NavDeepLinkRequest(android.net.Uri? uri, String? action, String? mimeType);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public NavDeepLinkRequest(android.content.Intent intent);
     method public String? getAction();
     method public String? getMimeType();
     method public android.net.Uri? getUri();
@@ -204,12 +186,8 @@ package androidx.navigation {
     method public final void addArgument(String argumentName, androidx.navigation.NavArgument argument);
     method public final void addDeepLink(String uriPattern);
     method public final void addDeepLink(androidx.navigation.NavDeepLink navDeepLink);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final android.os.Bundle? addInDefaultArgs(android.os.Bundle? args);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final int[] buildDeepLinkIds(optional androidx.navigation.NavDestination? previousDestination);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final int[] buildDeepLinkIds();
     method public final androidx.navigation.NavAction? getAction(@IdRes int id);
     method public final java.util.Map<java.lang.String,androidx.navigation.NavArgument> getArguments();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public String getDisplayName();
     method public static final kotlin.sequences.Sequence<androidx.navigation.NavDestination> getHierarchy(androidx.navigation.NavDestination);
     method @IdRes public final int getId();
     method public final CharSequence? getLabel();
@@ -218,21 +196,16 @@ package androidx.navigation {
     method public final String? getRoute();
     method public boolean hasDeepLink(android.net.Uri deepLink);
     method public boolean hasDeepLink(androidx.navigation.NavDeepLinkRequest deepLinkRequest);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.navigation.NavDestination.DeepLinkMatch? matchDeepLink(androidx.navigation.NavDeepLinkRequest navDeepLinkRequest);
     method @CallSuper public void onInflate(android.content.Context context, android.util.AttributeSet attrs);
     method protected static final <C> Class<? extends C> parseClassFromName(android.content.Context context, String name, Class<? extends C> expectedClassType);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final <C> Class<? extends C> parseClassFromNameInternal(android.content.Context context, String name, Class<? extends C> expectedClassType);
     method public final void putAction(@IdRes int actionId, @IdRes int destId);
     method public final void putAction(@IdRes int actionId, androidx.navigation.NavAction action);
     method public final void removeAction(@IdRes int actionId);
     method public final void removeArgument(String argumentName);
     method public final void setId(@IdRes int id);
     method public final void setLabel(CharSequence? p);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void setParent(androidx.navigation.NavGraph? p);
     method public final void setRoute(String? route);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean supportsActions();
     property public final java.util.Map<java.lang.String,androidx.navigation.NavArgument> arguments;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public String displayName;
     property @IdRes public final int id;
     property public final CharSequence? label;
     property public final String navigatorName;
@@ -249,17 +222,7 @@ package androidx.navigation {
   public static final class NavDestination.Companion {
     method public kotlin.sequences.Sequence<androidx.navigation.NavDestination> getHierarchy(androidx.navigation.NavDestination);
     method protected <C> Class<? extends C> parseClassFromName(android.content.Context context, String name, Class<? extends C> expectedClassType);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <C> Class<? extends C> parseClassFromNameInternal(android.content.Context context, String name, Class<? extends C> expectedClassType);
     property public final kotlin.sequences.Sequence<androidx.navigation.NavDestination> hierarchy;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class NavDestination.DeepLinkMatch implements java.lang.Comparable<androidx.navigation.NavDestination.DeepLinkMatch> {
-    ctor public NavDestination.DeepLinkMatch(androidx.navigation.NavDestination destination, android.os.Bundle? matchingArgs, boolean isExactDeepLink, boolean hasMatchingAction, int mimeTypeMatchLevel);
-    method public int compareTo(androidx.navigation.NavDestination.DeepLinkMatch other);
-    method public androidx.navigation.NavDestination getDestination();
-    method public android.os.Bundle? getMatchingArgs();
-    property public final androidx.navigation.NavDestination destination;
-    property public final android.os.Bundle? matchingArgs;
   }
 
   @androidx.navigation.NavDestinationDsl public class NavDestinationBuilder<D extends androidx.navigation.NavDestination> {
@@ -301,8 +264,6 @@ package androidx.navigation {
     method public final androidx.navigation.NavDestination? findNode(@IdRes int resId);
     method public final androidx.navigation.NavDestination? findNode(String? route);
     method public static final androidx.navigation.NavDestination findStartDestination(androidx.navigation.NavGraph);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.collection.SparseArrayCompat<androidx.navigation.NavDestination> getNodes();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final String getStartDestDisplayName();
     method @Deprecated @IdRes public final int getStartDestination();
     method @IdRes public final int getStartDestinationId();
     method public final String? getStartDestinationRoute();
@@ -310,8 +271,6 @@ package androidx.navigation {
     method public final void remove(androidx.navigation.NavDestination node);
     method public final void setStartDestination(int startDestId);
     method public final void setStartDestination(String startDestRoute);
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.collection.SparseArrayCompat<androidx.navigation.NavDestination> nodes;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final String startDestDisplayName;
     property @IdRes public final int startDestinationId;
     property public final String? startDestinationRoute;
     field public static final androidx.navigation.NavGraph.Companion Companion;
@@ -420,10 +379,7 @@ package androidx.navigation {
     method public static androidx.navigation.NavType<?> fromArgType(String? type, String? packageName);
     method public abstract operator T? get(android.os.Bundle bundle, String key);
     method public abstract String getName();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.navigation.NavType<java.lang.Object> inferFromValue(String value);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.navigation.NavType<java.lang.Object> inferFromValueType(Object? value);
     method public boolean isNullableAllowed();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final T! parseAndPut(android.os.Bundle bundle, String key, String value);
     method public abstract T! parseValue(String value);
     method public abstract void put(android.os.Bundle bundle, String key, T? value);
     property public boolean isNullableAllowed;
@@ -444,8 +400,6 @@ package androidx.navigation {
 
   public static final class NavType.Companion {
     method public androidx.navigation.NavType<?> fromArgType(String? type, String? packageName);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.navigation.NavType<java.lang.Object> inferFromValue(String value);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.navigation.NavType<java.lang.Object> inferFromValueType(Object? value);
   }
 
   public static final class NavType.EnumType<D extends java.lang.Enum<?>> extends androidx.navigation.NavType.SerializableType<D> {
@@ -520,8 +474,6 @@ package androidx.navigation {
     method @CallSuper public androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>? addNavigator(String name, androidx.navigation.Navigator<? extends androidx.navigation.NavDestination> navigator);
     method public final <T extends androidx.navigation.Navigator<?>> T getNavigator(Class<T> navigatorClass);
     method @CallSuper public <T extends androidx.navigation.Navigator<?>> T getNavigator(String name);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final java.util.Map<java.lang.String,androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>> getNavigators();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final java.util.Map<java.lang.String,androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>> navigators;
   }
 
   public final class NavigatorProviderKt {
@@ -534,10 +486,18 @@ package androidx.navigation {
   public abstract class NavigatorState {
     ctor public NavigatorState();
     method public void add(androidx.navigation.NavBackStackEntry backStackEntry);
+    method public androidx.navigation.NavigatorState.OnTransitionCompleteListener addWithTransition(androidx.navigation.NavBackStackEntry backStackEntry);
     method public abstract androidx.navigation.NavBackStackEntry createBackStackEntry(androidx.navigation.NavDestination destination, android.os.Bundle? arguments);
     method public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getBackStack();
+    method public final kotlinx.coroutines.flow.StateFlow<java.util.Map<androidx.navigation.NavBackStackEntry,androidx.navigation.NavigatorState.OnTransitionCompleteListener>> getTransitionsInProgress();
     method public void pop(androidx.navigation.NavBackStackEntry popUpTo, boolean saveState);
+    method public androidx.navigation.NavigatorState.OnTransitionCompleteListener popWithTransition(androidx.navigation.NavBackStackEntry popUpTo, boolean saveState);
     property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> backStack;
+    property public final kotlinx.coroutines.flow.StateFlow<java.util.Map<androidx.navigation.NavBackStackEntry,androidx.navigation.NavigatorState.OnTransitionCompleteListener>> transitionsInProgress;
+  }
+
+  public static fun interface NavigatorState.OnTransitionCompleteListener {
+    method public void onTransitionComplete();
   }
 
   @androidx.navigation.NavOptionsDsl public final class PopUpToBuilder {

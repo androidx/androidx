@@ -20,6 +20,7 @@ package androidx.lifecycle
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -88,10 +89,11 @@ public fun <T> Flow<T>.asLiveData(
  * BackPressure: the returned flow is conflated. There is no mechanism to suspend an emission by
  * LiveData due to a slow collector, so collector always gets the most recent value emitted.
  */
+@OptIn(DelicateCoroutinesApi::class)
 public fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
     val channel = Channel<T>(Channel.CONFLATED)
     val observer = Observer<T> {
-        channel.offer(it)
+        channel.trySend(it)
     }
     withContext(Dispatchers.Main.immediate) {
         observeForever(observer)

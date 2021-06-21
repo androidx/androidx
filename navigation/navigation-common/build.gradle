@@ -23,6 +23,12 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+}
+
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")

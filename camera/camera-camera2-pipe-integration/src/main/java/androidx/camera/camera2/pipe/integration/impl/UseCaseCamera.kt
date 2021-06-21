@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
@@ -29,13 +28,13 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
+import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
+import androidx.camera.camera2.pipe.integration.adapter.getImplementationOptionParameters
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
-import androidx.camera.core.impl.utils.futures.FutureCallback
-import androidx.camera.core.impl.utils.futures.Futures
 import dagger.Module
 import dagger.Provides
 import kotlinx.atomicfu.atomic
@@ -81,6 +80,7 @@ class UseCaseCameraImpl(
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val currentParameters = mutableMapOf<CaptureRequest.Key<*>, Any>()
+    private var activeSessionConfigAdapter: SessionConfigAdapter? = null
 
     private var _activeUseCases = setOf<UseCase>()
     override var activeUseCases: Set<UseCase>
@@ -89,6 +89,7 @@ class UseCaseCameraImpl(
             // Note: This may be called with the same set of values that was previously set. This
             // is used as a signal to indicate the properties of the UseCase may have changed.
             _activeUseCases = value
+            activeSessionConfigAdapter = SessionConfigAdapter(_activeUseCases.toList(), threads)
             updateUseCases()
         }
 
@@ -166,14 +167,26 @@ class UseCaseCameraImpl(
                     }
                 }
             }
-
-            val repeatingCallbacks = useCase.sessionConfig?.repeatingCameraCaptureCallbacks
-            repeatingCallbacks?.forEach {
-                repeatingListeners.addCaptureCallback(it, threads.backgroundExecutor)
-            }
         }
 
-        state.update(streams = repeatingStreamIds, listeners = setOf(repeatingListeners))
+        activeSessionConfigAdapter?.getValidSessionConfigOrNull()?.let { sessionConfig ->
+            sessionConfig.repeatingCameraCaptureCallbacks.forEach { callback ->
+                repeatingListeners.addCaptureCallback(
+                    callback,
+                    threads.backgroundExecutor
+                )
+            }
+
+            // Only update the state when the SessionConfig is valid
+            state.update(
+                parameters = sessionConfig.getImplementationOptionParameters(),
+                streams = repeatingStreamIds,
+                listeners = setOf(repeatingListeners)
+            )
+        } ?: run {
+            debug { "Unable to reset the session due to invalid config" }
+            // TODO: Consider to reset the session if there is no valid config.
+        }
     }
 
     override fun toString(): String = "UseCaseCamera-$debugId"
@@ -226,23 +239,14 @@ class UseCaseCameraImpl(
                     if (stream != null && deferredSurfaces != null && deferredSurfaces.size == 1) {
                         val deferredSurface = deferredSurfaces.first()
                         surfaceToStreamMap[deferredSurface] = stream.id
-
-                        Futures.addCallback(
-                            deferredSurface.surface,
-                            object : FutureCallback<Surface?> {
-                                override fun onSuccess(result: Surface?) {
-                                    debug { "Configured $result for $stream" }
-                                    graph.setSurface(stream.id, result)
-                                }
-
-                                override fun onFailure(t: Throwable) {
-                                    debug(t) { "Surface for $deferredSurface failed to arrive!" }
-                                    graph.setSurface(stream.id, null)
-                                }
-                            },
-                            threads.backgroundExecutor
-                        )
                     }
+                }
+
+                val adapter = SessionConfigAdapter(useCases, threads)
+                if (adapter.isSessionConfigValid()) {
+                    adapter.setupSurfaceAsync(graph, surfaceToStreamMap)
+                } else {
+                    debug { "Unable to create capture session due to conflicting configurations" }
                 }
 
                 val state = UseCaseCameraState(graph, threads)

@@ -66,6 +66,8 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
+import androidx.savedstate.SavedStateRegistry;
+import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -92,6 +94,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * {@link FragmentActivity#getSupportFragmentManager}.
  */
 public abstract class FragmentManager implements FragmentResultOwner {
+    static final String SAVED_STATE_TAG = "android:support:fragments";
     private static boolean DEBUG = false;
 
     /** @hide */
@@ -2016,7 +2019,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // atomic operation and intermediate fragments aren't moved all the way
         // up to the RESUMED state
         for (int i = index; i < mBackStack.size(); i++) {
-            BackStackRecord record = mBackStack.get(index);
+            BackStackRecord record = mBackStack.get(i);
             if (!record.mReorderingAllowed) {
                 throwException(new IllegalArgumentException("saveBackStack(\"" + name + "\") "
                         + "included FragmentTransactions must use setReorderingAllowed(true) "
@@ -2030,7 +2033,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // that fragment includes an OP_ADD
         HashSet<Fragment> allFragments = new HashSet<>();
         for (int i = index; i < mBackStack.size(); i++) {
-            BackStackRecord record = mBackStack.get(index);
+            BackStackRecord record = mBackStack.get(i);
             HashSet<Fragment> affectedFragments = new HashSet<>();
             HashSet<Fragment> addedFragments = new HashSet<>();
             for (FragmentTransaction.Op op : record.mOps) {
@@ -2039,11 +2042,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     continue;
                 }
                 if (!op.mFromExpandedOp || op.mCmd == FragmentTransaction.OP_ADD
+                        || op.mCmd == FragmentTransaction.OP_REPLACE
                         || op.mCmd == FragmentTransaction.OP_SET_PRIMARY_NAV) {
                     allFragments.add(f);
                     affectedFragments.add(f);
                 }
-                if (op.mCmd == FragmentTransaction.OP_ADD) {
+                if (op.mCmd == FragmentTransaction.OP_ADD
+                        || op.mCmd == FragmentTransaction.OP_REPLACE) {
                     addedFragments.add(f);
                 }
             }
@@ -2208,6 +2213,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     Parcelable saveAllState() {
+        if (mHost instanceof SavedStateRegistryOwner) {
+            throwException(new IllegalStateException("You cannot use saveAllState when your "
+                    + "FragmentHostCallback implements SavedStateRegistryOwner."));
+        }
+        return saveAllStateInternal();
+    }
+
+    Parcelable saveAllStateInternal() {
         // Make sure all pending operations have now been executed to get
         // our state update-to-date.
         forcePostponedTransactions();
@@ -2271,10 +2284,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     + "FragmentHostCallback implements ViewModelStoreOwner"));
         }
         mNonConfig.restoreFromSnapshot(nonConfig);
-        restoreSaveState(state);
+        restoreSaveStateInternal(state);
     }
 
     void restoreSaveState(@Nullable Parcelable state) {
+        if (mHost instanceof SavedStateRegistryOwner) {
+            throwException(new IllegalStateException("You cannot use restoreSaveState when your "
+                    + "FragmentHostCallback implements SavedStateRegistryOwner."));
+        }
+        restoreSaveStateInternal(state);
+    }
+
+    void restoreSaveStateInternal(@Nullable Parcelable state) {
         // If there is no saved state at all, then there's nothing else to do
         if (state == null) return;
         FragmentManagerState fms = (FragmentManagerState) state;
@@ -2458,6 +2479,27 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // Ensure that the state is in sync with FragmentManager
         mNonConfig.setIsStateSaved(isStateSaved());
         mFragmentStore.setNonConfig(mNonConfig);
+
+        if (mHost instanceof SavedStateRegistryOwner && parent == null) {
+            SavedStateRegistry registry =
+                    ((SavedStateRegistryOwner) mHost).getSavedStateRegistry();
+            registry.registerSavedStateProvider(SAVED_STATE_TAG, () -> {
+                        Bundle outState = new Bundle();
+                        Parcelable p = saveAllStateInternal();
+                        if (p != null) {
+                            outState.putParcelable(SAVED_STATE_TAG, p);
+                        }
+                        return outState;
+                    }
+            );
+
+            Bundle savedInstanceState = registry
+                    .consumeRestoredStateForKey(SAVED_STATE_TAG);
+            if (savedInstanceState != null) {
+                Parcelable p = savedInstanceState.getParcelable(SAVED_STATE_TAG);
+                restoreSaveStateInternal(p);
+            }
+        }
 
         if (mHost instanceof ActivityResultRegistryOwner) {
             ActivityResultRegistry registry =

@@ -28,6 +28,8 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class RecordingStats {
 
+    public static final RecordingStats EMPTY_STATS = of(0, 0);
+
     @NonNull
     static RecordingStats of(long duration, long bytes) {
         Preconditions.checkArgument(duration >= 0, "duration must be positive value.");

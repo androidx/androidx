@@ -14,9 +14,7 @@
  * limitations under the License
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -26,24 +24,24 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.2.0-rc01")
+    api("androidx.annotation:annotation:1.2.0")
     api("androidx.appcompat:appcompat:1.1.0")
     // Use the latest version of core library for verifying insets visibility
-    api(project(":core:core"))
+    api("androidx.core:core:1.6.0-rc01")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.fragment:fragment:1.2.4")
     api("androidx.recyclerview:recyclerview:1.0.0")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
-    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(MULTIDEX)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.multidex)
 }
 
 android {

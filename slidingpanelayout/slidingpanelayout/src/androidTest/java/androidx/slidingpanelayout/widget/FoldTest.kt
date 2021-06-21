@@ -24,6 +24,7 @@ import androidx.slidingpanelayout.widget.helpers.findViewById
 import androidx.slidingpanelayout.widget.helpers.findViewX
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import androidx.window.WindowManager
@@ -47,6 +48,7 @@ public class FoldTest {
     /**
      * Test split views in middle when fold vertically
      */
+    @FlakyTest(bugId = 190609880)
     @Test
     public fun testFoldVertical() {
         TestActivity.onActivityCreated = { activity ->
@@ -107,6 +109,7 @@ public class FoldTest {
     /**
      * Test split views when fold pane is smaller than required min width
      */
+    @FlakyTest(bugId = 190609880)
     @Test
     public fun testFoldExceedMinWidth() {
         val detailViewExtraWidth = 200

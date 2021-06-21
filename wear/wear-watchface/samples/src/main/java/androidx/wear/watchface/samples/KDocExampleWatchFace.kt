@@ -24,14 +24,14 @@ import android.graphics.RectF
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.Sampled
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
@@ -104,16 +104,16 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 )
             )
 
-        override fun createComplicationsManager(
+        override fun createComplicationSlotsManager(
             currentUserStyleRepository: CurrentUserStyleRepository
-        ): ComplicationsManager {
+        ): ComplicationSlotsManager {
             val canvasComplicationFactory =
                 CanvasComplicationFactory { watchState, listener ->
                     CanvasComplicationDrawable(ComplicationDrawable(this), watchState, listener)
                 }
-            return ComplicationsManager(
+            return ComplicationSlotsManager(
                 listOf(
-                    Complication.createRoundRectComplicationBuilder(
+                    ComplicationSlot.createRoundRectComplicationSlotBuilder(
                         /*id */ 0,
                         canvasComplicationFactory,
                         listOf(
@@ -124,10 +124,10 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.SMALL_IMAGE
                         ),
                         DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
-                        ComplicationBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
+                        ComplicationSlotBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
                     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build(),
-                    Complication.createRoundRectComplicationBuilder(
+                    ComplicationSlot.createRoundRectComplicationSlotBuilder(
                         /*id */ 1,
                         canvasComplicationFactory,
                         listOf(
@@ -138,7 +138,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.SMALL_IMAGE
                         ),
                         DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_STEP_COUNT),
-                        ComplicationBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
+                        ComplicationSlotBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
                     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build()
                 ),
@@ -149,7 +149,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
         override suspend fun createWatchFace(
             surfaceHolder: SurfaceHolder,
             watchState: WatchState,
-            complicationsManager: ComplicationsManager,
+            complicationSlotsManager: ComplicationSlotsManager,
             currentUserStyleRepository: CurrentUserStyleRepository
         ) = WatchFace(
             WatchFaceType.ANALOG,

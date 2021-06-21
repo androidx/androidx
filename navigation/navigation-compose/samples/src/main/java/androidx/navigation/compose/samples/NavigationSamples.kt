@@ -41,6 +41,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 
@@ -93,6 +94,21 @@ fun NavScaffold() {
             composable(Screen.Profile.route) { Profile(navController) }
             composable(Screen.Dashboard.route) { Dashboard(navController) }
             composable(Screen.Scrollable.route) { Scrollable(navController) }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun NavWithArgs() {
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = Screen.Profile.route) {
+        composable(Screen.Profile.route) { Profile(navController) }
+        composable(
+            Screen.Dashboard.route,
+            arguments = listOf(navArgument("userId") { defaultValue = "no value given" })
+        ) { backStackEntry ->
+            Dashboard(navController, backStackEntry.arguments?.getString("userId"))
         }
     }
 }

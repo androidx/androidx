@@ -47,27 +47,27 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
     @Nullable
     @Override
     public CharSequence getTextBeforeCursor(int n, int flags) {
-        return mServiceDispatcher.fetch(null, () ->
+        return mServiceDispatcher.fetch("getTextBeforeCursor", null, () ->
                 mProxyInputConnection.getTextBeforeCursor(n, flags));
     }
 
     @Nullable
     @Override
     public CharSequence getTextAfterCursor(int n, int flags) {
-        return mServiceDispatcher.fetch(null, () ->
+        return mServiceDispatcher.fetch("getTextAfterCursor", null, () ->
                 mProxyInputConnection.getTextAfterCursor(n, flags));
     }
 
     @Nullable
     @Override
     public CharSequence getSelectedText(int flags) {
-        return mServiceDispatcher.fetch(null, () ->
+        return mServiceDispatcher.fetch("getSelectedText", null, () ->
                 mProxyInputConnection.getSelectedText(flags));
     }
 
     @Override
     public int getCursorCapsMode(int reqModes) {
-        Integer res = mServiceDispatcher.fetch(0, () ->
+        Integer res = mServiceDispatcher.fetch("getCursorCapsMode", 0, () ->
                 mProxyInputConnection.getCursorCapsMode(reqModes));
         return res != null ? res : 0;
     }
@@ -76,13 +76,13 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
     @Override
     public ExtractedText getExtractedText(@NonNull ExtractedTextRequest request, int flags) {
         requireNonNull(request);
-        return mServiceDispatcher.fetch(null, () ->
+        return mServiceDispatcher.fetch("getExtractedText", null, () ->
                         mProxyInputConnection.getExtractedText(request, flags));
     }
 
     @Override
     public boolean deleteSurroundingText(int beforeLength, int afterLength) {
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("deleteSurroundingText", false, () ->
                 mProxyInputConnection.deleteSurroundingText(beforeLength, afterLength));
         return success != null ? success : false;
     }
@@ -90,21 +90,21 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
     @Override
     public boolean setComposingText(@NonNull CharSequence text, int newCursorPosition) {
         requireNonNull(text);
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("setComposingText", false, () ->
                 mProxyInputConnection.setComposingText(text, newCursorPosition));
         return success != null ? success : false;
     }
 
     @Override
     public boolean setComposingRegion(int start, int end) {
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("setComposingRegion", false, () ->
                 mProxyInputConnection.setComposingRegion(start, end));
         return success != null ? success : false;
     }
 
     @Override
     public boolean finishComposingText() {
-        Boolean success = mServiceDispatcher.fetch(false,
+        Boolean success = mServiceDispatcher.fetch("finishComposingText", false,
                 mProxyInputConnection::finishComposingText);
         return success != null ? success : false;
     }
@@ -112,7 +112,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
     @Override
     public boolean commitText(@NonNull CharSequence text, int newCursorPosition) {
         requireNonNull(text);
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("commitText", false, () ->
                 mProxyInputConnection.commitText(text, newCursorPosition));
         return success != null ? success : false;
     }
@@ -120,7 +120,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
     @Override
     public boolean commitCompletion(@NonNull CompletionInfo text) {
         requireNonNull(text);
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("commitCompletion", false, () ->
                 mProxyInputConnection.commitCompletion(text));
         return success != null ? success : false;
     }
@@ -128,62 +128,64 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
     @Override
     public boolean commitCorrection(@NonNull CorrectionInfo correctionInfo) {
         requireNonNull(correctionInfo);
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("commitCorrection", false, () ->
                 mProxyInputConnection.commitCorrection(correctionInfo));
         return success != null ? success : false;
     }
 
     @Override
     public boolean setSelection(int start, int end) {
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("setSelection", false, () ->
                 mProxyInputConnection.setSelection(start, end));
         return success != null ? success : false;
     }
 
     @Override
     public boolean performEditorAction(int editorAction) {
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("performEditorAction", false, () ->
                 mProxyInputConnection.performEditorAction(editorAction));
         return success != null ? success : false;
     }
 
     @Override
     public boolean performContextMenuAction(int id) {
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("performContextMenuAction", false, () ->
                 mProxyInputConnection.performContextMenuAction(id));
         return success != null ? success : false;
     }
 
     @Override
     public boolean beginBatchEdit() {
-        Boolean success = mServiceDispatcher.fetch(false, mProxyInputConnection::beginBatchEdit);
+        Boolean success = mServiceDispatcher.fetch("beginBatchEdit", false,
+                mProxyInputConnection::beginBatchEdit);
         return success != null ? success : false;
     }
 
     @Override
     public boolean endBatchEdit() {
-        Boolean success = mServiceDispatcher.fetch(false, mProxyInputConnection::endBatchEdit);
+        Boolean success = mServiceDispatcher.fetch("endBatchEdit", false,
+                mProxyInputConnection::endBatchEdit);
         return success != null ? success : false;
     }
 
     @Override
     public boolean sendKeyEvent(@NonNull KeyEvent event) {
         requireNonNull(event);
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("sendKeyEvent", false, () ->
                 mProxyInputConnection.sendKeyEvent(event));
         return success != null ? success : false;
     }
 
     @Override
     public boolean clearMetaKeyStates(int states) {
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("clearMetaKeyStates", false, () ->
                 mProxyInputConnection.clearMetaKeyStates(states));
         return success != null ? success : false;
     }
 
     @Override
     public boolean reportFullscreenMode(boolean enabled) {
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("requestFullscreenMode", false, () ->
                 mProxyInputConnection.reportFullscreenMode(enabled));
         return success != null ? success : false;
     }
@@ -192,21 +194,21 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
     public boolean performPrivateCommand(@NonNull String action, @NonNull Bundle data) {
         requireNonNull(action);
         requireNonNull(data);
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("performPrivateCommand", false, () ->
                 mProxyInputConnection.performPrivateCommand(action, data));
         return success != null ? success : false;
     }
 
     @Override
     public boolean requestCursorUpdates(int cursorUpdateMode) {
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("requestCursorUpdates", false, () ->
                 mProxyInputConnection.requestCursorUpdates(cursorUpdateMode));
         return success != null ? success : false;
     }
 
     @Override
     public void closeConnection() {
-        mServiceDispatcher.dispatch(mProxyInputConnection::closeConnection);
+        mServiceDispatcher.dispatch("closeConnection", mProxyInputConnection::closeConnection);
     }
 
     @Nullable
