@@ -32,8 +32,8 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.createGraph
 import androidx.navigation.Navigator
+import androidx.navigation.createGraph
 import androidx.navigation.get
 
 /**
@@ -135,4 +135,11 @@ public fun NavHost(
             }
         }
     }
+
+    val dialogNavigator = navController.navigatorProvider.get<Navigator<out NavDestination>>(
+        DialogNavigator.NAME
+    ) as? DialogNavigator ?: return
+
+    // Show any dialog destinations
+    dialogNavigator.Dialogs()
 }
