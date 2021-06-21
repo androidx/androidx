@@ -103,5 +103,16 @@ public class DynamicActivityNavigator(
                 moduleName = getString(R.styleable.DynamicActivityNavigator_moduleName)
             }
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is Destination) return false
+            return super.equals(other) && moduleName == other.moduleName
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + moduleName.hashCode()
+            return result
+        }
     }
 }

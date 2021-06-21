@@ -234,5 +234,19 @@ public class DynamicGraphNavigator(
                 }
             }
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is DynamicNavGraph) return false
+            return super.equals(other) &&
+                moduleName == other.moduleName &&
+                progressDestination == other.progressDestination
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + moduleName.hashCode()
+            result = 31 * result + progressDestination.hashCode()
+            return result
+        }
     }
 }

@@ -194,6 +194,17 @@ public class DialogFragmentNavigator(
             _className = className
             return this
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is Destination) return false
+            return super.equals(other) && _className == other._className
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + _className.hashCode()
+            return result
+        }
     }
 
     private companion object {
