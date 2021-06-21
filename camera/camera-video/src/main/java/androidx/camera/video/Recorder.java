@@ -206,6 +206,11 @@ public final class Recorder implements VideoOutput {
     long mRecordingDurationNs = 0L;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mFirstRecordingVideoDataTimeUs = 0L;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    long mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @VideoRecordEvent.VideoRecordError
+    int mRecordingStopError = VideoRecordEvent.ERROR_UNKNOWN;
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec) {
         mUserProvidedExecutor = executor;
@@ -429,7 +434,7 @@ public final class Recorder implements VideoOutput {
                 case RELEASED:
                     throw new IllegalStateException("The Recorder has been released.");
                 case ERROR:
-                    finalizeRecordingWithError(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
+                    finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
             }
 
@@ -462,7 +467,7 @@ public final class Recorder implements VideoOutput {
                 case RELEASED:
                     throw new IllegalStateException("The Recorder has been released.");
                 case ERROR:
-                    finalizeRecordingWithError(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
+                    finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
             }
         }
@@ -493,7 +498,7 @@ public final class Recorder implements VideoOutput {
                 case RELEASED:
                     throw new IllegalStateException("The Recorder has been released.");
                 case ERROR:
-                    finalizeRecordingWithError(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
+                    finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
             }
         }
@@ -507,7 +512,7 @@ public final class Recorder implements VideoOutput {
                 case PENDING_PAUSED:
                     // Fall-through
                 case INITIALIZING:
-                    finalizeRecordingWithError(VideoRecordEvent.ERROR_RECORDER_UNINITIALIZED,
+                    finalizeRecording(VideoRecordEvent.ERROR_RECORDER_UNINITIALIZED,
                             new IllegalStateException("The Recorder hasn't been initialized."));
                     setState(State.INITIALIZING);
                     break;
@@ -516,14 +521,14 @@ public final class Recorder implements VideoOutput {
                 case PAUSED:
                     // Fall-through
                 case RECORDING:
-                    mSequentialExecutor.execute(this::stopInternal);
+                    mSequentialExecutor.execute(() -> stopInternal(VideoRecordEvent.ERROR_NONE));
                     break;
                 case RELEASING:
                     // Fall-through
                 case RELEASED:
                     throw new IllegalStateException("The Recorder has been released.");
                 case ERROR:
-                    finalizeRecordingWithError(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
+                    finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
             }
         }
@@ -557,7 +562,7 @@ public final class Recorder implements VideoOutput {
                     setState(State.RELEASING);
                     // If there's an active recording, stop it first then release the resources
                     // at finalizeRecording().
-                    mSequentialExecutor.execute(this::stopInternal);
+                    mSequentialExecutor.execute(() -> stopInternal(VideoRecordEvent.ERROR_NONE));
                     break;
                 case RELEASING:
                     // Fall-through
@@ -755,10 +760,20 @@ public final class Recorder implements VideoOutput {
                         return;
                     }
 
-                    mRecordingBytes += encodedData.size();
+                    long newRecordingBytes = mRecordingBytes + encodedData.size();
+                    if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
+                            && mRecordingBytes + encodedData.size() > mFileSizeLimitInBytes) {
+                        Logger.d(TAG,
+                                String.format("Reach file size limit %d > %d", newRecordingBytes,
+                                        mFileSizeLimitInBytes));
+                        stopInternal(VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED);
+                        return;
+                    }
 
                     mMediaMuxer.writeSampleData(mAudioTrackIndex, encodedData.getByteBuffer(),
                             encodedData.getBufferInfo());
+
+                    mRecordingBytes = newRecordingBytes;
                 }
             }
 
@@ -889,15 +904,26 @@ public final class Recorder implements VideoOutput {
                         return;
                     }
 
+                    long newRecordingBytes = mRecordingBytes + encodedData.size();
+                    if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
+                            && newRecordingBytes > mFileSizeLimitInBytes) {
+                        Logger.d(TAG,
+                                String.format("Reach file size limit %d > %d", newRecordingBytes,
+                                        mFileSizeLimitInBytes));
+                        stopInternal(VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED);
+                        return;
+                    }
+
+                    mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
+                            encodedData.getBufferInfo());
+
+                    mRecordingBytes = newRecordingBytes;
+
                     if (mFirstRecordingVideoDataTimeUs == 0L) {
                         mFirstRecordingVideoDataTimeUs = encodedData.getPresentationTimeUs();
                     }
                     mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
                             encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
-                    mRecordingBytes += encodedData.size();
-
-                    mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
-                            encodedData.getBufferInfo());
 
                     updateVideoRecordEvent(
                             VideoRecordEvent.status(
@@ -931,12 +957,12 @@ public final class Recorder implements VideoOutput {
                 new FutureCallback<List<Void>>() {
                     @Override
                     public void onSuccess(@Nullable List<Void> result) {
-                        finalizeRecording();
+                        finalizeRecording(mRecordingStopError, null);
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-                        finalizeRecordingWithError(VideoRecordEvent.ERROR_ENCODING_FAILED, t);
+                        finalizeRecording(VideoRecordEvent.ERROR_ENCODING_FAILED, t);
                     }
                 }, mSequentialExecutor);
         Preconditions.checkNotNull(mMediaMuxer).start();
@@ -980,7 +1006,7 @@ public final class Recorder implements VideoOutput {
                 mOutputUri = mediaStoreOutputOptions.getContentResolver().insert(
                         mediaStoreOutputOptions.getCollection(), contentValues);
                 if (mOutputUri == null) {
-                    finalizeRecordingWithError(VideoRecordEvent.ERROR_INVALID_OUTPUT_OPTIONS,
+                    finalizeRecording(VideoRecordEvent.ERROR_INVALID_OUTPUT_OPTIONS,
                             new IOException("Unable to create MediaStore entry."));
                     return;
                 }
@@ -1012,8 +1038,18 @@ public final class Recorder implements VideoOutput {
         try {
             setupMediaMuxer(Preconditions.checkNotNull(mRunningRecording).getOutputOptions());
         } catch (IOException e) {
-            finalizeRecordingWithError(VideoRecordEvent.ERROR_INVALID_OUTPUT_OPTIONS, e);
+            finalizeRecording(VideoRecordEvent.ERROR_INVALID_OUTPUT_OPTIONS, e);
             return;
+        }
+
+        if (mRunningRecording.getOutputOptions().getFileSizeLimit() > 0) {
+            // Use %95 of the given file size limit as the criteria, which refers to the
+            // MPEG4Writer.cpp in libstagefright.
+            mFileSizeLimitInBytes = Math.round(
+                    mRunningRecording.getOutputOptions().getFileSizeLimit() * 0.95);
+            Logger.d(TAG, "File size limit in bytes: " + mFileSizeLimitInBytes);
+        } else {
+            mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
         }
 
         mAudioSource.start();
@@ -1047,7 +1083,8 @@ public final class Recorder implements VideoOutput {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    void stopInternal() {
+    void stopInternal(@VideoRecordEvent.VideoRecordError int stopError) {
+        mRecordingStopError = stopError;
         mAudioEncoder.stop();
         mVideoEncoder.stop();
     }
@@ -1073,13 +1110,7 @@ public final class Recorder implements VideoOutput {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    void finalizeRecording() {
-        finalizeRecordingWithError(VideoRecordEvent.ERROR_NONE, null);
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @ExecutedBy("mSequentialExecutor")
-    void finalizeRecordingWithError(@VideoRecordEvent.VideoRecordError int error,
+    void finalizeRecording(@VideoRecordEvent.VideoRecordError int error,
             @Nullable Throwable throwable) {
         OutputOptions outputOptions =
                 Preconditions.checkNotNull(mRunningRecording).getOutputOptions();
@@ -1112,6 +1143,8 @@ public final class Recorder implements VideoOutput {
         mRecordingBytes = 0L;
         mRecordingDurationNs = 0L;
         mFirstRecordingVideoDataTimeUs = 0L;
+        mRecordingStopError = VideoRecordEvent.ERROR_UNKNOWN;
+        mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
 
         synchronized (mLock) {
             if (getObservableData(mState) == State.RELEASING) {
