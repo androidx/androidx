@@ -26,7 +26,6 @@ import com.google.common.util.concurrent.MoreExecutors
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -36,11 +35,6 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 public class WindowManagerTest : WindowTestBase() {
-
-    @After
-    public fun tearDown() {
-        WindowBoundsHelper.setForTesting(null)
-    }
 
     @Test
     public fun testConstructor_activity() {
@@ -88,11 +82,11 @@ public class WindowManagerTest : WindowTestBase() {
     public fun testGetCurrentWindowMetrics() {
         val backend = mock<WindowBackend>()
         val activity = mock<Activity>()
-        val wm = WindowManager(activity, backend)
+        val windowMetricsCalculator = TestWindowMetricsCalculator()
         val bounds = Rect(1, 2, 3, 4)
-        val mWindowBoundsHelper = TestWindowBoundsHelper()
-        mWindowBoundsHelper.setCurrentBoundsForActivity(activity, bounds)
-        WindowBoundsHelper.setForTesting(mWindowBoundsHelper)
+        windowMetricsCalculator.setCurrentBoundsForActivity(activity, bounds)
+        val wm = WindowManager(activity, backend)
+        wm.windowMetricsCalculator = windowMetricsCalculator
         val windowMetrics = wm.getCurrentWindowMetrics()
         assertNotNull(windowMetrics)
         assertEquals(bounds, windowMetrics.bounds)
@@ -102,11 +96,11 @@ public class WindowManagerTest : WindowTestBase() {
     public fun testGetMaximumWindowMetrics() {
         val backend = mock<WindowBackend>()
         val activity = mock<Activity>()
-        val wm = WindowManager(activity, backend)
         val bounds = Rect(0, 2, 4, 5)
-        val mWindowBoundsHelper = TestWindowBoundsHelper()
-        mWindowBoundsHelper.setMaximumBoundsForActivity(activity, bounds)
-        WindowBoundsHelper.setForTesting(mWindowBoundsHelper)
+        val windowMetricsCalculator = TestWindowMetricsCalculator()
+        windowMetricsCalculator.setMaximumBoundsForActivity(activity, bounds)
+        val wm = WindowManager(activity, backend)
+        wm.windowMetricsCalculator = windowMetricsCalculator
         val windowMetrics = wm.getMaximumWindowMetrics()
         assertNotNull(windowMetrics)
         assertEquals(bounds, windowMetrics.bounds)

@@ -35,6 +35,7 @@ import android.view.ViewConfiguration;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.Suppress;
@@ -146,6 +147,7 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Test
+    @FlakyTest(bugId = 190192628)
     public void swipeEndInRTL() throws Throwable {
         mSetupRTL = true;
         basicSwipeTest(END, START | END, -getActivity().getWindow().getDecorView().getWidth());

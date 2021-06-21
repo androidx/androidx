@@ -18,10 +18,10 @@ package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.UserStyleSetting.Id.Companion.MAX_LENGTH
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
@@ -44,7 +44,7 @@ import java.security.InvalidParameterException
 /**
  * Watch faces often have user configurable styles, the definition of what is a style is left up to
  * the watch face but it typically incorporates a variety of settings such as: color, visual theme
- * for watch hands, font, tick shape, complications, audio elements, etc...
+ * for watch hands, font, tick shape, complication slots, audio elements, etc...
  *
  * A UserStyleSetting represents one of these dimensions. See also [UserStyleSchema] which defines
  * the list of UserStyleSettings provided by the watch face.
@@ -118,7 +118,7 @@ public sealed class UserStyleSetting(
             is BooleanUserStyleSettingWireFormat -> BooleanUserStyleSetting(wireFormat)
 
             is ComplicationsUserStyleSettingWireFormat ->
-                ComplicationsUserStyleSetting(wireFormat)
+                ComplicationSlotsUserStyleSetting(wireFormat)
 
             is CustomValueUserStyleSettingWireFormat -> CustomValueUserStyleSetting(wireFormat)
 
@@ -224,7 +224,7 @@ public sealed class UserStyleSetting(
                         BooleanUserStyleSetting.BooleanOption(wireFormat)
 
                     is ComplicationsOptionWireFormat ->
-                        ComplicationsUserStyleSetting.ComplicationsOption(wireFormat)
+                        ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(wireFormat)
 
                     is CustomValueOptionWireFormat ->
                         CustomValueUserStyleSetting.CustomValueOption(wireFormat)
@@ -350,50 +350,51 @@ public sealed class UserStyleSetting(
     }
 
     /**
-     * ComplicationsUserStyleSetting is the recommended [UserStyleSetting] for representing
-     * complication configuration options such as the number of active complications, their
-     * location, etc... The [ComplicationsOption] class allows you to apply a list of
-     * [ComplicationOverlay]s on top of the base config as specified by the
-     * [androidx.wear.watchface.Complication] constructor.
+     * ComplicationSlotsUserStyleSetting is the recommended [UserStyleSetting] for representing
+     * complication slot configuration, options such as the number of active complication slots,
+     * their location, etc... The [ComplicationSlotsOption] class allows you to apply a list of
+     * [ComplicationSlotOverlay]s on top of the base config as specified by the
+     * [androidx.wear.watchface.ComplicationSlot] constructor.
      *
      * The ComplicationsManager listens for style changes with this setting and when a
-     * [ComplicationsOption] is selected the overrides are automatically applied. Note its suggested
-     * that the default [ComplicationOverlay] (the first entry in the list) does not apply any
-     * overrides. Only a single [ComplicationsUserStyleSetting] is permitted in the
-     * [UserStyleSchema].
+     * [ComplicationSlotsOption] is selected the overrides are automatically applied. Note its
+     * suggested that the default [ComplicationSlotOverlay] (the first entry in the list) does
+     * not apply any overrides. Only a single [ComplicationSlotsUserStyleSetting] is permitted in
+     * the [UserStyleSchema].
      *
      * Not to be confused with complication provider selection.
      */
-    public class ComplicationsUserStyleSetting : UserStyleSetting {
+    public class ComplicationSlotsUserStyleSetting : UserStyleSetting {
 
         /**
-         * Overrides to be applied to the corresponding complication's initial config (as specified
-         * in [androidx.wear.watchface.Complication]) when the setting is selected.
+         * Overrides to be applied to the corresponding androidx.wear.watchface.ComplicationSlot]'s
+         * initial config (as specified in it's constructor) when the setting is selected.
          *
-         * @param complicationId The [Id] of the complication to configure.
+         * @param complicationSlotId The id of the [androidx.wear.watchface.ComplicationSlot] to
+         * configure.
          * @param enabled If non null, whether the complication should be enabled for this
          * configuration. If null then no changes are made.
-         * @param complicationBounds If non null, the [ComplicationBounds] for this
+         * @param complicationSlotBounds If non null, the [ComplicationSlotBounds] for this
          * configuration. If null then no changes are made.
          * @param accessibilityTraversalIndex If non null the accessibility traversal index
          * for this configuration. This is used to determine the order in which accessibility labels
          * for the watch face are read to the user.
          */
-        public class ComplicationOverlay constructor(
-            public val complicationId: Int,
+        public class ComplicationSlotOverlay constructor(
+            public val complicationSlotId: Int,
             @get:JvmName("isEnabled")
             public val enabled: Boolean? = null,
-            public val complicationBounds: ComplicationBounds? = null,
+            public val complicationSlotBounds: ComplicationSlotBounds? = null,
             @SuppressWarnings("AutoBoxing")
             @get:SuppressWarnings("AutoBoxing")
             public val accessibilityTraversalIndex: Int? = null
         ) {
             public class Builder(
-                /** The id of the complication to configure. */
-                private val complicationId: Int
+                /** The id of the [androidx.wear.watchface.ComplicationSlot] to configure. */
+                private val complicationSlotId: Int
             ) {
                 private var enabled: Boolean? = null
-                private var complicationBounds: ComplicationBounds? = null
+                private var complicationSlotBounds: ComplicationSlotBounds? = null
                 private var accessibilityTraversalIndex: Int? = null
 
                 /** Overrides the complication's enabled flag. */
@@ -401,14 +402,16 @@ public sealed class UserStyleSetting(
                     this.enabled = enabled
                 }
 
-                /** Overrides the complication's per [ComplicationBounds]. */
-                public fun setComplicationBounds(complicationBounds: ComplicationBounds): Builder =
-                    apply {
-                        this.complicationBounds = complicationBounds
-                    }
+                /** Overrides the complication's per [ComplicationSlotBounds]. */
+                public fun setComplicationSlotBounds(
+                    complicationSlotBounds: ComplicationSlotBounds
+                ): Builder = apply {
+                    this.complicationSlotBounds = complicationSlotBounds
+                }
 
                 /**
-                 * Overrides the complication's accessibility traversal index. This is used to sort
+                 * Overrides the [androidx.wear.watchface.ComplicationSlot]'s accessibility
+                 * traversal index. This is used to sort
                  * [androidx.wear.watchface.ContentDescriptionLabel]s. If unset we will order the
                  * complications by their initial accessibilityTraversalIndex (usually the same
                  * as their id).
@@ -418,11 +421,11 @@ public sealed class UserStyleSetting(
                         this.accessibilityTraversalIndex = accessibilityTraversalIndex
                     }
 
-                public fun build(): ComplicationOverlay =
-                    ComplicationOverlay(
-                        complicationId,
+                public fun build(): ComplicationSlotOverlay =
+                    ComplicationSlotOverlay(
+                        complicationSlotId,
                         enabled,
-                        complicationBounds,
+                        complicationSlotBounds,
                         accessibilityTraversalIndex
                     )
             }
@@ -430,7 +433,7 @@ public sealed class UserStyleSetting(
             internal constructor(
                 wireFormat: ComplicationOverlayWireFormat
             ) : this(
-                wireFormat.mComplicationId,
+                wireFormat.mComplicationSlotId,
                 when (wireFormat.mEnabled) {
                     ComplicationOverlayWireFormat.ENABLED_UNKNOWN -> null
                     ComplicationOverlayWireFormat.ENABLED_YES -> true
@@ -440,7 +443,7 @@ public sealed class UserStyleSetting(
                     )
                 },
                 wireFormat.mPerComplicationTypeBounds?.let {
-                    ComplicationBounds(
+                    ComplicationSlotBounds(
                         it.mapKeys { ComplicationType.fromWireType(it.key) }
                     )
                 },
@@ -449,9 +452,9 @@ public sealed class UserStyleSetting(
 
             internal fun toWireFormat() =
                 ComplicationOverlayWireFormat(
-                    complicationId,
+                    complicationSlotId,
                     enabled,
-                    complicationBounds?.perComplicationTypeBounds?.mapKeys {
+                    complicationSlotBounds?.perComplicationTypeBounds?.mapKeys {
                         it.key.toWireComplicationType()
                     },
                     accessibilityTraversalIndex
@@ -459,7 +462,7 @@ public sealed class UserStyleSetting(
         }
 
         /**
-         * Constructs a [ComplicationsUserStyleSetting].
+         * Constructs a [ComplicationSlotsUserStyleSetting].
          *
          * @param id [Id] for the element, must be unique.
          * @param displayName Localized human readable name for the element, used in the userStyle
@@ -479,9 +482,9 @@ public sealed class UserStyleSetting(
             displayName: CharSequence,
             description: CharSequence,
             icon: Icon?,
-            complicationConfig: List<ComplicationsOption>,
+            complicationConfig: List<ComplicationSlotsOption>,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultOption: ComplicationsOption = complicationConfig.first()
+            defaultOption: ComplicationSlotsOption = complicationConfig.first()
         ) : super(
             id,
             displayName,
@@ -511,13 +514,16 @@ public sealed class UserStyleSetting(
                 affectedWatchFaceLayers.map { it.ordinal }
             )
 
-        /** Represents an override to the initial complication configuration. */
-        public class ComplicationsOption : Option {
+        /**
+         * Represents an override to the initial [androidx.wear.watchface.ComplicationSlotsManager]
+         * configuration.
+         */
+        public class ComplicationSlotsOption : Option {
             /**
-             * Overlays to be applied when this ComplicationsOption is selected. If this is empty
+             * Overlays to be applied when this ComplicationSlotsOption is selected. If this is empty
              * then the net result is the initial complication configuration.
              */
-            public val complicationOverlays: Collection<ComplicationOverlay>
+            public val complicationSlotOverlays: Collection<ComplicationSlotOverlay>
 
             /** Localized human readable name for the setting, used in the style selection UI. */
             public val displayName: CharSequence
@@ -526,23 +532,23 @@ public sealed class UserStyleSetting(
             public val icon: Icon?
 
             /**
-             * Constructs a [ComplicationsUserStyleSetting].
+             * Constructs a [ComplicationSlotsUserStyleSetting].
              *
              * @param id [Id] for the element, must be unique.
              * @param displayName Localized human readable name for the element, used in the
              * userStyle selection UI.
              * @param icon [Icon] for use in the style selection UI.
-             * @param complicationOverlays Overlays to be applied when this ComplicationsOption is
-             * selected. If this is empty then the net result is the initial complication
-             * configuration.
+             * @param complicationSlotOverlays Overlays to be applied when this
+             * ComplicationSlotsOption is selected. If this is empty then the net result is the
+             * initial complication configuration.
              */
             public constructor(
                 id: Id,
                 displayName: CharSequence,
                 icon: Icon?,
-                complicationOverlays: Collection<ComplicationOverlay>
+                complicationSlotOverlays: Collection<ComplicationSlotOverlay>
             ) : super(id) {
-                this.complicationOverlays = complicationOverlays
+                this.complicationSlotOverlays = complicationSlotOverlays
                 this.displayName = displayName
                 this.icon = icon
             }
@@ -550,8 +556,8 @@ public sealed class UserStyleSetting(
             internal constructor(
                 wireFormat: ComplicationsOptionWireFormat
             ) : super(Id(wireFormat.mId)) {
-                complicationOverlays =
-                    wireFormat.mComplicationOverlays.map { ComplicationOverlay(it) }
+                complicationSlotOverlays =
+                    wireFormat.mComplicationOverlays.map { ComplicationSlotOverlay(it) }
                 displayName = wireFormat.mDisplayName
                 icon = wireFormat.mIcon
             }
@@ -564,7 +570,7 @@ public sealed class UserStyleSetting(
                         id.value,
                         displayName,
                         icon,
-                        complicationOverlays.map { it.toWireFormat() }.toTypedArray()
+                        complicationSlotOverlays.map { it.toWireFormat() }.toTypedArray()
                     )
         }
     }
@@ -951,7 +957,7 @@ public sealed class UserStyleSetting(
     /**
      * An application specific style setting. This style is ignored by the system editor. This is
      * expected to be used in conjunction with an on watch face editor. Only a single
-     * [ComplicationsUserStyleSetting] is permitted in the [UserStyleSchema].
+     * [ComplicationSlotsUserStyleSetting] is permitted in the [UserStyleSchema].
      */
     public class CustomValueUserStyleSetting : UserStyleSetting {
         internal companion object {

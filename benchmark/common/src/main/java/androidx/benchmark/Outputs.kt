@@ -16,7 +16,6 @@
 
 package androidx.benchmark
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Environment
 import android.util.Log
@@ -50,7 +49,6 @@ public object Outputs {
         // Be explicit about the TimeZone for stable formatting
         formatter.timeZone = TimeZone.getTimeZone("UTC")
 
-        @SuppressLint("UnsafeNewApiCall", "NewApi")
         @Suppress("DEPRECATION")
         dirUsableByAppAndShell = when {
             Build.VERSION.SDK_INT == 30 -> {

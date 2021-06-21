@@ -16,7 +16,6 @@
 
 package androidx.camera.extensions;
 
-import static androidx.camera.extensions.util.ExtensionsTestUtil.assumeCompatibleDevice;
 import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -79,6 +78,7 @@ import java.util.concurrent.TimeoutException;
 @LargeTest
 @RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+@SuppressWarnings("deprecation")
 public class ExtensionTest {
 
     @Rule
@@ -102,6 +102,7 @@ public class ExtensionTest {
     private FakeLifecycleOwner mFakeLifecycleOwner;
     private CameraSelector mBaseCameraSelector;
     private CameraSelector mExtensionsCameraSelector;
+    private ExtensionsManager mExtensionsManager;
 
     public ExtensionTest(ExtensionsManager.EffectMode effectMode,
             @CameraSelector.LensFacing int lensFacing) {
@@ -112,21 +113,21 @@ public class ExtensionTest {
 
     @Before
     public void setUp() throws Exception {
-        assumeCompatibleDevice();
         assumeTrue(CameraUtil.deviceHasCamera());
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
 
         mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(10000,
                 TimeUnit.MILLISECONDS);
-        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
+        mExtensionsManager = ExtensionsManager.getInstance(mContext).get(10000,
+                TimeUnit.MILLISECONDS);
         assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
         mBaseCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
-        ExtensionsInfo extensionsInfo = ExtensionsManager.getExtensionsInfo(mContext);
-        assumeTrue(extensionsInfo.isExtensionAvailable(mProcessCameraProvider, mBaseCameraSelector,
-                mExtensionMode));
+        assumeTrue(
+                mExtensionsManager.isExtensionAvailable(mProcessCameraProvider, mBaseCameraSelector,
+                        mExtensionMode));
 
-        mExtensionsCameraSelector = extensionsInfo.getExtensionCameraSelector(mBaseCameraSelector,
-                mExtensionMode);
+        mExtensionsCameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
+                mProcessCameraProvider, mBaseCameraSelector, mExtensionMode);
 
         mFakeLifecycleOwner = new FakeLifecycleOwner();
         mFakeLifecycleOwner.startAndResume();
@@ -136,7 +137,7 @@ public class ExtensionTest {
     public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
         if (mProcessCameraProvider != null) {
             mProcessCameraProvider.shutdown().get(10000, TimeUnit.MILLISECONDS);
-            ExtensionsManager.deinit().get(10000, TimeUnit.MILLISECONDS);
+            mExtensionsManager.shutdown().get(10000, TimeUnit.MILLISECONDS);
         }
     }
 

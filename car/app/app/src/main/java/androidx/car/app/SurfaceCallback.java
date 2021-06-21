@@ -33,7 +33,8 @@ public interface SurfaceCallback {
      *
      * @param surfaceContainer the {@link SurfaceContainer} that is ready for drawing
      */
-    void onSurfaceAvailable(@NonNull SurfaceContainer surfaceContainer);
+    default void onSurfaceAvailable(@NonNull SurfaceContainer surfaceContainer) {
+    }
 
     /**
      * Indicates that the visible area provided by the host has changed.
@@ -47,7 +48,8 @@ public interface SurfaceCallback {
      *                    Rect#isEmpty()} returns {@code true} for the visible area, then it is
      *                    currently unknown
      */
-    void onVisibleAreaChanged(@NonNull Rect visibleArea);
+    default void onVisibleAreaChanged(@NonNull Rect visibleArea) {
+    }
 
     /**
      * Indicates that the stable area provided by the host has changed.
@@ -61,7 +63,8 @@ public interface SurfaceCallback {
      *                   Rect#isEmpty()} returns {@code true} for the stable area, then it is
      *                   currently unknown
      */
-    void onStableAreaChanged(@NonNull Rect stableArea);
+    default void onStableAreaChanged(@NonNull Rect stableArea) {
+    }
 
     /**
      * Indicates that the {@link SurfaceContainer} provided by the host will be destroyed after this
@@ -69,7 +72,8 @@ public interface SurfaceCallback {
      *
      * @param surfaceContainer the {@link SurfaceContainer} being destroyed
      */
-    void onSurfaceDestroyed(@NonNull SurfaceContainer surfaceContainer);
+    default void onSurfaceDestroyed(@NonNull SurfaceContainer surfaceContainer) {
+    }
 
     /**
      * Provides information about a scroll touch event on the car screen.

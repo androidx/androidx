@@ -27,6 +27,9 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -149,7 +152,7 @@ class PagingDataDifferTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Refresh(
                 pages = listOf(TransformablePage(0, listOf(0, 1))),
                 placeholdersBefore = 4,
@@ -157,14 +160,14 @@ class PagingDataDifferTest {
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-1, listOf(-1, -2))),
                 placeholdersBefore = 2,
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Append(
                 pages = listOf(TransformablePage(1, listOf(2, 3))),
                 placeholdersAfter = 2,
@@ -205,7 +208,7 @@ class PagingDataDifferTest {
         // Insert a new page, PagingDataDiffer should try to resend hint since index 0 still points
         // to a placeholder:
         // [null, null, [], [-1], [1], [3], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
@@ -227,7 +230,7 @@ class PagingDataDifferTest {
 
         // Now index 0 has been loaded:
         // [[-3], [], [-1], [1], [3], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-3, listOf(-3, -4))),
                 placeholdersBefore = 0,
@@ -257,7 +260,7 @@ class PagingDataDifferTest {
 
         // Should only resend the hint for index 5, since index 0 has already been loaded:
         // [[-3], [], [-1], [1], [3], [], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Append(
                 pages = listOf(TransformablePage(2, listOf())),
                 placeholdersAfter = 2,
@@ -283,7 +286,7 @@ class PagingDataDifferTest {
 
         // Index 5 hasn't loaded, but we are at the end of the list:
         // [[-3], [], [-1], [1], [3], [], [5]]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Append(
                 pages = listOf(TransformablePage(3, listOf(4, 5))),
                 placeholdersAfter = 0,
@@ -305,7 +308,7 @@ class PagingDataDifferTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Refresh(
                 pages = listOf(TransformablePage(0, listOf(0, 1))),
                 placeholdersBefore = 4,
@@ -313,14 +316,14 @@ class PagingDataDifferTest {
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-1, listOf(-1, -2))),
                 placeholdersBefore = 2,
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Append(
                 pages = listOf(TransformablePage(1, listOf(2, 3))),
                 placeholdersAfter = 2,
@@ -361,7 +364,7 @@ class PagingDataDifferTest {
         // Insert a new page, PagingDataDiffer should try to resend hint since index 0 still points
         // to a placeholder:
         // [null, null, [], [-1], [1], [3], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
@@ -383,7 +386,7 @@ class PagingDataDifferTest {
 
         // Drop the previous page, which reset resendable index state in the PREPEND direction.
         // [null, null, [-1], [1], [3], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Drop(
                 loadType = PREPEND,
                 minPageOffset = -2,
@@ -395,7 +398,7 @@ class PagingDataDifferTest {
         // Re-insert the previous page, which should not trigger resending the index due to
         // previous page drop:
         // [[-3], [], [-1], [1], [3], null, null]
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
@@ -410,7 +413,7 @@ class PagingDataDifferTest {
     fun peek() = testScope.runBlockingTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Refresh(
                 pages = listOf(TransformablePage(0, listOf(0, 1))),
                 placeholdersBefore = 4,
@@ -418,14 +421,14 @@ class PagingDataDifferTest {
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Prepend(
                 pages = listOf(TransformablePage(-1, listOf(-1, -2))),
                 placeholdersBefore = 2,
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Append(
                 pages = listOf(TransformablePage(1, listOf(2, 3))),
                 placeholdersAfter = 2,
@@ -471,7 +474,7 @@ class PagingDataDifferTest {
             differ.collectFrom(PagingData(pageEventCh.consumeAsFlow(), uiReceiver))
         }
 
-        pageEventCh.offer(
+        pageEventCh.trySend(
             Refresh(
                 pages = listOf(TransformablePage(emptyList())),
                 placeholdersBefore = 0,
@@ -483,6 +486,178 @@ class PagingDataDifferTest {
         assertThat(uiReceiver.hints).isEqualTo(
             listOf(ViewportHint.Initial(0, 0, 0, 0))
         )
+
+        job.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedListener_empty() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val listenerEvents = mutableListOf<Unit>()
+        differ.addOnPagesUpdatedListener {
+            listenerEvents.add(Unit)
+        }
+
+        differ.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // No change to LoadState or presented list should still trigger the listener.
+        differ.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        val pager = Pager(PagingConfig(pageSize = 1)) { TestPagingSource(items = listOf()) }
+        val job = testScope.launch {
+            pager.flow.collectLatest { differ.collectFrom(it) }
+        }
+
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(3)
+
+        job.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedListener_insertDrop() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val listenerEvents = mutableListOf<Unit>()
+        differ.addOnPagesUpdatedListener {
+            listenerEvents.add(Unit)
+        }
+
+        val pager = Pager(PagingConfig(pageSize = 1, maxSize = 4), initialKey = 50) {
+            TestPagingSource()
+        }
+        val job = testScope.launch {
+            pager.flow.collectLatest { differ.collectFrom(it) }
+        }
+
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(0)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // Trigger PREPEND.
+        differ[50]
+        assertThat(listenerEvents.size).isEqualTo(1)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        // Trigger APPEND + Drop
+        differ[52]
+        assertThat(listenerEvents.size).isEqualTo(2)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(4)
+
+        job.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedFlow_empty() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val listenerEvents = mutableListOf<Unit>()
+        val job1 = testScope.launch {
+            differ.onPagesUpdatedFlow.collect {
+                listenerEvents.add(Unit)
+            }
+        }
+
+        differ.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // No change to LoadState or presented list should still trigger the listener.
+        differ.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        val pager = Pager(PagingConfig(pageSize = 1)) { TestPagingSource(items = listOf()) }
+        val job2 = testScope.launch {
+            pager.flow.collectLatest { differ.collectFrom(it) }
+        }
+
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(3)
+
+        job1.cancel()
+        job2.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedFlow_insertDrop() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val listenerEvents = mutableListOf<Unit>()
+        val job1 = testScope.launch {
+            differ.onPagesUpdatedFlow.collect {
+                listenerEvents.add(Unit)
+            }
+        }
+
+        val pager = Pager(PagingConfig(pageSize = 1, maxSize = 4), initialKey = 50) {
+            TestPagingSource()
+        }
+        val job2 = testScope.launch {
+            pager.flow.collectLatest { differ.collectFrom(it) }
+        }
+
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(0)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // Trigger PREPEND.
+        differ[50]
+        assertThat(listenerEvents.size).isEqualTo(1)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        // Trigger APPEND + Drop
+        differ[52]
+        assertThat(listenerEvents.size).isEqualTo(2)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(4)
+
+        job1.cancel()
+        job2.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedFlow_buffer() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val listenerEvents = mutableListOf<Unit>()
+
+        // Trigger update, which should get ignored due to onPagesUpdatedFlow being hot.
+        differ.collectFrom(PagingData.empty())
+
+        val job = testScope.launch {
+            differ.onPagesUpdatedFlow.collect {
+                listenerEvents.add(Unit)
+                // Await advanceUntilIdle() before accepting another event.
+                delay(100)
+            }
+        }
+
+        // Previous update before collection happened should be ignored.
+        assertThat(listenerEvents.size).isEqualTo(0)
+
+        // Trigger update; should get immediately received.
+        differ.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // Trigger 64 update while collector is still processing; should all get buffered.
+        repeat(64) { differ.collectFrom(PagingData.empty()) }
+
+        // Trigger another update while collector is still processing; should cause event to drop.
+        differ.collectFrom(PagingData.empty())
+
+        // Await all; we should now receive the buffered event.
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(65)
 
         job.cancel()
     }

@@ -17,6 +17,7 @@
 package androidx.camera.video;
 
 import android.annotation.SuppressLint;
+import android.media.MediaFormat;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -35,7 +36,12 @@ import java.lang.annotation.RetentionPolicy;
 @AutoValue
 public abstract class MediaSpec {
 
-    /** An output format that will be determined by the implementation of {@link VideoOutput}. */
+    private static final String AUDIO_FORMAT_MPEG4 = MediaFormat.MIMETYPE_AUDIO_AAC;
+    private static final String AUDIO_FORMAT_WEBM = "audio/webm";
+    private static final String VIDEO_FORMAT_MPEG4 = MediaFormat.MIMETYPE_VIDEO_AVC;
+    private static final String VIDEO_FORMAT_WEBM = MediaFormat.MIMETYPE_VIDEO_VP8;
+
+    /** The output format representing no preference for output format. */
     public static final int OUTPUT_FORMAT_AUTO = -1;
     /** MPEG4 media file format. */
     public static final int OUTPUT_FORMAT_MPEG_4 = 0;
@@ -47,6 +53,30 @@ public abstract class MediaSpec {
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public @interface OutputFormat {
+    }
+
+    @NonNull
+    static String outputFormatToAudioMime(@OutputFormat int outputFormat) {
+        switch (outputFormat) {
+            case MediaSpec.OUTPUT_FORMAT_WEBM:
+                return AUDIO_FORMAT_WEBM;
+            case MediaSpec.OUTPUT_FORMAT_MPEG_4:
+                // Fall-through
+            default:
+                return AUDIO_FORMAT_MPEG4;
+        }
+    }
+
+    @NonNull
+    static String outputFormatToVideoMime(@OutputFormat int outputFormat) {
+        switch (outputFormat) {
+            case MediaSpec.OUTPUT_FORMAT_WEBM:
+                return VIDEO_FORMAT_WEBM;
+            case MediaSpec.OUTPUT_FORMAT_MPEG_4:
+                // Fall-through
+            default:
+                return VIDEO_FORMAT_MPEG4;
+        }
     }
 
     // Doesn't allow inheritance outside of package
@@ -65,7 +95,6 @@ public abstract class MediaSpec {
     @NonNull
     public abstract AudioSpec getAudioSpec();
 
-
     /**
      * Returns the output file format.
      *
@@ -82,6 +111,12 @@ public abstract class MediaSpec {
                 .setAudioSpec(AudioSpec.builder().build())
                 .setVideoSpec(VideoSpec.builder().build());
     }
+
+    /**
+     * Returns a {@link Builder} instance with the same property values as this instance.
+     */
+    @NonNull
+    public abstract Builder toBuilder();
 
     /**
      * The builder for {@link MediaSpec}.
@@ -142,9 +177,10 @@ public abstract class MediaSpec {
         public abstract Builder setVideoSpec(@NonNull VideoSpec videoSpec);
 
         /**
-         * Configures the {@link AudioSpec} of this media specification with the given block.
-         * @param configBlock A consumer which provides the {@link AudioSpec.Builder} which will
-         *                    configure the {@link AudioSpec} of this media specification.
+         * Configures the {@link VideoSpec} of this media specification with the given block.
+         *
+         * @param configBlock A consumer which provides the {@link VideoSpec.Builder} which will
+         *                    configure the {@link VideoSpec} of this media specification.
          */
         @NonNull
         public Builder configureVideo(@NonNull Consumer<VideoSpec.Builder> configBlock) {
@@ -166,12 +202,12 @@ public abstract class MediaSpec {
          *
          * <p>If not set, the default is {@link #OUTPUT_FORMAT_AUTO}.
          *
-         * @param videoFormat The requested video format. Possible values are
+         * @param format The requested video format. Possible values are
          * {@link MediaSpec#OUTPUT_FORMAT_AUTO}, {@link MediaSpec#OUTPUT_FORMAT_MPEG_4} or
          * {@link MediaSpec#OUTPUT_FORMAT_WEBM}.
          */
         @NonNull
-        public abstract Builder setOutputFormat(@OutputFormat int videoFormat);
+        public abstract Builder setOutputFormat(@OutputFormat int format);
 
         /** Build the {@link MediaSpec} from this builder. */
         @NonNull

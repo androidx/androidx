@@ -1,0 +1,4 @@
+dimen mr_chooser_list_item_padding_bottom
+dimen mr_chooser_list_item_padding_end
+dimen mr_chooser_list_item_padding_start
+dimen mr_chooser_list_item_padding_top

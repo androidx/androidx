@@ -21,8 +21,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -40,15 +38,12 @@ class ActivityNavigatorDestinationBuilderTest {
                 label = LABEL
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ID in graph
-        )
-        assertEquals(
-            "Destination should have label set",
-            LABEL,
-            graph[DESTINATION_ID].label
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
+        assertWithMessage("Destination should have label set")
+            .that(graph[DESTINATION_ID].label)
+            .isEqualTo(LABEL)
     }
 
     @Suppress("DEPRECATION")
@@ -75,15 +70,12 @@ class ActivityNavigatorDestinationBuilderTest {
                 activityClass = TestActivity::class
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ID in graph
-        )
-        assertEquals(
-            "Destination should have ComponentName set",
-            TestActivity::class.java.name,
-            (graph[DESTINATION_ID] as ActivityNavigator.Destination).component?.className
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
+        assertWithMessage("Destination should have ComponentName set")
+            .that((graph[DESTINATION_ID] as ActivityNavigator.Destination).component?.className)
+            .isEqualTo(TestActivity::class.java.name)
     }
 
     @Suppress("DEPRECATION")
@@ -94,15 +86,12 @@ class ActivityNavigatorDestinationBuilderTest {
                 action = ACTION
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ID in graph
-        )
-        assertEquals(
-            "Destination should have action set",
-            ACTION,
-            (graph[DESTINATION_ID] as ActivityNavigator.Destination).action
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
+        assertWithMessage("Destination should have action set")
+            .that((graph[DESTINATION_ID] as ActivityNavigator.Destination).action)
+            .isEqualTo(ACTION)
     }
 
     @Suppress("DEPRECATION")
@@ -113,15 +102,12 @@ class ActivityNavigatorDestinationBuilderTest {
                 data = DATA
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ID in graph
-        )
-        assertEquals(
-            "Destination should have data set",
-            DATA,
-            (graph[DESTINATION_ID] as ActivityNavigator.Destination).data
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
+        assertWithMessage("Destination should have data set")
+            .that((graph[DESTINATION_ID] as ActivityNavigator.Destination).data)
+            .isEqualTo(DATA)
     }
 
     @Suppress("DEPRECATION")
@@ -132,15 +118,12 @@ class ActivityNavigatorDestinationBuilderTest {
                 dataPattern = DATA_PATTERN
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ID in graph
-        )
-        assertEquals(
-            "Destination should have data pattern set",
-            DATA_PATTERN,
-            (graph[DESTINATION_ID] as ActivityNavigator.Destination).dataPattern
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
+        assertWithMessage("Destination should have data pattern set")
+            .that((graph[DESTINATION_ID] as ActivityNavigator.Destination).dataPattern)
+            .isEqualTo(DATA_PATTERN)
     }
 
     @Test
@@ -150,15 +133,12 @@ class ActivityNavigatorDestinationBuilderTest {
                 label = LABEL
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ROUTE in graph
-        )
-        assertEquals(
-            "Destination should have label set",
-            LABEL,
-            graph[DESTINATION_ROUTE].label
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("Destination should have label set")
+            .that(graph[DESTINATION_ROUTE].label)
+            .isEqualTo(LABEL)
     }
 
     @Test
@@ -183,15 +163,12 @@ class ActivityNavigatorDestinationBuilderTest {
                 activityClass = TestActivity::class
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ROUTE in graph
-        )
-        assertEquals(
-            "Destination should have ComponentName set",
-            TestActivity::class.java.name,
-            (graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).component?.className
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("Destination should have ComponentName set")
+            .that((graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).component?.className)
+            .isEqualTo(TestActivity::class.java.name)
     }
 
     @Test
@@ -201,15 +178,12 @@ class ActivityNavigatorDestinationBuilderTest {
                 action = ACTION
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ROUTE in graph
-        )
-        assertEquals(
-            "Destination should have action set",
-            ACTION,
-            (graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).action
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("Destination should have action set")
+            .that((graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).action)
+            .isEqualTo(ACTION)
     }
 
     @Test
@@ -219,15 +193,12 @@ class ActivityNavigatorDestinationBuilderTest {
                 data = DATA
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ROUTE in graph
-        )
-        assertEquals(
-            "Destination should have data set",
-            DATA,
-            (graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).data
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("Destination should have data set")
+            .that((graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).data)
+            .isEqualTo(DATA)
     }
 
     @Test
@@ -237,15 +208,12 @@ class ActivityNavigatorDestinationBuilderTest {
                 dataPattern = DATA_PATTERN
             }
         }
-        assertTrue(
-            "Destination should be added to the graph",
-            DESTINATION_ROUTE in graph
-        )
-        assertEquals(
-            "Destination should have data pattern set",
-            DATA_PATTERN,
-            (graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).dataPattern
-        )
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+        assertWithMessage("Destination should have data pattern set")
+            .that((graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).dataPattern)
+            .isEqualTo(DATA_PATTERN)
     }
 }
 

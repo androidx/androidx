@@ -33,11 +33,13 @@ dependencies {
     implementation(libs.protobufGradlePlugin)
     implementation(libs.shadow)
     implementation(libs.wireGradlePlugin)
+    testImplementation(libs.junit)
 }
 
 sourceSets {
     main.java.srcDirs += "${supportRootFolder}/buildSrc/src/main/kotlin"
     main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
+    test.java.srcDirs += "${supportRootFolder}/buildSrc-tests/src/test/kotlin"
     main.resources.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/resources"
 }
 
@@ -62,9 +64,9 @@ gradlePlugin {
             id = "AndroidXPlugin"
             implementationClass = "androidx.build.AndroidXPlugin"
         }
-        AndroidXUiPlugin {
-            id = "AndroidXUiPlugin"
-            implementationClass = "androidx.build.AndroidXUiPlugin"
+        AndroidXComposePlugin {
+            id = "AndroidXComposePlugin"
+            implementationClass = "androidx.build.AndroidXComposePlugin"
         }
     }
 }

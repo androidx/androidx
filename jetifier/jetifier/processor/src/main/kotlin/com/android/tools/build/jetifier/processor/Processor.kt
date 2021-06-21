@@ -28,6 +28,7 @@ import com.android.tools.build.jetifier.processor.transform.TransformationContex
 import com.android.tools.build.jetifier.processor.transform.Transformer
 import com.android.tools.build.jetifier.processor.transform.bytecode.ByteCodeTransformer
 import com.android.tools.build.jetifier.processor.transform.java.JavaTransformer
+import com.android.tools.build.jetifier.processor.transform.kotlin.KotlinTransformer
 import com.android.tools.build.jetifier.processor.transform.metainf.KotlinModuleTransformer
 import com.android.tools.build.jetifier.processor.transform.metainf.MetaInfTransformer
 import com.android.tools.build.jetifier.processor.transform.pom.PomDocument
@@ -61,7 +62,8 @@ class Processor private constructor(
             XmlResourcesTransformer(context),
             ProGuardTransformer(context),
             JavaTransformer(context),
-            KotlinModuleTransformer(context)
+            KotlinModuleTransformer(context),
+            KotlinTransformer(context),
         )
 
         /**

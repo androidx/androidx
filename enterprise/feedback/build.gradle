@@ -1,6 +1,4 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -9,13 +7,13 @@ plugins {
 }
 dependencies {
     api("androidx.annotation:annotation:1.0.1")
-    api(AUTO_VALUE_ANNOTATIONS)
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    annotationProcessor(AUTO_VALUE)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(ROBOLECTRIC)
+    api(libs.autoValueAnnotations)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    annotationProcessor(libs.autoValue)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
 }
 android {
     defaultConfig {

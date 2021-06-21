@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.client
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -64,7 +63,6 @@ public interface WatchFaceControlClient : AutoCloseable {
          * @throws [ServiceNotBoundException] if the watch face control service can not be bound or
          * a [ServiceStartFailureException] if the watch face dies during startup.
          */
-        @SuppressLint("NewApi") // For ACTION_WATCHFACE_CONTROL_SERVICE
         @JvmStatic
         public suspend fun createWatchFaceControlClient(
             context: Context,
@@ -168,7 +166,8 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param watchUiState The initial [WatchUiState] for the wearable.
      * @param userStyle The initial style map encoded as [UserStyleData] (see [UserStyle]), or
      * `null` if the default should be used.
-     * @param idToComplicationData The initial complication data, or null if unavailable.
+     * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
+     * or `null` if unavailable.
      * @return The [InteractiveWatchFaceClient], this should be closed when finished.
      * @throws [ServiceStartFailureException] if the watchface dies during startup.
      */
@@ -177,15 +176,17 @@ public interface WatchFaceControlClient : AutoCloseable {
         deviceConfig: DeviceConfig,
         watchUiState: androidx.wear.watchface.client.WatchUiState,
         userStyle: UserStyleData?,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient
 
     public fun getEditorServiceClient(): EditorServiceClient
 
     /**
-     * Returns a map of id to the [DefaultComplicationProviderPolicyAndType] for each complication
-     * in the  watchface corresponding to [watchFaceName]. Where possible a fast path is used that
-     * doesn't need to fully construct the corresponding watch face.
+     * Returns a map of [androidx.wear.watchface.ComplicationSlot] id to the
+     * [DefaultComplicationProviderPolicyAndType] for each
+     * [androidx.wear.watchface.ComplicationSlot] in the watchface corresponding to [watchFaceName].
+     * Where possible a fast path is used that doesn't need to fully construct the corresponding
+     * watch face.
      *
      * @param watchFaceName The [ComponentName] of the watch face to obtain the map of
      * [DefaultComplicationProviderPolicyAndType]s for. It must be in the same APK the
@@ -198,10 +199,11 @@ public interface WatchFaceControlClient : AutoCloseable {
 
 /**
  * A pair of [DefaultComplicationProviderPolicy] and [ComplicationType] describing the default state
- * of an [androidx.wear.watchface.Complication].
+ * of an [androidx.wear.watchface.ComplicationSlot].
  *
- * @param policy The [DefaultComplicationProviderPolicy] for the complication.
- * @param type The default [ComplicationType] for the complication.
+ * @param policy The [DefaultComplicationProviderPolicy] for the
+ * [androidx.wear.watchface.ComplicationSlot].
+ * @param type The default [ComplicationType] for the [androidx.wear.watchface.ComplicationSlot].
  */
 public class DefaultComplicationProviderPolicyAndType(
     public val policy: DefaultComplicationProviderPolicy,
@@ -270,7 +272,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         deviceConfig: DeviceConfig,
         watchUiState: androidx.wear.watchface.client.WatchUiState,
         userStyle: UserStyleData?,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient {
         requireNotClosed()
         val traceEvent = AsyncTraceEvent(
@@ -303,7 +305,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                         watchUiState.interruptionFilter
                     ),
                     userStyle?.toWireFormat() ?: UserStyleWireFormat(emptyMap()),
-                    idToComplicationData?.map {
+                    slotIdToComplicationData?.map {
                         IdAndComplicationDataWireFormat(
                             it.key,
                             it.value.asWireComplicationData()
@@ -383,7 +385,7 @@ internal class WatchFaceControlClientImpl internal constructor(
 
             // NB .use {} syntax doesn't compile here.
             try {
-                headlessClient.complicationsState.mapValues {
+                headlessClient.complicationSlotsState.mapValues {
                     DefaultComplicationProviderPolicyAndType(
                         it.value.defaultProviderPolicy,
                         it.value.defaultProviderType

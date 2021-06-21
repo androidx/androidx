@@ -18,6 +18,8 @@ package androidx.appcompat.widget;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -25,6 +27,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.Instrumentation;
+import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import androidx.appcompat.testutils.BaseTestActivity;
@@ -32,6 +35,7 @@ import androidx.emoji2.text.EmojiCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -76,6 +80,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
 
     @Test
     @UiThreadTest
+    @SdkSuppress(minSdkVersion = 19)
     public void byDefault_setText_callsEmojiCompat() {
         resetEmojiCompatToNewMock();
         ViewType subject = mActivityTestRule.getActivity()
@@ -86,6 +91,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
 
     @Test
     @UiThreadTest
+    @SdkSuppress(minSdkVersion = 19)
     public void whenEnabled_setText_callsProcess() {
         resetEmojiCompatToNewMock();
         ViewType subject = mActivityTestRule.getActivity()
@@ -97,6 +103,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
 
     @Test
     @UiThreadTest
+    @SdkSuppress(minSdkVersion = 19)
     public void whenDisabled_noCalls() {
         resetEmojiCompatToNewMock();
         ViewType subject = mActivityTestRule.getActivity()
@@ -109,6 +116,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
 
     @Test
     @UiThreadTest
+    @SdkSuppress(minSdkVersion = 19)
     public void whenReEnabled_callsProcess() throws Throwable {
         resetEmojiCompatToNewMock();
         ViewType subject = mActivityTestRule.getActivity()
@@ -123,6 +131,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void whenNotConfigured_andDisabled_doesNotEnable_whenConfigured() throws Throwable {
         EmojiCompat.reset((EmojiCompat) null);
         mActivityTestRule.finishActivity();
@@ -150,12 +159,16 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
             enabledInAdvance.setText("Some text");
             defaultEmoji.setFilters(defaultEmoji.getFilters());
             defaultEmoji.setText("Some text");
+            // this is allowed, but all other interactions should not happen
+            verify(mEmojiCompatMock, atLeast(0)).updateEditorInfoAttrs(
+                    any(EditorInfo.class));
             verifyNoMoreInteractions(mEmojiCompatMock);
         });
 
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void whenNotConfigured_callingEnabled_afterConfigure_enablesEmoji() throws Throwable {
         EmojiCompat.reset((EmojiCompat) null);
         mActivityTestRule.finishActivity();
@@ -175,6 +188,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void getEnabled() throws Throwable {
         ActivityType activity = mActivityTestRule.getActivity();
         ViewType disabledInAdvance =

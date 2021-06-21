@@ -66,7 +66,8 @@ import java.util.List;
                 AutoMigrationDb.Entity22.class,
                 AutoMigrationDb.Entity23.class,
                 AutoMigrationDb.Entity24.class,
-                AutoMigrationDb.Entity25.class
+                AutoMigrationDb.Entity25.class,
+                AutoMigrationDb.Entity26.class
         },
         autoMigrations = {
                 @AutoMigration(
@@ -418,6 +419,19 @@ public abstract class AutoMigrationDb extends RoomDatabase {
         public String name;
         @ColumnInfo(defaultValue = "1")
         public int entity1Id;
+    }
+
+    /**
+     * Added a new table that has an index.
+     */
+    @Entity(indices = {@Index(value = {"addedInV2"}, unique = true)})
+    static class Entity26 {
+        public static final String TABLE_NAME = "Entity26";
+        @PrimaryKey
+        public int id;
+        public String name;
+        @ColumnInfo(defaultValue = "1")
+        public int addedInV2;
     }
 
     @Dao

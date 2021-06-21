@@ -23,8 +23,8 @@ import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.hardware.common.UpdateRate;
 
+import java.util.List;
 import java.util.Objects;
 
 /** Information about car specific accelerometers available from the car hardware. */
@@ -32,51 +32,29 @@ import java.util.Objects;
 @RequiresCarApi(3)
 public final class Accelerometer {
 
-    /** Accelerometer request parameters. */
-    public static final class Params {
-        private final @UpdateRate.Value int mRate;
-
-        /**
-         * Construct accelerometer parameter instance.
-         */
-        public Params(@UpdateRate.Value int rate) {
-            mRate = rate;
-        }
-
-        /** Gets the requested data rate for the accelerometer. */
-        public @UpdateRate.Value int getRate() {
-            return mRate;
-        }
-
-        /** Gets an {@link Accelerometer.Params} instance with default values set. */
-        public static @NonNull Accelerometer.Params getDefault() {
-            return new Params(UpdateRate.DEFAULT);
-        }
-    }
-
     @Keep
     @NonNull
-    private final CarValue<Float[]> mAccelerometer;
+    private final CarValue<List<Float>> mForces;
 
     /**
-     * Returns the raw accelerometer data from the car sensor.
+     * Returns the raw accelerometer force data from the car sensor.
      *
      * <p>Follows the same format as {@link android.hardware.SensorEvent#values}.
      */
     @NonNull
-    public CarValue<Float[]> getAccelerometer() {
-        return requireNonNull(mAccelerometer);
+    public CarValue<List<Float>> getForces() {
+        return mForces;
     }
 
     @Override
     @NonNull
     public String toString() {
-        return "[ accelerometer: " + mAccelerometer + " ]";
+        return "[ forces: " + mForces + " ]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mAccelerometer);
+        return Objects.hash(mForces);
     }
 
     @Override
@@ -89,46 +67,20 @@ public final class Accelerometer {
         }
         Accelerometer otherAccelerometer = (Accelerometer) other;
 
-        return Objects.equals(mAccelerometer, otherAccelerometer.mAccelerometer);
+        return Objects.equals(mForces, otherAccelerometer.mForces);
     }
 
-    Accelerometer(Builder builder) {
-        mAccelerometer = requireNonNull(builder.mAccelerometer);
+    /**
+     * Creates an {@link Accelerometer} with the given raw data.
+     *
+     * @throws NullPointerException if {@code forces} is {@code null}
+     */
+    public Accelerometer(@NonNull CarValue<List<Float>> forces) {
+        mForces = requireNonNull(forces);
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Accelerometer() {
-        mAccelerometer = CarValue.UNIMPLEMENTED_FLOAT_ARRAY;
-    }
-
-    /** A builder of {@link Accelerometer}. */
-    public static final class Builder {
-        @Nullable
-        CarValue<Float[]> mAccelerometer;
-
-        /**
-         * Sets the raw accelerometer data.
-         *
-         * @throws NullPointerException if {@code accelerometer} is {@code null}
-         */
-        @NonNull
-        public Builder setAccelerometer(@NonNull CarValue<Float[]> accelerometer) {
-            mAccelerometer = requireNonNull(accelerometer);
-            return this;
-        }
-
-        /**
-         * Constructs the {@link Accelerometer} defined by this builder.
-         *
-         * <p>Any fields which have not been set are added with {@code null} value and
-         * {@link CarValue#STATUS_UNIMPLEMENTED}.
-         */
-        @NonNull
-        public Accelerometer build() {
-            if (mAccelerometer == null) {
-                mAccelerometer = CarValue.UNIMPLEMENTED_FLOAT_ARRAY;
-            }
-            return new Accelerometer(this);
-        }
+        mForces = CarValue.UNIMPLEMENTED_FLOAT_LIST;
     }
 }

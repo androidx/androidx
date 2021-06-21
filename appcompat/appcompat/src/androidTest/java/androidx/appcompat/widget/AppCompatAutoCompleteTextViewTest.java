@@ -22,9 +22,8 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
-
-import org.junit.Test;
 
 /**
  * In addition to all tinting-related tests done by the base class, this class provides
@@ -39,7 +38,7 @@ public class AppCompatAutoCompleteTextViewTest
         super(AppCompatAutoCompleteTextViewActivity.class);
     }
 
-    @Test
+    @UiThreadTest
     public void testSetCustomSelectionActionModeCallback() {
         final AppCompatAutoCompleteTextView view = new AppCompatAutoCompleteTextView(mActivity);
         final ActionMode.Callback callback = new ActionMode.Callback() {

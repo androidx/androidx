@@ -16,8 +16,6 @@
 
 import androidx.build.LibraryType
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
@@ -32,14 +30,14 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly(LINT_API_LATEST)
-    compileOnly(LINT_CHECKS_LATEST)
-    compileOnly(KOTLIN_STDLIB)
+    compileOnly(libs.androidLintApi)
+    compileOnly(libs.androidLintChecks)
+    compileOnly(libs.kotlinStdlib)
 
-    testImplementation(KOTLIN_STDLIB)
-    testImplementation(LINT_CORE)
-    testImplementation(LINT_TESTS)
-    testImplementation(JUNIT)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.androidLint)
+    testImplementation(libs.androidLintTests)
+    testImplementation(libs.junit)
 }
 
 androidx {

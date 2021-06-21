@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.paging.rxjava2.PagingRx#getFlowable(androidx.paging.Pager<Key,Value>):
-    Removed method androidx.paging.rxjava2.PagingRx.getFlowable(androidx.paging.Pager<Key,Value>)
-RemovedMethod: androidx.paging.rxjava2.PagingRx#getObservable(androidx.paging.Pager<Key,Value>):
-    Removed method androidx.paging.rxjava2.PagingRx.getObservable(androidx.paging.Pager<Key,Value>)

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -27,10 +25,10 @@ dependencies {
     api(project(":appcompat:appcompat"))
     api(project(":annotation:annotation-experimental"))
 
-    implementation(ANDROIDX_TEST_EXT_JUNIT)
-    implementation(ANDROIDX_TEST_CORE)
-    implementation(ANDROIDX_TEST_RULES)
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.testExtJunit)
+    implementation(libs.testCore)
+    implementation(libs.testRules)
+    implementation(libs.kotlinStdlib)
 }
 
 android {

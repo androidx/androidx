@@ -44,11 +44,11 @@ internal class Camera2MetadataCache @Inject constructor(
     private val context: Context,
     private val threads: Threads,
     private val permissions: Permissions
-) {
+) : CameraMetadataProvider {
     @GuardedBy("cache")
     private val cache = ArrayMap<String, CameraMetadata>()
 
-    suspend fun get(cameraId: CameraId): CameraMetadata {
+    override suspend fun getMetadata(cameraId: CameraId): CameraMetadata {
         synchronized(cache) {
             val existing = cache[cameraId.value]
             if (existing != null) {
@@ -62,7 +62,7 @@ internal class Camera2MetadataCache @Inject constructor(
         }
     }
 
-    fun awaitMetadata(cameraId: CameraId): CameraMetadata {
+    override fun awaitMetadata(cameraId: CameraId): CameraMetadata {
         return Debug.trace("Camera-${cameraId.value}#awaitMetadata") {
             synchronized(cache) {
                 val existing = cache[cameraId.value]
@@ -88,7 +88,7 @@ internal class Camera2MetadataCache @Inject constructor(
                 val characteristics =
                     cameraManager.getCameraCharacteristics(cameraId.value)
                 val cameraMetadata =
-                    Camera2CameraMetadata(cameraId, redacted, characteristics, emptyMap())
+                    Camera2CameraMetadata(cameraId, redacted, characteristics, this, emptyMap())
 
                 Log.info {
                     val duration = Timestamps.now() - start

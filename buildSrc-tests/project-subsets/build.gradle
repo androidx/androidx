@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.BuildServerConfigurationKt
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
@@ -24,7 +21,7 @@ plugins {
 
 dependencies {
     implementation gradleTestKit()
-    testImplementation JUNIT
+    testImplementation libs.junit
 }
 tasks["test"].configure { t ->
     // The output of this task can potentially depend on the contents of settings.gradle

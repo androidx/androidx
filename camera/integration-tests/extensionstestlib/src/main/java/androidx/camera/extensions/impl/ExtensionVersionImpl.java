@@ -28,7 +28,7 @@ import android.util.Log;
  */
 public class ExtensionVersionImpl {
     private static final String TAG = "ExtenderVersionImpl";
-    private static final String VERSION = "1.1.0";
+    private static final String VERSION = "1.2.0";
 
     public ExtensionVersionImpl() {
     }

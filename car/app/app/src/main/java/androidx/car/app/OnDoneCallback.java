@@ -32,12 +32,14 @@ public interface OnDoneCallback {
      *
      * @param response the {@link Bundleable} containing the success response
      */
-    void onSuccess(@Nullable Bundleable response);
+    default void onSuccess(@Nullable Bundleable response) {
+    }
 
     /**
      * Notifies that the request was not fulfilled successfully.
      *
      * @param response the {@link Bundleable} containing the failure response
      */
-    void onFailure(@NonNull Bundleable response);
+    default void onFailure(@NonNull Bundleable response) {
+    }
 }

@@ -40,4 +40,5 @@ android {
 
 dependencies {
     implementation(project(":car:app:app-samples:navigation-common"))
+    implementation(project(":car:app:app-projected"))
 }

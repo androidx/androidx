@@ -47,7 +47,6 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -78,9 +77,6 @@ public class SidecarCompatTest : WindowTestBase(), CompatTestInterface {
         val window: Window = spy(TestWindow(activity))
         window.attributes.token = mock()
         whenever(activity.getWindow()).thenReturn(window)
-        val mWindowBoundsHelper = TestWindowBoundsHelper()
-        mWindowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS)
-        WindowBoundsHelper.setForTesting(mWindowBoundsHelper)
 
         // Setup mocked sidecar responses
         val defaultDeviceState = SidecarDeviceState()
@@ -97,11 +93,6 @@ public class SidecarCompatTest : WindowTestBase(), CompatTestInterface {
         SidecarAdapter.setSidecarDisplayFeatures(sidecarWindowLayoutInfo, displayFeatures)
         whenever(sidecarCompat.sidecar!!.getWindowLayoutInfo(any()))
             .thenReturn(sidecarWindowLayoutInfo)
-    }
-
-    @After
-    public fun tearDown() {
-        WindowBoundsHelper.setForTesting(null)
     }
 
     @Test

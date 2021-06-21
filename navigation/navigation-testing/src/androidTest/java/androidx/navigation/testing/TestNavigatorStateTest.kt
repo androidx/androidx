@@ -18,7 +18,9 @@ package androidx.navigation.testing
 
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.FloatingWindow
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
+import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -89,9 +91,64 @@ class TestNavigatorStateTest {
             .isEqualTo(Lifecycle.State.DESTROYED)
     }
 
+    @Test
+    fun testWithTransitionLifecycle() {
+        val navigator = TestTransitionNavigator()
+        navigator.onAttach(state)
+        val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
+
+        navigator.navigate(listOf(firstEntry), null, null)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        state.transitionsInProgress.value[firstEntry]?.onTransitionComplete()
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntry), null, null)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        state.transitionsInProgress.value[secondEntry]?.onTransitionComplete()
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navigator.popBackStack(secondEntry, false)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        state.transitionsInProgress.value[secondEntry]?.onTransitionComplete()
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
     @Navigator.Name("test")
     internal class TestNavigator : Navigator<NavDestination>() {
         override fun createDestination(): NavDestination = NavDestination(this)
+    }
+
+    @Navigator.Name("test")
+    internal class TestTransitionNavigator : Navigator<NavDestination>() {
+        override fun createDestination(): NavDestination = NavDestination(this)
+
+        override fun navigate(
+            entries: List<NavBackStackEntry>,
+            navOptions: NavOptions?,
+            navigatorExtras: Extras?
+        ) {
+            entries.forEach { entry ->
+                state.addWithTransition(entry)
+            }
+        }
+
+        override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
+            state.popWithTransition(popUpTo, savedState)
+        }
     }
 
     @Navigator.Name("test")

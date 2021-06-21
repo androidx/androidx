@@ -29,6 +29,7 @@ import android.view.MenuItem;
 
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
@@ -107,7 +108,7 @@ public class AppCompatButtonTest
         assertEquals(expected, button.getTypeface());
     }
 
-    @Test
+    @UiThreadTest
     public void testSetCustomSelectionActionModeCallback() {
         final AppCompatButton view = new AppCompatButton(mActivity);
         final ActionMode.Callback callback = new ActionMode.Callback() {

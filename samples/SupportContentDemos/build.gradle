@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2017 The Android Open Source Project
  *
@@ -15,15 +14,13 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.MATERIAL
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
 }
 
 dependencies {
-    implementation(MATERIAL)
+    implementation(libs.material)
     implementation(project(":transition:transition"))
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":appcompat:appcompat"))
@@ -31,11 +28,4 @@ dependencies {
     implementation(project(":cardview:cardview"))
     implementation(project(":coordinatorlayout:coordinatorlayout"))
     implementation(project(":core:core"))
-}
-
-android {
-    defaultConfig {
-        applicationId "com.example.androidx.contentpager.content.demos"
-        minSdkVersion 14
-    }
 }

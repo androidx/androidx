@@ -122,7 +122,7 @@ public sealed class Renderer @WorkerThread constructor(
     @IntRange(from = 0, to = 60000)
     public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
-    internal lateinit var watchFaceHostApi: WatchFaceHostApi
+    internal var watchFaceHostApi: WatchFaceHostApi? = null
 
     init {
         surfaceHolder.addCallback(
@@ -178,11 +178,12 @@ public sealed class Renderer @WorkerThread constructor(
 
     /**
      * Accessibility [ContentDescriptionLabel] for any rendered watch face elements other than the
-     * time and [Complication]s which are generated automatically.
+     * time and [ComplicationSlot]s which are generated automatically.
      *
      * The [Int] in the `Pair<Int, ContentDescriptionLabel>` is used to sort the
      * [ContentDescriptionLabel]s. Note the time piece has an accessibility traversal index of -1
-     * and each complication's index is defined by its [Complication.accessibilityTraversalIndex].
+     * and each [ComplicationSlot]'s index is defined by its
+     * [ComplicationSlot.accessibilityTraversalIndex].
      */
     public var additionalContentDescriptionLabels:
         Collection<Pair<Int, ContentDescriptionLabel>> = emptyList()
@@ -194,7 +195,7 @@ public sealed class Renderer @WorkerThread constructor(
                             "must be >= 0"
                     }
                 }
-                watchFaceHostApi.updateContentDescriptionLabels()
+                watchFaceHostApi?.updateContentDescriptionLabels()
             }
 
     /** Called when the Renderer is destroyed. */
@@ -261,7 +262,7 @@ public sealed class Renderer @WorkerThread constructor(
      * shouldAnimate returns true we inhibit entering [DrawMode.AMBIENT].
      *
      * By default we remain at an interactive frame rate when the watch face is visible and we're
-     * not in ambient mode. Watchfaces with animated transitions for entering ambient mode may
+     * not in ambient mode. Watch faces with animated transitions for entering ambient mode may
      * need to override this to ensure they play smoothly.
      *
      * @return Whether we should schedule an onDraw call to maintain an interactive frame rate
@@ -276,9 +277,7 @@ public sealed class Renderer @WorkerThread constructor(
      */
     @UiThread
     public fun invalidate() {
-        if (this::watchFaceHostApi.isInitialized) {
-            watchFaceHostApi.invalidate()
-        }
+        watchFaceHostApi?.invalidate()
     }
 
     /**
@@ -287,9 +286,7 @@ public sealed class Renderer @WorkerThread constructor(
      * on any thread.
      */
     public fun postInvalidate() {
-        if (this::watchFaceHostApi.isInitialized) {
-            watchFaceHostApi.getUiThreadHandler().post { watchFaceHostApi.invalidate() }
-        }
+        watchFaceHostApi?.getUiThreadHandler()?.post { watchFaceHostApi!!.invalidate() }
     }
 
     @UiThread
@@ -300,7 +297,7 @@ public sealed class Renderer @WorkerThread constructor(
      * any subsequent calls to [renderInternal] or [takeScreenshot].
      */
     @UiThread
-    internal open fun uiThreadInit() {}
+    internal open fun uiThreadInitInternal() {}
 
     /**
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class.
@@ -365,7 +362,6 @@ public sealed class Renderer @WorkerThread constructor(
             }
         }
 
-        /** {@inheritDoc} */
         internal override fun takeScreenshot(
             calendar: Calendar,
             renderParameters: RenderParameters
@@ -407,12 +403,25 @@ public sealed class Renderer @WorkerThread constructor(
             }
         }
 
+        override fun uiThreadInitInternal() {
+            uiThreadInit()
+        }
+
+        /**
+         * Perform UiThread specific initialization.  Will be called once during initialization
+         * before any subsequent calls to [render].
+         */
+        @UiThread
+        public open fun uiThreadInit() {}
+
         /**
          * Sub-classes should override this to implement their watch face rendering logic which
          * should respect the current [renderParameters]. Any highlights due to
          * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
          * where possible. For correct behavior this function must use the supplied [Calendar]
          * in favor of any other ways of getting the time.
+         *
+         * Before any calls to render, [uiThreadInit] will be called once.
          *
          * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
          * the [SurfaceHolder] backing the display
@@ -472,12 +481,16 @@ public sealed class Renderer @WorkerThread constructor(
      *
      * Two linked [EGLContext]s are created [eglBackgroundThreadContext] and [eglUiThreadContext]
      * which are associated with background and UiThread respectively. OpenGL objects created on
-     * (e.g. shaders and textures) can be used on the other. Caution must be exercised with
-     * multi-threaded OpenGl API use, concurrent usage may not be supported.
+     * (e.g. shaders and textures) can be used on the other.
      *
-     * If you need to make any OpenGl calls outside of [render], [onGlContextCreated] or
-     * [onGlSurfaceCreated] then you must first call either [makeUiThreadContextCurrent] or
-     * [makeBackgroundThreadContextCurrent] depending on which thread you're on.
+     * If you need to make any OpenGl calls outside of [render],
+     * [onBackgroundThreadGlContextCreated] or [onUiThreadGlSurfaceCreated] then you must use either
+     * [runUiThreadGlCommands] or [runBackgroundThreadGlCommands] to execute a [Runnable] inside
+     * of the corresponding context. Access to the GL contexts this way is necessary because GL
+     * contexts are not shared between renderers and there can be multiple watch face instances
+     * existing concurrently (e.g. headless and interactive, potentially from different watch
+     * faces if an APK contains more than one [WatchFaceService]). In addition most drivers do not
+     * support concurrent access.
      *
      * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
      * into.
@@ -516,6 +529,8 @@ public sealed class Renderer @WorkerThread constructor(
         /** @hide */
         private companion object {
             private const val TAG = "Gles2WatchFace"
+
+            private val glContextLock = Any()
         }
 
         /** Exception thrown if a GL call fails */
@@ -631,13 +646,14 @@ public sealed class Renderer @WorkerThread constructor(
                 throw GlesException("eglCreateWindowSurface failed")
             }
 
-            makeUiThreadContextCurrent()
-            GLES20.glViewport(0, 0, width, height)
-            if (!calledOnGlContextCreated) {
-                calledOnGlContextCreated = true
-            }
-            TraceEvent("GlesRenderer.onGlSurfaceCreated").use {
-                onGlSurfaceCreated(width, height)
+            runUiThreadGlCommands {
+                GLES20.glViewport(0, 0, width, height)
+                if (!calledOnGlContextCreated) {
+                    calledOnGlContextCreated = true
+                }
+                TraceEvent("GlesRenderer.onGlSurfaceCreated").use {
+                    onUiThreadGlSurfaceCreated(width, height)
+                }
             }
         }
 
@@ -660,38 +676,59 @@ public sealed class Renderer @WorkerThread constructor(
         }
 
         /**
-         * Sets the GL context associated with the [WatchFaceService.getBackgroundThreadHandler]'s
-         * looper thread as the current one. The library does this on your behalf before calling
-         * [onGlContextCreated]. If you need to make any OpenGL calls on
-         * [WatchFaceService.getBackgroundThreadHandler] outside that function, this method
-         * *must* be called first.
+         * Inside of a synchronized block this function sets the GL context associated with the
+         * [WatchFaceService.getBackgroundThreadHandler]'s looper thread as the current one,
+         * executes [runnable] and finally unsets the GL context.
+         *
+         * Access to the GL context this way is necessary because GL contexts are not shared
+         * between renderers and there can be multiple watch face instances existing concurrently
+         * (e.g. headless and interactive, potentially from different watch faces if an APK
+         * contains more than one [WatchFaceService]).
+         *
+         * NB this function is called by the library before running
+         * [runBackgroundThreadGlCommands] so there's no need to use this directly in client
+         * code unless you need to make GL calls outside of those methods.
          *
          * @throws [IllegalStateException] if the calls to [EGL14.eglMakeCurrent] fails
          */
         @WorkerThread
-        public fun makeBackgroundThreadContextCurrent() {
+        public fun runBackgroundThreadGlCommands(runnable: Runnable) {
             require(
-                !this::watchFaceHostApi.isInitialized ||
-                    watchFaceHostApi.getBackgroundThreadHandler().looper.isCurrentThread
+                watchFaceHostApi == null ||
+                    watchFaceHostApi!!.getBackgroundThreadHandler().looper.isCurrentThread
             ) {
-                "makeBackgroundThreadContextCurrent must be called from the Background Thread"
+                "runBackgroundThreadGlCommands must be called from the Background Thread"
             }
-            if (!EGL14.eglMakeCurrent(
-                    eglDisplay,
-                    fakeBackgroundThreadSurface,
-                    fakeBackgroundThreadSurface,
-                    eglBackgroundThreadContext
-                )
-            ) {
-                throw IllegalStateException(
-                    "eglMakeCurrent failed, glGetError() = " + GLES20.glGetError()
-                )
+            // It's only safe to run GL command from one thread at a time.
+            synchronized(glContextLock) {
+                if (!EGL14.eglMakeCurrent(
+                        eglDisplay,
+                        fakeBackgroundThreadSurface,
+                        fakeBackgroundThreadSurface,
+                        eglBackgroundThreadContext
+                    )
+                ) {
+                    throw IllegalStateException(
+                        "eglMakeCurrent failed, glGetError() = " + GLES20.glGetError()
+                    )
+                }
+
+                try {
+                    runnable.run()
+                } finally {
+                    EGL14.eglMakeCurrent(
+                        eglDisplay,
+                        EGL14.EGL_NO_SURFACE,
+                        EGL14.EGL_NO_SURFACE,
+                        EGL14.EGL_NO_CONTEXT
+                    )
+                }
             }
         }
 
         /**
-         * Initializes the GlesRenderer, and calls [onGlSurfaceCreated]. It is an error to construct
-         * a [WatchFace] before this method has been called.
+         * Initializes the GlesRenderer, and calls [onUiThreadGlSurfaceCreated]. It is an error to
+         * construct a [WatchFace] before this method has been called.
          *
          * @throws [GlesException] If any GL calls fail.
          */
@@ -699,7 +736,6 @@ public sealed class Renderer @WorkerThread constructor(
         @Throws(GlesException::class)
         internal fun initBackgroundThreadOpenGlContext() =
             TraceEvent("GlesRenderer.initBackgroundThreadOpenGlContext").use {
-
                 eglBackgroundThreadContext = EGL14.eglCreateContext(
                     eglDisplay,
                     eglConfig,
@@ -711,47 +747,69 @@ public sealed class Renderer @WorkerThread constructor(
                     throw RuntimeException("eglCreateContext failed")
                 }
 
-                makeBackgroundThreadContextCurrent()
-
-                TraceEvent("GlesRenderer.onGlContextCreated").use {
-                    onGlContextCreated()
+                runBackgroundThreadGlCommands {
+                    TraceEvent("GlesRenderer.onGlContextCreated").use {
+                        onBackgroundThreadGlContextCreated()
+                    }
                 }
             }
 
         /**
-         * Sets our UiThread GL context as the current one. The library does this on your behalf
-         * before calling [render]. If you need to make any UiThread OpenGL calls outside that
-         * function, this method *must* be called first.
+         * Inside of a synchronized block this function sets the UiThread GL context as the current
+         * one, executes [runnable] and finally unsets the GL context.
+         *
+         * Access to the GL context this way is necessary because GL contexts are not shared
+         * between renderers and there can be multiple watch face instances existing concurrently
+         * (e.g. headless and interactive, potentially from different watch faces if an APK
+         * contains more than one [WatchFaceService]).
+         *
+         * NB this function is called by the library before running [render] or
+         * [onUiThreadGlSurfaceCreated] so there's no need to use this directly in client code
+         * unless you need to make GL calls outside of those methods.
          *
          * @throws [IllegalStateException] if the calls to [EGL14.eglMakeCurrent] fails
          */
         @UiThread
-        public fun makeUiThreadContextCurrent() {
-            require(watchFaceHostApi.getUiThreadHandler().looper.isCurrentThread) {
-                "makeUiThreadContextCurrent must be called from the UiThread"
+        public fun runUiThreadGlCommands(runnable: Runnable) {
+            require(watchFaceHostApi!!.getUiThreadHandler().looper.isCurrentThread) {
+                "runUiThreadGlCommands must be called from the UiThread"
             }
-            if (!EGL14.eglMakeCurrent(
-                    eglDisplay,
-                    eglSurface,
-                    eglSurface,
-                    eglUiThreadContext
-                )
-            ) {
-                throw IllegalStateException(
-                    "eglMakeCurrent failed, glGetError() = " + GLES20.glGetError()
-                )
+            // It's only safe to run GL command from one thread at a time.
+            synchronized(glContextLock) {
+                if (!EGL14.eglMakeCurrent(
+                        eglDisplay,
+                        eglSurface,
+                        eglSurface,
+                        eglUiThreadContext
+                    )
+                ) {
+                    throw IllegalStateException(
+                        "eglMakeCurrent failed, glGetError() = " + GLES20.glGetError()
+                    )
+                }
+
+                try {
+                    runnable.run()
+                } finally {
+                    EGL14.eglMakeCurrent(
+                        eglDisplay,
+                        EGL14.EGL_NO_SURFACE,
+                        EGL14.EGL_NO_SURFACE,
+                        EGL14.EGL_NO_CONTEXT
+                    )
+                }
             }
         }
 
         /**
-         * Initializes the GlesRenderer, and calls [onGlSurfaceCreated]. It is an error to construct
-         * a [WatchFace] before this method has been called.
+         * Initializes the GlesRenderer, and calls [onUiThreadGlSurfaceCreated]. It is an error to
+         * construct a [WatchFace] before this method has been called.
          *
          * @throws [GlesException] If any GL calls fail.
          */
         @UiThread
         @Throws(GlesException::class)
-        internal override fun uiThreadInit() =
+        internal override fun uiThreadInitInternal() =
             TraceEvent("GlesRenderer.initUiThreadOpenGlContext").use {
                 eglUiThreadContext = EGL14.eglCreateContext(
                     eglDisplay,
@@ -798,37 +856,38 @@ public sealed class Renderer @WorkerThread constructor(
             }
 
         /**
-         * Called when a new GL context is created on the background thread. It's safe to use GL
-         * APIs in this method. Note [makeBackgroundThreadContextCurrent] is called by the library
-         * before this method.
+         * Called once a background thread when a new GL context is created on the background
+         * thread, before any subsequent calls to [render]. Note this function is called inside a
+         * lambda passed to [runBackgroundThreadGlCommands] which has synchronized access to the
+         * GL context.
          */
         @WorkerThread
-        public open fun onGlContextCreated() {
+        public open fun onBackgroundThreadGlContextCreated() {
         }
 
         /**
-         * Called when a new GL surface is created on the UiThread. It's safe to use GL APIs in
-         * this method. Note [makeUiThreadContextCurrent] is called by the library before this
-         * method.
+         * Called once when a new GL surface is created on the UiThread, before any subsequent calls
+         * to [render]. Note this function is called inside a lambda passed to
+         * [runUiThreadGlCommands] which has synchronized access to the GL context.
          *
          * @param width width of surface in pixels
          * @param height height of surface in pixels
          */
         @UiThread
-        public open fun onGlSurfaceCreated(@Px width: Int, @Px height: Int) {
+        public open fun onUiThreadGlSurfaceCreated(@Px width: Int, @Px height: Int) {
         }
 
         internal override fun renderInternal(
             calendar: Calendar
         ) {
-            makeUiThreadContextCurrent()
-            renderAndComposite(calendar)
-            if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
-                Log.w(TAG, "eglSwapBuffers failed")
+            runUiThreadGlCommands {
+                renderAndComposite(calendar)
+                if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
+                    Log.w(TAG, "eglSwapBuffers failed")
+                }
             }
         }
 
-        /** {@inheritDoc} */
         internal override fun takeScreenshot(
             calendar: Calendar,
             renderParameters: RenderParameters
@@ -836,26 +895,27 @@ public sealed class Renderer @WorkerThread constructor(
             val width = screenBounds.width()
             val height = screenBounds.height()
             val pixelBuf = ByteBuffer.allocateDirect(width * height * 4)
-            makeUiThreadContextCurrent()
-            val prevRenderParameters = this.renderParameters
-            this.renderParameters = renderParameters
-            renderAndComposite(calendar)
-            this.renderParameters = prevRenderParameters
-            GLES20.glFinish()
-            GLES20.glReadPixels(
-                0,
-                0,
-                width,
-                height,
-                GLES20.GL_RGBA,
-                GLES20.GL_UNSIGNED_BYTE,
-                pixelBuf
-            )
-            // The image is flipped when using read pixels because the first pixel in the OpenGL
-            // buffer is in bottom left.
-            verticalFlip(pixelBuf, width, height)
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            bitmap.copyPixelsFromBuffer(pixelBuf)
+            runUiThreadGlCommands {
+                val prevRenderParameters = this.renderParameters
+                this.renderParameters = renderParameters
+                renderAndComposite(calendar)
+                this.renderParameters = prevRenderParameters
+                GLES20.glFinish()
+                GLES20.glReadPixels(
+                    0,
+                    0,
+                    width,
+                    height,
+                    GLES20.GL_RGBA,
+                    GLES20.GL_UNSIGNED_BYTE,
+                    pixelBuf
+                )
+                // The image is flipped when using read pixels because the first pixel in the OpenGL
+                // buffer is in bottom left.
+                verticalFlip(pixelBuf, width, height)
+                bitmap.copyPixelsFromBuffer(pixelBuf)
+            }
             return bitmap
         }
 
@@ -917,9 +977,16 @@ public sealed class Renderer @WorkerThread constructor(
          * should respect the current [renderParameters]. Any highlights due to
          * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
          * where possible. For correct behavior this function must use the supplied [Calendar]
-         * in favor of any other ways of getting the time. Note [makeUiThreadContextCurrent] and
-         * `GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)` are called by the library before this
-         * method.
+         * in favor of any other ways of getting the time.
+         *
+         * Note this function is called inside a lambda passed to [runUiThreadGlCommands] which
+         * has synchronized access to the GL context.
+         *
+         * Note also `GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)` is called by the library
+         * before this method.
+         *
+         * Before any calls to this function [onBackgroundThreadGlContextCreated] and
+         * [onUiThreadGlSurfaceCreated] will have been called once on their respective threads.
          *
          * @param calendar The current [Calendar]
          */
@@ -934,8 +1001,12 @@ public sealed class Renderer @WorkerThread constructor(
          * or a solid outline around the [RenderParameters.HighlightLayer.highlightedElement]. This
          * will be composited as needed on top of the results of [render]. For correct behavior this
          * function must use the supplied [Calendar] in favor of any other ways of getting the time.
-         * Note [makeUiThreadContextCurrent] and `GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)`
-         * are called by the library before this method.
+         *
+         * Note this function is called inside a lambda passed to [runUiThreadGlCommands] which
+         * has synchronized access to the GL context.
+         *
+         * Note also `GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)` is called by the library
+         * before this method.
          *
          * @param calendar The current [Calendar]
          */

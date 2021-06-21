@@ -4,37 +4,10 @@ package androidx.benchmark {
   public final class ArgumentsKt {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class BenchmarkResult {
-    ctor public BenchmarkResult(String className, String testName, long totalRunTimeNs, java.util.List<androidx.benchmark.MetricResult> metrics, int repeatIterations, long thermalThrottleSleepSeconds, int warmupIterations);
-    method public String component1();
-    method public String component2();
-    method public long component3();
-    method public java.util.List<androidx.benchmark.MetricResult> component4();
-    method public int component5();
-    method public long component6();
-    method public int component7();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.benchmark.BenchmarkResult copy(String className, String testName, long totalRunTimeNs, java.util.List<androidx.benchmark.MetricResult> metrics, int repeatIterations, long thermalThrottleSleepSeconds, int warmupIterations);
-    method public String getClassName();
-    method public java.util.List<androidx.benchmark.MetricResult> getMetrics();
-    method public int getRepeatIterations();
-    method public androidx.benchmark.Stats getStats(String which);
-    method public String getTestName();
-    method public int getWarmupIterations();
-    property public final String className;
-    property public final java.util.List<androidx.benchmark.MetricResult> metrics;
-    property public final int repeatIterations;
-    property public final String testName;
-    property public final int warmupIterations;
-    field public final long thermalThrottleSleepSeconds;
-    field public final long totalRunTimeNs;
-  }
-
   public final class BenchmarkResultKt {
   }
 
   public final class BenchmarkState {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public BenchmarkState();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public long getMinTimeNanos();
     method public boolean keepRunning();
     method public void pauseTiming();
     method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public static void reportData(String className, String testName, @IntRange(from=0) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=0) long thermalThrottleSleepSeconds, @IntRange(from=1) int repeatIterations);
@@ -49,64 +22,10 @@ package androidx.benchmark {
   @kotlin.Experimental @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class InstrumentationResultScope {
-    ctor public InstrumentationResultScope(optional android.os.Bundle bundle);
-    method public void fileRecord(String key, String path);
-    method public android.os.Bundle getBundle();
-    method public void ideSummaryRecord(String summaryV1, optional String summaryV2);
-    property public final android.os.Bundle bundle;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class InstrumentationResults {
-    method public android.os.Bundle getRunEndResultBundle();
-    method public void instrumentationReport(kotlin.jvm.functions.Function1<? super androidx.benchmark.InstrumentationResultScope,kotlin.Unit> block);
-    method public void reportAdditionalFileToCopy(String key, String absoluteFilePath, optional boolean reportOnRunEndOnly);
-    property public final android.os.Bundle runEndResultBundle;
-    field public static final androidx.benchmark.InstrumentationResults INSTANCE;
-  }
-
   public final class MetricNameUtilsKt {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class MetricResult {
-    ctor public MetricResult(java.util.List<java.lang.Long> data, androidx.benchmark.Stats stats);
-    ctor public MetricResult(String name, long[] data);
-    method public java.util.List<java.lang.Long> component1();
-    method public androidx.benchmark.Stats component2();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.benchmark.MetricResult copy(java.util.List<java.lang.Long> data, androidx.benchmark.Stats stats);
-    method public java.util.List<java.lang.Long> getData();
-    method public androidx.benchmark.Stats getStats();
-    property public final java.util.List<java.lang.Long> data;
-    property public final androidx.benchmark.Stats stats;
-  }
-
   public final class ProfilerKt {
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResultWriter {
-    method public void appendReport(androidx.benchmark.BenchmarkResult benchmarkResult);
-    field public static final androidx.benchmark.ResultWriter INSTANCE;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class Stats {
-    ctor public Stats(long[] data, String name);
-    method public long getMax();
-    method public int getMaxIndex();
-    method public long getMedian();
-    method public int getMedianIndex();
-    method public long getMin();
-    method public int getMinIndex();
-    method public String getName();
-    method public double getStandardDeviation();
-    method public void putInBundle(android.os.Bundle status, String prefix);
-    property public final long max;
-    property public final int maxIndex;
-    property public final long median;
-    property public final int medianIndex;
-    property public final long min;
-    property public final int minIndex;
-    property public final String name;
-    property public final double standardDeviation;
   }
 
 }

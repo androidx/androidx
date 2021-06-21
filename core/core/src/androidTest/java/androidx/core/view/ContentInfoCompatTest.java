@@ -40,7 +40,7 @@ public class ContentInfoCompatTest {
     public void testPartition_multipleItems() throws Exception {
         Uri sampleUri = Uri.parse("content://com.example/path");
         ClipData clip = ClipData.newPlainText("", "Hello");
-        clip.addItem(new ClipData.Item("Hi", "<b>Salut</b>"));
+        clip.addItem(new ClipData.Item("Hi"));
         clip.addItem(new ClipData.Item(sampleUri));
         ContentInfoCompat payload = new ContentInfoCompat.Builder(clip, SOURCE_CLIPBOARD)
                 .setFlags(ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT)

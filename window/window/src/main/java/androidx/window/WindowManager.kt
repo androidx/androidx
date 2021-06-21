@@ -45,6 +45,12 @@ public class WindowManager @JvmOverloads constructor(
     )
 ) {
     /**
+     * A class to calculate the bounds of a [android.view.Window] across different versions of
+     * Android.
+     */
+    internal var windowMetricsCalculator: WindowMetricsCalculator = WindowMetricsCalculatorCompat
+
+    /**
      * Activity that was registered with this instance of [WindowManager] at creation.
      * This is used to find the token identifier of the window when requesting layout information
      * from the [androidx.window.sidecar.SidecarInterface] or is passed directly to the
@@ -94,9 +100,7 @@ public class WindowManager @JvmOverloads constructor(
      * @see android.view.WindowManager.getCurrentWindowMetrics
      */
     public fun getCurrentWindowMetrics(): WindowMetrics {
-        val currentBounds =
-            WindowBoundsHelper.instance.computeCurrentWindowBounds(activity)
-        return WindowMetrics(currentBounds)
+        return windowMetricsCalculator.computeCurrentWindowMetrics(activity)
     }
 
     /**
@@ -125,8 +129,7 @@ public class WindowManager @JvmOverloads constructor(
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
     public fun getMaximumWindowMetrics(): WindowMetrics {
-        val maxBounds = WindowBoundsHelper.instance.computeMaximumWindowBounds(activity)
-        return WindowMetrics(maxBounds)
+        return windowMetricsCalculator.computeMaximumWindowMetrics(activity)
     }
 
     internal companion object {

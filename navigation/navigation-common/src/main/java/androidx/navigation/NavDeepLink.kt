@@ -55,10 +55,12 @@ public class NavDeepLink internal constructor(
     private var mimeTypePattern: Pattern? = null
 
     public var isExactDeepLink: Boolean = false
+        /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get
         internal set
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(uri: String) : this(uri, null, null)
 
@@ -130,6 +132,7 @@ public class NavDeepLink internal constructor(
         // If both are null return true, otherwise see if they match
     }
 
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getMimeTypeMatchRating(mimeType: String): Int {
         return if (this.mimeType == null || !mimeTypePattern!!.matcher(mimeType).matches()) {
@@ -139,7 +142,9 @@ public class NavDeepLink internal constructor(
     }
 
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "NullableCollection")
-    // Pattern.compile has no nullability for the regex parameter
+    /** Pattern.compile has no nullability for the regex parameter
+     * @suppress
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getMatchingArguments(
         deepLink: Uri,
@@ -260,7 +265,11 @@ public class NavDeepLink internal constructor(
     /**
      * A builder for constructing [NavDeepLink] instances.
      */
-    public class Builder @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public constructor() {
+    public class Builder {
+
+        /** @suppress */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public constructor()
+
         private var uriPattern: String? = null
         private var action: String? = null
         private var mimeType: String? = null

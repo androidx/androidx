@@ -16,7 +16,6 @@
 
 package androidx.fragment.app
 
-import android.os.Bundle
 import android.widget.EditText
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
@@ -123,6 +122,7 @@ class SaveStateFragmentTest {
         editText.setText("saved")
 
         fc1.dispatchPause()
+        @Suppress("DEPRECATION")
         val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()
@@ -144,6 +144,7 @@ class SaveStateFragmentTest {
         fc2.shutdown(viewModelStore)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun restoreRetainedInstanceFragments() {
@@ -292,6 +293,7 @@ class SaveStateFragmentTest {
         assertWithMessage("child not destroyed").that(restoredChild.calledOnDestroy).isTrue()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun restoreRetainedInstanceFragmentWithTransparentActivityConfigChange() {
@@ -434,6 +436,7 @@ class SaveStateFragmentTest {
         fc2.shutdown(viewModelStore)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun restoreNestedFragmentsOnBackStack() {
@@ -645,6 +648,7 @@ class SaveStateFragmentTest {
             .that(f.isStateSaved).isFalse()
 
         fc.dispatchPause()
+        @Suppress("DEPRECATION")
         fc.saveAllState()
 
         assertWithMessage("fragment reported state not saved after saveAllState")
@@ -723,33 +727,6 @@ class SaveStateFragmentTest {
         assertThat(record.mExitAnim).isEqualTo(exit)
         assertThat(record.mPopEnterAnim).isEqualTo(popEnter)
         assertThat(record.mPopExitAnim).isEqualTo(popExit)
-    }
-
-    class StateSaveFragment(
-        var savedState: String? = null,
-        val unsavedState: String? = null,
-        val retain: Boolean = false
-    ) : StrictFragment() {
-
-        @Suppress("DEPRECATION")
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            if (savedInstanceState != null) {
-                savedState = savedInstanceState.getString(STATE_KEY)
-            }
-            if (retain) {
-                retainInstance = true
-            }
-        }
-
-        override fun onSaveInstanceState(outState: Bundle) {
-            super.onSaveInstanceState(outState)
-            outState.putString(STATE_KEY, savedState)
-        }
-
-        companion object {
-            private const val STATE_KEY = "state"
-        }
     }
 
     class SaveViewStateFragment : StrictViewFragment(R.layout.with_edit_text)

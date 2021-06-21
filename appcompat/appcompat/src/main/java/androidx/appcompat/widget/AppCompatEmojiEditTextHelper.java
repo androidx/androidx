@@ -77,8 +77,19 @@ class AppCompatEmojiEditTextHelper {
      * Call from constructor to initialize key listener correctly.
      */
     void initKeyListener() {
+        // setKeyListener will cause a reset both focusable and the inputType to the most basic
+        // style for the key listener. Since we're calling this from the View constructor, this
+        // will cause both focusable and inputType to reset from the XML attributes.
+        // See: b/191061070 and b/188049943 for details
+        //
+        // We will only reset this during initKeyListener, and default to the platform behavior
+        // for later calls to setKeyListener, to emulate the exact behavior that a regular
+        // EditText would provide.
         boolean wasFocusable = mView.isFocusable();
+        int inputType = mView.getInputType();
         mView.setKeyListener(mView.getKeyListener());
+        // reset the input type and focusable attributes after calling setKeyListener
+        mView.setInputType(inputType);
         mView.setFocusable(wasFocusable);
     }
 
@@ -110,10 +121,10 @@ class AppCompatEmojiEditTextHelper {
      *
      * @param keyListener KeyListener passed into {@link TextView#setKeyListener(KeyListener)}
      *
-     * @return a new KeyListener instance that wraps {@code keyListener}.
+     * @return a new KeyListener instance that wraps {@code keyListener}, or null if passed null.
      */
-    @NonNull
-    KeyListener getKeyListener(@NonNull KeyListener keyListener) {
+    @Nullable
+    KeyListener getKeyListener(@Nullable KeyListener keyListener) {
         return mEmojiEditTextHelper.getKeyListener(keyListener);
     }
 

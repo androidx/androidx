@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.ExposureState
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CamcorderProfileProvider
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -110,5 +111,10 @@ class CameraInfoAdapter @Inject constructor(
     override fun getCameraQuirks(): Quirks {
         Log.warn { "TODO: Quirks are not yet supported." }
         return defaultQuirks
+    }
+
+    override fun isFocusMeteringSupported(action: FocusMeteringAction): Boolean {
+        Log.warn { "TODO: isFocusAndMeteringSupported are not yet supported." }
+        return false
     }
 }

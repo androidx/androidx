@@ -146,12 +146,11 @@ public final class EmojiEditTextHelper {
      *
      * @param keyListener KeyListener passed into {@link TextView#setKeyListener(KeyListener)}
      *
-     * @return a new KeyListener instance that wraps {@code keyListener}.
+     * @return a new KeyListener instance that wraps {@code keyListener}, or null if passed null.
      */
     @SuppressWarnings("ExecutorRegistration")
-    @NonNull
-    public KeyListener getKeyListener(@NonNull final KeyListener keyListener) {
-        Preconditions.checkNotNull(keyListener, "keyListener cannot be null");
+    @Nullable
+    public KeyListener getKeyListener(@Nullable final KeyListener keyListener) {
         return mHelper.getKeyListener(keyListener);
     }
 
@@ -230,7 +229,8 @@ public final class EmojiEditTextHelper {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static class HelperInternal {
 
-        KeyListener getKeyListener(@NonNull KeyListener keyListener) {
+        @Nullable
+        KeyListener getKeyListener(@Nullable KeyListener keyListener) {
             return keyListener;
         }
 
@@ -279,9 +279,15 @@ public final class EmojiEditTextHelper {
         }
 
         @Override
-        KeyListener getKeyListener(@NonNull final KeyListener keyListener) {
+        KeyListener getKeyListener(@Nullable final KeyListener keyListener) {
             if (keyListener instanceof EmojiKeyListener) {
                 return keyListener;
+            }
+            if (keyListener == null) {
+                // don't wrap null key listener, as developer has explicitly request that editing
+                // be disabled (this causes keyboard and soft keyboard interactions to not be
+                // possible, and the EmojiKeyListener is not required)
+                return null;
             }
             // make a KeyListener as it's always correct even if disabled
             return new EmojiKeyListener(keyListener);

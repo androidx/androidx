@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.client
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import androidx.concurrent.futures.ResolvableFuture
@@ -102,7 +101,6 @@ public open class ListenableWatchFaceControlClient(
          * to a [ListenableWatchFaceControlClient] or throws a [ServiceNotBoundException] if the
          * watch face control service can not be bound.
          */
-        @SuppressLint("NewApi") // For ACTION_WATCHFACE_CONTROL_SERVICE
         @JvmStatic
         public fun createWatchFaceControlClient(
             context: Context,
@@ -143,7 +141,7 @@ public open class ListenableWatchFaceControlClient(
         deviceConfig: DeviceConfig,
         watchUiState: WatchUiState,
         userStyle: UserStyleData?,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): ListenableFuture<InteractiveWatchFaceClient> =
         launchFutureCoroutine(
             "ListenableWatchFaceControlClient.listenableGetOrCreateInteractiveWatchFaceClient",
@@ -153,7 +151,7 @@ public open class ListenableWatchFaceControlClient(
                 deviceConfig,
                 watchUiState,
                 userStyle,
-                idToComplicationData
+                slotIdToComplicationData
             )
         }
 
@@ -162,14 +160,14 @@ public open class ListenableWatchFaceControlClient(
         deviceConfig: DeviceConfig,
         watchUiState: WatchUiState,
         userStyle: UserStyleData?,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient =
         watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
             id,
             deviceConfig,
             watchUiState,
             userStyle,
-            idToComplicationData
+            slotIdToComplicationData
         )
 
     override fun getEditorServiceClient(): EditorServiceClient =

@@ -278,6 +278,7 @@ class WindowInsetsCompatTest {
         assertEquals(result.hashCode(), result2.hashCode())
     }
 
+    @SdkSuppress(minSdkVersion = 21) // b/189492236
     @Test
     public fun set_only_navigation_bar_insets() {
         val insets = WindowInsetsCompat.Builder()

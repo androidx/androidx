@@ -123,7 +123,7 @@ internal fun List<ConfigurationError>.checkAndGetSuppressionState(
                 |// Sample suppression, in a benchmark module's build.gradle:
                 |android {
                 |    defaultConfig {
-                |        testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors', '$howToSuppressString'
+                |        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "$howToSuppressString"
                 |    }
                 |}
             """.trimMargin()

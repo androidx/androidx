@@ -163,6 +163,9 @@ public class FragmentStrictModeTest {
 
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(violation).isInstanceOf(FragmentReuseViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to reuse fragment $fragment with previous ID ${fragment.mPreviousWho}"
+            )
         }
     }
 
@@ -196,9 +199,13 @@ public class FragmentStrictModeTest {
 
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(violation).isInstanceOf(FragmentReuseViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to reuse fragment $fragment with previous ID ${fragment.mPreviousWho}"
+            )
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     public fun detectFragmentTagUsage() {
         var violation: Violation? = null
@@ -210,7 +217,14 @@ public class FragmentStrictModeTest {
 
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity { setContentView(R.layout.activity_inflated_fragment) }
+            val fragment = withActivity {
+                supportFragmentManager.findFragmentById(R.id.inflated_fragment)!!
+            }
+            val container = withActivity { findViewById(R.id.inflated_layout) }
             assertThat(violation).isInstanceOf(FragmentTagUsageViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to use <fragment> tag to add fragment $fragment to container $container"
+            )
         }
     }
 
@@ -224,14 +238,22 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.setDefaultPolicy(policy)
 
-        StrictFragment().retainInstance = true
+        val fragment = StrictFragment()
+        fragment.retainInstance = true
         assertThat(violation).isInstanceOf(SetRetainInstanceUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to set retain instance for fragment $fragment"
+        )
 
         violation = null
-        StrictFragment().retainInstance
+        fragment.retainInstance
         assertThat(violation).isInstanceOf(GetRetainInstanceUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to get retain instance for fragment $fragment"
+        )
     }
 
+    @Suppress("DEPRECATION")
     @Test
     public fun detectSetUserVisibleHint() {
         var violation: Violation? = null
@@ -241,9 +263,12 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.setDefaultPolicy(policy)
 
-        @Suppress("DEPRECATION")
-        StrictFragment().userVisibleHint = true
+        val fragment = StrictFragment()
+        fragment.userVisibleHint = true
         assertThat(violation).isInstanceOf(SetUserVisibleHintViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to set user visible hint to true for fragment $fragment"
+        )
     }
 
     @Suppress("DEPRECATION")
@@ -256,16 +281,29 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.setDefaultPolicy(policy)
 
-        StrictFragment().setTargetFragment(StrictFragment(), 1)
+        val fragment = StrictFragment()
+        val targetFragment = StrictFragment()
+        val requestCode = 1
+        fragment.setTargetFragment(targetFragment, requestCode)
         assertThat(violation).isInstanceOf(SetTargetFragmentUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to set target fragment $targetFragment " +
+                "with request code $requestCode for fragment $fragment"
+        )
 
         violation = null
-        StrictFragment().targetFragment
+        fragment.targetFragment
         assertThat(violation).isInstanceOf(GetTargetFragmentUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to get target fragment from fragment $fragment"
+        )
 
         violation = null
-        StrictFragment().targetRequestCode
+        fragment.targetRequestCode
         assertThat(violation).isInstanceOf(GetTargetFragmentRequestCodeUsageViolation::class.java)
+        assertThat(violation).hasMessageThat().contains(
+            "Attempting to get target request code from fragment $fragment"
+        )
     }
 
     @Test
@@ -280,18 +318,30 @@ public class FragmentStrictModeTest {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
 
+            val fragment1 = StrictFragment()
             fragmentManager.beginTransaction()
-                .add(R.id.content, StrictFragment())
+                .add(R.id.content, fragment1)
                 .commit()
             executePendingTransactions()
+            val container1 = withActivity { findViewById(R.id.content) }
             assertThat(violation).isInstanceOf(WrongFragmentContainerViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to add fragment $fragment1 to container " +
+                    "$container1 which is not a FragmentContainerView"
+            )
 
             violation = null
+            val fragment2 = StrictFragment()
             fragmentManager.beginTransaction()
-                .replace(R.id.content, StrictFragment())
+                .replace(R.id.content, fragment2)
                 .commit()
             executePendingTransactions()
+            val container2 = withActivity { findViewById(R.id.content) }
             assertThat(violation).isInstanceOf(WrongFragmentContainerViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to add fragment $fragment2 to container " +
+                    "$container2 which is not a FragmentContainerView"
+            )
         }
     }
 

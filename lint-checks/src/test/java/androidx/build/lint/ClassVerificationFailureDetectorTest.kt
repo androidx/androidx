@@ -40,16 +40,16 @@ class ClassVerificationFailureDetectorTest : AbstractLintDetectorTest(
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/ClassVerificationFailureFromJava.java:38: Error: This call references a method added in API level 21; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/ClassVerificationFailureFromJava.java:37: Error: This call references a method added in API level 21; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             view.setBackgroundTintList(tint);
                  ~~~~~~~~~~~~~~~~~~~~~
-src/androidx/ClassVerificationFailureFromJava.java:47: Error: This call references a method added in API level 17; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/ClassVerificationFailureFromJava.java:46: Error: This call references a method added in API level 17; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             return View.generateViewId();
                         ~~~~~~~~~~~~~~
-src/androidx/ClassVerificationFailureFromJava.java:58: Error: This call references a method added in API level 23; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/ClassVerificationFailureFromJava.java:56: Error: This call references a method added in API level 23; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         return view.getAccessibilityClassName();
                     ~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/ClassVerificationFailureFromJava.java:80: Error: This call references a method added in API level 28; however, the containing class androidx.ClassVerificationFailureFromJava.Api28Impl is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+src/androidx/ClassVerificationFailureFromJava.java:78: Error: This call references a method added in API level 28; however, the containing class androidx.ClassVerificationFailureFromJava.Api28Impl is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             return view.getAccessibilityPaneTitle();
                         ~~~~~~~~~~~~~~~~~~~~~~~~~
 4 errors, 0 warnings

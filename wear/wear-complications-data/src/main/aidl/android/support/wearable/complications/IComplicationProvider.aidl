@@ -27,9 +27,13 @@ interface IComplicationProvider {
      * called instead. One of these methods must be called so that the system knows when the
      * provider has finished responding to  the request.
      *
+     * @param complicationInstanceId The system's id for the updated complication which is a unique
+     * value for the tuple [Watch face ComponentName, complication slot ID].
+     * @param type The type of complication requested
+     * @param manager The binder for IComplicationManager
      * @since API version 0.
      */
-    void onUpdate(int complicationId, int type, IBinder manager) = 0;
+    void onUpdate(int complicationInstanceId, int type, IBinder manager) = 0;
 
     /**
      * Called when a complication is deactivated.
@@ -39,11 +43,13 @@ interface IComplicationProvider {
      * face has stopped displaying it).
      *
      * <p>Once this has been called, no complication data should be sent for the given {@code
-     * complicationId}, until {@link #onComplicationActivated} is called again for that id.
+     * complicationInstanceId}, until {@link #onComplicationActivated} is called again for that id.
      *
+     * @param complicationInstanceId The system's id for the deactivated complication which is a
+     * unique value for the tuple [Watch face ComponentName, complication slot ID].
      * @since API version 0.
      */
-    void onComplicationDeactivated(int complicationId) = 1;
+    void onComplicationDeactivated(int complicationInstanceId) = 1;
 
     /**
      * Called when a complication is activated.
@@ -51,9 +57,11 @@ interface IComplicationProvider {
      * <p>This occurs when the watch face calls setActiveComplications, or when this provider is
      * chosen for a complication which is already active.
      *
+     * @param complicationInstanceId The system's id for the requested complication which is a unique
+     * value for the tuple [Watch face ComponentName, complication slot ID].
      * @since API version 0.
      */
-    void onComplicationActivated(int complicationId, int type, IBinder manager) = 2;
+    void onComplicationActivated(int complicationInstanceId, int type, IBinder manager) = 2;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -68,6 +76,7 @@ interface IComplicationProvider {
      * Preview data should be representative of the real data but is assumed to never change. E.g
      * rather than returning the real time and date for an appointment return Wed 10:10.
      *
+     * @param type The type of complication preview requested
      * @since API version 1
      */
     ComplicationData getComplicationPreviewData(int type) = 4;

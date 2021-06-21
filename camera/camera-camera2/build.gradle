@@ -45,6 +45,7 @@ dependencies {
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     testImplementation(project(":camera:camera-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("org.apache.maven:maven-ant-tasks:2.1.3")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

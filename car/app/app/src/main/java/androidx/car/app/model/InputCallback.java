@@ -17,11 +17,9 @@
 package androidx.car.app.model;
 
 import androidx.annotation.NonNull;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /** A listener for handling text input completion event. */
-@ExperimentalCarApi
 @RequiresCarApi(2)
 public interface InputCallback {
     /**
@@ -32,7 +30,8 @@ public interface InputCallback {
      *
      * @param text the text that was entered, or an empty string if no text was typed.
      */
-    void onInputSubmitted(@NonNull String text);
+    default void onInputSubmitted(@NonNull String text) {
+    }
 
     /**
      * Notifies the current {@code text} has changed in an input box.
@@ -43,5 +42,6 @@ public interface InputCallback {
      *
      * @param text the current text that the user has typed
      */
-    void onInputTextChanged(@NonNull String text);
+    default void onInputTextChanged(@NonNull String text) {
+    }
 }

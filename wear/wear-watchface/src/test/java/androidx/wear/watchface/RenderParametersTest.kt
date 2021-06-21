@@ -61,7 +61,7 @@ public class RenderParametersTest {
                 DrawMode.INTERACTIVE,
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 RenderParameters.HighlightLayer(
-                    RenderParameters.HighlightedElement.AllComplications,
+                    RenderParameters.HighlightedElement.AllComplicationSlots,
                     Color.RED,
                     Color.BLACK
                 )
@@ -77,7 +77,7 @@ public class RenderParametersTest {
         assertThat(highlightLayer!!.highlightTint).isEqualTo(Color.RED)
         assertThat(highlightLayer.backgroundTint).isEqualTo(Color.BLACK)
         assertThat(highlightLayer.highlightedElement).isInstanceOf(
-            RenderParameters.HighlightedElement.AllComplications::class.java
+            RenderParameters.HighlightedElement.AllComplicationSlots::class.java
         )
     }
 
@@ -88,7 +88,7 @@ public class RenderParametersTest {
                 DrawMode.INTERACTIVE,
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 RenderParameters.HighlightLayer(
-                    RenderParameters.HighlightedElement.Complication(123),
+                    RenderParameters.HighlightedElement.ComplicationSlot(123),
                     Color.RED,
                     Color.BLACK
                 )
@@ -104,10 +104,10 @@ public class RenderParametersTest {
         assertThat(highlightLayer!!.highlightTint).isEqualTo(Color.RED)
         assertThat(highlightLayer.backgroundTint).isEqualTo(Color.BLACK)
         assertThat(highlightLayer.highlightedElement).isInstanceOf(
-            RenderParameters.HighlightedElement.Complication::class.java
+            RenderParameters.HighlightedElement.ComplicationSlot::class.java
         )
         val complication = highlightLayer.highlightedElement as
-            RenderParameters.HighlightedElement.Complication
+            RenderParameters.HighlightedElement.ComplicationSlot
         assertThat(complication.id).isEqualTo(123)
     }
 
@@ -186,7 +186,7 @@ public class RenderParametersTest {
             DrawMode.INTERACTIVE,
             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.Complication(1),
+                RenderParameters.HighlightedElement.ComplicationSlot(1),
                 Color.RED,
                 Color.BLUE
             )
@@ -195,7 +195,7 @@ public class RenderParametersTest {
             DrawMode.INTERACTIVE,
             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.Complication(1),
+                RenderParameters.HighlightedElement.ComplicationSlot(1),
                 Color.RED,
                 Color.BLUE
             )
@@ -204,7 +204,7 @@ public class RenderParametersTest {
             DrawMode.INTERACTIVE,
             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.Complication(2),
+                RenderParameters.HighlightedElement.ComplicationSlot(2),
                 Color.RED,
                 Color.BLUE
             )
@@ -214,7 +214,7 @@ public class RenderParametersTest {
             DrawMode.INTERACTIVE,
             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.AllComplications,
+                RenderParameters.HighlightedElement.AllComplicationSlots,
                 Color.RED,
                 Color.BLUE
             )
@@ -223,7 +223,7 @@ public class RenderParametersTest {
             DrawMode.INTERACTIVE,
             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             RenderParameters.HighlightLayer(
-                RenderParameters.HighlightedElement.AllComplications,
+                RenderParameters.HighlightedElement.AllComplicationSlots,
                 Color.RED,
                 Color.BLUE
             )

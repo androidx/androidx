@@ -195,7 +195,6 @@ public class WorkTypeConverters {
      * @return The associated int constant
      */
     @TypeConverter
-    @SuppressWarnings("NewApi")
     public static int networkTypeToInt(NetworkType networkType) {
         switch (networkType) {
             case NOT_REQUIRED:

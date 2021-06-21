@@ -16,7 +16,6 @@
 
 package androidx;
 
-import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
 import android.os.Build;
 import android.view.View;
@@ -53,7 +52,6 @@ public class ClassVerificationFailureFromJava {
     /**
      * Unsafe reference to a new API whose auto-fix collides with the existing Api28Impl class.
      */
-    @SuppressLint("NewApi")
     CharSequence unsafeReferenceWithAutoFixCollision(View view) {
         return view.getAccessibilityClassName();
     }

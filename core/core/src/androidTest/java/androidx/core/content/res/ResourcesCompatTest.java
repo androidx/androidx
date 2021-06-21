@@ -39,6 +39,7 @@ import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -452,6 +453,7 @@ public class ResourcesCompatTest {
         assertSame(font, font2);
     }
 
+    @FlakyTest(bugId = 190534138)
     @Test
     public void testSystemFontFamilyReturnsSystemFont() {
         Typeface typeface = ResourcesCompat.getFont(mContext, R.font.samplexmldownloadedfont);

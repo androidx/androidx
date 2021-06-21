@@ -41,14 +41,14 @@ class AsynchronousProviderService : ComplicationProviderService() {
                 when (request.complicationType) {
                     ComplicationType.SHORT_TEXT ->
                         ShortTextComplicationData.Builder(
-                            plainText("# $request.complicationId"),
+                            plainText("# ${request.complicationInstanceId}"),
                             ComplicationText.EMPTY
                         ).build()
 
                     ComplicationType.LONG_TEXT ->
                         LongTextComplicationData.Builder(
                             plainText(
-                                SpannableString("hello $request.complicationId").apply {
+                                SpannableString("hello ${request.complicationInstanceId}").apply {
                                     setSpan(
                                         ForegroundColorSpan(Color.RED),
                                         0,

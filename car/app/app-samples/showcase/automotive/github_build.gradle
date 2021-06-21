@@ -46,5 +46,6 @@ android {
 }
 
 dependencies {
+    implementation "androidx.car.app:app-automotive:1.1.0-alpha01"
     implementation project(":showcase:common")
 }

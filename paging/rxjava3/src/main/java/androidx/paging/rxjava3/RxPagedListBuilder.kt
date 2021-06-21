@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.paging.DataSource
 import androidx.paging.InitialPagedList
-import androidx.paging.InitialPagingSource
 import androidx.paging.LegacyPagingSource
 import androidx.paging.LoadState
 import androidx.paging.LoadState.Loading
@@ -36,6 +35,7 @@ import io.reactivex.rxjava3.core.ObservableOnSubscribe
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.functions.Cancellable
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -343,6 +343,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
         return buildObservable().toFlowable(backpressureStrategy)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Suppress("DEPRECATION")
     internal class PagingObservableOnSubscribe<Key : Any, Value : Any>(
         initialLoadKey: Key?,
@@ -365,7 +366,6 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
 
         init {
             currentData = InitialPagedList(
-                pagingSource = InitialPagingSource(),
                 coroutineScope = GlobalScope,
                 notifyDispatcher = notifyDispatcher,
                 backgroundDispatcher = fetchDispatcher,

@@ -64,6 +64,7 @@ internal class VirtualCameraManager @Inject constructor(
     private val permissions: Permissions,
     private val threads: Threads
 ) {
+    // TODO: Consider rewriting this as a MutableSharedFlow
     private val requestQueue: Channel<CameraRequest> = Channel(requestQueueDepth)
     private val activeCameras: MutableSet<ActiveCamera> = mutableSetOf()
 
@@ -82,7 +83,7 @@ internal class VirtualCameraManager @Inject constructor(
     }
 
     private fun offerChecked(request: CameraRequest) {
-        check(requestQueue.offer(request)) {
+        check(requestQueue.trySend(request).isSuccess) {
             "There are more than $requestQueueDepth requests buffered!"
         }
     }
@@ -209,7 +210,7 @@ internal class VirtualCameraManager @Inject constructor(
         cameraId: CameraId,
         scope: CoroutineScope
     ): ActiveCamera {
-        val metadata = cameraMetadata.get(cameraId)
+        val metadata = cameraMetadata.getMetadata(cameraId)
         val requestTimestamp = Timestamps.now()
 
         var cameraState: AndroidCameraState
@@ -298,7 +299,6 @@ internal class VirtualCameraManager @Inject constructor(
     /**
      * Wait for the specified duration, or until the availability callback is invoked.
      */
-    @SuppressLint("UnsafeNewApiCall")
     private suspend fun awaitAvailableCameraId(
         cameraId: CameraId,
         timeoutMillis: Long = 200
@@ -362,7 +362,7 @@ internal class VirtualCameraManager @Inject constructor(
             scope,
             timeout = 1000,
             callback = {
-                channel.offer(RequestClose(this))
+                channel.trySend(RequestClose(this)).isSuccess
             }
         )
 

@@ -34,13 +34,13 @@ class SynchronousProviderService : ComplicationProviderService() {
             when (request.complicationType) {
                 ComplicationType.SHORT_TEXT ->
                     ShortTextComplicationData.Builder(
-                        plainText("# $request.complicationId"),
+                        plainText("# ${request.complicationInstanceId}"),
                         ComplicationText.EMPTY
                     ).build()
 
                 ComplicationType.LONG_TEXT ->
                     LongTextComplicationData.Builder(
-                        plainText("hello $request.complicationId"),
+                        plainText("hello ${request.complicationInstanceId}"),
                         ComplicationText.EMPTY
                     ).build()
 

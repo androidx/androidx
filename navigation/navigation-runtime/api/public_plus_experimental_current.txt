@@ -13,9 +13,7 @@ package androidx.navigation {
     ctor public ActivityNavigator(android.content.Context context);
     method public static final void applyPopAnimationsToPendingTransition(android.app.Activity activity);
     method public androidx.navigation.ActivityNavigator.Destination createDestination();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final android.content.Context getContext();
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.ActivityNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final android.content.Context context;
     field public static final androidx.navigation.ActivityNavigator.Companion Companion;
   }
 
@@ -94,12 +92,8 @@ package androidx.navigation {
     ctor public NavController(android.content.Context context);
     method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener listener);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void enableOnBackPressed(boolean enabled);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.navigation.NavDestination? findDestination(@IdRes int destinationId);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.navigation.NavDestination? findDestination(String destinationRoute);
     method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int destinationId);
     method public final androidx.navigation.NavBackStackEntry getBackStackEntry(String route);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final android.content.Context getContext();
     method public androidx.navigation.NavBackStackEntry? getCurrentBackStackEntry();
     method public final kotlinx.coroutines.flow.Flow<androidx.navigation.NavBackStackEntry> getCurrentBackStackEntryFlow();
     method public androidx.navigation.NavDestination? getCurrentDestination();
@@ -139,10 +133,6 @@ package androidx.navigation {
     method @CallSuper @MainThread public void setGraph(@NavigationRes int graphResId);
     method @CallSuper @MainThread public void setGraph(@NavigationRes int graphResId, android.os.Bundle? startDestinationArgs);
     method @CallSuper @MainThread public void setGraph(androidx.navigation.NavGraph graph, android.os.Bundle? startDestinationArgs);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setLifecycleOwner(androidx.lifecycle.LifecycleOwner owner);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setOnBackPressedDispatcher(androidx.activity.OnBackPressedDispatcher dispatcher);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setViewModelStore(androidx.lifecycle.ViewModelStore viewModelStore);
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final android.content.Context context;
     property public androidx.navigation.NavBackStackEntry? currentBackStackEntry;
     property public final kotlinx.coroutines.flow.Flow<androidx.navigation.NavBackStackEntry> currentBackStackEntryFlow;
     property public androidx.navigation.NavDestination? currentDestination;
@@ -151,10 +141,6 @@ package androidx.navigation {
     property public androidx.navigation.NavigatorProvider navigatorProvider;
     property public androidx.navigation.NavBackStackEntry? previousBackStackEntry;
     field public static final androidx.navigation.NavController.Companion Companion;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String KEY_DEEP_LINK_ARGS = "android-support-nav:controller:deepLinkArgs";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String KEY_DEEP_LINK_EXTRAS = "android-support-nav:controller:deepLinkExtras";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String KEY_DEEP_LINK_HANDLED = "android-support-nav:controller:deepLinkHandled";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String KEY_DEEP_LINK_IDS = "android-support-nav:controller:deepLinkIds";
     field public static final String KEY_DEEP_LINK_INTENT = "android-support-nav:controller:deepLinkIntent";
   }
 

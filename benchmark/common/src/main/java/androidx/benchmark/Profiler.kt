@@ -16,7 +16,6 @@
 
 package androidx.benchmark
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Debug
 import android.util.Log
@@ -86,7 +85,6 @@ internal sealed class Profiler {
     }
 }
 
-@SuppressLint("UnsafeNewApiCall")
 internal fun startRuntimeMethodTracing(traceFileName: String, sampled: Boolean) {
     val path = Outputs.testOutputFile(traceFileName).absolutePath
 

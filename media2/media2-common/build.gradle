@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 
@@ -30,15 +29,15 @@ dependencies {
     // TODO(b/177296655): Remove versionedparcelable dependency after the transitive dependency
     //  through media which depends on core is updated.
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
-    api(GUAVA_LISTENABLE_FUTURE)
+    api(libs.guavaListenableFuture)
     implementation("androidx.collection:collection:" + COLLECTION_VERSION)
     implementation("androidx.concurrent:concurrent-futures:" + CONCURRENT_FUTURE_VERSION)
-    compileOnly(CHECKER_FRAMEWORK)
+    compileOnly(libs.checkerframework)
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(project(":internal-testutils-runtime"))
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 }

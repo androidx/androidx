@@ -54,7 +54,7 @@ public class ServiceConnectionManager {
     @VisibleForTesting
     static final String ACTION_RENDER = "android.car.template.host.RendererService";
 
-    final ErrorHandler mErrorHandler;
+    final ServiceConnectionListener mListener;
     private final ComponentName mServiceComponentName;
     private final Context mContext;
     private final ServiceDispatcher mServiceDispatcher;
@@ -64,12 +64,19 @@ public class ServiceConnectionManager {
 
     @Nullable IRendererService mRendererService;
 
+    /** A listener receive connection status updates */
+    public interface ServiceConnectionListener extends ErrorHandler {
+        /** Callback invoked when the connection to the host is established */
+        void onConnect();
+    }
+
     public ServiceConnectionManager(@NonNull Context context,
-            @NonNull ComponentName serviceComponentName, @NonNull ErrorHandler errorHandler) {
+            @NonNull ComponentName serviceComponentName,
+            @NonNull ServiceConnectionListener listener) {
         mContext = context;
-        mErrorHandler = errorHandler;
+        mListener = listener;
         mServiceComponentName = serviceComponentName;
-        mServiceDispatcher = new ServiceDispatcher(mErrorHandler, this::isBound);
+        mServiceDispatcher = new ServiceDispatcher(listener, this::isBound);
     }
 
     /**
@@ -83,11 +90,6 @@ public class ServiceConnectionManager {
     @VisibleForTesting
     ComponentName getServiceComponentName() {
         return mServiceComponentName;
-    }
-
-    @VisibleForTesting
-    ErrorHandler getErrorHandler() {
-        return mErrorHandler;
     }
 
     @VisibleForTesting
@@ -122,9 +124,9 @@ public class ServiceConnectionManager {
                             name.flattenToShortString()));
                     IRendererService rendererService = IRendererService.Stub.asInterface(service);
                     if (rendererService == null) {
-                        mErrorHandler.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE,
-                                new Exception("Failed to get IRenderService binder from host: "
-                                        + name));
+                        Log.w(LogTags.TAG, "Failed to get IRenderService binder from host: "
+                                + name);
+                        mListener.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
                         return;
                     }
 
@@ -146,8 +148,8 @@ public class ServiceConnectionManager {
                     requireNonNull(name);
 
                     // Connection permanently lost
-                    mErrorHandler.onError(ErrorHandler.ErrorType.HOST_CONNECTION_LOST,
-                            new Exception("Host service " + name + " is permanently disconnected"));
+                    Log.i(LogTags.TAG, "Host service " + name + " is permanently disconnected");
+                    mListener.onError(ErrorHandler.ErrorType.HOST_CONNECTION_LOST);
                 }
 
                 @Override
@@ -155,9 +157,9 @@ public class ServiceConnectionManager {
                     requireNonNull(name);
 
                     // Host rejected the binding.
-                    mErrorHandler.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE,
-                            new Exception("Host service " + name + " rejected the binding "
-                                    + "request"));
+                    Log.i(LogTags.TAG, "Host service " + name + " rejected the binding "
+                                    + "request");
+                    mListener.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
                 }
             };
 
@@ -182,18 +184,20 @@ public class ServiceConnectionManager {
                 mContext.getPackageManager()
                         .queryIntentServices(rendererIntent, PackageManager.GET_META_DATA);
         if (resolveInfoList.size() == 1) {
-            rendererIntent.setPackage(resolveInfoList.get(0).serviceInfo.packageName);
+            String packageName = resolveInfoList.get(0).serviceInfo.packageName;
+            Log.d(LogTags.TAG, "Initiate binding to: " + packageName);
+            rendererIntent.setPackage(packageName);
             if (!mContext.bindService(
                     rendererIntent,
                     mServiceConnectionImpl,
                     Context.BIND_AUTO_CREATE | Context.BIND_INCLUDE_CAPABILITIES)) {
-                mErrorHandler.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE,
-                        new Exception("Cannot bind to the renderer host with intent: "
-                                + rendererIntent));
+                Log.e(LogTags.TAG, "Cannot bind to the renderer host with intent: "
+                        + rendererIntent);
+                mListener.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
             }
         } else if (resolveInfoList.isEmpty()) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_NOT_FOUND, new Exception("No "
-                    + "handlers found for intent: " + rendererIntent));
+            Log.e(LogTags.TAG, "No handlers found for intent: " + rendererIntent);
+            mListener.onError(ErrorHandler.ErrorType.HOST_NOT_FOUND);
         } else {
             StringBuilder logMessage =
                     new StringBuilder("Multiple hosts found, only one is allowed");
@@ -201,8 +205,8 @@ public class ServiceConnectionManager {
                 logMessage.append(
                         String.format("\nFound host %s", resolveInfo.serviceInfo.packageName));
             }
-            mErrorHandler.onError(ErrorHandler.ErrorType.MULTIPLE_HOSTS,
-                    new Exception(logMessage.toString()));
+            Log.e(LogTags.TAG, logMessage.toString());
+            mListener.onError(ErrorHandler.ErrorType.MULTIPLE_HOSTS);
         }
     }
 
@@ -232,36 +236,44 @@ public class ServiceConnectionManager {
         IRendererService rendererService = requireNonNull(mRendererService);
         ComponentName serviceComponentName = requireNonNull(mServiceComponentName);
 
-        Boolean success = mServiceDispatcher.fetch(false,
+        Boolean success = mServiceDispatcher.fetch("initialize", false,
                 () -> rendererService.initialize(carAppActivity,
                         serviceComponentName, mDisplayId));
         if (success == null || !success) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_ERROR,
-                    new Exception("Cannot create renderer for" + serviceComponentName));
+            Log.e(LogTags.TAG, "Cannot create renderer for " + serviceComponentName);
+            mListener.onError(ErrorHandler.ErrorType.HOST_ERROR);
             return;
         }
-        updateIntent();
+        if (!updateIntent()) {
+            return;
+        }
+
+        mListener.onConnect();
     }
 
     /**
      * Updates the activity intent for the connected {@code rendererService}.
+     *
+     * @return true if intent update was successful
      */
-    private void updateIntent() {
+    private boolean updateIntent() {
         ComponentName serviceComponentName = requireNonNull(mServiceComponentName);
         Intent intent = requireNonNull(mIntent);
 
         IRendererService service = mRendererService;
         if (service == null) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.CLIENT_SIDE_ERROR,
-                    new Exception("Service dispatcher is not connected"));
-            return;
+            Log.e(LogTags.TAG, "Service dispatcher is not connected");
+            mListener.onError(ErrorHandler.ErrorType.CLIENT_SIDE_ERROR);
+            return false;
         }
 
-        Boolean success = mServiceDispatcher.fetch(false, () ->
+        Boolean success = mServiceDispatcher.fetch("onNewIntent", false, () ->
                 service.onNewIntent(intent, serviceComponentName, mDisplayId));
         if (success == null || !success) {
-            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_ERROR, new Exception("Renderer "
-                    + "cannot handle the intent: " + intent));
+            Log.e(LogTags.TAG, "Renderer cannot handle the intent: " + intent);
+            mListener.onError(ErrorHandler.ErrorType.HOST_ERROR);
+            return false;
         }
+        return true;
     }
 }

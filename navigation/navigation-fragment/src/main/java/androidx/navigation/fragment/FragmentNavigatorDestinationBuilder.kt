@@ -26,6 +26,8 @@ import kotlin.reflect.KClass
 
 /**
  * Construct a new [FragmentNavigator.Destination]
+ *
+ * @param id the destination's unique id
  */
 @Suppress("Deprecation")
 @Deprecated(
@@ -38,6 +40,9 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
 
 /**
  * Construct a new [FragmentNavigator.Destination]
+ *
+ * @param id the destination's unique id
+ * @param builder the builder used to construct the fragment destination
  */
 @Suppress("Deprecation")
 @Deprecated(
@@ -57,6 +62,8 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
 
 /**
  * Construct a new [FragmentNavigator.Destination]
+ *
+ * @param route the destination's unique route
  */
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     route: String
@@ -64,6 +71,9 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
 
 /**
  * Construct a new [FragmentNavigator.Destination]
+ *
+ * @param route the destination's unique route
+ * @param builder the builder used to construct the fragment destination
  */
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     route: String,
@@ -85,6 +95,14 @@ public class FragmentNavigatorDestinationBuilder :
 
     private var fragmentClass: KClass<out Fragment>
 
+    /**
+     * DSL for constructing a new [FragmentNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param id the destination's unique id
+     * @param fragmentClass The class name of the Fragment to show when you navigate to this
+     * destination
+     */
     @Suppress("Deprecation")
     @Deprecated(
         "Use routes to build your FragmentNavigatorDestination instead",
@@ -100,6 +118,14 @@ public class FragmentNavigatorDestinationBuilder :
         this.fragmentClass = fragmentClass
     }
 
+    /**
+     * DSL for constructing a new [FragmentNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the destination's unique route
+     * @param fragmentClass The class name of the Fragment to show when you navigate to this
+     * destination
+     */
     public constructor(
         navigator: FragmentNavigator,
         route: String,

@@ -29,116 +29,98 @@ public interface CarInfo {
     /**
      * Request the {@link Model} information about the car hardware.
      *
-     * @param params the parameters for this specific request. Use
-     * {@link Model.Params#getDefault()} as a default.
      * @param executor the executor which will be used for invoking the listener
-     * @param listener the listener to use
+     * @param listener the listener that will be invoked when data is available
      */
-    void getModel(@NonNull Model.Params params,
-            @NonNull Executor executor,
+    void getModel(@NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<Model> listener);
 
     /**
      * Reguest the {@link EnergyProfile} information about the car hardware.
      *
-     * @param params the parameters for this request. Use {@link EnergyProfile.Params#getDefault}
-     *              as a default.
      * @param executor the executor which will be used for invoking the listener
-     * @param listener the listener to use
+     * @param listener the listener that will be invoked when data is available
      */
-    void getEnergyProfile(@NonNull EnergyProfile.Params params,
-            @NonNull Executor executor,
+    void getEnergyProfile(@NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<EnergyProfile> listener);
 
     /**
      * Setup an ongoing listener to receive {@link Toll} information from the car hardware.
      *
-     * <p>If the listener was added previously then previous params are updated with the new params.
+     * <p>If the listener was added previously then it won't be added again.
      *
-     * @param params the parameters for this request. Use {@link Toll.Params#getDefault}
-     *              as a default.
      * @param executor the executor which will be used for invoking the listener
-     * @param listener the listener to use
+     * @param listener the listener that will be invoked when data is available
      */
-    void addTollListener(@NonNull Toll.Params params,
-            @NonNull Executor executor,
+    void addTollListener(@NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<Toll> listener);
 
     /**
      * Remove an ongoing listener for {@link Toll} information.
      *
-     * <p>If the listener is not currently added, this call will be ignored.
+     * <p>If the listener is not currently added, then nothing will be removed.
      *
-     * @param listener the listener to use
+     * @param listener the listener to remove
      */
     void removeTollListener(@NonNull OnCarDataListener<Toll> listener);
 
     /**
      * Setup an ongoing listener to receive {@link EnergyLevel} information from the car hardware.
      *
-     * <p>If the listener was added previously then previous params are updated with the new params.
+     * <p>If the listener was added previously then it won't be added.
      *
-     * @param params the parameters for this request. Use {@link EnergyLevel.Params#getDefault}
-     *              as a default.
      * @param executor the executor which will be used for invoking the listener
-     * @param listener the listener to use
+     * @param listener the listener that will be invoked when data is available
      */
-    void addEnergyLevelListener(@NonNull EnergyLevel.Params params,
-            @NonNull Executor executor,
+    void addEnergyLevelListener(@NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<EnergyLevel> listener);
 
     /**
      * Remove an ongoing listener for {@link EnergyLevel} information.
      *
-     * <p>If the listener is not currently added, this call will be ignored.
+     * <p>If the listener is not currently added, then nothing will be removed.
      *
-     * @param listener the listener to use
+     * @param listener the listener to remove
      */
     void removeEnergyLevelListener(@NonNull OnCarDataListener<EnergyLevel> listener);
 
     /**
      * Setup an ongoing listener to receive {@link Speed} information from the car hardware.
      *
-     * <p>If the listener was added previously then previous params are updated with the new params.
+     * <p>If the listener was added previously then it won't be added.
      *
-     * @param params the parameters for this request. Use {@link Speed.Params#getDefault}
-     *              as a default.
      * @param executor the executor which will be used for invoking the listener
-     * @param listener the listener to use
+     * @param listener the listener that will be invoked when data is available
      */
-    void addSpeedListener(@NonNull Speed.Params params,
-            @NonNull Executor executor,
+    void addSpeedListener(@NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<Speed> listener);
 
     /**
      * Remove an ongoing listener for {@link Speed} information.
      *
-     * <p>If the listener is not currently added, this call will be ignored.
+     * <p>If the listener is not currently added, then nothing will be removed.
      *
-     * @param listener the listener to use
+     * @param listener the listener to remove
      */
     void removeSpeedListener(@NonNull OnCarDataListener<Speed> listener);
 
     /**
      * Setup an ongoing listener to receive {@link Mileage} information from the car hardware.
      *
-     * <p>If the listener was added previously then previous params are updated with the new params.
+     * <p>If the listener was added previously then it won't be added.
      *
-     * @param params the parameters for this request. Use {@link Mileage.Params#getDefault}
-     *              as a default.
      * @param executor the executor which will be used for invoking the listener
-     * @param listener the listener to use.
+     * @param listener the listener that will be invoked when data is available
      */
-    void addMileageListener(@NonNull Mileage.Params params,
-            @NonNull Executor executor,
+    void addMileageListener(@NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<Mileage> listener);
 
     /**
      * Remove an ongoing listener for {@link Mileage} information.
      *
-     * <p>If the listener is not currently added, this call will be ignored.
+     * <p>If the listener is not currently added, then nothing will be removed.
      *
-     * @param listener the listener to use
+     * @param listener the listener to remove
      */
     void removeMileageListener(@NonNull OnCarDataListener<Mileage> listener);
 }

@@ -18,7 +18,6 @@ package androidx.window
 import android.app.Activity
 import android.graphics.Rect
 import android.util.Log
-import androidx.window.WindowBoundsHelper.Companion.instance
 import androidx.window.extensions.ExtensionDisplayFeature
 import androidx.window.extensions.ExtensionFoldingFeature
 import androidx.window.extensions.ExtensionWindowLayoutInfo
@@ -26,7 +25,7 @@ import androidx.window.extensions.ExtensionWindowLayoutInfo
 /**
  * A class for translating Extension data classes
  */
-internal class ExtensionAdapter {
+internal class ExtensionAdapter(private val windowMetricsCalculator: WindowMetricsCalculator) {
     /**
      * Perform the translation from [ExtensionWindowLayoutInfo] to [WindowLayoutInfo].
      * Translates a valid [ExtensionDisplayFeature] into a valid [DisplayFeature]. If
@@ -48,8 +47,8 @@ internal class ExtensionAdapter {
         if (displayFeature !is ExtensionFoldingFeature) {
             return null
         }
-        val windowBounds = instance.computeCurrentWindowBounds(activity)
-        return translateFoldFeature(windowBounds, displayFeature)
+        val windowMetrics = windowMetricsCalculator.computeCurrentWindowMetrics(activity)
+        return translateFoldFeature(windowMetrics.bounds, displayFeature)
     }
 
     companion object {

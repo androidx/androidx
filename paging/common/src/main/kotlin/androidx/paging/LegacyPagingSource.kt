@@ -25,6 +25,7 @@ import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,6 +35,7 @@ import kotlinx.coroutines.withContext
  *
  * @hide
  */
+@OptIn(DelicateCoroutinesApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LegacyPagingSource<Key : Any, Value : Any>(
     private val fetchDispatcher: CoroutineDispatcher,

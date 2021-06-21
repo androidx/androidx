@@ -123,7 +123,7 @@ package androidx.wear.watchface.control.data {
     method public int describeContents();
     method public long getCalendarTimeMillis();
     method public android.support.wearable.complications.ComplicationData? getComplicationData();
-    method public int getComplicationId();
+    method public int getComplicationSlotId();
     method public androidx.wear.watchface.data.RenderParametersWireFormat getRenderParametersWireFormat();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getUserStyle();
     method public void writeToParcel(android.os.Parcel, int);
@@ -197,24 +197,24 @@ package androidx.wear.watchface.control.data {
 
 package androidx.wear.watchface.data {
 
-  @IntDef({androidx.wear.watchface.data.ComplicationBoundsType.ROUND_RECT, androidx.wear.watchface.data.ComplicationBoundsType.BACKGROUND, androidx.wear.watchface.data.ComplicationBoundsType.EDGE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public @interface ComplicationBoundsType {
+  @IntDef({androidx.wear.watchface.data.ComplicationSlotBoundsType.ROUND_RECT, androidx.wear.watchface.data.ComplicationSlotBoundsType.BACKGROUND, androidx.wear.watchface.data.ComplicationSlotBoundsType.EDGE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public @interface ComplicationSlotBoundsType {
     field public static final int BACKGROUND = 1; // 0x1
-    field public static final androidx.wear.watchface.data.ComplicationBoundsType.Companion Companion;
+    field public static final androidx.wear.watchface.data.ComplicationSlotBoundsType.Companion Companion;
     field public static final int EDGE = 2; // 0x2
     field public static final int ROUND_RECT = 0; // 0x0
   }
 
-  public static final class ComplicationBoundsType.Companion {
+  public static final class ComplicationSlotBoundsType.Companion {
     field public static final int BACKGROUND = 1; // 0x1
     field public static final int EDGE = 2; // 0x2
     field public static final int ROUND_RECT = 0; // 0x0
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationStateWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationStateWireFormat(android.graphics.Rect, @androidx.wear.watchface.data.ComplicationBoundsType int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, android.os.Bundle);
+    ctor public ComplicationStateWireFormat(android.graphics.Rect, @androidx.wear.watchface.data.ComplicationSlotBoundsType int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, android.os.Bundle);
     method public int describeContents();
     method public android.graphics.Rect getBounds();
-    method @androidx.wear.watchface.data.ComplicationBoundsType public int getBoundsType();
+    method @androidx.wear.watchface.data.ComplicationSlotBoundsType public int getBoundsType();
     method public android.os.Bundle getComplicationConfigExtras();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int getCurrentType();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int getDefaultProviderType();
@@ -271,7 +271,7 @@ package androidx.wear.watchface.data {
     method public int describeContents();
     method @ColorInt public int getBackgroundTint();
     method public int getDrawMode();
-    method public int getElementComplicationId();
+    method public int getElementComplicationSlotId();
     method public int getElementType();
     method public String? getElementUserStyleSettingId();
     method @ColorInt public int getHighlightTint();
@@ -330,7 +330,7 @@ package androidx.wear.watchface.style.data {
     field public static final int ENABLED_UNKNOWN = -1; // 0xffffffff
     field public static final int ENABLED_YES = 1; // 0x1
     field public static final long NULL_ACCESSIBILITY_TRAVERSAL_INDEX = 4294967296L; // 0x100000000L
-    field @androidx.versionedparcelable.ParcelField(1) public int mComplicationId;
+    field @androidx.versionedparcelable.ParcelField(1) public int mComplicationSlotId;
     field @androidx.versionedparcelable.ParcelField(2) public int mEnabled;
     field @androidx.versionedparcelable.ParcelField(3) public java.util.Map<java.lang.Integer!,android.graphics.RectF!>? mPerComplicationTypeBounds;
   }

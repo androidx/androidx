@@ -23,8 +23,8 @@ import androidx.annotation.AnyThread
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.data.ComplicationRenderParams
@@ -32,7 +32,7 @@ import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import java.util.concurrent.Executor
 
 /**
@@ -60,13 +60,14 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     public val userStyleSchema: UserStyleSchema
 
     /**
-     * Map of complication ids to [ComplicationState] for each [Complication] registered with the
-     * watch face's [ComplicationsManager]. The ComplicationState is based on the initial state of
-     * each Complication plus any overrides from the default style's
-     * [ComplicationsUserStyleSetting]. Because the style can't change, ComplicationState is
+     * Map of [androidx.wear.watchface.ComplicationSlot] ids to [ComplicationSlotState] for each
+     * [ComplicationSlot] registered with the watch face's [ComplicationSlotsManager]. The
+     * ComplicationSlotState is based on the initial state of each
+     * [androidx.wear.watchface.ComplicationSlot] plus any overrides from the default style's
+     * [ComplicationSlotsUserStyleSetting]. Because the style can't change, ComplicationSlotState is
      * immutable for a headless watch face.
      */
-    public val complicationsState: Map<Int, ComplicationState>
+    public val complicationSlotsState: Map<Int, ComplicationSlotState>
 
     /**
      * Renders the watchface to a shared memory backed [Bitmap] with the given settings.
@@ -74,8 +75,9 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * @param renderParameters The [RenderParameters] to draw with.
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
      * @param userStyle Optional [UserStyle] to render with, if null the default style is used.
-     * @param idToComplicationData Map of complication ids to [ComplicationData] to render with, or
-     * if null complications are not rendered.
+     * @param slotIdToComplicationData Map of [androidx.wear.watchface.ComplicationSlot] ids to
+     * [ComplicationData] to render with, or if `null` [androidx.wear.watchface.ComplicationSlot]
+     * are not rendered.
      * @return A shared memory backed [Bitmap] containing a screenshot of the watch face with the
      * given settings.
      */
@@ -84,23 +86,24 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
 
     /**
-     * Renders the complication to a shared memory backed [Bitmap] with the given settings.
+     * Renders the [androidx.wear.watchface.ComplicationSlot] to a shared memory backed [Bitmap]
+     * with the given settings.
      *
-     * @param complicationId The id of the complication to render
+     * @param complicationSlotId The id of the complication to render
      * @param renderParameters The [RenderParameters] to draw with
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with
      * @param complicationData the [ComplicationData] to render with
      * @param userStyle Optional [UserStyle] to render with, if null the default style is used
      * @return A shared memory backed [Bitmap] containing a screenshot of the watch face with the
-     * given settings, or `null` if [complicationId] is unrecognized.
+     * given settings, or `null` if [complicationSlotId] is unrecognized.
      */
     @RequiresApi(27)
     public fun renderComplicationToBitmap(
-        complicationId: Int,
+        complicationSlotId: Int,
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         complicationData: ComplicationData,
@@ -167,10 +170,10 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
     override val userStyleSchema: UserStyleSchema
         get() = UserStyleSchema(iHeadlessWatchFace.userStyleSchema)
 
-    override val complicationsState: Map<Int, ComplicationState>
+    override val complicationSlotsState: Map<Int, ComplicationSlotState>
         get() = iHeadlessWatchFace.complicationState.associateBy(
             { it.id },
-            { ComplicationState(it.complicationState) }
+            { ComplicationSlotState(it.complicationState) }
         )
 
     @RequiresApi(27)
@@ -178,7 +181,7 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap = TraceEvent("HeadlessWatchFaceClientImpl.renderWatchFaceToBitmap").use {
         SharedMemoryImage.ashmemReadImageBundle(
             iHeadlessWatchFace.renderWatchFaceToBitmap(
@@ -186,7 +189,7 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
                     renderParameters.toWireFormat(),
                     calendarTimeMillis,
                     userStyle?.toWireFormat(),
-                    idToComplicationData?.map {
+                    slotIdToComplicationData?.map {
                         IdAndComplicationDataWireFormat(
                             it.key,
                             it.value.asWireComplicationData()
@@ -199,7 +202,7 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
 
     @RequiresApi(27)
     override fun renderComplicationToBitmap(
-        complicationId: Int,
+        complicationSlotId: Int,
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         complicationData: ComplicationData,
@@ -207,7 +210,7 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
     ): Bitmap? = TraceEvent("HeadlessWatchFaceClientImpl.renderComplicationToBitmap").use {
         iHeadlessWatchFace.renderComplicationToBitmap(
             ComplicationRenderParams(
-                complicationId,
+                complicationSlotId,
                 renderParameters.toWireFormat(),
                 calendarTimeMillis,
                 complicationData.asWireComplicationData(),

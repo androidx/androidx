@@ -16,7 +16,6 @@
 
 package androidx.camera.extensions;
 
-import static androidx.camera.extensions.util.ExtensionsTestUtil.assumeCompatibleDevice;
 import static androidx.camera.extensions.util.ExtensionsTestUtil.effectModeToExtensionMode;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -38,7 +37,6 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
@@ -73,6 +71,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Unit tests for {@link androidx.camera.extensions.ExtensionsErrorListener}.
  * */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+@SuppressWarnings("deprecation")
 public final class ExtensionsErrorListenerTest {
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
@@ -88,7 +87,6 @@ public final class ExtensionsErrorListenerTest {
         return ExtensionsTestUtil.getAllEffectLensFacingCombinations();
     }
 
-    private ExtensionsInfo mExtensionsInfo;
     private CameraSelector mCameraSelector;
     private ExtensionsManager.EffectMode mEffectMode;
     @ExtensionMode.Mode
@@ -100,8 +98,10 @@ public final class ExtensionsErrorListenerTest {
     private FakeLifecycleOwner mFakeLifecycleOwner;
     private CameraSelector mExtensionsCameraSelector;
     private CameraUseCaseAdapter mCamera;
+    private ExtensionsManager mExtensionsManager;
 
-    final AtomicReference<ExtensionsErrorCode> mErrorCode = new AtomicReference<>();
+    final AtomicReference<ExtensionsErrorListener.ExtensionsErrorCode> mErrorCode =
+            new AtomicReference<>();
     ExtensionsErrorListener mExtensionsErrorListener = new ExtensionsErrorListener() {
         @Override
         public void onError(@NonNull ExtensionsErrorCode errorCode) {
@@ -122,23 +122,22 @@ public final class ExtensionsErrorListenerTest {
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
-        assumeCompatibleDevice();
         assumeTrue(CameraUtil.deviceHasCamera());
 
         mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(
                 TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
-        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
-        assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
+        mExtensionsManager = ExtensionsManager.getInstance(mContext).get(TIMEOUT_MILLISECONDS,
+                TimeUnit.MILLISECONDS);
+        assumeTrue(mExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
 
-        mExtensionsInfo = ExtensionsManager.getExtensionsInfo(mContext);
         mLatch = new CountDownLatch(1);
 
         mFakeLifecycleOwner = new FakeLifecycleOwner();
         mFakeLifecycleOwner.startAndResume();
-        mExtensionsCameraSelector =
-                mExtensionsInfo.getExtensionCameraSelector(mCameraSelector, mExtensionMode);
+        mExtensionsCameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
+                mProcessCameraProvider, mCameraSelector, mExtensionMode);
     }
 
     @After
@@ -153,7 +152,7 @@ public final class ExtensionsErrorListenerTest {
 
         if (mProcessCameraProvider != null) {
             mProcessCameraProvider.shutdown().get(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
-            ExtensionsManager.deinit().get(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
+            mExtensionsManager.shutdown().get(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -173,7 +172,8 @@ public final class ExtensionsErrorListenerTest {
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
-        assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
+        assertThat(mErrorCode.get()).isEqualTo(
+                ExtensionsErrorListener.ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
     }
 
     @Test
@@ -189,7 +189,8 @@ public final class ExtensionsErrorListenerTest {
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
-        assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
+        assertThat(mErrorCode.get()).isEqualTo(
+                ExtensionsErrorListener.ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
     }
 
     @Test
@@ -207,7 +208,7 @@ public final class ExtensionsErrorListenerTest {
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
         assertThat(mErrorCode.get()).isEqualTo(
-                ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
+                ExtensionsErrorListener.ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
     }
 
     @Test
@@ -222,7 +223,7 @@ public final class ExtensionsErrorListenerTest {
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
         assertThat(mErrorCode.get()).isEqualTo(
-                ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
+                ExtensionsErrorListener.ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
     }
 
     @Test
@@ -250,11 +251,11 @@ public final class ExtensionsErrorListenerTest {
         ExtensionsManager.EffectMode mismatchedEffectMode;
 
         if (mEffectMode != ExtensionsManager.EffectMode.BOKEH) {
-            assumeTrue(ExtensionsManager.isExtensionAvailable(ExtensionsManager.EffectMode.BOKEH,
+            assumeTrue(mExtensionsManager.isExtensionAvailable(ExtensionsManager.EffectMode.BOKEH,
                     mLensFacing));
             mismatchedEffectMode = ExtensionsManager.EffectMode.BOKEH;
         } else {
-            assumeTrue(ExtensionsManager.isExtensionAvailable(ExtensionsManager.EffectMode.HDR,
+            assumeTrue(mExtensionsManager.isExtensionAvailable(ExtensionsManager.EffectMode.HDR,
                     mLensFacing));
             mismatchedEffectMode = ExtensionsManager.EffectMode.HDR;
         }
@@ -281,7 +282,8 @@ public final class ExtensionsErrorListenerTest {
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
-        assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
+        assertThat(mErrorCode.get()).isEqualTo(
+                ExtensionsErrorListener.ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
     }
 
     @Test
@@ -298,7 +300,8 @@ public final class ExtensionsErrorListenerTest {
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
-        assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
+        assertThat(mErrorCode.get()).isEqualTo(
+                ExtensionsErrorListener.ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
     }
 
     @Test
@@ -316,7 +319,7 @@ public final class ExtensionsErrorListenerTest {
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
         assertThat(mErrorCode.get()).isEqualTo(
-                ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
+                ExtensionsErrorListener.ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
     }
 
     @Test

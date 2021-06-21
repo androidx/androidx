@@ -33,6 +33,7 @@ import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.Logger;
@@ -40,7 +41,6 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
-import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
@@ -57,7 +57,15 @@ import java.util.List;
 
 /**
  * Class for using an OEM provided extension on preview.
+ *
+ * @deprecated Use
+ * {@link ExtensionsManager#isExtensionAvailable(CameraProvider, CameraSelector, int)}
+ * to check whether extension function can support with the given {@link CameraSelector}. Use
+ * {@link ExtensionsManager#getExtensionEnabledCameraSelector(CameraProvider, CameraSelector, int)}
+ * to get a {@link CameraSelector} for the specific extension mode, then use it to bind the use
+ * cases to a lifecycle owner.
  */
+@Deprecated
 public abstract class PreviewExtender {
     private static final String TAG = "PreviewExtender";
     static final Config.Option<Integer> OPTION_PREVIEW_EXTENDER_MODE = Config.Option.create(
@@ -238,10 +246,10 @@ public abstract class PreviewExtender {
 
         if (isMismatched) {
             ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
+                    ExtensionsErrorListener.ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
         } else if (!isImageCaptureExtenderEnabled) {
             ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
+                    ExtensionsErrorListener.ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
         }
     }
 

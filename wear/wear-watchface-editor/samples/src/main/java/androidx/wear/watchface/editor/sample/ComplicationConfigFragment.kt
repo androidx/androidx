@@ -67,7 +67,7 @@ internal class ComplicationConfigFragment : Fragment() {
 }
 
 /**
- * Configuration view for watch faces with multiple complications.
+ * Configuration view for watch faces with multiple complicationSlots.
  *
  * @hide
  */
@@ -91,14 +91,14 @@ internal class ConfigView(
 
     // One invisible button per complication.
     private val complicationButtons =
-        watchFaceConfigActivity.editorSession.complicationsState.mapValues { stateEntry ->
+        watchFaceConfigActivity.editorSession.complicationSlotsState.mapValues { stateEntry ->
             // TODO(alexclarke): This button is a Rect which makes the tap animation look bad.
             if (stateEntry.value.fixedComplicationProvider ||
                 !stateEntry.value.isEnabled ||
-                stateEntry.key == watchFaceConfigActivity.editorSession.backgroundComplicationId
+                stateEntry.key == watchFaceConfigActivity.editorSession.backgroundComplicationSlotId
             ) {
-                // Do not create a button for fixed complications, disabled complications, or
-                // background complications.
+                // Do not create a button for fixed complicationSlots, disabled complicationSlots,
+                // or background complicationSlots.
                 null
             } else {
                 Button(context).apply {
@@ -137,7 +137,7 @@ internal class ConfigView(
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         for ((id, view) in complicationButtons) {
-            val rect = watchFaceConfigActivity.editorSession.complicationsState[id]!!.bounds
+            val rect = watchFaceConfigActivity.editorSession.complicationSlotsState[id]!!.bounds
             view?.layout(
                 rect.left,
                 rect.top,
@@ -147,10 +147,12 @@ internal class ConfigView(
         }
     }
 
-    private fun onComplicationButtonClicked(complicationId: Int) {
+    private fun onComplicationButtonClicked(complicationSlotId: Int) {
         watchFaceConfigActivity.coroutineScope.launch {
             val chosenComplicationProvider =
-                watchFaceConfigActivity.fragmentController.showComplicationConfig(complicationId)
+                watchFaceConfigActivity.fragmentController.showComplicationConfig(
+                    complicationSlotId
+                )
             updateUi(chosenComplicationProvider)
             // Redraw after the complication provider chooser has run.
             invalidate()
@@ -162,12 +164,12 @@ internal class ConfigView(
         fun updateTooltip(
             button: View,
             watchFaceConfigActivity: WatchFaceConfigActivity,
-            complicationId: Int
+            complicationSlotId: Int
         ) {
             watchFaceConfigActivity.coroutineScope.launch {
                 val providerInfo =
                     watchFaceConfigActivity.editorSession
-                        .getComplicationsProviderInfo()[complicationId]
+                        .getComplicationsProviderInfo()[complicationSlotId]
                 button.tooltipText = getProviderInfoToast(providerInfo)
             }
         }
@@ -187,7 +189,7 @@ internal class ConfigView(
                 DrawMode.INTERACTIVE,
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 HighlightLayer(
-                    RenderParameters.HighlightedElement.AllComplications,
+                    RenderParameters.HighlightedElement.AllComplicationSlots,
                     Color.RED, // Red complication highlight.
                     Color.argb(128, 0, 0, 0) // Darken everything else.
                 )
@@ -199,7 +201,8 @@ internal class ConfigView(
     }
 
     private fun updateUi(
-        @Suppress("UNUSED_PARAMETER") chosenComplicationProvider: ChosenComplicationProvider?
+        @Suppress("UNUSED_PARAMETER")
+        chosenComplicationProvider: ChosenComplicationProvider?
     ) {
         // The fragment can use the chosen complication to update the UI.
     }

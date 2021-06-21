@@ -25,6 +25,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.support.wearable.watchface.Constants
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.Px
@@ -48,13 +49,13 @@ import androidx.wear.utility.launchWithTracing
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.client.ComplicationState
+import androidx.wear.watchface.client.ComplicationSlotState
 import androidx.wear.watchface.client.EditorListener
 import androidx.wear.watchface.client.EditorServiceClient
 import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceId
-import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyle
@@ -105,10 +106,10 @@ public abstract class EditorSession : AutoCloseable {
     public abstract val userStyleSchema: UserStyleSchema
 
     /**
-     * Map of complication ids to [ComplicationState] for each complication slot. Note
-     * [ComplicationState] can change, typically in response to styling.
+     * Map of complication slot ids to [ComplicationSlotState] for each complication slot. Note
+     * [ComplicationSlotState] can change, typically in response to styling.
      */
-    public abstract val complicationsState: Map<Int, ComplicationState>
+    public abstract val complicationSlotsState: Map<Int, ComplicationSlotState>
 
     /**
      * Whether any changes should be committed when the session is closed (defaults to `true`).
@@ -118,7 +119,7 @@ public abstract class EditorSession : AutoCloseable {
      * UX requires us to commit changes.
      *
      * Regardless of the value, on completion of the editor session, the original UserStyle is
-     * restored. Note we need SysUI's help to revert any complication provider changes. Caveat
+     * restored. Note we need SysUI's help to revert any complication slot provider changes. Caveat
      * some providers have their own config (e.g. the world clock has a timezone setting) and
      * that config currently can't be reverted.
      */
@@ -128,54 +129,57 @@ public abstract class EditorSession : AutoCloseable {
     public var commitChangesOnClose: Boolean = true
 
     /**
-     * Returns a map of complication ids to preview [ComplicationData] suitable for use in rendering
-     * the watch face. Note if a slot is configured to be empty then it will an instance of
-     * [EmptyComplicationData]. Disabled complications are included. Note also unlike live data
-     * this is static per provider, but it may update (on the UiThread) as a result of
-     * [openComplicationProviderChooser].
+     * Returns a map of [androidx.wear.watchface.ComplicationSlot] ids to preview [ComplicationData]
+     * suitable for use in rendering a preview of the watch face. Note if a slot is configured to
+     * be empty then it will an instance of [EmptyComplicationData]. Disabled complicationSlots
+     * are included. Note also unlike live data this is static per provider, but it may update
+     * (on the UiThread) as a result of [openComplicationProviderChooser].
      */
     @UiThread
     public abstract suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData>
 
     /**
-     * Returns a map of complication ids to [ComplicationProviderInfo] that represent the
-     * information available about the provider for each complication.
+     * Returns a map of [androidx.wear.watchface.ComplicationSlot] ids to [ComplicationProviderInfo]
+     * that represent the information available about the provider for each complication.
      *
-     * A `null` [ComplicationProviderInfo] will be associated with a complication id if the
-     * complication is configured to show the empty complication provider.
+     * A `null` [ComplicationProviderInfo] will be associated with a complication slot id if the
+     * [androidx.wear.watchface.ComplicationSlot] is configured to show the empty complication
+     * provider.
      */
     @UiThread
     public abstract suspend fun getComplicationsProviderInfo(): Map<Int, ComplicationProviderInfo?>
 
     /** The ID of the background complication or `null` if there isn't one. */
     @get:SuppressWarnings("AutoBoxing")
-    public abstract val backgroundComplicationId: Int?
+    public abstract val backgroundComplicationSlotId: Int?
 
     /**
      * Returns the ID of the complication at the given coordinates or `null` if there isn't one.
-     * Only complications with [ComplicationBoundsType.ROUND_RECT] are supported by this function.
+     * Only [androidx.wear.watchface.ComplicationSlot]s with
+     * [ComplicationSlotBoundsType.ROUND_RECT] are supported by this function.
      */
     @SuppressWarnings("AutoBoxing")
     @UiThread
-    public abstract fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int?
+    public abstract fun getComplicationSlotIdAt(@Px x: Int, @Px y: Int): Int?
 
     /**
      * Renders the watch face to a [Bitmap] using the current [userStyle].
      *
      * @param renderParameters The [RenderParameters] to render with. Must be [DrawMode.INTERACTIVE]
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with
-     * @param idToComplicationData The [ComplicationData] for each complication to render with
+     * @param slotIdToComplicationData The [ComplicationData] for each
+     * [androidx.wear.watchface.ComplicationSlot] to render with
      */
     @UiThread
     public abstract fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
 
     /**
      * Opens the complication provider chooser and returns the chosen complication provider
-     * for the given splot.
+     * for the specified [androidx.wear.watchface.ComplicationSlot].
      *
      * The result returns `null` if the operation was cancelled and otherwise returned an
      * instance of [ChosenComplicationProvider] that contains information about the chosen
@@ -183,9 +187,14 @@ public abstract class EditorSession : AutoCloseable {
      *
      * If the complication provider was changed then the map returned by
      * [getComplicationsPreviewData] is updated (on the UiThread).
+     *
+     * @param complicationSlotId The id of the [androidx.wear.watchface.ComplicationSlot] to select
+     * a complication provider for.
+     * @throws IllegalStateException if a previous invocation of openComplicationProviderChooser is
+     * still running when openComplicationProviderChooser is called.
      */
     @UiThread
-    public abstract suspend fun openComplicationProviderChooser(complicationId: Int):
+    public abstract suspend fun openComplicationProviderChooser(complicationSlotId: Int):
         ChosenComplicationProvider?
 
     public companion object {
@@ -227,30 +236,35 @@ public abstract class EditorSession : AutoCloseable {
         ).use {
             val coroutineScope =
                 CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate)
-            return EditorRequest.createFromIntent(editIntent).let { editorRequest ->
-                // We need to respect the lifecycle and register the ActivityResultListener now.
-                val session = OnWatchFaceEditorSessionImpl(
-                    activity,
-                    editorRequest.watchFaceComponentName,
-                    editorRequest.watchFaceId,
-                    editorRequest.initialUserStyle,
-                    providerInfoRetrieverProvider,
-                    coroutineScope
-                )
-
-                // But full initialization has to be deferred because
-                // [WatchFace.getOrCreateEditorDelegate] is async.
-                // Resolve only after init has been completed.
-                withContext(coroutineScope.coroutineContext) {
-                    withTimeout(EDITING_SESSION_TIMEOUT_MILLIS) {
-                        session.setEditorDelegate(
-                            WatchFace.getOrCreateEditorDelegate(
-                                editorRequest.watchFaceComponentName
-                            ).await()
-                        )
-                        // Resolve only after init has been completed.
-                        session
-                    }
+            var isRFlow = true
+            val editorRequest = editIntent.getParcelableExtra<ComponentName>(
+                Constants.EXTRA_WATCH_FACE_COMPONENT
+            )?.let {
+                isRFlow = false
+                EditorRequest(it, "", null)
+            } ?: EditorRequest.createFromIntent(editIntent)
+            // We need to respect the lifecycle and register the ActivityResultListener now.
+            val session = OnWatchFaceEditorSessionImpl(
+                activity,
+                editorRequest.watchFaceComponentName,
+                editorRequest.watchFaceId,
+                editorRequest.initialUserStyle,
+                providerInfoRetrieverProvider,
+                coroutineScope,
+                isRFlow
+            )
+            // But full initialization has to be deferred because
+            // [WatchFace.getOrCreateEditorDelegate] is async.
+            // Resolve only after init has been completed.
+            withContext(coroutineScope.coroutineContext) {
+                withTimeout(EDITING_SESSION_TIMEOUT_MILLIS) {
+                    session.setEditorDelegate(
+                        WatchFace.getOrCreateEditorDelegate(
+                            editorRequest.watchFaceComponentName
+                        ).await()
+                    )
+                    // Resolve only after init has been completed.
+                    session
                 }
             }
         }
@@ -294,19 +308,20 @@ public abstract class EditorSession : AutoCloseable {
 }
 
 /**
- * The complication provider that was chosen by the user for a given complication id as a result
- * to a call to [EditorSession.openComplicationProviderChooser].
+ * The complication provider that was chosen by the user for a given
+ * [androidx.wear.watchface.ComplicationSlot] id as a result to a call to
+ * [EditorSession.openComplicationProviderChooser].
  */
 public class ChosenComplicationProvider(
     /** The ID of the complication slot that was configured. */
-    public val complicationId: Int,
+    public val complicationSlotId: Int,
     /** The provider that was chosen for this slot, or `null` if the empty provider was chosen. */
     public val complicationProviderInfo: ComplicationProviderInfo?,
     /** Any additional extras returned by provider chooser. */
     public val extras: Bundle,
 ) {
     override fun toString(): String =
-        "$complicationId,$complicationProviderInfo,${extras.asString()}"
+        "$complicationSlotId,$complicationProviderInfo,${extras.asString()}"
 }
 
 // Helps inject mock ProviderInfoRetrievers for testing.
@@ -361,12 +376,9 @@ public abstract class BaseEditorSession internal constructor(
     override suspend fun getComplicationsProviderInfo(): Map<Int, ComplicationProviderInfo?> =
         deferredComplicationsProviderInfoMap.await()
 
-    /** Pending result for [openComplicationProviderChooser]. */
+    /** Pending result for ComplicationProviderChooserRequest. */
     internal var pendingComplicationProviderChooserResult:
-        CompletableDeferred<ChosenComplicationProvider?>? = null
-
-    /** The id of the complication being configured due to [openComplicationProviderChooser]. */
-    private var pendingComplicationProviderId: Int = -1
+        CompletableDeferred<ComplicationProviderChooserResult?>? = null
 
     private val chooseComplicationProvider =
         activity.registerForActivityResult(ComplicationProviderChooserContract()) {
@@ -376,86 +388,100 @@ public abstract class BaseEditorSession internal constructor(
     internal fun onComplicationProviderChooserResult(
         complicationProviderChooserResult: ComplicationProviderChooserResult?
     ) {
-        // Check if the user cancelled the provider chooser.
-        if (complicationProviderChooserResult == null) {
-            pendingComplicationProviderChooserResult!!.complete(null)
+        synchronized(this) {
+            val deferredResult = pendingComplicationProviderChooserResult
             pendingComplicationProviderChooserResult = null
-            return
-        }
-        val providerInfoRetriever =
-            providerInfoRetrieverProvider.getProviderInfoRetriever()
-        coroutineScope.launchWithTracing(
-            "BaseEditorSession.onComplicationProviderChooserResult"
-        ) {
-            try {
-                val complicationsProviderInfoMap = deferredComplicationsProviderInfoMap.await()
-                complicationsProviderInfoMap[pendingComplicationProviderId] =
-                    complicationProviderChooserResult.providerInfo
-                val previewData = getPreviewData(
-                    providerInfoRetriever,
-                    complicationProviderChooserResult.providerInfo
-                )
-                val complicationPreviewDataMap = deferredComplicationPreviewDataMap.await()
-                if (previewData == null) {
-                    complicationPreviewDataMap[pendingComplicationProviderId] =
-                        EmptyComplicationData()
-                } else {
-                    complicationPreviewDataMap[pendingComplicationProviderId] = previewData
-                }
-                pendingComplicationProviderChooserResult!!.complete(
-                    ChosenComplicationProvider(
-                        pendingComplicationProviderId,
-                        complicationProviderChooserResult.providerInfo,
-                        complicationProviderChooserResult.extras,
-                    )
-                )
-                pendingComplicationProviderChooserResult = null
-            } finally {
-                // This gets called after the above coroutine has finished.
-                providerInfoRetriever.close()
-            }
-        }
+            deferredResult
+        }!!.complete(complicationProviderChooserResult)
     }
 
     override suspend fun openComplicationProviderChooser(
-        complicationId: Int
+        complicationSlotId: Int
     ): ChosenComplicationProvider? = TraceEvent(
-        "BaseEditorSession.launchComplicationProviderChooser $complicationId"
+        "BaseEditorSession.launchComplicationProviderChooser $complicationSlotId"
     ).use {
         requireNotClosed()
-        require(!complicationsState[complicationId]!!.fixedComplicationProvider) {
-            "Can't configure fixed complication ID $complicationId"
+        require(!complicationSlotsState[complicationSlotId]!!.fixedComplicationProvider) {
+            "Can't configure fixed complication ID $complicationSlotId"
         }
-        // If there's a previous openComplicationProviderChooser invocation in flight then wait for
-        // it to complete.
-        pendingComplicationProviderChooserResult?.await()
 
-        pendingComplicationProviderChooserResult = CompletableDeferred()
-        pendingComplicationProviderId = complicationId
-        chooseComplicationProvider.launch(
-            ComplicationProviderChooserRequest(
-                this,
-                complicationId,
-                watchFaceId.id
+        val deferredResult = CompletableDeferred<ComplicationProviderChooserResult?>()
+
+        synchronized(this) {
+            // The ComplicationProviderChooser is modal so it doesn't make sense to allow concurrent
+            // invocations so bail out if there's a pending result.
+            if (pendingComplicationProviderChooserResult != null) {
+                throw IllegalStateException(
+                    "Concurrent openComplicationProviderChooser invocation is not supported"
+                )
+            }
+            pendingComplicationProviderChooserResult = deferredResult
+
+            chooseComplicationProvider.launch(
+                ComplicationProviderChooserRequest(
+                    this,
+                    complicationSlotId,
+                    watchFaceId.id
+                )
             )
-        )
-        return pendingComplicationProviderChooserResult!!.await()
+        }
+
+        val complicationProviderChooserResult = try {
+            deferredResult.await()
+        } finally {
+            synchronized(this) {
+                pendingComplicationProviderChooserResult = null
+            }
+        }
+
+        // If deferredResult was null then the user canceled so return null.
+        if (complicationProviderChooserResult == null) {
+            return null
+        }
+
+        val providerInfoRetriever =
+            providerInfoRetrieverProvider.getProviderInfoRetriever()
+
+        try {
+            val complicationsProviderInfoMap = deferredComplicationsProviderInfoMap.await()
+            complicationsProviderInfoMap[complicationSlotId] =
+                complicationProviderChooserResult.providerInfo
+            val previewData = getPreviewData(
+                providerInfoRetriever,
+                complicationProviderChooserResult.providerInfo
+            )
+            val complicationPreviewDataMap = deferredComplicationPreviewDataMap.await()
+            if (previewData == null) {
+                complicationPreviewDataMap[complicationSlotId] =
+                    EmptyComplicationData()
+            } else {
+                complicationPreviewDataMap[complicationSlotId] = previewData
+            }
+            return ChosenComplicationProvider(
+                complicationSlotId,
+                complicationProviderChooserResult.providerInfo,
+                complicationProviderChooserResult.extras,
+            )
+        } finally {
+            // This gets called after the above coroutine has finished.
+            providerInfoRetriever.close()
+        }
     }
 
-    override val backgroundComplicationId: Int? by lazy {
+    override val backgroundComplicationSlotId: Int? by lazy {
         requireNotClosed()
-        complicationsState.entries.firstOrNull {
-            it.value.boundsType == ComplicationBoundsType.BACKGROUND
+        complicationSlotsState.entries.firstOrNull {
+            it.value.boundsType == ComplicationSlotBoundsType.BACKGROUND
         }?.key
     }
 
-    override fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? {
+    override fun getComplicationSlotIdAt(@Px x: Int, @Px y: Int): Int? {
         requireNotClosed()
-        return complicationsState.entries.firstOrNull {
+        return complicationSlotsState.entries.firstOrNull {
             it.value.isEnabled && when (it.value.boundsType) {
-                ComplicationBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
-                ComplicationBoundsType.BACKGROUND -> false
-                ComplicationBoundsType.EDGE -> false
+                ComplicationSlotBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
+                ComplicationSlotBoundsType.BACKGROUND -> false
+                ComplicationSlotBoundsType.EDGE -> false
                 else -> false
             }
         }?.key
@@ -493,13 +519,12 @@ public abstract class BaseEditorSession internal constructor(
 
     private fun makeFallbackPreviewData(
         providerInfo: ComplicationProviderInfo
-    ) =
-        ShortTextComplicationData.Builder(
-            PlainComplicationText.Builder(providerInfo.name).build(),
-            ComplicationText.EMPTY
-        ).setMonochromaticImage(
-            MonochromaticImage.Builder(providerInfo.icon).build()
-        ).build()
+    ) = ShortTextComplicationData.Builder(
+        PlainComplicationText.Builder(providerInfo.name).build(),
+        ComplicationText.EMPTY
+    ).setMonochromaticImage(
+        MonochromaticImage.Builder(providerInfo.icon).build()
+    ).build()
 
     protected fun fetchComplicationsData() {
         val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
@@ -510,7 +535,7 @@ public abstract class BaseEditorSession internal constructor(
                 // better to crash and start over.
                 val providerInfoArray = providerInfoRetriever.retrieveProviderInfo(
                     watchFaceComponentName,
-                    complicationsState.keys.toIntArray()
+                    complicationSlotsState.keys.toIntArray()
                 )
                 deferredComplicationsProviderInfoMap.complete(
                     extractComplicationsProviderInfoMap(providerInfoArray)?.toMutableMap()
@@ -519,7 +544,7 @@ public abstract class BaseEditorSession internal constructor(
                 deferredComplicationPreviewDataMap.complete(
                     // Parallel fetch preview ComplicationData.
                     providerInfoArray?.associateBy(
-                        { it.watchFaceComplicationId },
+                        { it.complicationSlotId },
                         {
                             async {
                                 getPreviewData(providerInfoRetriever, it.info)
@@ -601,7 +626,8 @@ internal class OnWatchFaceEditorSessionImpl(
     override val watchFaceId: WatchFaceId,
     private val initialEditorUserStyle: UserStyleData?,
     providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    private val isRFlow: Boolean
 ) : BaseEditorSession(activity, providerInfoRetrieverProvider, coroutineScope) {
     private lateinit var editorDelegate: WatchFace.EditorDelegate
 
@@ -612,10 +638,10 @@ internal class OnWatchFaceEditorSessionImpl(
 
     override val previewReferenceTimeMillis by lazy { editorDelegate.previewReferenceTimeMillis }
 
-    override val complicationsState
-        get() = editorDelegate.complicationsManager.complications.mapValues {
+    override val complicationSlotsState
+        get() = editorDelegate.complicationSlotsManager.complicationSlots.mapValues {
             requireNotClosed()
-            ComplicationState(
+            ComplicationSlotState(
                 it.value.computeBounds(editorDelegate.screenBounds),
                 it.value.boundsType,
                 it.value.supportedTypes,
@@ -652,7 +678,7 @@ internal class OnWatchFaceEditorSessionImpl(
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap {
         requireNotClosed()
         require(renderParameters.drawMode == DrawMode.INTERACTIVE) {
@@ -661,7 +687,7 @@ internal class OnWatchFaceEditorSessionImpl(
         return editorDelegate.renderWatchFaceToBitmap(
             renderParameters,
             calendarTimeMillis,
-            idToComplicationData
+            slotIdToComplicationData
         )
     }
 
@@ -669,11 +695,13 @@ internal class OnWatchFaceEditorSessionImpl(
         if (this::editorDelegate.isInitialized) {
             editorDelegate.onDestroy()
         }
-        // Revert any changes to the user style that was set during the editing session. The
-        // system will update the user style and communicate it to the active watch face if
-        // needed. This guarantees that the system is always the source of truth for the current
-        // style.
-        if (this::previousWatchFaceUserStyle.isInitialized) {
+        // In android R flow we always revert any changes to the user style that was set during the
+        // editing session. The system will update the user style and communicate it to the active
+        // watch  face if needed. This guarantees that the system is always the source of truth
+        // for the current style.
+        // Pre android R the watch face is the source of truth and we only revert if
+        // commitChangesOnClose is false.
+        if ((isRFlow || !commitChangesOnClose) && this::previousWatchFaceUserStyle.isInitialized) {
             userStyle = previousWatchFaceUserStyle
         }
     }
@@ -702,7 +730,7 @@ internal class HeadlessEditorSession(
     override val watchFaceId: WatchFaceId,
     initialUserStyle: UserStyleData,
     providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
-    coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope
 ) : BaseEditorSession(activity, providerInfoRetrieverProvider, coroutineScope) {
     override val userStyleSchema = headlessWatchFaceClient.userStyleSchema
 
@@ -710,19 +738,19 @@ internal class HeadlessEditorSession(
 
     override val previewReferenceTimeMillis = headlessWatchFaceClient.previewReferenceTimeMillis
 
-    override val complicationsState = headlessWatchFaceClient.complicationsState
+    override val complicationSlotsState = headlessWatchFaceClient.complicationSlotsState
 
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap {
         requireNotClosed()
         return headlessWatchFaceClient.renderWatchFaceToBitmap(
             renderParameters,
             calendarTimeMillis,
             userStyle,
-            idToComplicationData
+            slotIdToComplicationData
         )
     }
 
@@ -737,7 +765,7 @@ internal class HeadlessEditorSession(
 
 internal class ComplicationProviderChooserRequest(
     internal val editorSession: EditorSession,
-    internal val complicationId: Int,
+    internal val complicationSlotId: Int,
     internal val instanceId: String?
 )
 
@@ -770,11 +798,12 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
         val intent = ComplicationHelperActivity.createProviderChooserHelperIntent(
             context,
             input.editorSession.watchFaceComponentName,
-            input.complicationId,
-            input.editorSession.complicationsState[input.complicationId]!!.supportedTypes,
+            input.complicationSlotId,
+            input.editorSession.complicationSlotsState[input.complicationSlotId]!!.supportedTypes,
             input.instanceId
         )
-        val complicationState = input.editorSession.complicationsState[input.complicationId]!!
+        val complicationState =
+            input.editorSession.complicationSlotsState[input.complicationSlotId]!!
         intent.replaceExtras(
             Bundle(complicationState.complicationConfigExtras).apply { putAll(intent.extras!!) }
         )
@@ -808,7 +837,7 @@ internal fun extractComplicationsProviderInfoMap(
     providerInfoArray: Array<ProviderInfoRetriever.ProviderInfo>?
 ): Map<Int, ComplicationProviderInfo?>? =
     providerInfoArray?.associateBy(
-        { it.watchFaceComplicationId },
+        { it.complicationSlotId },
         { it.info }
     )
 

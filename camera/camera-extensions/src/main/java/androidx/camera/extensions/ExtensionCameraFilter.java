@@ -37,7 +37,7 @@ import java.util.List;
  * A filter that filters camera based on extender implementation. If the implementation is
  * unavailable, the camera will be considered available.
  */
-public final class ExtensionCameraFilter implements CameraFilter {
+final class ExtensionCameraFilter implements CameraFilter {
     private final Id mId;
     private final PreviewExtenderImpl mPreviewExtenderImpl;
     private final ImageCaptureExtenderImpl mImageCaptureExtenderImpl;

@@ -278,8 +278,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     // Holds the unique ID for the previous instance of the fragment if it had already been
     // added to a FragmentManager and has since been removed.
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
-    String mPreviousWho;
+    public String mPreviousWho;
 
     // Max Lifecycle state this Fragment can achieve.
     Lifecycle.State mMaxState = Lifecycle.State.RESUMED;
@@ -1894,9 +1896,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     void restoreChildFragmentState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             Parcelable p = savedInstanceState.getParcelable(
-                    FragmentActivity.FRAGMENTS_TAG);
+                    FragmentManager.SAVED_STATE_TAG);
             if (p != null) {
-                mChildFragmentManager.restoreSaveState(p);
+                mChildFragmentManager.restoreSaveStateInternal(p);
                 mChildFragmentManager.dispatchCreate();
             }
         }
@@ -3146,9 +3148,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     void performSaveInstanceState(Bundle outState) {
         onSaveInstanceState(outState);
         mSavedStateRegistryController.performSave(outState);
-        Parcelable p = mChildFragmentManager.saveAllState();
+        Parcelable p = mChildFragmentManager.saveAllStateInternal();
         if (p != null) {
-            outState.putParcelable(FragmentActivity.FRAGMENTS_TAG, p);
+            outState.putParcelable(FragmentManager.SAVED_STATE_TAG, p);
         }
     }
 

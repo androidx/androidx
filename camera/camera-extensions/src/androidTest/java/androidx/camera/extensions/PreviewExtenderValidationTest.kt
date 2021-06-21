@@ -43,6 +43,7 @@ import java.util.concurrent.TimeoutException
 
 @SmallTest
 @RunWith(Parameterized::class)
+@Suppress("DEPRECATION")
 class PreviewExtenderValidationTest(
     @field:Mode @param:Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
@@ -53,25 +54,24 @@ class PreviewExtenderValidationTest(
     private val effectMode: ExtensionsManager.EffectMode =
         ExtensionsTestUtil.extensionModeToEffectMode(extensionMode)
 
-    private lateinit var extensionsInfo: ExtensionsInfo
     private lateinit var cameraProvider: ProcessCameraProvider
+
+    private lateinit var extensionsManager: ExtensionsManager
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        ExtensionsTestUtil.assumeCompatibleDevice()
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         Assume.assumeTrue(
             CameraUtil.hasCameraWithLensFacing(
                 lensFacing
             )
         )
-        Assume.assumeTrue(ExtensionsTestUtil.initExtensions(context))
-        extensionsInfo = ExtensionsManager.getExtensionsInfo(context)
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         Assume.assumeTrue(
-            extensionsInfo.isExtensionAvailable(
+            extensionsManager.isExtensionAvailable(
                 cameraProvider,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
                 extensionMode
@@ -87,9 +87,12 @@ class PreviewExtenderValidationTest(
     )
     fun cleanUp() {
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown().get(10000, TimeUnit.MILLISECONDS)
+            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
-        ExtensionsManager.deinit()[10000, TimeUnit.MILLISECONDS]
+
+        if (::extensionsManager.isInitialized) {
+            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+        }
     }
 
     companion object {

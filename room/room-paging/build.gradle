@@ -13,21 +13,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import static androidx.build.dependencies.DependenciesKt.*
+
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-android")
+}
+
+// If set to `true`, we'll use KSP instead of KAPT.
+// Note that the CI does not run tests with KSP yet so this is only for local usage.
+// Once variants are properly supported by both ksp and AndroidX, we'll add support for this.
+// (b/153917176)
+def useKsp = project.properties.getOrDefault("useKsp", "true").toBoolean()
+if (useKsp) {
+    apply plugin: "com.google.devtools.ksp"
+} else {
+    apply plugin: "kotlin-kapt"
+}
+
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
 }
 
 dependencies {
-    api(KOTLIN_STDLIB)
-    // Add dependencies here
+    api(libs.kotlinStdlib)
+
+    implementation("androidx.paging:paging-common:3.0.0")
+    implementation project(":room:room-runtime")
+    implementation(project(":room:room-ktx"))
+
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.kotlinTestJunit)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    // depend on the shadowed version so that it tests with the shipped artifact
+    // this is a temporary attribute until KSP and AndroidX plugin supports variants.
+    // addendum -- shadowAndImplementation removed
+    if (useKsp) {
+        kspAndroidTest(
+                project(path: ":room:room-compiler")
+        )
+    } else {
+        kaptAndroidTest(
+                project(path: ":room:room-compiler")
+        )
+    }
+    androidTestImplementation(libs.truth)
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
 }
 
 androidx {

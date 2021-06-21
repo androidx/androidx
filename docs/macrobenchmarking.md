@@ -32,7 +32,7 @@
 </table>
 
 The
-[public documentation](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/benchmark/docs/macrobenchmark.md)
+[public documentation](https://developer.android.com/studio/profile/macrobenchmark)
 for macrobenchmark explains how to use the library. This page focuses on
 specifics to writing library macrobenchmarks in the AndroidX repo. If you're
 looking for measuring CPU perf of individual functions, see the guide for

@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.annotation.SuppressLint
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
@@ -118,7 +117,6 @@ internal interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguratio
 }
 
 @RequiresApi(24)
-@SuppressLint("UnsafeNewApiCall")
 internal class AndroidOutputConfiguration(
     private val output: OutputConfiguration,
     override val surfaceSharing: Boolean,

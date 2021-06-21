@@ -29,6 +29,13 @@
     <!-- Maximum delay Time(milliseconds) of routes update -->
     <integer name="mr_update_routes_delay_ms">300</integer>
 
+    <!-- Dimensions of each list item in MediaRouteChooserDialog -->
+    <eat-comment />
+    <dimen name="mr_chooser_list_item_padding_start">24dp</dimen>
+    <dimen name="mr_chooser_list_item_padding_end">24dp</dimen>
+    <dimen name="mr_chooser_list_item_padding_top">12dp</dimen>
+    <dimen name="mr_chooser_list_item_padding_bottom">12dp</dimen>
+
     <!-- MediaRouteController's volume group list -->
     <eat-comment />
     <!-- Maximum height of volume group list. -->

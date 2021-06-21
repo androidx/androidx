@@ -20,6 +20,7 @@ import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
 import androidx.navigation.safe.args.generator.models.ResReference
+import androidx.navigation.safe.args.generator.ext.capitalize
 import com.squareup.javapoet.ClassName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -27,22 +28,24 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.Locale
 
 @RunWith(JUnit4::class)
 class NavArgumentResolverTest {
 
     private fun id(id: String) = ResReference("a.b", "id", id)
 
-    private fun createTemplateDestination(name: String) =
-        @Suppress("DEPRECATION") // b/187985877
-        Destination(
-            id(name), ClassName.get("foo", "Fragment${name.capitalize()}"), "test",
+    private fun createTemplateDestination(name: String): Destination {
+        val capitalizedName = name.capitalize(Locale.US)
+        return Destination(
+            id(name), ClassName.get("foo", "Fragment$capitalizedName"), "test",
             listOf(
                 Argument("arg1", StringType),
                 Argument("arg2", StringType, StringValue("foo"))
             ),
             emptyList()
         )
+    }
 
     @Test
     fun test() {

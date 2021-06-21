@@ -27,7 +27,7 @@ import androidx.concurrent.futures.ResolvableFuture
 import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
-import androidx.wear.watchface.client.ComplicationState
+import androidx.wear.watchface.client.ComplicationSlotState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.style.UserStyle
@@ -124,8 +124,8 @@ public class ListenableEditorSession(
     override val userStyleSchema: UserStyleSchema
         get() = wrappedEditorSession.userStyleSchema
 
-    override val complicationsState: Map<Int, ComplicationState>
-        get() = wrappedEditorSession.complicationsState
+    override val complicationSlotsState: Map<Int, ComplicationSlotState>
+        get() = wrappedEditorSession.complicationSlotsState
 
     /** [ListenableFuture] wrapper around [EditorSession.getComplicationsPreviewData]. */
     public fun getListenableComplicationPreviewData():
@@ -162,32 +162,32 @@ public class ListenableEditorSession(
         wrappedEditorSession.getComplicationsProviderInfo()
 
     @get:SuppressWarnings("AutoBoxing")
-    override val backgroundComplicationId: Int?
-        get() = wrappedEditorSession.backgroundComplicationId
+    override val backgroundComplicationSlotId: Int?
+        get() = wrappedEditorSession.backgroundComplicationSlotId
 
     @SuppressWarnings("AutoBoxing")
-    override fun getComplicationIdAt(x: Int, y: Int): Int? =
-        wrappedEditorSession.getComplicationIdAt(x, y)
+    override fun getComplicationSlotIdAt(x: Int, y: Int): Int? =
+        wrappedEditorSession.getComplicationSlotIdAt(x, y)
 
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
-        idToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap = wrappedEditorSession.renderWatchFaceToBitmap(
         renderParameters,
         calendarTimeMillis,
-        idToComplicationData
+        slotIdToComplicationData
     )
 
     /** [ListenableFuture] wrapper around [EditorSession.openComplicationProviderChooser]. */
     public fun listenableOpenComplicationProviderChooser(
-        complicationId: Int
+        complicationSlotId: Int
     ): ListenableFuture<ChosenComplicationProvider?> {
         val future = ResolvableFuture.create<ChosenComplicationProvider?>()
         getCoroutineScope().launch {
             try {
                 future.set(
-                    wrappedEditorSession.openComplicationProviderChooser(complicationId)
+                    wrappedEditorSession.openComplicationProviderChooser(complicationSlotId)
                 )
             } catch (e: Exception) {
                 future.setException(e)
@@ -196,9 +196,9 @@ public class ListenableEditorSession(
         return future
     }
 
-    override suspend fun openComplicationProviderChooser(complicationId: Int):
+    override suspend fun openComplicationProviderChooser(complicationSlotId: Int):
         ChosenComplicationProvider? =
-            wrappedEditorSession.openComplicationProviderChooser(complicationId)
+            wrappedEditorSession.openComplicationProviderChooser(complicationSlotId)
 
     override fun close() {
         wrappedEditorSession.close()

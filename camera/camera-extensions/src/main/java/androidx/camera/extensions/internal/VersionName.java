@@ -38,7 +38,7 @@ public class VersionName {
         return mVersion;
     }
 
-    VersionName(String versionString) {
+    public VersionName(@NonNull String versionString) {
         mVersion = Version.parse(versionString);
     }
 

@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.LibraryType
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -28,23 +25,23 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    implementation(AUTO_VALUE_ANNOTATIONS)
-    annotationProcessor(AUTO_VALUE)
+    implementation(libs.autoValueAnnotations)
+    annotationProcessor(libs.autoValue)
     implementation("androidx.collection:collection:1.1.0")
 
     testImplementation("junit:junit:4.13")
-    testImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(ROBOLECTRIC)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.robolectric)
 
     androidTestImplementation("junit:junit:4.13")
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
 }
 
 android {

@@ -41,6 +41,7 @@ import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -407,6 +408,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         assertEquals(testSeekPosition, controllerCallback.mPlaybackState.getPosition());
     }
 
+    @FlakyTest(bugId = 187338985)
     @Test
     public void currentMediaItemChange() throws Exception {
         prepareLooper();

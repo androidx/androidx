@@ -16,6 +16,7 @@
 package androidx.wear.compose.material
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.luminance
 
@@ -24,12 +25,12 @@ import androidx.compose.ui.graphics.luminance
  *
  * See [LocalContentAlpha].
  */
-object ContentAlpha {
+public object ContentAlpha {
     /**
      * A high level of content alpha, used to represent high emphasis text such as input text in a
      * selected [TextField].
      */
-    val high: Float
+    public val high: Float
         @Composable
         get() = contentAlpha(
             highContrastAlpha = HighContrastContentAlpha.high,
@@ -40,7 +41,7 @@ object ContentAlpha {
      * A medium level of content alpha, used to represent medium emphasis text such as
      * placeholder text in a [TextField].
      */
-    val medium: Float
+    public val medium: Float
         @Composable
         get() = contentAlpha(
             highContrastAlpha = HighContrastContentAlpha.medium,
@@ -51,7 +52,7 @@ object ContentAlpha {
      * A low level of content alpha used to represent disabled components, such as text in a
      * disabled [Button].
      */
-    val disabled: Float
+    public val disabled: Float
         @Composable
         get() = contentAlpha(
             highContrastAlpha = HighContrastContentAlpha.disabled,
@@ -91,7 +92,7 @@ object ContentAlpha {
  * body text.
  *
  */
-val LocalContentAlpha = compositionLocalOf { 1f }
+public val LocalContentAlpha: ProvidableCompositionLocal<Float> = compositionLocalOf { 1f }
 
 /**
  * Alpha levels for high luminance content in light theme, or low luminance content in dark theme.
@@ -105,7 +106,7 @@ val LocalContentAlpha = compositionLocalOf { 1f }
 private object HighContrastContentAlpha {
     const val high: Float = 1.00f
     const val medium: Float = 0.74f
-    const val disabled: Float = 0.38f
+    const val disabled: Float = 0.50f
 }
 
 /**
@@ -120,5 +121,5 @@ private object HighContrastContentAlpha {
 private object LowContrastContentAlpha {
     const val high: Float = 0.87f
     const val medium: Float = 0.60f
-    const val disabled: Float = 0.38f
+    const val disabled: Float = 0.50f
 }

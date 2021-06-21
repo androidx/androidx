@@ -18,7 +18,6 @@ package androidx.car.app.sample.navigation.common.nav;
 
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -420,7 +419,6 @@ public class NavigationService extends Service {
         stopSelf();
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     private void playNavigationDirection(@RawRes int resourceId) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return;
@@ -496,7 +494,6 @@ public class NavigationService extends Service {
         stopNavigation();
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     private void createNotificationChannel() {
         mNotificationManager = getSystemService(NotificationManager.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

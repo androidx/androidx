@@ -33,7 +33,6 @@ import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -54,25 +53,21 @@ public class ExtensionCompatTest : WindowTestBase(), CompatTestInterface {
 
     private lateinit var extensionCompat: ExtensionCompat
     private lateinit var activity: Activity
+    private lateinit var extensionAdapter: ExtensionAdapter
 
     @Before
     public fun setUp() {
-        extensionCompat = ExtensionCompat(mock(), ExtensionAdapter())
+        val windowMetricsCalculator = TestWindowMetricsCalculator()
+        windowMetricsCalculator.setCurrentBounds(WINDOW_BOUNDS)
+        extensionAdapter = ExtensionAdapter(windowMetricsCalculator)
+        extensionCompat = ExtensionCompat(mock(), extensionAdapter)
         activity = mock()
-        val mWindowBoundsHelper = TestWindowBoundsHelper()
-        mWindowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS)
-        WindowBoundsHelper.setForTesting(mWindowBoundsHelper)
-    }
-
-    @After
-    public fun tearDown() {
-        WindowBoundsHelper.setForTesting(null)
     }
 
     @Test
     override fun testGetWindowLayout() {
         val fakeExtensionImp = FakeExtensionImp()
-        val compat = ExtensionCompat(fakeExtensionImp, ExtensionAdapter())
+        val compat = ExtensionCompat(fakeExtensionImp, extensionAdapter)
         val mockCallback = mock<ExtensionCallbackInterface>()
         compat.setExtensionCallback(mockCallback)
         compat.onWindowLayoutChangeListenerAdded(mock())
@@ -123,7 +118,7 @@ public class ExtensionCompatTest : WindowTestBase(), CompatTestInterface {
 
     override fun testExtensionCallback_filterRemovesInvalidValues() {
         val fakeExtensionImp = FakeExtensionImp()
-        val compat = ExtensionCompat(fakeExtensionImp, ExtensionAdapter())
+        val compat = ExtensionCompat(fakeExtensionImp, extensionAdapter)
         val mockCallback = mock<ExtensionCallbackInterface>()
         compat.setExtensionCallback(mockCallback)
         compat.onWindowLayoutChangeListenerAdded(mock())

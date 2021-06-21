@@ -15,7 +15,6 @@
  */
 package androidx.camera.video.internal.encoder
 
-import android.media.AudioFormat
 import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.video.internal.BufferProvider
@@ -24,6 +23,7 @@ import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -33,8 +33,10 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
+import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.never
@@ -78,7 +80,6 @@ class AudioEncoderTest {
                 .setMimeType(MIME_TYPE)
                 .setBitrate(BIT_RATE)
                 .setSampleRate(SAMPLE_RATE)
-                .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
                 .setChannelCount(CHANNEL_COUNT)
                 .build()
         )
@@ -260,6 +261,34 @@ class AudioEncoderTest {
     }
 
     @Test
+    fun pauseResumeEncoder_getChronologicalData() {
+        // Arrange.
+        fakeAudioLoop.start()
+        val dataList = ArrayList<EncodedData>()
+
+        // Act.
+        encoder.start()
+        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        encoder.pause()
+        verify(encoderCallback, noInvocation(2000L, 10000L)).onEncodedData(any())
+
+        // Save all values before clear invocations
+        var startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(encoderCallback, atLeastOnce()).onEncodedData(startCaptor.capture())
+        dataList.addAll(startCaptor.allValues)
+        clearInvocations(encoderCallback)
+
+        encoder.start()
+        val resumeCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(resumeCaptor.capture())
+        dataList.addAll(resumeCaptor.allValues)
+
+        // Assert.
+        verifyDataInChronologicalOrder(dataList)
+    }
+
+    @Test
     fun bufferProvider_canAcquireBuffer() {
         // Arrange.
         encoder.start()
@@ -279,6 +308,7 @@ class AudioEncoderTest {
     @Test
     fun bufferProvider_canReceiveBufferProviderStateChange() {
         // Arrange.
+        fakeAudioLoop.start()
         val stateRef = AtomicReference<State>()
         val lock = Semaphore(0)
         (encoder.input as Encoder.ByteBufferInput).addObserver(
@@ -329,11 +359,20 @@ class AudioEncoderTest {
         assertThat(stateRef.get()).isEqualTo(State.INACTIVE)
     }
 
+    private fun verifyDataInChronologicalOrder(encodedDataList: List<EncodedData>) {
+        // For each item indexed by n and n+1, verify that the timestamp of n is less than n+1.
+        encodedDataList.take(encodedDataList.size - 1).forEachIndexed { index, _ ->
+            assertThat(encodedDataList[index].presentationTimeUs)
+                .isLessThan(encodedDataList[index + 1].presentationTimeUs)
+        }
+    }
+
     private class FakeAudioLoop(private val bufferProvider: BufferProvider<InputBuffer>) {
         private val inputByteBuffer = ByteBuffer.allocateDirect(1024)
         private val started = AtomicBoolean(false)
         private var job: Job? = null
 
+        @OptIn(DelicateCoroutinesApi::class)
         fun start() {
             if (started.getAndSet(true)) {
                 return

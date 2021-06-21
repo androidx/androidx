@@ -39,10 +39,11 @@ import android.view.WindowInsets
 import androidx.annotation.Px
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
-import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
@@ -51,7 +52,7 @@ import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
-import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
@@ -60,9 +61,9 @@ import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import com.google.common.truth.Truth.assertThat
@@ -168,7 +169,7 @@ public class WatchFaceServiceTest {
         ListUserStyleSetting.ListOption(Option.Id("bad_option"), "Bad", icon = null)
 
     private val leftComplication =
-        Complication.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(
@@ -185,12 +186,12 @@ public class WatchFaceServiceTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
-            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
     private val rightComplication =
-        Complication.createRoundRectComplicationBuilder(
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
             RIGHT_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(
@@ -207,13 +208,13 @@ public class WatchFaceServiceTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
-            ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+            ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
     private val edgeComplicationHitTester = mock<ComplicationTapFilter>()
     private val edgeComplication =
-        Complication.createEdgeComplicationBuilder(
+        ComplicationSlot.createEdgeComplicationSlotBuilder(
             EDGE_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(
@@ -230,13 +231,13 @@ public class WatchFaceServiceTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
-            ComplicationBounds(RectF(0.0f, 0.4f, 0.4f, 0.6f)),
+            ComplicationSlotBounds(RectF(0.0f, 0.4f, 0.4f, 0.6f)),
             edgeComplicationHitTester
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
     private val backgroundComplication =
-        Complication.createBackgroundComplicationBuilder(
+        ComplicationSlot.createBackgroundComplicationSlotBuilder(
             BACKGROUND_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(
@@ -252,53 +253,53 @@ public class WatchFaceServiceTest {
         ).setDefaultProviderType(ComplicationType.PHOTO_IMAGE)
             .build()
 
-    private val leftAndRightComplicationsOption = ComplicationsOption(
+    private val leftAndRightComplicationsOption = ComplicationSlotsOption(
         Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
         "Both",
         null,
         listOf(
-            ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
+            ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
                 .setEnabled(true).build(),
-            ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
+            ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
                 .setEnabled(true).build()
         )
     )
-    private val noComplicationsOption = ComplicationsOption(
+    private val noComplicationsOption = ComplicationSlotsOption(
         Option.Id(NO_COMPLICATIONS),
         "Both",
         null,
         listOf(
-            ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
+            ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
                 .setEnabled(false).build(),
-            ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
+            ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
                 .setEnabled(false).build()
         )
     )
-    private val leftComplicationsOption = ComplicationsOption(
+    private val leftComplicationsOption = ComplicationSlotsOption(
         Option.Id(LEFT_COMPLICATION),
         "Left",
         null,
         listOf(
-            ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
+            ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
                 .setEnabled(true).build(),
-            ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
+            ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
                 .setEnabled(false).build()
         )
     )
-    private val rightComplicationsOption = ComplicationsOption(
+    private val rightComplicationsOption = ComplicationSlotsOption(
         Option.Id(RIGHT_COMPLICATION),
         "Right",
         null,
         listOf(
-            ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
+            ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
                 .setEnabled(false).build(),
-            ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
+            ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
                 .setEnabled(true).build()
         )
     )
-    private val complicationsStyleSetting = ComplicationsUserStyleSetting(
+    private val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
         UserStyleSetting.Id("complications_style_setting"),
-        "AllComplications",
+        "AllComplicationSlots",
         "Number and position",
         icon = null,
         complicationConfig = listOf(
@@ -311,7 +312,7 @@ public class WatchFaceServiceTest {
     )
 
     private lateinit var renderer: TestRenderer
-    private lateinit var complicationsManager: ComplicationsManager
+    private lateinit var complicationSlotsManager: ComplicationSlotsManager
     private lateinit var currentUserStyleRepository: CurrentUserStyleRepository
     private lateinit var watchFaceImpl: WatchFaceImpl
     private lateinit var testWatchFaceService: TestWatchFaceService
@@ -336,7 +337,7 @@ public class WatchFaceServiceTest {
 
     private fun initEngine(
         @WatchFaceType watchFaceType: Int,
-        complications: List<Complication>,
+        complicationSlots: List<ComplicationSlot>,
         userStyleSchema: UserStyleSchema,
         apiVersion: Int = 2,
         hasLowBitAmbient: Boolean = false,
@@ -345,7 +346,7 @@ public class WatchFaceServiceTest {
     ) {
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
-            complications,
+            complicationSlots,
             { _, currentUserStyleRepository, watchState ->
                 renderer = TestRenderer(
                     surfaceHolder,
@@ -366,7 +367,7 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
 
         // Set some initial complication data.
-        for (complication in complications) {
+        for (complication in complicationSlots) {
             setComplicationViaWallpaperCommand(
                 complication.id,
                 when (complication.defaultProviderType) {
@@ -388,25 +389,26 @@ public class WatchFaceServiceTest {
         // Trigger watch face creation by setting the binder and the immutable properties.
         sendBinder(engineWrapper, apiVersion)
         sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
         currentUserStyleRepository = watchFaceImpl.currentUserStyleRepository
-        complicationsManager = watchFaceImpl.complicationsManager
+        complicationSlotsManager = watchFaceImpl.complicationSlotsManager
 
         testWatchFaceService.setIsVisible(true)
     }
 
     private fun initWallpaperInteractiveWatchFaceInstance(
         @WatchFaceType watchFaceType: Int,
-        complications: List<Complication>,
+        complicationSlots: List<ComplicationSlot>,
         userStyleSchema: UserStyleSchema,
         wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams
     ) {
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
-            complications,
+            complicationSlots,
             { _, currentUserStyleRepository, watchState ->
                 renderer = TestRenderer(
                     surfaceHolder,
@@ -447,13 +449,14 @@ public class WatchFaceServiceTest {
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
 
         currentUserStyleRepository = watchFaceImpl.currentUserStyleRepository
-        complicationsManager = watchFaceImpl.complicationsManager
+        complicationSlotsManager = watchFaceImpl.complicationSlotsManager
         testWatchFaceService.setIsVisible(true)
     }
 
@@ -492,7 +495,7 @@ public class WatchFaceServiceTest {
     }
 
     private fun setComplicationViaWallpaperCommand(
-        complicationId: Int,
+        complicationSlotId: Int,
         complicationData: ComplicationData
     ) {
         engineWrapper.onCommand(
@@ -501,7 +504,7 @@ public class WatchFaceServiceTest {
             0,
             0,
             Bundle().apply {
-                putInt(Constants.EXTRA_COMPLICATION_ID, complicationId)
+                putInt(Constants.EXTRA_COMPLICATION_ID, complicationSlotId)
                 putParcelable(Constants.EXTRA_COMPLICATION_DATA, complicationData)
             },
             false
@@ -723,7 +726,7 @@ public class WatchFaceServiceTest {
         // Tap left complication.
         tapAt(30, 50)
         assertThat(complicationDrawableLeft.isHighlighted).isTrue()
-        assertThat(testWatchFaceService.tappedComplicationIds)
+        assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(LEFT_COMPLICATION_ID))
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
@@ -733,7 +736,7 @@ public class WatchFaceServiceTest {
         testWatchFaceService.reset()
         tapAt(70, 50)
         assertThat(complicationDrawableRight.isHighlighted).isTrue()
-        assertThat(testWatchFaceService.tappedComplicationIds)
+        assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(RIGHT_COMPLICATION_ID))
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
@@ -742,11 +745,11 @@ public class WatchFaceServiceTest {
         // Tap on blank space.
         testWatchFaceService.reset()
         tapAt(1, 1)
-        assertThat(testWatchFaceService.tappedComplicationIds).isEmpty()
+        assertThat(testWatchFaceService.tappedComplicationSlotIds).isEmpty()
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
-        assertThat(testWatchFaceService.tappedComplicationIds).isEmpty()
+        assertThat(testWatchFaceService.tappedComplicationSlotIds).isEmpty()
     }
 
     @Test
@@ -764,7 +767,7 @@ public class WatchFaceServiceTest {
         tapAt(30, 50)
         tapAt(70, 50)
 
-        // Both complications get temporarily highlighted.
+        // Both complicationSlots get temporarily highlighted.
         assertThat(complicationDrawableLeft.isHighlighted).isTrue()
         assertThat(complicationDrawableRight.isHighlighted).isTrue()
 
@@ -773,8 +776,8 @@ public class WatchFaceServiceTest {
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
         assertThat(complicationDrawableRight.isHighlighted).isFalse()
 
-        // Taps are registered on both complications.
-        assertThat(testWatchFaceService.tappedComplicationIds)
+        // Taps are registered on both complicationSlots.
+        assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID))
     }
 
@@ -789,7 +792,7 @@ public class WatchFaceServiceTest {
         testWatchFaceService.reset()
         // Tap/Cancel left complication
         tapCancelAt(30, 50)
-        assertThat(testWatchFaceService.tappedComplicationIds).isEmpty()
+        assertThat(testWatchFaceService.tappedComplicationSlotIds).isEmpty()
     }
 
     @Test
@@ -815,7 +818,7 @@ public class WatchFaceServiceTest {
         // Tap the edge complication.
         tapAt(0, 50)
         assertThat(complicationDrawableEdge.isHighlighted).isTrue()
-        assertThat(testWatchFaceService.tappedComplicationIds)
+        assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(EDGE_COMPLICATION_ID))
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
@@ -985,25 +988,25 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun getComplicationIdAt_returnsCorrectComplications() {
+    public fun getComplicationSlotIdAt_returnsCorrectComplications() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
 
-        assertThat(complicationsManager.getComplicationAt(30, 50)!!.id)
+        assertThat(complicationSlotsManager.getComplicationSlotAt(30, 50)!!.id)
             .isEqualTo(LEFT_COMPLICATION_ID)
         leftComplication.enabled = false
-        assertThat(complicationsManager.getComplicationAt(30, 50)).isNull()
+        assertThat(complicationSlotsManager.getComplicationSlotAt(30, 50)).isNull()
 
-        assertThat(complicationsManager.getComplicationAt(70, 50)!!.id)
+        assertThat(complicationSlotsManager.getComplicationSlotAt(70, 50)!!.id)
             .isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationsManager.getComplicationAt(1, 1)).isNull()
+        assertThat(complicationSlotsManager.getComplicationSlotAt(1, 1)).isNull()
     }
 
     @Test
-    public fun getBackgroundComplicationId_returnsNull() {
+    public fun getBackgroundComplicationSlotId_returnsNull() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -1011,18 +1014,18 @@ public class WatchFaceServiceTest {
         )
         // Flush pending tasks posted as a result of initEngine.
         runPostedTasksFor(0)
-        assertThat(complicationsManager.getBackgroundComplication()).isNull()
+        assertThat(complicationSlotsManager.getBackgroundComplicationSlot()).isNull()
         engineWrapper.onDestroy()
     }
 
     @Test
-    public fun getBackgroundComplicationId_returnsCorrectId() {
+    public fun getBackgroundComplicationSlotId_returnsCorrectId() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, backgroundComplication),
             UserStyleSchema(emptyList())
         )
-        assertThat(complicationsManager.getBackgroundComplication()!!.id).isEqualTo(
+        assertThat(complicationSlotsManager.getBackgroundComplicationSlot()!!.id).isEqualTo(
             BACKGROUND_COMPLICATION_ID
         )
     }
@@ -1073,6 +1076,7 @@ public class WatchFaceServiceTest {
         val engine2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
         sendBinder(engine2, apiVersion = 2)
         sendImmutableProperties(engine2, false, false)
+        engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         val watchFaceImpl2 = engine2.getWatchFaceImplOrNull()!!
         val userStyleRepository2 = watchFaceImpl2.currentUserStyleRepository
@@ -1300,13 +1304,15 @@ public class WatchFaceServiceTest {
             4
         )
 
-        leftComplication.complicationBounds = ComplicationBounds(RectF(0.3f, 0.3f, 0.5f, 0.5f))
-        rightComplication.complicationBounds = ComplicationBounds(RectF(0.7f, 0.75f, 0.9f, 0.95f))
+        leftComplication.complicationSlotBounds =
+            ComplicationSlotBounds(RectF(0.3f, 0.3f, 0.5f, 0.5f))
+        rightComplication.complicationSlotBounds =
+            ComplicationSlotBounds(RectF(0.7f, 0.75f, 0.9f, 0.95f))
 
         val complicationDetails = watchFaceImpl.getComplicationState()
         assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
         assertThat(complicationDetails[0].complicationState.boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT
+            ComplicationSlotBoundsType.ROUND_RECT
         )
         assertThat(complicationDetails[0].complicationState.bounds).isEqualTo(
             Rect(30, 30, 50, 50)
@@ -1314,7 +1320,7 @@ public class WatchFaceServiceTest {
 
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDetails[1].complicationState.boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT
+            ComplicationSlotBoundsType.ROUND_RECT
         )
         assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(
             Rect(70, 75, 90, 95)
@@ -1353,21 +1359,21 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun styleChangesAccessibilityTraversalIndex() {
-        val leftAndRightComplicationsOptionIndexReversed = ComplicationsOption(
+        val leftAndRightComplicationsOptionIndexReversed = ComplicationSlotsOption(
             Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
             "Both",
             null,
             listOf(
-                ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
+                ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
                     .setEnabled(true).setAccessibilityTraversalIndex(RIGHT_COMPLICATION_ID).build(),
-                ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
+                ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
                     .setEnabled(true).setAccessibilityTraversalIndex(LEFT_COMPLICATION_ID).build()
             )
         )
 
-        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+        val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
-            "AllComplications",
+            "AllComplicationSlots",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
@@ -1517,6 +1523,7 @@ public class WatchFaceServiceTest {
         // Trigger watch face creation.
         sendBinder(engineWrapper, apiVersion = 2)
         sendImmutableProperties(engineWrapper, false, false)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
 
         val argument = ArgumentCaptor.forClass(WatchFaceStyle::class.java)
@@ -1528,7 +1535,7 @@ public class WatchFaceServiceTest {
     public fun defaultProvidersWithFallbacks_newApi() {
         val provider1 = ComponentName("com.app1", "com.app1.App1")
         val provider2 = ComponentName("com.app2", "com.app2.App2")
-        val complication = Complication.createRoundRectComplicationBuilder(
+        val complication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
@@ -1539,7 +1546,7 @@ public class WatchFaceServiceTest {
                 provider2,
                 SystemProviders.PROVIDER_SUNRISE_SUNSET
             ),
-            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), UserStyleSchema(emptyList()))
@@ -1558,7 +1565,7 @@ public class WatchFaceServiceTest {
     public fun defaultProvidersWithFallbacks_oldApi() {
         val provider1 = ComponentName("com.app1", "com.app1.App1")
         val provider2 = ComponentName("com.app2", "com.app2.App2")
-        val complication = Complication.createRoundRectComplicationBuilder(
+        val complication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
@@ -1569,7 +1576,7 @@ public class WatchFaceServiceTest {
                 provider2,
                 SystemProviders.PROVIDER_SUNRISE_SUNSET
             ),
-            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
         initEngine(
@@ -1666,7 +1673,7 @@ public class WatchFaceServiceTest {
         val complicationDetails = watchFaceImpl.getComplicationState()
         assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
         assertThat(complicationDetails[0].complicationState.boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT
+            ComplicationSlotBoundsType.ROUND_RECT
         )
         assertThat(complicationDetails[0].complicationState.bounds).isEqualTo(
             Rect(20, 40, 40, 60)
@@ -1683,7 +1690,7 @@ public class WatchFaceServiceTest {
 
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDetails[1].complicationState.boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT
+            ComplicationSlotBoundsType.ROUND_RECT
         )
         assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(
             Rect(60, 40, 80, 60)
@@ -1700,7 +1707,7 @@ public class WatchFaceServiceTest {
 
         assertThat(complicationDetails[2].id).isEqualTo(BACKGROUND_COMPLICATION_ID)
         assertThat(complicationDetails[2].complicationState.boundsType).isEqualTo(
-            ComplicationBoundsType.BACKGROUND
+            ComplicationSlotBoundsType.BACKGROUND
         )
         assertThat(complicationDetails[2].complicationState.bounds).isEqualTo(
             Rect(0, 0, 100, 100)
@@ -1740,6 +1747,7 @@ public class WatchFaceServiceTest {
         // Trigger watch face creation.
         sendBinder(engineWrapper, apiVersion = 2)
         sendImmutableProperties(engineWrapper, false, false)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
 
         // Enter ambient mode.
@@ -1764,7 +1772,7 @@ public class WatchFaceServiceTest {
 
         reset(iWatchFaceService)
 
-        // Select a new style which turns off both complications.
+        // Select a new style which turns off both complicationSlots.
         val newStyleA = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
         newStyleA[complicationsStyleSetting] = noComplicationsOption
         currentUserStyleRepository.userStyle = UserStyle(newStyleA)
@@ -1798,28 +1806,28 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun partialComplicationOverrides() {
-        val bothComplicationsOption = ComplicationsOption(
+        val bothComplicationsOption = ComplicationSlotsOption(
             Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
             "Left And Right",
             null,
             // An empty list means use the initial config.
             emptyList()
         )
-        val leftOnlyComplicationsOption = ComplicationsOption(
+        val leftOnlyComplicationsOption = ComplicationSlotsOption(
             Option.Id(LEFT_COMPLICATION),
             "Left",
             null,
-            listOf(ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build())
+            listOf(ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build())
         )
-        val rightOnlyComplicationsOption = ComplicationsOption(
+        val rightOnlyComplicationsOption = ComplicationSlotsOption(
             Option.Id(RIGHT_COMPLICATION),
             "Right",
             null,
-            listOf(ComplicationOverlay.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build())
+            listOf(ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build())
         )
-        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+        val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
-            "AllComplications",
+            "AllComplicationSlots",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
@@ -1860,7 +1868,7 @@ public class WatchFaceServiceTest {
         assertFalse(leftComplication.enabled)
         assertTrue(rightComplication.enabled)
 
-        // Select both complications.
+        // Select both complicationSlots.
         val newStyleC = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
         newStyleC[complicationsStyleSetting] = bothComplicationsOption
         currentUserStyleRepository.userStyle = UserStyle(newStyleC)
@@ -1873,22 +1881,22 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun partialComplicationOverrideAppliedToInitialStyle() {
-        val bothComplicationsOption = ComplicationsOption(
+        val bothComplicationsOption = ComplicationSlotsOption(
             Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
             "Left And Right",
             null,
             // An empty list means use the initial config.
             emptyList()
         )
-        val leftOnlyComplicationsOption = ComplicationsOption(
+        val leftOnlyComplicationsOption = ComplicationSlotsOption(
             Option.Id(LEFT_COMPLICATION),
             "Left",
             null,
-            listOf(ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build())
+            listOf(ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build())
         )
-        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+        val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
-            "AllComplications",
+            "AllComplicationSlots",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
@@ -1910,33 +1918,33 @@ public class WatchFaceServiceTest {
     }
 
     public fun UserStyleManager_init_applies_ComplicationsUserStyleSetting() {
-        val complicationId1 = 101
-        val complicationId2 = 102
+        val complicationSlotId1 = 101
+        val complicationSlotId2 = 102
 
-        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+        val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id("ID"),
             "",
             "",
             icon = null,
             complicationConfig = listOf(
-                ComplicationsOption(
+                ComplicationSlotsOption(
                     Option.Id("one"),
                     "one",
                     null,
                     listOf(
-                        ComplicationOverlay(
-                            complicationId1,
+                        ComplicationSlotOverlay(
+                            complicationSlotId1,
                             enabled = true
                         ),
                     )
                 ),
-                ComplicationsOption(
+                ComplicationSlotsOption(
                     Option.Id("two"),
                     "teo",
                     null,
                     listOf(
-                        ComplicationOverlay(
-                            complicationId2,
+                        ComplicationSlotOverlay(
+                            complicationSlotId2,
                             enabled = true
                         ),
                     )
@@ -1948,10 +1956,10 @@ public class WatchFaceServiceTest {
         val currentUserStyleRepository =
             CurrentUserStyleRepository(UserStyleSchema(listOf(complicationsStyleSetting)))
 
-        val manager = ComplicationsManager(
+        val manager = ComplicationSlotsManager(
             listOf(
-                Complication.createRoundRectComplicationBuilder(
-                    complicationId1,
+                ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                    complicationSlotId1,
                     { watchState, listener ->
                         CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
                     },
@@ -1959,13 +1967,13 @@ public class WatchFaceServiceTest {
                         ComplicationType.RANGED_VALUE,
                     ),
                     DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
-                    ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                    ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
                 ).setDefaultProviderType(ComplicationType.RANGED_VALUE)
                     .setEnabled(false)
                     .build(),
 
-                Complication.createRoundRectComplicationBuilder(
-                    complicationId2,
+                ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                    complicationSlotId2,
                     { watchState, listener ->
                         CanvasComplicationDrawable(complicationDrawableRight, watchState, listener)
                     },
@@ -1973,7 +1981,7 @@ public class WatchFaceServiceTest {
                         ComplicationType.LONG_TEXT,
                     ),
                     DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
-                    ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                    ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
                 ).setDefaultProviderType(ComplicationType.LONG_TEXT)
                     .setEnabled(false)
                     .build()
@@ -1981,8 +1989,8 @@ public class WatchFaceServiceTest {
             currentUserStyleRepository
         )
 
-        // The init function of ComplicationsManager should enable complicationId1.
-        assertThat(manager[complicationId1]!!.enabled).isTrue()
+        // The init function of ComplicationSlotsManager should enable complicationSlotId1.
+        assertThat(manager[complicationSlotId1]!!.enabled).isTrue()
     }
 
     @Test
@@ -2303,7 +2311,7 @@ public class WatchFaceServiceTest {
         )
 
         val complication =
-            watchFaceImpl.complicationsManager[LEFT_COMPLICATION_ID]!!.complicationData.value as
+            watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value as
                 ShortTextComplicationData
         assertThat(
             complication.text.getTextAt(
@@ -2350,7 +2358,7 @@ public class WatchFaceServiceTest {
         )
 
         val complication =
-            watchFaceImpl.complicationsManager[LEFT_COMPLICATION_ID]!!.complicationData.value as
+            watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value as
                 ShortTextComplicationData
         assertThat(
             complication.text.getTextAt(
@@ -2399,6 +2407,7 @@ public class WatchFaceServiceTest {
         )
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
         assertThat(instance).isNotNull()
@@ -2498,34 +2507,246 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun complicationsUserStyleSetting_with_setComplicationBounds() {
-        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+        val rightComplicationBoundsOption = ComplicationSlotsOption(
+            Option.Id(RIGHT_COMPLICATION),
+            "Right",
+            null,
+            listOf(
+                ComplicationSlotOverlay.Builder(RIGHT_COMPLICATION_ID)
+                    .setComplicationSlotBounds(
+                        ComplicationSlotBounds(RectF(0.1f, 0.1f, 0.2f, 0.2f))
+                    ).build()
+            )
+        )
+        val complicationsStyleSetting = ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
-            "AllComplications",
+            "AllComplicationSlots",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
-                ComplicationsOption(
-                    Option.Id(RIGHT_COMPLICATION),
-                    "Right",
+                ComplicationSlotsOption(
+                    Option.Id("Default"),
+                    "Default",
                     null,
-                    listOf(
-                        ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
-                            .setComplicationBounds(
-                                ComplicationBounds(RectF(10f, 10f, 20f, 20f))
-                            ).build()
-                    )
-                )
+                    emptyList()
+                ),
+                rightComplicationBoundsOption
             ),
             affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
         )
 
-        // This should not crash.
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(listOf(complicationsStyleSetting)),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                listOf(
+                    IdAndComplicationDataWireFormat(
+                        LEFT_COMPLICATION_ID,
+                        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                            .setShortText(ComplicationText.plainText("INITIAL_VALUE"))
+                            .build()
+                    )
+                )
+            )
+        )
+
+        var complicationDetails = watchFaceImpl.getComplicationState()
+        assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(
+            Rect(60, 40, 80, 60)
+        )
+
+        // Select a style which changes the bounds of the right complication.
+        val newStyle = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
+        newStyle[complicationsStyleSetting] = rightComplicationBoundsOption
+        currentUserStyleRepository.userStyle = UserStyle(newStyle)
+
+        complicationDetails = watchFaceImpl.getComplicationState()
+        assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(
+            Rect(10, 10, 20, 20)
+        )
+    }
+
+    @Test
+    public fun canvasComplication_onRendererCreated() {
+        val leftCanvasComplication = mock<CanvasComplication>()
+        val leftComplication =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                LEFT_COMPLICATION_ID,
+                { _, _ -> leftCanvasComplication },
+                listOf(
+                    ComplicationType.SHORT_TEXT,
+                ),
+                DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
+                ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                .build()
+
+        val rightCanvasComplication = mock<CanvasComplication>()
+        val rightComplication =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                RIGHT_COMPLICATION_ID,
+                { _, _ -> rightCanvasComplication },
+                listOf(
+                    ComplicationType.SHORT_TEXT,
+                ),
+                DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DATE),
+                ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+            ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                .build()
+
         initEngine(
             WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
-            UserStyleSchema(listOf(complicationsStyleSetting)),
-            apiVersion = 4
+            UserStyleSchema(emptyList())
         )
+
+        verify(leftCanvasComplication).onRendererCreated(renderer)
+        verify(rightCanvasComplication).onRendererCreated(renderer)
+    }
+
+    @Test
+    public fun additionalContentDescriptionLabelsSetBeforeWatchFaceInitComplete() {
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                renderer = TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+                // Set additionalContentDescriptionLabels before renderer.watchFaceHostApi has been
+                // set.
+                renderer.additionalContentDescriptionLabels = listOf(
+                    Pair(
+                        0,
+                        ContentDescriptionLabel(
+                            PlainComplicationText.Builder("Example").build(),
+                            Rect(10, 10, 20, 20),
+                            null
+                        )
+                    )
+                )
+                renderer
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            false,
+            null
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        "TestID",
+                        DeviceConfig(
+                            false,
+                            false,
+                            0,
+                            0
+                        ),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList()
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        // Check the additional ContentDescriptionLabel was applied.
+        assertThat(engineWrapper.contentDescriptionLabels.size).isEqualTo(2)
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1].text.getTextAt(
+                ApplicationProvider.getApplicationContext<Context>().resources,
+                0
+            )
+        ).isEqualTo("Example")
+    }
+
+    @Test
+    public fun setComplicationDataList() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "TestID",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                emptyList()
+            )
+        )
+
+        val interactiveInstance = InteractiveInstanceManager.getAndRetainInstance("TestID")
+        interactiveInstance!!.updateComplicationData(
+            mutableListOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("LEFT!"))
+                        .build()
+                ),
+                IdAndComplicationDataWireFormat(
+                    RIGHT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("RIGHT!"))
+                        .build()
+                )
+            )
+        )
+
+        assertThat(engineWrapper.contentDescriptionLabels.size).isEqualTo(3)
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1].text.getTextAt(
+                ApplicationProvider.getApplicationContext<Context>().resources,
+                0
+            )
+        ).isEqualTo("LEFT!")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[2].text.getTextAt(
+                ApplicationProvider.getApplicationContext<Context>().resources,
+                0
+            )
+        ).isEqualTo("RIGHT!")
     }
 
     @Suppress("DEPRECATION")

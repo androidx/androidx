@@ -199,7 +199,7 @@ quality stable release. Therefore, at minimum:
     a public `beta`
 -   A `beta` version must be publically available for 2 weeks before releasing
     an public `rc`
--   A `rc` version must be publically available fore 2 weeks before releasing a
+-   A `rc` version must be publically available for 2 weeks before releasing a
     public stable version
 
 Your library must meet the following criteria to move your public release to

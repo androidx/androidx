@@ -23,7 +23,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -47,6 +46,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
+import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowPackageManager;
 
 /** Tests for {@link ServiceConnectionManager}. */
@@ -66,11 +66,12 @@ public class ServiceConnectionManagerTest {
     private final IRendererService mRenderService = mock(IRendererService.class);
     private final RenderServiceDelegate mRenderServiceDelegate =
             new RenderServiceDelegate(mRenderService);
-
-    private final ErrorHandler mErrorHandler = mock(ErrorHandler.class);
+    private final CarAppViewModel mViewModel =
+            new CarAppViewModel(ApplicationProvider.getApplicationContext(),
+                    mFakeCarAppServiceComponent);
     private final ServiceConnectionManager mServiceConnectionManager =
-            new ServiceConnectionManager(ApplicationProvider.getApplicationContext(),
-                    mFakeCarAppServiceComponent, mErrorHandler);
+            mViewModel.getServiceConnectionManager();
+    private final ShadowLooper mMainLooper = shadowOf(getMainLooper());
 
     private void setupCarAppActivityForTesting() {
         try {
@@ -115,9 +116,10 @@ public class ServiceConnectionManagerTest {
         ICarAppActivity iCarAppActivity = mock(ICarAppActivity.class);
 
         mServiceConnectionManager.bind(TEST_INTENT, iCarAppActivity, TEST_DISPLAY_ID);
-        shadowOf(getMainLooper()).idle();
+        mMainLooper.idle();
         try {
-            verify(mErrorHandler, never()).onError(any(), any());
+            assertThat(mViewModel.getState().getValue()).isEqualTo(CarAppViewModel.State.CONNECTED);
+            assertThat(mViewModel.getError().getValue()).isNull();
             verify(mRenderService).initialize(iCarAppActivity, mFakeCarAppServiceComponent,
                     TEST_DISPLAY_ID);
             verify(mRenderService).onNewIntent(TEST_INTENT, mFakeCarAppServiceComponent,
@@ -136,9 +138,10 @@ public class ServiceConnectionManagerTest {
         IRendererService renderService = createMockRendererService();
         mServiceConnectionManager.setRendererService(renderService);
         mServiceConnectionManager.bind(TEST_INTENT, iCarAppActivity, TEST_DISPLAY_ID);
-        shadowOf(getMainLooper()).idle();
+        mMainLooper.idle();
         try {
-            verify(mErrorHandler, never()).onError(any(), any());
+            assertThat(mViewModel.getState().getValue()).isEqualTo(CarAppViewModel.State.CONNECTED);
+            assertThat(mViewModel.getError().getValue()).isNull();
             verify(mRenderService, never()).initialize(iCarAppActivity, mFakeCarAppServiceComponent,
                     TEST_DISPLAY_ID);
             verify(mRenderService, never()).onNewIntent(TEST_INTENT, mFakeCarAppServiceComponent,
@@ -158,10 +161,11 @@ public class ServiceConnectionManagerTest {
 
         mServiceConnectionManager.setRendererService(renderService);
         mServiceConnectionManager.bind(TEST_INTENT, iCarAppActivity, TEST_DISPLAY_ID);
-        shadowOf(getMainLooper()).idle();
+        mMainLooper.idle();
 
         try {
-            verify(mErrorHandler, never()).onError(any(), any());
+            assertThat(mViewModel.getState().getValue()).isEqualTo(CarAppViewModel.State.CONNECTED);
+            assertThat(mViewModel.getError().getValue()).isNull();
             verify(renderService).initialize(iCarAppActivity, mFakeCarAppServiceComponent,
                     TEST_DISPLAY_ID);
             verify(renderService).onNewIntent(TEST_INTENT, mFakeCarAppServiceComponent,
@@ -180,9 +184,10 @@ public class ServiceConnectionManagerTest {
 
         mServiceConnectionManager.setRendererService(renderService);
         mServiceConnectionManager.bind(TEST_INTENT, iCarAppActivity, TEST_DISPLAY_ID);
-        shadowOf(getMainLooper()).idle();
+        mMainLooper.idle();
         try {
-            verify(mErrorHandler, never()).onError(any(), any());
+            assertThat(mViewModel.getState().getValue()).isEqualTo(CarAppViewModel.State.CONNECTED);
+            assertThat(mViewModel.getError().getValue()).isNull();
             verify(mRenderService, never()).initialize(iCarAppActivity, mFakeCarAppServiceComponent,
                     TEST_DISPLAY_ID);
             verify(mRenderService, never()).onNewIntent(TEST_INTENT, mFakeCarAppServiceComponent,
@@ -207,9 +212,10 @@ public class ServiceConnectionManagerTest {
         }
 
         mServiceConnectionManager.bind(TEST_INTENT, iCarAppActivity, TEST_DISPLAY_ID);
-        shadowOf(getMainLooper()).idle();
+        mMainLooper.idle();
 
-        verify(mErrorHandler).onError(eq(ErrorHandler.ErrorType.HOST_ERROR), any());
+        assertThat(mViewModel.getError().getValue())
+                .isEqualTo(ErrorHandler.ErrorType.HOST_ERROR);
     }
 
     @Test
@@ -219,7 +225,7 @@ public class ServiceConnectionManagerTest {
         IRendererService renderService = mock(IRendererService.class);
         mServiceConnectionManager.setRendererService(renderService);
         mServiceConnectionManager.unbind();
-        shadowOf(getMainLooper()).idle();
+        mMainLooper.idle();
 
         try {
             verify(renderService).terminate(mFakeCarAppServiceComponent);
@@ -235,7 +241,7 @@ public class ServiceConnectionManagerTest {
         setupCarAppActivityForTesting();
 
         mServiceConnectionManager.unbind();
-        shadowOf(getMainLooper()).idle();
+        mMainLooper.idle();
 
         try {
             verify(mRenderService, never()).terminate(mFakeCarAppServiceComponent);

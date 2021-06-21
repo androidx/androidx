@@ -16,8 +16,6 @@
 
 package androidx.camera.extensions;
 
-import static androidx.camera.extensions.util.ExtensionsTestUtil.assumeCompatibleDevice;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
@@ -80,6 +78,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class ImageCaptureExtenderTest {
     private static final String EXTENSION_AVAILABLE_CAMERA_ID = "0";
 
@@ -92,7 +91,6 @@ public class ImageCaptureExtenderTest {
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
-        assumeCompatibleDevice();
         assumeTrue(CameraUtil.deviceHasCamera());
 
         CameraX.initialize(mContext, Camera2Config.defaultConfig()).get();

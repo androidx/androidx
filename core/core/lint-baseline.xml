@@ -2,52 +2,8 @@
 <issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
 
     <issue
-        id="SoonBlockedPrivateApi"
-        message="Reflective access to mOverlapAnchor will throw an exception when targeting API 30 and above"
-        errorLine1="                    sOverlapAnchorField = PopupWindow.class.getDeclaredField(&quot;mOverlapAnchor&quot;);"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
-            line="125"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="SoonBlockedPrivateApi"
-        message="Reflective access to mMinWidth will throw an exception when targeting API 30 and above"
-        errorLine1="                sMinWidthField = View.class.getDeclaredField(&quot;mMinWidth&quot;);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2006"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="SoonBlockedPrivateApi"
-        message="Reflective access to mMinHeight will throw an exception when targeting API 30 and above"
-        errorLine1="                sMinHeightField = View.class.getDeclaredField(&quot;mMinHeight&quot;);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2040"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="SoonBlockedPrivateApi"
-        message="Reflective access to mAttachInfo will throw an exception when targeting API 30 and above"
-        errorLine1="                sViewAttachInfoField = View.class.getDeclaredField(&quot;mAttachInfo&quot;);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"
-            line="2128"
-            column="40"/>
-    </issue>
-
-    <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    requestRelaunchActivityMethod.invoke(activityThread,"
         errorLine2="                    ^">
         <location
@@ -58,7 +14,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                            performStopActivity3ParamsMethod.invoke(activityThread,"
         errorLine2="                            ^">
         <location
@@ -69,7 +25,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                            performStopActivity2ParamsMethod.invoke(activityThread,"
         errorLine2="                            ^">
         <location
@@ -80,7 +36,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    return (IBinder) sGetIBinderMethod.invoke(bundle, key);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -91,7 +47,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    sPutIBinderMethod.invoke(bundle, key, binder);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -102,7 +58,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (String) getMethod.invoke(systemProperties, name);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -113,7 +69,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                return (String) sGetScriptMethod.invoke(null, args);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -124,7 +80,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                return (String) sAddLikelySubtagsMethod.invoke(null, args);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -135,7 +91,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (int) icon.getClass().getMethod(&quot;getType&quot;).invoke(icon);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -146,7 +102,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (String) icon.getClass().getMethod(&quot;getResPackage&quot;).invoke(icon);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -157,7 +113,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (int) icon.getClass().getMethod(&quot;getResId&quot;).invoke(icon);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -168,7 +124,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (Uri) icon.getClass().getMethod(&quot;getUri&quot;).invoke(icon);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -179,7 +135,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                return (Boolean) sActionBarOnMenuKeyMethod.invoke(actionBar, event);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -190,29 +146,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
-        errorLine1="                sSetWindowLayoutTypeMethod.invoke(popupWindow, layoutType);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
-            line="170"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
-        errorLine1="                return (Integer) sGetWindowLayoutTypeMethod.invoke(popupWindow);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
-            line="199"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    Boolean result = (Boolean) sMethodUserHandleIsAppMethod.invoke(null, uid);"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -223,7 +157,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    Boolean result = (Boolean) sMethodUserIdIsAppMethod.invoke(null, uid);"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -234,7 +168,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                            sRebaseMethod.invoke(theme);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -245,7 +179,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                        removeItemAtMethod.invoke(menu, i);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -256,7 +190,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (Typeface) sCreateFromFamiliesWithDefault.invoke("
         errorLine2="                              ^">
         <location
@@ -267,7 +201,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            final Boolean result = (Boolean) sAddFontWeightStyle.invoke("
         errorLine2="                                             ^">
         <location
@@ -278,7 +212,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            final Boolean result = (Boolean) sAddFontWeightStyle.invoke("
         errorLine2="                                             ^">
         <location
@@ -289,7 +223,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (Typeface) sCreateFromFamiliesWithDefault.invoke("
         errorLine2="                              ^">
         <location
@@ -300,7 +234,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (Boolean) mAddFontFromAssetManager.invoke(family,"
         errorLine2="                             ^">
         <location
@@ -311,7 +245,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (Boolean) mAddFontFromBuffer.invoke(family,"
         errorLine2="                             ^">
         <location
@@ -322,7 +256,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (Typeface) mCreateFromFamiliesWithDefault.invoke(null /* static method */,"
         errorLine2="                              ^">
         <location
@@ -333,7 +267,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (Boolean) mFreeze.invoke(family);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -344,7 +278,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            mAbortCreation.invoke(family);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -355,7 +289,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (Typeface) mCreateFromFamiliesWithDefault.invoke(null /* static method */,"
         errorLine2="                              ^">
         <location
@@ -366,29 +300,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
-        errorLine1="            sChildrenDrawingOrderMethod.invoke(viewGroup, enabled);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2463"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
-        errorLine1="                Object viewRootImpl = sGetViewRootImplMethod.invoke(rootView);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"
-            line="1141"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                return (Boolean) sIsProjectedDrawableMethod.invoke(mDrawable);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -7593,61 +7505,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.widget.PopupWindowCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            popup.showAsDropDown(anchor, xoff, yoff, gravity);"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
-            line="69"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.widget.PopupWindowCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            popupWindow.setOverlapAnchor(overlapAnchor);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
-            line="91"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.widget.PopupWindowCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return popupWindow.getOverlapAnchor();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
-            line="120"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.widget.PopupWindowCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            popupWindow.setWindowLayoutType(layoutType);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
-            line="154"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.widget.PopupWindowCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return popupWindow.getWindowLayoutType();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
-            line="184"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 28; however, the containing class androidx.core.text.PrecomputedTextCompat.Params is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mWrapped = new PrecomputedText.Params.Builder(paint)"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -8341,12 +8198,23 @@
 
     <issue
         id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.app.RemoteInput is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    builder.setAllowDataType(allowedDataType, true);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/RemoteInput.java"
+            line="571"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
         message="This call references a method added in API level 29; however, the containing class androidx.core.app.RemoteInput is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            builder.setEditChoicesBeforeSending(src.getEditChoicesBeforeSending());"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="568"
+            line="576"
             column="21"/>
     </issue>
 
@@ -8357,7 +8225,7 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="570"
+            line="578"
             column="24"/>
     </issue>
 
@@ -8368,7 +8236,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="576"
+            line="584"
             column="45"/>
     </issue>
 
@@ -8379,7 +8247,7 @@
         errorLine2="                                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="577"
+            line="585"
             column="39"/>
     </issue>
 
@@ -8390,7 +8258,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="578"
+            line="586"
             column="41"/>
     </issue>
 
@@ -8401,7 +8269,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="579"
+            line="587"
             column="52"/>
     </issue>
 
@@ -8412,8 +8280,19 @@
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="580"
+            line="588"
             column="40"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.core.app.RemoteInput is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Set&lt;String> allowedDataTypes = src.getAllowedDataTypes();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/RemoteInput.java"
+            line="590"
+            column="48"/>
     </issue>
 
     <issue
@@ -8423,7 +8302,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="582"
+            line="598"
             column="53"/>
     </issue>
 
@@ -8434,7 +8313,7 @@
         errorLine2="                                   ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="589"
+            line="605"
             column="36"/>
     </issue>
 
@@ -10244,1227 +10123,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            v.setAutofillHints(autofillHints);"
-        errorLine2="              ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="762"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return v.getImportantForAutofill();"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="783"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            v.setImportantForAutofill(mode);"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="827"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return v.isImportantForAutofill();"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="896"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 29; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return v.getAccessibilityDelegate();"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="946"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.hasTransientState();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="989"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setHasTransientState(hasTransientState);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1003"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.postInvalidateOnAnimation();"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1018"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.postInvalidateOnAnimation(left, top, right, bottom);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1040"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.postOnAnimation(action);"
-        errorLine2="                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1058"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.postOnAnimationDelayed(action, delayMillis);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1080"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getImportantForAccessibility();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1102"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setImportantForAccessibility(mode);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1129"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setImportantForAccessibility(mode);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1138"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.isImportantForAccessibility();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1180"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.performAccessibilityAction(action, arguments);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1202"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            AccessibilityNodeProvider provider = view.getAccessibilityNodeProvider();"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1444"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getLabelFor();"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1539"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setLabelFor(labeledId);"
-        errorLine2="                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1553"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setLayerPaint(paint);"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1589"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getLayoutDirection();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1612"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setLayoutDirection(layoutDirection);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1636"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getParentForAccessibility();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1650"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.requireViewById(id);"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1673"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getAccessibilityLiveRegion();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1790"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setAccessibilityLiveRegion(mode);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1826"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getPaddingStart();"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1841"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getPaddingEnd();"
-        errorLine2="                        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1857"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setPaddingRelative(start, top, end, bottom);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1878"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.dispatchStartTemporaryDetach();"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1901"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.dispatchFinishTemporaryDetach();"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1924"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getMinimumWidth();"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2001"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getMinimumHeight();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2035"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setElevation(elevation);"
-        errorLine2="                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2342"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getElevation();"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2353"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setTranslationZ(translationZ);"
-        errorLine2="                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2363"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getTranslationZ();"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2374"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setTransitionName(transitionName);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2388"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getTransitionName();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2410"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getWindowSystemUiVisibility();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2423"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 20; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.requestApplyInsets();"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2434"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.requestFitSystemWindows();"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2436"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return v.getFitsSystemWindows();"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2479"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 20; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                WindowInsets result = view.onApplyWindowInsets(unwrapped);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2540"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 20; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                final WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2568"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 29; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setSystemGestureExclusionRects(rects);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2592"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 29; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getSystemGestureExclusionRects();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2607"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.hasOverlappingRendering();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2873"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.isPaddingRelative();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2886"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setBackground(background);"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2899"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getBackgroundTintList();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2913"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setBackgroundTintList(tintList);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2929"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                boolean hasTint = (view.getBackgroundTintList() != null)"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2935"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        || (view.getBackgroundTintMode() != null);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2936"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    view.setBackground(background);"
-        errorLine2="                         ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2941"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getBackgroundTintMode();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2958"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setBackgroundTintMode(mode);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2976"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                boolean hasTint = (view.getBackgroundTintList() != null)"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2982"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        || (view.getBackgroundTintMode() != null);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2983"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    view.setBackground(background);"
-        errorLine2="                         ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2988"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setNestedScrollingEnabled(enabled);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3014"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.isNestedScrollingEnabled();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3037"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.startNestedScroll(axes);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3059"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.stopNestedScroll();"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3078"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.hasNestedScrollingParent();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3095"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3124"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3155"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.dispatchNestedFling(velocityX, velocityY, consumed);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3379"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.dispatchNestedPreFling(velocityX, velocityY);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3422"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.isInLayout();"
-        errorLine2="                        ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3444"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.isLaidOut();"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3455"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.isLayoutDirectionResolved();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3472"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getZ();"
-        errorLine2="                        ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3486"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setZ(z);"
-        errorLine2="                 ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3505"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setClipBounds(clipBounds);"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3624"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getClipBounds();"
-        errorLine2="                        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3639"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.isAttachedToWindow();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3649"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 15; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.hasOnClickListeners();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3661"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setScrollIndicators(indicators);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3679"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setScrollIndicators(indicators, mask);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3713"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getScrollIndicators();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3731"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setPointerIcon((PointerIcon) (pointerIcon != null"
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3742"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getDisplay();"
-        errorLine2="                        ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3761"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setTooltipText(tooltipText);"
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3781"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return v.startDragAndDrop(data, shadowBuilder, localState, flags);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3791"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            v.cancelDragAndDrop();"
-        errorLine2="              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3802"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            v.updateDragShadow(shadowBuilder);"
-        errorLine2="              ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3811"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.getNextClusterForwardId();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3823"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setNextClusterForwardId(nextClusterForwardId);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3837"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.isKeyboardNavigationCluster();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3849"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setKeyboardNavigationCluster(isCluster);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3863"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.isFocusedByDefault();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3878"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.setFocusedByDefault(isFocusedByDefault);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3897"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.keyboardNavigationClusterSearch(currentCluster, direction);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3915"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.addKeyboardNavigationClusters(views, direction);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3931"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.restoreDefaultFocus();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3945"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return view.hasExplicitFocusable();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3967"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return View.generateViewId();"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3980"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                return view.isScreenReaderFocusable();"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4177"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                view.setScreenReaderFocusable(value);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4183"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                return view.getAccessibilityPaneTitle();"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4249"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                view.setAccessibilityPaneTitle(value);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4255"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                return view.getStateDescription();"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4272"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                view.setStateDescription(value);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4278"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                return view.isAccessibilityHeading();"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4329"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                view.setAccessibilityHeading(value);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4335"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            event.setContentChangeTypes(changeType);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4430"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            event.setContentChangeTypes(changeType);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4440"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.ViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                view.getParent().notifySubtreeAccessibilityStateChanged(view, view, changeType);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4447"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.ViewCompat.AccessibilityPaneVisibilityManager is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            if (pane.isAttachedToWindow()) {"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4507"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.view.ViewCompat.AccessibilityPaneVisibilityManager is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            view.getViewTreeObserver().removeOnGlobalLayoutListener(this);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4538"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 26; however, the containing class androidx.core.view.ViewConfigurationCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return config.getScaledHorizontalScrollFactor();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -11761,61 +10419,6 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.WindowInsetsCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        if (view != null &amp;&amp; view.isAttachedToWindow()) {"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"
-            line="169"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="public class AppLaunchChecker {"
-        errorLine2="             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/AppLaunchChecker.java"
-            line="36"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="public class ContextCompat {"
-        errorLine2="             ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="156"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="public final class EditorInfoCompat {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/inputmethod/EditorInfoCompat.java"
-            line="49"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="public final class InputConnectionCompat {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java"
-            line="37"
-            column="20"/>
-    </issue>
-
-    <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class is missing private constructor"
         errorLine1="public class NotificationCompat {"
@@ -11972,7 +10575,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="556"
+            line="555"
             column="17"/>
     </issue>
 
@@ -12040,17 +10643,6 @@
             file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
             line="169"
             column="58"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 2, &quot;action&quot;, in androidx.core.view.ViewCompat.postOnAnimationDelayed) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            long delayMillis) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1078"
-            column="13"/>
     </issue>
 
     <issue
@@ -14106,7 +12698,7 @@
         errorLine2="    ~~~~~">
         <location
             file="src/main/java/androidx/core/widget/AutoSizeableTextView.java"
-            line="146"
+            line="151"
             column="5"/>
     </issue>
 
@@ -14608,39 +13200,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static File getCodeCacheDir(@NonNull Context context) {"
-        errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="593"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Executor getMainExecutor(Context context) {"
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="675"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Executor getMainExecutor(Context context) {"
-        errorLine2="                                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="675"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        Object getWrapper();"
         errorLine2="        ~~~~~~">
         <location
@@ -14911,17 +13470,6 @@
             file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
             line="207"
             column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String[] getContentMimeTypes(EditorInfo editorInfo) {"
-        errorLine2="                                               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/inputmethod/EditorInfoCompat.java"
-            line="180"
-            column="48"/>
     </issue>
 
     <issue
@@ -15206,7 +13754,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="506"
+            line="505"
             column="34"/>
     </issue>
 
@@ -15217,7 +13765,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="506"
+            line="505"
             column="51"/>
     </issue>
 
@@ -15228,7 +13776,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="520"
+            line="519"
             column="34"/>
     </issue>
 
@@ -15239,7 +13787,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="520"
+            line="519"
             column="51"/>
     </issue>
 
@@ -15250,7 +13798,7 @@
         errorLine2="                                                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="520"
+            line="519"
             column="79"/>
     </issue>
 
@@ -15261,7 +13809,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="543"
+            line="542"
             column="33"/>
     </issue>
 
@@ -15272,7 +13820,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
-            line="567"
+            line="566"
             column="40"/>
     </issue>
 
@@ -15626,28 +14174,6 @@
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
             line="517"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags, Bundle opts);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java"
-            line="235"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags, Bundle opts);"
-        errorLine2="                                                                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java"
-            line="235"
-            column="85"/>
     </issue>
 
     <issue
@@ -19672,7 +18198,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="538"
+            line="565"
             column="49"/>
     </issue>
 
@@ -19683,7 +18209,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="552"
+            line="578"
             column="47"/>
     </issue>
 
@@ -19694,7 +18220,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="569"
+            line="595"
             column="41"/>
     </issue>
 
@@ -19705,7 +18231,7 @@
         errorLine2="                                         ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="589"
+            line="615"
             column="42"/>
     </issue>
 
@@ -19716,7 +18242,7 @@
         errorLine2="                                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="629"
+            line="653"
             column="53"/>
     </issue>
 
@@ -19727,7 +18253,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="629"
+            line="653"
             column="61"/>
     </issue>
 
@@ -19738,7 +18264,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="661"
+            line="683"
             column="55"/>
     </issue>
 
@@ -19749,85 +18275,8 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="661"
+            line="683"
             column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            AccessibilityNodeInfoCompat info) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="693"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            @NonNull View v, AccessibilityDelegateCompat delegate) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="723"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void postOnAnimation(@NonNull View view, Runnable action) {"
-        errorLine2="                                                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1056"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void postOnAnimationDelayed(@NonNull View view, Runnable action,"
-        errorLine2="                                                                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1077"
-            column="67"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Bundle arguments) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1200"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void enableAccessibleClickableSpanSupport(View view) {"
-        errorLine2="                                                            ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1413"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View view) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1442"
-            column="19"/>
     </issue>
 
     <issue
@@ -19837,7 +18286,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1462"
+            line="1481"
             column="34"/>
     </issue>
 
@@ -19848,7 +18297,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1501"
+            line="1519"
             column="37"/>
     </issue>
 
@@ -19859,7 +18308,7 @@
         errorLine2="                                                                         ~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1501"
+            line="1519"
             column="74"/>
     </issue>
 
@@ -19870,30 +18319,8 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1525"
+            line="1541"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setLayerPaint(@NonNull View view, Paint paint) {"
-        errorLine2="                                                         ~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1587"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static ViewParent getParentForAccessibility(@NonNull View view) {"
-        errorLine2="                  ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1648"
-            column="19"/>
     </issue>
 
     <issue
@@ -19903,7 +18330,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1692"
+            line="1710"
             column="36"/>
     </issue>
 
@@ -19914,7 +18341,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1729"
+            line="1745"
             column="48"/>
     </issue>
 
@@ -19925,7 +18352,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1746"
+            line="1761"
             column="49"/>
     </issue>
 
@@ -19936,7 +18363,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1760"
+            line="1775"
             column="40"/>
     </issue>
 
@@ -19947,7 +18374,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1952"
+            line="1965"
             column="41"/>
     </issue>
 
@@ -19958,7 +18385,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1966"
+            line="1978"
             column="41"/>
     </issue>
 
@@ -19969,7 +18396,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1988"
+            line="1998"
             column="36"/>
     </issue>
 
@@ -19980,7 +18407,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2090"
+            line="2103"
             column="40"/>
     </issue>
 
@@ -19991,18 +18418,18 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2107"
+            line="2118"
             column="40"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setAlpha(View view, @FloatRange(from=0.0, to=1.0) float value) {"
+        errorLine1="    public static void setAlpha(View view, @FloatRange(from = 0.0, to = 1.0) float value) {"
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2124"
+            line="2134"
             column="33"/>
     </issue>
 
@@ -20013,7 +18440,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2139"
+            line="2148"
             column="29"/>
     </issue>
 
@@ -20024,7 +18451,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2154"
+            line="2162"
             column="29"/>
     </issue>
 
@@ -20035,7 +18462,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2167"
+            line="2174"
             column="36"/>
     </issue>
 
@@ -20046,7 +18473,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2181"
+            line="2187"
             column="37"/>
     </issue>
 
@@ -20057,7 +18484,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2195"
+            line="2200"
             column="37"/>
     </issue>
 
@@ -20068,7 +18495,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2208"
+            line="2212"
             column="34"/>
     </issue>
 
@@ -20079,7 +18506,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2221"
+            line="2224"
             column="34"/>
     </issue>
 
@@ -20090,7 +18517,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2232"
+            line="2235"
             column="35"/>
     </issue>
 
@@ -20101,7 +18528,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2248"
+            line="2250"
             column="34"/>
     </issue>
 
@@ -20112,7 +18539,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2261"
+            line="2262"
             column="35"/>
     </issue>
 
@@ -20207,22 +18634,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setTransitionName(@NonNull View view, String transitionName) {"
-        errorLine2="                                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2386"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {"
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2452"
+            line="2456"
             column="55"/>
     </issue>
 
@@ -20233,7 +18649,7 @@
         errorLine2="                                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2493"
+            line="2497"
             column="45"/>
     </issue>
 
@@ -20244,7 +18660,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2507"
+            line="2511"
             column="52"/>
     </issue>
 
@@ -20255,7 +18671,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2837"
+            line="2841"
             column="49"/>
     </issue>
 
@@ -20266,250 +18682,8 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2853"
+            line="2856"
             column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static ColorStateList getBackgroundTintList(@NonNull View view) {"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2911"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setBackgroundTintList(@NonNull View view, ColorStateList tintList) {"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2927"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static PorterDuff.Mode getBackgroundTintMode(@NonNull View view) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2956"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setBackgroundTintMode(@NonNull View view, PorterDuff.Mode mode) {"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2974"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setClipBounds(@NonNull View view, Rect clipBounds) {"
-        errorLine2="                                                         ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3622"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setPointerIcon(@NonNull View view, PointerIconCompat pointerIcon) {"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3740"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean startDragAndDrop(@NonNull View v, ClipData data,"
-        errorLine2="                                                            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3788"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            View.DragShadowBuilder shadowBuilder, Object localState, int flags) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3789"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            View.DragShadowBuilder shadowBuilder, Object localState, int flags) {"
-        errorLine2="                                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3789"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void updateDragShadow(@NonNull View v, View.DragShadowBuilder shadowBuilder) {"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3809"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static View keyboardNavigationClusterSearch(@NonNull View view, View currentCluster,"
-        errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3912"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static View keyboardNavigationClusterSearch(@NonNull View view, View currentCluster,"
-        errorLine2="                                                                           ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3912"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onUnhandledKeyEvent(View v, KeyEvent event);"
-        errorLine2="                                    ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4110"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onUnhandledKeyEvent(View v, KeyEvent event);"
-        errorLine2="                                            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4110"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setScreenReaderFocusable(View view, boolean screenReaderFocusable) {"
-        errorLine2="                                                ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4146"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean isScreenReaderFocusable(View view) {"
-        errorLine2="                                                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4165"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setAccessibilityPaneTitle(View view, CharSequence accessibilityPaneTitle) {"
-        errorLine2="                                                 ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4212"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setAccessibilityPaneTitle(View view, CharSequence accessibilityPaneTitle) {"
-        errorLine2="                                                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4212"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CharSequence getAccessibilityPaneTitle(View view) {"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4238"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CharSequence getAccessibilityPaneTitle(View view) {"
-        errorLine2="                                                         ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4238"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean isAccessibilityHeading(View view) {"
-        errorLine2="                                                 ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4301"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setAccessibilityHeading(View view, boolean isHeading) {"
-        errorLine2="                                               ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4318"
-            column="48"/>
     </issue>
 
     <issue

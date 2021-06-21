@@ -210,21 +210,11 @@ public class NotificationCompat {
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 21) {
                 Api21Impl.setStyle(builder.getBuilder(),
-                        fillInMediaStyle(Api21Impl.createMediaStyle()));
+                        Api21Impl.fillInMediaStyle(Api21Impl.createMediaStyle(),
+                                mActionsToShowInCompact, mToken));
             } else if (mShowCancelButton) {
                 builder.getBuilder().setOngoing(true);
             }
-        }
-
-        @RequiresApi(21)
-        Notification.MediaStyle fillInMediaStyle(Notification.MediaStyle style) {
-            if (mActionsToShowInCompact != null) {
-                Api21Impl.setShowActionsInCompactView(style, mActionsToShowInCompact);
-            }
-            if (mToken != null) {
-                Api21Impl.setMediaSession(style, (MediaSession.Token) mToken.getToken());
-            }
-            return style;
         }
 
         /**
@@ -388,7 +378,8 @@ public class NotificationCompat {
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
                 Api21Impl.setStyle(builder.getBuilder(),
-                        fillInMediaStyle(Api24Impl.createDecoratedMediaCustomViewStyle()));
+                        Api21Impl.fillInMediaStyle(Api24Impl.createDecoratedMediaCustomViewStyle(),
+                                mActionsToShowInCompact, mToken));
             } else {
                 super.apply(builder);
             }
@@ -525,6 +516,18 @@ public class NotificationCompat {
         @DoNotInline
         static Notification.MediaStyle createMediaStyle() {
             return new Notification.MediaStyle();
+        }
+
+        @DoNotInline
+        static Notification.MediaStyle fillInMediaStyle(Notification.MediaStyle style,
+                int[] actionsToShowInCompact, MediaSessionCompat.Token token) {
+            if (actionsToShowInCompact != null) {
+                setShowActionsInCompactView(style, actionsToShowInCompact);
+            }
+            if (token != null) {
+                setMediaSession(style, (MediaSession.Token) token.getToken());
+            }
+            return style;
         }
 
         @DoNotInline

@@ -65,6 +65,7 @@ import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -227,6 +228,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals("testSubText", NotificationCompat.getSubText(n));
     }
 
+    @FlakyTest(bugId = 190533219)
     @Test
     public void testActions() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
@@ -555,6 +557,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertNotificationEquals(original, recovered);
     }
 
+    @FlakyTest(bugId = 190533219)
     @Test
     public void testNotificationBuilder_createContentView() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channelId");

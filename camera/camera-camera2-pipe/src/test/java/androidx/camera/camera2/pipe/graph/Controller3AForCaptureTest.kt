@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -47,6 +48,7 @@ class Controller3AForCaptureTest {
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testLock3AForCapture(): Unit = runBlocking {
         initGraphProcessor()
@@ -125,6 +127,7 @@ class Controller3AForCaptureTest {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun testUnlock3APostCaptureAndroidMAndAbove(): Unit = runBlocking {
         initGraphProcessor()
 
@@ -193,6 +196,7 @@ class Controller3AForCaptureTest {
             .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun testUnlock3APostCaptureAndroidLAndBelow(): Unit = runBlocking {
         initGraphProcessor()
 

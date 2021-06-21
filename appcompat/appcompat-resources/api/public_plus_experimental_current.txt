@@ -10,7 +10,7 @@ package androidx.appcompat.content.res {
 
 package androidx.appcompat.graphics.drawable {
 
-  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback androidx.core.graphics.drawable.TintAwareDrawable {
+  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
     ctor public AnimatedStateListDrawableCompat();
     method public void addState(int[], android.graphics.drawable.Drawable, int);
     method public void addState(int[]!, android.graphics.drawable.Drawable!);

@@ -71,7 +71,6 @@ package androidx.navigation.dynamicfeatures {
   @androidx.navigation.Navigator.Name("include-dynamic") public final class DynamicIncludeGraphNavigator extends androidx.navigation.Navigator<androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph> {
     ctor public DynamicIncludeGraphNavigator(android.content.Context context, androidx.navigation.NavigatorProvider navigatorProvider, androidx.navigation.NavInflater navInflater, androidx.navigation.dynamicfeatures.DynamicInstallManager installManager);
     method public androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph createDestination();
-    method public androidx.navigation.NavDestination? navigate(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
   }
 
   public static final class DynamicIncludeGraphNavigator.DynamicIncludeNavGraph extends androidx.navigation.NavDestination {

@@ -17,24 +17,26 @@
 package androidx.paging
 
 import androidx.annotation.VisibleForTesting
-import androidx.paging.multicast.Multicaster
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.ArrayDeque
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * An intermediate flow producer that flattens previous page events and gives any new downstream
@@ -47,35 +49,46 @@ internal class CachedPageEventFlow<T : Any>(
     private val pageController = FlattenedPageController<T>()
 
     /**
-     * We can collect from source only once since Events are ordered.
-     * This flag ensures that we do not try to collect from upstream more than once.
+     * Flow<PageEvent> can be collected only once so this goes from active to passive only.
      */
-    private val collectedFromSource = AtomicBoolean(false)
+    private val active = MutableStateFlow(true)
 
     /**
-     * Shared upstream.
-     * Note that, if upstream flow ends, re-subscribing to this will not re-collect from upstream
-     * since PageEvent flows cannot be restarted. Instead, a new subscriber will get only the
-     * cached values from snapshot.
+     * Shared flow for upstream.
+     *
+     * Note that shared flows cannot be completed, hence we use a custom wrapper type
+     * [FlattenedPageEventStorage.UpstreamMessage] to specify end of stream.
      */
-    private val multicastedSrc = Multicaster(
+    private val sharedSrc = active.simpleFlatMapLatest { active ->
+        if (active) {
+            src.withIndex().onEach(pageController::record)
+                .map {
+                    FlattenedPageEventStorage.UpstreamMessage.Value(it)
+                }
+                .onCompletion {
+                    // close it so that we can dispatch the completed message.
+                    this@CachedPageEventFlow.close()
+                }
+        } else {
+            // send a complete message to notify end of stream
+            flowOf(FlattenedPageEventStorage.UpstreamMessage.Completed)
+        }
+    }.shareIn(
         scope = scope,
-        bufferSize = 0,
-        source = flow {
-            // we can collect from a Flow<PageEvent> only once.
-            // if this multicaster ever gets restarted, we should not try to collect from the
-            // original flow, instead, return empty flow from upstream and let the new downstream
-            // only receive historical events
-            if (collectedFromSource.compareAndSet(false, true)) {
-                emitAll(src.withIndex())
-            }
-        },
-        onEach = pageController::record,
-        keepUpstreamAlive = true
+        started = SharingStarted.Lazily, // never stop, we'll be closed manually
+        // Don't replay for events, we have our own condensed replay mechanism that merges events.
+        // We only replay once to account for the Completed terminal event. If we don't, shared flow
+        // would never emit any value hence the upstream would look as if it is open even though
+        // it is not.
+        // note that not replaying does not mean values are not buffered. Buffering still
+        // happens as long as the subscriber has arrived in time before the value is emitted.
+        // [downstreamFlow] takes care of ordering them behind a mutex.
+        // https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/share-in.html
+        replay = 1
     )
 
-    suspend fun close() {
-        multicastedSrc.close()
+    fun close() {
+        active.compareAndSet(expect = true, update = false)
     }
 
     val downstreamFlow = simpleChannelFlow<PageEvent<T>> {
@@ -92,13 +105,8 @@ internal class CachedPageEventFlow<T : Any>(
             }
         }
         val activeStreamCollection = launch {
-            multicastedSrc.flow.catch { throwable: Throwable ->
-                // ignore ClosedSendChannelException, possible race condition
-                // watch the following issue to catch a more explicit error
-                // https://github.com/dropbox/Store/issues/45
-                if (throwable !is ClosedSendChannelException) {
-                    throw throwable
-                }
+            sharedSrc.takeWhile {
+                it !== FlattenedPageEventStorage.UpstreamMessage.Completed
             }.onCompletion {
                 // if main upstream finishes, make sure to close the history stream
                 // otherwise it might stay open forever
@@ -109,8 +117,11 @@ internal class CachedPageEventFlow<T : Any>(
                 // wait for it to be done so that all events there are dispatched
                 historyCollection.join()
                 // now if it is new enough, emit it, otherwise, skip it
-                if (it.index > lastReceivedHistoryIndex) {
-                    send(it.value)
+                if (it is FlattenedPageEventStorage.UpstreamMessage.Value<*>) {
+                    if (it.event.index > lastReceivedHistoryIndex) {
+                        @Suppress("UNCHECKED_CAST")
+                        send(it.event.value as PageEvent<T>)
+                    }
                 }
             }
         }
@@ -162,6 +173,7 @@ private class FlattenedPageController<T : Any> {
     private val list = FlattenedPageEventStorage<T>()
     private var snapshots = listOf<TemporaryDownstream<T>>()
     private val lock = Mutex()
+    private var maxEventIndex = -1
 
     /**
      * Record the event.
@@ -169,6 +181,7 @@ private class FlattenedPageController<T : Any> {
      */
     suspend fun record(event: IndexedValue<PageEvent<T>>) {
         lock.withLock {
+            maxEventIndex = event.index
             list.add(event.value)
             snapshots = snapshots.filter {
                 it.send(event)
@@ -182,16 +195,27 @@ private class FlattenedPageController<T : Any> {
      */
     suspend fun createTemporaryDownstream(): TemporaryDownstream<T> {
         return lock.withLock {
-            TemporaryDownstream<T>().also { snap ->
-                list.getAsEvents().forEachIndexed { index, pageEvent ->
-                    snap.send(
-                        IndexedValue(
-                            index = Int.MIN_VALUE + index,
-                            value = pageEvent
-                        )
+            // send the current state into the temporary downstream while we are inside the mutex
+            // this ensure that we don't process any new events until we copy all initial events
+            // into the channel of temporary downstream
+            val snap = TemporaryDownstream<T>()
+            // condensed events to bring downstream up to the current state
+            val catchupEvents = list.getAsEvents()
+            // make sure the indices here match the indices coming from upstream so that if the same
+            // event shows up in both places, we won't dispatch it twice.
+            // we want the last event's index to match the latest event index we've received so
+            // that downstream can ignore that event if they receive it also from the original
+            // upstream.
+            val startEventIndex = maxEventIndex - catchupEvents.size + 1
+            catchupEvents.forEachIndexed { index, pageEvent ->
+                snap.send(
+                    IndexedValue(
+                        index = startEventIndex + index,
+                        value = pageEvent
                     )
-                }
+                )
             }
+            snap
         }
     }
 }
@@ -287,5 +311,13 @@ internal class FlattenedPageEventStorage<T : Any> {
         }
 
         return events
+    }
+
+    /**
+     * Message type for the shared stream
+     */
+    sealed class UpstreamMessage {
+        object Completed : UpstreamMessage()
+        class Value<T : Any>(val event: IndexedValue<PageEvent<T>>) : UpstreamMessage()
     }
 }

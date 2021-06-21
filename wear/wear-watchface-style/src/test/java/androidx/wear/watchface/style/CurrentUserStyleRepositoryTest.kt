@@ -284,8 +284,8 @@ public class CurrentUserStyleRepositoryTest {
                 listOf(customStyleSetting1, customStyleSetting2)
             )
             fail(
-                "Constructing a UserStyleSchema with more than one ComplicationsUserStyleSetting " +
-                    "should fail"
+                "Constructing a UserStyleSchema with more than one " +
+                    "ComplicationSlotsUserStyleSetting should fail"
             )
         } catch (e: Exception) {
             // expected

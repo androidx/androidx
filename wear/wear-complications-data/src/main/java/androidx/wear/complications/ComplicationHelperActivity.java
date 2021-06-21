@@ -168,6 +168,7 @@ public final class ComplicationHelperActivity extends Activity
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length == 0) {
             // Request was cancelled.
+            finish();
             return;
         }
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {

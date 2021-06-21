@@ -21,7 +21,6 @@ import static androidx.camera.video.internal.AudioSource.InternalState.RELEASED;
 import static androidx.camera.video.internal.AudioSource.InternalState.STARTED;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.AudioTimestamp;
@@ -42,6 +41,9 @@ import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.core.util.Preconditions;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -62,6 +64,9 @@ import java.util.concurrent.TimeUnit;
  */
 public final class AudioSource {
     private static final String TAG = "AudioSource";
+    // Common sample rate options to choose from in descending order.
+    public static final List<Integer> COMMON_SAMPLE_RATES = Collections.unmodifiableList(
+            Arrays.asList(48000, 44100, 22050, 11025, 8000, 4800));
 
     enum InternalState {
         /** The initial state or when {@link #stop} is called after started. */
@@ -100,22 +105,21 @@ public final class AudioSource {
             @NonNull BufferProvider<InputBuffer> bufferProvider,
             int audioSource,
             int sampleRate,
-            int channelConfig,
-            int audioFormat,
-            int defaultBufferSize)
+            int channelCount,
+            int audioFormat)
             throws AudioSourceAccessException {
-        mExecutor = CameraXExecutors.newSequentialExecutor(Preconditions.checkNotNull(executor));
-        mBufferProvider = Preconditions.checkNotNull(bufferProvider);
+        int minBufferSize = getMinBufferSize(sampleRate, channelCount, audioFormat);
+        // The minBufferSize should be a positive value since the settings had already been checked
+        // by the isSettingsSupported().
+        Preconditions.checkState(minBufferSize > 0);
 
-        int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
-        if (bufferSize <= 0) {
-            bufferSize = defaultBufferSize;
-        }
-        mBufferSize = bufferSize * 2;
+        mExecutor = CameraXExecutors.newSequentialExecutor(executor);
+        mBufferProvider = bufferProvider;
+        mBufferSize = minBufferSize * 2;
         try {
             mAudioRecord = new AudioRecord(audioSource,
                     sampleRate,
-                    channelConfig,
+                    channelCountToChannelConfig(channelCount),
                     audioFormat,
                     mBufferSize);
         } catch (IllegalArgumentException e) {
@@ -263,7 +267,6 @@ public final class AudioSource {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @SuppressLint("UnsafeNewApiCall")
     long generatePresentationTimeUs() {
         long presentationTimeUs = -1;
         if (Build.VERSION.SDK_INT >= 24) {
@@ -330,22 +333,38 @@ public final class AudioSource {
                 }
             };
 
+    /** Check if the combination of sample rate, channel count and audio format is supported. */
+    public static boolean isSettingsSupported(int sampleRate, int channelCount, int audioFormat) {
+        if (sampleRate <= 0 || channelCount <= 0) {
+            return false;
+        }
+        return getMinBufferSize(sampleRate, channelCount, audioFormat) > 0;
+    }
+
+    private static int channelCountToChannelConfig(int channelCount) {
+        return channelCount == 1 ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_IN_STEREO;
+    }
+
+    private static int getMinBufferSize(int sampleRate, int channelCount, int audioFormat) {
+        return AudioRecord.getMinBufferSize(sampleRate, channelCountToChannelConfig(channelCount),
+                audioFormat);
+    }
+
     /**
      * The builder of the AudioSource.
      */
     public static class Builder {
         private Executor mExecutor;
-        private int mAudioSource;
-        private int mSampleRate;
-        private int mChannelConfig;
-        private int mAudioFormat;
-        private int mDefaultBufferSize;
+        private int mAudioSource = -1;
+        private int mSampleRate = -1;
+        private int mChannelCount = -1;
+        private int mAudioFormat = -1;
         private BufferProvider<InputBuffer> mBufferProvider;
 
         /** Sets the executor to run the background task. */
         @NonNull
         public Builder setExecutor(@NonNull Executor executor) {
-            mExecutor = executor;
+            mExecutor = Preconditions.checkNotNull(executor);
             return this;
         }
 
@@ -361,31 +380,43 @@ public final class AudioSource {
             return this;
         }
 
-        /** Sets the audio sample rate. */
+        /**
+         * Sets the audio sample rate.
+         *
+         * <p>It has to ensure the combination of sample rate, channel count and audio format is
+         * supported by {@link AudioSource#isSettingsSupported(int, int, int)}.
+         *
+         * @throws IllegalArgumentException if the sample rate is not positive.
+         */
         @NonNull
         public Builder setSampleRate(int sampleRate) {
+            Preconditions.checkArgument(sampleRate > 0);
             mSampleRate = sampleRate;
             return this;
         }
 
         /**
-         * Sets the channel config.
+         * Sets the channel count.
          *
-         * @see AudioFormat#CHANNEL_IN_MONO
-         * @see AudioFormat#CHANNEL_IN_STEREO
+         * <p>It has to ensure the combination of sample rate, channel count and audio format is
+         * supported by {@link AudioSource#isSettingsSupported(int, int, int)}.
+         *
+         * @throws IllegalArgumentException if the channel count is not positive.
          */
         @NonNull
-        public Builder setChannelConfig(int channelConfig) {
-            mChannelConfig = channelConfig;
+        public Builder setChannelCount(int channelCount) {
+            Preconditions.checkArgument(channelCount > 0);
+            mChannelCount = channelCount;
             return this;
         }
 
         /**
          * Sets the audio format.
          *
-         * @see AudioFormat#ENCODING_PCM_8BIT
+         * <p>It has to ensure the combination of sample rate, channel count and audio format is
+         * supported by {@link AudioSource#isSettingsSupported(int, int, int)}.
+         *
          * @see AudioFormat#ENCODING_PCM_16BIT
-         * @see AudioFormat#ENCODING_PCM_FLOAT
          */
         @NonNull
         public Builder setAudioFormat(int audioFormat) {
@@ -393,22 +424,10 @@ public final class AudioSource {
             return this;
         }
 
-        /**
-         * Sets the default buffer size.
-         *
-         * <p>AudioSource will try to generate a buffer size. But if it is unable to get one,
-         * it will apply this default buffer size.
-         */
-        @NonNull
-        public Builder setDefaultBufferSize(int bufferSize) {
-            mDefaultBufferSize = bufferSize;
-            return this;
-        }
-
         /** Sets the {@link BufferProvider}. */
         @NonNull
         public Builder setBufferProvider(@NonNull BufferProvider<InputBuffer> bufferProvider) {
-            mBufferProvider = bufferProvider;
+            mBufferProvider = Preconditions.checkNotNull(bufferProvider);
             return this;
         }
 
@@ -416,13 +435,39 @@ public final class AudioSource {
         @RequiresPermission(Manifest.permission.RECORD_AUDIO)
         @NonNull
         public AudioSource build() throws AudioSourceAccessException {
+            String missing = "";
+            if (mExecutor == null) {
+                missing += " executor";
+            }
+            if (mBufferProvider == null) {
+                missing += " bufferProvider";
+            }
+            if (mAudioSource == -1) {
+                missing += " audioSource";
+            }
+            if (mSampleRate == -1) {
+                missing += " sampleRate";
+            }
+            if (mChannelCount == -1) {
+                missing += " channelCount";
+            }
+            if (mAudioFormat == -1) {
+                missing += " audioFormat";
+            }
+            if (!missing.isEmpty()) {
+                throw new IllegalStateException("Missing required properties:" + missing);
+            }
+            if (!isSettingsSupported(mSampleRate, mChannelCount, mAudioFormat)) {
+                throw new IllegalStateException(String.format("The combination of sample rate %d "
+                                + ", channel count %d and audio format %d is not supported.",
+                        mSampleRate, mChannelCount, mAudioFormat));
+            }
             return new AudioSource(mExecutor,
                     mBufferProvider,
                     mAudioSource,
                     mSampleRate,
-                    mChannelConfig,
-                    mAudioFormat,
-                    mDefaultBufferSize
+                    mChannelCount,
+                    mAudioFormat
             );
         }
     }

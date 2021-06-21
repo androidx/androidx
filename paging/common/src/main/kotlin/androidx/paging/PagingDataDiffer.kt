@@ -21,11 +21,16 @@ import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.PageEvent.Drop
+import androidx.paging.PageEvent.Insert
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
@@ -41,6 +46,7 @@ public abstract class PagingDataDiffer<T : Any>(
     private var receiver: UiReceiver? = null
     private val combinedLoadStates = MutableLoadStateCollection()
     private val loadStateListeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
+    private val onPagesUpdatedListeners = CopyOnWriteArrayList<() -> Unit>()
 
     private val collectFromRunner = SingleRunner()
 
@@ -128,8 +134,8 @@ public abstract class PagingDataDiffer<T : Any>(
 
             // TODO: Validate only empty pages between separator pages and its dependent pages.
             pagingData.flow.collect { event ->
-                withContext<Unit>(mainDispatcher) {
-                    if (event is PageEvent.Insert && event.loadType == REFRESH) {
+                withContext(mainDispatcher) {
+                    if (event is Insert && event.loadType == REFRESH) {
                         lastAccessedIndexUnfulfilled = false
 
                         val newPresenter = PagePresenter(event)
@@ -185,13 +191,13 @@ public abstract class PagingDataDiffer<T : Any>(
 
                         // Reset lastAccessedIndexUnfulfilled if a page is dropped, to avoid
                         // infinite loops when maxSize is insufficiently large.
-                        if (event is PageEvent.Drop) {
+                        if (event is Drop) {
                             lastAccessedIndexUnfulfilled = false
                         }
 
                         // If index points to a placeholder after transformations, resend it unless
                         // there are no more items to load.
-                        if (event is PageEvent.Insert) {
+                        if (event is Insert) {
                             val prependDone =
                                 event.combinedLoadStates.prepend.endOfPaginationReached
                             val appendDone = event.combinedLoadStates.append.endOfPaginationReached
@@ -228,6 +234,15 @@ public abstract class PagingDataDiffer<T : Any>(
                                 }
                             }
                         }
+                    }
+
+                    // Notify page updates after presenter processes them.
+                    //
+                    // Note: This is not redundant with LoadStates because it does not de-dupe
+                    // in cases where LoadState does not change, which would happen on cached
+                    // PagingData collections.
+                    if (event is Insert || event is Drop) {
+                        onPagesUpdatedListeners.forEach { it() }
                     }
                 }
             }
@@ -321,10 +336,70 @@ public abstract class PagingDataDiffer<T : Any>(
     public val loadStateFlow: Flow<CombinedLoadStates>
         get() = _combinedLoadState
 
+    private val _onPagesUpdatedFlow: MutableSharedFlow<Unit> = MutableSharedFlow(
+        replay = 0,
+        extraBufferCapacity = 64,
+        onBufferOverflow = DROP_OLDEST,
+    )
+
+    /**
+     * A hot [Flow] that emits after the pages presented to the UI are updated, even if the
+     * actual items presented don't change.
+     *
+     * An update is triggered from one of the following:
+     *   * [collectFrom] is called and initial load completes, regardless of any differences in
+     *     the loaded data
+     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is inserted
+     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is dropped
+     *
+     * Note: This is a [SharedFlow][kotlinx.coroutines.flow.SharedFlow] configured to replay
+     * 0 items with a buffer of size 64. If a collector lags behind page updates, it may
+     * trigger multiple times for each intermediate update that was presented while your collector
+     * was still working. To avoid this behavior, you can
+     * [conflate][kotlinx.coroutines.flow.conflate] this [Flow] so that you only receive the latest
+     * update, which is useful in cases where you are simply updating UI and don't care about
+     * tracking the exact number of page updates.
+     */
+    public val onPagesUpdatedFlow: Flow<Unit>
+        get() = _onPagesUpdatedFlow.asSharedFlow()
+
     init {
+        addOnPagesUpdatedListener {
+            _onPagesUpdatedFlow.tryEmit(Unit)
+        }
+
         addLoadStateListener {
             _combinedLoadState.value = it
         }
+    }
+
+    /**
+     * Add a listener which triggers after the pages presented to the UI are updated, even if the
+     * actual items presented don't change.
+     *
+     * An update is triggered from one of the following:
+     *   * [collectFrom] is called and initial load completes, regardless of any differences in
+     *     the loaded data
+     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is inserted
+     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is dropped
+     *
+     * @param listener called after pages presented are updated.
+     *
+     * @see removeOnPagesUpdatedListener
+     */
+    public fun addOnPagesUpdatedListener(listener: () -> Unit) {
+        onPagesUpdatedListeners.add(listener)
+    }
+
+    /**
+     * Remove a previously registered listener for updates to presented pages.
+     *
+     * @param listener Previously registered listener.
+     *
+     * @see addOnPagesUpdatedListener
+     */
+    public fun removeOnPagesUpdatedListener(listener: () -> Unit) {
+        onPagesUpdatedListeners.remove(listener)
     }
 
     /**

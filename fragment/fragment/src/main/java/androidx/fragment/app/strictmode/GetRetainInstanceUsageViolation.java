@@ -25,4 +25,10 @@ public final class GetRetainInstanceUsageViolation extends RetainInstanceUsageVi
     GetRetainInstanceUsageViolation(@NonNull Fragment fragment) {
         super(fragment);
     }
+
+    @NonNull
+    @Override
+    public String getMessage() {
+        return "Attempting to get retain instance for fragment " + mFragment;
+    }
 }

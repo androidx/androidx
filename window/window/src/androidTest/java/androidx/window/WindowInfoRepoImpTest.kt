@@ -41,15 +41,13 @@ public class WindowInfoRepoImpTest {
     @Test
     public fun testGetCurrentWindowMetrics() {
         activityScenario.scenario.onActivity { testActivity ->
-            val windowBoundsHelper = WindowBoundsHelper.instance
             val repo = WindowInfoRepoImp(
                 testActivity,
-                windowBoundsHelper,
+                WindowMetricsCalculatorCompat,
                 FakeWindowBackend()
             )
-            val expectedBounds = windowBoundsHelper.computeCurrentWindowBounds(testActivity)
-            val expected = WindowMetrics(expectedBounds)
-            val actual = repo.currentWindowMetrics()
+            val expected = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(testActivity)
+            val actual = repo.currentWindowMetrics
             assertEquals(expected, actual)
         }
     }
@@ -57,15 +55,13 @@ public class WindowInfoRepoImpTest {
     @Test
     public fun testGetMaximumWindowMetrics() {
         activityScenario.scenario.onActivity { testActivity ->
-            val windowBoundsHelper = WindowBoundsHelper.instance
             val repo = WindowInfoRepoImp(
                 testActivity,
-                windowBoundsHelper,
+                WindowMetricsCalculatorCompat,
                 FakeWindowBackend()
             )
-            val expectedBounds = windowBoundsHelper.computeMaximumWindowBounds(testActivity)
-            val expected = WindowMetrics(expectedBounds)
-            val actual = repo.maximumWindowMetrics()
+            val expected = WindowMetricsCalculatorCompat.computeMaximumWindowMetrics(testActivity)
+            val actual = repo.maximumWindowMetrics
             assertEquals(expected, actual)
         }
     }
@@ -73,16 +69,16 @@ public class WindowInfoRepoImpTest {
     @Test
     public fun testWindowLayoutFeatures(): Unit = testScope.runBlockingTest {
         activityScenario.scenario.onActivity { testActivity ->
-            val windowBoundsHelper = WindowBoundsHelper.instance
+            val windowMetricsCalculator = WindowMetricsCalculatorCompat
             val fakeBackend = FakeWindowBackend()
             val repo = WindowInfoRepoImp(
                 testActivity,
-                windowBoundsHelper,
+                windowMetricsCalculator,
                 fakeBackend
             )
             val collector = TestConsumer<WindowLayoutInfo>()
             testScope.launch {
-                repo.windowLayoutInfo().collect(collector::accept)
+                repo.windowLayoutInfo.collect(collector::accept)
             }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
             collector.assertValue(WindowLayoutInfo(emptyList()))

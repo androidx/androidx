@@ -1068,7 +1068,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
 
     @Test
     @LargeTest
-    @FlakyTest(bugId = 188565856)
+    @FlakyTest(bugId = 179887413)
     public void testPageScrollPositionChangesSwipe() {
         // Swipe one page to the left
         verifyScrollCallbacksToHigherPage(ViewPagerActions.wrap(swipeLeft()), 1);
@@ -1080,9 +1080,9 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         verifyScrollCallbacksToLowerPage(ViewPagerActions.wrap(swipeRight()), 0);
     }
 
-    @FlakyTest(bugId = 38260187)
     @Test
     @LargeTest
+    @FlakyTest(bugId = 179887413)
     public void testKeyboardNavigation() {
         ButtonPagerAdapter adapter = new ButtonPagerAdapter();
         adapter.add("Red", Color.RED);

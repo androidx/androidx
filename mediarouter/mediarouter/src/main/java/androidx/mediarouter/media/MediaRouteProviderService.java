@@ -56,7 +56,6 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_VERS
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
 import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
 
-import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -180,8 +179,6 @@ public abstract class MediaRouteProviderService extends Service {
     /**
      * Creates a media route provider service.
      */
-    //TODO: Remove SuppressLint when R version is finalized.
-    @SuppressLint("NewApi")
     public MediaRouteProviderService() {
         mReceiveHandler = new ReceiveHandler(this);
         mReceiveMessenger = new Messenger(mReceiveHandler);

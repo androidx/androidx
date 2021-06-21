@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.VisibleForTesting
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
@@ -230,7 +231,8 @@ internal class PageFetcher<Key : Any, Value : Any>(
     }
 
     inner class PagerUiReceiver<Key : Any, Value : Any> constructor(
-        private val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
         private val retryEventBus: ConflatedEventBus<Unit>
     ) : UiReceiver {
         override fun accessHint(viewportHint: ViewportHint) {

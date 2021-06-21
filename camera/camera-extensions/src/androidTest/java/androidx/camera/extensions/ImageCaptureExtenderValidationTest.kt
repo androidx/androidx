@@ -43,6 +43,7 @@ import java.util.concurrent.TimeoutException
 
 @SmallTest
 @RunWith(Parameterized::class)
+@Suppress("DEPRECATION")
 class ImageCaptureExtenderValidationTest(
     @field:Mode @param:Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
@@ -53,13 +54,13 @@ class ImageCaptureExtenderValidationTest(
     private val effectMode: ExtensionsManager.EffectMode =
         ExtensionsTestUtil.extensionModeToEffectMode(extensionMode)
 
-    private lateinit var extensionsInfo: ExtensionsInfo
     private lateinit var cameraProvider: ProcessCameraProvider
+
+    private lateinit var extensionsManager: ExtensionsManager
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        ExtensionsTestUtil.assumeCompatibleDevice()
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         Assume.assumeTrue(
             CameraUtil.hasCameraWithLensFacing(
@@ -67,12 +68,10 @@ class ImageCaptureExtenderValidationTest(
             )
         )
 
-        Assume.assumeTrue(ExtensionsTestUtil.initExtensions(context))
-        extensionsInfo = ExtensionsManager.getExtensionsInfo(context)
-
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         Assume.assumeTrue(
-            extensionsInfo.isExtensionAvailable(
+            extensionsManager.isExtensionAvailable(
                 cameraProvider,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
                 extensionMode
@@ -88,9 +87,12 @@ class ImageCaptureExtenderValidationTest(
     )
     fun cleanUp() {
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown().get(10000, TimeUnit.MILLISECONDS)
+            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
-        ExtensionsManager.deinit()[10000, TimeUnit.MILLISECONDS]
+
+        if (::extensionsManager.isInitialized) {
+            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+        }
     }
 
     companion object {
@@ -130,5 +132,26 @@ class ImageCaptureExtenderValidationTest(
         // API level is older than 28.
         val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(effectMode, lensFacing)
         assertThat(impl.onPresetSession()).isNull()
+    }
+
+    @Test
+    @Throws(
+        CameraInfoUnavailableException::class,
+        CameraAccessException::class
+    )
+    fun getEstimatedCaptureLatencyRangeTest() {
+        // getEstimatedCaptureLatencyRange supported since version 1.2
+        Assume.assumeTrue(
+            ExtensionVersion.getRuntimeVersion()!!.compareTo(Version.VERSION_1_2) >= 0
+        )
+        Assume.assumeTrue(ExtensionsManager.isExtensionAvailable(effectMode, lensFacing))
+
+        // Creates the ImageCaptureExtenderImpl to retrieve the estimated capture latency range
+        // from vendor library for the target effect mode.
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(effectMode, lensFacing)
+
+        // NoSuchMethodError will be thrown if getEstimatedCaptureLatencyRange is not implemented
+        // in vendor library, and then the test will fail.
+        impl.getEstimatedCaptureLatencyRange(null)
     }
 }

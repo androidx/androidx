@@ -34,7 +34,9 @@ internal class Camera2CameraDevices @Inject constructor(
     override fun findAll(): List<CameraId> = runBlocking { deviceCache.getCameras() }
     override suspend fun ids(): List<CameraId> = deviceCache.getCameras()
 
-    override suspend fun getMetadata(camera: CameraId): CameraMetadata = metadataCache.get(camera)
+    override suspend fun getMetadata(camera: CameraId): CameraMetadata =
+        metadataCache.getMetadata(camera)
+
     override fun awaitMetadata(camera: CameraId): CameraMetadata =
         metadataCache.awaitMetadata(camera)
 }

@@ -2,18 +2,22 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "7.0.0-alpha15"
+androidGradlePlugin = "7.1.0-alpha02"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "30.0.0-alpha15"
+androidLint = "30.1.0-alpha02"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudio = "2020.3.1.15"
+androidStudio = "2021.1.1.2"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "26.3.0"
-androidxTest = "1.3.0"
-androidxTestExt = "1.1.2"
+# Compose 1.0 stable is aligned with AGP 7.0 / Lint 30.0.0 stable - so we use a higher min to
+# compile against as we don't need to maintain compatibility with older versions of Lint.
+# TODO: update to 30.0.0 stable when it is released
+androidLintMinCompose = "30.0.0-alpha15"
+androidxTest = "1.4.0-beta01"
+androidxTestExt = "1.1.3-beta01"
 autoService = "1.0-rc6"
 autoValue = "1.6.3"
 dexmaker = "2.25.0"
@@ -21,11 +25,12 @@ espresso = "3.3.0"
 hilt = "2.36"
 incap = "0.2"
 kotlin = "1.5.10"
-kotlinCompileTesting = "1.4.0"
-kotlinCoroutines = "1.4.3"
-ksp = "1.5.0-1.0.0-alpha10"
+kotlinCompileTesting = "1.4.1"
+kotlinCoroutines = "1.5.0"
+ksp = "1.5.10-1.0.0-beta01"
 leakcanary = "2.2"
 mockito = "2.25.0"
+skiko = "0.3.3"
 sqldelight = "1.3.0"
 wire = "3.6.0"
 
@@ -35,6 +40,8 @@ androidLint = { module = "com.android.tools.lint:lint", version.ref = "androidLi
 androidLintMin = { module = "com.android.tools.lint:lint", version.ref = "androidLintMin" }
 androidLintApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLint" }
 androidLintMinApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLintMin" }
+androidLintMinComposeApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLintMinCompose" }
+androidLintChecks = { module = "com.android.tools.lint:lint-checks", version.ref = "androidLint" }
 androidLintTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLint" }
 autoCommon = { module = "com.google.auto:auto-common", version = "0.11" }
 autoServiceAnnotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "autoService" }
@@ -46,6 +53,7 @@ antlr4 = { module = "org.antlr:antlr4", version = "4.7.1" }
 apacheCommonsCodec = { module = "commons-codec:commons-codec", version = "1.10" }
 assertj = { module = "org.assertj:assertj-core", version = "3.11.1" }
 checkerframework = { module = "org.checkerframework:checker-qual", version = "2.5.3" }
+constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.0.1"}
 dagger = { module = "com.google.dagger:dagger-compiler", version = "2.35" }
 dexmakerMockito = { module = "com.linkedin.dexmaker:dexmaker-mockito", version.ref = "dexmaker" }
 dexmakerMockitoInline = { module = "com.linkedin.dexmaker:dexmaker-mockito-inline", version.ref = "dexmaker" }
@@ -78,6 +86,7 @@ guavaListenableFuture = { module = "com.google.guava:listenablefuture", version 
 gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "incap" }
 gradleIncapHelperProcessor = { module = "net.ltgt.gradle.incap:incap-processor", version.ref = "incap" }
 kotlinAnnotationProcessingEmbeddable = { module = "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable", version.ref = "kotlin" }
+kotlinCompiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
 kotlinCompilerEmbeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlinCompileTesting = { module = "com.github.tschuchortdev:kotlin-compile-testing", version.ref = "kotlinCompileTesting" }
 kotlinCompileTestingKsp = { module = "com.github.tschuchortdev:kotlin-compile-testing-ksp", version.ref = "kotlinCompileTesting" }
@@ -89,7 +98,7 @@ kotlinCoroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test
 kotlinCoroutinesRx2 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx2", version.ref = "kotlinCoroutines" }
 kotlinCoroutinesRx3 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3", version.ref = "kotlinCoroutines" }
 kotlinDaemonEmbeddable = { module = "org.jetbrains.kotlin:kotlin-daemon-embeddable", version.ref = "kotlin" }
-kotlinMetadataJvm = { module = "org.jetbrains.kotlinx:kotlinx-metadata-jvm", version = "0.2.0" }
+kotlinMetadataJvm = { module = "org.jetbrains.kotlinx:kotlinx-metadata-jvm", version = "0.3.0" }
 kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlinStdlibCommon = { module = "org.jetbrains.kotlin:kotlin-stdlib-common", version.ref = "kotlin" }
 kotlinStdlibJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
@@ -108,7 +117,7 @@ kspGradlePlugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-p
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 leakcanaryInstrumentation = { module = "com.squareup.leakcanary:leakcanary-android-instrumentation", version.ref = "leakcanary" }
 material = { module = "com.google.android.material:material", version = "1.2.1" }
-mlkitBarcode = { module = "com.google.android.gms:play-services-mlkit-barcode-scanning", version = "16.1.4" }
+mlkitBarcode = { module = "com.google.mlkit:barcode-scanning", version = "16.1.1" }
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockitoAndroid = { module = "org.mockito:mockito-android", version.ref = "mockito" }
 mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version = "2.1.0" }
@@ -124,12 +133,18 @@ protobufGradlePlugin = { module = "com.google.protobuf:protobuf-gradle-plugin", 
 protobufLite = { module = "com.google.protobuf:protobuf-javalite", version = "3.10.0" }
 reactiveStreams = { module = "org.reactivestreams:reactive-streams", version = "1.0.0" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version = "2.7.2" }
-robolectric = { module = "org.robolectric:robolectric", version = "4.4-alpha-2" }
+robolectric = { module = "org.robolectric:robolectric", version = "4.5.1" }
 rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version = "2.2.9" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version = "3.0.0" }
 shadow = { module = "com.github.jengelman.gradle.plugins:shadow", version = "6.1.0" }
+skiko = { module = "org.jetbrains.skiko:skiko-jvm", version.ref = "skiko" }
+skikoMacOsArm64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-macos-arm64", version.ref = "skiko" }
+skikoMacOsX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-macos-x64", version.ref = "skiko" }
+skikoWindowsX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-windows-x64", version.ref = "skiko" }
+skikoLinuxX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-linux-x64", version.ref = "skiko" }
 sqldelightAndroid = { module = "com.squareup.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelightCoroutinesExt = { module = "com.squareup.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+sqliteJdbc = { module = "org.xerial:sqlite-jdbc", version = "3.34.0" }
 testCore = { module = "androidx.test:core", version.ref = "androidxTest" }
 testExtJunit = { module = "androidx.test.ext:junit", version.ref = "androidxTestExt" }
 testExtJunitKtx = { module = "androidx.test.ext:junit-ktx", version.ref = "androidxTestExt" }
@@ -142,6 +157,5 @@ truth = { module = "com.google.truth:truth", version = "1.0.1" }
 viewBinding = { module = "androidx.databinding:viewbinding", version = "4.1.2" }
 wireGradlePlugin = { module = "com.squareup.wire:wire-gradle-plugin", version.ref = "wire" }
 wireRuntime = { module = "com.squareup.wire:wire-runtime", version.ref = "wire" }
-xerial = { module = "org.xerial:sqlite-jdbc", version = "3.25.2" }
 xpp3 = { module = "xpp3:xpp3", version = "1.1.4c" }
 xmlpull = { module = "xmlpull:xmlpull", version = "1.1.3.1" }

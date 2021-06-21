@@ -22,6 +22,7 @@ import androidx.navigation.test.intArgument
 import androidx.navigation.test.longArgument
 import androidx.navigation.test.referenceArgument
 import androidx.navigation.test.stringArgument
+import androidx.navigation.test.stringArrayArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -35,6 +36,7 @@ private val intArgumentWithDefault = "intArg" to intArgument(123)
 private val longArgumentWithDefault = "longArg" to longArgument(123L)
 private val floatArgumentWithDefault = "floatArg" to floatArgument(123f)
 private val referenceArgumentWithDefault = "referenceArg" to referenceArgument(123)
+private val stringArrayArgumentWithDefault = "stringArrayArg" to stringArrayArgument(null)
 
 @SmallTest
 @RunWith(Parameterized::class)
@@ -60,7 +62,9 @@ class AddInDefaultArgsTest(
                 // Test with arguments that have default values (long)
                 mapOf(stringArgumentWithDefault, floatArgumentWithDefault),
                 // Test with arguments that have default values (reference)
-                mapOf(stringArgumentWithDefault, referenceArgumentWithDefault)
+                mapOf(stringArgumentWithDefault, referenceArgumentWithDefault),
+                // Test with arguments that have default values (string array)
+                mapOf(stringArgumentWithDefault, stringArrayArgumentWithDefault)
 
             ).forEach { arguments: Map<String, NavArgument> ->
                 // Run with a null Bundle

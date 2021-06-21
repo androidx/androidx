@@ -495,12 +495,6 @@ MissingNullability: androidx.core.content.ContentResolverCompat#query(android.co
     Missing nullability on parameter `sortOrder` in method `query`
 MissingNullability: androidx.core.content.ContentResolverCompat#query(android.content.ContentResolver, android.net.Uri, String[], String, String[], String, androidx.core.os.CancellationSignal) parameter #6:
     Missing nullability on parameter `cancellationSignal` in method `query`
-MissingNullability: androidx.core.content.ContextCompat#getCodeCacheDir(android.content.Context):
-    Missing nullability on method `getCodeCacheDir` return
-MissingNullability: androidx.core.content.ContextCompat#getMainExecutor(android.content.Context):
-    Missing nullability on method `getMainExecutor` return
-MissingNullability: androidx.core.content.ContextCompat#getMainExecutor(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `getMainExecutor`
 MissingNullability: androidx.core.content.FileProvider#getType(android.net.Uri):
     Missing nullability on method `getType` return
 MissingNullability: androidx.core.content.FileProvider#getUriForFile(android.content.Context, String, java.io.File):
@@ -1401,12 +1395,6 @@ MissingNullability: androidx.core.view.animation.PathInterpolatorCompat#create(f
     Missing nullability on method `create` return
 MissingNullability: androidx.core.view.animation.PathInterpolatorCompat#create(float, float, float, float):
     Missing nullability on method `create` return
-MissingNullability: androidx.core.view.inputmethod.EditorInfoCompat#getContentMimeTypes(android.view.inputmethod.EditorInfo) parameter #0:
-    Missing nullability on parameter `editorInfo` in method `getContentMimeTypes`
-MissingNullability: androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener#onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inputContentInfo` in method `onCommitContent`
-MissingNullability: androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener#onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `opts` in method `onCommitContent`
 MissingNullability: androidx.core.widget.AutoScrollHelper#onTouch(android.view.View, android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `v` in method `onTouch`
 MissingNullability: androidx.core.widget.AutoScrollHelper#onTouch(android.view.View, android.view.MotionEvent) parameter #1:
@@ -1525,6 +1513,8 @@ NullableCollection: androidx.core.view.ViewCompat#getOnReceiveContentMimeTypes(a
     Return type of method androidx.core.view.ViewCompat.getOnReceiveContentMimeTypes(android.view.View) is a nullable collection (`java.lang.String[]`); must be non-null
 NullableCollection: androidx.core.view.accessibility.AccessibilityNodeProviderCompat#findAccessibilityNodeInfosByText(String, int):
     Return type of method androidx.core.view.accessibility.AccessibilityNodeProviderCompat.findAccessibilityNodeInfosByText(String,int) is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener#onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle) parameter #2:
+    Type of parameter opts in androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener.onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat inputContentInfo, int flags, android.os.Bundle opts) is a nullable collection (`android.os.Bundle`); must be non-null
 
 
 OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #0:
@@ -1585,7 +1575,3 @@ VisiblySynchronized: androidx.core.os.CancellationSignal#isCanceled():
     Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.isCanceled()
 VisiblySynchronized: androidx.core.os.CancellationSignal#setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener):
     Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener)
-VisiblySynchronized: androidx.core.widget.ContentLoadingProgressBar#hide():
-    Internal locks must not be exposed: method androidx.core.widget.ContentLoadingProgressBar.hide()
-VisiblySynchronized: androidx.core.widget.ContentLoadingProgressBar#show():
-    Internal locks must not be exposed: method androidx.core.widget.ContentLoadingProgressBar.show()

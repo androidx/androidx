@@ -16,7 +16,6 @@
 
 package androidx.car.app.sample.navigation.common.car;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -36,7 +35,7 @@ import androidx.lifecycle.LifecycleOwner;
 /**
  * Entry point for the templated app.
  *
- * <p>{@link CarAppService} is the main interface between the app and Android Auto. For more
+ * <p>{@link CarAppService} is the main interface between the app and the car host. For more
  * details, see the <a href="https://developer.android.com/training/cars/navigation">Android for
  * Cars Library developer guide</a>.
  */
@@ -97,7 +96,6 @@ public final class NavigationCarAppService extends CarAppService {
         }
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     private void createNotificationChannel() {
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

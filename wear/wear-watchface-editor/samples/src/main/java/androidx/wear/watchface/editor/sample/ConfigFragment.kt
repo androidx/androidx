@@ -84,8 +84,8 @@ internal class ConfigFragment : Fragment() {
 
     private fun initConfigOptions() {
         val editingSession = watchFaceConfigActivity.editorSession
-        val hasBackgroundComplication = editingSession.backgroundComplicationId != null
-        val numComplications = editingSession.complicationsState.size
+        val hasBackgroundComplication = editingSession.backgroundComplicationSlotId != null
+        val numComplications = editingSession.complicationSlotsState.size
         val hasNonBackgroundComplication =
             numComplications > if (hasBackgroundComplication) 1 else 0
         val configOptions = ArrayList<ConfigOption>()
@@ -150,7 +150,7 @@ internal class ConfigFragment : Fragment() {
             val providerInfoRetriever = ProviderInfoRetriever(activity as WatchFaceConfigActivity)
             val infoArray = providerInfoRetriever.retrieveProviderInfo(
                 watchFaceConfigActivity.editorSession.watchFaceComponentName,
-                intArrayOf(watchFaceConfigActivity.editorSession.backgroundComplicationId!!)
+                intArrayOf(watchFaceConfigActivity.editorSession.backgroundComplicationSlotId!!)
             )
             infoArray?.let {
                 it[0].info?.apply {
@@ -176,7 +176,7 @@ internal class ConfigFragment : Fragment() {
             Constants.KEY_BACKGROUND_IMAGE_SETTINGS -> {
                 watchFaceConfigActivity.coroutineScope.launch {
                     watchFaceConfigActivity.fragmentController.showComplicationConfig(
-                        editingSession.backgroundComplicationId!!
+                        editingSession.backgroundComplicationSlotId!!
                     )
                 }
             }

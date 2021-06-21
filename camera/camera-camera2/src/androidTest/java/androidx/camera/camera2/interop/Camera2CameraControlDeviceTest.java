@@ -25,7 +25,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Rect;
@@ -36,7 +35,6 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.MeteringRectangle;
-import android.util.Range;
 
 import androidx.annotation.OptIn;
 import androidx.camera.camera2.Camera2Config;
@@ -52,7 +50,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -60,6 +57,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
@@ -72,7 +70,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2CameraControlDeviceTest {
-    private static final Range<Integer> FAKE_RANGE = new Range<>(0, 30);
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraSelector mCameraSelector;
     private CameraCaptureSession.CaptureCallback mMockCaptureCallback =
@@ -83,8 +80,7 @@ public final class Camera2CameraControlDeviceTest {
     private Camera2CameraControlImpl mCamera2CameraControlImpl;
 
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
     @Before
     public void setUp() {
@@ -115,14 +111,16 @@ public final class Camera2CameraControlDeviceTest {
         bindUseCase();
         CaptureRequestOptions.Builder builder = new CaptureRequestOptions.Builder()
                 .setCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, FAKE_RANGE)
+                        CaptureRequest.CONTROL_CAPTURE_INTENT,
+                        CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL)
                 .setCaptureRequestOption(
                         CaptureRequest.COLOR_CORRECTION_MODE,
                         CameraMetadata.COLOR_CORRECTION_MODE_FAST);
         mCamera2CameraControl.setCaptureRequestOptions(builder.build());
 
         assertThat(mCamera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
-                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, null)).isEqualTo(FAKE_RANGE);
+                CaptureRequest.CONTROL_CAPTURE_INTENT, null)).isEqualTo(
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
         assertThat(mCamera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
                 CaptureRequest.COLOR_CORRECTION_MODE, null)).isEqualTo(
                 CameraMetadata.COLOR_CORRECTION_MODE_FAST);
@@ -131,25 +129,29 @@ public final class Camera2CameraControlDeviceTest {
     @Test
     public void canSubmitCaptureRequestOptions_beforeBinding() {
         ListenableFuture<Void> future = updateCamera2Option(
-                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, FAKE_RANGE);
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
         bindUseCase();
 
         assertFutureCompletes(future);
 
         verifyCaptureRequestParameter(mMockCaptureCallback,
-                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, FAKE_RANGE);
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
     }
 
     @Test
     public void canSubmitCaptureRequestOptions_afterBinding() {
         bindUseCase();
         ListenableFuture<Void> future = updateCamera2Option(
-                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, FAKE_RANGE);
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
 
         assertFutureCompletes(future);
 
         verifyCaptureRequestParameter(mMockCaptureCallback,
-                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, FAKE_RANGE);
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
     }
 
     @Test
@@ -157,7 +159,8 @@ public final class Camera2CameraControlDeviceTest {
         bindUseCase();
         CaptureRequestOptions.Builder builder = new CaptureRequestOptions.Builder()
                 .setCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, FAKE_RANGE)
+                        CaptureRequest.CONTROL_CAPTURE_INTENT,
+                        CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL)
                 .setCaptureRequestOption(CaptureRequest.COLOR_CORRECTION_MODE,
                         CameraMetadata.COLOR_CORRECTION_ABERRATION_MODE_OFF);
 
@@ -173,7 +176,8 @@ public final class Camera2CameraControlDeviceTest {
         assertFutureCompletes(future);
 
         assertThat(mCamera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
-                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, null)).isEqualTo(FAKE_RANGE);
+                CaptureRequest.CONTROL_CAPTURE_INTENT, null)).isEqualTo(
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
         assertThat(mCamera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
                 CaptureRequest.COLOR_CORRECTION_MODE, null)).isEqualTo(null);
 
@@ -183,7 +187,8 @@ public final class Camera2CameraControlDeviceTest {
                 any(CameraCaptureSession.class),
                 captureRequest.capture(), any(TotalCaptureResult.class));
         CaptureRequest request = captureRequest.getValue();
-        assertThat(request.get(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE)).isEqualTo(FAKE_RANGE);
+        assertThat(request.get(CaptureRequest.CONTROL_CAPTURE_INTENT)).isEqualTo(
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
         assertThat(request.get(CaptureRequest.COLOR_CORRECTION_MODE)).isNotEqualTo(
                 CameraMetadata.COLOR_CORRECTION_ABERRATION_MODE_OFF);
     }
