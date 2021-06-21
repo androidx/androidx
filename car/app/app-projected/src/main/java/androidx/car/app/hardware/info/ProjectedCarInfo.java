@@ -36,7 +36,7 @@ public class ProjectedCarInfo implements CarInfo {
 
     private final CarResultStub<Model> mModelCarResultStub;
     private final CarResultStub<EnergyProfile> mEnergyProfileCarResultStub;
-    private final CarResultStub<Toll> mTollCarResultStub;
+    private final CarResultStub<TollCard> mTollCarResultStub;
     private final CarResultStub<EnergyLevel> mEnergyLevelCarResultStub;
     private final CarResultStub<Speed> mSpeedCarResultStub;
     private final CarResultStub<Mileage> mMileageCarResultStub;
@@ -49,7 +49,7 @@ public class ProjectedCarInfo implements CarInfo {
                         null, /* isSingleShot= */ true, new EnergyProfile.Builder().build(),
                         hostDispatcher);
         mTollCarResultStub = new CarResultStub<>(ICarHardwareResultTypes.TYPE_INFO_TOLL, null,
-                /* isSingleShot= */ false, new Toll.Builder().build(), hostDispatcher);
+                /* isSingleShot= */ false, new TollCard.Builder().build(), hostDispatcher);
         mEnergyLevelCarResultStub =
                 new CarResultStub<>(ICarHardwareResultTypes.TYPE_INFO_ENERGY_LEVEL,
                         null, /* isSingleShot= */ false, new EnergyLevel.Builder().build(),
@@ -75,12 +75,12 @@ public class ProjectedCarInfo implements CarInfo {
 
     @Override
     public void addTollListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<Toll> listener) {
+            @NonNull OnCarDataListener<TollCard> listener) {
         mTollCarResultStub.addListener(executor, listener);
     }
 
     @Override
-    public void removeTollListener(@NonNull OnCarDataListener<Toll> listener) {
+    public void removeTollListener(@NonNull OnCarDataListener<TollCard> listener) {
         mTollCarResultStub.removeListener(listener);
     }
 

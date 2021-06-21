@@ -48,12 +48,12 @@ public class AutomotiveCarInfo implements CarInfo {
 
     @Override
     public void addTollListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<Toll> listener) {
+            @NonNull OnCarDataListener<TollCard> listener) {
 
     }
 
     @Override
-    public void removeTollListener(@NonNull OnCarDataListener<Toll> listener) {
+    public void removeTollListener(@NonNull OnCarDataListener<TollCard> listener) {
 
     }
 

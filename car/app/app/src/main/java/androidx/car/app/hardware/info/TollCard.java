@@ -34,13 +34,10 @@ import java.util.Objects;
 
 /**
  * Information about toll card capabilities in a car.
- *
- * @deprecated Use TollCard.
  */
 @CarProtocol
 @RequiresCarApi(3)
-@Deprecated
-public final class Toll {
+public final class TollCard {
 
     /**
      * Possible toll card states.
@@ -100,7 +97,7 @@ public final class Toll {
     @Override
     @NonNull
     public String toString() {
-        return "[ card state: " + mCardState + "]";
+        return "[ tollcard state: " + mCardState + "]";
     }
 
     @Override
@@ -113,24 +110,24 @@ public final class Toll {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof Toll)) {
+        if (!(other instanceof TollCard)) {
             return false;
         }
-        Toll otherToll = (Toll) other;
+        TollCard otherTollCard = (TollCard) other;
 
-        return Objects.equals(mCardState, otherToll.mCardState);
+        return Objects.equals(mCardState, otherTollCard.mCardState);
     }
 
-    Toll(Builder builder) {
+    TollCard(Builder builder) {
         mCardState = requireNonNull(builder.mCardState);
     }
 
     /** Constructs an empty instance, used by serialization code. */
-    private Toll() {
+    private TollCard() {
         mCardState = CarValue.UNIMPLEMENTED_INTEGER;
     }
 
-    /** A builder of {@link Toll}. */
+    /** A builder of {@link TollCard}. */
     public static final class Builder {
         CarValue<Integer> mCardState = CarValue.UNIMPLEMENTED_INTEGER;
 
@@ -146,11 +143,11 @@ public final class Toll {
         }
 
         /**
-         * Constructs the {@link Toll} defined by this builder.
+         * Constructs the {@link TollCard} defined by this builder.
          */
         @NonNull
-        public Toll build() {
-            return new Toll(this);
+        public TollCard build() {
+            return new TollCard(this);
         }
 
     }
