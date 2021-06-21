@@ -25,6 +25,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
+import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.ReportUsageRequest;
 import androidx.core.util.Preconditions;
 
@@ -101,6 +102,23 @@ public final class RequestToPlatformConverter {
         Preconditions.checkNotNull(jetpackRequest);
         return new android.app.appsearch.ReportUsageRequest.Builder(
                 jetpackRequest.getNamespace(), jetpackRequest.getDocumentId())
+                .setUsageTimestampMillis(jetpackRequest.getUsageTimestampMillis())
+                .build();
+    }
+
+    /**
+     * Translates a jetpack {@link androidx.appsearch.app.ReportSystemUsageRequest} into a platform
+     * {@link android.app.appsearch.ReportSystemUsageRequest}.
+     */
+    @NonNull
+    public static android.app.appsearch.ReportSystemUsageRequest toPlatformReportSystemUsageRequest(
+            @NonNull ReportSystemUsageRequest jetpackRequest) {
+        Preconditions.checkNotNull(jetpackRequest);
+        return new android.app.appsearch.ReportSystemUsageRequest.Builder(
+                jetpackRequest.getPackageName(),
+                jetpackRequest.getDatabaseName(),
+                jetpackRequest.getNamespace(),
+                jetpackRequest.getDocumentId())
                 .setUsageTimestampMillis(jetpackRequest.getUsageTimestampMillis())
                 .build();
     }
