@@ -18,6 +18,8 @@ package androidx.camera.extensions;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Range;
+import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -520,7 +522,7 @@ public final class ExtensionsManager {
         if (mExtensionsAvailability != ExtensionsAvailability.LIBRARY_AVAILABLE) {
             throw new IllegalArgumentException("This device doesn't support extensions function! "
                     + "isExtensionAvailable should be checked first before calling "
-                    + "getExtensionCameraSelector.");
+                    + "getExtensionEnabledCameraSelector.");
         }
 
         return ExtensionsInfo.getExtensionCameraSelectorAndInjectCameraConfig(cameraProvider,
@@ -547,6 +549,43 @@ public final class ExtensionsManager {
         }
 
         return ExtensionsInfo.isExtensionAvailable(cameraProvider, baseCameraSelector, mode);
+    }
+
+    /**
+     * Returns the estimated capture latency range in milliseconds for the target capture
+     * resolution.
+     *
+     * <p>This includes the time spent processing the multi-frame capture request along with any
+     * additional time for encoding of the processed buffer in the framework if necessary.
+     *
+     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
+     * @param cameraSelector The {@link CameraSelector} to find a camera which supports the
+     *                       specified extension mode.
+     * @param mode              The extension mode to check.
+     * @param surfaceResolution the surface resolution of the {@link ImageCapture} which will be
+     *                          used to take a picture. If the input value of this parameter is
+     *                          null or it is not included in the supported output sizes, the
+     *                          maximum capture output size is used to get the estimated range
+     *                          information.
+     * @return the range of estimated minimal and maximal capture latency in milliseconds.
+     * Returns null if no capture latency info can be provided.
+     * @throws IllegalArgumentException If this device doesn't support extensions function, or no
+     * camera can be found to support the specified extension mode.
+     */
+    @Nullable
+    public Range<Long> getEstimatedCaptureLatencyRange(@NonNull CameraProvider cameraProvider,
+            @NonNull CameraSelector cameraSelector, @ExtensionMode.Mode int mode,
+            @Nullable Size surfaceResolution) {
+        if (mode == ExtensionMode.NONE
+                || mExtensionsAvailability != ExtensionsAvailability.LIBRARY_AVAILABLE) {
+            throw new IllegalArgumentException(
+                    "No camera can be found to support the specified extensions mode! "
+                            + "isExtensionAvailable should be checked first before calling "
+                            + "getEstimatedCaptureLatencyRange.");
+        }
+
+        return ExtensionsInfo.getEstimatedCaptureLatencyRange(cameraProvider, cameraSelector, mode,
+                surfaceResolution);
     }
 
     @VisibleForTesting
