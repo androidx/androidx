@@ -19,10 +19,6 @@ package androidx.wear.phone.interactions.notifications
 import android.content.Context
 import android.os.Bundle
 import java.util.Objects
-import kotlin.collections.ArrayList
-import kotlin.collections.Collection
-import kotlin.collections.HashSet
-import kotlin.collections.MutableSet
 
 /**
  * Bridging configuration to be specified at runtime, to set tags for notifications that are exempt
@@ -65,7 +61,7 @@ public class BridgingConfig internal constructor(
 
     internal fun toBundle(context: Context): Bundle =
         Bundle().apply {
-            putString(EXTRA_ORIGINAL_PACKAGE, context.getPackageName())
+            putString(EXTRA_ORIGINAL_PACKAGE, context.packageName)
             putBoolean(EXTRA_BRIDGING_ENABLED, isBridgingEnabled)
             putStringArrayList(EXTRA_EXCLUDED_TAGS, excludedTags?.toList() as ArrayList<String>)
         }
@@ -88,15 +84,16 @@ public class BridgingConfig internal constructor(
             ", excludedTags=$excludedTags}"
     }
 
-    /** Builder for BridgingConfig. */
+    /**
+     * Builder for BridgingConfig. The set of excluded tags is empty, unless added with
+     * [addExcludedTag] or [addExcludedTags].
+     *
+     * @param context   The [Context] of the application requesting a BridgingConfig change.
+     * @param isBridgingEnabled Whether notification bridging is enabled in the configuration.
+     */
     public class Builder(context: Context, private val isBridgingEnabled: Boolean) {
-        private val packageName: String
-        private val excludedTags: MutableSet<String> = HashSet<String>()
-
-        // Initializes new instance of a Builder. By default the set of excluded tags is empty.
-        init {
-            packageName = context.packageName
-        }
+        private val packageName: String = context.packageName
+        private val excludedTags: MutableSet<String> = HashSet()
 
         /**
          * Adds a tag for which the bridging mode is the opposite as the default mode.
@@ -147,7 +144,7 @@ public class BridgingConfig internal constructor(
          * @return The Builder instance.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        // no getter needed for the builder, getter is provided in BridingConfig
+        // no getter needed for the builder, getter is provided in BridgingConfig
         public fun addExcludedTags(tags: Collection<String>): Builder {
             excludedTags.addAll(tags)
             return this
