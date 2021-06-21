@@ -27,6 +27,7 @@ readonly javaLibraryDirs=(
 #  "collection"
   "navigation"
   "paging"
+  "wear"
   "window"
 )
 readonly kotlinLibraryDirs=(
@@ -35,6 +36,7 @@ readonly kotlinLibraryDirs=(
 #  "collection"
   "navigation"
   "paging"
+  "wear"
   "window"
 )
 
