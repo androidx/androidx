@@ -16,8 +16,10 @@
 
 package androidx.security.identity;
 
+import android.icu.util.Calendar;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -31,6 +33,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.Collection;
 
 import javax.crypto.BadPaddingException;
@@ -268,5 +271,107 @@ class HardwareIdentityCredential extends IdentityCredential {
     public @NonNull
     int[] getAuthenticationDataUsageCount() {
         return mCredential.getAuthenticationDataUsageCount();
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private static class ApiImplS {
+        @DoNotInline
+        static void callSetAllowUsingExpiredKeys(
+                @NonNull android.security.identity.IdentityCredential credential,
+                boolean allowUsingExpiredKeys) {
+            credential.setAllowUsingExpiredKeys(allowUsingExpiredKeys);
+        }
+
+        @DoNotInline
+        static void callStoreStaticAuthenticationData(
+                @NonNull android.security.identity.IdentityCredential credential,
+                @NonNull X509Certificate authenticationKey,
+                @NonNull Instant expirationDate,
+                @NonNull byte[] staticAuthData)
+                throws android.security.identity.UnknownAuthenticationKeyException {
+            credential.storeStaticAuthenticationData(authenticationKey,
+                    expirationDate,
+                    staticAuthData);
+        }
+
+        @DoNotInline
+        static @NonNull byte[] callProveOwnership(
+                @NonNull android.security.identity.IdentityCredential credential,
+                @NonNull byte[] challenge) {
+            return credential.proveOwnership(challenge);
+        }
+
+        @DoNotInline
+        static @NonNull byte[] callDelete(
+                @NonNull android.security.identity.IdentityCredential credential,
+                @NonNull byte[] challenge) {
+            return credential.delete(challenge);
+        }
+
+        @DoNotInline
+        static @NonNull byte[] callUpdate(
+                @NonNull android.security.identity.IdentityCredential credential,
+                @NonNull android.security.identity.PersonalizationData personalizationData) {
+            return credential.update(personalizationData);
+        }
+    }
+
+    @Override
+    public void setAllowUsingExpiredKeys(boolean allowUsingExpiredKeys) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            ApiImplS.callSetAllowUsingExpiredKeys(mCredential, allowUsingExpiredKeys);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void storeStaticAuthenticationData(
+            @NonNull X509Certificate authenticationKey,
+            @NonNull Calendar expirationDate,
+            @NonNull byte[] staticAuthData)
+            throws UnknownAuthenticationKeyException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                Instant expirationDateAsInstant =
+                        Instant.ofEpochMilli(expirationDate.getTimeInMillis());
+                ApiImplS.callStoreStaticAuthenticationData(mCredential,
+                        authenticationKey,
+                        expirationDateAsInstant,
+                        staticAuthData);
+            } catch (android.security.identity.UnknownAuthenticationKeyException e) {
+                throw new UnknownAuthenticationKeyException(e.getMessage(), e);
+            }
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public @NonNull byte[] proveOwnership(@NonNull byte[] challenge)  {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return ApiImplS.callProveOwnership(mCredential, challenge);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public @NonNull byte[] delete(@NonNull byte[] challenge)  {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return ApiImplS.callDelete(mCredential, challenge);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public @NonNull byte[] update(@NonNull PersonalizationData personalizationData) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return ApiImplS.callUpdate(mCredential,
+                    HardwareWritableIdentityCredential.convertPDFromJetpack(personalizationData));
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 }

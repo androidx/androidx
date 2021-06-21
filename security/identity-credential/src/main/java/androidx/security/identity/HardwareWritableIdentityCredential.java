@@ -43,9 +43,8 @@ class HardwareWritableIdentityCredential extends WritableIdentityCredential {
         return mWritableCredential.getCredentialKeyCertificateChain(challenge);
     }
 
-    @Override
-    @NonNull
-    public byte[] personalize(@NonNull PersonalizationData personalizationData) {
+    static @NonNull android.security.identity.PersonalizationData convertPDFromJetpack(
+            @NonNull PersonalizationData personalizationData) {
 
         android.security.identity.PersonalizationData.Builder builder =
                 new android.security.identity.PersonalizationData.Builder();
@@ -75,6 +74,12 @@ class HardwareWritableIdentityCredential extends WritableIdentityCredential {
             builder.addAccessControlProfile(profileBuilder.build());
         }
 
-        return mWritableCredential.personalize(builder.build());
+        return builder.build();
+    }
+
+    @Override
+    @NonNull
+    public byte[] personalize(@NonNull PersonalizationData personalizationData) {
+        return mWritableCredential.personalize(convertPDFromJetpack(personalizationData));
     }
 }

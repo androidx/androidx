@@ -19,7 +19,6 @@ package androidx.security.identity;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
@@ -137,15 +136,13 @@ public class DynamicAuthTest {
                 cert.getNotBefore().getTime() + kMilliSecsInOneYear - cert.getNotAfter().getTime();
         assertTrue(-allowDriftMilliSecs <= diffMilliSecs && diffMilliSecs <= allowDriftMilliSecs);
 
-        // The extension is expected only if - and only if - the underlying hardware
+        // The extension must be there if the underlying hardware says it
         // supports updating the credential.
         //
-        byte[] icExtension = cert.getExtensionValue("1.3.6.1.4.1.11129.2.1.26");
         if (store.getCapabilities().isUpdateSupported()) {
+            byte[] icExtension = cert.getExtensionValue("1.3.6.1.4.1.11129.2.1.26");
             assertNotNull(icExtension);
             assertArrayEquals(proofOfProvisioningSha256, Util.getPopSha256FromAuthKeyCert(cert));
-        } else {
-            assertNull(icExtension);
         }
 
         // ... and we're done. Clean up after ourselves.
