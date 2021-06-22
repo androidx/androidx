@@ -288,8 +288,8 @@ public abstract class WatchFaceService : WallpaperService() {
      * UiThread afterwards. There is a memory barrier between construction and rendering so no
      * special threading primitives are required.
      *
-     * Warning watch face initialization will fail if createWatchFace takes longer than
-     * [MAX_CREATE_WATCHFACE_TIME_MILLIS] milliseconds.
+     * Warning the system will likely time out waiting for watch face initialization if it takes
+     * longer than [MAX_CREATE_WATCHFACE_TIME_MILLIS] milliseconds.
      *
      * @param surfaceHolder The [SurfaceHolder] to pass to the [Renderer]'s constructor.
      * @param watchState The [WatchState] for the watch face.
@@ -1368,10 +1368,13 @@ public abstract class WatchFaceService : WallpaperService() {
 
                     val timeAfter = System.currentTimeMillis()
                     val timeTaken = timeAfter - timeBefore
-                    require(timeTaken < MAX_CREATE_WATCHFACE_TIME_MILLIS) {
-                        "createUserStyleSchema, createComplicationSlotsManager and " +
-                            "createWatchFace should complete in less than " +
-                            MAX_CREATE_WATCHFACE_TIME_MILLIS + " milliseconds."
+                    if (timeTaken > MAX_CREATE_WATCHFACE_TIME_MILLIS) {
+                        Log.e(
+                            TAG,
+                            "createUserStyleSchema, createComplicationSlotsManager and " +
+                                "createWatchFace should complete in less than " +
+                                MAX_CREATE_WATCHFACE_TIME_MILLIS + " milliseconds."
+                        )
                     }
 
                     // Perform more initialization on the background thread.
