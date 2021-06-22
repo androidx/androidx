@@ -896,7 +896,7 @@ private fun ComposeContentTestRule.isStadiumShape(
         )
 }
 
-private enum class ChipStatus {
+internal enum class ChipStatus {
     Enabled,
     Disabled;
 
