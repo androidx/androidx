@@ -126,10 +126,10 @@ package androidx.camera.view.transform {
 
   public final class CoordinateTransform {
     ctor public CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform);
-    method public void getTransform(android.graphics.Matrix);
     method public void mapPoint(android.graphics.PointF);
     method public void mapPoints(float[]);
     method public void mapRect(android.graphics.RectF);
+    method public void transform(android.graphics.Matrix);
   }
 
   public final class FileTransformFactory {
