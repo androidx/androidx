@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"在数据库中未找到任何 AppSearch 文档。请确认数据库名称有效且选择的存储类型正确。"</string>
+    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"未在数据库中找到任何 AppSearch 文档。请确认数据库名称有效且选择的存储类型正确。"</string>
     <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"未找到任何 AppSearch 架构类型。请确认数据库名称有效且选择的存储类型正确。"</string>
     <string name="appsearch_documents_loading" msgid="3079225167662255666">"正在加载 AppSearch 文档…"</string>
     <string name="appsearch_schema_types_loading" msgid="5223743742396711620">"正在加载 AppSearch 架构类型…"</string>
