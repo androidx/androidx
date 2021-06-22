@@ -18,7 +18,10 @@ package androidx.core.content;
 
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.core.util.Preconditions.checkNotNull;
+
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -28,10 +31,13 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
+import java.lang.annotation.Retention;
 import java.util.List;
 
 /**
@@ -101,6 +107,55 @@ public final class IntentCompat {
      */
     public static final String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
 
+    /** The status of Unused App Restrictions features is unknown for this app. */
+    public static final int UNUSED_APP_RESTRICTION_STATUS_UNKNOWN = 0;
+
+    /** There are no available Unused App Restrictions features for this app. */
+    public static final int UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE = 1;
+
+    /**
+     * Permission revocation is enabled for this app (i.e. permissions will be automatically
+     * reset if the app is unused).
+     *
+     * Note: this also means that app hibernation is not available for this app.
+     */
+    public static final int PERMISSION_REVOCATION_ENABLED = 2;
+
+    /**
+     * Permission revocation is disabled for this app (i.e. this app is exempt from having
+     * its permissions automatically removed).
+     *
+     * Note: this also means that app hibernation is not available for this app.
+     */
+    public static final int PERMISSION_REVOCATION_DISABLED = 3;
+
+    /**
+     * App hibernation is enabled for this app (i.e. this app will be hibernated and have its
+     * permissions revoked if the app is unused).
+     *
+     * Note: this also means that permission revocation is enabled for this app.
+     */
+    public static final int APP_HIBERNATION_ENABLED = 4;
+
+    /**
+     * App hibernation is disabled for this app (i.e. this app is exempt from being hibernated).
+     *
+     * Note: this also means that permission revocation is disabled for this app.
+     */
+    public static final int APP_HIBERNATION_DISABLED = 5;
+
+    /**
+     * The status of Unused App Restrictions features for this app.
+     * @hide
+     */
+    @IntDef({UNUSED_APP_RESTRICTION_STATUS_UNKNOWN, UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE,
+            PERMISSION_REVOCATION_ENABLED, PERMISSION_REVOCATION_DISABLED,
+            APP_HIBERNATION_ENABLED, APP_HIBERNATION_DISABLED})
+    @Retention(SOURCE)
+    @RestrictTo(LIBRARY)
+    public @interface UnusedAppRestrictionsStatus {
+    }
+
     /**
      * Make an Intent for the main activity of an application, without
      * specifying a specific activity to run but giving a selector to find
@@ -140,9 +195,13 @@ public final class IntentCompat {
      * Make an Intent to redirect the user to UI to manage their unused app restriction settings
      * for a particular app (e.g. permission revocation, app hibernation).
      *
-     * Note: developers must first call {@link #areUnusedAppRestrictionsAvailable} to make sure
-     * that unused app restriction features are available on the device before attempting to create
-     * an intent using this method.
+     * Note: developers must first call {@link #getUnusedAppRestrictionsStatus(Context)} to make
+     * sure that unused app restriction features are available on the device before attempting to
+     * create an intent using this method. Any return value of this method besides
+     * {@link #UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE} indicates that at least one
+     * unused app restriction feature is available on the device. If the return value _is_
+     * {@link #UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE}, this method will throw an
+     * {@link UnsupportedOperationException}.
      *
      * Compatibility behavior:
      * <ul>
@@ -150,11 +209,9 @@ public final class IntentCompat {
      * .ACTION_APPLICATION_DETAILS_SETTINGS} and {@code packageName} as data.
      * <li>SDK 30, this method generates an intent with action {@code Intent
      * .ACTION_AUTO_REVOKE_PERMISSIONS} and {@code packageName} as data.
-     * <li>SDK 23 through 29, if {@link #areUnusedAppRestrictionsAvailable} returns true,
-     * this method will generate an intent with action {@code Intent
-     * .ACTION_AUTO_REVOKE_PERMISSIONS} and the package as the first system app that can
-     * resolve the intent. Otherwise, this method will throw an
-     * {@link UnsupportedOperationException}.
+     * <li>SDK 23 through 29, this method will generate an intent with action
+     * {@link Intent#ACTION_AUTO_REVOKE_PERMISSIONS} and the package as the app with the Verifier
+     * role that can resolve the intent.
      * <li>SDK 22 and below, this method will throw an {@link UnsupportedOperationException}
      * </ul>
      *
@@ -167,9 +224,10 @@ public final class IntentCompat {
     @NonNull
     public static Intent createManageUnusedAppRestrictionsIntent(@NonNull Context context,
             @NonNull String packageName) {
-        if (!areUnusedAppRestrictionsAvailable(context)) {
+        if (getUnusedAppRestrictionsStatus(context)
+                == UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE) {
             throw new UnsupportedOperationException(
-                    "Unused App Restrictions are not available on this device");
+                    "Unused App Restriction features are not available on this device");
         }
 
         // If the OS version is S+, generate the intent using the Application Details Settings
@@ -177,77 +235,42 @@ public final class IntentCompat {
         // TODO: replace with VERSION_CODES.S once it's defined
         if (Build.VERSION.SDK_INT >= 31) {
             return new Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(packageName));
+                    .setData(Uri.fromParts("package", packageName, /* fragment= */ null));
         }
 
         Intent unusedAppRestrictionsIntent =
-                new Intent(ACTION_UNUSED_APP_RESTRICTIONS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                new Intent(ACTION_UNUSED_APP_RESTRICTIONS)
+                        .setData(Uri.fromParts(
+                                "package", packageName, /* fragment= */ null));
 
-        // If the OS version is R, then just add the package name to the intent.
-        // No need to add any other data or flags, since we're relying on the Android R system
-        // feature.
+        // If the OS version is R, then no need to add any other data or flags, since we're
+        // relying on the Android R system feature.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return unusedAppRestrictionsIntent.setData(Uri.parse(packageName));
-        } else {
-            PackageManager packageManager = context.getPackageManager();
-            // Only allow apps with the Verifier role to resolve the intent.
-            String verifierPackageName = getVerifierPackageName(packageManager,
-                    packageManager.queryIntentActivities(
-                            unusedAppRestrictionsIntent, /* flags= */ 0));
-            // The package name shouldn't be null since we've already checked that there exists a
-            // single Verifier on the device, but nonetheless we double-check here.
-            unusedAppRestrictionsIntent.setPackage(checkNotNull(verifierPackageName));
             return unusedAppRestrictionsIntent;
+        } else {
+            // Only allow apps with the Verifier role to resolve the intent.
+            String verifierPackageName = getVerifierRolePackageName(context.getPackageManager());
+            // The Verifier package name shouldn't be null since we've already checked that there
+            // exists a Verifier on the device, but nonetheless we double-check here.
+            return unusedAppRestrictionsIntent
+                    .setPackage(checkNotNull(verifierPackageName));
         }
-    }
-
-    /**
-     * Checks to see whether unused app restrictions (e.g. permission revocation, app hibernation)
-     * are available on this device.
-     *
-     * Compatibility behavior:
-     * <ul>
-     * <li>SDK 30 and above, this method always returns {@code true} as unused app restrictions
-     * are built into the Android OS.
-     * <li>SDK 23 through 29, this method checks for a system app that can resolve the {@code
-     * Intent.ACTION_AUTO_REVOKE_PERMISSIONS} intent.
-     * <li>SDK 22 and below, this method always returns {@code false} as runtime permissions did
-     * not exist yet.
-     * </ul>
-     *
-     * @param context The {@link Context} of the calling application.
-     *
-     * @return Returns a boolean indicating whether permission auto-revocation is available on
-     * the device, whether through the Android Operating System or a system app.
-     */
-    public static boolean areUnusedAppRestrictionsAvailable(@NonNull Context context) {
-        // Return false if the Android OS version is before M, because Android M introduced runtime
-        // permissions
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false;
-
-        // Check that the Android OS version is R+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) return true;
-
-        // Else, check for an app with the verifier role that can resolve the intent
-        PackageManager packageManager = context.getPackageManager();
-        List<ResolveInfo> intentResolvers =
-                packageManager.queryIntentActivities(
-                        new Intent(ACTION_UNUSED_APP_RESTRICTIONS), /* flags= */ 0);
-
-        // Check that we were able to get the one Verifier's package name. If no Verifier or
-        // more than one Verifier exists on the device, unused app restrictions are not available
-        // on the device.
-        return getVerifierPackageName(packageManager, intentResolvers) != null;
     }
 
     /**
      * Returns the package name of the one and only Verifier on the device. If none exist, this
-     * will return {@code null}. Likewise, if multiple Verifiers exist, this method will throw a
-     * {@link RuntimeException} as there can only ever be one verifier.
+     * will return {@code null}. Likewise, if multiple Verifiers exist, this method will return
+     * the first Verifier's package name.
      */
     @Nullable
-    private static String getVerifierPackageName(PackageManager packageManager,
-            List<ResolveInfo> intentResolvers) {
+    private static String getVerifierRolePackageName(PackageManager packageManager) {
+        Intent unusedAppRestrictionsIntent =
+                new Intent(ACTION_UNUSED_APP_RESTRICTIONS)
+                        .setData(Uri.fromParts(
+                                "package", "com.example", /* fragment= */ null));
+        List<ResolveInfo> intentResolvers =
+                packageManager.queryIntentActivities(unusedAppRestrictionsIntent, /* flags= */ 0);
+
         String verifierPackageName = null;
 
         for (ResolveInfo intentResolver: intentResolvers) {
@@ -258,7 +281,10 @@ public final class IntentCompat {
             }
 
             if (verifierPackageName != null) {
-                throw new RuntimeException("There can be only one required verifier");
+                // This shouldn't happen, but we fail gracefully nonetheless and avoid throwing an
+                // exception, instead returning the first package name with the Verifier role
+                // that we found.
+                return verifierPackageName;
             }
             verifierPackageName = packageName;
         }
@@ -267,29 +293,54 @@ public final class IntentCompat {
     }
 
     /**
-     * Checks whether this application is exempt from unused app restrictions (e.g. permission
-     * revocation, app hibernation).
+     * Returns the status of Unused App Restriction features for the current application, i.e.
+     * whether the features are available and if so, enabled for the application.
      *
      * Compatibility behavior:
      * <ul>
-     * <li>SDK 30 and above, this method returns the value of
-     * {@link PackageManager#isAutoRevokeWhitelisted}
-     * <li>SDK 23 through 29, this method returns {@code false}.
-     * <li>SDK 22 and below, this method always returns {@code false} as runtime
-     * permissions did not exist yet.
+     * <li>SDK 31 and above, if {@link PackageManager#isAutoRevokeWhitelisted()} is true, this
+     * will return {@link #APP_HIBERNATION_ENABLED}. Else, it will return
+     * {@link #APP_HIBERNATION_DISABLED}.</li>
+     * <li>SDK 30, if {@link PackageManager#isAutoRevokeWhitelisted()} is true, this will return
+     * {@link #PERMISSION_REVOCATION_ENABLED}. Else, it will return
+     * {@link #PERMISSION_REVOCATION_DISABLED}.</li>
+     * <li>SDK 23 through 29, if there exists an app with the Verifier role that can resolve the
+     * {@code Intent.ACTION_AUTO_REVOKE_PERMISSIONS} action.
+     * <li>SDK 22 and below, this method always returns
+     * {@link #UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE} as runtime permissions did not exist
+     * yet.
      * </ul>
      */
-    public static boolean areUnusedAppRestrictionsAllowlisted(@NonNull Context context) {
+    public static @UnusedAppRestrictionsStatus int getUnusedAppRestrictionsStatus(
+            @NonNull Context context) {
         // Return false if the Android OS version is before M, because Android M introduced runtime
         // permissions
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return Api30Impl.areUnusedAppRestrictionsAllowlisted(context);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE;
         }
 
-        // TODO(b/177234481): Implement the backport behavior of this API
-        return false;
+        // TODO: replace with VERSION_CODES.S once it's defined
+        if (Build.VERSION.SDK_INT >= 31) {
+            return Api30Impl.areUnusedAppRestrictionsEnabled(context)
+                    ? APP_HIBERNATION_ENABLED
+                    : APP_HIBERNATION_DISABLED;
+        }
+
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+            return Api30Impl.areUnusedAppRestrictionsEnabled(context)
+                    ? PERMISSION_REVOCATION_ENABLED
+                    : PERMISSION_REVOCATION_DISABLED;
+        }
+
+        // Else, check for an app with the verifier role that can resolve the intent
+        String verifierPackageName = getVerifierRolePackageName(context.getPackageManager());
+        // Check that we were able to get the one Verifier's package name. If no Verifier or
+        // more than one Verifier exists on the device, unused app restrictions are not available
+        // on the device.
+        return (verifierPackageName == null)
+                ? UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE
+                // TODO(b/177234481): Implement the backport behavior of this API
+                : UNUSED_APP_RESTRICTION_STATUS_UNKNOWN;
     }
 
     /**
@@ -302,8 +353,10 @@ public final class IntentCompat {
     @RequiresApi(Build.VERSION_CODES.R)
     private static class Api30Impl {
         private Api30Impl() {}
-        static boolean areUnusedAppRestrictionsAllowlisted(@NonNull Context context) {
-            return context.getPackageManager().isAutoRevokeWhitelisted();
+        static boolean areUnusedAppRestrictionsEnabled(@NonNull Context context) {
+            // If the app is allowlisted, that means that it is exempt from unused app restriction
+            // features, and thus the features are _disabled_.
+            return !context.getPackageManager().isAutoRevokeWhitelisted();
         }
     }
 }
