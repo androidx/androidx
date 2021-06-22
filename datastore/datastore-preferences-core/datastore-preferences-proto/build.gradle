@@ -53,7 +53,6 @@ protobuf {
 def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
     archiveBaseName.set("export")
     dependsOn(protobuf.generateProtoTasks.all())
-    from(files(protobuf.generatedFilesBaseDir))
     dependsOn(compileKotlin)
     from(files(compileKotlin.outputs.files))
 
