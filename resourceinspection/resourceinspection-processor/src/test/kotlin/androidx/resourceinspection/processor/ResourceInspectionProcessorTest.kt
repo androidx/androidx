@@ -88,6 +88,7 @@ class ResourceInspectionProcessorTest {
                     public void mapProperties(@NonNull PropertyMapper propertyMapper) {
                         mTestAttributeId = propertyMapper.mapInt(
                             "testAttribute", R.attr.testAttribute);
+                        mPropertiesMapped = true;
                     }
 
                     @Override
@@ -184,6 +185,7 @@ class ResourceInspectionProcessorTest {
                             public void mapProperties(@NonNull PropertyMapper propertyMapper) {
                                 mColorId = propertyMapper.mapColor("color", android.R.attr.color);
                                 mColorId_ = propertyMapper.mapColor("color", R.attr.color);
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -409,6 +411,7 @@ class ResourceInspectionProcessorTest {
                                     .mapShort("testShort", R.attr.testShort);
                                 mTestStringId = propertyMapper
                                     .mapObject("testString", R.attr.testString);
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -561,6 +564,7 @@ class ResourceInspectionProcessorTest {
                                         }
                                     }
                                 );
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -672,6 +676,7 @@ class ResourceInspectionProcessorTest {
                                         }
                                     }
                                 );
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -955,6 +960,7 @@ class ResourceInspectionProcessorTest {
                                 .mapObject("backgroundTint", R.attr.backgroundTint);
                             mBackgroundTintModeId = propertyMapper
                                 .mapObject("backgroundTintMode", R.attr.backgroundTintMode);
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1069,6 +1075,7 @@ class ResourceInspectionProcessorTest {
                                     }
                                 }
                             );
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1163,6 +1170,7 @@ class ResourceInspectionProcessorTest {
                                 .mapObject("checkMarkTint", R.attr.checkMarkTint);
                             mCheckMarkTintModeId = propertyMapper
                                 .mapObject("checkMarkTintMode", R.attr.checkMarkTintMode);
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1251,6 +1259,7 @@ class ResourceInspectionProcessorTest {
                                 .mapObject("buttonTint", R.attr.buttonTint);
                             mButtonTintModeId = propertyMapper
                                 .mapObject("buttonTintMode", R.attr.buttonTintMode);
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1339,6 +1348,7 @@ class ResourceInspectionProcessorTest {
                                 .mapObject("drawableTint", R.attr.drawableTint);
                             mDrawableTintModeId = propertyMapper
                                 .mapObject("drawableTintMode", R.attr.drawableTintMode);
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1425,6 +1435,7 @@ class ResourceInspectionProcessorTest {
                         public void mapProperties(@NonNull PropertyMapper propertyMapper) {
                             mTintId = propertyMapper.mapObject("tint", R.attr.tint);
                             mTintModeId = propertyMapper.mapObject("tintMode", R.attr.tintMode);
+                            mPropertiesMapped = true;
                         }
 
                         @Override
