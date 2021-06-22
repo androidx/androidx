@@ -19,13 +19,15 @@ package androidx.room.integration.testapp;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.integration.testapp.dao.MusicDao;
+import androidx.room.integration.testapp.vo.Album;
+import androidx.room.integration.testapp.vo.Artist;
 import androidx.room.integration.testapp.vo.Playlist;
 import androidx.room.integration.testapp.vo.PlaylistMultiSongXRefView;
 import androidx.room.integration.testapp.vo.PlaylistSongXRef;
 import androidx.room.integration.testapp.vo.Song;
 
 @Database(
-        entities = {Song.class, Playlist.class, PlaylistSongXRef.class},
+        entities = {Song.class, Playlist.class, PlaylistSongXRef.class, Artist.class, Album.class},
         views = {PlaylistMultiSongXRefView.class},
         version = 1,
         exportSchema = false)
