@@ -25,7 +25,10 @@ import java.io.File;
 /**
  * A class to store the result to a given file.
  *
- * <p> The file could be in a path where the application has permission to write in.
+ * <p>The file must be in a path where the application has permission to write in.
+ *
+ * <p>To use a {@link android.os.ParcelFileDescriptor} as an output desination instead of a
+ * {@link File}, use {@link FileDescriptorOutputOptions}.
  */
 @AutoValue
 public abstract class FileOutputOptions extends OutputOptions {
@@ -53,11 +56,13 @@ public abstract class FileOutputOptions extends OutputOptions {
 
     /** The builder of the {@link FileOutputOptions}. */
     @AutoValue.Builder
+    @SuppressWarnings("StaticFinalBuilder")
     public abstract static class Builder {
         Builder() {
         }
 
-        /** Defines how to store the result. */
+        /** Defines the file used to store the result. */
+        @SuppressWarnings("StreamFiles") // FileDescriptor API is in FileDescriptorOutputOptions
         @NonNull
         public abstract Builder setFile(@NonNull File file);
 

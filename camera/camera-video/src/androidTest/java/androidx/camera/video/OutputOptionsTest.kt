@@ -28,7 +28,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
-import java.io.FileDescriptor
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -86,22 +85,20 @@ class OutputOptionsTest {
     fun canBuildFileDescriptorOutputOptions() {
         val savedFile = File.createTempFile("CameraX", ".tmp")
         savedFile.deleteOnExit()
-        val pfd: ParcelFileDescriptor = ParcelFileDescriptor.open(
+        ParcelFileDescriptor.open(
             savedFile,
             ParcelFileDescriptor.MODE_READ_WRITE
-        )
-        val fd: FileDescriptor = pfd.fileDescriptor
+        ).use { pfd ->
+            val fdOutputOptions = FileDescriptorOutputOptions.builder()
+                .setParcelFileDescriptor(pfd)
+                .setFileSizeLimit(FILE_SIZE_LIMIT)
+                .build()
 
-        val fdOutputOptions = FileDescriptorOutputOptions.builder()
-            .setFileDescriptor(fd)
-            .setFileSizeLimit(FILE_SIZE_LIMIT)
-            .build()
-
-        assertThat(fdOutputOptions).isNotNull()
-        assertThat(fdOutputOptions.type).isEqualTo(OutputOptions.Type.FILE_DESCRIPTOR)
-        assertThat(fdOutputOptions.fileDescriptor).isNotNull()
-        assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
-        pfd.close()
+            assertThat(fdOutputOptions).isNotNull()
+            assertThat(fdOutputOptions.type).isEqualTo(OutputOptions.Type.FILE_DESCRIPTOR)
+            assertThat(fdOutputOptions.parcelFileDescriptor).isNotNull()
+            assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
+        }
         savedFile.delete()
     }
 
@@ -141,17 +138,16 @@ class OutputOptionsTest {
     @Test
     fun fileDescriptor_builderContainsCorrectDefaults() {
         val savedFile = File.createTempFile("CameraX", ".tmp")
-        val pfd: ParcelFileDescriptor = ParcelFileDescriptor.open(
+        ParcelFileDescriptor.open(
             savedFile,
             ParcelFileDescriptor.MODE_READ_WRITE
-        )
-        val fd: FileDescriptor = pfd.fileDescriptor
-        val fdOutputOptions = FileDescriptorOutputOptions.builder()
-            .setFileDescriptor(fd)
-            .build()
+        ).use { pfd ->
+            val fdOutputOptions = FileDescriptorOutputOptions.builder()
+                .setParcelFileDescriptor(pfd)
+                .build()
 
-        assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
-        pfd.close()
+            assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
+        }
         savedFile.delete()
     }
 }
