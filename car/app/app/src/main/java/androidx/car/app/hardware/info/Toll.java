@@ -34,9 +34,12 @@ import java.util.Objects;
 
 /**
  * Information about toll card capabilities in a car.
+ *
+ * @deprecated Use TollCard.
  */
 @CarProtocol
 @RequiresCarApi(3)
+@Deprecated
 public final class Toll {
 
     /**

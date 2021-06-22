@@ -16,14 +16,19 @@
 
 package androidx.inspection.gradle
 
-import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.Project
 import java.io.File
 import java.util.Locale
 
-internal fun BaseVariant.taskName(baseName: String) = "$baseName${name.capitalize(Locale.ENGLISH)}"
+@Suppress("DEPRECATION") // BaseVariant
+internal fun com.android.build.gradle.api.BaseVariant.taskName(baseName: String) =
+    "$baseName${name.capitalize(Locale.ENGLISH)}"
 
-internal fun Project.taskWorkingDir(variant: BaseVariant, baseName: String): File {
+@Suppress("DEPRECATION") // BaseVariant
+internal fun Project.taskWorkingDir(
+    variant: com.android.build.gradle.api.BaseVariant,
+    baseName: String
+): File {
     val inspectionDir = File(project.buildDir, "androidx_inspection")
     return File(File(inspectionDir, baseName), variant.dirName)
 }

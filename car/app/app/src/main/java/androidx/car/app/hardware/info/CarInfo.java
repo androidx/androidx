@@ -45,7 +45,7 @@ public interface CarInfo {
             @NonNull OnCarDataListener<EnergyProfile> listener);
 
     /**
-     * Setup an ongoing listener to receive {@link Toll} information from the car hardware.
+     * Setup an ongoing listener to receive {@link TollCard} information from the car hardware.
      *
      * <p>If the listener was added previously then it won't be added again.
      *
@@ -53,16 +53,16 @@ public interface CarInfo {
      * @param listener the listener that will be invoked when data is available
      */
     void addTollListener(@NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<Toll> listener);
+            @NonNull OnCarDataListener<TollCard> listener);
 
     /**
-     * Remove an ongoing listener for {@link Toll} information.
+     * Remove an ongoing listener for {@link TollCard} information.
      *
      * <p>If the listener is not currently added, then nothing will be removed.
      *
      * @param listener the listener to remove
      */
-    void removeTollListener(@NonNull OnCarDataListener<Toll> listener);
+    void removeTollListener(@NonNull OnCarDataListener<TollCard> listener);
 
     /**
      * Setup an ongoing listener to receive {@link EnergyLevel} information from the car hardware.

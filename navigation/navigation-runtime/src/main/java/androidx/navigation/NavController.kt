@@ -177,7 +177,7 @@ public open class NavController(
 
     /**
      * Call [Navigator.navigate] while setting up a [handler] that receives callbacks
-     * when [NavigatorState.add] is called.
+     * when [NavigatorState.push] is called.
      */
     private fun Navigator<out NavDestination>.navigateInternal(
         entries: List<NavBackStackEntry>,
@@ -207,7 +207,7 @@ public open class NavController(
     private inner class NavControllerNavigatorState(
         val navigator: Navigator<out NavDestination>
     ) : NavigatorState() {
-        override fun add(backStackEntry: NavBackStackEntry) {
+        override fun push(backStackEntry: NavBackStackEntry) {
             val destinationNavigator: Navigator<out NavDestination> =
                 _navigatorProvider[backStackEntry.destination.navigatorName]
             if (destinationNavigator == navigator) {
@@ -228,12 +228,12 @@ public open class NavController(
                     "NavigatorBackStack for ${backStackEntry.destination.navigatorName} should " +
                         "already be created"
                 }
-                navigatorBackStack.add(backStackEntry)
+                navigatorBackStack.push(backStackEntry)
             }
         }
 
         fun addInternal(backStackEntry: NavBackStackEntry) {
-            super.add(backStackEntry)
+            super.push(backStackEntry)
         }
 
         override fun createBackStackEntry(
@@ -262,10 +262,10 @@ public open class NavController(
             }
         }
 
-        override fun addWithTransition(
+        override fun pushWithTransition(
             backStackEntry: NavBackStackEntry
         ): OnTransitionCompleteListener {
-            val innerListener = super.addWithTransition(backStackEntry)
+            val innerListener = super.pushWithTransition(backStackEntry)
             val listener = OnTransitionCompleteListener {
                 innerListener.onTransitionComplete()
                 if (!this@NavControllerNavigatorState.isNavigating) {

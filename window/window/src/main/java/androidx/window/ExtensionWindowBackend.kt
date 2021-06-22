@@ -72,6 +72,15 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
             windowLayoutChangeCallbacks.add(callbackWrapper)
             if (!isActivityRegistered) {
                 windowExtension.onWindowLayoutChangeListenerAdded(activity)
+            } else {
+                // Latest info for the previously registered callback for activity
+                // and send it to the new activity
+                val lastInfo = windowLayoutChangeCallbacks.firstOrNull {
+                    activity == it.activity
+                }?.lastInfo
+                if (lastInfo != null) {
+                    callbackWrapper.accept(lastInfo)
+                }
             }
         }
     }
@@ -149,8 +158,10 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
         private val executor: Executor,
         val callback: Consumer<WindowLayoutInfo>
     ) {
-        fun accept(layoutInfo: WindowLayoutInfo) {
-            executor.execute { callback.accept(layoutInfo) }
+        var lastInfo: WindowLayoutInfo? = null
+        fun accept(newLayoutInfo: WindowLayoutInfo) {
+            lastInfo = newLayoutInfo
+            executor.execute { callback.accept(newLayoutInfo) }
         }
     }
 

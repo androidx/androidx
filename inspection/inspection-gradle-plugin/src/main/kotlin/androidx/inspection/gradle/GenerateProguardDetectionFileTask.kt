@@ -18,7 +18,6 @@ package androidx.inspection.gradle
 
 import androidx.inspection.gradle.GenerateProguardDetectionFileTask.Language.JAVA
 import androidx.inspection.gradle.GenerateProguardDetectionFileTask.Language.KOTLIN
-import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -85,7 +84,10 @@ abstract class GenerateProguardDetectionFileTask : DefaultTask() {
 }
 
 @ExperimentalStdlibApi
-fun Project.registerGenerateProguardDetectionFileTask(variant: BaseVariant) {
+@Suppress("DEPRECATION") // BaseVariant
+fun Project.registerGenerateProguardDetectionFileTask(
+    variant: com.android.build.gradle.api.BaseVariant
+) {
     val outputDir = taskWorkingDir(variant, "generateProguardDetection")
     val taskName = variant.taskName("generateProguardDetection")
     val mavenGroup = project.group as? String

@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 
-<androidx.compose.ui.tooling.preview.ComposeViewAdapter
+<androidx.compose.ui.tooling.ComposeViewAdapter
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/compose_view_adapter"
     android:orientation="vertical" android:layout_width="match_parent"
