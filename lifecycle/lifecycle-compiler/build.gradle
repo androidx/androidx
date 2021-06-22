@@ -40,7 +40,7 @@ tasks.register("compileTestLibrarySource", JavaCompile).configure {
     dependsOn(compileJava)
     source "src/test/test-data/lib/src"
     classpath = project.compileJava.classpath
-    destinationDir = new File(project.buildDir, "test-data/lib/classes")
+    destinationDirectory.set(new File(project.buildDir, "test-data/lib/classes"))
 }
 
 tasks.register("jarTestLibrarySource", Jar).configure {
