@@ -150,10 +150,6 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      * Present a [PagingData] until it is invalidated by a call to [refresh] or
      * [PagingSource.invalidate].
      *
-     * [submitData] should be called on the same [CoroutineDispatcher] where updates will be
-     * dispatched to UI, typically [Dispatchers.Main] (this is done for you if you use
-     * `lifecycleScope.launch {}`).
-     *
      * This method is typically used when collecting from a [Flow] produced by [Pager]. For RxJava
      * or LiveData support, use the non-suspending overload of [submitData], which accepts a
      * [Lifecycle].
