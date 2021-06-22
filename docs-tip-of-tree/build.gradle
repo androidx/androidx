@@ -57,7 +57,6 @@ dependencies {
     docs(project(":compose:material:material"))
     docs(project(":compose:material:material-icons-core"))
     samples(project(":compose:material:material-icons-core:material-icons-core-samples"))
-    docs(project(":compose:material:material-icons-extended"))
     docs(project(":compose:material:material-ripple"))
     samples(project(":compose:material:material:material-samples"))
     docs(project(":compose:runtime:runtime"))
