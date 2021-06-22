@@ -2106,6 +2106,7 @@ public class MediaSessionCompat {
             if (tokenBundle == null) {
                 return null;
             }
+            tokenBundle.setClassLoader(Token.class.getClassLoader());
             IMediaSession extraSession = IMediaSession.Stub.asInterface(
                     BundleCompat.getBinder(tokenBundle, KEY_EXTRA_BINDER));
             VersionedParcelable session2Token = ParcelUtils.getVersionedParcelable(tokenBundle,
