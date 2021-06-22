@@ -259,8 +259,10 @@ public class AnnotationProcessorKtTest {
         val inputDocument = createPopulatedGift()
 
         // Index the Gift document and query it.
-        session.put(PutDocumentsRequest.Builder().addDocuments(inputDocument).build())
-            .get().checkSuccess()
+        assertThat(
+            session.put(PutDocumentsRequest.Builder().addDocuments(inputDocument).build()).get()
+                .isSuccess
+        ).isTrue()
         val searchResults = session.search("", SearchSpec.Builder().build())
         val documents = convertSearchResultsToDocuments(searchResults)
         assertThat(documents).hasSize(1)
