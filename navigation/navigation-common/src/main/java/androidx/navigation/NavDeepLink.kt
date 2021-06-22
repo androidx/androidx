@@ -386,13 +386,12 @@ public class NavDeepLink internal constructor(
             if (isParameterizedQuery) {
                 var matcher = Pattern.compile("(\\?)").matcher(uriPattern)
                 if (matcher.find()) {
-                    buildPathRegex(
+                    isExactDeepLink = buildPathRegex(
                         uriPattern.substring(0, matcher.start()),
                         uriRegex,
                         fillInPattern
                     )
                 }
-                isExactDeepLink = false
                 for (paramName in parameterizedUri.queryParameterNames) {
                     val argRegex = StringBuilder()
                     val queryParam = parameterizedUri.getQueryParameter(paramName) as String

@@ -109,7 +109,7 @@ class NavDestinationAndroidTest {
 
         destination.addDeepLink("www.example.com/users/index.html")
 
-        destination.addArgument("id", stringArgument())
+        destination.addArgument("name", stringArgument())
         destination.addDeepLink("www.example.com/users/{name}")
 
         val match = destination.matchDeepLink(
@@ -122,6 +122,31 @@ class NavDestinationAndroidTest {
         assertWithMessage("Deep link should pick the exact match")
             .that(match?.matchingArgs?.size())
             .isEqualTo(0)
+    }
+
+    @Test
+    fun matchDeepLinkBestMatchExactWithQuery() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.addArgument("tab", stringArgument())
+        destination.addDeepLink("www.example.com/users/anonymous?tab={tab}")
+
+        destination.addArgument("name", stringArgument())
+        destination.addDeepLink("www.example.com/users/{name}?tab={tab}")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users/anonymous?tab=favorite")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should pick the exact match with query")
+            .that(match?.matchingArgs?.size())
+            .isEqualTo(1)
+        assertWithMessage("Deep link should extract tab argument correctly")
+            .that(match?.matchingArgs?.getString("tab"))
+            .isEqualTo("favorite")
     }
 
     @Test
