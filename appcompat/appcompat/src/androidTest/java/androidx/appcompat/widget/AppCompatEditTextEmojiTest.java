@@ -18,13 +18,6 @@ package androidx.appcompat.widget;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.mock;
-
-import android.text.InputType;
-import android.text.method.KeyListener;
-import android.widget.TextView;
-
-import androidx.appcompat.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -35,7 +28,7 @@ import org.junit.runner.RunWith;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class AppCompatEditTextEmojiTest
-        extends AppCompatBaseTextViewEmojiTest<AppCompatEditTextEmojiActivity, AppCompatTextView> {
+        extends AppCompatBaseEditTextEmojiTest<AppCompatEditTextEmojiActivity, AppCompatTextView> {
 
     public AppCompatEditTextEmojiTest() {
         super(AppCompatEditTextEmojiActivity.class);
@@ -49,64 +42,10 @@ public class AppCompatEditTextEmojiTest
     @UiThreadTest
     public void respectsFocusableAndEditableAttribute() {
         AppCompatEditText notFocusable =
-                mActivityTestRule.getActivity().findViewById(R.id.not_focusable);
+                mActivityTestRule.getActivity()
+                        .findViewById(androidx.appcompat.test.R.id.not_focusable);
 
         assertThat(notFocusable.isEnabled()).isFalse();
         assertThat(notFocusable.isFocusable()).isFalse();
-    }
-
-    @Test
-    @UiThreadTest
-    public void setKeyListener_hasSameFocusChangeBehavior_asPlatform() {
-        TextView platformTextView = new TextView(mActivityTestRule.getActivity());
-        platformTextView.setFocusable(false);
-        platformTextView.setEnabled(false);
-
-        AppCompatEditText notFocusable =
-                mActivityTestRule.getActivity().findViewById(R.id.not_focusable);
-
-        KeyListener keyListener = mock(KeyListener.class);
-        notFocusable.setKeyListener(keyListener);
-        platformTextView.setKeyListener(keyListener);
-
-        assertThat(notFocusable.isFocusable()).isEqualTo(platformTextView.isFocusable());
-        assertThat(notFocusable.isEnabled()).isEqualTo(platformTextView.isEnabled());
-    }
-
-    @Test
-    @UiThreadTest
-    public void constructor_doesntClobber_inputType() {
-        AppCompatEditText textEmailAddress =
-                mActivityTestRule.getActivity().findViewById(R.id.text_email_address);
-        int actual = textEmailAddress.getInputType();
-        assertThat(actual).isEqualTo(
-                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-    }
-
-    @Test
-    @UiThreadTest
-    public void setKeyListener_hasSameInputTypeBehavior_asPlatform() {
-        TextView platformTextView = new TextView(mActivityTestRule.getActivity());
-        platformTextView.setInputType(
-                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-
-        AppCompatEditText textEmailAddress =
-                mActivityTestRule.getActivity().findViewById(R.id.text_email_address);
-
-        KeyListener keyListener = mock(KeyListener.class);
-        platformTextView.setKeyListener(keyListener);
-        textEmailAddress.setKeyListener(keyListener);
-
-        assertThat(textEmailAddress.getInputType()).isEqualTo(platformTextView.getInputType());
-    }
-
-    @Test
-    @UiThreadTest
-    public void setKeyListener_null_setsToNull() {
-        AppCompatEditText textEmailAddress =
-                mActivityTestRule.getActivity().findViewById(R.id.text_email_address);
-
-        textEmailAddress.setKeyListener(null);
-        assertThat(textEmailAddress.getKeyListener()).isNull();
     }
 }
