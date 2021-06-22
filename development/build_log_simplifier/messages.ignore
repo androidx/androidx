@@ -1153,6 +1153,7 @@ at org\.jetbrains\.kotlin\.compilerRunner\.GradleCompilerRunnerWithWorkers\$Grad
 Could not store entry [0-9a-f]{32} in remote build cache: Storing entry at 'http://gradle\-remote\-cache\.uplink\.goog:[0-9]+/cache/[0-9a-f]{32}' response status [0-9]+: Uplink Bad Gateway
 # > Task :profileinstaller:profileinstaller-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/profileinstaller/profileinstaller\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+WARNING:Software Components will not be created automatically for Maven publishing from Android Gradle Plugin 8\.0\..*
 # > Task :wear:wear-watchface:compileReleaseKotlin
 w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/WatchFaceService\.kt: \([0-9]+, [0-9]+\): Parameter 'surfaceHolder' is never used
 # > Task :lint-checks:integration-tests:copyDebugAndroidLintReports
@@ -1162,4 +1163,10 @@ Copying lint text report to .*
 # > Configure project :ads-identifier
 WARNING\:The option setting \'android\.experimental\.enableArtProfiles\=true\' is experimental\.
 The current default is \'false\'\.
-WARNING\:The option setting \'android\.disableAutomaticComponentCreation\=true\' is experimental\.
+# > Task :emoji2:emoji2-bundled:processDebugAndroidTestManifest
+\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
+# > Task :emoji2:emoji2-bundled:processDebugManifest
+\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Configure project :emoji2:emoji2-bundled
+WARNING:The option setting 'android\.disableAutomaticComponentCreation=true' is experimental\.
