@@ -76,7 +76,7 @@ package androidx.coordinatorlayout.widget {
     method @Deprecated public abstract Class<? extends androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior> value();
   }
 
-  @IntDef({androidx.coordinatorlayout.widget.CoordinatorLayout.EVENT_PRE_DRAW, androidx.coordinatorlayout.widget.CoordinatorLayout.EVENT_NESTED_SCROLL, androidx.coordinatorlayout.widget.CoordinatorLayout.EVENT_VIEW_REMOVED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CoordinatorLayout.DispatchChangeEvent {
+  @IntDef({0x0, 0x1, 0x2}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CoordinatorLayout.DispatchChangeEvent {
   }
 
   public static class CoordinatorLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {

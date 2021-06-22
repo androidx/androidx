@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-AutoBoxing: androidx.camera.view.CameraView#getCameraLensFacing():
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.camera.view.CameraView#setCameraLensFacing(Integer) parameter #0:
-    Must avoid boxed primitives (`java.lang.Integer`)

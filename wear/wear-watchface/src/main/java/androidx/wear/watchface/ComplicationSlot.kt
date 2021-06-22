@@ -432,6 +432,7 @@ public class ComplicationSlot internal constructor(
         /**
          * Whether or not the complication source is fixed (i.e. the user can't change it).
          */
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setFixedComplicationDataSource(fixedComplicationDataSource: Boolean): Builder {
             this.fixedComplicationDataSource = fixedComplicationDataSource
             return this

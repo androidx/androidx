@@ -376,7 +376,7 @@ package androidx.paging {
     method public Key? component3();
     method public int component4();
     method public int component5();
-    method public androidx.paging.PagingSource.LoadResult.Page<Key,Value> copy(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey, int itemsBefore, int itemsAfter);
+    method public androidx.paging.PagingSource.LoadResult.Page<Key,Value> copy(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey, @IntRange(from=-2147483648L) int itemsBefore, @IntRange(from=-2147483648L) int itemsAfter);
     method public java.util.List<Value> getData();
     method public int getItemsAfter();
     method public int getItemsBefore();
@@ -451,7 +451,7 @@ package androidx.paging {
 
   @androidx.paging.ExperimentalPagingApi public abstract class RemoteMediator<Key, Value> {
     ctor public RemoteMediator();
-    method public suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction> $completion);
+    method public suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction> p);
     method public abstract suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> p);
   }
 
@@ -471,7 +471,7 @@ package androidx.paging {
 
   public static final class RemoteMediator.MediatorResult.Success extends androidx.paging.RemoteMediator.MediatorResult {
     ctor public RemoteMediator.MediatorResult.Success(boolean endOfPaginationReached);
-    method public boolean endOfPaginationReached();
+    method public boolean getEndOfPaginationReached();
     property public final boolean endOfPaginationReached;
   }
 

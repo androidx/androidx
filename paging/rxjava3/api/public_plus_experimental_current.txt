@@ -2,8 +2,8 @@
 package androidx.paging.rxjava3 {
 
   public final class PagingRx {
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
     method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.rxjava3.core.Observable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.rxjava3.core.Observable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
     method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.rxjava3.core.Single<java.lang.Boolean>> predicate);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.rxjava3.core.Single<java.lang.Iterable<R>>> transform);
     method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <Key, Value> io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<Value>> getFlowable(androidx.paging.Pager<Key,Value>);
@@ -13,8 +13,8 @@ package androidx.paging.rxjava3 {
   }
 
   public final class PagingRx {
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
     method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.rxjava3.core.Observable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.rxjava3.core.Observable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
     method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.rxjava3.core.Single<java.lang.Boolean>> predicate);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.rxjava3.core.Single<java.lang.Iterable<R>>> transform);
     method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <Key, Value> io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<Value>> getFlowable(androidx.paging.Pager<Key,Value>);

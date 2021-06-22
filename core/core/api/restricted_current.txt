@@ -1459,8 +1459,8 @@ package androidx.core.graphics {
     method public static void RGBToHSL(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, float[]);
     method public static void RGBToLAB(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
     method public static void RGBToXYZ(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
-    method @ColorInt public static int XYZToColor(@FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_X) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Y) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Z) double);
-    method public static void XYZToLAB(@FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_X) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Y) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Z) double, double[]);
+    method @ColorInt public static int XYZToColor(@FloatRange(from=0.0f, to=95.047) double, @FloatRange(from=0.0f, to=0x64) double, @FloatRange(from=0.0f, to=108.883) double);
+    method public static void XYZToLAB(@FloatRange(from=0.0f, to=95.047) double, @FloatRange(from=0.0f, to=0x64) double, @FloatRange(from=0.0f, to=108.883) double, double[]);
     method @ColorInt public static int blendARGB(@ColorInt int, @ColorInt int, @FloatRange(from=0.0, to=1.0) float);
     method public static void blendHSL(float[], float[], @FloatRange(from=0.0, to=1.0) float, float[]);
     method public static void blendLAB(double[], double[], @FloatRange(from=0.0, to=1.0) double, double[]);
@@ -3271,7 +3271,7 @@ package androidx.core.view {
     method @androidx.core.view.WindowInsetsCompat.Type.InsetsType public static int tappableElement();
   }
 
-  @IntDef(flag=true, value={androidx.core.view.WindowInsetsCompat.Type.STATUS_BARS, androidx.core.view.WindowInsetsCompat.Type.NAVIGATION_BARS, androidx.core.view.WindowInsetsCompat.Type.CAPTION_BAR, androidx.core.view.WindowInsetsCompat.Type.IME, androidx.core.view.WindowInsetsCompat.Type.WINDOW_DECOR, androidx.core.view.WindowInsetsCompat.Type.SYSTEM_GESTURES, androidx.core.view.WindowInsetsCompat.Type.MANDATORY_SYSTEM_GESTURES, androidx.core.view.WindowInsetsCompat.Type.TAPPABLE_ELEMENT, androidx.core.view.WindowInsetsCompat.Type.DISPLAY_CUTOUT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface WindowInsetsCompat.Type.InsetsType {
+  @IntDef(flag=true, value={0x1, 0x2, 0x4, 0x8, 0x100, 0x10, 0x20, 0x40, 0x80}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface WindowInsetsCompat.Type.InsetsType {
   }
 
   public final class WindowInsetsControllerCompat {

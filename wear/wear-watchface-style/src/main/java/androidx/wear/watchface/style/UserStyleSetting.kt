@@ -382,6 +382,8 @@ public sealed class UserStyleSetting(
          */
         public class ComplicationSlotOverlay constructor(
             public val complicationSlotId: Int,
+            @Suppress("AutoBoxing")
+            @get:Suppress("AutoBoxing")
             @get:JvmName("isEnabled")
             public val enabled: Boolean? = null,
             public val complicationSlotBounds: ComplicationSlotBounds? = null,
@@ -398,6 +400,7 @@ public sealed class UserStyleSetting(
                 private var accessibilityTraversalIndex: Int? = null
 
                 /** Overrides the complication's enabled flag. */
+                @Suppress("MissingGetterMatchingBuilder")
                 public fun setEnabled(enabled: Boolean): Builder = apply {
                     this.enabled = enabled
                 }
