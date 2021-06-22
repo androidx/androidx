@@ -91,15 +91,15 @@ public class TestNavigatorState @JvmOverloads constructor(
         )
     }
 
-    override fun add(backStackEntry: NavBackStackEntry) {
-        super.add(backStackEntry)
+    override fun push(backStackEntry: NavBackStackEntry) {
+        super.push(backStackEntry)
         updateMaxLifecycle()
     }
 
-    override fun addWithTransition(
+    override fun pushWithTransition(
         backStackEntry: NavBackStackEntry
     ): OnTransitionCompleteListener {
-        val innerListener = super.addWithTransition(backStackEntry)
+        val innerListener = super.pushWithTransition(backStackEntry)
         val listener = OnTransitionCompleteListener {
             innerListener.onTransitionComplete()
             updateMaxLifecycle()

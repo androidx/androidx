@@ -61,7 +61,7 @@ public class ComposeNavigator : Navigator<Destination>() {
         navigatorExtras: Extras?
     ) {
         entries.forEach { entry ->
-            state.add(entry)
+            state.push(entry)
         }
     }
 
