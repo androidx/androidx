@@ -661,6 +661,103 @@ class PagingDataDifferTest {
 
         job.cancel()
     }
+
+    @Test
+    fun loadStateFlowSynchronouslyUpdates() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        var combinedLoadStates: CombinedLoadStates? = null
+        var itemCount = -1
+        val loadStateJob = launch {
+            differ.loadStateFlow.collect {
+                combinedLoadStates = it
+                itemCount = differ.size
+            }
+        }
+
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                enablePlaceholders = false,
+                initialLoadSize = 10,
+                prefetchDistance = 1
+            ),
+            initialKey = 50
+        ) { TestPagingSource() }
+        val job = launch {
+            pager.flow.collectLatest { differ.collectFrom(it) }
+        }
+
+        // Initial refresh
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(10, itemCount)
+        assertEquals(10, differ.size)
+
+        // Append
+        differ[9]
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(20, itemCount)
+        assertEquals(20, differ.size)
+
+        // Prepend
+        differ[0]
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(30, itemCount)
+        assertEquals(30, differ.size)
+
+        job.cancel()
+        loadStateJob.cancel()
+    }
+
+    @Test
+    fun loadStateListenerSynchronouslyUpdates() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        pauseDispatcher {
+            var combinedLoadStates: CombinedLoadStates? = null
+            var itemCount = -1
+            differ.addLoadStateListener {
+                combinedLoadStates = it
+                itemCount = differ.size
+            }
+
+            val pager = Pager(
+                config = PagingConfig(
+                    pageSize = 10,
+                    enablePlaceholders = false,
+                    initialLoadSize = 10,
+                    prefetchDistance = 1
+                ),
+                initialKey = 50
+            ) { TestPagingSource() }
+            val job = launch {
+                pager.flow.collectLatest { differ.collectFrom(it) }
+            }
+
+            // Initial refresh
+            advanceUntilIdle()
+            assertEquals(localLoadStatesOf(), combinedLoadStates)
+            assertEquals(10, itemCount)
+            assertEquals(10, differ.size)
+
+            // Append
+            differ[9]
+            advanceUntilIdle()
+            assertEquals(localLoadStatesOf(), combinedLoadStates)
+            assertEquals(20, itemCount)
+            assertEquals(20, differ.size)
+
+            // Prepend
+            differ[0]
+            advanceUntilIdle()
+            assertEquals(localLoadStatesOf(), combinedLoadStates)
+            assertEquals(30, itemCount)
+            assertEquals(30, differ.size)
+
+            job.cancel()
+        }
+    }
 }
 
 private fun infinitelySuspendingPagingData(receiver: UiReceiver = dummyReceiver) = PagingData(
