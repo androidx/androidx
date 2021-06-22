@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
@@ -47,6 +47,28 @@
 
     <issue
         id="WrongConstant"
+        message="Must be one of: ConversationAction.TYPE_VIEW_CALENDAR, ConversationAction.TYPE_VIEW_MAP, ConversationAction.TYPE_TRACK_FLIGHT, ConversationAction.TYPE_OPEN_URL, ConversationAction.TYPE_SEND_SMS, ConversationAction.TYPE_CALL_PHONE, ConversationAction.TYPE_SEND_EMAIL, ConversationAction.TYPE_TEXT_REPLY, ConversationAction.TYPE_CREATE_REMINDER, ConversationAction.TYPE_SHARE_LOCATION, ConversationAction.TYPE_ADD_CONTACT, ConversationAction.TYPE_COPY"
+        errorLine1="        return new ConversationAction.Builder(conversationAction.getType())"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/ConversationAction.java"
+            line="254"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Request.HINT_FOR_NOTIFICATION, Request.HINT_FOR_IN_APP"
+        errorLine1="                    .setHints(request.getHints())"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/ConversationActions.java"
+            line="484"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
         message="Must be one or more of: Linkify.WEB_URLS, Linkify.EMAIL_ADDRESSES, Linkify.PHONE_NUMBERS, Linkify.MAP_ADDRESSES, Linkify.ALL"
         errorLine1="                return NOT_LINKIFY;"
         errorLine2="                       ~~~~~~~~~~~">
@@ -54,6 +76,28 @@
             file="src/main/java/androidx/textclassifier/LegacyTextClassifier.java"
             line="162"
             column="24"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: TextClassifier.TYPE_UNKNOWN, TextClassifier.TYPE_OTHER, TextClassifier.TYPE_EMAIL, TextClassifier.TYPE_PHONE, TextClassifier.TYPE_ADDRESS, TextClassifier.TYPE_URL, TextClassifier.TYPE_DATE, TextClassifier.TYPE_DATE_TIME, TextClassifier.TYPE_FLIGHT_NUMBER"
+        errorLine1="            builder.setEntityType(entity, textClassification.getConfidenceScore(entity));"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassification.java"
+            line="236"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: TextClassifier.TYPE_UNKNOWN, TextClassifier.TYPE_OTHER, TextClassifier.TYPE_EMAIL, TextClassifier.TYPE_PHONE, TextClassifier.TYPE_ADDRESS, TextClassifier.TYPE_URL, TextClassifier.TYPE_DATE, TextClassifier.TYPE_DATE_TIME, TextClassifier.TYPE_FLIGHT_NUMBER"
+        errorLine1="            builder.setEntityType(entity, textSelection.getConfidenceScore(entity));"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextSelection.java"
+            line="192"
+            column="35"/>
     </issue>
 
     <issue

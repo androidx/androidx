@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
@@ -8,8 +8,30 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/camera/video/RecorderTest.kt"
-            line="300"
+            line="298"
             column="22"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: OutputFormat.MUXER_OUTPUT_MPEG_4, OutputFormat.MUXER_OUTPUT_WEBM, OutputFormat.MUXER_OUTPUT_3GPP, OutputFormat.MUXER_OUTPUT_HEIF, OutputFormat.MUXER_OUTPUT_OGG"
+        errorLine1="                        outputFormat);"
+        errorLine2="                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/Recorder.java"
+            line="929"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: OutputFormat.MUXER_OUTPUT_MPEG_4, OutputFormat.MUXER_OUTPUT_WEBM, OutputFormat.MUXER_OUTPUT_3GPP, OutputFormat.MUXER_OUTPUT_HEIF, OutputFormat.MUXER_OUTPUT_OGG"
+        errorLine1="                    mMediaMuxer = new MediaMuxer(path, outputFormat);"
+        errorLine2="                                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/Recorder.java"
+            line="964"
+            column="56"/>
     </issue>
 
 </issues>

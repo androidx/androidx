@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
@@ -10,6 +10,182 @@
             file="src/androidTest/java/androidx/slice/SlicePermissionTest.java"
             line="58"
             column="49"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        errorLine1="        builder.addHints(slice.getHints());"
+        errorLine2="                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="57"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.SUBTYPE_COLOR, Slice.SUBTYPE_CONTENT_DESCRIPTION, Slice.SUBTYPE_MAX, Slice.SUBTYPE_MESSAGE, Slice.SUBTYPE_PRIORITY, Slice.SUBTYPE_RANGE, Slice.SUBTYPE_SOURCE, Slice.SUBTYPE_TOGGLE, Slice.SUBTYPE_VALUE, Slice.SUBTYPE_LAYOUT_DIRECTION"
+        errorLine1="                    builder.addSubSlice(unwrap(item.getSlice()), item.getSubType());"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="61"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        errorLine1="                    builder.addIcon(item.getIcon().toIcon(), item.getSubType(), item.getHints());"
+        errorLine2="                                                                                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="64"
+            column="81"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.SUBTYPE_COLOR, Slice.SUBTYPE_CONTENT_DESCRIPTION, Slice.SUBTYPE_MAX, Slice.SUBTYPE_MESSAGE, Slice.SUBTYPE_PRIORITY, Slice.SUBTYPE_RANGE, Slice.SUBTYPE_SOURCE, Slice.SUBTYPE_TOGGLE, Slice.SUBTYPE_VALUE, Slice.SUBTYPE_LAYOUT_DIRECTION"
+        errorLine1="                    builder.addIcon(item.getIcon().toIcon(), item.getSubType(), item.getHints());"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="64"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.SUBTYPE_COLOR, Slice.SUBTYPE_CONTENT_DESCRIPTION, Slice.SUBTYPE_MAX, Slice.SUBTYPE_MESSAGE, Slice.SUBTYPE_PRIORITY, Slice.SUBTYPE_RANGE, Slice.SUBTYPE_SOURCE, Slice.SUBTYPE_TOGGLE, Slice.SUBTYPE_VALUE, Slice.SUBTYPE_LAYOUT_DIRECTION"
+        errorLine1="                    builder.addRemoteInput(item.getRemoteInput(), item.getSubType(),"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="67"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        errorLine1="                            item.getHints());"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="68"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.SUBTYPE_COLOR, Slice.SUBTYPE_CONTENT_DESCRIPTION, Slice.SUBTYPE_MAX, Slice.SUBTYPE_MESSAGE, Slice.SUBTYPE_PRIORITY, Slice.SUBTYPE_RANGE, Slice.SUBTYPE_SOURCE, Slice.SUBTYPE_TOGGLE, Slice.SUBTYPE_VALUE, Slice.SUBTYPE_LAYOUT_DIRECTION"
+        errorLine1="                    builder.addAction(item.getAction(), unwrap(item.getSlice()), item.getSubType());"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="71"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        errorLine1="                    builder.addText(item.getText(), item.getSubType(), item.getHints());"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="74"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.SUBTYPE_COLOR, Slice.SUBTYPE_CONTENT_DESCRIPTION, Slice.SUBTYPE_MAX, Slice.SUBTYPE_MESSAGE, Slice.SUBTYPE_PRIORITY, Slice.SUBTYPE_RANGE, Slice.SUBTYPE_SOURCE, Slice.SUBTYPE_TOGGLE, Slice.SUBTYPE_VALUE, Slice.SUBTYPE_LAYOUT_DIRECTION"
+        errorLine1="                    builder.addText(item.getText(), item.getSubType(), item.getHints());"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="74"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        errorLine1="                    builder.addInt(item.getInt(), item.getSubType(), item.getHints());"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="77"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.SUBTYPE_COLOR, Slice.SUBTYPE_CONTENT_DESCRIPTION, Slice.SUBTYPE_MAX, Slice.SUBTYPE_MESSAGE, Slice.SUBTYPE_PRIORITY, Slice.SUBTYPE_RANGE, Slice.SUBTYPE_SOURCE, Slice.SUBTYPE_TOGGLE, Slice.SUBTYPE_VALUE, Slice.SUBTYPE_LAYOUT_DIRECTION"
+        errorLine1="                    builder.addInt(item.getInt(), item.getSubType(), item.getHints());"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="77"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        errorLine1="                    builder.addLong(item.getLong(), item.getSubType(), item.getHints());"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="80"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.SUBTYPE_COLOR, Slice.SUBTYPE_CONTENT_DESCRIPTION, Slice.SUBTYPE_MAX, Slice.SUBTYPE_MESSAGE, Slice.SUBTYPE_PRIORITY, Slice.SUBTYPE_RANGE, Slice.SUBTYPE_SOURCE, Slice.SUBTYPE_TOGGLE, Slice.SUBTYPE_VALUE, Slice.SUBTYPE_LAYOUT_DIRECTION"
+        errorLine1="                    builder.addLong(item.getLong(), item.getSubType(), item.getHints());"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="80"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        errorLine1="                    builder.addBundle((Bundle) item.mObj, item.getSubType(), item.getHints());"
+        errorLine2="                                                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="83"
+            column="78"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Slice.SUBTYPE_COLOR, Slice.SUBTYPE_CONTENT_DESCRIPTION, Slice.SUBTYPE_MAX, Slice.SUBTYPE_MESSAGE, Slice.SUBTYPE_PRIORITY, Slice.SUBTYPE_RANGE, Slice.SUBTYPE_SOURCE, Slice.SUBTYPE_TOGGLE, Slice.SUBTYPE_VALUE, Slice.SUBTYPE_LAYOUT_DIRECTION"
+        errorLine1="                    builder.addBundle((Bundle) item.mObj, item.getSubType(), item.getHints());"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceConvert.java"
+            line="83"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: PermissionChecker.PERMISSION_GRANTED, PermissionChecker.PERMISSION_DENIED, PermissionChecker.PERMISSION_DENIED_APP_OP"
+        errorLine1="        return mManager.checkSlicePermission(uri, pid, uid);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceManagerWrapper.java"
+            line="62"
+            column="16"/>
     </issue>
 
     <issue

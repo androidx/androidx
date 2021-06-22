@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
@@ -114,23 +114,23 @@
     <issue
         id="NewApi"
         message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="        resolveInfo.providerInfo = new ProviderInfo();"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            resolveInfo.providerInfo = new ProviderInfo();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/content/IntentCompatTest.java"
-            line="217"
-            column="9"/>
+            line="318"
+            column="13"/>
     </issue>
 
     <issue
         id="NewApi"
         message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="        resolveInfo.providerInfo.name = &quot;Name needed to keep toString() happy :)&quot;;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            resolveInfo.providerInfo.name = &quot;Name needed to keep toString() happy :)&quot;;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/content/IntentCompatTest.java"
-            line="218"
-            column="9"/>
+            line="319"
+            column="13"/>
     </issue>
 
     <issue
@@ -1075,7 +1075,7 @@
         errorLine2="        ~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="271"
+            line="269"
             column="9"/>
     </issue>
 
@@ -1086,7 +1086,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="272"
+            line="270"
             column="13"/>
     </issue>
 
@@ -1097,7 +1097,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="275"
+            line="273"
             column="25"/>
     </issue>
 
@@ -1108,7 +1108,7 @@
         errorLine2="        ~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="288"
+            line="286"
             column="9"/>
     </issue>
 
@@ -1119,7 +1119,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="289"
+            line="287"
             column="13"/>
     </issue>
 
@@ -1130,8 +1130,228 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="292"
+            line="290"
             column="25"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_TEXT, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED"
+        errorLine1="            return event.getContentChangeTypes();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
+            line="344"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_DISABLED, ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_WHITELISTED, ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_ENABLED"
+        errorLine1="            return cm.getRestrictBackgroundStatus();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/net/ConnectivityManagerCompat.java"
+            line="160"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: GnssStatusCompat.CONSTELLATION_UNKNOWN, GnssStatusCompat.CONSTELLATION_GPS, GnssStatusCompat.CONSTELLATION_SBAS, GnssStatusCompat.CONSTELLATION_GLONASS, GnssStatusCompat.CONSTELLATION_QZSS, GnssStatusCompat.CONSTELLATION_BEIDOU, GnssStatusCompat.CONSTELLATION_GALILEO, GnssStatusCompat.CONSTELLATION_IRNSS"
+        errorLine1="        return mWrapped.getConstellationType(satelliteIndex);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/GnssStatusWrapper.java"
+            line="48"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: IconCompat.TYPE_UNKNOWN, IconCompat.TYPE_BITMAP, IconCompat.TYPE_RESOURCE, IconCompat.TYPE_DATA, IconCompat.TYPE_URI, IconCompat.TYPE_ADAPTIVE_BITMAP, IconCompat.TYPE_URI_ADAPTIVE_BITMAP"
+        errorLine1="            return icon.getType();"
+        errorLine2="                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="1101"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Action.SEMANTIC_ACTION_NONE, Action.SEMANTIC_ACTION_REPLY, Action.SEMANTIC_ACTION_MARK_AS_READ, Action.SEMANTIC_ACTION_MARK_AS_UNREAD, Action.SEMANTIC_ACTION_DELETE, Action.SEMANTIC_ACTION_ARCHIVE, Action.SEMANTIC_ACTION_MUTE, Action.SEMANTIC_ACTION_UNMUTE, Action.SEMANTIC_ACTION_THUMBS_UP, Action.SEMANTIC_ACTION_THUMBS_DOWN, Action.SEMANTIC_ACTION_CALL"
+        errorLine1="                    builder.setSemanticAction(action.getSemanticAction());"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="4623"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_ENABLED"
+        errorLine1="                            ? remoteInput.getEditChoicesBeforeSending()"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="6243"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_ENABLED"
+        errorLine1="                                ? src.getEditChoicesBeforeSending()"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="7276"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: NotificationCompat.GROUP_ALERT_ALL, NotificationCompat.GROUP_ALERT_SUMMARY, NotificationCompat.GROUP_ALERT_CHILDREN"
+        errorLine1="            return notification.getGroupAlertBehavior();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="7637"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Action.SEMANTIC_ACTION_NONE, Action.SEMANTIC_ACTION_REPLY, Action.SEMANTIC_ACTION_MARK_AS_READ, Action.SEMANTIC_ACTION_MARK_AS_UNREAD, Action.SEMANTIC_ACTION_DELETE, Action.SEMANTIC_ACTION_ARCHIVE, Action.SEMANTIC_ACTION_MUTE, Action.SEMANTIC_ACTION_UNMUTE, Action.SEMANTIC_ACTION_THUMBS_UP, Action.SEMANTIC_ACTION_THUMBS_DOWN, Action.SEMANTIC_ACTION_CALL"
+        errorLine1="                actionBuilder.setSemanticAction(action.getSemanticAction());"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
+            line="384"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: LineBreaker.BREAK_STRATEGY_SIMPLE, LineBreaker.BREAK_STRATEGY_HIGH_QUALITY, LineBreaker.BREAK_STRATEGY_BALANCED"
+        errorLine1="                        .setBreakStrategy(params.getBreakStrategy())"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
+            line="467"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Layout.HYPHENATION_FREQUENCY_NORMAL, Layout.HYPHENATION_FREQUENCY_FULL, Layout.HYPHENATION_FREQUENCY_NONE"
+        errorLine1="                        .setHyphenationFrequency(params.getHyphenationFrequency())"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
+            line="468"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RemoteInput.SOURCE_FREE_FORM_INPUT, RemoteInput.SOURCE_CHOICE"
+        errorLine1="            return android.app.RemoteInput.getResultsSource(intent);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/RemoteInput.java"
+            line="531"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_ENABLED"
+        errorLine1="            builder.setEditChoicesBeforeSending(src.getEditChoicesBeforeSending());"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/RemoteInput.java"
+            line="576"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_ENABLED"
+        errorLine1="            builder.setEditChoicesBeforeSending(src.getEditChoicesBeforeSending());"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/RemoteInput.java"
+            line="598"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: LineBreaker.BREAK_STRATEGY_SIMPLE, LineBreaker.BREAK_STRATEGY_HIGH_QUALITY, LineBreaker.BREAK_STRATEGY_BALANCED"
+        errorLine1="            textView.setBreakStrategy(params.getBreakStrategy());"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"
+            line="886"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Layout.HYPHENATION_FREQUENCY_NORMAL, Layout.HYPHENATION_FREQUENCY_FULL, Layout.HYPHENATION_FREQUENCY_NONE"
+        errorLine1="            textView.setHyphenationFrequency(params.getHyphenationFrequency());"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"
+            line="887"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Callback.DISPATCH_MODE_STOP, Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE"
+        errorLine1="                super(compat.getDispatchMode());"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"
+            line="968"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: Type.STATUS_BARS, Type.NAVIGATION_BARS, Type.CAPTION_BAR, Type.IME, Type.WINDOW_DECOR, Type.SYSTEM_GESTURES, Type.MANDATORY_SYSTEM_GESTURES, Type.TAPPABLE_ELEMENT, Type.DISPLAY_CUTOUT"
+        errorLine1="            return mController.getTypes();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsAnimationControllerCompat.java"
+            line="332"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH, WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE, WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE"
+        errorLine1="        return mImpl.getSystemBarsBehavior();"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsControllerCompat.java"
+            line="275"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH, WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE, WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE"
+        errorLine1="            return mInsetsController.getSystemBarsBehavior();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsControllerCompat.java"
+            line="723"
+            column="20"/>
     </issue>
 
     <issue
@@ -5211,7 +5431,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/IntentCompat.java"
-            line="125"
+            line="183"
             column="27"/>
     </issue>
 
