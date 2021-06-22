@@ -17,8 +17,6 @@
 package androidx.inspection.gradle
 
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.api.LibraryVariant
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -115,7 +113,10 @@ abstract class DexInspectorTask : DefaultTask() {
 
 // variant.taskName relies on @ExperimentalStdlibApi api
 @ExperimentalStdlibApi
-fun Project.registerUnzipTask(variant: LibraryVariant): TaskProvider<Copy> {
+@Suppress("DEPRECATION") // LibraryVariant
+fun Project.registerUnzipTask(
+    variant: com.android.build.gradle.api.LibraryVariant
+): TaskProvider<Copy> {
     return tasks.register(variant.taskName("unpackInspectorAAR"), Copy::class.java) {
         it.from(zipTree(variant.packageLibraryProvider!!.get().archiveFile))
         it.into(taskWorkingDir(variant, "unpackedInspectorAAR"))
@@ -125,8 +126,9 @@ fun Project.registerUnzipTask(variant: LibraryVariant): TaskProvider<Copy> {
 
 // variant.taskName relies on @ExperimentalStdlibApi api
 @ExperimentalStdlibApi
+@Suppress("DEPRECATION") // BaseVariant
 fun Project.registerBundleInspectorTask(
-    variant: BaseVariant,
+    variant: com.android.build.gradle.api.BaseVariant,
     extension: BaseExtension,
     jarName: String?,
     jar: TaskProvider<out Jar>

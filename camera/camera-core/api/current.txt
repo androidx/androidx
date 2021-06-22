@@ -177,6 +177,7 @@ package androidx.camera.core {
     method public void clearAnalyzer();
     method public int getBackpressureStrategy();
     method public int getImageQueueDepth();
+    method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public int getTargetRotation();
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);
@@ -203,6 +204,7 @@ package androidx.camera.core {
   public final class ImageCapture extends androidx.camera.core.UseCase {
     method public int getCaptureMode();
     method public int getFlashMode();
+    method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public int getTargetRotation();
     method public void setCropAspectRatio(android.util.Rational);
     method public void setFlashMode(int);
@@ -313,6 +315,7 @@ package androidx.camera.core {
   }
 
   public final class Preview extends androidx.camera.core.UseCase {
+    method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public int getTargetRotation();
     method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
     method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
@@ -330,6 +333,12 @@ package androidx.camera.core {
 
   public static interface Preview.SurfaceProvider {
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
+  }
+
+  @com.google.auto.value.AutoValue public abstract class ResolutionInfo {
+    method public abstract android.graphics.Rect getCropRect();
+    method public abstract android.util.Size getResolution();
+    method public abstract int getRotationDegrees();
   }
 
   public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {

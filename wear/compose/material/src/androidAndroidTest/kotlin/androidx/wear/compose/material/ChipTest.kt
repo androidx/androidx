@@ -392,7 +392,7 @@ class ChipColorTest {
         verifyGradientBackgroundColors(
             TestChipColors.PrimaryGradient,
             ChipStatus.Enabled,
-            { MaterialTheme.colors.onPrimary },
+            { MaterialTheme.colors.onSurface },
         )
 
     @Test

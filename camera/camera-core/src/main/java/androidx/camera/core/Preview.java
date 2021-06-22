@@ -84,6 +84,7 @@ import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.core.util.Consumer;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.util.Collection;
 import java.util.List;
@@ -427,6 +428,28 @@ public final class Preview extends UseCase {
     @ImageOutputConfig.RotationValue
     public int getTargetRotation() {
         return getTargetRotationInternal();
+    }
+
+    /**
+     * Gets selected resolution information of the {@link Preview}.
+     *
+     * <p>The returned {@link ResolutionInfo} will be expressed in the coordinates of the camera
+     * sensor. It will be the same as the resolution inside a {@link SurfaceRequest} to request a
+     * surface for {@link Preview}.
+     *
+     * <p>The resolution information might change if the use case is unbound and then rebound or
+     * {@link #setTargetRotation(int)} is called to change the target rotation setting. The
+     * application needs to call {@link #getResolutionInfo()} again to get the latest
+     * {@link ResolutionInfo} for the changes.
+     *
+     * @return the resolution information if the use case has been bound by the
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
+     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     */
+    @Nullable
+    @Override
+    public ResolutionInfo getResolutionInfo() {
+        return super.getResolutionInfo();
     }
 
     @NonNull

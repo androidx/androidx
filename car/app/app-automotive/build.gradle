@@ -23,11 +23,16 @@ plugins {
 }
 dependencies {
     api(project(":car:app:app"))
+    api(libs.guavaListenableFuture)
+
+    implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation("androidx.fragment:fragment:1.3.0")
     implementation("androidx.lifecycle:lifecycle-common-java8:2.2.0")
     implementation("androidx.annotation:annotation:1.1.0")
+    implementation(libs.autoValueAnnotations)
 
     annotationProcessor(libs.nullaway)
+    annotationProcessor(libs.autoValue)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -49,6 +54,7 @@ android {
     buildFeatures {
         aidl = true
     }
+    useLibrary 'android.car'
     testOptions.unitTests.includeAndroidResources = true
 }
 

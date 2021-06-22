@@ -430,9 +430,9 @@ public object ChipDefaults {
      */
     @Composable
     public fun gradientBackgroundChipColors(
-        startBackgroundColor: Color = MaterialTheme.colors.primary,
+        startBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.5f),
         endBackgroundColor: Color = MaterialTheme.colors.surface,
-        contentColor: Color = contentColorFor(startBackgroundColor),
+        contentColor: Color = contentColorFor(endBackgroundColor),
         secondaryContentColor: Color = contentColor,
         iconTintColor: Color = contentColor,
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
@@ -467,8 +467,9 @@ public object ChipDefaults {
                 Brush.linearGradient(disabledBackgroundColors)
             ),
             disabledContentColor = contentColor.copy(alpha = ContentAlpha.disabled),
-            disabledSecondaryContentColor =
-                secondaryContentColor.copy(alpha = ContentAlpha.disabled),
+            disabledSecondaryContentColor = secondaryContentColor.copy(
+                alpha = ContentAlpha.disabled
+            ),
             disabledIconTintColor = iconTintColor.copy(alpha = ContentAlpha.disabled),
         )
     }
@@ -527,7 +528,7 @@ public object ChipDefaults {
         )
     }
 
-    private val ChipHorizontalPadding = 16.dp
+    private val ChipHorizontalPadding = 14.dp
     private val ChipWithIconHorizontalPadding = 12.dp
     private val ChipVerticalPadding = 6.dp
 
