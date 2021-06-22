@@ -47,7 +47,7 @@ public abstract class NavigatorState {
      * Navigators, this back stack is specifically the set of destinations associated
      * with this Navigator.
      *
-     * Changing the back stack must be done via [add] and [pop].
+     * Changing the back stack must be done via [push] and [pop].
      */
     public val backStack: StateFlow<List<NavBackStackEntry>> = _backStack.asStateFlow()
 
@@ -63,7 +63,7 @@ public abstract class NavigatorState {
     /**
      * Adds the given [backStackEntry] to the [backStack].
      */
-    public open fun add(backStackEntry: NavBackStackEntry) {
+    public open fun push(backStackEntry: NavBackStackEntry) {
         backStackLock.withLock {
             _backStack.value = _backStack.value + backStackEntry
         }
@@ -72,10 +72,10 @@ public abstract class NavigatorState {
     /**
      * Provides listener that once activated, adds the given [backStackEntry] to the [backStack].
      */
-    public open fun addWithTransition(
+    public open fun pushWithTransition(
         backStackEntry: NavBackStackEntry
     ): OnTransitionCompleteListener {
-        add(backStackEntry)
+        push(backStackEntry)
         return OnTransitionCompleteListener {
             removeInProgressTransition(backStackEntry)
         }
