@@ -988,16 +988,21 @@ package androidx.core.content {
   }
 
   public final class IntentCompat {
-    method public static boolean areUnusedAppRestrictionsAllowlisted(android.content.Context);
-    method public static boolean areUnusedAppRestrictionsAvailable(android.content.Context);
     method public static android.content.Intent createManageUnusedAppRestrictionsIntent(android.content.Context, String);
+    method public static int getUnusedAppRestrictionsStatus(android.content.Context);
     method public static android.content.Intent makeMainSelectorActivity(String, String);
     field public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
     field public static final String ACTION_UNUSED_APP_RESTRICTIONS = "android.intent.action.AUTO_REVOKE_PERMISSIONS";
+    field public static final int APP_HIBERNATION_DISABLED = 5; // 0x5
+    field public static final int APP_HIBERNATION_ENABLED = 4; // 0x4
     field public static final String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
     field public static final String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
     field public static final String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
     field public static final String EXTRA_TIME = "android.intent.extra.TIME";
+    field public static final int PERMISSION_REVOCATION_DISABLED = 3; // 0x3
+    field public static final int PERMISSION_REVOCATION_ENABLED = 2; // 0x2
+    field public static final int UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE = 1; // 0x1
+    field public static final int UNUSED_APP_RESTRICTION_STATUS_UNKNOWN = 0; // 0x0
   }
 
   public final class LocusIdCompat {
