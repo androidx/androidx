@@ -110,6 +110,11 @@
                 android:checked="true"
                 />
 
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/appcompat_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <Button
                 android:id="@+id/emoji_list_button"
                 android:layout_width="match_parent"
