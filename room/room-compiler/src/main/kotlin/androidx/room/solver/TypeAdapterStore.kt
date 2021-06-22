@@ -57,6 +57,7 @@ import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.GuavaOptionalQueryResultAdapter
 import androidx.room.solver.query.result.ImmutableListQueryResultAdapter
 import androidx.room.solver.query.result.ListQueryResultAdapter
+import androidx.room.solver.query.result.MapQueryResultAdapter
 import androidx.room.solver.query.result.OptionalQueryResultAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.solver.query.result.QueryResultAdapter
@@ -460,6 +461,26 @@ class TypeAdapterStore private constructor(
                 return ListQueryResultAdapter(
                     typeArg = typeArg,
                     rowAdapter = rowAdapter
+                )
+            } else if (typeMirror.isTypeOf(java.util.Map::class)) {
+                val keyArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
+                val secondTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
+
+                // TODO: Support Set::class here as well.
+                if (!secondTypeArg.isTypeOf(java.util.List::class)) {
+                    context.logger.e("Only supporting Map<Key, List<Value>> for now.")
+                    return null
+                }
+                val valueArg = secondTypeArg.typeArguments.first().extendsBoundOrSelf()
+
+                val keyRowAdapter = findRowAdapter(keyArg, query) ?: return null
+                val valueRowAdapter = findRowAdapter(valueArg, query) ?: return null
+
+                return MapQueryResultAdapter(
+                    keyTypeArg = keyArg,
+                    valueTypeArg = valueArg,
+                    keyRowAdapter = keyRowAdapter,
+                    valueRowAdapter = valueRowAdapter
                 )
             }
             return null

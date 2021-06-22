@@ -29,7 +29,7 @@ abstract class QueryResultAdapter(val rowAdapter: RowAdapter?) {
     open fun shouldCopyCursor() = rowAdapter is PojoRowAdapter &&
         rowAdapter.relationCollectors.isNotEmpty()
 
-    fun accessedTableNames(): List<String> {
+    open fun accessedTableNames(): List<String> {
         return (rowAdapter as? PojoRowAdapter)?.relationTableNames() ?: emptyList()
     }
 }
