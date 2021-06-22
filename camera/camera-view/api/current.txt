@@ -80,6 +80,8 @@ package androidx.camera.view {
     method public androidx.lifecycle.LiveData<androidx.camera.view.PreviewView.StreamState!> getPreviewStreamState();
     method @UiThread public androidx.camera.view.PreviewView.ScaleType getScaleType();
     method @UiThread public androidx.camera.core.Preview.SurfaceProvider getSurfaceProvider();
+    method @UiThread public androidx.camera.core.ViewPort? getViewPort();
+    method @UiThread public androidx.camera.core.ViewPort? getViewPort(int);
     method @UiThread public void setController(androidx.camera.view.CameraController?);
     method @UiThread public void setImplementationMode(androidx.camera.view.PreviewView.ImplementationMode);
     method @UiThread public void setScaleType(androidx.camera.view.PreviewView.ScaleType);
