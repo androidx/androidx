@@ -306,6 +306,9 @@
             android:name="androidx.appcompat.app.EmptyOptionsPanelActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
 
+        <activity
+            android:name="androidx.appcompat.widget.ButtonBarLayoutActivity"/>
+
     </application>
 
 </manifest>
