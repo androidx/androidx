@@ -33,6 +33,9 @@ public class Colors(
     secondary: Color = Color(0xFFFDE293),
     secondaryVariant: Color = Color(0xFF594F33),
     error: Color = Color(0xFFEE675C),
+    onPrimary: Color = Color(0xFF202124),
+    onSecondary: Color = Color(0xFF202124),
+    onError: Color = Color(0xFF202124)
 ) {
     public var primary: Color by mutableStateOf(primary, structuralEqualityPolicy())
         internal set
@@ -49,13 +52,16 @@ public class Colors(
     public val surface: Color = Color(0xFF202124)
     public var error: Color by mutableStateOf(error, structuralEqualityPolicy())
         internal set
-    public val onPrimary: Color = Color(0xFF202124)
-    public val onSecondary: Color = Color(0xFF202124)
+    public var onPrimary: Color by mutableStateOf(onPrimary, structuralEqualityPolicy())
+        internal set
+    public var onSecondary: Color by mutableStateOf(onSecondary, structuralEqualityPolicy())
+        internal set
     public val onBackground: Color = Color.White
     public val onSurface: Color = Color.White
     public val onSurfaceVariant: Color = Color(0xFFDADCE0)
     public val onSurfaceVariant2: Color = Color(0xFFBDC1C6)
-    public val onError: Color = Color(0xFF202124)
+    public var onError: Color by mutableStateOf(onError, structuralEqualityPolicy())
+        internal set
 
     /**
      * Returns a copy of this Colors, optionally overriding some of the values.
@@ -66,12 +72,18 @@ public class Colors(
         secondary: Color = this.secondary,
         secondaryVariant: Color = this.secondaryVariant,
         error: Color = this.error,
+        onPrimary: Color = this.onPrimary,
+        onSecondary: Color = this.onSecondary,
+        onError: Color = this.onError
     ): Colors = Colors(
-        primary,
-        primaryVariant,
-        secondary,
-        secondaryVariant,
-        error,
+        primary = primary,
+        primaryVariant = primaryVariant,
+        secondary = secondary,
+        secondaryVariant = secondaryVariant,
+        error = error,
+        onPrimary = onPrimary,
+        onSecondary = onSecondary,
+        onError = onError
     )
 
     override fun toString(): String {
@@ -165,6 +177,9 @@ internal fun Colors.updateColorsFrom(other: Colors) {
     secondary = other.secondary
     secondaryVariant = other.secondaryVariant
     error = other.error
+    onPrimary = other.onPrimary
+    onSecondary = other.onSecondary
+    onError = other.onError
 }
 
 internal val LocalColors = staticCompositionLocalOf<Colors> { Colors() }
