@@ -247,8 +247,6 @@ MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setVideoFormat(
     Missing nullability on method `setVideoFormat` return
 MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setVideoFormat(String) parameter #0:
     Missing nullability on parameter `videoFormat` in method `setVideoFormat`
-MissingNullability: androidx.tvprovider.media.tv.ChannelLogoUtils#loadChannelLogo(android.content.Context, long):
-    Missing nullability on method `loadChannelLogo` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#fromCursor(android.database.Cursor):
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#fromCursor(android.database.Cursor) parameter #0:

@@ -1,14 +1,4 @@
 // Baseline format: 1.0
-MissingNullability: androidx.room.testing.MigrationTestHelper#MigrationTestHelper(android.app.Instrumentation, String) parameter #0:
-    Missing nullability on parameter `instrumentation` in method `MigrationTestHelper`
-MissingNullability: androidx.room.testing.MigrationTestHelper#MigrationTestHelper(android.app.Instrumentation, String) parameter #1:
-    Missing nullability on parameter `assetsFolder` in method `MigrationTestHelper`
-MissingNullability: androidx.room.testing.MigrationTestHelper#MigrationTestHelper(android.app.Instrumentation, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory) parameter #0:
-    Missing nullability on parameter `instrumentation` in method `MigrationTestHelper`
-MissingNullability: androidx.room.testing.MigrationTestHelper#MigrationTestHelper(android.app.Instrumentation, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory) parameter #1:
-    Missing nullability on parameter `assetsFolder` in method `MigrationTestHelper`
-MissingNullability: androidx.room.testing.MigrationTestHelper#MigrationTestHelper(android.app.Instrumentation, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory) parameter #2:
-    Missing nullability on parameter `openFactory` in method `MigrationTestHelper`
 MissingNullability: androidx.room.testing.MigrationTestHelper#closeWhenFinished(androidx.room.RoomDatabase) parameter #0:
     Missing nullability on parameter `db` in method `closeWhenFinished`
 MissingNullability: androidx.room.testing.MigrationTestHelper#closeWhenFinished(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:

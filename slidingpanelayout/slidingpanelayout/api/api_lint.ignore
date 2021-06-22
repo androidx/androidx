@@ -35,9 +35,3 @@ MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#requestC
     Missing nullability on parameter `child` in method `requestChildFocus`
 MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout#requestChildFocus(android.view.View, android.view.View) parameter #1:
     Missing nullability on parameter `focused` in method `requestChildFocus`
-MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout.SimplePanelSlideListener#onPanelClosed(android.view.View) parameter #0:
-    Missing nullability on parameter `panel` in method `onPanelClosed`
-MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout.SimplePanelSlideListener#onPanelOpened(android.view.View) parameter #0:
-    Missing nullability on parameter `panel` in method `onPanelOpened`
-MissingNullability: androidx.slidingpanelayout.widget.SlidingPaneLayout.SimplePanelSlideListener#onPanelSlide(android.view.View, float) parameter #0:
-    Missing nullability on parameter `panel` in method `onPanelSlide`

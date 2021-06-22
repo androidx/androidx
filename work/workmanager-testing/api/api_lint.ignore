@@ -7,22 +7,8 @@ BuilderSetStyle: androidx.work.testing.TestListenableWorkerBuilder#from(android.
 
 MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setForegroundUpdater(androidx.work.ForegroundUpdater):
     W does not declare a `getForegroundUpdater()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setForegroundUpdater(androidx.work.ForegroundUpdater)
-MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setId(java.util.UUID):
-    W does not declare a `getId()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setId(java.util.UUID)
-MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setInputData(androidx.work.Data):
-    W does not declare a `getInputData()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setInputData(androidx.work.Data)
-MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setNetwork(android.net.Network):
-    W does not declare a `getNetwork()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setNetwork(android.net.Network)
 MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setProgressUpdater(androidx.work.ProgressUpdater):
     W does not declare a `getProgressUpdater()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setProgressUpdater(androidx.work.ProgressUpdater)
-MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setRunAttemptCount(int):
-    W does not declare a `getRunAttemptCount()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setRunAttemptCount(int)
-MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setTags(java.util.List<java.lang.String>):
-    W does not declare a `getTags()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setTags(java.util.List<java.lang.String>)
-MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setTriggeredContentAuthorities(java.util.List<java.lang.String>):
-    W does not declare a `getTriggeredContentAuthorities()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setTriggeredContentAuthorities(java.util.List<java.lang.String>)
-MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setTriggeredContentUris(java.util.List<android.net.Uri>):
-    W does not declare a `getTriggeredContentUris()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setTriggeredContentUris(java.util.List<android.net.Uri>)
 MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setWorkerFactory(androidx.work.WorkerFactory):
     W does not declare a `getWorkerFactory()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setWorkerFactory(androidx.work.WorkerFactory)
 

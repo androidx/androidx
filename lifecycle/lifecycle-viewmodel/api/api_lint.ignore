@@ -5,5 +5,3 @@ MissingJvmstatic: androidx.lifecycle.ViewModelProvider.NewInstanceFactory#instan
 
 SingletonConstructor: androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory#AndroidViewModelFactory(android.app.Application):
     Singleton classes should use `getInstance()` methods: `AndroidViewModelFactory`
-SingletonConstructor: androidx.lifecycle.ViewModelProvider.NewInstanceFactory#NewInstanceFactory():
-    Singleton classes should use `getInstance()` methods: `NewInstanceFactory`

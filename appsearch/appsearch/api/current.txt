@@ -263,12 +263,12 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addSchemaType(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addSchemaType(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec build();
-    method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(@IntRange(from=0, to=androidx.appsearch.app.SearchSpec.MAX_SNIPPET_SIZE_LIMIT) int);
+    method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setOrder(int);
     method public androidx.appsearch.app.SearchSpec.Builder setRankingStrategy(int);
-    method public androidx.appsearch.app.SearchSpec.Builder setResultCountPerPage(@IntRange(from=0, to=androidx.appsearch.app.SearchSpec.MAX_NUM_PER_PAGE) int);
-    method public androidx.appsearch.app.SearchSpec.Builder setSnippetCount(@IntRange(from=0, to=androidx.appsearch.app.SearchSpec.MAX_SNIPPET_COUNT) int);
-    method public androidx.appsearch.app.SearchSpec.Builder setSnippetCountPerProperty(@IntRange(from=0, to=androidx.appsearch.app.SearchSpec.MAX_SNIPPET_PER_PROPERTY_COUNT) int);
+    method public androidx.appsearch.app.SearchSpec.Builder setResultCountPerPage(@IntRange(from=0, to=0x2710) int);
+    method public androidx.appsearch.app.SearchSpec.Builder setSnippetCount(@IntRange(from=0, to=0x2710) int);
+    method public androidx.appsearch.app.SearchSpec.Builder setSnippetCountPerProperty(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setTermMatch(int);
   }
 

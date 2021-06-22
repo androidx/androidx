@@ -10,7 +10,7 @@ package androidx.navigation.dynamicfeatures.fragment {
     ctor public DynamicFragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     ctor public DynamicFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> fragmentNavigator);
     method public String? getModuleName();
-    method public void setModuleName(String? p);
+    method public void setModuleName(String? moduleName);
     property public final String? moduleName;
   }
 
@@ -19,7 +19,7 @@ package androidx.navigation.dynamicfeatures.fragment {
     ctor public DynamicFragmentNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator navigator, String route, String fragmentClassName);
     method public androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination build();
     method public String? getModuleName();
-    method public void setModuleName(String? p);
+    method public void setModuleName(String? moduleName);
     property public final String? moduleName;
   }
 

@@ -1,11 +1,5 @@
 // Baseline format: 1.0
 GetterSetterNames: androidx.wear.watchface.CanvasComplication#setIsHighlighted(boolean):
     Symmetric method for `isHighlighted` must be named `setHighlighted`; was `setIsHighlighted`
-GetterSetterNames: androidx.wear.watchface.CanvasComplicationDrawable#setIsHighlighted(boolean):
-    Symmetric method for `isHighlighted` must be named `setHighlighted`; was `setIsHighlighted`
 GetterSetterNames: androidx.wear.watchface.ObservableWatchData#setValue(T):
     Symmetric method for `hasValue` must be named `setHasValue`; was `setValue`
-
-
-NullableCollection: androidx.wear.watchface.Complication#getComplicationConfigExtras():
-    Return type of method androidx.wear.watchface.Complication.getComplicationConfigExtras() is a nullable collection (`android.os.Bundle`); must be non-null

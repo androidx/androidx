@@ -27,8 +27,6 @@ MissingGetterMatchingBuilder: androidx.media2.session.MediaController.Builder#se
     androidx.media2.session.MediaController does not declare a `getSessionToken()` method matching method androidx.media2.session.MediaController.Builder.setSessionToken(androidx.media2.session.SessionToken)
 MissingGetterMatchingBuilder: androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder#setExtras(android.os.Bundle):
     androidx.media2.session.MediaLibraryService.MediaLibrarySession does not declare a `getExtras()` method matching method androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder.setExtras(android.os.Bundle)
-MissingGetterMatchingBuilder: androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder#setId(String):
-    androidx.media2.session.MediaLibraryService.MediaLibrarySession does not declare a `getId()` method matching method androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder.setId(String)
 MissingGetterMatchingBuilder: androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder#setSessionActivity(android.app.PendingIntent):
     androidx.media2.session.MediaLibraryService.MediaLibrarySession does not declare a `getSessionActivity()` method matching method androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder.setSessionActivity(android.app.PendingIntent)
 MissingGetterMatchingBuilder: androidx.media2.session.MediaSession.Builder#setExtras(android.os.Bundle):

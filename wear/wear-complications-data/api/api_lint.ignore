@@ -1,38 +1,6 @@
 // Baseline format: 1.0
-MissingGetterMatchingBuilder: android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder#setMinimumUnit(java.util.concurrent.TimeUnit):
-    android.support.wearable.complications.ComplicationText does not declare a `getMinimumUnit()` method matching method android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder.setMinimumUnit(java.util.concurrent.TimeUnit)
-MissingGetterMatchingBuilder: android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder#setReferencePeriodEndMillis(long):
-    android.support.wearable.complications.ComplicationText does not declare a `getReferencePeriodEndMillis()` method matching method android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder.setReferencePeriodEndMillis(long)
-MissingGetterMatchingBuilder: android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder#setReferencePeriodStartMillis(long):
-    android.support.wearable.complications.ComplicationText does not declare a `getReferencePeriodStartMillis()` method matching method android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder.setReferencePeriodStartMillis(long)
-MissingGetterMatchingBuilder: android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder#setShowNowText(boolean):
-    android.support.wearable.complications.ComplicationText does not declare a `isShowNowText()` method matching method android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder.setShowNowText(boolean)
-MissingGetterMatchingBuilder: android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder#setStyle(int):
-    android.support.wearable.complications.ComplicationText does not declare a `getStyle()` method matching method android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder.setStyle(int)
-MissingGetterMatchingBuilder: android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder#setSurroundingText(CharSequence):
-    android.support.wearable.complications.ComplicationText does not declare a `getSurroundingText()` method matching method android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder.setSurroundingText(CharSequence)
-MissingGetterMatchingBuilder: android.support.wearable.complications.ComplicationText.TimeFormatBuilder#setFormat(String):
-    android.support.wearable.complications.ComplicationText does not declare a `getFormat()` method matching method android.support.wearable.complications.ComplicationText.TimeFormatBuilder.setFormat(String)
-MissingGetterMatchingBuilder: android.support.wearable.complications.ComplicationText.TimeFormatBuilder#setStyle(int):
-    android.support.wearable.complications.ComplicationText does not declare a `getStyle()` method matching method android.support.wearable.complications.ComplicationText.TimeFormatBuilder.setStyle(int)
-MissingGetterMatchingBuilder: android.support.wearable.complications.ComplicationText.TimeFormatBuilder#setSurroundingText(CharSequence):
-    android.support.wearable.complications.ComplicationText does not declare a `getSurroundingText()` method matching method android.support.wearable.complications.ComplicationText.TimeFormatBuilder.setSurroundingText(CharSequence)
-MissingGetterMatchingBuilder: android.support.wearable.complications.ComplicationText.TimeFormatBuilder#setTimeZone(java.util.TimeZone):
-    android.support.wearable.complications.ComplicationText does not declare a `getTimeZone()` method matching method android.support.wearable.complications.ComplicationText.TimeFormatBuilder.setTimeZone(java.util.TimeZone)
-MissingGetterMatchingBuilder: androidx.wear.complications.data.LongTextComplicationData.Builder#setTapAction(android.app.PendingIntent):
-    androidx.wear.complications.data.LongTextComplicationData does not declare a `getTapAction()` method matching method androidx.wear.complications.data.LongTextComplicationData.Builder.setTapAction(android.app.PendingIntent)
-MissingGetterMatchingBuilder: androidx.wear.complications.data.MonochromaticImageComplicationData.Builder#setTapAction(android.app.PendingIntent):
-    androidx.wear.complications.data.MonochromaticImageComplicationData does not declare a `getTapAction()` method matching method androidx.wear.complications.data.MonochromaticImageComplicationData.Builder.setTapAction(android.app.PendingIntent)
-MissingGetterMatchingBuilder: androidx.wear.complications.data.RangedValueComplicationData.Builder#setTapAction(android.app.PendingIntent):
-    androidx.wear.complications.data.RangedValueComplicationData does not declare a `getTapAction()` method matching method androidx.wear.complications.data.RangedValueComplicationData.Builder.setTapAction(android.app.PendingIntent)
-MissingGetterMatchingBuilder: androidx.wear.complications.data.ShortTextComplicationData.Builder#setTapAction(android.app.PendingIntent):
-    androidx.wear.complications.data.ShortTextComplicationData does not declare a `getTapAction()` method matching method androidx.wear.complications.data.ShortTextComplicationData.Builder.setTapAction(android.app.PendingIntent)
-MissingGetterMatchingBuilder: androidx.wear.complications.data.SmallImageComplicationData.Builder#setTapAction(android.app.PendingIntent):
-    androidx.wear.complications.data.SmallImageComplicationData does not declare a `getTapAction()` method matching method androidx.wear.complications.data.SmallImageComplicationData.Builder.setTapAction(android.app.PendingIntent)
 MissingGetterMatchingBuilder: androidx.wear.complications.data.TimeDifferenceComplicationText.Builder#setDisplayAsNow(boolean):
     androidx.wear.complications.data.TimeDifferenceComplicationText does not declare a `isDisplayAsNow()` method matching method androidx.wear.complications.data.TimeDifferenceComplicationText.Builder.setDisplayAsNow(boolean)
-MissingGetterMatchingBuilder: androidx.wear.complications.data.TimeDifferenceComplicationText.Builder#setMinimumUnit(java.util.concurrent.TimeUnit):
-    androidx.wear.complications.data.TimeDifferenceComplicationText does not declare a `getMinimumUnit()` method matching method androidx.wear.complications.data.TimeDifferenceComplicationText.Builder.setMinimumUnit(java.util.concurrent.TimeUnit)
 MissingGetterMatchingBuilder: androidx.wear.complications.data.TimeDifferenceComplicationText.Builder#setText(CharSequence):
     androidx.wear.complications.data.TimeDifferenceComplicationText does not declare a `getText()` method matching method androidx.wear.complications.data.TimeDifferenceComplicationText.Builder.setText(CharSequence)
 MissingGetterMatchingBuilder: androidx.wear.complications.data.TimeFormatComplicationText.Builder#setStyle(androidx.wear.complications.data.TimeFormatStyle):

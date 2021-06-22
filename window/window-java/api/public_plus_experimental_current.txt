@@ -5,9 +5,6 @@ package androidx.window.java {
     ctor public WindowInfoRepoCallbackAdapter(androidx.window.WindowInfoRepo repo);
     method public void addCurrentWindowMetricsListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.WindowMetrics> consumer);
     method public void addWindowLayoutInfoListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> consumer);
-    method public kotlinx.coroutines.flow.Flow<androidx.window.WindowMetrics> getCurrentWindowMetrics();
-    method public androidx.window.WindowMetrics getMaximumWindowMetrics();
-    method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> getWindowLayoutInfo();
     method public void removeCurrentWindowMetricsListener(androidx.core.util.Consumer<androidx.window.WindowMetrics> consumer);
     method public void removeWindowLayoutInfoListener(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> consumer);
   }

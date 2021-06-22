@@ -8,7 +8,7 @@ package androidx.wear.watchface.editor {
     method public Integer? getBackgroundComplicationSlotId();
     method public Integer? getComplicationSlotIdAt(int x, int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
-    method public suspend Object? getComplicationsDataSourceInfo(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationDataSourceInfo>> p);
+    method public suspend Object? getComplicationsDataSourceInfo(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.ComplicationDataSourceInfo>> p);
     method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData>> getListenableComplicationPreviewData();
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationDataSourceInfo>> getListenableComplicationsProviderInfo();
