@@ -490,4 +490,12 @@ public class SetSchemaRequestCtsTest {
                 .addSchemas(AppSearchEmail.SCHEMA).setVersion(1).build();
         assertThat(request.getVersion()).isEqualTo(1);
     }
+
+    @Test
+    public void testSetVersion_emptyDb() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new SetSchemaRequest.Builder().setVersion(135).build());
+        assertThat(exception).hasMessageThat().contains(
+                "Cannot set version to the request if schema is empty.");
+    }
 }

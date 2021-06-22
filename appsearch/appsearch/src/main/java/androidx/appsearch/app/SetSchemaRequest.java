@@ -169,13 +169,14 @@ public final class SetSchemaRequest {
 
     /** Builder for {@link SetSchemaRequest} objects. */
     public static final class Builder {
+        private static final int DEFAULT_VERSION = 1;
         private ArraySet<AppSearchSchema> mSchemas = new ArraySet<>();
         private ArraySet<String> mSchemasNotDisplayedBySystem = new ArraySet<>();
         private ArrayMap<String, Set<PackageIdentifier>> mSchemasVisibleToPackages =
                 new ArrayMap<>();
         private ArrayMap<String, Migrator> mMigrators = new ArrayMap<>();
         private boolean mForceOverride = false;
-        private int mVersion = 1;
+        private int mVersion = DEFAULT_VERSION;
         private boolean mBuilt = false;
 
         /**
@@ -494,7 +495,7 @@ public final class SetSchemaRequest {
          * <p>The {@link AppSearchSession} database can only ever hold documents for one version
          * at a time.
          *
-         * <p>Setting a version number that is different from the version number  currently stored
+         * <p>Setting a version number that is different from the version number currently stored
          * in AppSearch will result in AppSearch calling the {@link Migrator}s provided to
          * {@link AppSearchSession#setSchema} to migrate the documents already in AppSearch from
          * the previous version to the one set in this request. The version number can be
@@ -502,6 +503,9 @@ public final class SetSchemaRequest {
          *
          * <p>The version number can stay the same, increase, or decrease relative to the current
          * version number that is already stored in the {@link AppSearchSession} database.
+         *
+         * <p>The version of an empty database will always be 0. You cannot set version to the
+         * {@link SetSchemaRequest}, if it doesn't contains any {@link AppSearchSchema}.
          *
          * @param version A positive integer representing the version of the entire set of
          *                schemas represents the version of the whole schema in the
@@ -545,7 +549,10 @@ public final class SetSchemaRequest {
                 throw new IllegalArgumentException(
                         "Schema types " + referencedSchemas + " referenced, but were not added.");
             }
-
+            if (mSchemas.isEmpty() && mVersion != DEFAULT_VERSION) {
+                throw new IllegalArgumentException(
+                        "Cannot set version to the request if schema is empty.");
+            }
             mBuilt = true;
             return new SetSchemaRequest(
                     mSchemas,
