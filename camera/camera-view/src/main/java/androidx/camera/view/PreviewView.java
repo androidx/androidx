@@ -497,7 +497,6 @@ public final class PreviewView extends FrameLayout {
      */
     @UiThread
     @Nullable
-    @ExperimentalUseCaseGroup
     public ViewPort getViewPort() {
         Threads.checkMainThread();
         if (getDisplay() == null) {
@@ -548,7 +547,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @SuppressLint("WrongConstant")
     @Nullable
-    @ExperimentalUseCaseGroup
+    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     public ViewPort getViewPort(@ImageOutputConfig.RotationValue int targetRotation) {
         Threads.checkMainThread();
         if (getWidth() == 0 || getHeight() == 0) {
