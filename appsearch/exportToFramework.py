@@ -167,8 +167,6 @@ class ExportToFramework:
 
     def _TransformTestCode(self, contents):
         contents = (contents
-            .replace('org.junit.Assert.assertThrows', 'org.testng.Assert.expectThrows')
-            .replace('assertThrows(', 'expectThrows(')
             .replace('androidx.appsearch.app.util.', 'com.android.server.appsearch.testing.')
             .replace(
                     'package androidx.appsearch.app.util;',
