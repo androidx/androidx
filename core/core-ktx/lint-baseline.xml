@@ -1,5 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertFalse(1 in array)"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="42"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertTrue(1 in array)"
+        errorLine2="                   ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="44"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertFalse(2 in array)"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="52"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertTrue(2 in array)"
+        errorLine2="                   ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="55"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `updatePaddingRelative`"
+        errorLine1="        view.updatePaddingRelative(start = 10, end = 20)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="142"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#getPaddingStart`"
+        errorLine1="        assertEquals(10, view.paddingStart)"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="143"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#getPaddingEnd`"
+        errorLine1="        assertEquals(20, view.paddingEnd)"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="145"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#setPaddingRelative`"
+        errorLine1="        view.setPaddingRelative(10, 20, 30, 40)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="151"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `updatePaddingRelative`"
+        errorLine1="        view.updatePaddingRelative()"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="152"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#getPaddingStart`"
+        errorLine1="        assertEquals(10, view.paddingStart)"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="153"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#getPaddingEnd`"
+        errorLine1="        assertEquals(30, view.paddingEnd)"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="155"
+            column="31"/>
+    </issue>
 
     <issue
         id="ClassVerificationFailure"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -118,7 +118,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/benchmark/Outputs.kt"
-            line="59"
+            line="57"
             column="70"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/benchmark/Outputs.kt"
-            line="61"
+            line="59"
             column="37"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/benchmark/Profiler.kt"
-            line="100"
+            line="98"
             column="15"/>
     </issue>
 

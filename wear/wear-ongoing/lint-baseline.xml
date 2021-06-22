@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
+        errorLine2="                                                               ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="64"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)"
+        errorLine2="                                                                     ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="90"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
+        errorLine2="                                                               ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="91"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)"
+        errorLine2="                                                                     ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="127"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
+        errorLine2="                                                               ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="128"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)"
+        errorLine2="                                                                     ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="212"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
+        errorLine2="                                                               ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="213"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)"
+        errorLine2="                                                                     ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="248"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
+        errorLine2="                                                               ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="249"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
+        errorLine2="                                                               ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="276"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(newAnimatedIconResourceId, received.animatedIcon!!.resId)"
+        errorLine2="                                                                        ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="309"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getResId`"
+        errorLine1="        assertEquals(newStaticIconResourceId, received.staticIcon.resId)"
+        errorLine2="                                                                  ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
+            line="310"
+            column="67"/>
+    </issue>
+
+</issues>

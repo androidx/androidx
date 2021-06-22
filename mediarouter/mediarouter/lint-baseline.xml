@@ -1,9 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.app.Activity#setTurnScreenOn`"
+        errorLine1="        setTurnScreenOn(true);"
+        errorLine2="        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"
+            line="47"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.app.Activity#setShowWhenLocked`"
+        errorLine1="        setShowWhenLocked(true);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"
+            line="48"
+            column="9"/>
+    </issue>
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                        mSelectRouteIntMethod.invoke(router, types, route);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -14,7 +36,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    return mGetSystemAudioRouteMethod.invoke(router);"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -25,7 +47,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    mScanWifiDisplaysMethod.invoke(mDisplayManager);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -36,7 +58,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    int statusCode = (Integer)mGetStatusCodeMethod.invoke(route);"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -52,7 +74,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="377"
+            line="383"
             column="48"/>
     </issue>
 
@@ -63,7 +85,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="380"
+            line="386"
             column="70"/>
     </issue>
 
@@ -74,7 +96,7 @@
         errorLine2="                                                       ~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="386"
+            line="392"
             column="56"/>
     </issue>
 
@@ -85,7 +107,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="482"
+            line="488"
             column="32"/>
     </issue>
 
@@ -96,7 +118,7 @@
         errorLine2="                                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="492"
+            line="498"
             column="75"/>
     </issue>
 
@@ -107,7 +129,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="495"
+            line="501"
             column="40"/>
     </issue>
 
@@ -118,7 +140,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="496"
+            line="502"
             column="32"/>
     </issue>
 
@@ -129,7 +151,7 @@
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="502"
+            line="508"
             column="66"/>
     </issue>
 
@@ -140,7 +162,7 @@
         errorLine2="                               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="530"
+            line="536"
             column="32"/>
     </issue>
 
@@ -151,7 +173,7 @@
         errorLine2="                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="548"
+            line="554"
             column="27"/>
     </issue>
 
@@ -162,7 +184,7 @@
         errorLine2="                               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="564"
+            line="570"
             column="32"/>
     </issue>
 
@@ -173,7 +195,7 @@
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="580"
+            line="586"
             column="32"/>
     </issue>
 

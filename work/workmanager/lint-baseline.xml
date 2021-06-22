@@ -1,5 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 14): `android.os.HandlerThread#quitSafely`"
+        errorLine1="        mHandlerThread.quitSafely();"
+        errorLine2="                       ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/workers/ConstraintTrackingWorkerTest.java"
+            line="157"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getTriggeredContentAuthorities`"
+        errorLine1="                sTriggeredContentAuthorities = getTriggeredContentAuthorities();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="304"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getTriggeredContentUris`"
+        errorLine1="                sTriggeredContentUris = getTriggeredContentUris();"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="305"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `getNetwork`"
+        errorLine1="                sNetwork = getNetwork();"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="325"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `addContentUriTrigger`"
+        errorLine1="                                .addContentUriTrigger(testUri1, true)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
+            line="367"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `addContentUriTrigger`"
+        errorLine1="                                .addContentUriTrigger(testUri2, false)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
+            line="368"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getContentUriTriggers`"
+        errorLine1="            assertThat(constraints.getContentUriTriggers(), is(new ContentUriTriggers()));"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
+            line="391"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getContentUriTriggers`"
+        errorLine1="        assertThat(constraints.getContentUriTriggers().size(), is(0));"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
+            line="401"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getTriggeredContentAuthorities`"
+        errorLine1="        assertThat(worker.getTriggeredContentAuthorities(),"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkerWrapperTest.java"
+            line="919"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getTriggeredContentUris`"
+        errorLine1="        assertThat(worker.getTriggeredContentUris(),"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/WorkerWrapperTest.java"
+            line="921"
+            column="27"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -239,7 +349,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="105"
+            line="104"
             column="25"/>
     </issue>
 
@@ -250,7 +360,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="112"
+            line="111"
             column="25"/>
     </issue>
 
@@ -261,7 +371,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="114"
+            line="113"
             column="21"/>
     </issue>
 
@@ -272,7 +382,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="115"
+            line="114"
             column="21"/>
     </issue>
 
@@ -283,7 +393,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="122"
+            line="121"
             column="21"/>
     </issue>
 
@@ -294,7 +404,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="123"
+            line="122"
             column="21"/>
     </issue>
 
@@ -305,7 +415,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="133"
+            line="132"
             column="16"/>
     </issue>
 
@@ -316,7 +426,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="152"
+            line="150"
             column="21"/>
     </issue>
 
@@ -393,7 +503,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkManagerImpl.java"
-            line="759"
+            line="761"
             column="71"/>
     </issue>
 
@@ -1774,7 +1884,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void postToMainThread(Runnable r) {"
+        errorLine1="    public void postToMainThread(Runnable runnable) {"
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/taskexecutor/WorkManagerTaskExecutor.java"
@@ -1796,7 +1906,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void executeOnBackgroundThread(Runnable r) {"
+        errorLine1="    public void executeOnBackgroundThread(Runnable runnable) {"
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/taskexecutor/WorkManagerTaskExecutor.java"
@@ -2031,7 +2141,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="199"
+            line="198"
             column="40"/>
     </issue>
 
@@ -2042,7 +2152,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="234"
+            line="233"
             column="19"/>
     </issue>
 
@@ -2053,7 +2163,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="267"
+            line="266"
             column="19"/>
     </issue>
 
@@ -2064,7 +2174,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="267"
+            line="266"
             column="56"/>
     </issue>
 
@@ -2075,7 +2185,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="306"
+            line="305"
             column="19"/>
     </issue>
 
@@ -2086,7 +2196,7 @@
         errorLine2="                                                                   ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="306"
+            line="305"
             column="68"/>
     </issue>
 
