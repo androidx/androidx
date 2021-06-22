@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.cts.app;
 
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES;
 
@@ -23,6 +23,9 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.PutDocumentsRequest;
+import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.util.AppSearchEmail;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
@@ -33,7 +36,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
-public class PutDocumentsRequestTest {
+public class PutDocumentsRequestCtsTest {
 
     @Test
     public void addGenericDocument_byCollection() {
