@@ -368,6 +368,7 @@ includeProject(":compose:ui:ui-text:ui-text-benchmark", "compose/ui/ui-text/benc
 includeProject(":compose:ui:ui-text:ui-text-samples", "compose/ui/ui-text/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-tooling", "compose/ui/ui-tooling", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-tooling-data", "compose/ui/ui-tooling-data", [BuildType.COMPOSE])
+includeProject(":compose:ui:ui-tooling-preview", "compose/ui/ui-tooling-preview", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-unit", "compose/ui/ui-unit", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-unit:ui-unit-samples", "compose/ui/ui-unit/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-util", "compose/ui/ui-util", [BuildType.COMPOSE])
