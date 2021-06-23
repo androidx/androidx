@@ -23,9 +23,12 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
 import androidx.work.Data
+import androidx.work.ForegroundUpdater
 import androidx.work.OneTimeWorkRequest
+import androidx.work.ProgressUpdater
 import androidx.work.WorkInfo
 import androidx.work.WorkRequest
+import androidx.work.WorkerParameters
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
@@ -37,6 +40,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_CLASS_NAME
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -142,6 +146,26 @@ public class RemoteListenableWorkerTest {
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
     }
 
+    @Test
+    @MediumTest
+    public fun testUnbindService_successWorker() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+        testUnbindService<RemoteSuccessWorker>()
+    }
+
+    @Test
+    @MediumTest
+    public fun testUnbindService_failureWorker() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+        testUnbindService<RemoteFailureWorker>()
+    }
+
     public inline fun <reified T : RemoteListenableWorker> buildRequest(): OneTimeWorkRequest {
         val inputData = Data.Builder()
             .putString(ARGUMENT_PACKAGE_NAME, mContext.packageName)
@@ -165,5 +189,34 @@ public class RemoteListenableWorkerTest {
             mDatabase,
             request.stringId
         ).build()
+    }
+
+    private inline fun <reified T : RemoteListenableWorker> testUnbindService() {
+        val request = buildRequest<T>()
+        val inputData = Data.Builder()
+            .putString(ARGUMENT_PACKAGE_NAME, mContext.packageName)
+            .putString(ARGUMENT_CLASS_NAME, RemoteWorkerService::class.java.name)
+            .build()
+        val progressUpdater = mock(ProgressUpdater::class.java)
+        val foregroundUpdater = mock(ForegroundUpdater::class.java)
+        val parameters = WorkerParameters(
+            request.id,
+            inputData,
+            emptyList(),
+            WorkerParameters.RuntimeExtras(),
+            0,
+            mConfiguration.executor,
+            mTaskExecutor,
+            mConfiguration.workerFactory,
+            progressUpdater,
+            foregroundUpdater
+        )
+        val worker: RemoteSuccessWorker =
+            mConfiguration.workerFactory.createWorkerWithDefaultFallback(
+                mContext,
+                RemoteSuccessWorker::class.java.name, parameters
+            ) as RemoteSuccessWorker
+        worker.startWork().get()
+        assertNull(worker.mClient.connection)
     }
 }
