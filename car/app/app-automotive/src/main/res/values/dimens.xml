@@ -15,9 +15,6 @@
   -->
 
 <resources>
-    <dimen name="car_app_action_button_height">50dp</dimen>
-    <dimen name="car_app_action_button_width">150dp</dimen>
-
     <dimen name="car_app_default_padding_4">24dp</dimen>
     <dimen name="car_app_default_padding_5">32dp</dimen>
     <dimen name="car_app_default_focus_ring_stroke_width_focused">6dp</dimen>
