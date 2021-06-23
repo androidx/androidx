@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
@@ -450,6 +450,17 @@
             file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
             line="125"
             column="9"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2, CarAppApiLevels.LEVEL_3"
+        errorLine1="        mCarAppApiLevel = handshakeInfo.getHostCarAppApiLevel();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarContext.java"
+            line="583"
+            column="27"/>
     </issue>
 
     <issue

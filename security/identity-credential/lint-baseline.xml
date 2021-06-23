@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: ResultData.STATUS_OK, ResultData.STATUS_NO_SUCH_ENTRY, ResultData.STATUS_NOT_REQUESTED, ResultData.STATUS_NOT_IN_REQUEST_MESSAGE, ResultData.STATUS_USER_AUTHENTICATION_FAILED, ResultData.STATUS_READER_AUTHENTICATION_FAILED, ResultData.STATUS_NO_ACCESS_CONTROL_PROFILES"
+        errorLine1="                    builder.addErrorStatus(namespaceName, entryName, status);"
+        errorLine2="                                                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/security/identity/HardwareIdentityCredential.java"
+            line="237"
+            column="70"/>
+    </issue>
+
+</issues>
