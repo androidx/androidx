@@ -17,10 +17,13 @@
 package androidx.documentfile.provider;
 
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.DocumentsContract;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -50,5 +53,65 @@ public class DocumentFileTest {
 
         DocumentFile subDirDoc = DocumentFile.fromTreeUri(context, DOWNLOAD_URI);
         assertThat(subDirDoc.getUri(), equalTo(DOWNLOAD_URI));
+    }
+
+    @Test
+    public void testDocumentsContractApi_isDocumentId() {
+        Context context = ApplicationProvider.getApplicationContext();
+        final boolean isDocumentUri = DocumentsContractApi.isDocumentUri(context,
+                DOWNLOAD_URI);
+
+        final boolean expectedIsDocumentUri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            expectedIsDocumentUri = DocumentsContract.isDocumentUri(context, DOWNLOAD_URI);
+        } else {
+            expectedIsDocumentUri = false;
+        }
+        assertEquals(expectedIsDocumentUri, isDocumentUri);
+    }
+
+    @Test
+    public void testDocumentsContractApi_getDocumentId() {
+        final String documentId = DocumentsContractApi.getDocumentId(DOWNLOAD_URI);
+
+        final String expectedDocumentId;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            expectedDocumentId = DocumentsContract.getDocumentId(DOWNLOAD_URI);
+        } else {
+            expectedDocumentId = null;
+        }
+        assertEquals(expectedDocumentId, documentId);
+    }
+
+    @Test
+    public void testDocumentsContractApi_getTreeDocumentId() {
+        final String treeDocumentId = DocumentsContractApi.getTreeDocumentId(
+                DOWNLOAD_URI);
+
+        final String expectedTreeDocumentId;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            expectedTreeDocumentId = DocumentsContract.getTreeDocumentId(DOWNLOAD_URI);
+        } else {
+            expectedTreeDocumentId = null;
+        }
+        assertEquals(expectedTreeDocumentId, treeDocumentId);
+    }
+
+    @Test
+    public void testDocumentsContractApi_buildDocumentUriUsingTree() {
+        final String treeDocumentId = DocumentsContractApi.getTreeDocumentId(
+                DOWNLOAD_URI);
+        final Uri treeUri = DocumentsContractApi.buildDocumentUriUsingTree(
+                DOWNLOAD_URI, treeDocumentId);
+
+        final Uri expectedTreeUri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            final String expectedTreeDocId = DocumentsContract.getTreeDocumentId(DOWNLOAD_URI);
+            expectedTreeUri = DocumentsContract.buildDocumentUriUsingTree(DOWNLOAD_URI,
+                    expectedTreeDocId);
+        } else {
+            expectedTreeUri = null;
+        }
+        assertEquals(expectedTreeUri, treeUri);
     }
 }
