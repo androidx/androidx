@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
@@ -560,6 +560,17 @@
             file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatApi26Impl.java"
             line="71"
             column="31"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: SessionConfigurationCompat.SESSION_REGULAR, SessionConfigurationCompat.SESSION_HIGH_SPEED"
+        errorLine1="            return mObject.getSessionType();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
+            line="427"
+            column="20"/>
     </issue>
 
     <issue

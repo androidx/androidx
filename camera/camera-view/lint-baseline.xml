@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: AspectRatio.RATIO_4_3, AspectRatio.RATIO_16_9"
+        errorLine1="            builder.setTargetAspectRatio(outputSize.getAspectRatio());"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/view/CameraController.java"
+            line="465"
+            column="42"/>
+    </issue>
+
+</issues>

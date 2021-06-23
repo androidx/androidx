@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
@@ -87,6 +87,28 @@
             file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"
             line="955"
             column="39"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: BaseResult.RESULT_SUCCESS, DrmResult.RESULT_ERROR_PROVISIONING_NETWORK_ERROR, DrmResult.RESULT_ERROR_PROVISIONING_SERVER_ERROR, DrmResult.RESULT_ERROR_PREPARATION_ERROR, DrmResult.RESULT_ERROR_UNSUPPORTED_SCHEME, DrmResult.RESULT_ERROR_RESOURCE_BUSY"
+        errorLine1="            return super.getResultCode();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaPlayer.java"
+            line="3859"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT, PlaybackParams.AUDIO_FALLBACK_MODE_MUTE, PlaybackParams.AUDIO_FALLBACK_MODE_FAIL"
+        errorLine1="                return mPlaybackParams.getAudioFallbackMode();"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/PlaybackParams.java"
+            line="115"
+            column="24"/>
     </issue>
 
     <issue
