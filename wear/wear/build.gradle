@@ -16,7 +16,7 @@ dependencies {
     api("androidx.core:core:1.5.0-alpha04")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
 
-    androidTestImplementation(project(":test-screenshot"))
+    androidTestImplementation(project(":test:screenshot:test-screenshot"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

@@ -35,7 +35,7 @@ dependencies {
 
     implementation("androidx.core:core:1.1.0")
 
-    androidTestImplementation(project(":test-screenshot"))
+    androidTestImplementation(project(":test:screenshot:test-screenshot"))
     androidTestImplementation(project(":wear:wear-watchface-samples"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

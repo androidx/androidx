@@ -43,7 +43,7 @@ dependencies {
         androidTestImplementation project(path: ':compose:ui:ui-test')
         androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
         androidTestImplementation project(path: ':compose:test-utils')
-        androidTestImplementation project(":test-screenshot")
+        androidTestImplementation project(":test:screenshot:test-screenshot")
         androidTestImplementation(libs.testRunner)
     }
 }
@@ -90,7 +90,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(path: ':compose:ui:ui-test'))
                 implementation(project(path: ':compose:ui:ui-test-junit4'))
                 implementation(project(path: ':compose:test-utils'))
-                implementation(project(":test-screenshot"))
+                implementation(project(":test:screenshot:test-screenshot"))
             }
         }
     }
