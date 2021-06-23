@@ -55,7 +55,7 @@ dependencies {
     implementation(CAMERA_PIPE_DEPS.API)
     implementation(CAMERA_PIPE_DEPS.IMPLEMENTATION)
 
-    kapt(libs.dagger)
+    kapt(libs.daggerCompiler)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
