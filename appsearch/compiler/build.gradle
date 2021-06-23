@@ -17,8 +17,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id('AndroidXPlugin')
     id('java-library')
@@ -26,16 +24,16 @@ plugins {
 
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
-    api(JSR250)
-    implementation(AUTO_COMMON)
-    implementation(JAVAPOET)
+    api(libs.jsr250)
+    implementation(libs.autoCommon)
+    implementation(libs.javapoet)
 
     // For testing, add in the compiled classes from appsearch to get access to annotations.
     testImplementation fileTree(
             dir: "${new File(project(":appsearch:appsearch").buildDir, "libJar")}",
             include : "*.jar"
     )
-    testImplementation(GOOGLE_COMPILE_TESTING)
+    testImplementation(libs.googleCompileTesting)
 }
 
 tasks.findByName('compileJava').dependsOn(":appsearch:appsearch:jarRelease")

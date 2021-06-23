@@ -18,9 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 
-import static androidx.build.dependencies.DependenciesKt.CONSTRAINT_LAYOUT
-import static androidx.build.dependencies.DependenciesKt.GUAVA_ANDROID
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -48,8 +45,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata:2.0.0")
     implementation('androidx.multidex:multidex:2.0.1')
     implementation('com.google.android.material:material:1.0.0')
-    implementation(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation(GUAVA_ANDROID)
+    implementation(libs.constraintLayout)
+    implementation(libs.guavaAndroid)
 }
 
 androidx {
