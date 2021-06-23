@@ -41,7 +41,7 @@ buildStudio
 export GRADLE_PLUGIN_VERSION=`grep -oP "(?<=buildVersion = ).*" $TOOLS_DIR/buildSrc/base/version.properties`
 export GRADLE_PLUGIN_REPO="$STUDIO_DIR/out/repo:$STUDIO_DIR/prebuilts/tools/common/m2/repository"
 export JAVA_HOME="$(pwd)/prebuilts/jdk/jdk11/linux-x86/"
-export JAVA_TOOLS_JAR="$JAVA_HOME/lib/tools.jar"
+export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/linux-x86/lib/tools.jar"
 export LINT_PRINT_STACKTRACE=true
 
 function buildAndroidx() {
