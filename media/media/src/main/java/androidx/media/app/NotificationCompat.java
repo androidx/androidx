@@ -209,7 +209,7 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 21) {
-                Api21Impl.setStyle(builder.getBuilder(),
+                Api21Impl.setMediaStyle(builder.getBuilder(),
                         Api21Impl.fillInMediaStyle(Api21Impl.createMediaStyle(),
                                 mActionsToShowInCompact, mToken));
             } else if (mShowCancelButton) {
@@ -377,7 +377,7 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
-                Api21Impl.setStyle(builder.getBuilder(),
+                Api21Impl.setMediaStyle(builder.getBuilder(),
                         Api21Impl.fillInMediaStyle(Api24Impl.createDecoratedMediaCustomViewStyle(),
                                 mActionsToShowInCompact, mToken));
             } else {
@@ -509,7 +509,7 @@ public class NotificationCompat {
         private Api21Impl() {}
 
         @DoNotInline
-        static void setStyle(Notification.Builder builder, Notification.Style style) {
+        static void setMediaStyle(Notification.Builder builder, Notification.MediaStyle style) {
             builder.setStyle(style);
         }
 
