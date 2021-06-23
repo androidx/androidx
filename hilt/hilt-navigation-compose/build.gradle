@@ -35,13 +35,13 @@ android {
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
+    kotlinPlugin "androidx.compose.compiler:compiler:1.0.0-rc01"
 
     implementation(libs.kotlinStdlib)
     api("androidx.hilt:hilt-navigation:1.0.0")
-    api(projectOrArtifact(":compose:runtime:runtime"))
-    api(projectOrArtifact(":compose:ui:ui"))
-    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose"))
+    api("androidx.compose.runtime:runtime:1.0.0-rc01")
+    api("androidx.compose.ui:ui:1.0.0-rc01")
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
     api(projectOrArtifact(":navigation:navigation-compose"))
 
     androidTestImplementation(libs.testExtJunit)
