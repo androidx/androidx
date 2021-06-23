@@ -26,6 +26,7 @@ plugins {
 android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
+        multiDexKeepProguard file("multidex-rules.pro")
     }
 }
 
