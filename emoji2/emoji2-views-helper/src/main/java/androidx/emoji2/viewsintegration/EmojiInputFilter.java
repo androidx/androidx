@@ -15,12 +15,14 @@
  */
 package androidx.emoji2.viewsintegration;
 
+import android.text.InputFilter;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
@@ -89,7 +91,7 @@ final class EmojiInputFilter implements android.text.InputFilter {
 
     private InitCallback getInitCallback() {
         if (mInitCallback == null) {
-            mInitCallback = new InitCallbackImpl(mTextView);
+            mInitCallback = new InitCallbackImpl(mTextView, this);
         }
         return mInitCallback;
     }
@@ -97,16 +99,21 @@ final class EmojiInputFilter implements android.text.InputFilter {
     @RequiresApi(19)
     private static class InitCallbackImpl extends InitCallback {
         private final Reference<TextView> mViewRef;
+        private final Reference<EmojiInputFilter> mEmojiInputFilterReference;
 
-        InitCallbackImpl(TextView textView) {
+        InitCallbackImpl(TextView textView,
+                EmojiInputFilter emojiInputFilter) {
             mViewRef = new WeakReference<>(textView);
+            mEmojiInputFilterReference = new WeakReference<>(emojiInputFilter);
         }
 
         @Override
         public void onInitialized() {
             super.onInitialized();
-            final TextView textView = mViewRef.get();
-            if (textView != null && textView.isAttachedToWindow()) {
+            @Nullable final TextView textView = mViewRef.get();
+            @Nullable final InputFilter myInputFilter = mEmojiInputFilterReference.get();
+            if (!isInputFilterCurrentlyRegisteredOnTextView(textView, myInputFilter)) return;
+            if (textView.isAttachedToWindow()) {
                 final CharSequence result = EmojiCompat.get().process(textView.getText());
 
                 final int selectionStart = Selection.getSelectionStart(result);
@@ -118,6 +125,25 @@ final class EmojiInputFilter implements android.text.InputFilter {
                     updateSelection((Spannable) result, selectionStart, selectionEnd);
                 }
             }
+        }
+
+        private boolean isInputFilterCurrentlyRegisteredOnTextView(@Nullable TextView textView,
+                @Nullable InputFilter myInputFilter) {
+            if (myInputFilter == null || textView == null) {
+                // we're definitely not a current input filter, so just stop doing things
+                return false;
+            }
+            InputFilter[] currentFilters = textView.getFilters();
+            if (currentFilters == null) {
+                // can't be a currentFilter
+                return false;
+            }
+            for (int i = 0; i < currentFilters.length; i++) {
+                if (currentFilters[i] == myInputFilter) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
