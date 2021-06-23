@@ -199,7 +199,7 @@ public fun Chip(
     colors: ChipColors = ChipDefaults.primaryChipColors(),
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    contentPadding: PaddingValues = ChipDefaults.contentPadding(icon != null),
+    contentPadding: PaddingValues = ChipDefaults.ContentPadding,
 ) {
     Chip(
         onClick = onClick,
@@ -304,7 +304,7 @@ public fun CompactChip(
     colors: ChipColors = ChipDefaults.primaryChipColors(),
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    contentPadding: PaddingValues = ChipDefaults.contentPadding(icon != null),
+    contentPadding: PaddingValues = ChipDefaults.ContentPadding,
 ) {
     if (label != null) {
         Chip(
@@ -587,21 +587,7 @@ public object ChipDefaults {
     }
 
     private val ChipHorizontalPadding = 14.dp
-    private val ChipWithIconHorizontalPadding = 12.dp
     private val ChipVerticalPadding = 6.dp
-
-    /**
-     * Creates a [PaddingValues] for a [Chip] based on whether the chip has a icon. For chips with
-     * icons a smaller start and end padding are applied to compensate for the space that the icon
-     * consumes.
-     *
-     * @param hasIcon Whether the [Chip] has an icon.
-     */
-    public fun contentPadding(
-        hasIcon: Boolean
-    ): PaddingValues {
-        return if (hasIcon) ContentWithIconPadding else ContentPadding
-    }
 
     /**
      * The default content padding used by [Chip]
@@ -610,16 +596,6 @@ public object ChipDefaults {
         start = ChipHorizontalPadding,
         top = ChipVerticalPadding,
         end = ChipHorizontalPadding,
-        bottom = ChipVerticalPadding
-    )
-
-    /**
-     * The content padding used by a [Chip] which includes an icon
-     */
-    public val ContentWithIconPadding: PaddingValues = PaddingValues(
-        start = ChipWithIconHorizontalPadding,
-        top = ChipVerticalPadding,
-        end = ChipWithIconHorizontalPadding,
         bottom = ChipVerticalPadding
     )
 
