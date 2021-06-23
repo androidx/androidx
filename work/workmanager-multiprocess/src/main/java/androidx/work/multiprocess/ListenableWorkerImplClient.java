@@ -28,7 +28,9 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
 import androidx.work.impl.utils.futures.SettableFuture;
 
@@ -53,11 +55,15 @@ public class ListenableWorkerImplClient {
     // Synthetic access
     final Executor mExecutor;
 
+    private final Object mLock;
+    private Connection mConnection;
+
     public ListenableWorkerImplClient(
             @NonNull Context context,
             @NonNull Executor executor) {
         mContext = context;
         mExecutor = executor;
+        mLock = new Object();
     }
 
     /**
@@ -68,23 +74,27 @@ public class ListenableWorkerImplClient {
     public ListenableFuture<IListenableWorkerImpl> getListenableWorkerImpl(
             @NonNull ComponentName component) {
 
-        Logger.get().debug(TAG,
-                String.format("Binding to %s, %s", component.getPackageName(),
-                        component.getClassName()));
+        synchronized (mLock) {
+            if (mConnection == null) {
+                Logger.get().debug(TAG,
+                        String.format("Binding to %s, %s", component.getPackageName(),
+                                component.getClassName()));
 
-        Connection session = new Connection();
-        try {
-            Intent intent = new Intent();
-            intent.setComponent(component);
-            boolean bound = mContext.bindService(intent, session, BIND_AUTO_CREATE);
-            if (!bound) {
-                unableToBind(session, new RuntimeException("Unable to bind to service"));
+                mConnection = new Connection();
+                try {
+                    Intent intent = new Intent();
+                    intent.setComponent(component);
+                    boolean bound = mContext.bindService(intent, mConnection, BIND_AUTO_CREATE);
+                    if (!bound) {
+                        unableToBind(mConnection,
+                                new RuntimeException("Unable to bind to service"));
+                    }
+                } catch (Throwable throwable) {
+                    unableToBind(mConnection, throwable);
+                }
             }
-        } catch (Throwable throwable) {
-            unableToBind(session, throwable);
+            return mConnection.mFuture;
         }
-
-        return session.mFuture;
     }
 
     /**
@@ -136,6 +146,27 @@ public class ListenableWorkerImplClient {
             }
         }, mExecutor);
         return callback.getFuture();
+    }
+
+    /**
+     * Unbinds the {@link ServiceConnection}.
+     */
+    public void unbindService() {
+        synchronized (mLock) {
+            if (mConnection != null) {
+                mContext.unbindService(mConnection);
+                mConnection = null;
+            }
+        }
+    }
+
+    /**
+     * @return the {@link ServiceConnection} instance.
+     */
+    @Nullable
+    @VisibleForTesting
+    public Connection getConnection() {
+        return mConnection;
     }
 
     /**
