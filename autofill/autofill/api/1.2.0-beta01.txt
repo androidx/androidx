@@ -1,0 +1,188 @@
+// Signature format: 4.0
+package androidx.autofill {
+
+  public final class HintConstants {
+    method public static String generateSmsOtpHintForCharacterPosition(int);
+    field public static final String AUTOFILL_HINT_2FA_APP_OTP = "2faAppOTPCode";
+    field public static final String AUTOFILL_HINT_BIRTH_DATE_DAY = "birthDateDay";
+    field public static final String AUTOFILL_HINT_BIRTH_DATE_FULL = "birthDateFull";
+    field public static final String AUTOFILL_HINT_BIRTH_DATE_MONTH = "birthDateMonth";
+    field public static final String AUTOFILL_HINT_BIRTH_DATE_YEAR = "birthDateYear";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE = "creditCardExpirationDate";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY = "creditCardExpirationDay";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH = "creditCardExpirationMonth";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR = "creditCardExpirationYear";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_NUMBER = "creditCardNumber";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE = "creditCardSecurityCode";
+    field public static final String AUTOFILL_HINT_EMAIL_ADDRESS = "emailAddress";
+    field public static final String AUTOFILL_HINT_EMAIL_OTP = "emailOTPCode";
+    field public static final String AUTOFILL_HINT_GENDER = "gender";
+    field @Deprecated public static final String AUTOFILL_HINT_NAME = "name";
+    field public static final String AUTOFILL_HINT_NEW_PASSWORD = "newPassword";
+    field public static final String AUTOFILL_HINT_NEW_USERNAME = "newUsername";
+    field public static final String AUTOFILL_HINT_NOT_APPLICABLE = "notApplicable";
+    field public static final String AUTOFILL_HINT_PASSWORD = "password";
+    field public static final String AUTOFILL_HINT_PERSON_NAME = "personName";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_FAMILY = "personFamilyName";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_GIVEN = "personGivenName";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_MIDDLE = "personMiddleName";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_MIDDLE_INITIAL = "personMiddleInitial";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_PREFIX = "personNamePrefix";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_SUFFIX = "personNameSuffix";
+    field @Deprecated public static final String AUTOFILL_HINT_PHONE = "phone";
+    field public static final String AUTOFILL_HINT_PHONE_COUNTRY_CODE = "phoneCountryCode";
+    field public static final String AUTOFILL_HINT_PHONE_NATIONAL = "phoneNational";
+    field public static final String AUTOFILL_HINT_PHONE_NUMBER = "phoneNumber";
+    field public static final String AUTOFILL_HINT_PHONE_NUMBER_DEVICE = "phoneNumberDevice";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS = "postalAddress";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_APT_NUMBER = "aptNumber";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_COUNTRY = "addressCountry";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_DEPENDENT_LOCALITY = "dependentLocality";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_ADDRESS = "extendedAddress";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_POSTAL_CODE = "extendedPostalCode";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_LOCALITY = "addressLocality";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_REGION = "addressRegion";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRESS = "streetAddress";
+    field public static final String AUTOFILL_HINT_POSTAL_CODE = "postalCode";
+    field public static final String AUTOFILL_HINT_PROMO_CODE = "promoCode";
+    field public static final String AUTOFILL_HINT_SMS_OTP = "smsOTPCode";
+    field public static final String AUTOFILL_HINT_UPI_VPA = "upiVirtualPaymentAddress";
+    field public static final String AUTOFILL_HINT_USERNAME = "username";
+    field public static final String AUTOFILL_HINT_WIFI_PASSWORD = "wifiPassword";
+  }
+
+}
+
+package androidx.autofill.inline {
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class Renderer {
+    method public static android.app.PendingIntent? getAttributionIntent(android.app.slice.Slice);
+    method public static android.os.Bundle getSupportedInlineUiVersionsAsBundle();
+    method public static android.view.View? render(android.content.Context, android.app.slice.Slice, android.os.Bundle);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class SuggestionHintConstants {
+    field public static final String SUGGESTION_HINT_CLIPBOARD_CONTENT = "clipboardContent";
+    field public static final String SUGGESTION_HINT_SMART_REPLY = "smartReply";
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class UiVersions {
+    method public static java.util.List<java.lang.String!> getVersions(android.os.Bundle);
+    method public static androidx.autofill.inline.UiVersions.StylesBuilder newStylesBuilder();
+    field public static final String INLINE_UI_VERSION_1 = "androidx.autofill.inline.ui.version:v1";
+  }
+
+  public static interface UiVersions.Content {
+    method public android.app.slice.Slice getSlice();
+  }
+
+  public static interface UiVersions.Style {
+  }
+
+  public static final class UiVersions.StylesBuilder {
+    method public androidx.autofill.inline.UiVersions.StylesBuilder addStyle(androidx.autofill.inline.UiVersions.Style);
+    method public android.os.Bundle build();
+  }
+
+}
+
+package androidx.autofill.inline.common {
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class ImageViewStyle extends androidx.autofill.inline.common.ViewStyle {
+  }
+
+  public static final class ImageViewStyle.Builder {
+    ctor public ImageViewStyle.Builder();
+    method public androidx.autofill.inline.common.ImageViewStyle build();
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setBackground(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setBackgroundColor(int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setLayoutMargin(int, int, int, int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setMaxHeight(int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setMaxWidth(int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setPadding(int, int, int, int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setScaleType(android.widget.ImageView.ScaleType);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setTintList(android.content.res.ColorStateList);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class TextViewStyle extends androidx.autofill.inline.common.ViewStyle {
+  }
+
+  public static final class TextViewStyle.Builder {
+    ctor public TextViewStyle.Builder();
+    method public androidx.autofill.inline.common.TextViewStyle build();
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setBackground(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setBackgroundColor(int);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setLayoutMargin(int, int, int, int);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setPadding(int, int, int, int);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setTextColor(@ColorInt int);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setTextSize(float);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setTextSize(int, float);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setTypeface(String, int);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public class ViewStyle {
+  }
+
+  public static final class ViewStyle.Builder {
+    ctor public ViewStyle.Builder();
+    method public androidx.autofill.inline.common.ViewStyle build();
+    method public androidx.autofill.inline.common.ViewStyle.Builder setBackground(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.common.ViewStyle.Builder setBackgroundColor(int);
+    method public androidx.autofill.inline.common.ViewStyle.Builder setLayoutMargin(int, int, int, int);
+    method public androidx.autofill.inline.common.ViewStyle.Builder setPadding(int, int, int, int);
+  }
+
+}
+
+package androidx.autofill.inline.v1 {
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class InlineSuggestionUi {
+    method public static androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder newContentBuilder(android.app.PendingIntent);
+    method public static androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder newStyleBuilder();
+  }
+
+  public static final class InlineSuggestionUi.Content implements androidx.autofill.inline.UiVersions.Content {
+    method public android.app.PendingIntent? getAttributionIntent();
+    method public CharSequence? getContentDescription();
+    method public android.graphics.drawable.Icon? getEndIcon();
+    method public final android.app.slice.Slice getSlice();
+    method public android.graphics.drawable.Icon? getStartIcon();
+    method public CharSequence? getSubtitle();
+    method public CharSequence? getTitle();
+  }
+
+  public static final class InlineSuggestionUi.Content.Builder {
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content build();
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setContentDescription(CharSequence);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setEndIcon(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setHints(java.util.List<java.lang.String!>);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setStartIcon(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setSubtitle(CharSequence);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setTitle(CharSequence);
+  }
+
+  public static final class InlineSuggestionUi.Style implements androidx.autofill.inline.UiVersions.Style {
+    method public androidx.autofill.inline.common.ViewStyle? getChipStyle();
+    method public androidx.autofill.inline.common.ImageViewStyle? getEndIconStyle();
+    method public int getLayoutDirection();
+    method public androidx.autofill.inline.common.ImageViewStyle? getSingleIconChipIconStyle();
+    method public androidx.autofill.inline.common.ViewStyle? getSingleIconChipStyle();
+    method public androidx.autofill.inline.common.ImageViewStyle? getStartIconStyle();
+    method public androidx.autofill.inline.common.TextViewStyle? getSubtitleStyle();
+    method public androidx.autofill.inline.common.TextViewStyle? getTitleStyle();
+  }
+
+  public static final class InlineSuggestionUi.Style.Builder {
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style build();
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setChipStyle(androidx.autofill.inline.common.ViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setEndIconStyle(androidx.autofill.inline.common.ImageViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setLayoutDirection(int);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSingleIconChipIconStyle(androidx.autofill.inline.common.ImageViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSingleIconChipStyle(androidx.autofill.inline.common.ViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setStartIconStyle(androidx.autofill.inline.common.ImageViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSubtitleStyle(androidx.autofill.inline.common.TextViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setTitleStyle(androidx.autofill.inline.common.TextViewStyle);
+  }
+
+}
+
