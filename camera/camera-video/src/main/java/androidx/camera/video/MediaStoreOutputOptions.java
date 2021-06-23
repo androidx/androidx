@@ -90,6 +90,7 @@ public abstract class MediaStoreOutputOptions extends OutputOptions {
 
     /** The builder of the {@link MediaStoreOutputOptions}. */
     @AutoValue.Builder
+    @SuppressWarnings("StaticFinalBuilder")
     public abstract static class Builder {
         Builder() {
         }
