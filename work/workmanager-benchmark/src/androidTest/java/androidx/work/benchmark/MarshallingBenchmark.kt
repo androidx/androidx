@@ -21,6 +21,7 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.Data
@@ -51,6 +52,10 @@ class MarshallingBenchmark {
     @Before
     fun setUp() {
         val uri = Uri.parse("test://foo")
+        // TODO(b/191892569): Figure out why this is only needed on Playground builds.
+        //  .addContentUriTrigger requires minSdk 24, but for some reason this @SdkSuppress is only
+        //  on Playground builds to get lintDebug to pass.
+        @SdkSuppress(minSdkVersion = 24)
         constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .setRequiresBatteryNotLow(true)
