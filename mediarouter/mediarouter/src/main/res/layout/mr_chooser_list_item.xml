@@ -18,12 +18,12 @@
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:minHeight="32dp"
-              android:paddingLeft="@dimen/mr_chooser_list_item_padding_start"
-              android:paddingRight="@dimen/mr_chooser_list_item_padding_end"
-              android:paddingStart="@dimen/mr_chooser_list_item_padding_start"
-              android:paddingEnd="@dimen/mr_chooser_list_item_padding_end"
-              android:paddingTop="@dimen/mr_chooser_list_item_padding_top"
-              android:paddingBottom="@dimen/mr_chooser_list_item_padding_bottom"
+              android:paddingLeft="@dimen/mediarouter_chooser_list_item_padding_start"
+              android:paddingRight="@dimen/mediarouter_chooser_list_item_padding_end"
+              android:paddingStart="@dimen/mediarouter_chooser_list_item_padding_start"
+              android:paddingEnd="@dimen/mediarouter_chooser_list_item_padding_end"
+              android:paddingTop="@dimen/mediarouter_chooser_list_item_padding_top"
+              android:paddingBottom="@dimen/mediarouter_chooser_list_item_padding_bottom"
               android:orientation="horizontal"
               android:gravity="center_vertical" >
 
