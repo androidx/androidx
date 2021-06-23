@@ -1,6 +1,9 @@
 // Signature format: 4.0
 package androidx.window.testing {
 
+  public final class DisplayFeatureTesting {
+  }
+
   public final class WindowLayoutInfoPublisherRule implements org.junit.rules.TestRule {
     ctor public WindowLayoutInfoPublisherRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);

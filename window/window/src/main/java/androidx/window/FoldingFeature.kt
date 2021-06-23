@@ -16,16 +16,14 @@
 package androidx.window
 
 import android.graphics.Rect
-import androidx.annotation.IntDef
-import androidx.window.FoldingFeature.Companion.ORIENTATION_VERTICAL as ORIENTATION_VERTICAL1
 
 /**
  * A feature that describes a fold in the flexible display
  * or a hinge between two physical display panels.
  *
- * @param [type] that is either [FoldingFeature.TYPE_FOLD] or [FoldingFeature.TYPE_HINGE]
- * @param [state] the physical state of the hinge that is either [FoldingFeature.STATE_FLAT] or
- * [FoldingFeature.STATE_HALF_OPENED]
+ * @param [type] that is either [FoldingFeature.Type.FOLD] or [FoldingFeature.Type.HINGE]
+ * @param [state] the physical state of the hinge that is either [FoldingFeature.State.FLAT] or
+ * [FoldingFeature.State.HALF_OPENED]
  */
 public class FoldingFeature internal constructor(
     /**
@@ -33,50 +31,153 @@ public class FoldingFeature internal constructor(
      * coordinate space.
      */
     private val featureBounds: Bounds,
-    @Type internal val type: Int,
-    @State public val state: Int
+    internal val type: Type,
+    public val state: State
 ) : DisplayFeature {
 
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(TYPE_FOLD, TYPE_HINGE)
-    internal annotation class Type
+    /**
+     * Represents the type of hinge.
+     */
+    public class Type private constructor(private val description: String) {
 
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(OCCLUSION_NONE, OCCLUSION_FULL)
-    internal annotation class OcclusionType
+        override fun toString(): String {
+            return description
+        }
 
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL1)
-    internal annotation class Orientation
+        public companion object {
+            /**
+             * Represent a continuous screen that folds.
+             */
+            @JvmField
+            public val FOLD: Type = Type("FOLD")
 
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(STATE_HALF_OPENED, STATE_FLAT)
-    internal annotation class State
+            /**
+             * Represents a hinge connecting two separate display panels.
+             */
+            @JvmField
+            public val HINGE: Type = Type("HINGE")
+
+            internal fun from(value: Int): Type {
+                return when (value) {
+                    TYPE_FOLD -> FOLD
+                    TYPE_HINGE -> HINGE
+                    else -> throw IllegalArgumentException(
+                        "${FoldingFeature::class.java.simpleName} incorrect type value"
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Represents how the hinge might occlude content.
+     */
+    public class OcclusionType private constructor(private val description: String) {
+
+        override fun toString(): String {
+            return description
+        }
+
+        public companion object {
+            /**
+             * The [FoldingFeature] does not occlude the content in any way. One example is a flat
+             * continuous fold where content can stretch across the fold. Another example is a hinge
+             * that has width or height equal to 0. In this case the content is physically split
+             * across both displays, but fully visible.
+             */
+            @JvmField
+            public val NONE: OcclusionType = OcclusionType("NONE")
+
+            /**
+             * The [FoldingFeature] occludes all content. One example is a hinge that is considered
+             * to be part of the window, so that part of the UI is not visible to the user.
+             * Any content shown in the same area as the hinge may not be accessible in any way.
+             * Fully occluded areas should always be avoided when placing interactive UI elements
+             * and text.
+             */
+            @JvmField
+            public val FULL: OcclusionType = OcclusionType("FULL")
+        }
+    }
+
+    /**
+     * Represents the axis for which the [FoldingFeature] runs parallel to.
+     */
+    public class Orientation private constructor(private val description: String) {
+
+        override fun toString(): String {
+            return description
+        }
+
+        public companion object {
+
+            /**
+             * The height of the [FoldingFeature] is greater than or equal to the width.
+             */
+            @JvmField
+            public val VERTICAL: Orientation = Orientation("VERTICAL")
+
+            /**
+             * The width of the [FoldingFeature] is greater than the height.
+             */
+            @JvmField
+            public val HORIZONTAL: Orientation = Orientation("HORIZONTAL")
+        }
+    }
+
+    /**
+     * Represents the [State] of the [FoldingFeature].
+     */
+    public class State private constructor(private val description: String) {
+
+        override fun toString(): String {
+            return description
+        }
+
+        public companion object {
+            /**
+             * The foldable device is completely open, the screen space that is presented to the
+             * user is flat. See the
+             * [Posture](https://developer.android.com/guide/topics/ui/foldables#postures)
+             * section in the official documentation for visual samples and references.
+             */
+            @JvmField
+            public val FLAT: State = State("FLAT")
+
+            /**
+             * The foldable device's hinge is in an intermediate position between opened and closed
+             * state, there is a non-flat angle between parts of the flexible screen or between
+             * physical screen panels. See the
+             * [Posture](https://developer.android.com/guide/topics/ui/foldables#postures)
+             * section in the official documentation for visual samples and references.
+             */
+            @JvmField
+            public val HALF_OPENED: State = State("HALF_OPENED")
+        }
+    }
 
     override val bounds: Rect
         get() = featureBounds.toRect()
 
     init {
-        validateState(state)
-        validateType(type)
         validateFeatureBounds(featureBounds)
     }
 
     public constructor(
         bounds: Rect,
-        type: Int,
-        state: Int
+        type: Type,
+        state: State
     ) : this(Bounds(bounds), type, state)
 
     /**
      * Calculates if a [FoldingFeature] should be thought of as splitting the window into
      * multiple physical areas that can be seen by users as logically separate. Display panels
      * connected by a hinge are always separated. Folds on flexible screens should be treated as
-     * separating when they are not [FoldingFeature.STATE_FLAT].
+     * separating when they are not [FoldingFeature.State.FLAT].
      *
      * Apps may use this to determine if content should lay out around the [FoldingFeature].
      * Developers should consider the placement of interactive elements. Similar to the case of
-     * [FoldingFeature.OCCLUSION_FULL], when a feature is separating then consider laying
+     * [FoldingFeature.OcclusionType.FULL], when a feature is separating then consider laying
      * out the controls around the [FoldingFeature].
      *
      * An example use case is to determine if the UI should be split into two logical areas. A
@@ -89,8 +190,8 @@ public class FoldingFeature internal constructor(
      */
     public val isSeparating: Boolean
         get() = when {
-            type == TYPE_HINGE -> true
-            type == TYPE_FOLD && state == STATE_HALF_OPENED -> true
+            type == Type.HINGE -> true
+            type == Type.FOLD && state == State.HALF_OPENED -> true
             else -> false
         }
 
@@ -100,9 +201,9 @@ public class FoldingFeature internal constructor(
      * around so that the user can access them. For some devices occluded elements can not be
      * accessed by the user at all.
      *
-     * For occlusion type [FoldingFeature.OCCLUSION_NONE] the feature can be treated as a
+     * For occlusion type [FoldingFeature.OcclusionType.NONE] the feature can be treated as a
      * guideline. One example would be for a continuously folding screen. For occlusion type
-     * [FoldingFeature.OCCLUSION_FULL] the feature should be avoided completely since content
+     * [FoldingFeature.OcclusionType.FULL] the feature should be avoided completely since content
      * will not be visible or touchable, like a hinge device with two displays.
      *
      * The occlusion mode is useful to determine if the UI needs to adapt to the
@@ -110,35 +211,33 @@ public class FoldingFeature internal constructor(
      * the occluded region if it negatively affects the gameplay.  The user can not tap
      * on the occluded interactive UI elements nor can they see important information.
      *
-     * @return [FoldingFeature.OCCLUSION_NONE] if the [FoldingFeature] has empty
+     * @return [FoldingFeature.OcclusionType.NONE] if the [FoldingFeature] has empty
      * bounds.
      */
-    @get:OcclusionType
-    public val occlusionMode: Int
+    public val occlusionType: OcclusionType
         get() = if (featureBounds.width == 0 || featureBounds.height == 0) {
-            OCCLUSION_NONE
+            OcclusionType.NONE
         } else {
-            OCCLUSION_FULL
+            OcclusionType.FULL
         }
 
     /**
-     * Returns [FoldingFeature.ORIENTATION_HORIZONTAL] if the width is greater than the
-     * height, [FoldingFeature.ORIENTATION_VERTICAL] otherwise.
+     * Returns [FoldingFeature.Orientation.HORIZONTAL] if the width is greater than the
+     * height, [FoldingFeature.Orientation.VERTICAL] otherwise.
      */
-    @get:Orientation
-    public val orientation: Int
+    public val orientation: Orientation
         get() {
             return if (featureBounds.width > featureBounds.height) {
-                ORIENTATION_HORIZONTAL
+                Orientation.HORIZONTAL
             } else {
-                ORIENTATION_VERTICAL
+                Orientation.VERTICAL
             }
         }
 
     override fun toString(): String {
         return (
             "${FoldingFeature::class.java.simpleName} { $featureBounds, " +
-                "type=${typeToString(type)}, state=${stateToString(state)} }"
+                "type=$type, state=$state }"
             )
     }
 
@@ -157,8 +256,8 @@ public class FoldingFeature internal constructor(
 
     override fun hashCode(): Int {
         var result = featureBounds.hashCode()
-        result = 31 * result + type
-        result = 31 * result + state
+        result = 31 * result + type.hashCode()
+        result = 31 * result + state.hashCode()
         return result
     }
 
@@ -216,43 +315,6 @@ public class FoldingFeature internal constructor(
          */
         public const val ORIENTATION_HORIZONTAL: Int = 1
 
-        internal fun occlusionTypeToString(@OcclusionType type: Int): String {
-            return when (type) {
-                OCCLUSION_NONE -> "OCCLUSION_NONE"
-                OCCLUSION_FULL -> "OCCLUSION_FULL"
-                else -> "UNKNOWN"
-            }
-        }
-
-        internal fun orientationToString(@Orientation direction: Int): String {
-            return when (direction) {
-                ORIENTATION_HORIZONTAL -> "ORIENTATION_HORIZONTAL"
-                ORIENTATION_VERTICAL1 -> "ORIENTATION_VERTICAL"
-                else -> "UNKNOWN"
-            }
-        }
-
-        /**
-         * Verifies the state is [FoldingFeature.STATE_FLAT] or
-         * [FoldingFeature.STATE_HALF_OPENED].
-         */
-        internal fun validateState(state: Int) {
-            require(!(state != STATE_FLAT && state != STATE_HALF_OPENED)) {
-                "State must be either ${stateToString(STATE_FLAT)} or " +
-                    stateToString(STATE_HALF_OPENED)
-            }
-        }
-
-        /**
-         * Verifies the type is either [FoldingFeature.TYPE_HINGE] or
-         * [FoldingFeature.TYPE_FOLD]
-         */
-        internal fun validateType(type: Int) {
-            require(!(type != TYPE_FOLD && type != TYPE_HINGE)) {
-                "Type must be either ${typeToString(TYPE_FOLD)} or ${typeToString(TYPE_HINGE)}"
-            }
-        }
-
         /**
          * Verifies the bounds of the folding feature.
          */
@@ -260,22 +322,6 @@ public class FoldingFeature internal constructor(
             require(!(bounds.width == 0 && bounds.height == 0)) { "Bounds must be non zero" }
             require(!(bounds.left != 0 && bounds.top != 0)) {
                 "Bounding rectangle must start at the top or left window edge for folding features"
-            }
-        }
-
-        internal fun typeToString(type: Int): String {
-            return when (type) {
-                TYPE_FOLD -> "FOLD"
-                TYPE_HINGE -> "HINGE"
-                else -> "Unknown feature type ($type)"
-            }
-        }
-
-        internal fun stateToString(state: Int): String {
-            return when (state) {
-                STATE_FLAT -> "FLAT"
-                STATE_HALF_OPENED -> "HALF_OPENED"
-                else -> "Unknown feature state ($state)"
             }
         }
     }

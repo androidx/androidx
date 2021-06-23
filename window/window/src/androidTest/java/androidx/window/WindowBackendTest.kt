@@ -16,15 +16,16 @@
 package androidx.window
 
 import android.app.Activity
-import android.graphics.Rect
 import androidx.core.util.Consumer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.window.FoldingFeature.State.Companion.FLAT
+import androidx.window.FoldingFeature.Type.Companion.HINGE
 import com.google.common.util.concurrent.MoreExecutors
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import java.util.concurrent.Executor
 
 /** Tests for [WindowBackend] class.  */
@@ -42,23 +43,16 @@ public class WindowBackendTest : WindowTestBase() {
         val windowBackend: WindowBackend = FakeWindowBackend(windowLayoutInfo)
         activityTestRule.scenario.onActivity { activity ->
             val wm = WindowManager(activity, windowBackend)
-            val layoutInfoConsumer: Consumer<WindowLayoutInfo> = mock(
-                WindowLayoutInfoConsumer::class.java
-            )
+            val layoutInfoConsumer = mock<Consumer<WindowLayoutInfo>>()
             wm.registerLayoutChangeCallback(MoreExecutors.directExecutor(), layoutInfoConsumer)
             verify(layoutInfoConsumer).accept(windowLayoutInfo)
         }
     }
 
     private fun newTestWindowLayout(): WindowLayoutInfo {
-        val displayFeature: DisplayFeature = FoldingFeature(
-            Rect(10, 0, 10, 100), FoldingFeature.TYPE_HINGE,
-            FoldingFeature.STATE_FLAT
-        )
+        val displayFeature = FoldingFeature(Bounds(10, 0, 10, 100), HINGE, FLAT)
         return WindowLayoutInfo(listOf(displayFeature))
     }
-
-    private interface WindowLayoutInfoConsumer : Consumer<WindowLayoutInfo>
 
     private class FakeWindowBackend(private val windowLayoutInfo: WindowLayoutInfo) :
         WindowBackend {
