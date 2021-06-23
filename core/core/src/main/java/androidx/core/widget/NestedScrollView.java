@@ -1013,9 +1013,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     private boolean edgeEffectFling(int velocityY) {
         boolean consumed = true;
-        if (!mEdgeGlowTop.isFinished()) {
+        if (EdgeEffectCompat.getDistance(mEdgeGlowTop) != 0) {
             mEdgeGlowTop.onAbsorb(velocityY);
-        } else if (!mEdgeGlowBottom.isFinished()) {
+        } else if (EdgeEffectCompat.getDistance(mEdgeGlowBottom) != 0) {
             mEdgeGlowBottom.onAbsorb(-velocityY);
         } else {
             consumed = false;

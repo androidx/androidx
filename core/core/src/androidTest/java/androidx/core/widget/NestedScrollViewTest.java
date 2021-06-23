@@ -348,35 +348,46 @@ public class NestedScrollViewTest {
 
     @Test
     public void testFlingWhileStretchedAtTop() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        CaptureOnAbsorbEdgeEffect edgeEffect =
+                new CaptureOnAbsorbEdgeEffect(mNestedScrollView.getContext());
+        mNestedScrollView.mEdgeGlowTop = edgeEffect;
+        flingDown();
+        assertTrue(edgeEffect.pullDistance > 0);
+
         if (isSOrHigher()) {
-            setup(200);
-            setChildMargins(0, 0);
-            measureAndLayout(100);
-            CaptureOnAbsorbEdgeEffect edgeEffect =
-                    new CaptureOnAbsorbEdgeEffect(mNestedScrollView.getContext());
-            mNestedScrollView.mEdgeGlowTop = edgeEffect;
-            flingDown();
             assertTrue(edgeEffect.absorbVelocity > 0);
-            assertTrue(edgeEffect.pullDistance > 0);
+        } else {
+            assertEquals(0, edgeEffect.absorbVelocity);
+            flingUp();
+            assertNotEquals(0, mNestedScrollView.getScrollY());
         }
     }
 
     @Test
     public void testFlingWhileStretchedAtBottom() {
-        if (isSOrHigher()) {
-            setup(200);
-            setChildMargins(0, 0);
-            measureAndLayout(100);
-            CaptureOnAbsorbEdgeEffect edgeEffect =
-                    new CaptureOnAbsorbEdgeEffect(mNestedScrollView.getContext());
-            mNestedScrollView.mEdgeGlowBottom = edgeEffect;
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        CaptureOnAbsorbEdgeEffect edgeEffect =
+                new CaptureOnAbsorbEdgeEffect(mNestedScrollView.getContext());
+        mNestedScrollView.mEdgeGlowBottom = edgeEffect;
 
-            int scrollRange = mNestedScrollView.getScrollRange();
-            mNestedScrollView.scrollTo(0, scrollRange);
-            assertEquals(scrollRange, mNestedScrollView.getScrollY());
-            flingUp();
+        int scrollRange = mNestedScrollView.getScrollRange();
+        mNestedScrollView.scrollTo(0, scrollRange);
+        assertEquals(scrollRange, mNestedScrollView.getScrollY());
+        flingUp();
+        assertTrue(edgeEffect.pullDistance > 0);
+        assertEquals(scrollRange, mNestedScrollView.getScrollY());
+
+        if (isSOrHigher()) {
             assertTrue(edgeEffect.absorbVelocity > 0);
-            assertTrue(edgeEffect.pullDistance > 0);
+        } else {
+            assertEquals(0, edgeEffect.absorbVelocity);
+            flingDown();
+            assertNotEquals(scrollRange, mNestedScrollView.getScrollY());
         }
     }
 
@@ -481,6 +492,11 @@ public class NestedScrollViewTest {
         public void onAbsorb(int velocity) {
             absorbVelocity = velocity;
             super.onAbsorb(velocity);
+        }
+
+        @Override
+        public void onRelease() {
+            super.onRelease();
         }
     }
 }
