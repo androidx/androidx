@@ -38,7 +38,7 @@ public abstract class RecordingStats {
     }
 
     /** Returns current recorded duration in nano seconds. */
-    public abstract long getRecordedDurationNs();
+    public abstract long getRecordedDurationNanos();
 
     /** Returns current recorded bytes. */
     public abstract long getNumBytesRecorded();
