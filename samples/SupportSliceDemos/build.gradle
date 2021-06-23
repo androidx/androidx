@@ -20,10 +20,10 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":slice-view"))
-    implementation(project(":slice-builders"))
-    implementation(project(":slice-core"))
-    implementation(project(":slice-test"))
+    implementation(project(":slice:slice-view"))
+    implementation(project(":slice:slice-builders"))
+    implementation(project(":slice:slice-core"))
+    implementation(project(":slice:slice-test"))
     implementation(project(":transition:transition"))
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":appcompat:appcompat"))

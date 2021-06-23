@@ -29,9 +29,9 @@ dependencies {
     implementation(libs.autoValueAnnotations)
     annotationProcessor(libs.autoValue)
 
-    implementation(project(":ads-identifier-common"))
+    implementation(project(":ads:ads-identifier-common"))
 
-    androidTestImplementation(project(":ads-identifier-testing"))
+    androidTestImplementation(project(":ads:ads-identifier-testing"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)

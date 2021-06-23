@@ -36,7 +36,7 @@ dependencies {
 
     implementation(project(":annotation:annotation"))
 
-    androidTestImplementation(project(":test-screenshot"))
+    androidTestImplementation(project(":test:screenshot:test-screenshot"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
