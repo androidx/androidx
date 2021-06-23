@@ -935,7 +935,9 @@ public final class Recorder implements VideoOutput {
                         (FileDescriptorOutputOptions) options;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     mMediaMuxer = Api26Impl.createMediaMuxer(
-                            fileDescriptorOutputOptions.getFileDescriptor(), outputFormat);
+                            fileDescriptorOutputOptions.getParcelFileDescriptor()
+                                    .getFileDescriptor(),
+                            outputFormat);
                 } else {
                     throw new IOException(
                             "MediaMuxer doesn't accept FileDescriptor as output destination.");

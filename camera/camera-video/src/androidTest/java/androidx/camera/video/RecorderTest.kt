@@ -17,6 +17,7 @@
 package androidx.camera.video
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
@@ -67,7 +68,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import java.io.File
-import java.io.FileDescriptor
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
@@ -88,6 +88,7 @@ class RecorderTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
     @Suppress("UNCHECKED_CAST")
     private val videoRecordEventListener = mock(Consumer::class.java) as Consumer<VideoRecordEvent>
 
@@ -247,56 +248,58 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val pfd: ParcelFileDescriptor = ParcelFileDescriptor.open(
+        ParcelFileDescriptor.open(
             file,
             ParcelFileDescriptor.MODE_READ_WRITE
-        )
-        val fd: FileDescriptor = pfd.fileDescriptor
-        val outputOptions = FileDescriptorOutputOptions.builder()
-            .setFileDescriptor(fd)
-            .build()
+        ).use { pfd ->
+            val outputOptions = FileDescriptorOutputOptions.builder()
+                .setParcelFileDescriptor(pfd)
+                .build()
 
-        val pendingRecording = recorder.prepareRecording(outputOptions)
-        pendingRecording.withEventListener(
-            CameraXExecutors.directExecutor(),
-            videoRecordEventListener
-        )
+            val pendingRecording = recorder.prepareRecording(outputOptions)
+            pendingRecording.withEventListener(
+                CameraXExecutors.directExecutor(),
+                videoRecordEventListener
+            )
 
-        val activeRecording = pendingRecording.start()
+            val activeRecording = pendingRecording.start()
 
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
+            val inOrder = inOrder(videoRecordEventListener)
+            inOrder.verify(videoRecordEventListener, timeout(1000L))
+                .accept(any(VideoRecordEvent.Start::class.java))
+            inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+                .accept(any(VideoRecordEvent.Status::class.java))
 
-        activeRecording.stop()
+            activeRecording.stop()
 
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
+            inOrder.verify(videoRecordEventListener, timeout(1000L))
+                .accept(any(VideoRecordEvent.Finalize::class.java))
 
-        checkFileHasAudioAndVideo(Uri.fromFile(file))
+            checkFileHasAudioAndVideo(Uri.fromFile(file))
+        }
 
-        pfd.close()
         file.delete()
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = 25)
+    @SuppressLint("NewApi") // Intentionally testing behavior of calling from invalid API level
     fun prepareRecordingWithFileDescriptor_throwsExceptionBeforeApi26() {
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val pfd: ParcelFileDescriptor = ParcelFileDescriptor.open(
+        ParcelFileDescriptor.open(
             file,
             ParcelFileDescriptor.MODE_READ_WRITE
-        )
-        val fd: FileDescriptor = pfd.fileDescriptor
-        val outputOptions = FileDescriptorOutputOptions.builder()
-            .setFileDescriptor(fd)
-            .build()
+        ).use { pfd ->
+            val outputOptions = FileDescriptorOutputOptions.builder()
+                .setParcelFileDescriptor(pfd)
+                .build()
 
-        assertThrows(IllegalStateException::class.java) {
-            recorder.prepareRecording(outputOptions)
+            assertThrows(IllegalStateException::class.java) {
+                recorder.prepareRecording(outputOptions)
+            }
         }
+
+        file.delete()
     }
 
     @Test
@@ -424,6 +427,7 @@ class RecorderTest {
         val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
         val pendingRecording = recorder.prepareRecording(outputOptions)
+
         @Suppress("UNCHECKED_CAST")
         val streamStateObserver =
             mock(Observable.Observer::class.java) as Observable.Observer<VideoOutput.StreamState>
