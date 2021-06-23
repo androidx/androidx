@@ -22,7 +22,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
-import android.view.Choreographer;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
@@ -30,6 +29,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.core.os.TraceCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.ProcessLifecycleInitializer;
+import androidx.startup.AppInitializer;
 import androidx.startup.Initializer;
 
 import java.util.Collections;
@@ -65,6 +70,8 @@ import java.util.List;
  *     </provider>
  * </pre>
  *
+ * This initializer depends on {@link ProcessLifecycleInitializer}.
+ *
  * @see androidx.emoji2.text.DefaultEmojiCompatConfig
  */
 public class EmojiCompatInitializer implements Initializer<Boolean> {
@@ -82,7 +89,7 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
     public Boolean create(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 19) {
             EmojiCompat.init(new BackgroundDefaultConfig(context));
-            delayAfterFirstFrame();
+            delayUntilFirstResume(context);
             return true;
         }
         return false;
@@ -94,13 +101,23 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
      * This allows startup code to run before the delay is scheduled.
      */
     @RequiresApi(19)
-    void delayAfterFirstFrame() {
-        // schedule delay after first frame callback
-        Choreographer16Impl.postFrameCallback(this::loadEmojiCompatAfterDelay);
+    void delayUntilFirstResume(@NonNull Context context) {
+        // schedule delay after first Activity resumes
+        AppInitializer appInitializer = AppInitializer.getInstance(context);
+        LifecycleOwner lifecycleOwner = appInitializer
+                .initializeComponent(ProcessLifecycleInitializer.class);
+        Lifecycle lifecycle = lifecycleOwner.getLifecycle();
+        lifecycle.addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            public void onResume() {
+                loadEmojiCompatAfterDelay();
+                lifecycle.removeObserver(this);
+            }
+        });
     }
 
     @RequiresApi(19)
-    private void loadEmojiCompatAfterDelay() {
+    void loadEmojiCompatAfterDelay() {
         final Handler mainHandler;
         if (Build.VERSION.SDK_INT >= 28) {
             mainHandler = Handler28Impl.createAsync(Looper.getMainLooper());
@@ -112,12 +129,12 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
     }
 
     /**
-     * No dependencies
+     * Dependes on ProcessLifecycleInitializer
      */
     @NonNull
     @Override
     public List<Class<? extends Initializer<?>>> dependencies() {
-        return Collections.emptyList();
+        return Collections.singletonList(ProcessLifecycleInitializer.class);
     }
 
     static class LoadEmojiCompatRunnable implements Runnable {
@@ -210,18 +227,6 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
                     Process.THREAD_PRIORITY_BACKGROUND);
             mThread.start();
             return new Handler(mThread.getLooper());
-        }
-    }
-
-    @RequiresApi(16)
-    private static class Choreographer16Impl {
-        private Choreographer16Impl() {
-            // Non-instantiable.
-        }
-
-        @DoNotInline
-        public static void postFrameCallback(Runnable r) {
-            Choreographer.getInstance().postFrameCallback(frameTimeNanos -> r.run());
         }
     }
 

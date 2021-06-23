@@ -14,10 +14,21 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.emoji2.bundled">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.emoji2.bundled">
 
     <application>
         <activity android:name=".TestActivity"/>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                tools:node="remove" />
+        </provider>
+
     </application>
 
 </manifest>
