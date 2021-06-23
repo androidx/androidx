@@ -257,8 +257,8 @@ public class AppSearchSchemaCtsTest {
         // Setting indexing type to be NONE with tokenizer type PLAIN should fail. Regardless of
         // whether NONE is set explicitly or just kept as default.
         final StringPropertyConfig.Builder builder =
-                    new StringPropertyConfig.Builder("property")
-                            .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN);
+                new StringPropertyConfig.Builder("property")
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN);
         assertThrows(IllegalStateException.class, () -> builder.build());
 
         builder.setIndexingType(StringPropertyConfig.INDEXING_TYPE_NONE);
@@ -271,5 +271,101 @@ public class AppSearchSchemaCtsTest {
 
         builder.setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES);
         assertThat(builder.build()).isNotNull();
+    }
+
+    @Test
+    public void testAppSearchSchema_toString() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")
+                .addProperty(new StringPropertyConfig.Builder("string1")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_NONE)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_NONE)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("string2")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("string3")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("long")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build())
+                .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("double")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .build())
+                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder("boolean")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .build())
+                .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("bytes")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build())
+                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                        "document", AppSearchEmail.SCHEMA_TYPE)
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+
+        String schemaString = schema.toString();
+
+        String expectedString = "{\n"
+                + "  schemaType: \"testSchema\",\n"
+                + "  properties: [\n"
+                + "    {\n"
+                + "      name: \"boolean\",\n"
+                + "      cardinality: CARDINALITY_REQUIRED,\n"
+                + "      dataType: DATA_TYPE_BOOLEAN,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"bytes\",\n"
+                + "      cardinality: CARDINALITY_OPTIONAL,\n"
+                + "      dataType: DATA_TYPE_BYTES,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"document\",\n"
+                + "      shouldIndexNestedProperties: true,\n"
+                + "      schemaType: \"builtin:Email\",\n"
+                + "      cardinality: CARDINALITY_REPEATED,\n"
+                + "      dataType: DATA_TYPE_DOCUMENT,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"double\",\n"
+                + "      cardinality: CARDINALITY_REPEATED,\n"
+                + "      dataType: DATA_TYPE_DOUBLE,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"long\",\n"
+                + "      cardinality: CARDINALITY_OPTIONAL,\n"
+                + "      dataType: DATA_TYPE_LONG,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"string1\",\n"
+                + "      indexingType: INDEXING_TYPE_NONE,\n"
+                + "      tokenizerType: TOKENIZER_TYPE_NONE,\n"
+                + "      cardinality: CARDINALITY_REQUIRED,\n"
+                + "      dataType: DATA_TYPE_STRING,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"string2\",\n"
+                + "      indexingType: INDEXING_TYPE_EXACT_TERMS,\n"
+                + "      tokenizerType: TOKENIZER_TYPE_PLAIN,\n"
+                + "      cardinality: CARDINALITY_REQUIRED,\n"
+                + "      dataType: DATA_TYPE_STRING,\n"
+                + "    },\n"
+                + "    {\n"
+                + "      name: \"string3\",\n"
+                + "      indexingType: INDEXING_TYPE_PREFIXES,\n"
+                + "      tokenizerType: TOKENIZER_TYPE_PLAIN,\n"
+                + "      cardinality: CARDINALITY_REQUIRED,\n"
+                + "      dataType: DATA_TYPE_STRING,\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+
+        assertThat(schemaString).isEqualTo(expectedString);
     }
 }
