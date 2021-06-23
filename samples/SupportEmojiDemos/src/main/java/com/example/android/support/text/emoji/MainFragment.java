@@ -21,11 +21,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatCheckedTextView;
+import androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatToggleButton;
 import androidx.appcompat.widget.SwitchCompat;
@@ -65,6 +67,7 @@ public class MainFragment extends Fragment {
     private AppCompatCheckBox mAppCompatCheckBox;
     private AppCompatRadioButton mAppCompatRadioButton;
     AppCompatAutoCompleteTextView mAppCompatAutoCompleteTextView;
+    AppCompatMultiAutoCompleteTextView mAppCompatMultiAutoCompleteTextView;
 
     final Config.Listener mConfigListener = new Config.Listener() {
         @Override
@@ -106,6 +109,8 @@ public class MainFragment extends Fragment {
         mAppCompatCheckBox = view.findViewById(R.id.appcompat_checkbox);
         mAppCompatRadioButton = view.findViewById(R.id.appcompat_radiobutton);
         mAppCompatAutoCompleteTextView = view.findViewById(R.id.appcompat_autocomplete_textview);
+        mAppCompatMultiAutoCompleteTextView =
+                view.findViewById(R.id.appcompat_multiautocomplete_textview);
 
         final TextView emojiListButton = view.findViewById(R.id.emoji_list_button);
         emojiListButton.setOnClickListener(new View.OnClickListener() {
@@ -154,6 +159,10 @@ public class MainFragment extends Fragment {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
                 android.R.layout.simple_dropdown_item_1line, AUTOCOMPLETE_ITEMS);
         mAppCompatAutoCompleteTextView.setAdapter(adapter);
+        mAppCompatMultiAutoCompleteTextView.setAdapter(adapter);
+        mAppCompatMultiAutoCompleteTextView.setTokenizer(
+                new MultiAutoCompleteTextView.CommaTokenizer());
+
         EmojiCompat.get().registerInitCallback(new EmojiCompat.InitCallback() {
             @Override
             public void onInitialized() {
@@ -167,6 +176,8 @@ public class MainFragment extends Fragment {
                             compat.process(getString(R.string.appcompat_edit_text, EMOJI)));
                     mAppCompatAutoCompleteTextView.setHint(
                             compat.process(getString(R.string.autocomplete_hint, EMOJI)));
+                    mAppCompatMultiAutoCompleteTextView.setHint(
+                            compat.process(getString(R.string.multiautocomplete_hint, EMOJI)));
                 }
             }
         });
