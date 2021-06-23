@@ -1469,7 +1469,7 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
     ctor public AppCompatRadioButton(android.content.Context!);
     ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet?);
     ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet?, int);
@@ -1477,7 +1477,9 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportButtonTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportButtonTintMode();
+    method public boolean isEmojiCompatEnabled();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
+    method public void setEmojiCompatEnabled(boolean);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportButtonTintList(android.content.res.ColorStateList?);
