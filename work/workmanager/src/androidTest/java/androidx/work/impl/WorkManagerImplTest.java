@@ -349,7 +349,8 @@ public class WorkManagerImplTest {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = 23)
+    // TODO:(b/191892569): Investigate why this passes lintDebug with minSdkVersion = 23.
+    @SdkSuppress(minSdkVersion = 24)
     public void testEnqueue_insertWorkConstraints()
             throws ExecutionException, InterruptedException {
 
