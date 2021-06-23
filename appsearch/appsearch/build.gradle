@@ -18,8 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id('AndroidXPlugin')
     id('com.android.library')
@@ -40,14 +38,14 @@ dependencies {
 
     androidTestAnnotationProcessor project(':appsearch:appsearch-compiler')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
     //TODO(b/149787478) upgrade and link to Dependencies.kt
     androidTestImplementation("junit:junit:4.13")
     // This dependency is unused by the test implementation, but it's here to validate that
     // icing's jarjar'ing of the Protobuf_lite doesn't conflict with external dependencies.
-    androidTestImplementation(PROTOBUF_LITE)
+    androidTestImplementation(libs.protobufLite)
 }
 
 // Create a jar for use by appsearch-compiler:test
