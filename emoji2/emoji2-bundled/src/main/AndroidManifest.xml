@@ -13,4 +13,18 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest package="androidx.emoji2.bundled" />
+<manifest package="androidx.emoji2.bundled"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                tools:node="remove" />
+        </provider>
+    </application>
+</manifest>
