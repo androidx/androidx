@@ -168,6 +168,11 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatRadioButtonEmojiActivity"
+            android:label="@string/app_compat_text_view_emoji_activity"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatCheckBoxActivity"
             android:label="@string/app_compat_checkbox_activity"
             android:theme="@style/Theme.AppCompat.Light"/>

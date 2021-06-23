@@ -115,6 +115,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/appcompat_radiobutton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <Button
                 android:id="@+id/emoji_list_button"
                 android:layout_width="match_parent"
