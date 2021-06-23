@@ -143,6 +143,7 @@ public abstract class Navigator<D : NavDestination> {
     public open fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
         val destination = backStackEntry.destination as? D ?: return
         navigate(destination, null, navOptions { launchSingleTop = true }, null)
+        state.onLaunchSingleTop()
     }
 
     /**
