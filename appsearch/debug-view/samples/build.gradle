@@ -18,8 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -57,8 +55,8 @@ dependencies {
     implementation('androidx.multidex:multidex:2.0.1')
     implementation('com.google.android.material:material:1.0.0')
     implementation('com.google.code.gson:gson:2.6.2')
-    implementation(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation(GUAVA_ANDROID)
+    implementation(libs.constraintLayout)
+    implementation(libs.guavaAndroid)
 }
 
 androidx {
