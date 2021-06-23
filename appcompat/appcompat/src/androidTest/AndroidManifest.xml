@@ -173,6 +173,11 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatCheckBoxEmojiActivity"
+            android:label="@string/app_compat_text_view_emoji_activity"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatCheckedTextViewActivity"
             android:label="@string/app_compat_checkedtextview_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
