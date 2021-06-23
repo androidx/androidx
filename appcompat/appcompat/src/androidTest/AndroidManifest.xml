@@ -107,6 +107,12 @@
             android:label="@string/app_compat_auto_complete_text_view_activity"
             android:theme="@style/Theme.TextColors"/>
 
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatMultiAutoCompleteTextViewEmojiActivity"
+            android:label="@string/app_compat_multi_auto_complete_text_view_activity"
+            android:theme="@style/Theme.TextColors"/>
+
         <activity
             android:name="androidx.appcompat.widget.AppCompatTextViewActivity"
             android:label="@string/app_compat_text_view_activity"
