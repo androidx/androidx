@@ -19,7 +19,6 @@ package androidx.security.identity;
 import android.content.Context;
 import android.icu.util.Calendar;
 import android.security.keystore.KeyProperties;
-import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -68,8 +67,6 @@ import co.nstant.in.cbor.CborDecoder;
 import co.nstant.in.cbor.CborEncoder;
 import co.nstant.in.cbor.CborException;
 import co.nstant.in.cbor.builder.MapBuilder;
-import co.nstant.in.cbor.model.Array;
-import co.nstant.in.cbor.model.ByteString;
 import co.nstant.in.cbor.model.DataItem;
 import co.nstant.in.cbor.model.Map;
 import co.nstant.in.cbor.model.UnicodeString;
@@ -375,41 +372,21 @@ class SoftwareIdentityCredential extends IdentityCredential {
         return mCryptoObject;
     }
 
-    private boolean hasEphemeralKeyInDeviceEngagement(@NonNull byte[] sessionTranscript) {
+    private boolean hasEphemeralKeyInSessionTranscript(@NonNull byte[] sessionTranscript) {
         if (mEphemeralKeyPair == null) {
             return false;
         }
         // The place to search for X and Y is in the DeviceEngagementBytes which is
-        // the first bstr in the SessionTranscript array.
-        ByteArrayInputStream bais = new ByteArrayInputStream(sessionTranscript);
-        List<DataItem> dataItems = null;
-        try {
-            dataItems = new CborDecoder(bais).decode();
-        } catch (CborException e) {
-            Log.e(TAG, "Error parsing SessionTranscript CBOR");
-            return false;
-        }
-        if (dataItems.size() != 1
-                || !(dataItems.get(0) instanceof Array)
-                || ((Array) dataItems.get(0)).getDataItems().size() != 2) {
-            Log.e(TAG, "SessionTranscript is not an array of length 2");
-            return false;
-        }
-        if (!(((Array) dataItems.get(0)).getDataItems().get(0) instanceof ByteString)) {
-            Log.e(TAG, "First element of SessionTranscript array is not a bstr");
-            return false;
-        }
-        byte[] deviceEngagementBytes =
-                ((ByteString) ((Array) dataItems.get(0)).getDataItems().get(0)).getBytes();
-
+        // the first bstr in the SessionTranscript array but it's just as good to just search
+        // in the given SessionTranscript bytes (just a bit more work).
         ECPoint w = ((ECPublicKey) mEphemeralKeyPair.getPublic()).getW();
+
         // X and Y are always positive so for interop we remove any leading zeroes
         // inserted by the BigInteger encoder.
         byte[] x = Util.stripLeadingZeroes(w.getAffineX().toByteArray());
         byte[] y = Util.stripLeadingZeroes(w.getAffineY().toByteArray());
-
-        if (!Util.hasSubByteArray(deviceEngagementBytes, x)
-                && !Util.hasSubByteArray(deviceEngagementBytes, y)) {
+        if (!Util.hasSubByteArray(sessionTranscript, x)
+                && !Util.hasSubByteArray(sessionTranscript, y)) {
             return false;
         }
         return true;
@@ -461,7 +438,7 @@ class SoftwareIdentityCredential extends IdentityCredential {
             InvalidReaderSignatureException, InvalidRequestMessageException,
             EphemeralPublicKeyNotFoundException {
 
-        if (mSessionTranscript != null && !hasEphemeralKeyInDeviceEngagement(mSessionTranscript)) {
+        if (mSessionTranscript != null && !hasEphemeralKeyInSessionTranscript(mSessionTranscript)) {
             throw new EphemeralPublicKeyNotFoundException(
                     "Did not find ephemeral public key X and Y coordinates in SessionTranscript "
                             + "(make sure leading zeroes are not used)");
