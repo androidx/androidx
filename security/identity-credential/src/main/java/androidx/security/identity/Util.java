@@ -1303,10 +1303,18 @@ class Util {
 
         baos = new ByteArrayOutputStream();
         try {
+            byte[] handoverSelectBytes = new byte[] {0x01, 0x02, 0x03};
+            DataItem handover = new CborBuilder()
+                    .addArray()
+                    .add(handoverSelectBytes)
+                    .add(SimpleValue.NULL)
+                    .end()
+                    .build().get(0);
             new CborEncoder(baos).encode(new CborBuilder()
                     .addArray()
                     .add(encodedDeviceEngagementItem)
                     .add(encodedEReaderKeyItem)
+                    .add(handover)
                     .end()
                     .build());
         } catch (CborException e) {
