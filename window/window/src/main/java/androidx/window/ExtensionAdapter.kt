@@ -61,8 +61,8 @@ internal class ExtensionAdapter(private val windowMetricsCalculator: WindowMetri
                 return null
             }
             val type = when (feature.type) {
-                ExtensionFoldingFeature.TYPE_FOLD -> FoldingFeature.TYPE_FOLD
-                ExtensionFoldingFeature.TYPE_HINGE -> FoldingFeature.TYPE_HINGE
+                ExtensionFoldingFeature.TYPE_FOLD -> FoldingFeature.Type.FOLD
+                ExtensionFoldingFeature.TYPE_HINGE -> FoldingFeature.Type.HINGE
                 else -> {
                     if (ExtensionCompat.DEBUG) {
                         Log.d(TAG, "Unknown feature type: ${feature.type}, skipping feature.")
@@ -71,8 +71,8 @@ internal class ExtensionAdapter(private val windowMetricsCalculator: WindowMetri
                 }
             }
             val state = when (feature.state) {
-                ExtensionFoldingFeature.STATE_FLAT -> FoldingFeature.STATE_FLAT
-                ExtensionFoldingFeature.STATE_HALF_OPENED -> FoldingFeature.STATE_HALF_OPENED
+                ExtensionFoldingFeature.STATE_FLAT -> FoldingFeature.State.FLAT
+                ExtensionFoldingFeature.STATE_HALF_OPENED -> FoldingFeature.State.HALF_OPENED
                 else -> {
                     if (ExtensionCompat.DEBUG) {
                         Log.d(TAG, "Unknown feature state: ${feature.state}, skipping feature.")
@@ -80,7 +80,7 @@ internal class ExtensionAdapter(private val windowMetricsCalculator: WindowMetri
                     return null
                 }
             }
-            return FoldingFeature(feature.bounds, type, state)
+            return FoldingFeature(Bounds(feature.bounds), type, state)
         }
 
         private fun isValid(windowBounds: Rect, feature: ExtensionFoldingFeature): Boolean {

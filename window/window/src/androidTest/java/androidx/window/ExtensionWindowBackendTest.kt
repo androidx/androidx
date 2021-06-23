@@ -17,11 +17,12 @@ package androidx.window
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Rect
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.window.FoldingFeature.State.Companion.FLAT
+import androidx.window.FoldingFeature.Type.Companion.HINGE
 import com.google.common.util.concurrent.MoreExecutors
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -218,14 +219,8 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
             var builder = WindowLayoutInfo.Builder()
             val windowLayoutInfo = builder.build()
             assertTrue(windowLayoutInfo.displayFeatures.isEmpty())
-            val feature1: DisplayFeature = FoldingFeature(
-                Rect(0, 2, 3, 4),
-                FoldingFeature.TYPE_HINGE, FoldingFeature.STATE_FLAT
-            )
-            val feature2: DisplayFeature = FoldingFeature(
-                Rect(0, 1, 5, 1),
-                FoldingFeature.TYPE_HINGE, FoldingFeature.STATE_FLAT
-            )
+            val feature1: DisplayFeature = FoldingFeature(Bounds(0, 2, 3, 4), HINGE, FLAT)
+            val feature2: DisplayFeature = FoldingFeature(Bounds(0, 1, 5, 1), HINGE, FLAT)
             val displayFeatures = listOf(feature1, feature2)
             builder = WindowLayoutInfo.Builder()
             builder.setDisplayFeatures(displayFeatures)
