@@ -1,1 +1,22 @@
 // Signature format: 4.0
+package androidx.wear.compose.foundation {
+
+  public final inline class AnchorType {
+    ctor public AnchorType();
+  }
+
+  public static final class AnchorType.Companion {
+    method public float getCenter();
+    method public float getEnd();
+    method public float getStart();
+    property public final float Center;
+    property public final float End;
+    property public final float Start;
+  }
+
+  public final class CurvedRowKt {
+    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.compose.ui.Modifier modifier, optional float anchor, optional float anchorType, optional boolean clockwise, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+}
+
