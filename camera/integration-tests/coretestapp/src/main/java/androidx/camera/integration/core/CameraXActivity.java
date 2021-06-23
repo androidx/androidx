@@ -412,6 +412,13 @@ public class CameraXActivity extends AppCompatActivity {
                         if (finalize.getError() != VideoRecordEvent.ERROR_NONE) {
                             msg += " with error (" + finalize.getError() + ")";
                         }
+                        // The video file path is used in tracing e2e test log. Don't remove it.
+                        String videoFile = getAbsolutePathFromUri(
+                                getApplicationContext().getContentResolver(),
+                                uri
+                        );
+                        Log.d(TAG, "Saved video file: " + videoFile);
+
                         Log.d(TAG, msg, finalize.getCause());
                         Toast.makeText(CameraXActivity.this, msg, Toast.LENGTH_LONG).show();
                         break;
