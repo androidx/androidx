@@ -18,8 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -34,17 +32,17 @@ android {
 }
 
 dependencies {
-    api(KOTLIN_STDLIB)
+    api(libs.kotlinStdlib)
 
-    implementation project(path: ':annotation:annotation')
+    implementation(project(":annotation:annotation"))
 
     androidTestImplementation(project(":test-screenshot"))
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation project(path: ':appcompat:appcompat')
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":appcompat:appcompat"))
 }
 
 androidx {
