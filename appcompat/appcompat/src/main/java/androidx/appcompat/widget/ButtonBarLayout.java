@@ -44,9 +44,10 @@ public class ButtonBarLayout extends LinearLayout {
     /** Whether the current configuration allows stacking. */
     private boolean mAllowStacking;
 
-    private int mLastWidthSize = -1;
+    /** Whether the button bar is currently stacked. */
+    private boolean mStacked;
 
-    private int mMinimumHeight = 0;
+    private int mLastWidthSize = -1;
 
     public ButtonBarLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -55,12 +56,18 @@ public class ButtonBarLayout extends LinearLayout {
                 attrs, ta, 0, 0);
         mAllowStacking = ta.getBoolean(R.styleable.ButtonBarLayout_allowStacking, true);
         ta.recycle();
+
+        // Stacking may have already been set implicitly via orientation="vertical", in which
+        // case we'll need to validate it against allowStacking and re-apply explicitly.
+        if (getOrientation() == LinearLayout.VERTICAL) {
+            setStacked(mAllowStacking);
+        }
     }
 
     public void setAllowStacking(boolean allowStacking) {
         if (mAllowStacking != allowStacking) {
             mAllowStacking = allowStacking;
-            if (!mAllowStacking && getOrientation() == LinearLayout.VERTICAL) {
+            if (!mAllowStacking && isStacked()) {
                 setStacked(false);
             }
             requestLayout();
@@ -137,6 +144,11 @@ public class ButtonBarLayout extends LinearLayout {
 
         if (ViewCompat.getMinimumHeight(this) != minHeight) {
             setMinimumHeight(minHeight);
+
+            // Re-measure immediately to fill excess space.
+            if (heightMeasureSpec == MeasureSpec.UNSPECIFIED) {
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            }
         }
     }
 
@@ -149,29 +161,28 @@ public class ButtonBarLayout extends LinearLayout {
         return -1;
     }
 
-    @Override
-    public int getMinimumHeight() {
-        return Math.max(mMinimumHeight, super.getMinimumHeight());
-    }
-
     private void setStacked(boolean stacked) {
-        setOrientation(stacked ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
-        setGravity(stacked ? Gravity.END : Gravity.BOTTOM);
+        if (mStacked != stacked && (!stacked || mAllowStacking)) {
+            mStacked = stacked;
 
-        final View spacer = findViewById(R.id.spacer);
-        if (spacer != null) {
-            spacer.setVisibility(stacked ? View.GONE : View.INVISIBLE);
-        }
+            setOrientation(stacked ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+            setGravity(stacked ? Gravity.END : Gravity.BOTTOM);
 
-        // Reverse the child order. This is specific to the Material button
-        // bar's layout XML and will probably not generalize.
-        final int childCount = getChildCount();
-        for (int i = childCount - 2; i >= 0; i--) {
-            bringChildToFront(getChildAt(i));
+            final View spacer = findViewById(R.id.spacer);
+            if (spacer != null) {
+                spacer.setVisibility(stacked ? View.GONE : View.INVISIBLE);
+            }
+
+            // Reverse the child order. This is specific to the Material button
+            // bar's layout XML and will probably not generalize.
+            final int childCount = getChildCount();
+            for (int i = childCount - 2; i >= 0; i--) {
+                bringChildToFront(getChildAt(i));
+            }
         }
     }
 
     private boolean isStacked() {
-        return getOrientation() == LinearLayout.VERTICAL;
+        return mStacked;
     }
 }
