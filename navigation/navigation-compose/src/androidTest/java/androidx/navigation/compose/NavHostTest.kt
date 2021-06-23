@@ -244,7 +244,8 @@ class NavHostTest {
                 NavHostController(context).apply {
                     restoreState(savedState)
                     setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
-                    navigatorProvider.addNavigator(ComposeNavigator())
+                    navigatorProvider += ComposeNavigator()
+                    navigatorProvider += DialogNavigator()
                 }
             }
             if (state.value == 0) {
