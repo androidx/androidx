@@ -20,8 +20,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatCheckedTextView;
 import androidx.appcompat.widget.AppCompatRadioButton;
@@ -42,20 +44,27 @@ public class MainFragment extends Fragment {
     private static final String WOMAN_SINGER = "\uD83D\uDC69\u200D\uD83C\uDFA4";
 
     static final String EMOJI = WOMAN_TECHNOLOGIST + " " + WOMAN_SINGER;
+    private static final String[] AUTOCOMPLETE_ITEMS = new String[3];
+    static {
+        AUTOCOMPLETE_ITEMS[0] = "Woman technologist " + WOMAN_TECHNOLOGIST;
+        AUTOCOMPLETE_ITEMS[1] = "Woman singer " + WOMAN_SINGER;
+        AUTOCOMPLETE_ITEMS[2] = "Woman";
+    };
 
     private TextView mEmojiTextView;
     private TextView mAppcompatTextView;
     private TextView mEmojiEditText;
-    private TextView mAppcompatEditText;
+    TextView mAppcompatEditText;
     private TextView mEmojiButton;
     private TextView mAppcompatButton;
-    private TextView mRegularTextView;
+    TextView mRegularTextView;
     private TextView mCustomTextView;
     private AppCompatToggleButton mAppCompatToggleButton;
     private SwitchCompat mSwitchCompat;
     private AppCompatCheckedTextView mAppCompatCheckedTextView;
     private AppCompatCheckBox mAppCompatCheckBox;
     private AppCompatRadioButton mAppCompatRadioButton;
+    AppCompatAutoCompleteTextView mAppCompatAutoCompleteTextView;
 
     final Config.Listener mConfigListener = new Config.Listener() {
         @Override
@@ -96,6 +105,7 @@ public class MainFragment extends Fragment {
         mAppCompatCheckedTextView = view.findViewById(R.id.appcompat_checked_text_view);
         mAppCompatCheckBox = view.findViewById(R.id.appcompat_checkbox);
         mAppCompatRadioButton = view.findViewById(R.id.appcompat_radiobutton);
+        mAppCompatAutoCompleteTextView = view.findViewById(R.id.appcompat_autocomplete_textview);
 
         final TextView emojiListButton = view.findViewById(R.id.emoji_list_button);
         emojiListButton.setOnClickListener(new View.OnClickListener() {
@@ -140,6 +150,10 @@ public class MainFragment extends Fragment {
         mAppCompatCheckedTextView.setText(getString(R.string.checked_text_view, EMOJI));
         mAppCompatCheckBox.setText(getString(R.string.check_box, EMOJI));
         mAppCompatRadioButton.setText(getString(R.string.radio_button, EMOJI));
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
+                android.R.layout.simple_dropdown_item_1line, AUTOCOMPLETE_ITEMS);
+        mAppCompatAutoCompleteTextView.setAdapter(adapter);
         EmojiCompat.get().registerInitCallback(new EmojiCompat.InitCallback() {
             @Override
             public void onInitialized() {
@@ -147,6 +161,12 @@ public class MainFragment extends Fragment {
                 if (compat.getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED) {
                     mRegularTextView.setText(
                             compat.process(getString(R.string.regular_text_view, EMOJI)));
+
+
+                    mAppcompatEditText.setHint(
+                            compat.process(getString(R.string.appcompat_edit_text, EMOJI)));
+                    mAppCompatAutoCompleteTextView.setHint(
+                            compat.process(getString(R.string.autocomplete_hint, EMOJI)));
                 }
             }
         });
