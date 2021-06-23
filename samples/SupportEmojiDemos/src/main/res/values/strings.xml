@@ -31,4 +31,5 @@
     <string name="check_box">AppCompatCheckBox %s</string>
     <string name="radio_button">AppCompatRadioButton %s</string>
     <string name="autocomplete_hint">AppCompatAutoCompleteTextView %s</string>
+    <string name="multiautocomplete_hint">AppCompatMultiAutoCompleteTextView %s</string>
 </resources>
