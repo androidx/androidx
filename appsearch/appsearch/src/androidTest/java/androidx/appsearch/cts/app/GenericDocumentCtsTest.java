@@ -309,6 +309,9 @@ public class GenericDocumentCtsTest {
                 () -> builder.setPropertyString("testKey", "string1", nullString));
     }
 
+// @exportToFramework:startStrip()
+
+    // TODO(b/171882200): Expose this test in Android T
     @Test
     public void testDocument_toBuilder() {
         GenericDocument document1 = new GenericDocument.Builder<>(
@@ -351,6 +354,8 @@ public class GenericDocumentCtsTest {
                 .build();
         assertThat(document2).isEqualTo(expectedDoc);
     }
+
+// @exportToFramework:endStrip()
 
     @Test
     public void testRetrieveTopLevelProperties() {

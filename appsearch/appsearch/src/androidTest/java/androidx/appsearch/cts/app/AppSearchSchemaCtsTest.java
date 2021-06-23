@@ -25,7 +25,6 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.util.AppSearchEmail;
-import androidx.appsearch.exceptions.IllegalSchemaException;
 
 import org.junit.Test;
 
@@ -55,7 +54,7 @@ public class AppSearchSchemaCtsTest {
                         .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build()
                 );
-        IllegalSchemaException e = assertThrows(IllegalSchemaException.class,
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> builder.addProperty(new StringPropertyConfig.Builder("subject")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)

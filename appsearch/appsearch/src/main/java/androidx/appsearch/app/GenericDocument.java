@@ -908,6 +908,7 @@ public class GenericDocument {
      * <p>The returned builder is a deep copy whose data is separate from this document.
      * <!--@exportToFramework:hide-->
      */
+    // TODO(b/171882200): Expose this API in Android T
     @NonNull
     public GenericDocument.Builder<GenericDocument.Builder<?>> toBuilder() {
         Bundle clonedBundle = BundleUtil.deepCopy(mBundle);
