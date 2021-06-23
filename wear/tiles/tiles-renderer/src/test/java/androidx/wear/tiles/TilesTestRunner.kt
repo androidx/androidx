@@ -23,6 +23,7 @@ import org.robolectric.internal.bytecode.InstrumentationConfiguration
 public class TilesTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
         InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
+            .doNotInstrumentPackage("androidx.wear.tiles.checkers")
             .doNotInstrumentPackage("androidx.wear.tiles.connection")
             .build()
 }
