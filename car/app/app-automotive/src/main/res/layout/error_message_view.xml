@@ -54,8 +54,8 @@
 
             <Button
                 android:id="@+id/action_button"
-                android:layout_width="@dimen/car_app_action_button_width"
-                android:layout_height="@dimen/car_app_action_button_height"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/car_app_default_padding_5"
                 android:background="@drawable/car_app_rounded_corner"
                 android:backgroundTint="@color/action_button"
