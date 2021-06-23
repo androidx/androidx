@@ -39,7 +39,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -248,8 +248,8 @@ public class WatchFaceServiceImageTest {
 
     private val handler = Handler(Looper.getMainLooper())
 
-    private val complicationProviders = mapOf(
-        SystemProviders.PROVIDER_DAY_OF_WEEK to
+    private val complicationDataSources = mapOf(
+        SystemDataSources.DATA_SOURCE_DAY_OF_WEEK to
             ShortTextComplicationData.Builder(
                 PlainComplicationText.Builder("Mon").build(),
                 ComplicationText.EMPTY
@@ -269,7 +269,7 @@ public class WatchFaceServiceImageTest {
                 )
                 .build()
                 .asWireComplicationData(),
-        SystemProviders.PROVIDER_STEP_COUNT to
+        SystemDataSources.DATA_SOURCE_STEP_COUNT to
             ShortTextComplicationData.Builder(
                 PlainComplicationText.Builder("100").build(),
                 ComplicationText.EMPTY
@@ -447,7 +447,7 @@ public class WatchFaceServiceImageTest {
             interactiveWatchFaceInstance.complicationDetails.map {
                 IdAndComplicationDataWireFormat(
                     it.id,
-                    complicationProviders[it.complicationState.fallbackSystemProvider]!!
+                    complicationDataSources[it.complicationState.fallbackSystemProvider]!!
                 )
             }
         )

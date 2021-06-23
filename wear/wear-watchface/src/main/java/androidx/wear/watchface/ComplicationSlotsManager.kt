@@ -219,22 +219,22 @@ public class ComplicationSlotsManager(
                     labelsDirty || complication.dataDirty || complication.complicationBoundsDirty ||
                     complication.accessibilityTraversalIndexDirty
 
-                if (complication.defaultProviderPolicyDirty ||
-                    complication.defaultProviderTypeDirty
+                if (complication.defaultDataSourcePolicyDirty ||
+                    complication.defaultDataSourceTypeDirty
                 ) {
-                    watchFaceHostApi.setDefaultComplicationProviderWithFallbacks(
+                    watchFaceHostApi.setDefaultComplicationDataSourceWithFallbacks(
                         complication.id,
-                        complication.defaultProviderPolicy.providersAsList(),
-                        complication.defaultProviderPolicy.systemProviderFallback,
-                        complication.defaultProviderType.toWireComplicationType()
+                        complication.defaultDataSourcePolicy.dataSourcesAsList(),
+                        complication.defaultDataSourcePolicy.systemDataSourceFallback,
+                        complication.defaultDataSourceType.toWireComplicationType()
                     )
                 }
 
                 complication.dataDirty = false
                 complication.complicationBoundsDirty = false
                 complication.supportedTypesDirty = false
-                complication.defaultProviderPolicyDirty = false
-                complication.defaultProviderTypeDirty = false
+                complication.defaultDataSourcePolicyDirty = false
+                complication.defaultDataSourceTypeDirty = false
             }
 
             complication.enabledDirty = false
@@ -397,9 +397,9 @@ public class ComplicationSlotsManager(
         complicationSlots.map {
             IdTypeAndDefaultProviderPolicyWireFormat(
                 it.key,
-                it.value.defaultProviderPolicy.providersAsList(),
-                it.value.defaultProviderPolicy.systemProviderFallback,
-                it.value.defaultProviderType.toWireComplicationType()
+                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
+                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
+                it.value.defaultDataSourceType.toWireComplicationType()
             )
         }.toTypedArray()
 }

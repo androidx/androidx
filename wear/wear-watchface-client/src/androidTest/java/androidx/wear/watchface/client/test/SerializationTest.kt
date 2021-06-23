@@ -24,7 +24,7 @@ import android.os.Parcel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -198,17 +198,17 @@ public class SerializationTest {
         assertThat(deserialized.supportedTypes).containsExactly(
             ComplicationType.LONG_TEXT, ComplicationType.SHORT_TEXT
         )
-        assertThat(deserialized.defaultProviderPolicy.systemProviderFallback).isEqualTo(
-            SystemProviders.PROVIDER_DAY_AND_DATE
+        assertThat(deserialized.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
+            SystemDataSources.DATA_SOURCE_DAY_AND_DATE
         )
-        assertThat(deserialized.defaultProviderPolicy.primaryProvider).isEqualTo(
+        assertThat(deserialized.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
             ComponentName("a", "b")
         )
-        assertThat(deserialized.defaultProviderPolicy.secondaryProvider).isNull()
+        assertThat(deserialized.defaultDataSourcePolicy.secondaryDataSource).isNull()
         assertThat(deserialized.currentType).isEqualTo(ComplicationType.SHORT_TEXT)
         assertThat(deserialized.isEnabled).isTrue()
         assertThat(deserialized.isInitiallyEnabled).isFalse()
-        assertThat(deserialized.fixedComplicationProvider).isFalse()
+        assertThat(deserialized.fixedComplicationDataSource).isFalse()
         assertThat(deserialized.complicationConfigExtras.getInt("keyA")).isEqualTo(100)
     }
 

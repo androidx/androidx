@@ -362,7 +362,7 @@ public sealed class UserStyleSetting(
      * not apply any overrides. Only a single [ComplicationSlotsUserStyleSetting] is permitted in
      * the [UserStyleSchema].
      *
-     * Not to be confused with complication provider selection.
+     * Not to be confused with complication data source selection.
      */
     public class ComplicationSlotsUserStyleSetting : UserStyleSetting {
 

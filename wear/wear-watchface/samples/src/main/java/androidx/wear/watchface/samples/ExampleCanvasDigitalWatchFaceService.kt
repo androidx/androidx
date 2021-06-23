@@ -40,8 +40,8 @@ import android.view.animation.AnimationUtils
 import android.view.animation.PathInterpolator
 import androidx.annotation.ColorInt
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
@@ -518,14 +518,14 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_WATCH_BATTERY),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_WATCH_BATTERY),
         ComplicationSlotBounds(
             createBoundsRect(
                 LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
                 CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
         )
-    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
         .build()
 
     private val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
@@ -537,14 +537,14 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DATE),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DATE),
         ComplicationSlotBounds(
             createBoundsRect(
                 RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
                 CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
         )
-    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
         .build()
 
     private val upperAndLowerComplicationTypes = listOf(
@@ -559,7 +559,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         ComplicationID.UPPER.ordinal,
         canvasComplicationFactory,
         upperAndLowerComplicationTypes,
-        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_WORLD_CLOCK),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_WORLD_CLOCK),
         ComplicationSlotBounds(
             ComplicationType.values().associateWith {
                 if (it == ComplicationType.LONG_TEXT) {
@@ -575,14 +575,14 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 }
             }
         )
-    ).setDefaultProviderType(ComplicationType.LONG_TEXT)
+    ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
         .build()
 
     private val lowerComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.LOWER.ordinal,
         canvasComplicationFactory,
         upperAndLowerComplicationTypes,
-        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_NEXT_EVENT),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_NEXT_EVENT),
         ComplicationSlotBounds(
             ComplicationType.values().associateWith {
                 if (it == ComplicationType.LONG_TEXT) {
@@ -598,14 +598,14 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 }
             }
         )
-    ).setDefaultProviderType(ComplicationType.LONG_TEXT)
+    ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
         .build()
 
     private val backgroundComplication = ComplicationSlot.createBackgroundComplicationSlotBuilder(
         ComplicationID.BACKGROUND.ordinal,
         canvasComplicationFactory,
         listOf(ComplicationType.PHOTO_IMAGE),
-        DefaultComplicationProviderPolicy()
+        DefaultComplicationDataSourcePolicy()
     ).build()
 
     override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))

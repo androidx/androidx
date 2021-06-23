@@ -60,9 +60,9 @@ public class WatchFaceId(public val id: String) {
  * @param previewComplicationsData Preview [ComplicationData] needed for taking screenshots without
  * live complication data.
  * @param shouldCommitChanges Whether or not this state should be committed (i.e. the user aborted
- * the session). If it's not committed then any changes (E.g. complication provider changes) should
- * be abandoned. There's no need to resend the style to the watchface because the library will have
- * restored the previous style.
+ * the session). If it's not committed then any changes (E.g. complication data source changes)
+ * should  be abandoned. There's no need to resend the style to the watchface because the library
+ * will have restored the previous style.
  */
 public class EditorState internal constructor(
     @RequiresApi(Build.VERSION_CODES.R)

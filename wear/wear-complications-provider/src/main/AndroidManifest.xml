@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="androidx.wear.complications.provider">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.wear.complications.datasource">
   <application>
     <uses-library android:name="com.google.android.wearable" android:required="false" />
   </application>

@@ -42,7 +42,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.toApiComplicationData
@@ -366,7 +366,7 @@ public class WatchFaceImpl @UiThread constructor(
     internal var broadcastsReceiver: BroadcastsReceiver?
 ) {
     internal companion object {
-        internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
+        internal const val NO_DEFAULT_DATA_SOURCE = SystemDataSources.NO_DATA_SOURCE
 
         internal const val MOCK_TIME_INTENT = "androidx.wear.watchface.MockTime"
 
@@ -879,14 +879,14 @@ public class WatchFaceImpl @UiThread constructor(
                 it.value.computeBounds(renderer.screenBounds),
                 it.value.boundsType,
                 ComplicationType.toWireTypes(it.value.supportedTypes),
-                it.value.defaultProviderPolicy.providersAsList(),
-                it.value.defaultProviderPolicy.systemProviderFallback,
-                it.value.defaultProviderType.toWireComplicationType(),
+                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
+                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
+                it.value.defaultDataSourceType.toWireComplicationType(),
                 it.value.enabled,
                 it.value.initiallyEnabled,
                 it.value.renderer.getData()?.type?.toWireComplicationType()
                     ?: ComplicationType.NO_DATA.toWireComplicationType(),
-                it.value.fixedComplicationProvider,
+                it.value.fixedComplicationDataSource,
                 it.value.configExtras
             )
         )

@@ -27,7 +27,7 @@ import androidx.annotation.Px
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
@@ -175,18 +175,19 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
  * ComplicationSlot from potentially expensive asset loading.
  * @param supportedTypes The list of [ComplicationType]s accepted by this complication. Used
  * during complication, this list should be non-empty.
- * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] which controls the initial
- * provider when the watch face is first installed.
- * @param defaultProviderType The default [ComplicationType] for the default provider.
+ * @param defaultPolicy The [DefaultComplicationDataSourcePolicy] which controls the
+ * initial complication data source when the watch face is first installed.
+ * @param defaultDataSourceType The default [ComplicationType] for the default complication data
+ * source.
  * @param initiallyEnabled At creation a complication is either enabled or disabled. This can be
  * overridden by a [ComplicationSlotsUserStyleSetting] (see [ComplicationSlotOverlay.enabled]).
  * Editors need to know the initial state of a complication to predict the effects of making a
  * style change.
- * @param configExtras Extras to be merged into the Intent sent when invoking the provider chooser
- * activity.
- * @param fixedComplicationProvider  Whether or not the complication provider is fixed (i.e.
+ * @param configExtras Extras to be merged into the Intent sent when invoking the complication data
+ * source chooser activity.
+ * @param fixedComplicationDataSource  Whether or not the complication data source is fixed (i.e.
  * can't be changed by the user).  This is useful for watch faces built around specific
- * complicationSlots.
+ * complications.
  * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
  * complication.
  */
@@ -197,13 +198,13 @@ public class ComplicationSlot internal constructor(
     bounds: ComplicationSlotBounds,
     public val canvasComplicationFactory: CanvasComplicationFactory,
     supportedTypes: List<ComplicationType>,
-    defaultProviderPolicy: DefaultComplicationProviderPolicy,
-    defaultProviderType: ComplicationType,
+    defaultPolicy: DefaultComplicationDataSourcePolicy,
+    defaultDataSourceType: ComplicationType,
     @get:JvmName("isInitiallyEnabled")
     public val initiallyEnabled: Boolean,
     public val configExtras: Bundle,
-    @get:JvmName("isFixedComplicationProvider")
-    public val fixedComplicationProvider: Boolean,
+    @get:JvmName("isFixedComplicationDataSource")
+    public val fixedComplicationDataSource: Boolean,
     public val tapFilter: ComplicationTapFilter
 ) {
     /**
@@ -251,8 +252,8 @@ public class ComplicationSlot internal constructor(
          * complicationSlots.
          * @param supportedTypes The types of complication supported by this ComplicationSlot. Used
          * during complication, this list should be non-empty.
-         * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
-         * the initial complication provider when the watch is first installed.
+         * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] used to select
+         * the initial complication data source when the watch is first installed.
          * @param bounds The complication's [ComplicationSlotBounds].
          */
         @JvmStatic
@@ -260,13 +261,13 @@ public class ComplicationSlot internal constructor(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
-            defaultProviderPolicy: DefaultComplicationProviderPolicy,
+            defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
             bounds: ComplicationSlotBounds
         ): Builder = Builder(
             id,
             canvasComplicationFactory,
             supportedTypes,
-            defaultProviderPolicy,
+            defaultDataSourcePolicy,
             ComplicationSlotBoundsType.ROUND_RECT,
             bounds,
             RoundRectComplicationTapFilter()
@@ -286,20 +287,20 @@ public class ComplicationSlot internal constructor(
          * complicationSlots.
          * @param supportedTypes The types of complication supported by this ComplicationSlot. Used
          * during complication, this list should be non-empty.
-         * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
-         * the initial complication provider when the watch is first installed.
+         * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] used to select
+         * the initial complication data source when the watch is first installed.
          */
         @JvmStatic
         public fun createBackgroundComplicationSlotBuilder(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
-            defaultProviderPolicy: DefaultComplicationProviderPolicy
+            defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy
         ): Builder = Builder(
             id,
             canvasComplicationFactory,
             supportedTypes,
-            defaultProviderPolicy,
+            defaultDataSourcePolicy,
             ComplicationSlotBoundsType.BACKGROUND,
             ComplicationSlotBounds(RectF(0f, 0f, 1f, 1f)),
             BackgroundComplicationTapFilter()
@@ -323,8 +324,8 @@ public class ComplicationSlot internal constructor(
          * complicationSlots.
          * @param supportedTypes The types of complication supported by this ComplicationSlot. Used
          * during complication, this list should be non-empty.
-         * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
-         * the initial complication provider when the watch is first installed.
+         * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] used to select
+         * the initial complication data source when the watch is first installed.
          * @param bounds The complication's [ComplicationSlotBounds]. Its likely the bounding rect
          * will be much larger than the complication and shouldn't directly be used for hit testing.
          * @param complicationTapFilter The [ComplicationTapFilter] used to determine whether or
@@ -335,14 +336,14 @@ public class ComplicationSlot internal constructor(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
-            defaultProviderPolicy: DefaultComplicationProviderPolicy,
+            defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
             bounds: ComplicationSlotBounds,
             complicationTapFilter: ComplicationTapFilter
         ): Builder = Builder(
             id,
             canvasComplicationFactory,
             supportedTypes,
-            defaultProviderPolicy,
+            defaultDataSourcePolicy,
             ComplicationSlotBoundsType.EDGE,
             bounds,
             complicationTapFilter
@@ -359,8 +360,8 @@ public class ComplicationSlot internal constructor(
      * complicationSlots.
      * @param supportedTypes The types of complication supported by this ComplicationSlot. Used
      * during complication, this list should be non-empty.
-     * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
-     * the initial complication provider when the watch is first installed.
+     * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] used to select
+     * the initial complication data source when the watch is first installed.
      * @param boundsType The [ComplicationSlotBoundsType] of the complication.
      * @param bounds The complication's [ComplicationSlotBounds].
      * @param complicationTapFilter The [ComplicationTapFilter] used to perform hit testing for this
@@ -370,16 +371,16 @@ public class ComplicationSlot internal constructor(
         private val id: Int,
         private val canvasComplicationFactory: CanvasComplicationFactory,
         private val supportedTypes: List<ComplicationType>,
-        private val defaultProviderPolicy: DefaultComplicationProviderPolicy,
+        private val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         @ComplicationSlotBoundsType private val boundsType: Int,
         private val bounds: ComplicationSlotBounds,
         private val complicationTapFilter: ComplicationTapFilter
     ) {
         private var accessibilityTraversalIndex = id
-        private var defaultProviderType = ComplicationType.NOT_CONFIGURED
+        private var defaultDataSourceType = ComplicationType.NOT_CONFIGURED
         private var initiallyEnabled = true
         private var configExtras: Bundle = Bundle.EMPTY
-        private var fixedComplicationProvider = false
+        private var fixedComplicationDataSource = false
 
         init {
             require(id >= 0) { "id must be >= 0" }
@@ -398,14 +399,14 @@ public class ComplicationSlot internal constructor(
         }
 
         /**
-         * Sets the initial [ComplicationType] to use with the initial complication provider.
-         * Note care should be taken to ensure [defaultProviderType] is compatible with the
-         * [DefaultComplicationProviderPolicy].
+         * Sets the initial [ComplicationType] to use with the initial complication data source.
+         * Note care should be taken to ensure [defaultDataSourceType] is compatible with the
+         * [DefaultComplicationDataSourcePolicy].
          */
-        public fun setDefaultProviderType(
-            defaultProviderType: ComplicationType
+        public fun setDefaultDataSourceType(
+            defaultDataSourceType: ComplicationType
         ): Builder {
-            this.defaultProviderType = defaultProviderType
+            this.defaultDataSourceType = defaultDataSourceType
             return this
         }
 
@@ -419,8 +420,8 @@ public class ComplicationSlot internal constructor(
         }
 
         /**
-         * Sets optional extras to be merged into the Intent sent when invoking the provider chooser
-         * activity.
+         * Sets optional extras to be merged into the Intent sent when invoking the complication
+         * data source chooser activity.
          */
         public fun setConfigExtras(extras: Bundle): Builder {
             this.configExtras = extras
@@ -428,10 +429,10 @@ public class ComplicationSlot internal constructor(
         }
 
         /**
-         * Whether or not the complication is fixed (i.e. the user can't change it).
+         * Whether or not the complication source is fixed (i.e. the user can't change it).
          */
-        public fun setFixedComplicationProvider(fixedComplicationProvider: Boolean): Builder {
-            this.fixedComplicationProvider = fixedComplicationProvider
+        public fun setFixedComplicationDataSource(fixedComplicationDataSource: Boolean): Builder {
+            this.fixedComplicationDataSource = fixedComplicationDataSource
             return this
         }
 
@@ -443,11 +444,11 @@ public class ComplicationSlot internal constructor(
             bounds,
             canvasComplicationFactory,
             supportedTypes,
-            defaultProviderPolicy,
-            defaultProviderType,
+            defaultDataSourcePolicy,
+            defaultDataSourceType,
             initiallyEnabled,
             configExtras,
-            fixedComplicationProvider,
+            fixedComplicationDataSource,
             complicationTapFilter
         )
     }
@@ -512,13 +513,13 @@ public class ComplicationSlot internal constructor(
             supportedTypesDirty = true
         }
 
-    internal var defaultProviderPolicyDirty = true
+    internal var defaultDataSourcePolicyDirty = true
 
     /**
-     * The [DefaultComplicationProviderPolicy] which defines the default complicationSlots providers
-     * selected when the user hasn't yet made a choice. See also [defaultProviderType].
+     * The [DefaultComplicationDataSourcePolicy] which defines the default complicationSlots
+     * providers selected when the user hasn't yet made a choice. See also [defaultDataSourceType].
      */
-    public var defaultProviderPolicy: DefaultComplicationProviderPolicy = defaultProviderPolicy
+    public var defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy = defaultPolicy
         @UiThread
         get
         @UiThread
@@ -527,15 +528,15 @@ public class ComplicationSlot internal constructor(
                 return
             }
             field = value
-            defaultProviderPolicyDirty = true
+            defaultDataSourcePolicyDirty = true
         }
 
-    internal var defaultProviderTypeDirty = true
+    internal var defaultDataSourceTypeDirty = true
 
     /**
-     * The default [ComplicationType] to use alongside [defaultProviderPolicy].
+     * The default [ComplicationType] to use alongside [defaultDataSourcePolicy].
      */
-    public var defaultProviderType: ComplicationType = defaultProviderType
+    public var defaultDataSourceType: ComplicationType = defaultDataSourceType
         @UiThread
         get
         @UiThread
@@ -544,7 +545,7 @@ public class ComplicationSlot internal constructor(
                 return
             }
             field = value
-            defaultProviderTypeDirty = true
+            defaultDataSourceTypeDirty = true
         }
 
     internal var accessibilityTraversalIndexDirty = true
@@ -628,7 +629,7 @@ public class ComplicationSlot internal constructor(
     ) {
         // It's only sensible to render a highlight for non-fixed ComplicationSlots because you
         // can't edit fixed complicationSlots.
-        if (fixedComplicationProvider) {
+        if (fixedComplicationDataSource) {
             return
         }
 
@@ -675,11 +676,11 @@ public class ComplicationSlot internal constructor(
     /** Computes the bounds of the complication by converting the unitSquareBounds to pixels. */
     public fun computeBounds(screen: Rect): Rect {
         // Try the current type if there is one, otherwise fall back to the bounds for the default
-        // provider type.
+        // complication data source type.
         val unitSquareBounds =
             renderer.getData()?.let {
                 complicationSlotBounds.perComplicationTypeBounds[it.type]
-            } ?: complicationSlotBounds.perComplicationTypeBounds[defaultProviderType]!!
+            } ?: complicationSlotBounds.perComplicationTypeBounds[defaultDataSourceType]!!
         unitSquareBounds.intersect(unitSquare)
         // We add 0.5 to make toInt() round to the nearest whole number rather than truncating.
         return Rect(
@@ -694,7 +695,7 @@ public class ComplicationSlot internal constructor(
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("ComplicationSlot $id:")
         writer.increaseIndent()
-        writer.println("fixedComplicationProvider=$fixedComplicationProvider")
+        writer.println("fixedComplicationDataSource=$fixedComplicationDataSource")
         writer.println("enabled=$enabled")
         writer.println("renderer.isHighlighted=${renderer.isHighlighted}")
         writer.println("boundsType=$boundsType")
@@ -702,14 +703,15 @@ public class ComplicationSlot internal constructor(
         writer.println("supportedTypes=${supportedTypes.joinToString { it.toString() }}")
         writer.println("initiallyEnabled=$initiallyEnabled")
         writer.println(
-            "defaultProviderPolicy.primaryProvider=${defaultProviderPolicy.primaryProvider}"
+            "defaultDataSourcePolicy.primaryDataSource=${defaultDataSourcePolicy.primaryDataSource}"
         )
         writer.println(
-            "defaultProviderPolicy.secondaryProvider=${defaultProviderPolicy.secondaryProvider}"
+            "defaultDataSourcePolicy.secondaryDataSource=" +
+                defaultDataSourcePolicy.secondaryDataSource
         )
         writer.println(
-            "defaultProviderPolicy.systemProviderFallback=" +
-                "${defaultProviderPolicy.systemProviderFallback}"
+            "defaultDataSourcePolicy.systemDataSourceFallback=" +
+                defaultDataSourcePolicy.systemDataSourceFallback
         )
         writer.println("data=${renderer.getData()}")
         val bounds = complicationSlotBounds.perComplicationTypeBounds.map {

@@ -76,7 +76,7 @@ public class ComplicationHelperActivityTest {
     public fun instanceId() {
         assertThat(
             createIntent(instanceId = "ID-1")
-                .getStringExtra(ProviderChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID)
+                .getStringExtra(ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID)
         ).isEqualTo("ID-1")
     }
 
@@ -86,7 +86,7 @@ public class ComplicationHelperActivityTest {
         complicationSlotId: Int = defaultComplicationSlotId,
         instanceId: String? = null,
         vararg supportedTypes: ComplicationType = defaultSupportedTypes
-    ) = ComplicationHelperActivity.createProviderChooserHelperIntent(
+    ) = ComplicationHelperActivity.createComplicationDataSourceChooserHelperIntent(
         context,
         watchFaceComponentName,
         complicationSlotId,
@@ -111,14 +111,16 @@ public class ComplicationHelperActivityTest {
 
 /** The watch face component name encoded in the intent. */
 private val Intent.watchFaceComponentName
-    get() = getParcelableExtra<ComponentName>(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME)
+    get() = getParcelableExtra<ComponentName>(
+        ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME
+    )
 
 /** The complication ID encoded in the intent. */
 private val Intent.complicationSlotId
-    get() = getIntExtra(ProviderChooserIntent.EXTRA_COMPLICATION_ID, -1)
+    get() = getIntExtra(ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_ID, -1)
 
 /** The support types encoded in the intent. */
 private val Intent.supportedTypes
     get() = ComplicationType.fromWireTypes(
-        getIntArrayExtra(ProviderChooserIntent.EXTRA_SUPPORTED_TYPES)!!
+        getIntArrayExtra(ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES)!!
     )

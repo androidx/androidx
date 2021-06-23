@@ -29,11 +29,12 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.complications.ComplicationDataSourceChooserIntent
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.ComplicationProviderInfo
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.ComplicationDataSourceInfo
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -87,9 +88,9 @@ public class EditorSessionGuavaTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
     private val mockRightCanvasComplication =
@@ -109,9 +110,9 @@ public class EditorSessionGuavaTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
             ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
     private val backgroundHandlerThread = HandlerThread("TestBackgroundThread").apply {
@@ -140,8 +141,8 @@ public class EditorSessionGuavaTest {
             .thenReturn(previewReferenceTimeMillis)
         Mockito.`when`(editorDelegate.backgroundThreadHandler).thenReturn(backgroundHandler)
 
-        OnWatchFaceEditingTestActivity.providerInfoRetrieverProvider =
-            TestProviderInfoRetrieverProvider()
+        OnWatchFaceEditingTestActivity.complicationDataSourceInfoRetrieverProvider =
+            TestComplicationDataSourceInfoRetrieverProvider()
 
         return ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
@@ -158,8 +159,8 @@ public class EditorSessionGuavaTest {
 
     @After
     public fun tearDown() {
-        ComplicationProviderChooserContract.useTestComplicationHelperActivity = false
-        ComplicationHelperActivity.useTestComplicationProviderChooserActivity = false
+        ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = false
+        ComplicationHelperActivity.useTestComplicationDataSourceChooserActivity = false
         ComplicationHelperActivity.skipPermissionCheck = false
         WatchFace.clearAllEditorDelegates()
         backgroundHandlerThread.quitSafely()
@@ -195,22 +196,22 @@ public class EditorSessionGuavaTest {
     }
 
     @Test
-    public fun listenableOpenComplicationProviderChooser() {
-        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
-        val chosenComplicationProviderInfo = ComplicationProviderInfo(
-            "TestProvider3App",
-            "TestProvider3",
+    public fun listenableOpenComplicationDataSourceChooser() {
+        ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = true
+        val chosenComplicationDataSourceInfo = ComplicationDataSourceInfo(
+            "TestDataSource3App",
+            "TestDataSource3",
             Icon.createWithBitmap(
                 Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
             ),
             ComplicationType.LONG_TEXT,
-            provider3
+            dataSource3
         )
         TestComplicationHelperActivity.resultIntent = CompletableDeferred(
             Intent().apply {
                 putExtra(
-                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
-                    chosenComplicationProviderInfo.toWireComplicationProviderInfo()
+                    ComplicationDataSourceChooserIntent.EXTRA_PROVIDER_INFO,
+                    chosenComplicationDataSourceInfo.toWireComplicationProviderInfo()
                 )
             }
         )
@@ -225,22 +226,22 @@ public class EditorSessionGuavaTest {
         }
 
         /**
-         * Invoke [TestComplicationHelperActivity] which will change the provider (and hence
+         * Invoke [TestComplicationHelperActivity] which will change the data source (and hence
          * the preview data) for [LEFT_COMPLICATION_ID].
          */
-        val chosenComplicationProvider =
-            listenableEditorSession.listenableOpenComplicationProviderChooser(
+        val chosenComplicationDataSource =
+            listenableEditorSession.listenableOpenComplicationDataSourceChooser(
                 LEFT_COMPLICATION_ID
             ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
-        assertThat(chosenComplicationProvider).isNotNull()
-        checkNotNull(chosenComplicationProvider)
-        assertThat(chosenComplicationProvider.complicationSlotId).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(chosenComplicationDataSource).isNotNull()
+        checkNotNull(chosenComplicationDataSource)
+        assertThat(chosenComplicationDataSource.complicationSlotId).isEqualTo(LEFT_COMPLICATION_ID)
         assertEquals(
-            chosenComplicationProviderInfo,
-            chosenComplicationProvider.complicationProviderInfo
+            chosenComplicationDataSourceInfo,
+            chosenComplicationDataSource.complicationDataSourceInfo
         )
 
-        // This should update the preview data to point to the updated provider3 data.
+        // This should update the preview data to point to the updated dataSource3 data.
         val previewComplication =
             listenableEditorSession.getListenableComplicationPreviewData()
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)[LEFT_COMPLICATION_ID]
@@ -251,6 +252,6 @@ public class EditorSessionGuavaTest {
                 ApplicationProvider.getApplicationContext<Context>().resources,
                 0
             )
-        ).isEqualTo("Provider3")
+        ).isEqualTo("DataSource3")
     }
 }
