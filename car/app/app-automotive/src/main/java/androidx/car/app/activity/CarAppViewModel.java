@@ -156,7 +156,7 @@ public class CarAppViewModel extends AndroidViewModel implements
                 // displayed to the user.
                 return;
             }
-            mError.setValue(errorCode);
+            mError.postValue(errorCode);
         });
         mState.postValue(State.ERROR);
         unbind();

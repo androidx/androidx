@@ -74,16 +74,21 @@ public class ServiceConnectionManagerTest {
     private final ShadowLooper mMainLooper = shadowOf(getMainLooper());
 
     private void setupCarAppActivityForTesting() {
+        setupCarAppActivityForTesting(true);
+    }
+
+    private void setupCarAppActivityForTesting(boolean registerHost) {
         try {
             Application app = ApplicationProvider.getApplicationContext();
 
-            PackageManager packageManager = app.getPackageManager();
-            ShadowPackageManager spm = shadowOf(packageManager);
-
-            // Register fake renderer service which will be simulated by {@code mRenderService}.
-            spm.addServiceIfNotPresent(mRendererComponent);
-            spm.addIntentFilterForService(mRendererComponent,
-                    new IntentFilter(CarAppActivity.ACTION_RENDER));
+            if (registerHost) {
+                // Register fake renderer service which will be simulated by {@code mRenderService}.
+                PackageManager packageManager = app.getPackageManager();
+                ShadowPackageManager spm = shadowOf(packageManager);
+                spm.addServiceIfNotPresent(mRendererComponent);
+                spm.addIntentFilterForService(mRendererComponent,
+                        new IntentFilter(CarAppActivity.ACTION_RENDER));
+            }
 
             when(mRenderService.initialize(any(ICarAppActivity.class),
                     any(ComponentName.class),
@@ -128,6 +133,19 @@ public class ServiceConnectionManagerTest {
             fail(Log.getStackTraceString(e));
         }
         assertThat(mServiceConnectionManager.isBound()).isTrue();
+    }
+
+    @Test
+    public void testBind_missingHost_errors() {
+        setupCarAppActivityForTesting(false);
+        ICarAppActivity iCarAppActivity = mock(ICarAppActivity.class);
+
+        mViewModel.bind(TEST_INTENT, iCarAppActivity, TEST_DISPLAY_ID);
+        mMainLooper.idle();
+        assertThat(mViewModel.getState().getValue()).isEqualTo(CarAppViewModel.State.ERROR);
+        assertThat(mViewModel.getError().getValue())
+                .isEqualTo(ErrorHandler.ErrorType.HOST_NOT_FOUND);
+        assertThat(mServiceConnectionManager.isBound()).isFalse();
     }
 
     @Test
