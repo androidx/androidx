@@ -17,7 +17,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
-import androidx.build.RunApiTasks
 import androidx.build.AndroidXComposePlugin
 
 plugins {
@@ -121,7 +120,6 @@ androidx {
             "Material Design UX guidelines and specifications. It builds upon the Jetpack Compose" +
             " libraries."
     targetsJavaConsumers = false
-    runApiTasks = new RunApiTasks.No("API tracking disabled while the package is empty")
 }
 
 
