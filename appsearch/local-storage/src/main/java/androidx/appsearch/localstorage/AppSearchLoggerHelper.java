@@ -24,6 +24,7 @@ import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.core.util.Preconditions;
 
+import com.google.android.icing.proto.DeleteByQueryStatsProto;
 import com.google.android.icing.proto.DeleteStatsProto;
 import com.google.android.icing.proto.InitializeStatsProto;
 import com.google.android.icing.proto.PutDocumentStatsProto;
@@ -95,7 +96,7 @@ public final class AppSearchLoggerHelper {
     }
 
     /*
-     * Copy native Query stats to buiilder.
+     * Copy native Query stats to builder.
      *
      * @param fromNativeStats Stats copied from.
      * @param toStatsBuilder Stats copied to.
@@ -125,7 +126,7 @@ public final class AppSearchLoggerHelper {
     }
 
     /*
-     * Copy native Query stats to buiilder.
+     * Copy native Delete stats to builder.
      *
      * @param fromNativeStats Stats copied from.
      * @param toStatsBuilder Stats copied to.
@@ -137,6 +138,25 @@ public final class AppSearchLoggerHelper {
         toStatsBuilder
                 .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
                 .setDeleteType(fromNativeStats.getDeleteType().getNumber())
+                .setDeletedDocumentCount(fromNativeStats.getNumDocumentsDeleted());
+    }
+
+    /*
+     * Copy native DeleteByQuery stats to builder.
+     *
+     * @param fromNativeStats Stats copied from.
+     * @param toStatsBuilder Stats copied to.
+     */
+    static void copyNativeStats(@NonNull DeleteByQueryStatsProto fromNativeStats,
+            @NonNull RemoveStats.Builder toStatsBuilder) {
+        Preconditions.checkNotNull(fromNativeStats);
+        Preconditions.checkNotNull(toStatsBuilder);
+
+        @SuppressWarnings("deprecation")
+        int deleteType = DeleteStatsProto.DeleteType.Code.DEPRECATED_QUERY.getNumber();
+        toStatsBuilder
+                .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
+                .setDeleteType(deleteType)
                 .setDeletedDocumentCount(fromNativeStats.getNumDocumentsDeleted());
     }
 }

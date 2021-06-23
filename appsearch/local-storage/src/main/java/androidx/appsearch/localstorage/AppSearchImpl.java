@@ -1168,7 +1168,7 @@ public final class AppSearchImpl implements Closeable {
                 removeStatsBuilder.setStatusCode(statusProtoToResultCode(
                         deleteResultProto.getStatus()));
                 // TODO(b/187206766) also log query stats here once IcingLib returns it
-                AppSearchLoggerHelper.copyNativeStats(deleteResultProto.getDeleteStats(),
+                AppSearchLoggerHelper.copyNativeStats(deleteResultProto.getDeleteByQueryStats(),
                         removeStatsBuilder);
             }
 

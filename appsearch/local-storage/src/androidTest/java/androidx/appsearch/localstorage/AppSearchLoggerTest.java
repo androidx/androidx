@@ -709,7 +709,8 @@ public class AppSearchLoggerTest {
         assertThat(rStats.getDatabase()).isEqualTo(testDatabase);
         assertThat(rStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
         // delete by query
-        assertThat(rStats.getDeleteType()).isEqualTo(DeleteStatsProto.DeleteType.Code.QUERY_VALUE);
+        assertThat(rStats.getDeleteType())
+                .isEqualTo(DeleteStatsProto.DeleteType.Code.DEPRECATED_QUERY_VALUE);
         assertThat(rStats.getDeletedDocumentCount()).isEqualTo(2);
     }
 }
