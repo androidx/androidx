@@ -10,6 +10,15 @@ package androidx.navigation.compose {
     ctor public ComposeNavigator.Destination(androidx.navigation.compose.ComposeNavigator navigator, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
   }
 
+  @androidx.navigation.Navigator.Name("dialog") public final class DialogNavigator extends androidx.navigation.Navigator<androidx.navigation.compose.DialogNavigator.Destination> {
+    ctor public DialogNavigator();
+    method public androidx.navigation.compose.DialogNavigator.Destination createDestination();
+  }
+
+  @androidx.navigation.NavDestination.ClassType(Composable::class) public static final class DialogNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
+    ctor public DialogNavigator.Destination(androidx.navigation.compose.DialogNavigator navigator, optional androidx.compose.ui.window.DialogProperties dialogProperties, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+  }
+
   public final class NamedNavArgument {
     method public operator String component1();
     method public operator androidx.navigation.NavArgument component2();
@@ -29,6 +38,7 @@ package androidx.navigation.compose {
 
   public final class NavGraphBuilderKt {
     method public static void composable(androidx.navigation.NavGraphBuilder, String route, optional java.util.List<androidx.navigation.compose.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+    method public static void dialog(androidx.navigation.NavGraphBuilder, String route, optional java.util.List<androidx.navigation.compose.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, optional androidx.compose.ui.window.DialogProperties dialogProperties, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
   }
 
   public final class NavHostControllerKt {
