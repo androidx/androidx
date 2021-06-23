@@ -66,6 +66,7 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.common.BaseResult;
+import androidx.media2.common.ClassVerificationHelper;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -207,7 +208,9 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, mSessionUri);
             intent.setComponent(mbrComponent);
             if (Build.VERSION.SDK_INT >= 26) {
-                mMediaButtonIntent = PendingIntent.getForegroundService(mContext, 0, intent, 0);
+                mMediaButtonIntent =
+                        ClassVerificationHelper.PendingIntent.Api26.getForegroundService(
+                                mContext, 0, intent, 0);
             } else {
                 mMediaButtonIntent = PendingIntent.getService(mContext, 0, intent, 0);
             }
@@ -259,7 +262,8 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         if (!(player instanceof RemoteSessionPlayer)) {
             int stream = MediaUtils.getLegacyStreamType(attrs);
             int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
-            if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            if (Build.VERSION.SDK_INT >= 21
+                    && ClassVerificationHelper.AudioManager.Api21.isVolumeFixed(mAudioManager)) {
                 controlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
             }
             return MediaController.PlaybackInfo.createPlaybackInfo(
@@ -310,7 +314,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         mHandler.removeCallbacksAndMessages(null);
         if (mHandlerThread.isAlive()) {
             if (Build.VERSION.SDK_INT >= 18) {
-                mHandlerThread.quitSafely();
+                ClassVerificationHelper.HandlerThread.Api18.quitSafely(mHandlerThread);
             } else {
                 mHandlerThread.quit();
             }
