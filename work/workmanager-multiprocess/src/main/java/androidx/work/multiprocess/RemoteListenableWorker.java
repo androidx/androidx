@@ -157,6 +157,8 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
             public Result apply(byte[] input) {
                 ParcelableResult parcelableResult = ParcelConverters.unmarshall(input,
                         ParcelableResult.CREATOR);
+                Logger.get().debug(TAG, "Cleaning up");
+                mClient.unbindService();
                 return parcelableResult.getResult();
             }
         }, mExecutor);
