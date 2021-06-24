@@ -391,20 +391,6 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.Speed.Builder setSpeedDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
   }
 
-  @Deprecated @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Toll {
-    method @Deprecated public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getCardState();
-    field @Deprecated public static final int TOLLCARD_STATE_INVALID = 2; // 0x2
-    field @Deprecated public static final int TOLLCARD_STATE_NOT_INSERTED = 3; // 0x3
-    field @Deprecated public static final int TOLLCARD_STATE_UNKNOWN = 0; // 0x0
-    field @Deprecated public static final int TOLLCARD_STATE_VALID = 1; // 0x1
-  }
-
-  @Deprecated public static final class Toll.Builder {
-    ctor @Deprecated public Toll.Builder();
-    method @Deprecated public androidx.car.app.hardware.info.Toll build();
-    method @Deprecated public androidx.car.app.hardware.info.Toll.Builder setCardState(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
-  }
-
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class TollCard {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getCardState();
     field public static final int TOLLCARD_STATE_INVALID = 2; // 0x2
