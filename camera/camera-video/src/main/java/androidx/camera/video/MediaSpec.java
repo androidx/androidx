@@ -121,6 +121,7 @@ public abstract class MediaSpec {
     /**
      * The builder for {@link MediaSpec}.
      */
+    @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
         Builder() {
@@ -144,11 +145,28 @@ public abstract class MediaSpec {
         /**
          * Configures the {@link AudioSpec} of this media specification with the given block.
          *
-         * <p>The provided {@link AudioSpec.Builder} is pre-populated with the current state of the
+         * <p>This is a convenience method for in-line configuration of the {@link AudioSpec}
+         * contained in this media spec. The {@link AudioSpec.Builder} provided to {@code
+         * configBlock} is pre-populated with the current state of the internal audio spec.
+         *
+         * <p>Usage:
+         * {@code
+         * MediaSpec.Builder mediaSpecBuilder = ...;
+         * MediaSpec mediaSpec = mediaSpecBuilder
+         *     .configureAudio(audioSpecBuilder -> {
+         *         audioSpecBuilder
+         *             .setSource(...)
+         *             .setSampleRate(...)
+         *     })
+         *     .setOutputFormat(...)
+         *     .build();
+         * }
+         *
          * @param configBlock A consumer which provides the {@link AudioSpec.Builder} which will
          *                    configure the {@link AudioSpec} of this media specification.
          */
         @NonNull
+        @SuppressWarnings("BuilderSetStyle")
         public Builder configureAudio(@NonNull Consumer<AudioSpec.Builder> configBlock) {
             AudioSpec.Builder audioSpecBuilder = getAudioSpec().toBuilder();
             configBlock.accept(audioSpecBuilder);
@@ -179,10 +197,28 @@ public abstract class MediaSpec {
         /**
          * Configures the {@link VideoSpec} of this media specification with the given block.
          *
+         * <p>This is a convenience method for in-line configuration of the {@link VideoSpec}
+         * contained in this media spec. The {@link VideoSpec.Builder} provided to {@code
+         * configBlock} is pre-populated with the current state of the internal video spec.
+         *
+         * <p>Usage:
+         * {@code
+         * MediaSpec.Builder mediaSpecBuilder = ...;
+         * MediaSpec mediaSpec = mediaSpecBuilder
+         *     .configureVideo(videoSpecBuilder -> {
+         *         videoSpecBuilder
+         *             .setQualitySelector(...)
+         *             .setBitrate(...)
+         *     })
+         *     .setOutputFormat(...)
+         *     .build();
+         * }
+         *
          * @param configBlock A consumer which provides the {@link VideoSpec.Builder} which will
          *                    configure the {@link VideoSpec} of this media specification.
          */
         @NonNull
+        @SuppressWarnings("BuilderSetStyle")
         public Builder configureVideo(@NonNull Consumer<VideoSpec.Builder> configBlock) {
             VideoSpec.Builder videoSpecBuilder = getVideoSpec().toBuilder();
             configBlock.accept(videoSpecBuilder);

@@ -43,6 +43,7 @@ public abstract class VideoSpec {
      * <p>Using this value with {@link Builder#setFrameRate(Range)} informs the video frame producer
      * it should choose any appropriate frame rate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> FRAME_RATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -52,6 +53,7 @@ public abstract class VideoSpec {
      * <p>Using this value with {@link Builder#setBitrate(Range)} informs the video frame producer
      * it should choose any appropriate bitrate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> BITRATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -61,6 +63,7 @@ public abstract class VideoSpec {
      * <p>Using this value with {@link Builder#setQualitySelector(QualitySelector)} allows the
      * video frame producer to choose video quality based on its current state.
      */
+    @NonNull
     public static final QualitySelector QUALITY_SELECTOR_AUTO =
             QualitySelector.firstTry(QUALITY_FHD)
                     .thenTry(QUALITY_HD)
@@ -122,6 +125,7 @@ public abstract class VideoSpec {
     public abstract Builder toBuilder();
 
     /** The builder of the {@link VideoSpec}. */
+    @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
         // Restrict construction to same package
