@@ -174,8 +174,8 @@ class PagingSourceTest {
                 itemStore.peekItems()
             ).containsExactlyElementsIn(
                 items.createExpected(
-                    // This is what paging picks, could change if paging's heuristic changes
-                    fromIndex = 93,
+                    // Paging 3 implementation loads starting from initial key
+                    fromIndex = 98,
                     toIndex = 100
                 )
             )
@@ -223,11 +223,21 @@ class PagingSourceTest {
             // make sure we blocked the refresh runnable to ensure test makes sense
             queryExecutor.awaitDeferredSizeAtLeast(1)
 
-            // now paging source will not be invalidated so it doesn't know items do not exists.
-            // trigger more to load
+            /** TODO(b/191806126): This .get() call triggers a page fetch on the first generation
+             * although we wrote to DB because invalidation tracker hasn't invalidate the
+             * PagingSource yet. Currently we return a best-effort page, but this could
+             * lead to UI inconsistencies. In this particular scenario,
+             * LimitOffsetPagingSource returns item 89 but presenter doesn't update.
+             */
             itemStore.get(70)
-            // this will make it realize that it is invalid so should trigger getting a new
-            // paging source
+
+            /**
+             * Unlike old room-paging implementation through LimitOffsetDataSource, new
+             * implementation relies on InvalidationTracker to invalidate paging sources, so we
+             * need to execute the deferred refresh runnable to invalidate the paging source.
+             */
+            queryExecutor.executeAll()
+
             itemStore.awaitGeneration(2)
             itemStore.awaitInitialLoad()
             // it might be reloaded in any range so just make sure everything is there
@@ -517,6 +527,12 @@ class PagingSourceTest {
                 copy
             }
             copy.forEach(this::execute)
+        }
+
+        fun executeAll() {
+            while (deferred.isNotEmpty()) {
+                deferred.removeFirst().run()
+            }
         }
 
         override fun execute(command: Runnable) {

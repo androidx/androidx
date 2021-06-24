@@ -97,6 +97,8 @@ object RoomTypeNames {
         "$ROOM_PACKAGE.migration",
         "AutoMigrationSpec"
     )
+    val LIMIT_OFFSET_PAGING_SOURCE: ClassName =
+        ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetPagingSource")
 }
 
 object PagingTypeNames {

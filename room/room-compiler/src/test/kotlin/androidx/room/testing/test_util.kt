@@ -30,6 +30,7 @@ import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.DatabaseViewProcessor
@@ -178,6 +179,20 @@ object COMMON {
         loadJavaCode(
             "common/input/PositionalDataSource.java",
             PagingTypeNames.POSITIONAL_DATA_SOURCE.toString()
+        )
+    }
+
+    val PAGING_SOURCE by lazy {
+        loadJavaCode(
+            "common/input/PagingSource.java",
+            PagingTypeNames.PAGING_SOURCE.toString()
+        )
+    }
+
+    val LIMIT_OFFSET_PAGING_SOURCE by lazy {
+        loadJavaCode(
+            "common/input/LimitOffsetPagingSource.java",
+            RoomTypeNames.LIMIT_OFFSET_PAGING_SOURCE.toString()
         )
     }
 
