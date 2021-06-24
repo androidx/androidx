@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Logger;
@@ -161,6 +162,10 @@ public final class Recorder implements VideoOutput {
             MutableStateObservable.withInitialState(State.INITIALIZING);
     private final MutableStateObservable<StreamState> mStreamState =
             MutableStateObservable.withInitialState(StreamState.INACTIVE);
+    // Used only by getExecutor()
+    private final Executor mUserProvidedExecutor;
+    // May be equivalent to mUserProvidedExecutor or an internal executor if the user did not
+    // provide an executor.
     private final Executor mExecutor;
     private SurfaceRequest.TransformationInfo mSurfaceTransformationInfo = null;
     private Throwable mErrorCause;
@@ -203,6 +208,7 @@ public final class Recorder implements VideoOutput {
     long mFirstRecordingVideoDataTimeUs = 0L;
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec) {
+        mUserProvidedExecutor = executor;
         mExecutor = executor != null ? executor : CameraXExecutors.ioExecutor();
         mSequentialExecutor = CameraXExecutors.newSequentialExecutor(mExecutor);
 
@@ -255,7 +261,8 @@ public final class Recorder implements VideoOutput {
         return mMediaSpec;
     }
 
-    /** {@inheritDoc} */
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     @NonNull
     public Observable<StreamState> getStreamState() {
@@ -359,6 +366,17 @@ public final class Recorder implements VideoOutput {
      */
     public int getAudioSource() {
         return getObservableData(mMediaSpec).getAudioSpec().getSource();
+    }
+
+    /**
+     * Returns the executor provided to the builder for this recorder.
+     *
+     * @return the {@link Executor} provided to {@link Builder#setExecutor(Executor)} on the
+     * builder used to create this recorder. If no executor was provided, returns {code null}.
+     */
+    @Nullable
+    public Executor getExecutor() {
+        return mUserProvidedExecutor;
     }
 
     /**
