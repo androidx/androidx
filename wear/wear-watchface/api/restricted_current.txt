@@ -348,6 +348,7 @@ package androidx.wear.watchface {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface WatchFace.EditorDelegate {
+    method public android.os.Handler getBackgroundThreadHandler();
     method public androidx.wear.watchface.ComplicationSlotsManager getComplicationSlotsManager();
     method public long getPreviewReferenceTimeMillis();
     method public android.graphics.Rect getScreenBounds();
@@ -356,6 +357,7 @@ package androidx.wear.watchface {
     method public void onDestroy();
     method public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? slotIdToComplicationData);
     method public void setUserStyle(androidx.wear.watchface.style.UserStyle p);
+    property public abstract android.os.Handler backgroundThreadHandler;
     property public abstract androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager;
     property public abstract long previewReferenceTimeMillis;
     property public abstract android.graphics.Rect screenBounds;
