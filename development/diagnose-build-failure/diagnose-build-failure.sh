@@ -139,7 +139,7 @@ $scriptPath/impl/restore-state.sh . $workingDir --move && cd $workingDir
   cleanupCommand="$scriptPath/impl/backup-state.sh \$testDir $workingDir --move >/dev/null"
 
   fullFiltererCommand="$setupCommand
-if $buildCommand; then
+if $buildCommand >/dev/null 2>/dev/null; then
   $cleanupCommand
   exit $successStatus
 else
