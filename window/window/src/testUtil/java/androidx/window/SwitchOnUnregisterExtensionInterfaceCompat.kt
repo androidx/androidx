@@ -19,10 +19,6 @@ import android.app.Activity
 import android.graphics.Rect
 import androidx.annotation.GuardedBy
 import androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface
-import androidx.window.FoldingFeature.State
-import androidx.window.FoldingFeature.State.Companion.FLAT
-import androidx.window.FoldingFeature.State.Companion.HALF_OPENED
-import androidx.window.FoldingFeature.Type.Companion.HINGE
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -38,7 +34,7 @@ internal class SwitchOnUnregisterExtensionInterfaceCompat : ExtensionInterfaceCo
     @GuardedBy("mLock")
     private var callback: ExtensionCallbackInterface = EmptyExtensionCallbackInterface()
     @GuardedBy("mLock")
-    private var state = FLAT
+    private var state = FoldingFeature.STATE_FLAT
 
     override fun validateExtensionInterface(): Boolean {
         return true
@@ -61,15 +57,15 @@ internal class SwitchOnUnregisterExtensionInterfaceCompat : ExtensionInterfaceCo
     }
 
     fun currentFoldingFeature(): FoldingFeature {
-        return FoldingFeature(foldBounds, HINGE, state)
+        return FoldingFeature(foldBounds, FoldingFeature.TYPE_HINGE, state)
     }
 
     internal companion object {
-        private fun toggleState(currentState: State): State {
-            return if (currentState == FLAT) {
-                HALF_OPENED
+        private fun toggleState(currentState: Int): Int {
+            return if (currentState == FoldingFeature.STATE_FLAT) {
+                FoldingFeature.STATE_HALF_OPENED
             } else {
-                FLAT
+                FoldingFeature.STATE_FLAT
             }
         }
     }

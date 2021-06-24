@@ -10,17 +10,17 @@ package androidx.window {
   }
 
   public final class FoldingFeature implements androidx.window.DisplayFeature {
-    ctor public FoldingFeature(android.graphics.Rect bounds, androidx.window.FoldingFeature.Type type, androidx.window.FoldingFeature.State state);
+    ctor public FoldingFeature(android.graphics.Rect bounds, int type, int state);
     method public android.graphics.Rect getBounds();
-    method public androidx.window.FoldingFeature.OcclusionType getOcclusionType();
-    method public androidx.window.FoldingFeature.Orientation getOrientation();
-    method public androidx.window.FoldingFeature.State getState();
+    method public int getOcclusionMode();
+    method public int getOrientation();
+    method public int getState();
     method public boolean isSeparating();
     property public android.graphics.Rect bounds;
     property public final boolean isSeparating;
-    property public final androidx.window.FoldingFeature.OcclusionType occlusionType;
-    property public final androidx.window.FoldingFeature.Orientation orientation;
-    property public final androidx.window.FoldingFeature.State state;
+    property public final int occlusionMode;
+    property public final int orientation;
+    property public final int state;
     field public static final androidx.window.FoldingFeature.Companion Companion;
     field public static final int OCCLUSION_FULL = 1; // 0x1
     field public static final int OCCLUSION_NONE = 0; // 0x0
@@ -33,42 +33,6 @@ package androidx.window {
   }
 
   public static final class FoldingFeature.Companion {
-  }
-
-  public static final class FoldingFeature.OcclusionType {
-    field public static final androidx.window.FoldingFeature.OcclusionType.Companion Companion;
-    field public static final androidx.window.FoldingFeature.OcclusionType FULL;
-    field public static final androidx.window.FoldingFeature.OcclusionType NONE;
-  }
-
-  public static final class FoldingFeature.OcclusionType.Companion {
-  }
-
-  public static final class FoldingFeature.Orientation {
-    field public static final androidx.window.FoldingFeature.Orientation.Companion Companion;
-    field public static final androidx.window.FoldingFeature.Orientation HORIZONTAL;
-    field public static final androidx.window.FoldingFeature.Orientation VERTICAL;
-  }
-
-  public static final class FoldingFeature.Orientation.Companion {
-  }
-
-  public static final class FoldingFeature.State {
-    field public static final androidx.window.FoldingFeature.State.Companion Companion;
-    field public static final androidx.window.FoldingFeature.State FLAT;
-    field public static final androidx.window.FoldingFeature.State HALF_OPENED;
-  }
-
-  public static final class FoldingFeature.State.Companion {
-  }
-
-  public static final class FoldingFeature.Type {
-    field public static final androidx.window.FoldingFeature.Type.Companion Companion;
-    field public static final androidx.window.FoldingFeature.Type FOLD;
-    field public static final androidx.window.FoldingFeature.Type HINGE;
-  }
-
-  public static final class FoldingFeature.Type.Companion {
   }
 
   public interface WindowBackend {

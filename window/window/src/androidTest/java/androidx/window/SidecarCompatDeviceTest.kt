@@ -23,9 +23,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface
-import androidx.window.FoldingFeature.Type.Companion.FOLD
-import androidx.window.FoldingFeature.Type.Companion.HINGE
-import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarWindowLayoutInfo
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -89,7 +86,7 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
                 // Sidecar only has folding features
                 val feature = windowLayoutInfo.displayFeatures[i] as FoldingFeature
                 val sidecarDisplayFeature = sidecarDisplayFeatures[i]
-                if (!hasMatchingType(feature.type, sidecarDisplayFeature.type)) {
+                if (feature.type != sidecarDisplayFeature.type) {
                     return false
                 }
                 if (feature.bounds != sidecarDisplayFeature.rect) {
@@ -97,14 +94,6 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
                 }
             }
             return true
-        }
-
-        private fun hasMatchingType(featureType: FoldingFeature.Type, sidecarType: Int): Boolean {
-            return when (featureType) {
-                FOLD -> sidecarType == SidecarDisplayFeature.TYPE_FOLD
-                HINGE -> sidecarType == SidecarDisplayFeature.TYPE_HINGE
-                else -> false
-            }
         }
     }
 }

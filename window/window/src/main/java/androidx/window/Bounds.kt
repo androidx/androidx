@@ -28,34 +28,35 @@ import android.graphics.Rect
  * not contain any behavior or calculations.
  */
 internal class Bounds(
-    public val left: Int,
-    public val top: Int,
-    public val right: Int,
-    public val bottom: Int
+    val left: Int,
+    val top: Int,
+    val right: Int,
+    val bottom: Int
 ) {
-    public constructor(rect: Rect) : this(rect.left, rect.top, rect.right, rect.bottom)
+
+    constructor(rect: Rect) : this(rect.left, rect.top, rect.right, rect.bottom)
 
     /**
      * Return the [Rect] representation of the bounds
      */
-    public fun toRect(): Rect = Rect(left, top, right, bottom)
+    fun toRect(): Rect = Rect(left, top, right, bottom)
 
     /**
      * The width of the bounds, may be negative.
      */
-    public val width: Int
+    val width: Int
         get() = right - left
 
     /**
      * The height of the bounds, may be negative.
      */
-    public val height: Int
+    val height: Int
         get() = bottom - top
 
     /**
      * Determines if the bounds has empty area.
      */
-    public val isEmpty: Boolean
+    val isEmpty: Boolean
         get() = height == 0 || width == 0
 
     override fun toString(): String {
