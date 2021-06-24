@@ -115,7 +115,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         if (!hasOrUsesAnnotation(context, usage, useAnnotation, useAnnotationNames)) {
             val level = annotation.extractAttribute(context, "level") ?: "ERROR"
             report(
-                context, usage,
+                context, usage, useAnnotation,
                 """
                     This declaration is opt-in and its usage should be marked with
                     '@$useAnnotation' or '@OptIn(markerClass = $useAnnotation.class)'
@@ -178,9 +178,9 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     private fun report(
         context: JavaContext,
         usage: UElement,
+        annotation: String,
         message: String,
-        level: String
-
+        level: String,
     ) {
         val issue = when (level) {
             "ERROR" -> ISSUE_ERROR
@@ -190,8 +190,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                     "of: ERROR, WARNING"
             )
         }
+
         try {
-            context.report(issue, usage, context.getNameLocation(usage), message.trimIndent())
+            if (context.configuration.getOption(issue, "opt-in")?.contains(annotation) != true) {
+                context.report(issue, usage, context.getNameLocation(usage), message.trimIndent())
+            }
         } catch (e: UnsupportedOperationException) {
             if ("Method not implemented" == e.message) {
                 // Workaround for b/191286558 where lint attempts to read annotations from a
