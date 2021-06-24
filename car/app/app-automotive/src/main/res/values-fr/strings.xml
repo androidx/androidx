@@ -20,7 +20,7 @@
     <string name="error_action_finish" msgid="7621130025103996211">"Fermer l\'application"</string>
     <string name="error_action_update_host" msgid="4802951804749609593">"Rechercher les mises à jour"</string>
     <string name="error_action_retry" msgid="985347670495166517">"Réessayer"</string>
-    <string name="error_message_client_side_error" msgid="3323186720368387787">"Erreur d\'application. Veuillez signaler l\'erreur au développeur."</string>
+    <string name="error_message_client_side_error" msgid="3323186720368387787">"Erreur de l\'appli. Veuillez la signaler au développeur."</string>
     <string name="error_message_host_error" msgid="5484419926049675696">"Erreur système"</string>
     <string name="error_message_host_connection_lost" msgid="5723205987837759151">"Système momentanément indisponible"</string>
     <string name="error_message_host_not_found" msgid="3241065067065670113">"Mise à jour du système requise"</string>
