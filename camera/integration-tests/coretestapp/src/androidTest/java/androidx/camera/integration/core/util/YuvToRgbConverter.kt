@@ -1,11 +1,11 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,13 @@
 
 package androidx.camera.integration.core.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.media.Image
-import android.renderscript.Allocation
-import android.renderscript.Element
-import android.renderscript.RenderScript
-import android.renderscript.ScriptIntrinsicYuvToRGB
-import android.renderscript.Type
+import java.nio.ByteBuffer
 
 /**
  * Copy from the github for testing.
@@ -45,53 +42,61 @@ import android.renderscript.Type
  */
 @Suppress("DEPRECATION")
 class YuvToRgbConverter(context: Context) {
-    private val rs = RenderScript.create(context)
-    private val scriptYuvToRgb = ScriptIntrinsicYuvToRGB.create(rs, Element.U8_4(rs))
+    private val rs = android.renderscript.RenderScript.create(context)
+    private val scriptYuvToRgb = android.renderscript.ScriptIntrinsicYuvToRGB.create(
+        rs,
+        android.renderscript.Element.U8_4(rs)
+    )
 
     private var pixelCount: Int = -1
-    private lateinit var yuvBuffer: ByteArray
-    private lateinit var inputAllocation: Allocation
-    private lateinit var outputAllocation: Allocation
+    private lateinit var yuvBuffer: ByteBuffer
+    private lateinit var inputAllocation: android.renderscript.Allocation
+    private lateinit var outputAllocation: android.renderscript.Allocation
 
+    @SuppressLint("BanSynchronizedMethods")
     @Synchronized
     fun yuvToRgb(image: Image, output: Bitmap) {
 
         // Ensure that the intermediate output byte buffer is allocated
         if (!::yuvBuffer.isInitialized) {
             pixelCount = image.cropRect.width() * image.cropRect.height()
-            // Bits per pixel is an average for the whole image, so it's useful to compute the size
-            // of the full buffer but should not be used to determine pixel offsets
-            val pixelSizeBits = ImageFormat.getBitsPerPixel(ImageFormat.YUV_420_888)
-            yuvBuffer = ByteArray(pixelCount * pixelSizeBits / 8)
+            yuvBuffer = ByteBuffer.allocateDirect(
+                pixelCount * ImageFormat.getBitsPerPixel(ImageFormat.YUV_420_888) / 8
+            )
         }
 
-        // Get the YUV data in byte array form using NV21 format
-        imageToByteArray(image, yuvBuffer)
+        // Get the YUV data in byte array form
+        imageToByteBuffer(image, yuvBuffer)
 
         // Ensure that the RenderScript inputs and outputs are allocated
         if (!::inputAllocation.isInitialized) {
-            // Explicitly create an element with type NV21, since that's the pixel format we use
-            val elemType = Type.Builder(rs, Element.YUV(rs)).setYuvFormat(ImageFormat.NV21).create()
-            inputAllocation = Allocation.createSized(rs, elemType.element, yuvBuffer.size)
+            inputAllocation = android.renderscript.Allocation.createSized(
+                rs,
+                android.renderscript.Element.U8(rs),
+                yuvBuffer.array().size
+            )
         }
         if (!::outputAllocation.isInitialized) {
-            outputAllocation = Allocation.createFromBitmap(rs, output)
+            outputAllocation = android.renderscript.Allocation.createFromBitmap(rs, output)
         }
 
-        // Convert NV21 format YUV to RGB
-        inputAllocation.copyFrom(yuvBuffer)
+        // Convert YUV to RGB
+        inputAllocation.copyFrom(yuvBuffer.array())
         scriptYuvToRgb.setInput(inputAllocation)
         scriptYuvToRgb.forEach(outputAllocation)
         outputAllocation.copyTo(output)
     }
 
-    private fun imageToByteArray(image: Image, outputBuffer: ByteArray) {
-        assert(image.format == ImageFormat.YUV_420_888)
+    private fun imageToByteBuffer(image: Image, outputBuffer: ByteBuffer) {
+        if (image.format != ImageFormat.YUV_420_888)
+            throw AssertionError("ImageFormat incorrect")
 
         val imageCrop = image.cropRect
         val imagePlanes = image.planes
+        val rowData = ByteArray(imagePlanes.first().rowStride)
 
         imagePlanes.forEachIndexed { planeIndex, plane ->
+
             // How many values are read in input for each output value written
             // Only the Y plane has a value for every pixel, U and V have half the resolution i.e.
             //
@@ -111,10 +116,10 @@ class YuvToRgbConverter(context: Context) {
             //
             // First chunk        Second chunk
             // ===============    ===============
-            // Y Y Y Y Y Y Y Y    V U V U V U V U
-            // Y Y Y Y Y Y Y Y    V U V U V U V U
-            // Y Y Y Y Y Y Y Y    V U V U V U V U
-            // Y Y Y Y Y Y Y Y    V U V U V U V U
+            // Y Y Y Y Y Y Y Y    U V U V U V U V
+            // Y Y Y Y Y Y Y Y    U V U V U V U V
+            // Y Y Y Y Y Y Y Y    U V U V U V U V
+            // Y Y Y Y Y Y Y Y    U V U V U V U V
             // Y Y Y Y Y Y Y Y
             // Y Y Y Y Y Y Y Y
             // Y Y Y Y Y Y Y Y
@@ -127,12 +132,10 @@ class YuvToRgbConverter(context: Context) {
                 }
                 1 -> {
                     outputStride = 2
-                    // For NV21 format, U is in odd-numbered indices
                     outputOffset = pixelCount + 1
                 }
                 2 -> {
                     outputStride = 2
-                    // For NV21 format, V is in even-numbered indices
                     outputOffset = pixelCount
                 }
                 else -> {
@@ -141,7 +144,7 @@ class YuvToRgbConverter(context: Context) {
                 }
             }
 
-            val planeBuffer = plane.buffer
+            val buffer = plane.buffer
             val rowStride = plane.rowStride
             val pixelStride = plane.pixelStride
 
@@ -160,42 +163,27 @@ class YuvToRgbConverter(context: Context) {
             val planeWidth = planeCrop.width()
             val planeHeight = planeCrop.height()
 
-            // Intermediate buffer used to store the bytes of each row
-            val rowBuffer = ByteArray(plane.rowStride)
-
-            // Size of each row in bytes
-            val rowLength = if (pixelStride == 1 && outputStride == 1) {
-                planeWidth
-            } else {
-                // Take into account that the stride may include data from pixels other than this
-                // particular plane and row, and that could be between pixels and not after every
-                // pixel:
-                //
-                // |---- Pixel stride ----|                    Row ends here --> |
-                // | Pixel 1 | Other Data | Pixel 2 | Other Data | ... | Pixel N |
-                //
-                // We need to get (N-1) * (pixel stride bytes) per row + 1 byte for the last pixel
-                (planeWidth - 1) * pixelStride + 1
-            }
-
+            buffer.position(rowStride * planeCrop.top + pixelStride * planeCrop.left)
             for (row in 0 until planeHeight) {
-                // Move buffer position to the beginning of this row
-                planeBuffer.position(
-                    (row + planeCrop.top) * rowStride + planeCrop.left * pixelStride
-                )
-
+                val length: Int
                 if (pixelStride == 1 && outputStride == 1) {
                     // When there is a single stride value for pixel and output, we can just copy
                     // the entire row in a single step
-                    planeBuffer.get(outputBuffer, outputOffset, rowLength)
-                    outputOffset += rowLength
+                    length = planeWidth
+                    buffer.get(outputBuffer.array(), outputOffset, length)
+                    outputOffset += length
                 } else {
                     // When either pixel or output have a stride > 1 we must copy pixel by pixel
-                    planeBuffer.get(rowBuffer, 0, rowLength)
+                    length = (planeWidth - 1) * pixelStride + 1
+                    buffer.get(rowData, 0, length)
                     for (col in 0 until planeWidth) {
-                        outputBuffer[outputOffset] = rowBuffer[col * pixelStride]
+                        outputBuffer.array()[outputOffset] = rowData[col * pixelStride]
                         outputOffset += outputStride
                     }
+                }
+
+                if (row < planeHeight - 1) {
+                    buffer.position(buffer.position() + rowStride - length)
                 }
             }
         }
