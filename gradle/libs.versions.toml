@@ -23,6 +23,7 @@ autoValue = "1.6.3"
 dagger = "2.35"
 dexmaker = "2.25.0"
 espresso = "3.3.0"
+guavaJre = "29.0-jre"
 hilt = "2.36"
 incap = "0.2"
 kotlin = "1.5.10"
@@ -82,7 +83,7 @@ junit = { module = "junit:junit", version = "4.12" }
 gcmNetworkManager = { module = "com.google.android.gms:play-services-gcm", version = "17.0.0" }
 googleCompileTesting = { module = "com.google.testing.compile:compile-testing", version = "0.18" }
 gson = { module = "com.google.code.gson:gson", version = "2.8.0" }
-guava = { module = "com.google.guava:guava", version = "29.0-jre" }
+guava = { module = "com.google.guava:guava", version.ref = "guavaJre" }
 guavaAndroid = { module = "com.google.guava:guava", version = "29.0-android" }
 guavaListenableFuture = { module = "com.google.guava:listenablefuture", version = "1.0" }
 gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "incap" }
