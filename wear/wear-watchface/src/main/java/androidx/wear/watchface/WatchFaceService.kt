@@ -1147,17 +1147,17 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 Constants.COMMAND_TAP ->
                     uiThreadCoroutineScope.runBlockingWithTracing("onCommand COMMAND_TAP") {
-                        deferredWatchFaceImpl.await().onTapCommand(x, y, TapType.UP)
+                        deferredWatchFaceImpl.await().onTapCommand(TapType.UP, x, y)
                     }
                 Constants.COMMAND_TOUCH ->
                     uiThreadCoroutineScope.runBlockingWithTracing("onCommand COMMAND_TOUCH") {
-                        deferredWatchFaceImpl.await().onTapCommand(x, y, TapType.DOWN)
+                        deferredWatchFaceImpl.await().onTapCommand(TapType.DOWN, x, y)
                     }
                 Constants.COMMAND_TOUCH_CANCEL ->
                     uiThreadCoroutineScope.runBlockingWithTracing(
                         "onCommand COMMAND_TOUCH_CANCEL"
                     ) {
-                        deferredWatchFaceImpl.await().onTapCommand(x, y, TapType.CANCEL)
+                        deferredWatchFaceImpl.await().onTapCommand(TapType.CANCEL, x, y)
                     }
                 else -> {
                 }
