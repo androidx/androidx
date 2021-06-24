@@ -8,7 +8,7 @@ function usage() {
   echo "  diagnose-build-failure.sh"
   echo
   echo "SYNOPSIS"
-  echo "  ./development/diagnose-build-failure/diagnose-build-failure.sh [--message <message>] '<tasks>'"
+  echo "  ./development/diagnose-build-failure/diagnose-build-failure.sh [--message <message>] [--timeout <seconds> ] '<tasks>'"
   echo
   echo "DESCRIPTION"
   echo "  Attempts to identify why "'`'"./gradlew <tasks>"'`'" fails"
@@ -34,6 +34,7 @@ function usage() {
 }
 
 expectedMessage=""
+timeoutSeconds=""
 while true; do
   if [ "$#" -lt 1 ]; then
     usage
@@ -45,11 +46,22 @@ while true; do
     shift
     continue
   fi
+  if [ "$arg" == "--timeout" ]; then
+    timeoutSeconds="$1"
+    shift
+    continue
+  fi
+
   gradleArgs="$arg"
   break
 done
 if [ "$gradleArgs" == "" ]; then
   usage
+fi
+if [ "$timeoutSeconds" == "" ]; then
+  timeoutArg=""
+else
+  timeoutArg="--timeout $timeoutSeconds"
 fi
 # split Gradle arguments into options and tasks
 gradleOptions=""
@@ -307,7 +319,7 @@ function determineMinimalSetOfRequiredTasks() {
   # command for moving state, running build, and moving state back
   fullFiltererCommand="$(getTestStateCommand --invert $buildCommand)"
 
-  if $supportRoot/development/file-utils/diff-filterer.py --work-path "$tempDir" "$requiredTasksWork" "$tempDir/prev"  "$fullFiltererCommand"; then
+  if $supportRoot/development/file-utils/diff-filterer.py $timeoutArg --work-path "$tempDir" "$requiredTasksWork" "$tempDir/prev"  "$fullFiltererCommand"; then
     echo diff-filterer successfully identified a minimal set of required tasks. Saving into $requiredTasksDir
     cp -r "$tempDir/bestResults/tasks" "$requiredTasksDir"
   else
@@ -331,7 +343,7 @@ buildCommand="$(getBuildCommand "./gradlew --no-daemon $gradleArgs")"
 # command for moving state, running build, and moving state back
 fullFiltererCommand="$(getTestStateCommand $buildCommand)"
 
-if $supportRoot/development/file-utils/diff-filterer.py --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$fullFiltererCommand"; then
+if $supportRoot/development/file-utils/diff-filterer.py $timeoutArg --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$fullFiltererCommand"; then
   echo
   echo "There should be something wrong with the above file state"
   echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong"
