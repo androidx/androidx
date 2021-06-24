@@ -454,7 +454,8 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     private void updateRecordingStats(@NonNull RecordingStats stats) {
-        double durationSec = TimeUnit.NANOSECONDS.toMillis(stats.getRecordedDurationNs()) / 1000d;
+        double durationSec = TimeUnit.NANOSECONDS.toMillis(stats.getRecordedDurationNanos())
+                / 1000d;
         // Show megabytes in International System of Units (SI)
         double sizeMb = stats.getNumBytesRecorded() / (1000d * 1000d);
         String msg = String.format("%.2f sec\n%.2f MB", durationSec, sizeMb);

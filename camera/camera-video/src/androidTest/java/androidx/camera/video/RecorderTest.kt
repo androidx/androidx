@@ -68,6 +68,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import java.io.File
+import java.util.concurrent.Executor
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
@@ -406,13 +407,13 @@ class RecorderTest {
                 Pair(get(index).recordingStats, get(index + 1).recordingStats)
             }.forEach { (former: RecordingStats, latter: RecordingStats) ->
                 assertThat(former.numBytesRecorded).isAtMost(latter.numBytesRecorded)
-                assertThat(former.recordedDurationNs).isAtMost((latter.recordedDurationNs))
+                assertThat(former.recordedDurationNanos).isAtMost((latter.recordedDurationNanos))
             }
 
             // Ensure they are not all zero by checking last stats
             last().recordingStats.also {
                 assertThat(it.numBytesRecorded).isGreaterThan(0L)
-                assertThat(it.recordedDurationNs).isGreaterThan(0L)
+                assertThat(it.recordedDurationNanos).isGreaterThan(0L)
             }
         }
 
@@ -551,6 +552,23 @@ class RecorderTest {
             .build()
 
         assertThat(recorder.qualitySelector).isEqualTo(qualitySelector)
+    }
+
+    @Test
+    fun canRetrieveProvidedExecutorFromRecorder() {
+        val myExecutor = Executor { command -> command?.run() }
+        val recorder = Recorder.Builder()
+            .setExecutor(myExecutor)
+            .build()
+
+        assertThat(recorder.executor).isSameInstanceAs(myExecutor)
+    }
+
+    @Test
+    fun cannotRetrieveExecutorWhenExecutorNotProvided() {
+        val recorder = Recorder.Builder().build()
+
+        assertThat(recorder.executor).isNull()
     }
 
     private fun invokeSurfaceRequest() {
