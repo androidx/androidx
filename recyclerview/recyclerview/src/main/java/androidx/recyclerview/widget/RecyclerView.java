@@ -2672,22 +2672,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         // not scrolling.
         boolean flung = false;
         if (velocityX != 0) {
-            if (mLeftGlow != null && !mLeftGlow.isFinished()) {
+            if (mLeftGlow != null && EdgeEffectCompat.getDistance(mLeftGlow) != 0) {
                 mLeftGlow.onAbsorb(-velocityX);
                 velocityX = 0;
                 flung = true;
-            } else if (mRightGlow != null && !mRightGlow.isFinished()) {
+            } else if (mRightGlow != null && EdgeEffectCompat.getDistance(mRightGlow) != 0) {
                 mRightGlow.onAbsorb(velocityX);
                 velocityX = 0;
                 flung = true;
             }
         }
         if (velocityY != 0) {
-            if (mTopGlow != null && !mTopGlow.isFinished()) {
+            if (mTopGlow != null && EdgeEffectCompat.getDistance(mTopGlow) != 0) {
                 mTopGlow.onAbsorb(-velocityY);
                 velocityY = 0;
                 flung = true;
-            } else if (mBottomGlow != null && !mBottomGlow.isFinished()) {
+            } else if (mBottomGlow != null && EdgeEffectCompat.getDistance(mBottomGlow) != 0) {
                 mBottomGlow.onAbsorb(velocityY);
                 velocityY = 0;
                 flung = true;
