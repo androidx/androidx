@@ -404,7 +404,7 @@ public sealed class Renderer @WorkerThread constructor(
         }
 
         override fun uiThreadInitInternal() {
-            uiThreadInit()
+            init()
         }
 
         /**
@@ -412,7 +412,7 @@ public sealed class Renderer @WorkerThread constructor(
          * before any subsequent calls to [render].
          */
         @UiThread
-        public open fun uiThreadInit() {}
+        public open fun init() {}
 
         /**
          * Sub-classes should override this to implement their watch face rendering logic which
@@ -421,7 +421,7 @@ public sealed class Renderer @WorkerThread constructor(
          * where possible. For correct behavior this function must use the supplied [Calendar]
          * in favor of any other ways of getting the time.
          *
-         * Before any calls to render, [uiThreadInit] will be called once.
+         * Before any calls to render, [init] will be called once.
          *
          * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
          * the [SurfaceHolder] backing the display
