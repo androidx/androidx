@@ -14,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import androidx.build.AndroidXComposePluginKt
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -21,6 +25,8 @@ plugins {
 }
 
 apply(from: "../../camera-view/dependencies.gradle")
+
+AndroidXComposePluginKt.configureComposePluginForAndroidx(project)
 
 android {
     defaultConfig {
@@ -49,15 +55,6 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
-        useIR = true
-    }
-
-    buildFeatures {
-        compose true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion "1.0.0-beta09"
     }
 }
 
@@ -78,9 +75,11 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.3.0")
 
     // Compose UI
-    implementation("androidx.compose.ui:ui:1.0.0-beta09")
-    implementation("androidx.compose.material:material:1.0.0-beta09")
-    implementation("androidx.compose.ui:ui-tooling:1.0.0-beta09")
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation("androidx.compose.ui:ui:1.0.0-rc02")
+    implementation("androidx.compose.material:material:1.0.0-rc02")
+    implementation("androidx.compose.ui:ui-tooling:1.0.0-rc02")
     implementation("androidx.activity:activity-compose:1.3.0-beta02")
 
     // Testing framework
@@ -103,4 +102,3 @@ dependencies {
         exclude(group:"androidx.camera", module:"camera-core")
     }
 }
-
