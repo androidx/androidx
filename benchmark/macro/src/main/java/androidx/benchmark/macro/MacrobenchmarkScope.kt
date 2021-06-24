@@ -19,11 +19,10 @@ package androidx.benchmark.macro
 import android.content.Intent
 import android.util.Log
 import androidx.benchmark.macro.perfetto.executeShellScript
+import androidx.benchmark.macro.perfetto.executeShellScriptWithStderr
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.Until
-import java.util.concurrent.TimeUnit
+import androidx.tracing.trace
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
@@ -47,6 +46,9 @@ public class MacrobenchmarkScope(
      * Start an activity, by default the default launch of the package, and wait until
      * its launch completes.
      *
+     * This call will ignore any parcelable extras on the intent, as the start is performed by
+     * converting the Intent to a URI, and starting via `am start` shell command.
+     *
      * @throws IllegalStateException if unable to acquire intent for package.
      *
      * @param block Allows customization of the intent used to launch the activity.
@@ -64,59 +66,44 @@ public class MacrobenchmarkScope(
     /**
      * Start an activity with the provided intent, and wait until its launch completes.
      *
+     * This call will ignore any parcelable extras on the intent, as the start is performed by
+     * converting the Intent to a URI, and starting via `am start` shell command.
+     *
      * @param intent Specifies which app/Activity should be launched.
      */
-    public fun startActivityAndWait(intent: Intent) {
+    public fun startActivityAndWait(intent: Intent): Unit = trace("startActivityAndWait") {
         // Must launch with new task, as we're not launching from an existing task
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         if (launchWithClearTask) {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
-        try {
-            context.startActivity(intent)
-        } catch (securityException: SecurityException) {
-            // Android 11 sets exported=false by default, which means we can't launch, but this
-            // can also happen if "android:exported=false" is used directly.
-            throw SecurityException(
-                "Unable to launch Activity due to Security Exception. To launch an " +
-                    "activity from a benchmark, you may need to set android:exported=true " +
-                    "for the Activity in your application's manifest",
-                securityException
-            )
-        }
 
-        waitOnPackageLaunch()
+        // Note: intent.toUri(0) produces a String that can't be parsed by `am start-activity`.
+        // intent.toUri(Intent.URI_ANDROID_APP_SCHEME) also works though.
+        startActivityImpl(intent.toUri(Intent.URI_INTENT_SCHEME))
     }
 
-    /**
-     * Wait on the current package to complete an Activity launch.
-     *
-     * Note that [timeoutInSeconds] is for full Activity launch, and UiAutomator detection of
-     * Activity content. This is not just Activity launch time as would be reported by
-     * [StartupTimingMetric] - it must include additional fixed time.
-     *
-     * As an example, when this timeout was 5 seconds, a 2 second activity launch would
-     * frequently hit the timeout. This timeout should be conservatively large to encapsulate
-     * any slow app / hardware combo.
-     */
-    internal fun waitOnPackageLaunch(timeoutInSeconds: Long = 30) {
-        val timeoutInMilliseconds = TimeUnit.SECONDS.toMillis(timeoutInSeconds)
+    private fun startActivityImpl(uri: String) {
+        val cmd = "am start -W \"$uri\""
+        Log.d(TAG, "Starting activity with command: $cmd")
 
-        // Note: if this wait starts during an activity launch, it will wait until the launch
-        // completes. This is why it's safe to simply check package - even if launching from one
-        // activity to another within the package, the launch has to fully complete.
+        // executeShellScript used to access stderr, and avoid need to escape special chars like `;`
+        val result = device.executeShellScriptWithStderr(cmd)
 
-        // Note though, that this wait does not wait for within-activity launch behavior to
-        // complete. that must be done separately.
-        val packageIsDisplayed = device.wait(
-            Until.hasObject(By.pkg(packageName).depth(0)),
-            timeoutInMilliseconds
-        )
-        if (!packageIsDisplayed) {
-            throw IllegalStateException(
-                "Unable to detect Activity of package $packageName after " +
-                    "$timeoutInSeconds second timeout. Did it fail to launch?"
-            )
+        // Check for errors
+        result.stdout
+            .split("\n")
+            .map { it.trim() }
+            .forEach {
+                if (it.startsWith("Error:")) {
+                    throw IllegalStateException(it)
+                }
+            }
+        if (result.stderr.contains("java.lang.SecurityException")) {
+            throw SecurityException(result.stderr)
+        }
+        if (result.stderr.isNotEmpty()) {
+            throw IllegalStateException(result.stderr)
         }
     }
 

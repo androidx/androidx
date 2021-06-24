@@ -17,27 +17,42 @@
 package androidx.benchmark.macro
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.fail
-import org.junit.Ignore
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.lang.IllegalStateException
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@SdkSuppress(minSdkVersion = 27) // Lowest version validated
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 public class MacrobenchmarkScopeTest {
+    @Before
+    fun setup() {
+        // validate target is installed with clear error message,
+        // since error messages from e.g. startActivityAndWait may be less clear
+        try {
+            val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
+            pm.getApplicationInfo(TARGET_PACKAGE_NAME, 0)
+        } catch (notFoundException: PackageManager.NameNotFoundException) {
+            throw IllegalStateException(
+                "Unable to find target $TARGET_PACKAGE_NAME, is it installed?"
+            )
+        }
+    }
+
     @Test
-    @Ignore("Apk dependencies not working in presubmit, b/181810492")
     public fun killTest() {
         val scope = MacrobenchmarkScope(TARGET_PACKAGE_NAME, launchWithClearTask = true)
         scope.pressHome()
@@ -48,7 +63,6 @@ public class MacrobenchmarkScopeTest {
     }
 
     @Test
-    @Ignore("Apk dependencies not working in presubmit, b/181810492")
     public fun compile_speedProfile() {
         val scope = MacrobenchmarkScope(TARGET_PACKAGE_NAME, launchWithClearTask = true)
         val iterations = 1
@@ -63,7 +77,6 @@ public class MacrobenchmarkScopeTest {
     }
 
     @Test
-    @Ignore("Apk dependencies not working in presubmit, b/181810492")
     public fun compile_speed() {
         val compilation = CompilationMode.Speed
         compilation.compile(TARGET_PACKAGE_NAME) {
@@ -72,7 +85,6 @@ public class MacrobenchmarkScopeTest {
     }
 
     @Test
-    @Ignore("Apk dependencies not working in presubmit, b/181810492")
     public fun startActivityAndWait_activityNotExported() {
         val scope = MacrobenchmarkScope(TARGET_PACKAGE_NAME, launchWithClearTask = true)
         scope.pressHome()
@@ -81,12 +93,39 @@ public class MacrobenchmarkScopeTest {
         intent.setPackage(TARGET_PACKAGE_NAME)
         intent.action = "$TARGET_PACKAGE_NAME.NOT_EXPORTED_ACTIVITY"
 
-        // should throw, warning to set exported = true
-        val exceptionMessage = assertFailsWith<SecurityException> {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val prop = device.executeShellCommand("getprop service.adb.root").trim()
+        if (prop == "1") {
+            // while device and adb session are both rooted, doesn't throw
+            scope.startActivityAndWait(intent)
+        } else {
+            // should throw, warning to set exported = true
+            // Note: rooted device will hit this path, unless `adb root` is invoked
+            val exceptionMessage = assertFailsWith<SecurityException> {
+                scope.startActivityAndWait(intent)
+            }.message
+            assertNotNull(exceptionMessage)
+            assertTrue(exceptionMessage.contains("Permission Denial"))
+            assertTrue(exceptionMessage.contains("NotExportedActivity"))
+            assertTrue(exceptionMessage.contains("not exported"))
+        }
+    }
+
+    @Test
+    public fun startActivityAndWait_invalidActivity() {
+        val scope = MacrobenchmarkScope(TARGET_PACKAGE_NAME, launchWithClearTask = true)
+        scope.pressHome()
+
+        val intent = Intent()
+        intent.setPackage("this.is.not.a.real.package")
+        intent.action = "$TARGET_PACKAGE_NAME.NOT_EXPORTED_ACTIVITY"
+
+        // should throw, unable to resolve Intent
+        val exceptionMessage = assertFailsWith<IllegalStateException> {
             scope.startActivityAndWait(intent)
         }.message
         assertNotNull(exceptionMessage)
-        assertTrue(exceptionMessage.contains("android:exported=true"))
+        assertTrue(exceptionMessage.contains("unable to resolve Intent"))
     }
 
     @Test
@@ -111,29 +150,9 @@ public class MacrobenchmarkScopeTest {
         assertTrue(device.hasObject(By.text("UpdatedText")))
     }
 
-    @Test
-    public fun waitOnPackage_throw() {
-        val scope = MacrobenchmarkScope(LOCAL_PACKAGE_NAME, launchWithClearTask = true)
-
-        val intent = ConfigurableActivity.createIntent(
-            text = "ignored",
-            sleepDurMs = 10000
-        ).apply {
-            // launch unique intent
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        }
-        InstrumentationRegistry.getInstrumentation().context.startActivity(intent)
-
-        // validate that 10 second launch triggers 1 second timeout
-        val exception = assertFailsWith<IllegalStateException> {
-            scope.waitOnPackageLaunch(1)
-        }
-        assertTrue(exception.message!!.contains("Unable to detect Activity"))
-    }
-
     private fun processes(): List<String> {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
+        // Note: ps -A doesn't work on API 25 (does on API 27)
         val output = instrumentation.device().executeShellCommand("ps -A")
         return output.split("\r?\n".toRegex())
     }

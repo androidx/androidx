@@ -22,6 +22,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,6 +35,25 @@ public class ShellUtilsTest {
     @Test
     public fun trivial() {
         assertEquals("foo\n", device.executeShellScript("echo foo"))
+
+        assertEquals(ShellOutput("foo\n", ""), device.executeShellScriptWithStderr("echo foo"))
+    }
+
+    @Test
+    public fun trivialStderr() {
+        val shellOutput = device.executeShellScriptWithStderr("invalidCommand")
+
+        assertEquals("", shellOutput.stdout)
+
+        val stderr = shellOutput.stderr
+
+        // sample stderr observed in manual testing:
+        // API 23: "invalidCommand: not found"
+        // API 30: "invalidCommand: inaccessible or not found"
+        assertTrue(
+            "unexpected stderr \"$stderr\"",
+            stderr.contains("invalidCommand") && stderr.contains("not found")
+        )
     }
 
     @SdkSuppress(minSdkVersion = 26) // xargs only available before 26
