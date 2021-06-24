@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.lifecycle {
 
-  public abstract class AbstractSavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
+  public abstract class AbstractSavedStateViewModelFactory extends androidx.lifecycle.ViewModelProvider.KeyedFactory {
     ctor public AbstractSavedStateViewModelFactory(androidx.savedstate.SavedStateRegistryOwner, android.os.Bundle?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>);
     method public final <T extends androidx.lifecycle.ViewModel> T create(Class<T!>);
@@ -22,11 +22,10 @@ package androidx.lifecycle {
     method @MainThread public void setSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider);
   }
 
-  public final class SavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
+  public final class SavedStateViewModelFactory extends androidx.lifecycle.ViewModelProvider.KeyedFactory {
     ctor public SavedStateViewModelFactory(android.app.Application?, androidx.savedstate.SavedStateRegistryOwner);
     ctor public SavedStateViewModelFactory(android.app.Application?, androidx.savedstate.SavedStateRegistryOwner, android.os.Bundle?);
     method public <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>);
-    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T!>);
   }
 
 }

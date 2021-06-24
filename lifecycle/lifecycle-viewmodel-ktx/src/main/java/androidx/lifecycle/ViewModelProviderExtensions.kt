@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:JvmName("ViewModelProviderKt")
 package androidx.lifecycle
 
 import androidx.annotation.MainThread

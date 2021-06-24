@@ -98,8 +98,12 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
     protected abstract <T extends ViewModel> T create(@NonNull String key,
             @NonNull Class<T> modelClass, @NonNull SavedStateHandle handle);
 
+    /**
+     * @hide
+     */
     @Override
-    void onRequery(@NonNull ViewModel viewModel) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void onRequery(@NonNull ViewModel viewModel) {
         attachHandleIfNeeded(viewModel, mSavedStateRegistry, mLifecycle);
     }
 }
