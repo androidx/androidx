@@ -17,8 +17,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"डेटाबेस में, AppSearch का कोई दस्तावेज़ नहीं मिला. पुष्टि करें कि डेटाबेस का नाम मान्य है और डिवाइस की मेमोरी का सही प्रकार चुना गया है."</string>
-    <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"AppSearch का कोई स्कीमा टाइप नहीं मिला. पुष्टि करें कि डेटाबेस का नाम मान्य है और डिवाइस की मेमोरी का सही प्रकार चुना गया है."</string>
+    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"डेटाबेस में, AppSearch का कोई दस्तावेज़ नहीं मिला. पुष्टि करें कि डेटाबेस का नाम मान्य है और डिवाइस की मेमोरी का सही टाइप चुना गया है."</string>
+    <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"AppSearch का कोई स्कीमा टाइप नहीं मिला. पुष्टि करें कि डेटाबेस का नाम मान्य है और डिवाइस की मेमोरी का सही टाइप चुना गया है."</string>
     <string name="appsearch_documents_loading" msgid="3079225167662255666">"AppSearch के दस्तावेज़ लोड हो रहे हैं..."</string>
     <string name="appsearch_schema_types_loading" msgid="5223743742396711620">"AppSearch के स्कीमा टाइप लोड हो रहे हैं..."</string>
     <string name="appsearch_schema_version" msgid="5289450345246068014">"स्कीमा वर्शन %d"</string>
