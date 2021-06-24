@@ -107,6 +107,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewModelStore viewModelStore;
     }
 
+    private static final String ACTIVITY_RESULT_TAG = "android:support:activity-result";
+
     final ContextAwareHelper mContextAwareHelper = new ContextAwareHelper();
     private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -266,6 +268,19 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         if (19 <= SDK_INT && SDK_INT <= 23) {
             getLifecycle().addObserver(new ImmLeaksCleaner(this));
         }
+        getSavedStateRegistry().registerSavedStateProvider(ACTIVITY_RESULT_TAG,
+                () -> {
+                    Bundle outState = new Bundle();
+                    mActivityResultRegistry.onSaveInstanceState(outState);
+                    return outState;
+                });
+        addOnContextAvailableListener(context -> {
+            Bundle savedInstanceState = getSavedStateRegistry()
+                    .consumeRestoredStateForKey(ACTIVITY_RESULT_TAG);
+            if (savedInstanceState != null) {
+                mActivityResultRegistry.onRestoreInstanceState(savedInstanceState);
+            }
+        });
     }
 
     /**
@@ -297,7 +312,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         mSavedStateRegistryController.performRestore(savedInstanceState);
         mContextAwareHelper.dispatchOnContextAvailable(this);
         super.onCreate(savedInstanceState);
-        mActivityResultRegistry.onRestoreInstanceState(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
         if (mContentLayoutId != 0) {
             setContentView(mContentLayoutId);
@@ -313,7 +327,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
         super.onSaveInstanceState(outState);
         mSavedStateRegistryController.performSave(outState);
-        mActivityResultRegistry.onSaveInstanceState(outState);
     }
 
     /**

@@ -32,6 +32,9 @@
         <activity android:name="androidx.activity.ResultComponentActivity"/>
         <activity android:name="androidx.activity.ResumeViewModelActivity" />
         <activity android:name="androidx.activity.PassThroughActivity"/>
+        <activity android:name="androidx.activity.RegisterInInitActivity"/>
+        <activity android:name="androidx.activity.RegisterBeforeOnCreateActivity"/>
+        <activity android:name="androidx.activity.FinishActivity"/>
     </application>
 
 </manifest>
