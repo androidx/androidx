@@ -53,9 +53,7 @@ package androidx.wear.compose.material {
   public final class ChipDefaults {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors childChipColors-xS_xkl8(optional long contentColor, optional long secondaryContentColor, optional long iconTintColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors chipColors-4aXaTpA(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long iconTintColor, optional long disabledBackgroundColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconTintColor);
-    method public androidx.compose.foundation.layout.PaddingValues contentPadding(boolean hasIcon);
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
-    method public androidx.compose.foundation.layout.PaddingValues getContentWithIconPadding();
     method public float getIconSize-D9Ej5fM();
     method public float getLargeIconSize-D9Ej5fM();
     method public float getSmallIconSize-D9Ej5fM();
@@ -64,7 +62,6 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors primaryChipColors-nlx5xbs(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long iconTintColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors secondaryChipColors-nlx5xbs(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long iconTintColor);
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
-    property public final androidx.compose.foundation.layout.PaddingValues ContentWithIconPadding;
     property public final float IconSize;
     property public final float LargeIconSize;
     property public final float SmallIconSize;
