@@ -1451,13 +1451,22 @@ public abstract class WatchFaceService : WallpaperService() {
                 initStyleAndComplicationsDone.await()
                 deferredWatchFaceImpl.complete(watchFaceImpl)
                 asyncWatchFaceConstructionPending = false
+
+                // For interactive instances we want to expedite the first frame to get something
+                // rendered as soon as its possible to do so. NB in tests we may not always want
+                // to draw this expedited first frame.
+                if (!watchState.isHeadless && allowWatchFaceToAnimate()) {
+                    TraceEvent("WatchFace.drawFirstFrame").use {
+                        watchFaceImpl.onDraw()
+                    }
+                }
             }
         }
 
         /**
          * It is OK to call this from a worker thread because we carefully ensure there's no
-         * concurrent writes to the ComplicationSlotsManager. No UI thread rendering can be done until
-         * after this has completed.
+         * concurrent writes to the ComplicationSlotsManager. No UI thread rendering can be done
+         * until after this has completed.
          */
         @WorkerThread
         internal fun initStyleAndComplications(
