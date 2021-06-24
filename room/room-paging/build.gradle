@@ -85,5 +85,5 @@ androidx {
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2021"
     description = "Room Paging integration"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
 }
