@@ -19,12 +19,12 @@ package androidx.room.processor
 import androidx.room.Query
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
-import androidx.room.parser.ParsedQuery
-import androidx.room.parser.QueryType
-import androidx.room.parser.SqlParser
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.isNotError
+import androidx.room.parser.ParsedQuery
+import androidx.room.parser.QueryType
+import androidx.room.parser.SqlParser
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
@@ -68,10 +68,10 @@ class QueryMethodProcessor(
         }
         // check if want to swap the query for a better one
         val finalResult = if (initialResult is ReadQueryMethod) {
-            val rowAdapter = initialResult.queryResultBinder.adapter?.rowAdapter
+            val resultAdapter = initialResult.queryResultBinder.adapter
             val originalQuery = initialResult.query
-            val finalQuery = rowAdapter?.let {
-                context.queryRewriter.rewrite(originalQuery, rowAdapter)
+            val finalQuery = resultAdapter?.let {
+                context.queryRewriter.rewrite(originalQuery, resultAdapter)
             } ?: originalQuery
             if (finalQuery != originalQuery) {
                 // ok parse again
@@ -202,7 +202,6 @@ private class InternalQueryProcessor(
         query: ParsedQuery
     ): QueryMethod {
         val resultBinder = delegate.findResultBinder(returnType, query)
-        val rowAdapter = resultBinder.adapter?.rowAdapter
         context.checker.check(
             resultBinder.adapter != null,
             executableElement,
@@ -212,11 +211,41 @@ private class InternalQueryProcessor(
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         if (query.type == QueryType.SELECT && !inTransaction) {
             // put a warning if it is has relations and not annotated w/ transaction
-            if (rowAdapter is PojoRowAdapter && rowAdapter.relationCollectors.isNotEmpty()) {
+            val hasRelations =
+                resultBinder.adapter?.rowAdapters?.any { adapter ->
+                    adapter is PojoRowAdapter && adapter.relationCollectors.isNotEmpty()
+                } == true
+            if (hasRelations) {
                 context.logger.w(
                     Warning.RELATION_QUERY_WITHOUT_TRANSACTION,
                     executableElement, ProcessorErrors.TRANSACTION_MISSING_ON_RELATION
                 )
+            }
+        }
+
+        query.resultInfo?.let { queryResultInfo ->
+            val mappings = resultBinder.adapter?.mappings ?: return@let
+            // If there are no mapping (e.g. might be a primitive return type result), then we
+            // can't reasonable determine cursor mismatch.
+            if (mappings.isEmpty()) {
+                return@let
+            }
+            val usedColumns = mappings.flatMap { mapping ->
+                mapping.matchedFields.map { it.columnName }
+            }
+            val columnNames = queryResultInfo.columns.map { it.name }
+            val unusedColumns = columnNames - usedColumns
+            val pojoUnusedFields = mappings
+                .filter { it.unusedFields.isNotEmpty() }
+                .associate { it.pojo.typeName to it.unusedFields }
+            if (unusedColumns.isNotEmpty() || pojoUnusedFields.isNotEmpty()) {
+                val warningMsg = ProcessorErrors.cursorPojoMismatch(
+                    pojoTypeNames = mappings.map { it.pojo.typeName },
+                    unusedColumns = unusedColumns,
+                    allColumns = columnNames,
+                    pojoUnusedFields = pojoUnusedFields,
+                )
+                context.logger.w(Warning.CURSOR_MISMATCH, executableElement, warningMsg)
             }
         }
 

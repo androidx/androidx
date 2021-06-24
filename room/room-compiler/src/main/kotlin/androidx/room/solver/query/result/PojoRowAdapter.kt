@@ -16,11 +16,11 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
-import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.CodeGenScope
@@ -29,7 +29,6 @@ import androidx.room.vo.Field
 import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
-import androidx.room.vo.Warning
 import androidx.room.vo.findFieldByColumnName
 import androidx.room.writer.FieldReadWriteWriter
 import capitalize
@@ -48,8 +47,11 @@ class PojoRowAdapter(
     val pojo: Pojo,
     out: XType
 ) : RowAdapter(out) {
-    val mapping: Mapping
+    val mapping: QueryMappedResultAdapter.Mapping
     val relationCollectors: List<RelationCollector>
+
+    // Set when cursor is ready.
+    lateinit var fieldsWithIndices: List<FieldWithIndex>
 
     init {
 
@@ -71,16 +73,6 @@ class PojoRowAdapter(
                     field
                 }
             }
-            if (unusedColumns.isNotEmpty() || remainingFields.isNotEmpty()) {
-                val warningMsg = ProcessorErrors.cursorPojoMismatch(
-                    pojoTypeName = pojo.typeName,
-                    unusedColumns = unusedColumns,
-                    allColumns = info.columns.map { it.name },
-                    unusedFields = remainingFields,
-                    allFields = pojo.fields
-                )
-                context.logger.w(Warning.CURSOR_MISMATCH, null, warningMsg)
-            }
             val nonNulls = remainingFields.filter { it.nonNull }
             if (nonNulls.isNotEmpty()) {
                 context.logger.e(
@@ -100,7 +92,8 @@ class PojoRowAdapter(
         }
         relationCollectors = RelationCollector.createCollectors(context, pojo.relations)
 
-        mapping = Mapping(
+        mapping = QueryMappedResultAdapter.Mapping(
+            pojo = pojo,
             matchedFields = matchedFields,
             unusedColumns = unusedColumns,
             unusedFields = remainingFields
@@ -119,7 +112,7 @@ class PojoRowAdapter(
     }
 
     override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
-        mapping.fieldsWithIndices = mapping.matchedFields.map {
+        fieldsWithIndices = mapping.matchedFields.map {
             val indexVar = scope.getTmpVar(
                 "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
             )
@@ -140,7 +133,7 @@ class PojoRowAdapter(
             scope.builder().apply {
                 beginControlFlow("while ($L.moveToNext())", cursorVarName).apply {
                     relationCollectors.forEach {
-                        it.writeReadParentKeyCode(cursorVarName, mapping.fieldsWithIndices, scope)
+                        it.writeReadParentKeyCode(cursorVarName, fieldsWithIndices, scope)
                     }
                 }
                 endControlFlow()
@@ -156,19 +149,10 @@ class PojoRowAdapter(
                 outVar = outVarName,
                 outPojo = pojo,
                 cursorVar = cursorVarName,
-                fieldsWithIndices = mapping.fieldsWithIndices,
+                fieldsWithIndices = fieldsWithIndices,
                 relationCollectors = relationCollectors,
                 scope = scope
             )
         }
-    }
-
-    data class Mapping(
-        val matchedFields: List<Field>,
-        val unusedColumns: List<String>,
-        val unusedFields: List<Field>
-    ) {
-        // set when cursor is ready.
-        lateinit var fieldsWithIndices: List<FieldWithIndex>
     }
 }

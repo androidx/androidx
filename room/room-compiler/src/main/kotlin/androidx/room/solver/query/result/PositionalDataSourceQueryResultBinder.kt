@@ -49,10 +49,12 @@ class PositionalDataSourceQueryResultBinder(
     val tableNames: Set<String>,
     val forPaging3: Boolean,
 ) : QueryResultBinder(listAdapter) {
-    val itemTypeName: TypeName = listAdapter?.rowAdapter?.out?.typeName ?: TypeName.OBJECT
+    val itemTypeName: TypeName =
+        listAdapter?.rowAdapters?.firstOrNull()?.out?.typeName ?: TypeName.OBJECT
     val typeName: ParameterizedTypeName = ParameterizedTypeName.get(
         RoomTypeNames.LIMIT_OFFSET_DATA_SOURCE, itemTypeName
     )
+
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,

@@ -26,11 +26,11 @@ import java.util.ArrayList
 
 class ListQueryResultAdapter(
     private val typeArg: XType,
-    rowAdapter: RowAdapter
-) : QueryResultAdapter(rowAdapter) {
+    private val rowAdapter: RowAdapter
+) : QueryResultAdapter(listOf(rowAdapter)) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            rowAdapter?.onCursorReady(cursorVarName, scope)
+            rowAdapter.onCursorReady(cursorVarName, scope)
             val collectionType = ParameterizedTypeName
                 .get(ClassName.get(List::class.java), typeArg.typeName)
             val arrayListType = ParameterizedTypeName
@@ -42,11 +42,11 @@ class ListQueryResultAdapter(
             val tmpVarName = scope.getTmpVar("_item")
             beginControlFlow("while($L.moveToNext())", cursorVarName).apply {
                 addStatement("final $T $L", typeArg.typeName, tmpVarName)
-                rowAdapter?.convert(tmpVarName, cursorVarName, scope)
+                rowAdapter.convert(tmpVarName, cursorVarName, scope)
                 addStatement("$L.add($L)", outVarName, tmpVarName)
             }
             endControlFlow()
-            rowAdapter?.onCursorFinished()?.invoke(scope)
+            rowAdapter.onCursorFinished()?.invoke(scope)
         }
     }
 }
