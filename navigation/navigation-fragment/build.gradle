@@ -26,7 +26,7 @@ plugins {
 dependencies {
     api(projectOrArtifact(":fragment:fragment-ktx"))
     api(project(":navigation:navigation-runtime"))
-    api(project(":slidingpanelayout:slidingpanelayout"))
+    api(projectOrArtifact(":slidingpanelayout:slidingpanelayout"))
     api(libs.kotlinStdlib)
     androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(projectOrArtifact(":fragment:fragment-testing"))
