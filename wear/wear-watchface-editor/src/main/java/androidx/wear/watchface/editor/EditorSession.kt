@@ -526,13 +526,13 @@ public abstract class BaseEditorSession internal constructor(
         MonochromaticImage.Builder(providerInfo.icon).build()
     ).build()
 
-    protected fun fetchComplicationsData() {
+    protected fun fetchComplicationsData(fetchCoroutineScope: CoroutineScope) {
         val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
-        coroutineScope.launchWithTracing("BaseEditorSession.fetchComplicationsData") {
+        fetchCoroutineScope.launchWithTracing("BaseEditorSession.fetchComplicationsData") {
             try {
-                // Unlikely but WCS could conceivably crash during this call. We could retry but it's
-                // not obvious if that'd succeed or if WCS session state is recoverable, it's probably
-                // better to crash and start over.
+                // Unlikely but WCS could conceivably crash during this call. We could retry but
+                // it's not obvious if that'd succeed or if WCS session state is recoverable,
+                // it's probably  better to crash and start over.
                 val providerInfoArray = providerInfoRetriever.retrieveProviderInfo(
                     watchFaceComponentName,
                     complicationSlotsState.keys.toIntArray()
@@ -674,6 +674,7 @@ internal class OnWatchFaceEditorSessionImpl(
         }
 
     private lateinit var previousWatchFaceUserStyle: UserStyle
+    private lateinit var backgroundCoroutineScope: CoroutineScope
 
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
@@ -704,6 +705,10 @@ internal class OnWatchFaceEditorSessionImpl(
         if ((isRFlow || !commitChangesOnClose) && this::previousWatchFaceUserStyle.isInitialized) {
             userStyle = previousWatchFaceUserStyle
         }
+
+        if (this::backgroundCoroutineScope.isInitialized) {
+            backgroundCoroutineScope.cancel()
+        }
     }
 
     fun setEditorDelegate(editorDelegate: WatchFace.EditorDelegate) {
@@ -718,7 +723,11 @@ internal class OnWatchFaceEditorSessionImpl(
                 UserStyle(initialEditorUserStyle, editorDelegate.userStyleSchema)
         }
 
-        fetchComplicationsData()
+        backgroundCoroutineScope = CoroutineScope(
+            editorDelegate.backgroundThreadHandler.asCoroutineDispatcher().immediate
+        )
+
+        fetchComplicationsData(backgroundCoroutineScope)
     }
 }
 
@@ -759,7 +768,7 @@ internal class HeadlessEditorSession(
     }
 
     init {
-        fetchComplicationsData()
+        fetchComplicationsData(coroutineScope)
     }
 }
 
