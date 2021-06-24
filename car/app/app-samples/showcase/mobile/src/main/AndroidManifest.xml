@@ -24,7 +24,6 @@
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
   <!-- For PlaceListMapTemplate -->
   <uses-permission android:name="androidx.car.app.MAP_TEMPLATES"/>
@@ -32,6 +31,12 @@
   <!-- For the navigation demos. -->
   <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES"/>
   <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
+
+  <!-- For Access to Car Hardware. -->
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+  <uses-permission android:name="com.google.android.gms.permission.CAR_MILEAGE"/>
+  <uses-permission android:name="com.google.android.gms.permission.CAR_SPEED"/>
+  <uses-permission android:name="com.google.android.gms.permission.CAR_FUEL"/>
 
   <application
       android:label="@string/app_name"
