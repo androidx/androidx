@@ -34,7 +34,7 @@ android {
 dependencies {
     api(libs.kotlinStdlib)
 
-    implementation(project(":annotation:annotation"))
+    implementation("androidx.annotation:annotation:1.2.0")
 
     androidTestImplementation(project(":test-screenshot"))
     androidTestImplementation(libs.testExtJunit)
