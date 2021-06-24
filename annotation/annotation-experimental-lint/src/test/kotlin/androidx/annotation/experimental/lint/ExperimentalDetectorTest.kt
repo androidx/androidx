@@ -22,6 +22,7 @@ import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles.base64gzip
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
+import com.android.tools.lint.checks.infrastructure.TestFiles.xml
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
@@ -71,6 +72,44 @@ src/sample/experimental/UseJavaExperimentalFromJava.java:54: Error: This declara
         return dateProvider.getDate() + locationProvider.getLocation();
                                                          ~~~~~~~~~~~
 4 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun useJavaExperimentalFromJavaWithOptions() {
+        val lintConfig = xml(
+            "lint.xml",
+            """
+<lint>
+    <issue id="UnsafeOptInUsageError">
+        <option name="opt-in" value="sample.experimental.ExperimentalDateTime" />
+    </issue>
+</lint>
+            """.trimIndent()
+        )
+        val input = arrayOf(
+            javaSample("sample.experimental.DateProvider"),
+            javaSample("sample.experimental.ExperimentalDateTime"),
+            javaSample("sample.experimental.ExperimentalLocation"),
+            javaSample("sample.experimental.LocationProvider"),
+            javaSample("sample.experimental.UseJavaExperimentalFromJava"),
+            lintConfig
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/experimental/UseJavaExperimentalFromJava.java:53: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalLocation' or '@OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' [UnsafeOptInUsageError]
+        LocationProvider locationProvider = new LocationProvider();
+                                            ~~~~~~~~~~~~~~~~~~~~~~
+src/sample/experimental/UseJavaExperimentalFromJava.java:54: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalLocation' or '@OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' [UnsafeOptInUsageError]
+        return dateProvider.getDate() + locationProvider.getLocation();
+                                                         ~~~~~~~~~~~
+2 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
