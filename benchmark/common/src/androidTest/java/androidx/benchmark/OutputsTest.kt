@@ -57,6 +57,14 @@ public class OutputsTest {
     }
 
     @Test
+    public fun sanitizeFilename() {
+        assertEquals(
+            "testFilename[Thing[]]",
+            Outputs.sanitizeFilename("testFilename[Thing( )]")
+        )
+    }
+
+    @Test
     public fun testDateToFileName() {
         val date = Date(0)
         val expected = "1970-01-01-00-00-00"
