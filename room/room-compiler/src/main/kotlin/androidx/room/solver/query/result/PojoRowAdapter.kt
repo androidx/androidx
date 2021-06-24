@@ -21,6 +21,8 @@ import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
+import androidx.room.ext.capitalize
+import androidx.room.ext.stripNonJava
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.CodeGenScope
@@ -31,9 +33,7 @@ import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
 import androidx.room.vo.findFieldByColumnName
 import androidx.room.writer.FieldReadWriteWriter
-import capitalize
 import com.squareup.javapoet.TypeName
-import stripNonJava
 import java.util.Locale
 
 /**

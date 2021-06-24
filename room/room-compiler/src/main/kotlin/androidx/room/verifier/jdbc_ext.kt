@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.room.ext.capitalize
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.verifier.ColumnInfo
 import java.sql.PreparedStatement
