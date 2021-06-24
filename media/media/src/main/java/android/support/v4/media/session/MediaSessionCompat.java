@@ -73,6 +73,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
+import androidx.core.os.BuildCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
@@ -131,7 +132,7 @@ public class MediaSessionCompat {
      */
     @RestrictTo(LIBRARY)
     public static final int PENDING_INTENT_FLAG_MUTABLE =
-            Build.VERSION.CODENAME.equals("S") ? 0x02000000 : 0;
+            BuildCompat.isAtLeastS() ? 0x02000000 : 0;
 
     private final MediaSessionImpl mImpl;
     private final MediaControllerCompat mController;
