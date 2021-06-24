@@ -153,7 +153,7 @@ class ViewModelsWithStateTest(private val mode: Mode) {
             SavedStateViewModelFactory(activity.application, savedStateOwner) as Factory
         } else {
             object : AbstractSavedStateViewModelFactory(savedStateOwner, null) {
-                override fun <T : ViewModel?> create(
+                override fun <T : ViewModel> create(
                     key: String,
                     modelClass: Class<T>,
                     handle: SavedStateHandle
