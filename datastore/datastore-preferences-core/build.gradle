@@ -31,7 +31,7 @@ BundleInsideHelper.forInsideJar(
 
 dependencies {
     bundleInside(project(
-            path: ":datastore:datastore-preferences-core:datastore-preferences-proto",
+            path: ":datastore:datastore-preferences-proto",
             configuration: "export"
     ))
     api(libs.kotlinStdlib)

@@ -22,10 +22,10 @@ plugins {
 
 dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation(project(":ads-identifier-common"))
-    androidTestImplementation(project(":ads-identifier"))
-    androidTestImplementation(project(":ads-identifier-provider"))
-    androidTestImplementation(project(":ads-identifier-testing"))
+    androidTestImplementation(project(":ads:ads-identifier-common"))
+    androidTestImplementation(project(":ads:ads-identifier"))
+    androidTestImplementation(project(":ads:ads-identifier-provider"))
+    androidTestImplementation(project(":ads:ads-identifier-testing"))
     androidTestImplementation("androidx.work:work-runtime:2.2.0")
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
