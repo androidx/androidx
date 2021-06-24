@@ -23,10 +23,13 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
+import android.os.Handler
+import android.os.HandlerThread
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
@@ -47,6 +50,7 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -110,6 +114,12 @@ public class EditorSessionGuavaTest {
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
+    private val backgroundHandlerThread = HandlerThread("TestBackgroundThread").apply {
+        start()
+    }
+
+    private val backgroundHandler = Handler(backgroundHandlerThread.looper)
+
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
         complicationSlots: List<ComplicationSlot>,
@@ -128,6 +138,7 @@ public class EditorSessionGuavaTest {
         Mockito.`when`(editorDelegate.screenBounds).thenReturn(screenBounds)
         Mockito.`when`(editorDelegate.previewReferenceTimeMillis)
             .thenReturn(previewReferenceTimeMillis)
+        Mockito.`when`(editorDelegate.backgroundThreadHandler).thenReturn(backgroundHandler)
 
         OnWatchFaceEditingTestActivity.providerInfoRetrieverProvider =
             TestProviderInfoRetrieverProvider()
@@ -143,6 +154,15 @@ public class EditorSessionGuavaTest {
                 )
             }
         )
+    }
+
+    @After
+    public fun tearDown() {
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = false
+        ComplicationHelperActivity.useTestComplicationProviderChooserActivity = false
+        ComplicationHelperActivity.skipPermissionCheck = false
+        WatchFace.clearAllEditorDelegates()
+        backgroundHandlerThread.quitSafely()
     }
 
     @Test

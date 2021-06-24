@@ -28,6 +28,7 @@ import android.graphics.drawable.Icon
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
 import android.support.wearable.complications.IPreviewComplicationDataCallback
@@ -418,6 +419,12 @@ public class EditorSessionTest {
 
         // Mocking getters and setters with mockito at the same time is hard so we do this instead.
         editorDelegate = object : WatchFace.EditorDelegate {
+            private val backgroundHandlerThread = HandlerThread("TestBackgroundThread").apply {
+                start()
+            }
+
+            private val backgroundHandler = Handler(backgroundHandlerThread.looper)
+
             override val userStyleSchema = userStyleRepository.schema
             override var userStyle: UserStyle
                 get() = userStyleRepository.userStyle
@@ -428,6 +435,7 @@ public class EditorSessionTest {
             override val complicationSlotsManager = complicationSlotsManager
             override val screenBounds = this@EditorSessionTest.screenBounds
             override val previewReferenceTimeMillis = previewReferenceTimeMillis
+            override val backgroundThreadHandler = backgroundHandler
 
             override fun renderWatchFaceToBitmap(
                 renderParameters: RenderParameters,
@@ -438,6 +446,7 @@ public class EditorSessionTest {
 
             override fun onDestroy() {
                 onDestroyLatch.countDown()
+                backgroundHandlerThread.quitSafely()
             }
         }
         if (!shouldTimeout) {

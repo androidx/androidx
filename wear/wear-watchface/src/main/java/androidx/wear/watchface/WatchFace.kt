@@ -29,6 +29,7 @@ import android.icu.util.TimeZone
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.WatchFaceStyle
 import android.view.Gravity
@@ -191,6 +192,9 @@ public class WatchFace(
 
         /** The UTC reference time to use for previews in milliseconds since the epoch. */
         public val previewReferenceTimeMillis: Long
+
+        /** The [Handler] for the background thread. */
+        public val backgroundThreadHandler: Handler
 
         /** Renders the watchface to a [Bitmap] with the [CurrentUserStyleRepository]'s [UserStyle]. */
         public fun renderWatchFaceToBitmap(
@@ -595,6 +599,9 @@ public class WatchFaceImpl @UiThread constructor(
 
         override val previewReferenceTimeMillis
             get() = this@WatchFaceImpl.previewReferenceTimeMillis
+
+        override val backgroundThreadHandler
+            get() = watchFaceHostApi.getBackgroundThreadHandler()
 
         override fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
