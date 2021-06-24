@@ -842,6 +842,48 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun tapListener_tap_viaWallpaperCommand() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            tapListener = tapListener
+        )
+
+        // Tap on nothing.
+        engineWrapper.onCommand(
+            Constants.COMMAND_TOUCH,
+            10,
+            20,
+            0,
+            Bundle().apply {
+                putBinder(
+                    Constants.EXTRA_BINDER,
+                    WatchFaceServiceStub(iWatchFaceService).asBinder()
+                )
+            },
+            false
+        )
+
+        engineWrapper.onCommand(
+            Constants.COMMAND_TAP,
+            10,
+            20,
+            0,
+            Bundle().apply {
+                putBinder(
+                    Constants.EXTRA_BINDER,
+                    WatchFaceServiceStub(iWatchFaceService).asBinder()
+                )
+            },
+            false
+        )
+
+        verify(tapListener).onTap(TapType.DOWN, 10, 20)
+        verify(tapListener).onTap(TapType.UP, 10, 20)
+    }
+
+    @Test
     public fun tapListener_tapComplication() {
         initEngine(
             WatchFaceType.ANALOG,
