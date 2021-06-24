@@ -8,4 +8,7 @@
         android:id="@id/android"
         android:icon="@drawable/ic_android"
         android:title="@string/android"/>
+    <item
+        android:id="@+id/two_pane"
+        android:title="Two Pane"/>
 </menu>

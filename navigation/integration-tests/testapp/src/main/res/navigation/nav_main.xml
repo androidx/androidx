@@ -94,4 +94,8 @@
               app:dataPattern="http://www.example.com/{topic}">
         <argument android:name="topic" android:defaultValue="help_topic"/>
     </activity>
+    <fragment android:id="@+id/two_pane"
+              android:label="@string/twopane"
+              android:name="androidx.navigation.testapp.TwoPaneFragment">
+    </fragment>
 </navigation>
