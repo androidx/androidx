@@ -24,6 +24,7 @@ import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.ListQueryResultAdapter
+import androidx.room.solver.query.result.CompatPagingSourceQueryResultBinder
 import androidx.room.solver.query.result.PagingSourceQueryResultBinder
 import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
@@ -46,13 +47,25 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
             (listAdapter?.accessedTableNames() ?: emptyList()) +
                 query.tables.map { it.name }
             ).toSet()
-        return PagingSourceQueryResultBinder(
-            PositionalDataSourceQueryResultBinder(
+
+        // If limitOffsetPagingSource is null, then it is not in the compile classpath
+        val limitOffsetPagingSource = context.processingEnv.findType(
+            "androidx.room.paging.LimitOffsetPagingSource"
+        )
+        return if (limitOffsetPagingSource != null) {
+            PagingSourceQueryResultBinder(
                 listAdapter = listAdapter,
                 tableNames = tableNames,
-                forPaging3 = true
             )
-        )
+        } else {
+            CompatPagingSourceQueryResultBinder(
+                PositionalDataSourceQueryResultBinder(
+                    listAdapter = listAdapter,
+                    tableNames = tableNames,
+                    forPaging3 = true
+                )
+            )
+        }
     }
 
     override fun matches(declared: XType): Boolean {
