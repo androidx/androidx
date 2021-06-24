@@ -91,12 +91,14 @@ public object Outputs {
         reportOnRunEndOnly: Boolean = false,
         block: (file: File) -> Unit,
     ): String {
+        val sanitizedName = sanitizeFilename(fileName)
+
         // We need to copy files over anytime `dirUsableByAppAndShell` is different from
         // `outputDirectory`.
         val override = dirUsableByAppAndShell != outputDirectory
         // We override the `additionalTestOutputDir` argument.
         // Context: b/181601156
-        val file = File(dirUsableByAppAndShell, fileName)
+        val file = File(dirUsableByAppAndShell, sanitizedName)
         try {
             block.invoke(file)
         } finally {
@@ -104,7 +106,7 @@ public object Outputs {
             if (override) {
                 // This respects the `additionalTestOutputDir` argument.
                 val actualOutputDirectory = outputDirectory
-                destination = File(actualOutputDirectory, fileName)
+                destination = File(actualOutputDirectory, sanitizedName)
                 Log.d(BenchmarkState.TAG, "Copying $file to $destination")
                 try {
                     destination.mkdirs()
@@ -129,6 +131,13 @@ public object Outputs {
             )
             return destination.absolutePath
         }
+    }
+
+    public fun sanitizeFilename(filename: String): String {
+        return filename
+            .replace(" ", "")
+            .replace("(", "[")
+            .replace(")", "]")
     }
 
     public fun testOutputFile(filename: String): File {

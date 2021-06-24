@@ -62,6 +62,8 @@ internal fun ideSummaryStrings(
     }
     val relativeTracePaths = absoluteTracePaths.map { absolutePath ->
         Outputs.relativePathFor(absolutePath)
+            .replace("(", "\\(")
+            .replace(")", "\\)")
     }
     return Pair(
         first = ideSummaryString { name, min, median, max, _ ->
