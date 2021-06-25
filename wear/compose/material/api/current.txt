@@ -33,14 +33,16 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter cardBackgroundPainter(optional long startBackgroundColor, optional long endBackgroundColor, optional androidx.compose.ui.unit.LayoutDirection gradientDirection);
     method public float getAppImageSize();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter imageBackgroundPainter(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush);
     property public final float AppImageSize;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material.CardDefaults INSTANCE;
   }
 
   public final class CardKt {
-    method @androidx.compose.runtime.Composable public static void AppCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function0<kotlin.Unit> appName, kotlin.jvm.functions.Function0<kotlin.Unit> time, kotlin.jvm.functions.Function0<kotlin.Unit> title, kotlin.jvm.functions.Function0<kotlin.Unit> body, optional kotlin.jvm.functions.Function0<kotlin.Unit>? appImage, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long appColor, optional long timeColor, optional long titleColor, optional long bodyColor);
+    method @androidx.compose.runtime.Composable public static void AppCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> appName, kotlin.jvm.functions.Function0<kotlin.Unit> time, kotlin.jvm.functions.Function0<kotlin.Unit> title, kotlin.jvm.functions.Function0<kotlin.Unit> body, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? appImage, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long appColor, optional long timeColor, optional long titleColor, optional long bodyColor);
     method @androidx.compose.runtime.Composable public static void Card(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long contentColor, optional boolean enabled, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void TitleCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> title, kotlin.jvm.functions.Function0<kotlin.Unit> body, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? time, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long titleColor, optional long timeColor, optional long bodyColor);
   }
 
   @androidx.compose.runtime.Stable public interface ChipColors {
