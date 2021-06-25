@@ -76,17 +76,26 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
     private final Paint mCarInfoPaint = new Paint();
     private boolean mShowCarHardwareSurfaceInfo;
 
-    @Nullable Model mModel;
-    @Nullable EnergyProfile mEnergyProfile;
+    @Nullable
+    Model mModel;
+    @Nullable
+    EnergyProfile mEnergyProfile;
     @Nullable
     TollCard mTollCard;
-    @Nullable EnergyLevel mEnergyLevel;
-    @Nullable Speed mSpeed;
-    @Nullable Mileage mMileage;
-    @Nullable Accelerometer mAccelerometer;
-    @Nullable Gyroscope mGyroscope;
-    @Nullable Compass mCompass;
-    @Nullable CarHardwareLocation mCarHardwareLocation;
+    @Nullable
+    EnergyLevel mEnergyLevel;
+    @Nullable
+    Speed mSpeed;
+    @Nullable
+    Mileage mMileage;
+    @Nullable
+    Accelerometer mAccelerometer;
+    @Nullable
+    Gyroscope mGyroscope;
+    @Nullable
+    Compass mCompass;
+    @Nullable
+    CarHardwareLocation mCarHardwareLocation;
 
     private OnCarDataListener<Model> mModelListener = data -> {
         synchronized (SurfaceRenderer.this) {
@@ -247,10 +256,10 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         if (isEnabled) {
             // Request any single shot values.
             mModel = null;
-            carInfo.getModel(mCarHardwareExecutor, mModelListener);
+            carInfo.fetchModel(mCarHardwareExecutor, mModelListener);
 
             mEnergyProfile = null;
-            carInfo.getEnergyProfile(mCarHardwareExecutor, mEnergyProfileListener);
+            carInfo.fetchEnergyProfile(mCarHardwareExecutor, mEnergyProfileListener);
 
             // Request car info subscription items.
             mTollCard = null;
@@ -375,7 +384,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
                     info.append("Fuel Types: Unavailable. ");
                 } else {
                     info.append("Fuel Types: [");
-                    for (int fuelType: mEnergyProfile.getFuelTypes().getValue()) {
+                    for (int fuelType : mEnergyProfile.getFuelTypes().getValue()) {
                         info.append(fuelType);
                         info.append(" ");
                     }
@@ -385,7 +394,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
                     info.append(" EV Connector Types: Unavailable. ");
                 } else {
                     info.append("EV Connector Types:[");
-                    for (int connectorType: mEnergyProfile.getEvConnectorTypes().getValue()) {
+                    for (int connectorType : mEnergyProfile.getEvConnectorTypes().getValue()) {
                         info.append(connectorType);
                         info.append(" ");
                     }
@@ -422,11 +431,11 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
                     info.append(mEnergyLevel.getEnergyIsLow().getValue());
                     info.append(" ");
                 }
-                if (mEnergyLevel.getRangeRemaining().getStatus() != CarValue.STATUS_SUCCESS) {
+                if (mEnergyLevel.getRangeRemainingMeters().getStatus() != CarValue.STATUS_SUCCESS) {
                     info.append("Range: Unavailable. ");
                 } else {
                     info.append("Range: ");
-                    info.append(mEnergyLevel.getRangeRemaining().getValue());
+                    info.append(mEnergyLevel.getRangeRemainingMeters().getValue());
                     info.append(" m. ");
                 }
                 if (mEnergyLevel.getFuelPercent().getStatus() != CarValue.STATUS_SUCCESS) {
@@ -452,18 +461,19 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
             if (mSpeed == null) {
                 info.append("Fetching Speed.");
             } else {
-                if (mSpeed.getDisplaySpeed().getStatus() != CarValue.STATUS_SUCCESS) {
+                if (mSpeed.getDisplaySpeedMetersPerSecond().getStatus()
+                        != CarValue.STATUS_SUCCESS) {
                     info.append("Display Speed: Unavailable. ");
                 } else {
                     info.append("Display Speed: ");
-                    info.append(mSpeed.getDisplaySpeed().getValue());
+                    info.append(mSpeed.getDisplaySpeedMetersPerSecond().getValue());
                     info.append(" m/s. ");
                 }
-                if (mSpeed.getRawSpeed().getStatus() != CarValue.STATUS_SUCCESS) {
+                if (mSpeed.getRawSpeedMetersPerSecond().getStatus() != CarValue.STATUS_SUCCESS) {
                     info.append("Raw Speed: Unavailable. ");
                 } else {
                     info.append("Raw Speed: ");
-                    info.append(mSpeed.getRawSpeed().getValue());
+                    info.append(mSpeed.getRawSpeedMetersPerSecond().getValue());
                     info.append(" m/s. ");
                 }
                 if (mSpeed.getSpeedDisplayUnit().getStatus() != CarValue.STATUS_SUCCESS) {
@@ -482,11 +492,11 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
             if (mMileage == null) {
                 info.append("Fetching mileage.");
             } else {
-                if (mMileage.getOdometer().getStatus() != CarValue.STATUS_SUCCESS) {
+                if (mMileage.getOdometerMeters().getStatus() != CarValue.STATUS_SUCCESS) {
                     info.append("Odometer: Unavailable. ");
                 } else {
                     info.append("Odometer: ");
-                    info.append(mMileage.getOdometer().getValue());
+                    info.append(mMileage.getOdometerMeters().getValue());
                     info.append(" m. ");
                 }
                 if (mMileage.getDistanceDisplayUnit().getStatus() != CarValue.STATUS_SUCCESS) {
