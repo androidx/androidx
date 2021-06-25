@@ -127,8 +127,8 @@ public abstract class CameraController {
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef(value = {TAP_TO_FOCUS_NOT_STARTED, TAP_TO_FOCUS_STARTED, TAP_TO_FOCUS_SUCCESSFUL,
-            TAP_TO_FOCUS_UNSUCCESSFUL, TAP_TO_FOCUS_FAILED})
+    @IntDef(value = {TAP_TO_FOCUS_NOT_STARTED, TAP_TO_FOCUS_STARTED, TAP_TO_FOCUS_FOCUSED,
+            TAP_TO_FOCUS_NOT_FOCUSED, TAP_TO_FOCUS_FAILED})
     public @interface TapToFocusStates {
     }
 
@@ -146,15 +146,15 @@ public abstract class CameraController {
     /**
      * The previous tap-to-focus action was completed successfully and the camera is focused.
      */
-    public static final int TAP_TO_FOCUS_SUCCESSFUL = 2;
+    public static final int TAP_TO_FOCUS_FOCUSED = 2;
 
     /**
      * The previous tap-to-focus action was completed successfully but the camera is still
-     * unfocused. It happens when CameraX receives
-     * {@link CaptureResult#CONTROL_AF_STATE_NOT_FOCUSED_LOCKED}. The end user might be able to
-     * get a better result by trying again with different camera distances and/or lighting.
+     * unfocused, similar to the {@link CaptureResult#CONTROL_AF_STATE_NOT_FOCUSED_LOCKED} state.
+     * The end user might be able to get a better result by trying again with different camera
+     * distances and/or lighting.
      */
-    public static final int TAP_TO_FOCUS_UNSUCCESSFUL = 3;
+    public static final int TAP_TO_FOCUS_NOT_FOCUSED = 3;
 
     /**
      * The previous tap-to-focus action was failed to complete. This is usually due to device
@@ -546,8 +546,8 @@ public abstract class CameraController {
      *
      * <p> When set to null, the output will be based on the default config of {@link Preview}.
      *
-     * <p> Changing the target size will reconfigure the camera which will cause additional latency.
-     * To avoid this, set the target size before controller is bound to lifecycle.
+     * <p> Changing the value will reconfigure the camera which will cause additional latency.
+     * To avoid this, set the value before controller is bound to lifecycle.
      *
      * @param targetSize the intended output size for {@link Preview}.
      * @see Preview.Builder#setTargetAspectRatio(int)
@@ -708,6 +708,9 @@ public abstract class CameraController {
      * {@link ImageCapture.CaptureMode#CAPTURE_MODE_MAXIMIZE_QUALITY},
      * which prioritizes image quality over latency.
      *
+     * <p> Changing the value will reconfigure the camera which will cause additional latency.
+     * To avoid this, set the value before controller is bound to lifecycle.
+     *
      * @param captureMode the requested image capture mode.
      */
     @MainThread
@@ -740,8 +743,8 @@ public abstract class CameraController {
      *
      * <p> When set to null, the output will be based on the default config of {@link ImageCapture}.
      *
-     * <p> Changing the target size will reconfigure the camera which will cause additional latency.
-     * To avoid this, set the target size before controller is bound to lifecycle.
+     * <p> Changing the value will reconfigure the camera which will cause additional latency.
+     * To avoid this, set the value before controller is bound to lifecycle.
      *
      * @param targetSize the intended image size for {@link ImageCapture}.
      */
@@ -775,8 +778,10 @@ public abstract class CameraController {
      * ImageCapture.OnImageSavedCallback)}. If no executor is set, then a default Executor
      * specifically for IO will be used instead.
      *
+     * <p> Changing the value will reconfigure the camera which will cause additional latency.
+     * To avoid this, set the value before controller is bound to lifecycle.
+     *
      * @param executor The executor which will be used for IO tasks.
-     *                 TODO(b/187842789) add @see link for ImageCapture.
      */
     @MainThread
     public void setImageCaptureIoExecutor(@Nullable Executor executor) {
@@ -894,6 +899,9 @@ public abstract class CameraController {
      * {@link ImageAnalysis#STRATEGY_KEEP_ONLY_LATEST}. If not set, the backpressure strategy
      * will default to {@link ImageAnalysis#STRATEGY_KEEP_ONLY_LATEST}.
      *
+     * <p> Changing the value will reconfigure the camera which will cause additional latency. To
+     * avoid this, set the value before controller is bound to lifecycle.
+     *
      * @param strategy The strategy to use.
      * @see ImageAnalysis.Builder#setBackpressureStrategy(int)
      */
@@ -915,6 +923,9 @@ public abstract class CameraController {
      * <p> This sets the number of images available in parallel to {@link ImageAnalysis.Analyzer}
      * . The value is only used if the backpressure strategy is
      * {@link ImageAnalysis.BackpressureStrategy#STRATEGY_BLOCK_PRODUCER}.
+     *
+     * <p> Changing the value will reconfigure the camera which will cause additional latency. To
+     * avoid this, set the value before controller is bound to lifecycle.
      *
      * @param depth The total number of images available.
      * @see ImageAnalysis.Builder#setImageQueueDepth(int)
@@ -950,8 +961,8 @@ public abstract class CameraController {
      * <p> When set to null, the output will be based on the default config of
      * {@link ImageAnalysis}.
      *
-     * <p> Changing the target size will reconfigure the camera which will cause additional latency.
-     * To avoid this, set the target size before controller is bound to lifecycle.
+     * <p> Changing the value will reconfigure the camera which will cause additional latency.
+     * To avoid this, set the value before controller is bound to lifecycle.
      *
      * @param targetSize the intended output size for {@link ImageAnalysis}.
      * @see ImageAnalysis.Builder#setTargetAspectRatio(int)
@@ -986,6 +997,9 @@ public abstract class CameraController {
      *
      * <p>If not set, the background executor will default to an automatically generated
      * {@link Executor}.
+     *
+     * <p> Changing the value will reconfigure the camera, which will cause additional latency. To
+     * avoid this, set the value before controller is bound to lifecycle.
      *
      * @param executor the executor for {@link ImageAnalysis} background tasks.
      * @see ImageAnalysis.Builder#setBackgroundExecutor(Executor)
@@ -1116,11 +1130,12 @@ public abstract class CameraController {
      *
      * <p> When set to null, the output will be based on the default config of {@code VideoCapture}.
      *
-     * <p> Changing the target size will reconfigure the camera which will cause additional latency.
-     * To avoid this, set the target size before controller is bound to lifecycle.
+     * <p> Changing the value will reconfigure the camera which will cause video capture to stop.
+     * To avoid this, set the value before controller is bound to lifecycle.
      *
      * @param targetSize the intended video size for {@code VideoCapture}.
      */
+    @ExperimentalVideo
     @MainThread
     public void setVideoCaptureTargetSize(@Nullable OutputSize targetSize) {
         Threads.checkMainThread();
@@ -1136,6 +1151,7 @@ public abstract class CameraController {
      * Returns the intended output size for {@code VideoCapture} set by
      * {@link #setVideoCaptureTargetSize(OutputSize)}, or null if not set.
      */
+    @ExperimentalVideo
     @MainThread
     @Nullable
     public OutputSize getVideoCaptureTargetSize() {
@@ -1338,7 +1354,7 @@ public abstract class CameraController {
                         }
                         Logger.d(TAG, "Tap to focus onSuccess: " + result.isFocusSuccessful());
                         mTapToFocusState.postValue(result.isFocusSuccessful()
-                                ? TAP_TO_FOCUS_SUCCESSFUL : TAP_TO_FOCUS_UNSUCCESSFUL);
+                                ? TAP_TO_FOCUS_FOCUSED : TAP_TO_FOCUS_NOT_FOCUSED);
                     }
 
                     @Override
@@ -1732,7 +1748,7 @@ public abstract class CameraController {
      * @see #setImageCaptureTargetSize(OutputSize)
      * @see #setVideoCaptureTargetSize(OutputSize)
      */
-    public static class OutputSize {
+    public static final class OutputSize {
 
         /**
          * A value that represents the aspect ratio is not assigned.
@@ -1798,6 +1814,12 @@ public abstract class CameraController {
         @Nullable
         public Size getResolution() {
             return mResolution;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "aspect ratio: " + mAspectRatio + " resolution: " + mResolution;
         }
     }
 }

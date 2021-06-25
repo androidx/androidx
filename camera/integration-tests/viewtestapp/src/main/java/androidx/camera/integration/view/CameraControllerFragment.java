@@ -378,10 +378,10 @@ public class CameraControllerFragment extends Fragment {
             case CameraController.TAP_TO_FOCUS_STARTED:
                 text = "started";
                 break;
-            case CameraController.TAP_TO_FOCUS_SUCCESSFUL:
+            case CameraController.TAP_TO_FOCUS_FOCUSED:
                 text = "successful";
                 break;
-            case CameraController.TAP_TO_FOCUS_UNSUCCESSFUL:
+            case CameraController.TAP_TO_FOCUS_NOT_FOCUSED:
                 text = "unsuccessful";
                 break;
             case CameraController.TAP_TO_FOCUS_FAILED:

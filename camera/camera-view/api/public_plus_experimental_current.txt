@@ -19,7 +19,7 @@ package androidx.camera.view {
     method @MainThread public androidx.camera.view.CameraController.OutputSize? getPreviewTargetSize();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTapToFocusState();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
-    method @MainThread public androidx.camera.view.CameraController.OutputSize? getVideoCaptureTargetSize();
+    method @MainThread @androidx.camera.view.video.ExperimentalVideo public androidx.camera.view.CameraController.OutputSize? getVideoCaptureTargetSize();
     method @MainThread public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method @MainThread public boolean hasCamera(androidx.camera.core.CameraSelector);
     method @MainThread public boolean isImageAnalysisEnabled();
@@ -43,7 +43,7 @@ package androidx.camera.view {
     method @MainThread public void setPinchToZoomEnabled(boolean);
     method @MainThread public void setPreviewTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public void setTapToFocusEnabled(boolean);
-    method @MainThread public void setVideoCaptureTargetSize(androidx.camera.view.CameraController.OutputSize?);
+    method @MainThread @androidx.camera.view.video.ExperimentalVideo public void setVideoCaptureTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
     method @MainThread @androidx.camera.view.video.ExperimentalVideo public void startRecording(androidx.camera.view.video.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.view.video.OnVideoSavedCallback);
     method @MainThread @androidx.camera.view.video.ExperimentalVideo public void stopRecording();
@@ -52,14 +52,14 @@ package androidx.camera.view {
     field public static final int IMAGE_ANALYSIS = 2; // 0x2
     field public static final int IMAGE_CAPTURE = 1; // 0x1
     field public static final int TAP_TO_FOCUS_FAILED = 4; // 0x4
+    field public static final int TAP_TO_FOCUS_FOCUSED = 2; // 0x2
+    field public static final int TAP_TO_FOCUS_NOT_FOCUSED = 3; // 0x3
     field public static final int TAP_TO_FOCUS_NOT_STARTED = 0; // 0x0
     field public static final int TAP_TO_FOCUS_STARTED = 1; // 0x1
-    field public static final int TAP_TO_FOCUS_SUCCESSFUL = 2; // 0x2
-    field public static final int TAP_TO_FOCUS_UNSUCCESSFUL = 3; // 0x3
     field @androidx.camera.view.video.ExperimentalVideo public static final int VIDEO_CAPTURE = 4; // 0x4
   }
 
-  public static class CameraController.OutputSize {
+  public static final class CameraController.OutputSize {
     ctor public CameraController.OutputSize(int);
     ctor public CameraController.OutputSize(android.util.Size);
     method public int getAspectRatio();
