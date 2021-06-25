@@ -48,7 +48,7 @@ import android.car.Car;
 import android.car.hardware.property.CarPropertyManager;
 
 import androidx.car.app.hardware.common.CarPropertyResponse;
-import androidx.car.app.hardware.common.OnCarDataListener;
+import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 import androidx.car.app.hardware.common.OnCarPropertyResponseListener;
 import androidx.car.app.hardware.common.PropertyManager;
 import androidx.car.app.shadows.car.ShadowCar;
@@ -116,7 +116,7 @@ public class AutomotiveCarInfoTest {
         when(mPropertyManager.submitGetPropertyRequest(any(), any())).thenReturn(
                 listenableCarPropertyResponse);
         AtomicReference<Model> loadedResult = new AtomicReference<>();
-        OnCarDataListener<Model> listener = (data) -> {
+        OnCarDataAvailableListener<Model> listener = (data) -> {
             loadedResult.set(data);
             mCountDownLatch.countDown();
         };
@@ -144,7 +144,7 @@ public class AutomotiveCarInfoTest {
         when(mPropertyManager.submitGetPropertyRequest(any(), any())).thenReturn(
                 listenableCarPropertyResponse);
         AtomicReference<EnergyProfile> loadedResult = new AtomicReference<>();
-        OnCarDataListener<EnergyProfile> listener = (data) -> {
+        OnCarDataAvailableListener<EnergyProfile> listener = (data) -> {
             loadedResult.set(data);
             mCountDownLatch.countDown();
         };
@@ -164,7 +164,7 @@ public class AutomotiveCarInfoTest {
     @Test
     public void getMileage_verifyResponse() throws InterruptedException {
         AtomicReference<Mileage> loadedResult = new AtomicReference<>();
-        OnCarDataListener<Mileage> listener = (data) -> {
+        OnCarDataAvailableListener<Mileage> listener = (data) -> {
             loadedResult.set(data);
             mCountDownLatch.countDown();
         };
@@ -202,7 +202,7 @@ public class AutomotiveCarInfoTest {
         when(mPropertyManager.submitGetPropertyRequest(any(), any())).thenReturn(future);
 
         AtomicReference<EnergyLevel> loadedResult = new AtomicReference<>();
-        OnCarDataListener<EnergyLevel> listener = (data) -> {
+        OnCarDataAvailableListener<EnergyLevel> listener = (data) -> {
             loadedResult.set(data);
             mCountDownLatch.countDown();
         };

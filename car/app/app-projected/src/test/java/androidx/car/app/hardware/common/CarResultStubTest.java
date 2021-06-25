@@ -57,7 +57,8 @@ public class CarResultStubTest {
     private TestCarHardwareHostStub mCarHardwareHost;
 
     private final Executor mExecutor = command -> command.run();
-    @Mock OnCarDataListener<Integer> mMockCarDataListener;
+    @Mock
+    OnCarDataAvailableListener<Integer> mMockCarDataListener;
 
     @Before
     public void setUp() throws RemoteException {
@@ -88,7 +89,7 @@ public class CarResultStubTest {
 
         carResultStub.addListener(mExecutor, mMockCarDataListener);
         mCarHardwareHost.sendResult(desiredResultType, param, true, desiredBundleable, 3);
-        verify(mMockCarDataListener, times(1)).onCarData(eq(desiredResult));
+        verify(mMockCarDataListener, times(1)).onCarDataAvailable(eq(desiredResult));
         verify(mMockCarHardwareHost).getCarHardwareResult(eq(desiredResultType),
                 eq(paramBundle), any());
     }
@@ -109,7 +110,7 @@ public class CarResultStubTest {
 
         carResultStub.addListener(mExecutor, mMockCarDataListener);
         mCarHardwareHost.sendResult(desiredResultType, param, false, null, 3);
-        verify(mMockCarDataListener, times(1)).onCarData(eq(unsupportedResult));
+        verify(mMockCarDataListener, times(1)).onCarDataAvailable(eq(unsupportedResult));
         verify(mMockCarHardwareHost).getCarHardwareResult(eq(desiredResultType),
                 eq(paramBundle), any());
     }

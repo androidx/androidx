@@ -19,7 +19,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.hardware.common.OnCarDataListener;
+import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 
 import java.util.concurrent.Executor;
 
@@ -36,46 +36,49 @@ public class AutomotiveCarSensors implements CarSensors {
 
     @Override
     public void addAccelerometerListener(@UpdateRate int rate,
-            @NonNull Executor executor, @NonNull OnCarDataListener<Accelerometer> listener) {
+            @NonNull Executor executor,
+            @NonNull OnCarDataAvailableListener<Accelerometer> listener) {
 
     }
 
     @Override
-    public void removeAccelerometerListener(@NonNull OnCarDataListener<Accelerometer> listener) {
+    public void removeAccelerometerListener(
+            @NonNull OnCarDataAvailableListener<Accelerometer> listener) {
 
     }
 
     @Override
     public void addGyroscopeListener(@UpdateRate int rate, @NonNull Executor executor,
-            @NonNull OnCarDataListener<Gyroscope> listener) {
+            @NonNull OnCarDataAvailableListener<Gyroscope> listener) {
 
     }
 
     @Override
-    public void removeGyroscopeListener(@NonNull OnCarDataListener<Gyroscope> listener) {
+    public void removeGyroscopeListener(@NonNull OnCarDataAvailableListener<Gyroscope> listener) {
 
     }
 
     @Override
     public void addCompassListener(@UpdateRate int rate, @NonNull Executor executor,
-            @NonNull OnCarDataListener<Compass> listener) {
+            @NonNull OnCarDataAvailableListener<Compass> listener) {
 
     }
 
     @Override
-    public void removeCompassListener(@NonNull OnCarDataListener<Compass> listener) {
+    public void removeCompassListener(@NonNull OnCarDataAvailableListener<Compass> listener) {
 
     }
 
     @Override
     public void addCarHardwareLocationListener(@UpdateRate int rate,
-            @NonNull Executor executor, @NonNull OnCarDataListener<CarHardwareLocation> listener) {
+            @NonNull Executor executor,
+            @NonNull OnCarDataAvailableListener<CarHardwareLocation> listener) {
 
     }
 
     @Override
     public void removeCarHardwareLocationListener(
-            @NonNull OnCarDataListener<CarHardwareLocation> listener) {
+            @NonNull OnCarDataAvailableListener<CarHardwareLocation> listener) {
 
     }
 }

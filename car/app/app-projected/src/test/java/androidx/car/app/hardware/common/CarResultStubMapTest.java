@@ -64,16 +64,16 @@ public class CarResultStubMapTest {
     private ArgumentCaptor<Bundleable> mSubscribeParamsCaptor;
 
     @Mock
-    OnCarDataListener<Integer> mMockCarDataListener1;
+    OnCarDataAvailableListener<Integer> mMockCarDataListener1;
     @Mock
-    OnCarDataListener<Integer> mMockCarDataListener2;
+    OnCarDataAvailableListener<Integer> mMockCarDataListener2;
     @Mock
-    OnCarDataListener<Integer> mMockCarDataListener3;
+    OnCarDataAvailableListener<Integer> mMockCarDataListener3;
     @Mock
-    OnCarDataListener<Integer> mMockCarDataListener4;
+    OnCarDataAvailableListener<Integer> mMockCarDataListener4;
 
     @Mock
-    OnCarDataListener<String> mMockCarDataStringListener;
+    OnCarDataAvailableListener<String> mMockCarDataStringListener;
 
     @Before
     public void setUp() throws RemoteException {
@@ -103,7 +103,7 @@ public class CarResultStubMapTest {
 
         carResultStubMap.addListener(param, mExecutor, mMockCarDataListener1);
         mCarHardwareHost.sendResult(desiredResultType, param, true, desiredBundleable, 3);
-        verify(mMockCarDataListener1, times(3)).onCarData(eq(desiredResult));
+        verify(mMockCarDataListener1, times(3)).onCarDataAvailable(eq(desiredResult));
         verify(mMockCarHardwareHost).subscribeCarHardwareResult(eq(desiredResultType),
                 mSubscribeParamsCaptor.capture(), any());
         String capturedParam = (String) mSubscribeParamsCaptor.getValue().get();
@@ -142,10 +142,10 @@ public class CarResultStubMapTest {
         carResultStubMap.removeListener(mMockCarDataListener1);
         carResultStubMap.removeListener(mMockCarDataListener2);
         carResultStubMap.removeListener(mMockCarDataListener4);
-        verify(mMockCarDataListener1, times(12)).onCarData(eq(desiredResult));
-        verify(mMockCarDataListener2, times(9)).onCarData(eq(desiredResult));
-        verify(mMockCarDataListener3, times(3)).onCarData(eq(desiredResult));
-        verify(mMockCarDataListener4, times(3)).onCarData(eq(desiredResult));
+        verify(mMockCarDataListener1, times(12)).onCarDataAvailable(eq(desiredResult));
+        verify(mMockCarDataListener2, times(9)).onCarDataAvailable(eq(desiredResult));
+        verify(mMockCarDataListener3, times(3)).onCarDataAvailable(eq(desiredResult));
+        verify(mMockCarDataListener4, times(3)).onCarDataAvailable(eq(desiredResult));
 
         verify(mMockCarHardwareHost).subscribeCarHardwareResult(eq(desiredResultType),
                 mSubscribeParamsCaptor.capture(), any());
@@ -183,10 +183,10 @@ public class CarResultStubMapTest {
         mCarHardwareHost.sendResult(desiredResultType, param2, true, Bundleable.create(param2), 2);
         mCarHardwareHost.sendResult(desiredResultType, param3, true, Bundleable.create(param3), 3);
         mCarHardwareHost.sendResult(desiredResultType, param4, true, Bundleable.create(param4), 4);
-        verify(mMockCarDataStringListener, times(1)).onCarData(eq(param1));
-        verify(mMockCarDataStringListener, times(2)).onCarData(eq(param2));
-        verify(mMockCarDataStringListener, times(3)).onCarData(eq(param3));
-        verify(mMockCarDataStringListener, times(4)).onCarData(eq(param4));
+        verify(mMockCarDataStringListener, times(1)).onCarDataAvailable(eq(param1));
+        verify(mMockCarDataStringListener, times(2)).onCarDataAvailable(eq(param2));
+        verify(mMockCarDataStringListener, times(3)).onCarDataAvailable(eq(param3));
+        verify(mMockCarDataStringListener, times(4)).onCarDataAvailable(eq(param4));
     }
 
     @Test
@@ -216,10 +216,10 @@ public class CarResultStubMapTest {
         mCarHardwareHost.sendResult(desiredResultType, 2, true, Bundleable.create(20), 2);
         mCarHardwareHost.sendResult(desiredResultType, 3, true, Bundleable.create(30), 3);
         mCarHardwareHost.sendResult(desiredResultType, 4, true, Bundleable.create(40), 4);
-        verify(mMockCarDataListener1, times(1)).onCarData(eq(10));
-        verify(mMockCarDataListener2, times(2)).onCarData(eq(20));
-        verify(mMockCarDataListener3, times(3)).onCarData(eq(30));
-        verify(mMockCarDataListener4, times(4)).onCarData(eq(40));
+        verify(mMockCarDataListener1, times(1)).onCarDataAvailable(eq(10));
+        verify(mMockCarDataListener2, times(2)).onCarDataAvailable(eq(20));
+        verify(mMockCarDataListener3, times(3)).onCarDataAvailable(eq(30));
+        verify(mMockCarDataListener4, times(4)).onCarDataAvailable(eq(40));
 
     }
 }

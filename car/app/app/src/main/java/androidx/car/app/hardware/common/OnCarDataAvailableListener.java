@@ -27,11 +27,11 @@ import androidx.car.app.annotations.RequiresCarApi;
  */
 @CarProtocol
 @RequiresCarApi(3)
-public interface OnCarDataListener<T> {
+public interface OnCarDataAvailableListener<T> {
     /**
      * Notifies that the requested data is available.
      *
      * @param data car hardware data that was requested.
      */
-    void onCarData(@NonNull T data);
+    void onCarDataAvailable(@NonNull T data);
 }
