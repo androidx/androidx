@@ -44,6 +44,7 @@ limitations under the License.
     <string name="preview_view">Preview View</string>
     <string name="camera_controller">Camera Controller</string>
     <string name="transform">Transform</string>
+    <string name="compose_ui">Compose UI</string>
     <string name="flash_mode_auto">flash auto</string>
     <string name="flash_mode_on">flash on</string>
     <string name="flash_mode_off">flash off</string>
