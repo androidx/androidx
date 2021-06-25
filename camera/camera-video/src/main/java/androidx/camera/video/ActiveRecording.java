@@ -19,6 +19,7 @@ package androidx.camera.video;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.utils.CloseGuardHelper;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
@@ -28,19 +29,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Provides controls for the currently active recording.
+ *
+ * <p>Either {@link #stop()} or {@link #close()} can be called when it is desired to
+ * stop the recording, and must be called before this object and the
+ * {@link Recorder} from which this object was created will no longer be referenced.
  */
-public final class ActiveRecording {
+public final class ActiveRecording implements AutoCloseable {
 
     private static final String TAG = "ActiveRecording";
 
     // Indicates the recording has been explicitly stopped by users.
     private final AtomicBoolean mIsStopped = new AtomicBoolean(false);
-    // Indicates the recording has been finalized.
-    private final AtomicBoolean mIsFinalized = new AtomicBoolean(false);
+    // Indicates the recording has been finalized. Not to be confused with the object being
+    // finalized via its finalizer.
+    private final AtomicBoolean mIsRecordingFinalized = new AtomicBoolean(false);
     private final Recorder mRecorder;
     private final OutputOptions mOutputOptions;
-    private Consumer<VideoRecordEvent> mEventListener;
-    private Executor mCallbackExecutor;
+    private final Consumer<VideoRecordEvent> mEventListener;
+    private final Executor mCallbackExecutor;
+
+    private final CloseGuardHelper mCloseGuard = CloseGuardHelper.create();
 
     ActiveRecording(@NonNull Recorder recorder, @NonNull OutputOptions options,
             @Nullable Executor callbackExecutor, @Nullable Consumer<VideoRecordEvent> listener) {
@@ -48,6 +56,8 @@ public final class ActiveRecording {
         mOutputOptions = options;
         mCallbackExecutor = callbackExecutor;
         mEventListener = listener;
+
+        mCloseGuard.open("stop");
     }
 
     /**
@@ -78,7 +88,7 @@ public final class ActiveRecording {
         if (mIsStopped.get()) {
             throw new IllegalStateException("The recording has been stopped.");
         }
-        if (mIsFinalized.get()) {
+        if (mIsRecordingFinalized.get()) {
             return;
         }
         mRecorder.pause();
@@ -95,7 +105,7 @@ public final class ActiveRecording {
         if (mIsStopped.get()) {
             throw new IllegalStateException("The recording has been stopped.");
         }
-        if (mIsFinalized.get()) {
+        if (mIsRecordingFinalized.get()) {
             return;
         }
         mRecorder.resume();
@@ -114,7 +124,8 @@ public final class ActiveRecording {
      * no-op.
      */
     public void stop() {
-        if (mIsStopped.getAndSet(true) || mIsFinalized.get()) {
+        mCloseGuard.close();
+        if (mIsStopped.getAndSet(true) || mIsRecordingFinalized.get()) {
             return;
         }
         mRecorder.stop();
@@ -125,7 +136,7 @@ public final class ActiveRecording {
      */
     void updateVideoRecordEvent(@NonNull VideoRecordEvent event) {
         if (event instanceof VideoRecordEvent.Finalize) {
-            mIsFinalized.set(true);
+            mIsRecordingFinalized.set(true);
         }
         if (mCallbackExecutor != null && mEventListener != null) {
             try {
@@ -133,6 +144,27 @@ public final class ActiveRecording {
             } catch (RejectedExecutionException e) {
                 Logger.e(TAG, "The callback executor is invalid.", e);
             }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * This method is equivalent to calling {@link #stop()}
+     */
+    @Override
+    public void close() {
+        stop();
+    }
+
+    @Override
+    @SuppressWarnings("GenericException") // super.finalize() throws Throwable
+    protected void finalize() throws Throwable {
+        try {
+            mCloseGuard.warnIfOpen();
+            stop();
+        } finally {
+            super.finalize();
         }
     }
 }
