@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +14,37 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryVersions
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.benchmark")
 }
 
 dependencies {
-    implementation(project(":slice-core"))
-    implementation(project(":slice-builders"))
-    implementation(project(":recyclerview:recyclerview"))
-    implementation("androidx.collection:collection:1.1.0")
-    api("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
-
+    androidTestImplementation("androidx.core:core:1.3.0-beta01")
+    androidTestImplementation(project(":slice:slice-view"))
+    androidTestImplementation(project(":slice:slice-core"))
+    androidTestImplementation(project(":slice:slice-builders"))
+    androidTestImplementation(project(":benchmark:benchmark-junit4"))
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
 }
 
 androidx {
-    name = "Slice test code"
+    name = "Slices Benchmarks"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.SLICE
+    mavenVersion = LibraryVersions.SLICE_BENCHMARK
     mavenGroup = LibraryGroups.SLICE
-    inceptionYear = "2017"
-    description = "A library that holds common code for testing slices"
-    failOnDeprecationWarnings = false
+    inceptionYear = "2018"
+    description = "RecyclerView Benchmarks"
 }

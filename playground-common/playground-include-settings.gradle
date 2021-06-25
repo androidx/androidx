@@ -114,7 +114,7 @@ def isNeededForComposePlayground(name) {
     if (name == ":compose:lint:internal-lint-checks") return true
     if (name == ":compose:test-utils") return true
     if (name == ":compose:lint:common-test") return true
-    if (name == ":test-screenshot") return true
+    if (name == ":test:screenshot:test-screenshot") return true
     return false
 }
 

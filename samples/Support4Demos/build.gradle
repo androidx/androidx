@@ -10,7 +10,7 @@ dependencies {
     implementation(project(":localbroadcastmanager:localbroadcastmanager"))
     implementation(project(":slidingpanelayout:slidingpanelayout"))
     implementation(project(":swiperefreshlayout:swiperefreshlayout"))
-    implementation(project(":legacy-support-core-utils"))
+    implementation(project(":legacy:legacy-support-core-utils"))
     implementation(project(":fragment:fragment-ktx"))
     implementation(project(":media:media"))
     implementation(project(":viewpager:viewpager"))

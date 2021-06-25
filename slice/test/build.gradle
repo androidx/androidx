@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -24,25 +24,26 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.1.0")
-
-    implementation(project(":slice-core"))
-    implementation(project(":remotecallback:remotecallback"))
+    implementation(project(":slice:slice-core"))
+    implementation(project(":slice:slice-builders"))
+    implementation(project(":recyclerview:recyclerview"))
+    implementation("androidx.collection:collection:1.1.0")
+    api("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
-    androidTestAnnotationProcessor project(":remotecallback:remotecallback-processor")
 }
 
 androidx {
-    name = "Slice Remote Callback"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.SLICE_REMOTECALLBACK
+    name = "Slice test code"
+    publish = Publish.NONE
+    mavenVersion = LibraryVersions.SLICE
     mavenGroup = LibraryGroups.SLICE
-    inceptionYear = "2019"
-    description = "A library that handles PendingIntents in slices as remote callbacks"
+    inceptionYear = "2017"
+    description = "A library that holds common code for testing slices"
     failOnDeprecationWarnings = false
 }

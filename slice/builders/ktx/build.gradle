@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,43 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryVersions
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 19
+    }
 }
 
 dependencies {
-    implementation(project(":slice-core"))
-    implementation(project(":appcompat:appcompat"))
-    implementation("androidx.recyclerview:recyclerview:1.2.0-beta01")
-    implementation("androidx.collection:collection:1.1.0")
-    api("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
+    implementation(project(":slice:slice-core"))
+    api "androidx.annotation:annotation:1.1.0"
+    implementation("androidx.core:core:1.3.0-beta01")
+    api(project(":slice:slice-builders"))
+    api(libs.kotlinStdlib)
 
-    androidTestImplementation(project(":slice-builders"))
-    androidTestImplementation(project(":slice-test"))
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
 }
 
 androidx {
-    name = "Slice views"
+    name = "Slice builders KTX"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.SLICE
+    mavenVersion = LibraryVersions.SLICE_BUILDERS_KTX
     mavenGroup = LibraryGroups.SLICE
-    inceptionYear = "2017"
-    description = "A library that handles rendering of slice content into supported templates"
+    inceptionYear = "2018"
+    description = "A set of Kotlin extension methods built on top of slice-builders APIs."
     failOnDeprecationWarnings = false
+    legacyDisableKotlinStrictApiMode = true
 }
