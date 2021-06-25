@@ -31,7 +31,7 @@ import java.util.concurrent.Executor
  * folding in middle to mimic fold/unfold behavior in real world.
  */
 public class FakeWindowBackend(private val foldAxis: FoldAxis) : WindowBackend {
-    private var foldState = FoldingFeature.State.HALF_OPENED
+    private var foldState = FoldingFeature.STATE_HALF_OPENED
     private var foldWidth: Int = 0
     private var windowLayoutInfoCallback: Consumer<WindowLayoutInfo>? = null
     private var windowLayoutInfoExecutor: Executor? = null
@@ -92,14 +92,14 @@ public class FakeWindowBackend(private val foldAxis: FoldAxis) : WindowBackend {
     }
 
     /**
-     * Toggle folding state between [FoldingFeature.State.HALF_OPENED] and
-     * [FoldingFeature.State.FLAT] Initial state is [FoldingFeature.State.HALF_OPENED]
+     * Toggle folding state between [FoldingFeature.STATE_HALF_OPENED] and [FoldingFeature.STATE_FLAT]
+     * Initial state is [FoldingFeature.STATE_HALF_OPENED]
      */
     public fun toggleFoldState(activity: Activity) {
-        foldState = if (foldState == FoldingFeature.State.HALF_OPENED) {
-            FoldingFeature.State.FLAT
+        foldState = if (foldState == FoldingFeature.STATE_HALF_OPENED) {
+            FoldingFeature.STATE_FLAT
         } else {
-            FoldingFeature.State.HALF_OPENED
+            FoldingFeature.STATE_HALF_OPENED
         }
         windowLayoutInfoExecutor?.execute {
             windowLayoutInfoCallback?.accept(getWindowLayoutInfo(activity))
@@ -109,8 +109,8 @@ public class FakeWindowBackend(private val foldAxis: FoldAxis) : WindowBackend {
     private fun getWindowLayoutInfo(activity: Activity): WindowLayoutInfo {
         val windowSize = WindowManager(activity).getCurrentWindowMetrics().bounds
         val featureRect = midScreenFold(windowSize, foldAxis, foldWidth)
-        val displayFeature = FoldingFeature(featureRect, FoldingFeature.Type.FOLD, foldState)
-        if (foldState == FoldingFeature.State.FLAT) {
+        val displayFeature = FoldingFeature(featureRect, FoldingFeature.TYPE_FOLD, foldState)
+        if (foldState == FoldingFeature.STATE_FLAT) {
             assert(!displayFeature.isSeparating)
         } else {
             assert(displayFeature.isSeparating)

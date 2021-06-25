@@ -19,10 +19,10 @@ package androidx.window.testing
 import androidx.window.WindowInfoRepo
 import androidx.window.WindowInfoRepoDecorator
 import androidx.window.WindowLayoutInfo
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 internal class PublishWindowInfoRepoDecorator(
-    private val flow: Flow<WindowLayoutInfo>
+    private val flow: MutableSharedFlow<WindowLayoutInfo>
 ) : WindowInfoRepoDecorator {
     override fun decorate(repo: WindowInfoRepo): WindowInfoRepo {
         return PublishLayoutInfoRepo(repo, flow)
