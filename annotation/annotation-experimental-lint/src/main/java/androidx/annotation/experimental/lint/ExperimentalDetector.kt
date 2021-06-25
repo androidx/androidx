@@ -31,6 +31,8 @@ import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiMethod
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UCallExpression
@@ -39,7 +41,6 @@ import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.getParentOfType
-import java.util.Locale
 
 class ExperimentalDetector : Detector(), SourceCodeScanner {
 
@@ -117,7 +118,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             // of kotlin.Experimental (but we can from kotlin.RequiresOptIn? go figure). It's
             // possible that we'll fail to read the level for other reasons, but the safest
             // fallback is ERROR either way.
-            val level = annotation.extractAttribute(context, "level", "ERROR")
+            val level = annotation.extractAttribute(context, "level", ENUM_ERROR)
             if (level != null) {
                 report(
                     context, usage, useAnnotation,
@@ -199,10 +200,10 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         level: String,
     ) {
         val issue = when (level) {
-            "ERROR" -> ISSUE_ERROR
-            "WARNING" -> ISSUE_WARNING
+            ENUM_ERROR -> ISSUE_ERROR
+            ENUM_WARNING -> ISSUE_WARNING
             else -> throw IllegalArgumentException(
-                "Level was \"$level\" but must be one of: ERROR, WARNING"
+                "Level was \"$level\" but must be one of: $ENUM_ERROR, $ENUM_WARNING"
             )
         }
 
@@ -223,7 +224,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     companion object {
         private val IMPLEMENTATION = Implementation(
             ExperimentalDetector::class.java,
-            Scope.JAVA_FILE_SCOPE
+            Scope.JAVA_FILE_SCOPE,
         )
 
         const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
@@ -242,43 +243,51 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         const val JAVA_OPT_IN_ANNOTATION =
             "androidx.annotation.OptIn"
 
-        @Suppress("DefaultLocale")
-        private fun issueForLevel(level: String, severity: Severity): Issue = Issue.create(
-            id = "UnsafeOptInUsage${level.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(
-                    Locale.getDefault()
-                ) else it.toString()
-            }}",
-            briefDescription = "Unsafe opt-in usage intended to be $level-level severity",
-            explanation = """
-                This API has been flagged as opt-in with $level-level severity.
+        const val ENUM_ERROR = "ERROR"
+        const val ENUM_WARNING = "WARNING"
 
-                Any declaration annotated with this marker is considered part of an
-                unstable or otherwise non-standard API surface and its call sites
-                should accept the opt-in aspect of it either by using `@OptIn` or by
-                being annotated with that marker themselves, effectively causing
-                further propagation of the opt-in aspect.
-            """,
-            category = Category.CORRECTNESS,
-            priority = 4,
-            severity = severity,
-            implementation = IMPLEMENTATION
-        )
+        private fun issueForLevel(
+            levelEnum: String,
+            severity: Severity,
+        ): Issue {
+            val levelText = levelEnum.toLowerCaseAsciiOnly()
+            val issueId = "UnsafeOptInUsage${levelText.capitalizeAsciiOnly()}"
+            return Issue.create(
+                id = issueId,
+                briefDescription = "Unsafe opt-in usage intended to be $levelText-level severity",
+                explanation = """
+                This API has been flagged as opt-in with $levelText-level severity.
 
-        val ISSUE_ERROR =
-            issueForLevel(
-                "error",
-                Severity.ERROR
+                Any declaration annotated with this marker is considered part of an unstable or
+                otherwise non-standard API surface and its call sites should accept the opt-in
+                aspect of it by using the `@OptIn` annotation, using the marker annotation --
+                effectively causing further propagation of the opt-in aspect -- or configuring
+                the `$issueId` check's options for project-wide opt-in.
+
+                To configure project-wide opt-in, specify the `opt-in` option value in `lint.xml`
+                as a comma-delimited list of opted-in annotations:
+
+                ```
+                <lint>
+                    <issue id="$issueId">
+                        <option name="opt-in" value="com.foo.ExperimentalBarAnnotation" />
+                    </issue>
+                </lint>
+                ```
+                """.trimIndent(),
+                category = Category.CORRECTNESS,
+                priority = 4,
+                severity = severity,
+                implementation = IMPLEMENTATION,
             )
-        val ISSUE_WARNING =
-            issueForLevel(
-                "warning",
-                Severity.WARNING
-            )
+        }
+
+        val ISSUE_ERROR = issueForLevel(ENUM_ERROR, Severity.ERROR)
+        val ISSUE_WARNING = issueForLevel(ENUM_WARNING, Severity.WARNING)
 
         val ISSUES = listOf(
             ISSUE_ERROR,
-            ISSUE_WARNING
+            ISSUE_WARNING,
         )
     }
 }
