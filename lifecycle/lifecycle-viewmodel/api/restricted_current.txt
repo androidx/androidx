@@ -15,6 +15,13 @@ package androidx.lifecycle {
     method protected void onCleared();
   }
 
+  public final class ViewModelLazy<VM extends androidx.lifecycle.ViewModel> implements kotlin.Lazy<VM> {
+    ctor public ViewModelLazy(kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory> factoryProducer);
+    method public VM getValue();
+    method public boolean isInitialized();
+    property public VM value;
+  }
+
   public class ViewModelProvider {
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore store, androidx.lifecycle.ViewModelProvider.Factory factory);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner owner);
@@ -58,6 +65,10 @@ package androidx.lifecycle {
     method public void onRequery(androidx.lifecycle.ViewModel viewModel);
   }
 
+  public final class ViewModelProviderKt {
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! get(androidx.lifecycle.ViewModelProvider);
+  }
+
   public class ViewModelStore {
     ctor public ViewModelStore();
     method public final void clear();
@@ -65,6 +76,10 @@ package androidx.lifecycle {
 
   public interface ViewModelStoreOwner {
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
+  }
+
+  public final class ViewTreeViewModelKt {
+    method public static androidx.lifecycle.ViewModelStoreOwner? findViewTreeViewModelStoreOwner(android.view.View);
   }
 
   public class ViewTreeViewModelStoreOwner {

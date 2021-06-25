@@ -48,6 +48,25 @@ class ViewTreeViewModelStoreOwnerTest {
     }
 
     /**
+     * minimal test that checks View.findViewTreeViewModelStoreOwner works
+     */
+    @Test
+    fun setFindsSameView() {
+        val v = View(InstrumentationRegistry.getInstrumentation().context)
+
+        assertWithMessage("initial ViewModelStoreOwner expects null")
+            .that(v.findViewTreeViewModelStoreOwner())
+            .isNull()
+
+        val fakeOwner: ViewModelStoreOwner = FakeViewModelStoreOwner()
+        ViewTreeViewModelStoreOwner.set(v, fakeOwner)
+
+        assertWithMessage("get the ViewModelStoreOwner set directly")
+            .that(v.findViewTreeViewModelStoreOwner())
+            .isEqualTo(fakeOwner)
+    }
+
+    /**
      * Tests that the owner set on a root of a subhierarchy is seen by both direct children
      * and other descendants
      */

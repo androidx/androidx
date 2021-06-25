@@ -35,6 +35,7 @@ dependencies {
     api(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
+    testImplementation(libs.truth)
 
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
