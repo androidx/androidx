@@ -20,6 +20,10 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.DEFAULT_KEY
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.defaultFactory
+import androidx.lifecycle.viewmodel.CreationExtras.Key
+import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import java.lang.UnsupportedOperationException
@@ -46,10 +50,27 @@ public open class ViewModelProvider(
         /**
          * Creates a new instance of the given `Class`.
          *
+         * Default implementation throws [UnsupportedOperationException].
+         *
          * @param modelClass a `Class` whose instance is requested
          * @return a newly created ViewModel
          */
-        public fun <T : ViewModel> create(modelClass: Class<T>): T
+        public fun <T : ViewModel> create(modelClass: Class<T>): T {
+            throw UnsupportedOperationException(
+                "Factory.create(String) is unsupported.  This Factory requires " +
+                    "`CreationExtras` to be passed into `create` method."
+            )
+        }
+
+        /**
+         * Creates a new instance of the given `Class`.
+         *
+         * @param modelClass a `Class` whose instance is requested
+         * @param extras an additional information for this creation request
+         * @return a newly created ViewModel
+         */
+        public fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T =
+            create(modelClass)
     }
 
     /**
@@ -82,6 +103,10 @@ public open class ViewModelProvider(
             key: String,
             modelClass: Class<T>
         ): T
+
+        override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+            return create(extras[VIEW_MODEL_KEY]!!, modelClass)
+        }
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             throw UnsupportedOperationException(
@@ -155,7 +180,7 @@ public open class ViewModelProvider(
     @Suppress("UNCHECKED_CAST")
     @MainThread
     public open operator fun <T : ViewModel> get(key: String, modelClass: Class<T>): T {
-        var viewModel = store[key]
+        val viewModel = store[key]
         if (modelClass.isInstance(viewModel)) {
             (factory as? OnRequeryFactory)?.onRequery(viewModel)
             return viewModel as T
@@ -165,13 +190,9 @@ public open class ViewModelProvider(
                 // TODO: log a warning.
             }
         }
-        viewModel = if (factory is KeyedFactory) {
-            factory.create(key, modelClass)
-        } else {
-            factory.create(modelClass)
-        }
-        store.put(key, viewModel)
-        return viewModel
+        val extras = MutableCreationExtras()
+        extras[VIEW_MODEL_KEY] = key
+        return factory.create(modelClass, extras).also { store.put(key, it) }
     }
 
     /**
@@ -209,6 +230,19 @@ public open class ViewModelProvider(
                     }
                     return sInstance!!
                 }
+
+            private object ViewModelKeyImpl : Key<String>
+            /**
+             * A [CreationExtras.Key] to get a key associated with a requested
+             * `ViewModel` from [CreationExtras]
+             *
+             *  `ViewModelProvider` automatically puts a key that was passed to
+             *  `ViewModelProvider.get(key, MyViewModel::class.java)`
+             *  or generated in `ViewModelProvider.get(MyViewModel::class.java)` to the `CreationExtras` that
+             *  are passed to [ViewModelProvider.Factory].
+             */
+            @JvmField
+            val VIEW_MODEL_KEY: Key<String> = ViewModelKeyImpl
         }
     }
 

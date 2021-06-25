@@ -38,18 +38,8 @@ dependencies {
 
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-runtime")
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-livedata-core")
-    androidTestImplementation ("androidx.fragment:fragment:1.3.0") {
-        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
-        exclude group: "androidx.lifecycle", module: "lifecycle-livedata-core"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel-savedstate"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
-    }
-    androidTestImplementation project(":internal-testutils-runtime"), {
-        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
-        exclude group: "androidx.lifecycle", module: "lifecycle-livedata-core"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel-savedstate"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
-    }
+    androidTestImplementation ("androidx.fragment:fragment:1.3.0")
+    androidTestImplementation project(":internal-testutils-runtime")
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)

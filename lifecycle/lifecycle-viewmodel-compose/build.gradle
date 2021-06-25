@@ -17,6 +17,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -52,4 +53,16 @@ androidx {
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle ViewModel"
     runApiTasks = new RunApiTasks.Yes()
+}
+
+// needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
+// targeted to 1.6
+if (project.hasProperty("androidx.useMaxDepVersions")){
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += [
+                    "-Xjvm-default=enable",
+            ]
+        }
+    }
 }
