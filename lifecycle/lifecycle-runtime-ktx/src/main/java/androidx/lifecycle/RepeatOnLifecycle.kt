@@ -40,8 +40,8 @@ import kotlin.coroutines.resume
  *         // restart executing if the lifecycle receives the ON_START event again.
  *         lifecycleScope.launch {
  *             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
- *                 uiDataFlow.collect { uiData ->
- *                     updateUi(uiData)
+ *                 uiStateFlow.collect { uiState ->
+ *                     updateUi(uiState)
  *                 }
  *             }
  *         }
@@ -132,8 +132,8 @@ public suspend fun Lifecycle.repeatOnLifecycle(
  *         // restart executing if the lifecycle receives the ON_START event again.
  *         lifecycleScope.launch {
  *             repeatOnLifecycle(Lifecycle.State.STARTED) {
- *                 uiDataFlow.collect { uiData ->
- *                     updateUi(uiData)
+ *                 uiStateFlow.collect { uiState ->
+ *                     updateUi(uiState)
  *                 }
  *             }
  *         }
