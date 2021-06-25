@@ -12,7 +12,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.leanback:leanback:1.1.0-beta01")
-    api("androidx.paging:paging-runtime:3.0.0-beta03")
+    api("androidx.paging:paging-runtime:3.0.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
