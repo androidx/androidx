@@ -25,7 +25,7 @@
         visible to the APK (given Android 11's package visibility rules).
      -->
     <queries>
-        <package android:name="androidx.benchmark.integration.macrobenchmark.target" />
+        <package android:name="androidx.benchmark.integration.macro.target" />
     </queries>
     <application>
         <activity
