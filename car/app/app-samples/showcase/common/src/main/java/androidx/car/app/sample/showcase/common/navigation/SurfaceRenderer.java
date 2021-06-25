@@ -90,7 +90,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
 
     private OnCarDataListener<Model> mModelListener = data -> {
         synchronized (SurfaceRenderer.this) {
-            Log.i(TAG, String.format("Received model information %s", data));
+            Log.i(TAG, "Received model information: " + data);
             mModel = data;
             renderFrame();
         }
@@ -98,7 +98,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
 
     private OnCarDataListener<EnergyProfile> mEnergyProfileListener = data -> {
         synchronized (SurfaceRenderer.this) {
-            Log.i(TAG, String.format("Received energy profile information %s", data));
+            Log.i(TAG, "Received energy profile information: " + data);
             mEnergyProfile = data;
             renderFrame();
         }
@@ -106,7 +106,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
 
     private OnCarDataListener<TollCard> mTollListener = data -> {
         synchronized (SurfaceRenderer.this) {
-            Log.i(TAG, String.format("Received toll information %s", data));
+            Log.i(TAG, "Received toll information:" + data);
             mTollCard = data;
             renderFrame();
         }
@@ -114,7 +114,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
 
     private OnCarDataListener<EnergyLevel> mEnergyLevelListener = data -> {
         synchronized (SurfaceRenderer.this) {
-            Log.i(TAG, String.format("Received energy level information %s", data));
+            Log.i(TAG, "Received energy level information: " + data);
             mEnergyLevel = data;
             renderFrame();
         }
@@ -122,7 +122,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
 
     private OnCarDataListener<Speed> mSpeedListener = data -> {
         synchronized (SurfaceRenderer.this) {
-            Log.i(TAG, String.format("Received speed information %s", data));
+            Log.i(TAG, "Received speed information: " + data);
             mSpeed = data;
             renderFrame();
         }
@@ -130,7 +130,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
 
     private OnCarDataListener<Mileage> mMileageListener = data -> {
         synchronized (SurfaceRenderer.this) {
-            Log.i(TAG, String.format("Received mileage %s", data));
+            Log.i(TAG, "Received mileage: " + data);
             mMileage = data;
             renderFrame();
         }
@@ -138,7 +138,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
 
     private OnCarDataListener<Accelerometer> mAccelerometerListener = data -> {
         synchronized (SurfaceRenderer.this) {
-            Log.i(TAG, String.format("Received accelerometer %s", data));
+            Log.i(TAG, "Received accelerometer: " + data);
             mAccelerometer = data;
             renderFrame();
         }
@@ -146,7 +146,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
 
     private OnCarDataListener<Gyroscope> mGyroscopeListener = data -> {
         synchronized (SurfaceRenderer.this) {
-            Log.i(TAG, String.format("Received gyroscope %s", data));
+            Log.i(TAG, "Received gyroscope: " + data);
             mGyroscope = data;
             renderFrame();
         }
@@ -154,7 +154,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
 
     private OnCarDataListener<Compass> mCompassListener = data -> {
         synchronized (SurfaceRenderer.this) {
-            Log.i(TAG, String.format("Received compass %s", data));
+            Log.i(TAG, "Received compass: " + data);
             mCompass = data;
             renderFrame();
         }
@@ -162,7 +162,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
 
     private OnCarDataListener<CarHardwareLocation> mCarLocationListener = data -> {
         synchronized (SurfaceRenderer.this) {
-            Log.i(TAG, String.format("Received car location %s", data));
+            Log.i(TAG, "Received car location: " + data);
             mCarHardwareLocation = data;
             renderFrame();
         }
@@ -172,7 +172,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
             new SurfaceCallback() {
                 @Override
                 public void onSurfaceAvailable(@NonNull SurfaceContainer surfaceContainer) {
-                    Log.i(TAG, String.format("Surface available %s", surfaceContainer));
+                    Log.i(TAG, "Surface available " + surfaceContainer);
                     mSurface = surfaceContainer.getSurface();
                     renderFrame();
                 }
@@ -180,11 +180,8 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
                 @Override
                 public void onVisibleAreaChanged(@NonNull Rect visibleArea) {
                     synchronized (SurfaceRenderer.this) {
-                        Log.i(
-                                TAG,
-                                String.format(
-                                        "Visible area changed %s. stableArea:%s visibleArea:%s",
-                                        mSurface, mStableArea, visibleArea));
+                        Log.i(TAG, "Visible area changed " + mSurface + ". stableArea: "
+                                + mStableArea + " visibleArea:" + visibleArea);
                         mVisibleArea = visibleArea;
                         renderFrame();
                     }
@@ -193,11 +190,8 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
                 @Override
                 public void onStableAreaChanged(@NonNull Rect stableArea) {
                     synchronized (SurfaceRenderer.this) {
-                        Log.i(
-                                TAG,
-                                String.format(
-                                        "Stable area changed %s. stable:%s inset:%s",
-                                        mSurface, stableArea, mVisibleArea));
+                        Log.i(TAG, "Stable area changed " + mSurface + ". stableArea: "
+                                + mStableArea + " visibleArea:" + mVisibleArea);
                         mStableArea = stableArea;
                         renderFrame();
                     }
