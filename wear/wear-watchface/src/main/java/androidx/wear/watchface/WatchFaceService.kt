@@ -213,7 +213,7 @@ public annotation class TapType {
  *      android:resource="@drawable/my_watch_circular_preview" />
  *    <meta-data
  *      android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
- *      android:value="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL"/>
+ *      android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
  *    <meta-data
  *      android:name="android.service.wallpaper"
  *      android:resource="@xml/watch_face" />
