@@ -878,7 +878,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             // offset for the next child, in order to avoid rendering the content under it.
             int nextXOffset = 0;
             if (mFoldingFeature != null
-                    && mFoldingFeature.getOrientation() == FoldingFeature.ORIENTATION_VERTICAL
+                    && mFoldingFeature.getOrientation() == FoldingFeature.Orientation.VERTICAL
                     && mFoldingFeature.isSeparating()) {
                 nextXOffset = mFoldingFeature.getBounds().width();
             }

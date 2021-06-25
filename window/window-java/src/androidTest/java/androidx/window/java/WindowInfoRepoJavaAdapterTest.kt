@@ -18,6 +18,8 @@ package androidx.window.java
 
 import android.graphics.Rect
 import androidx.window.FoldingFeature
+import androidx.window.FoldingFeature.State.Companion.HALF_OPENED
+import androidx.window.FoldingFeature.Type.Companion.HINGE
 import androidx.window.WindowInfoRepo
 import androidx.window.WindowLayoutInfo
 import androidx.window.WindowMetrics
@@ -64,11 +66,7 @@ public class WindowInfoRepoJavaAdapterTest {
 
     @Test
     public fun testRegisterListener() {
-        val feature = FoldingFeature(
-            Rect(0, 100, 100, 100),
-            FoldingFeature.TYPE_HINGE,
-            FoldingFeature.STATE_HALF_OPENED
-        )
+        val feature = FoldingFeature(Rect(0, 100, 100, 100), HINGE, HALF_OPENED)
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepo>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
@@ -82,11 +80,7 @@ public class WindowInfoRepoJavaAdapterTest {
 
     @Test
     public fun testRegisterListener_multipleIsNoOp() {
-        val feature = FoldingFeature(
-            Rect(0, 100, 100, 100),
-            FoldingFeature.TYPE_HINGE,
-            FoldingFeature.STATE_HALF_OPENED
-        )
+        val feature = FoldingFeature(Rect(0, 100, 100, 100), HINGE, HALF_OPENED)
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepo>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
@@ -102,11 +96,7 @@ public class WindowInfoRepoJavaAdapterTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     public fun testUnregisterListener() {
-        val feature = FoldingFeature(
-            Rect(0, 100, 100, 100),
-            FoldingFeature.TYPE_HINGE,
-            FoldingFeature.STATE_HALF_OPENED
-        )
+        val feature = FoldingFeature(Rect(0, 100, 100, 100), HINGE, HALF_OPENED)
         val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepo>()
         val channel = Channel<WindowLayoutInfo>()
