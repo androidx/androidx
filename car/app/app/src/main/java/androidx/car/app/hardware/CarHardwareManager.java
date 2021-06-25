@@ -19,6 +19,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -34,6 +35,7 @@ import java.lang.reflect.InvocationTargetException;
  * Manages access to car hardware specific properties and sensors.
  */
 @RequiresCarApi(3)
+@MainThread
 public interface CarHardwareManager {
     /**
      * Returns the {@link CarInfo} that can be used to query the car hardware information

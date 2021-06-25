@@ -207,7 +207,7 @@ package androidx.car.app.constraints {
 
 package androidx.car.app.hardware {
 
-  @androidx.car.app.annotations.RequiresCarApi(3) public interface CarHardwareManager {
+  @MainThread @androidx.car.app.annotations.RequiresCarApi(3) public interface CarHardwareManager {
     method public default androidx.car.app.hardware.info.CarInfo getCarInfo();
     method public default androidx.car.app.hardware.info.CarSensors getCarSensors();
   }
@@ -255,7 +255,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.common.CarValue<android.location.Location!> getLocation();
   }
 
-  @androidx.car.app.annotations.RequiresCarApi(3) public interface CarInfo {
+  @MainThread @androidx.car.app.annotations.RequiresCarApi(3) public interface CarInfo {
     method public void addEnergyLevelListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyLevel!>);
     method public void addMileageListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Mileage!>);
     method public void addSpeedListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Speed!>);
@@ -268,7 +268,7 @@ package androidx.car.app.hardware.info {
     method public void removeTollListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.TollCard!>);
   }
 
-  @androidx.car.app.annotations.RequiresCarApi(3) public interface CarSensors {
+  @MainThread @androidx.car.app.annotations.RequiresCarApi(3) public interface CarSensors {
     method public void addAccelerometerListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Accelerometer!>);
     method public void addCarHardwareLocationListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.CarHardwareLocation!>);
     method public void addCompassListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Compass!>);
