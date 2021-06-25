@@ -98,6 +98,7 @@ public abstract class AudioSpec {
      * <p>Using this value with {@link AudioSpec.Builder#setBitrate(Range)} informs the device it
      * should choose any appropriate bitrate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> BITRATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -107,6 +108,7 @@ public abstract class AudioSpec {
      * <p>Using this value with {@link AudioSpec.Builder#setSampleRate(Range)} informs the device it
      * should choose any appropriate sample rate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> SAMPLE_RATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -157,6 +159,7 @@ public abstract class AudioSpec {
     public abstract Builder toBuilder();
 
     /** The builder of the {@link AudioSpec}. */
+    @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
         // Restrict construction to same package
