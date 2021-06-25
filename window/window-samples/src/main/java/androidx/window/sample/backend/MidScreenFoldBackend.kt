@@ -66,8 +66,8 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
         val displayFeature =
             FoldingFeature(
                 featureRect,
-                FoldingFeature.Type.FOLD,
-                FoldingFeature.State.FLAT
+                FoldingFeature.TYPE_FOLD,
+                FoldingFeature.STATE_FLAT
             )
         val featureList = ArrayList<DisplayFeature>()
         featureList.add(displayFeature)

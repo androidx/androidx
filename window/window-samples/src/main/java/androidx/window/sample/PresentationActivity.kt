@@ -151,9 +151,20 @@ class PresentationActivity : BaseSampleActivity() {
 
         info.displayFeatures
             .mapNotNull { it as? FoldingFeature }
-            .joinToString(separator = "\n") { feature -> feature.state.toString() }
+            .forEach { feature ->
+                stateStringBuilder.append(feature.stateString())
+                    .append("\n")
+            }
 
         findViewById<TextView>(R.id.currentState).text = stateStringBuilder.toString()
+    }
+
+    private fun FoldingFeature.stateString(): String {
+        return when (state) {
+            FoldingFeature.STATE_FLAT -> "FLAT"
+            FoldingFeature.STATE_HALF_OPENED -> "HALF_OPENED"
+            else -> "Unknown feature state ($state)"
+        }
     }
 
     inner class WindowLayoutInfoChangeCallback : Consumer<WindowLayoutInfo> {

@@ -1,14 +1,6 @@
 // Signature format: 4.0
 package androidx.window.testing {
 
-  public final class DisplayFeatureTesting {
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size, optional androidx.window.FoldingFeature.State state, optional androidx.window.FoldingFeature.Orientation orientation);
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size, optional androidx.window.FoldingFeature.State state);
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size);
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center);
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity);
-  }
-
   public final class WindowLayoutInfoPublisherRule implements org.junit.rules.TestRule {
     ctor public WindowLayoutInfoPublisherRule();
     method @kotlinx.coroutines.ExperimentalCoroutinesApi public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);

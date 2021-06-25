@@ -321,9 +321,9 @@ internal class SidecarAdapter {
                     return null
                 }
             }
-            val type = when (feature.type) {
-                SidecarDisplayFeature.TYPE_FOLD -> FoldingFeature.Type.FOLD
-                SidecarDisplayFeature.TYPE_HINGE -> FoldingFeature.Type.HINGE
+            val type: Int = when (feature.type) {
+                SidecarDisplayFeature.TYPE_FOLD -> FoldingFeature.TYPE_FOLD
+                SidecarDisplayFeature.TYPE_HINGE -> FoldingFeature.TYPE_HINGE
                 else -> {
                     if (ExtensionCompat.DEBUG) {
                         Log.d(TAG, "Unknown feature type: ${feature.type}, skipping feature.")
@@ -331,15 +331,15 @@ internal class SidecarAdapter {
                     return null
                 }
             }
-            val state = when (getSidecarDevicePosture(deviceState)) {
+            val state: Int = when (getSidecarDevicePosture(deviceState)) {
                 SidecarDeviceState.POSTURE_CLOSED,
                 SidecarDeviceState.POSTURE_UNKNOWN,
                 SidecarDeviceState.POSTURE_FLIPPED -> return null
-                SidecarDeviceState.POSTURE_HALF_OPENED -> FoldingFeature.State.HALF_OPENED
-                SidecarDeviceState.POSTURE_OPENED -> FoldingFeature.State.FLAT
-                else -> FoldingFeature.State.FLAT
+                SidecarDeviceState.POSTURE_HALF_OPENED -> FoldingFeature.STATE_HALF_OPENED
+                SidecarDeviceState.POSTURE_OPENED -> FoldingFeature.STATE_FLAT
+                else -> FoldingFeature.STATE_FLAT
             }
-            return FoldingFeature(Bounds(feature.rect), type, state)
+            return FoldingFeature(feature.rect, type, state)
         }
     }
 }
