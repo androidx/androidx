@@ -545,6 +545,34 @@ class RecorderTest {
     }
 
     @Test
+    fun stop_fromAutoCloseable() {
+        clearInvocations(videoRecordEventListener)
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.builder().setFile(file).build()
+
+        val pendingRecording = recorder.prepareRecording(outputOptions)
+        pendingRecording.withEventListener(
+            CameraXExecutors.directExecutor(),
+            videoRecordEventListener
+        )
+
+        val inOrder = inOrder(videoRecordEventListener)
+        // Recording will be stopped by AutoCloseable.close() upon exiting use{} block
+        pendingRecording.start().use {
+            invokeSurfaceRequest()
+            inOrder.verify(videoRecordEventListener, timeout(1000L))
+                .accept(any(VideoRecordEvent.Start::class.java))
+            inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+                .accept(any(VideoRecordEvent.Status::class.java))
+        }
+
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        file.delete()
+    }
+
+    @Test
     fun optionsOverridesDefaults() {
         val qualitySelector = QualitySelector.of(QualitySelector.QUALITY_HIGHEST)
         val recorder = Recorder.Builder()
