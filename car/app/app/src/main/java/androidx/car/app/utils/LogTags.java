@@ -45,6 +45,9 @@ public final class LogTags {
     /** Tag to use for checking connection to a car head unit. */
     public static final String TAG_CONNECTION_TO_CAR = TAG + ".Conn";
 
+    /** Tag to use for car hardware related issues. */
+    public static final String TAG_CAR_HARDWARE = TAG + ".Hardware";
+
     private LogTags() {
     }
 }

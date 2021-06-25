@@ -26,6 +26,8 @@ import androidx.annotation.RestrictTo;
 
 import com.google.auto.value.AutoValue;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Container class for information about property value and status.
  *
@@ -53,6 +55,23 @@ public abstract class CarPropertyResponse<T> {
         return new AutoValue_CarPropertyResponse<>(propertyId, status, timestampMillis,
                 value);
     }
+
+    /**
+     * Creates a response from {@link CarPropertyValue}.
+     *
+     * @see #create(int, int, long, Object)
+     */
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public static <T> CarPropertyResponse<T> createFromPropertyValue(
+            @NonNull CarPropertyValue<T> propertyValue) {
+        int status = PropertyUtils.mapToStatusCodeInCarValue(propertyValue.getStatus());
+        long timestamp = TimeUnit.MILLISECONDS.convert(propertyValue.getTimestamp(),
+                TimeUnit.NANOSECONDS);
+        return create(propertyValue.getPropertyId(), status, timestamp,
+                propertyValue.getValue());
+    }
+
 
     /**
      * Creates an error response. The timestamp is always 0 and the value is always {@code null}.

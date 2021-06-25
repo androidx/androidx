@@ -20,11 +20,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.car.Car;
 import android.car.VehiclePropertyIds;
+import android.car.hardware.CarPropertyValue;
 import android.util.Pair;
 import android.util.SparseArray;
 
 import androidx.annotation.RestrictTo;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -92,6 +94,10 @@ final class PropertyUtils {
             append(VehiclePropertyIds.RANGE_REMAINING, CAR_PERMISSION_ADJUST_RANGE_REMAINING);
         }
     };
+    private static final Set<Integer> ON_CHANGE_PROPERTIES =
+            new HashSet<>(Arrays.asList(VehiclePropertyIds.FUEL_LEVEL_LOW,
+                    /*VehiclePropertyIds.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE*/289410873,
+                    VehiclePropertyIds.DISTANCE_DISPLAY_UNITS));
 
     // VehicleArea:MASK in vehicle/2.0/types.hal
     private static final int VEHICLE_AREA_MASK = 0x0f000000;
@@ -104,15 +110,14 @@ final class PropertyUtils {
      *
      * @throws SecurityException if android application cannot access the property
      */
-    static Set<String> getReadPermissions(List<GetPropertyRequest> requestList) {
+    static Set<String> getReadPermissionsByPropertyIds(List<Integer> requestList) {
         Set<String> permissions = new HashSet<>();
-        for (GetPropertyRequest request : requestList) {
+        for (int propertyId : requestList) {
             String permissionString =
-                    PERMISSION_READ_PROPERTY.get(request.getPropertyId(), null);
+                    PERMISSION_READ_PROPERTY.get(propertyId, null);
             if (permissionString == null) {
                 throw new SecurityException(
-                        "Application cannot get permission for reading property: "
-                        + request.getPropertyId());
+                        "Application cannot get permission for reading property: " + propertyId);
             }
             permissions.add(permissionString);
         }
@@ -142,8 +147,35 @@ final class PropertyUtils {
      * Returns {@code true} if the property is
      * {@link android.car.VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL} property.
      */
-    static boolean isGlobalProperty(int propId) {
-        return (propId & VEHICLE_AREA_MASK) == VEHICLE_AREA_GLOBAL;
+    static boolean isGlobalProperty(int propertyId) {
+        return (propertyId & VEHICLE_AREA_MASK) == VEHICLE_AREA_GLOBAL;
+    }
+
+    /**
+     * Returns true if the property has change mode as
+     * {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}.
+     */
+    static boolean isOnChangeProperty(int propertyId) {
+        return ON_CHANGE_PROPERTIES.contains(propertyId);
+    }
+
+    /**
+     * Maps from status in {@link CarPropertyValue.PropertyStatus} to status
+     * in {@link CarValue.StatusCode}.
+     */
+    static @CarValue.StatusCode int mapToStatusCodeInCarValue(int carPropertyStatus) {
+        switch (carPropertyStatus) {
+            case CarPropertyValue.STATUS_AVAILABLE:
+                return CarValue.STATUS_SUCCESS;
+            case CarPropertyValue.STATUS_ERROR:
+                // TODO(b/191932488): add status_error in CarValue.
+                return CarValue.STATUS_UNKNOWN;
+            case CarPropertyValue.STATUS_UNAVAILABLE:
+                return CarValue.STATUS_UNAVAILABLE;
+            default:
+                throw new IllegalArgumentException("Invalid car property status: "
+                        + carPropertyStatus);
+        }
     }
 
     private PropertyUtils() {
