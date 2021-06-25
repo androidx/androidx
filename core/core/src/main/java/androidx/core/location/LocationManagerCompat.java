@@ -61,6 +61,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
@@ -603,7 +604,16 @@ public final class LocationManagerCompat {
                 sLocationListeners.put(mListener, transports);
             } else {
                 // clean unreferenced transports
-                transports.removeIf(reference -> reference.get() == null);
+                if (VERSION.SDK_INT >= VERSION_CODES.N) {
+                    transports.removeIf(reference -> reference.get() == null);
+                } else {
+                    Iterator<WeakReference<LocationListenerTransport>> it = transports.iterator();
+                    while (it.hasNext()) {
+                        if (it.next().get() == null) {
+                            it.remove();
+                        }
+                    }
+                }
             }
 
             transports.add(new WeakReference<>(this));
