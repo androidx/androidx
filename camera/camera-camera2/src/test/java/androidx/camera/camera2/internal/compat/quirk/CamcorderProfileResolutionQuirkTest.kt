@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.internal.compat.quirk
 
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.StreamConfigurationMap
@@ -88,6 +89,10 @@ public class CamcorderProfileResolutionQuirkTest {
         )
 
         val mockMap = mock(StreamConfigurationMap::class.java)
+        // Before Android 23, use {@link SurfaceTexture} will finally mapped to 0x22 in
+        // StreamConfigurationMap to retrieve the output sizes information.
+        `when`(mockMap.getOutputSizes(ArgumentMatchers.any<Class<SurfaceTexture>>()))
+            .thenReturn(supportedSizes)
         `when`(mockMap.getOutputSizes(ArgumentMatchers.anyInt())).thenReturn(supportedSizes)
 
         shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
