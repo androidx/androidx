@@ -250,10 +250,9 @@ public class ForceStopRunnable implements Runnable {
      */
     @VisibleForTesting
     public boolean multiProcessChecks() {
-        if (mWorkManager.getRemoteWorkManager() == null) {
-            return true;
-        }
-        Logger.get().debug(TAG, "Found a remote implementation for WorkManager");
+        // Ideally we should really check if RemoteWorkManager.getInstance() is non-null.
+        // But ForceStopRunnable causes a lot of multi-process contention on the underlying
+        // SQLite datastore. Therefore we only initialize WorkManager in the default app-process.
         Configuration configuration = mWorkManager.getConfiguration();
         boolean isDefaultProcess = ProcessUtils.isDefaultProcess(mContext, configuration);
         Logger.get().debug(TAG, String.format("Is default app process = %s", isDefaultProcess));
@@ -274,7 +273,7 @@ public class ForceStopRunnable implements Runnable {
     }
 
     /**
-     * @param flags   The {@link PendingIntent} flags.
+     * @param flags The {@link PendingIntent} flags.
      * @return an instance of the {@link PendingIntent}.
      */
     private static PendingIntent getPendingIntent(Context context, int flags) {
