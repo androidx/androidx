@@ -19,7 +19,7 @@ jobs:
         run: echo "::set-output name=output-dir::$(readlink -f .)/outputs"
         id: dirs
       - id: run_tests
-        uses: androidX/androidx-ci-action@latest
+        uses: androidX/androidx-ci-action@dist-latest
         with:
           run-id: ${{ github.event.workflow_run.id }}
           gcp-token: ${{ secrets.GCP_SA_KEY }}
