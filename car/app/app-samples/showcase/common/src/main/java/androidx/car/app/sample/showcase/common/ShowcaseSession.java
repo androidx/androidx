@@ -30,7 +30,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
-import androidx.car.app.sample.showcase.common.misc.PreSeedingFlowScreen;
+import androidx.car.app.sample.showcase.common.misc.RequestPermissionScreen;
 import androidx.car.app.sample.showcase.common.misc.ResultDemoScreen;
 import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationsDemoScreen;
 import androidx.car.app.sample.showcase.common.navigation.SurfaceRenderer;
@@ -95,7 +95,7 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
             getCarContext()
                     .getCarService(ScreenManager.class)
                     .push(new StartScreen(getCarContext(), this));
-            return new PreSeedingFlowScreen(getCarContext());
+            return new RequestPermissionScreen(getCarContext(), /*preSeedMode*/ true);
         }
         return new StartScreen(getCarContext(), this);
     }
