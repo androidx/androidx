@@ -182,8 +182,8 @@ public final class CarValue<T> {
      * Constructs a new instance of a {@link CarValue}.
      *
      * @param value           data to be returned with the result
-     * @param timestampMillis the time in milliseconds when the value was generated. See
-     * {@link #getTimestampMillis}
+     * @param timestampMillis the time in milliseconds when the value was generated (see
+     * {@link #getTimestampMillis})
      * @param status          the status code associated with this value
      */
     public CarValue(@Nullable T value, long timestampMillis, @StatusCode int status) {
