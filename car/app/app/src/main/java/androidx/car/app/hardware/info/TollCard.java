@@ -28,8 +28,10 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Objects;
 
 /**
@@ -51,20 +53,21 @@ public final class TollCard {
             TOLLCARD_STATE_NOT_INSERTED,
     })
     @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.TYPE_USE})
     @RestrictTo(LIBRARY)
-    public @interface State {
+    public @interface TollCardState {
     }
 
     /**
      * Toll card state is unknown.
      */
-    @State
+    @TollCardState
     public static final int TOLLCARD_STATE_UNKNOWN = 0;
 
     /**
      * Toll card state is valid.
      */
-    @State
+    @TollCardState
     public static final int TOLLCARD_STATE_VALID = 1;
 
     /**
@@ -73,7 +76,7 @@ public final class TollCard {
      * <p>On some vehicles this may be that the toll card is inserted but not valid while other
      * vehicles might not have a toll card inserted.
      */
-    @State
+    @TollCardState
     public static final int TOLLCARD_STATE_INVALID = 2;
 
     /**
@@ -81,16 +84,16 @@ public final class TollCard {
      *
      * <p>Will be returned if the car hardware is able to detect that the card is not inserted.
      */
-    @State
+    @TollCardState
     public static final int TOLLCARD_STATE_NOT_INSERTED = 3;
 
     @Keep
     @NonNull
-    private final CarValue<Integer> mCardState;
+    private final CarValue<@TollCardState Integer> mCardState;
 
     /** Returns the toll card state if available. */
     @NonNull
-    public CarValue<Integer> getCardState() {
+    public CarValue<@TollCardState Integer> getCardState() {
         return requireNonNull(mCardState);
     }
 
@@ -129,7 +132,7 @@ public final class TollCard {
 
     /** A builder of {@link TollCard}. */
     public static final class Builder {
-        CarValue<Integer> mCardState = CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<@TollCardState Integer> mCardState = CarValue.UNIMPLEMENTED_INTEGER;
 
         /**
          * Sets the toll card state.
@@ -137,7 +140,7 @@ public final class TollCard {
          * @throws NullPointerException if {@code cardState} is {@code null}
          */
         @NonNull
-        public Builder setCardState(@NonNull CarValue<Integer> cardState) {
+        public Builder setCardState(@NonNull CarValue<@TollCardState Integer> cardState) {
             mCardState = requireNonNull(cardState);
             return this;
         }

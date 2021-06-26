@@ -28,8 +28,10 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,8 +61,10 @@ public final class EnergyProfile {
             EVCONNECTOR_TYPE_OTHER,
     })
     @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.TYPE_USE})
     @RestrictTo(LIBRARY)
-    public @interface EvConnectorType {}
+    public @interface EvConnectorType {
+    }
 
     /** Unknown connector type. */
     @EvConnectorType
@@ -137,65 +141,80 @@ public final class EnergyProfile {
             FUEL_TYPE_OTHER,
     })
     @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.TYPE_USE})
     @RestrictTo(LIBRARY)
-    public @interface FuelType {}
+    public @interface FuelType {
+    }
 
     /** Unknown fuel type */
-    @FuelType public static final int FUEL_TYPE_UNKNOWN = 0;
+    @FuelType
+    public static final int FUEL_TYPE_UNKNOWN = 0;
     /** Unleaded gasoline */
-    @FuelType public static final int FUEL_TYPE_UNLEADED = 1;
+    @FuelType
+    public static final int FUEL_TYPE_UNLEADED = 1;
     /** Leaded gasoline */
-    @FuelType public static final int FUEL_TYPE_LEADED = 2;
+    @FuelType
+    public static final int FUEL_TYPE_LEADED = 2;
     /** #1 Grade Diesel */
-    @FuelType public static final int FUEL_TYPE_DIESEL_1 = 3;
+    @FuelType
+    public static final int FUEL_TYPE_DIESEL_1 = 3;
     /** #2 Grade Diesel */
-    @FuelType public static final int FUEL_TYPE_DIESEL_2 = 4;
+    @FuelType
+    public static final int FUEL_TYPE_DIESEL_2 = 4;
     /** Biodiesel */
-    @FuelType public static final int FUEL_TYPE_BIODIESEL = 5;
+    @FuelType
+    public static final int FUEL_TYPE_BIODIESEL = 5;
     /** 85% ethanol/gasoline blend */
-    @FuelType public static final int FUEL_TYPE_E85 = 6;
+    @FuelType
+    public static final int FUEL_TYPE_E85 = 6;
     /** Liquified petroleum gas */
-    @FuelType public static final int FUEL_TYPE_LPG = 7;
+    @FuelType
+    public static final int FUEL_TYPE_LPG = 7;
     /** Compressed natural gas */
-    @FuelType public static final int FUEL_TYPE_CNG = 8;
+    @FuelType
+    public static final int FUEL_TYPE_CNG = 8;
     /** Liquified natural gas */
-    @FuelType public static final int FUEL_TYPE_LNG = 9;
+    @FuelType
+    public static final int FUEL_TYPE_LNG = 9;
     /** Electric */
-    @FuelType public static final int FUEL_TYPE_ELECTRIC = 10;
+    @FuelType
+    public static final int FUEL_TYPE_ELECTRIC = 10;
     /** Hydrogen fuel cell */
-    @FuelType public static final int FUEL_TYPE_HYDROGEN = 11;
+    @FuelType
+    public static final int FUEL_TYPE_HYDROGEN = 11;
     /** Fuel type to use when no other types apply. */
-    @FuelType public static final int FUEL_TYPE_OTHER = 12;
+    @FuelType
+    public static final int FUEL_TYPE_OTHER = 12;
 
     @Keep
     @NonNull
-    private final CarValue<List<Integer>> mEvConnectorTypes;
+    private final CarValue<List<@EvConnectorType Integer>> mEvConnectorTypes;
 
     @Keep
     @NonNull
-    private final CarValue<List<Integer>> mFuelTypes;
+    private final CarValue<List<@FuelType Integer>> mFuelTypes;
 
     /**
-     *  Returns an array of the available EV connectors.
+     * Returns an array of the available EV connectors.
      *
-     *  <p>If a vehicle does not know the EV connector type it will return
-     *  {@link #EVCONNECTOR_TYPE_UNKNOWN} or {@link CarValue#STATUS_UNIMPLEMENTED}. If the value
-     *  is known but not in the current list {@link #EVCONNECTOR_TYPE_UNKNOWN} will be returned.
+     * <p>If a vehicle does not know the EV connector type it will return
+     * {@link #EVCONNECTOR_TYPE_UNKNOWN} or {@link CarValue#STATUS_UNIMPLEMENTED}. If the value
+     * is known but not in the current list {@link #EVCONNECTOR_TYPE_UNKNOWN} will be returned.
      */
     @NonNull
-    public CarValue<List<Integer>> getEvConnectorTypes() {
+    public CarValue<List<@EvConnectorType Integer>> getEvConnectorTypes() {
         return requireNonNull(mEvConnectorTypes);
     }
 
     /**
-     *  Returns an array of the available fuel types.
+     * Returns an array of the available fuel types.
      *
-     *  <p>If a vehicle does not know the fuel type it will return {@link #FUEL_TYPE_UNKNOWN} or
-     *  {@link CarValue#STATUS_UNIMPLEMENTED}. If the value is known but not in the current list
-     *  {@link #EVCONNECTOR_TYPE_UNKNOWN} will be returned.
+     * <p>If a vehicle does not know the fuel type it will return {@link #FUEL_TYPE_UNKNOWN} or
+     * {@link CarValue#STATUS_UNIMPLEMENTED}. If the value is known but not in the current list
+     * {@link #EVCONNECTOR_TYPE_UNKNOWN} will be returned.
      */
     @NonNull
-    public CarValue<List<Integer>> getFuelTypes() {
+    public CarValue<List<@FuelType Integer>> getFuelTypes() {
         return requireNonNull(mFuelTypes);
     }
 
@@ -237,8 +256,9 @@ public final class EnergyProfile {
 
     /** A builder of {@link EnergyProfile}. */
     public static final class Builder {
-        CarValue<List<Integer>> mEvConnectorTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
-        CarValue<List<Integer>> mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
+        CarValue<List<@EvConnectorType Integer>> mEvConnectorTypes =
+                CarValue.UNIMPLEMENTED_INTEGER_LIST;
+        CarValue<List<@FuelType Integer>> mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
 
         /**
          * Sets the cars EV connector types.
@@ -246,7 +266,8 @@ public final class EnergyProfile {
          * @throws NullPointerException if {@code evConnectorTypes} is {@code null}
          */
         @NonNull
-        public Builder setEvConnectorTypes(@NonNull CarValue<List<Integer>> evConnectorTypes) {
+        public Builder setEvConnectorTypes(
+                @NonNull CarValue<List<@EvConnectorType Integer>> evConnectorTypes) {
             mEvConnectorTypes = requireNonNull(evConnectorTypes);
             return this;
         }
@@ -257,7 +278,7 @@ public final class EnergyProfile {
          * @throws NullPointerException if {@code fuelTypes} is {@code null}
          */
         @NonNull
-        public Builder setFuelTypes(@NonNull CarValue<List<Integer>> fuelTypes) {
+        public Builder setFuelTypes(@NonNull CarValue<List<@FuelType Integer>> fuelTypes) {
             mFuelTypes = requireNonNull(fuelTypes);
             return this;
         }

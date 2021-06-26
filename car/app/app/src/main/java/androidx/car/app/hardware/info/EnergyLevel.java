@@ -15,6 +15,8 @@
  */
 package androidx.car.app.hardware.info;
 
+import static androidx.car.app.hardware.common.CarUnit.CarDistanceUnit;
+
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Keep;
@@ -55,7 +57,7 @@ public final class EnergyLevel {
 
     @Keep
     @NonNull
-    private final CarValue<Integer> mDistanceDisplayUnit;
+    private final CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
 
     /** Returns the battery percentage remaining from the car hardware. */
     @NonNull
@@ -85,6 +87,7 @@ public final class EnergyLevel {
     }
 
     // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
+
     /**
      * Returns the range remaining from the car hardware in meters.
      *
@@ -102,7 +105,7 @@ public final class EnergyLevel {
      * <p>See {@link CarUnit} for possible distance values.
      */
     @NonNull
-    public CarValue<Integer> getDistanceDisplayUnit() {
+    public CarValue<@CarDistanceUnit Integer> getDistanceDisplayUnit() {
         return requireNonNull(mDistanceDisplayUnit);
     }
 
@@ -171,7 +174,8 @@ public final class EnergyLevel {
         CarValue<Float> mFuelPercent = CarValue.UNIMPLEMENTED_FLOAT;
         CarValue<Boolean> mEnergyIsLow = CarValue.UNIMPLEMENTED_BOOLEAN;
         CarValue<Float> mRangeRemainingMeters = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Integer> mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit =
+                CarValue.UNIMPLEMENTED_INTEGER;
 
         /** Sets the remaining batter percentage. */
         @NonNull
@@ -236,7 +240,8 @@ public final class EnergyLevel {
          * @throws NullPointerException if {@code distanceDisplayUnit} is {@code null}
          */
         @NonNull
-        public Builder setDistanceDisplayUnit(@NonNull CarValue<Integer> distanceDisplayUnit) {
+        public Builder setDistanceDisplayUnit(
+                @NonNull CarValue<@CarDistanceUnit Integer> distanceDisplayUnit) {
             mDistanceDisplayUnit = requireNonNull(distanceDisplayUnit);
             return this;
         }
