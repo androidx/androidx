@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.hardware.ICarHardwareResultTypes;
 import androidx.car.app.hardware.common.CarHardwareHostDispatcher;
 import androidx.car.app.hardware.common.CarResultStub;
-import androidx.car.app.hardware.common.OnCarDataListener;
+import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 
 import java.util.concurrent.Executor;
 
@@ -63,57 +63,58 @@ public class ProjectedCarInfo implements CarInfo {
 
     @Override
     public void fetchModel(@NonNull Executor executor,
-            @NonNull OnCarDataListener<Model> listener) {
+            @NonNull OnCarDataAvailableListener<Model> listener) {
         mModelCarResultStub.addListener(executor, listener);
     }
 
     @Override
     public void fetchEnergyProfile(@NonNull Executor executor,
-            @NonNull OnCarDataListener<EnergyProfile> listener) {
+            @NonNull OnCarDataAvailableListener<EnergyProfile> listener) {
         mEnergyProfileCarResultStub.addListener(executor, listener);
     }
 
     @Override
     public void addTollListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<TollCard> listener) {
+            @NonNull OnCarDataAvailableListener<TollCard> listener) {
         mTollCarResultStub.addListener(executor, listener);
     }
 
     @Override
-    public void removeTollListener(@NonNull OnCarDataListener<TollCard> listener) {
+    public void removeTollListener(@NonNull OnCarDataAvailableListener<TollCard> listener) {
         mTollCarResultStub.removeListener(listener);
     }
 
     @Override
     public void addEnergyLevelListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<EnergyLevel> listener) {
+            @NonNull OnCarDataAvailableListener<EnergyLevel> listener) {
         mEnergyLevelCarResultStub.addListener(executor, listener);
     }
 
     @Override
-    public void removeEnergyLevelListener(@NonNull OnCarDataListener<EnergyLevel> listener) {
+    public void removeEnergyLevelListener(
+            @NonNull OnCarDataAvailableListener<EnergyLevel> listener) {
         mEnergyLevelCarResultStub.removeListener(listener);
     }
 
     @Override
     public void addSpeedListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<Speed> listener) {
+            @NonNull OnCarDataAvailableListener<Speed> listener) {
         mSpeedCarResultStub.addListener(executor, listener);
     }
 
     @Override
-    public void removeSpeedListener(@NonNull OnCarDataListener<Speed> listener) {
+    public void removeSpeedListener(@NonNull OnCarDataAvailableListener<Speed> listener) {
         mSpeedCarResultStub.removeListener(listener);
     }
 
     @Override
     public void addMileageListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<Mileage> listener) {
+            @NonNull OnCarDataAvailableListener<Mileage> listener) {
         mMileageCarResultStub.addListener(executor, listener);
     }
 
     @Override
-    public void removeMileageListener(@NonNull OnCarDataListener<Mileage> listener) {
+    public void removeMileageListener(@NonNull OnCarDataAvailableListener<Mileage> listener) {
         mMileageCarResultStub.removeListener(listener);
     }
 
