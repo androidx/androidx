@@ -31,9 +31,14 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(3)
 public final class Mileage {
+    // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
     @Keep
-    @NonNull
+    @Nullable
     private final CarValue<Float> mOdometer;
+
+    @Keep
+    @Nullable
+    private final CarValue<Float> mOdometerMeters;
 
     @Keep
     @NonNull
@@ -41,8 +46,23 @@ public final class Mileage {
 
     /** Returns the value of the odometer from the car hardware in meters. */
     @NonNull
-    public CarValue<Float> getOdometer() {
+    public CarValue<Float> getOdometerMeters() {
+        if (mOdometerMeters != null) {
+            return requireNonNull(mOdometerMeters);
+        }
         return requireNonNull(mOdometer);
+    }
+
+    // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
+    /**
+     * Returns the value of the odometer from the car hardware in meters.
+     *
+     * @deprecated use {@link #getOdometerMeters()}
+     */
+    @NonNull
+    @Deprecated
+    public CarValue<Float> getOdometer() {
+        return getOdometerMeters();
     }
 
     /**
@@ -59,7 +79,7 @@ public final class Mileage {
     @NonNull
     public String toString() {
         return "[ odometer: "
-                + mOdometer
+                + getOdometerMeters()
                 + ", distance display unit: "
                 + mDistanceDisplayUnit
                 + "]";
@@ -67,7 +87,7 @@ public final class Mileage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mOdometer, mDistanceDisplayUnit);
+        return Objects.hash(getOdometerMeters(), mDistanceDisplayUnit);
     }
 
     @Override
@@ -80,25 +100,42 @@ public final class Mileage {
         }
         Mileage otherMileage = (Mileage) other;
 
-        return Objects.equals(mOdometer, otherMileage.mOdometer)
+        return Objects.equals(getOdometerMeters(), otherMileage.getOdometerMeters())
                 && Objects.equals(mDistanceDisplayUnit, otherMileage.mDistanceDisplayUnit);
     }
 
     Mileage(Builder builder) {
-        mOdometer = requireNonNull(builder.mOdometer);
+        mOdometer = null;
+        mOdometerMeters = requireNonNull(builder.mOdometerMeters);
         mDistanceDisplayUnit = requireNonNull(builder.mDistanceDisplayUnit);
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Mileage() {
         mOdometer = CarValue.UNIMPLEMENTED_FLOAT;
+        mOdometerMeters = CarValue.UNIMPLEMENTED_FLOAT;
         mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
     }
 
     /** A builder of {@link Mileage}. */
     public static final class Builder {
-        CarValue<Float> mOdometer = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Float> mOdometerMeters = CarValue.UNIMPLEMENTED_FLOAT;
         CarValue<Integer> mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+
+        // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
+
+        /**
+         * Sets the odometer value in meters.
+         *
+         * @throws NullPointerException if {@code odometer} is {@code null}
+         * @deprecated use {@link #setOdometerMeters}
+         */
+        @NonNull
+        @Deprecated
+        public Builder setOdometer(@NonNull CarValue<Float> odometer) {
+            mOdometerMeters = requireNonNull(odometer);
+            return this;
+        }
 
         /**
          * Sets the odometer value in meters.
@@ -106,8 +143,8 @@ public final class Mileage {
          * @throws NullPointerException if {@code odometer} is {@code null}
          */
         @NonNull
-        public Builder setOdometer(@NonNull CarValue<Float> odometer) {
-            mOdometer = requireNonNull(odometer);
+        public Builder setOdometerMeters(@NonNull CarValue<Float> odometerMeters) {
+            mOdometerMeters = requireNonNull(odometerMeters);
             return this;
         }
 

@@ -62,13 +62,13 @@ public class ProjectedCarInfo implements CarInfo {
     }
 
     @Override
-    public void getModel(@NonNull Executor executor,
+    public void fetchModel(@NonNull Executor executor,
             @NonNull OnCarDataListener<Model> listener) {
         mModelCarResultStub.addListener(executor, listener);
     }
 
     @Override
-    public void getEnergyProfile(@NonNull Executor executor,
+    public void fetchEnergyProfile(@NonNull Executor executor,
             @NonNull OnCarDataListener<EnergyProfile> listener) {
         mEnergyProfileCarResultStub.addListener(executor, listener);
     }
