@@ -57,6 +57,7 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
     testImplementation(libs.truth)
 }
 
