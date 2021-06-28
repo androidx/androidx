@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.fragment.lint
 
 import com.android.tools.lint.client.api.IssueRegistry

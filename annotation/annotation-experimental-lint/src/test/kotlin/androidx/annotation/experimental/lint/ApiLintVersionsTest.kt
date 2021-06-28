@@ -36,6 +36,6 @@ class ApiLintVersionsTest {
         // We hardcode version registry.api to the version that is used to run tests.
         assertEquals("registry.api matches version used to run tests", CURRENT_API, registry.api)
         // Intentionally fails in IDE, because we use different API version in Studio and CLI.
-        assertEquals("registry.minApi is set to minimum level of 8", 8, registry.minApi)
+        assertEquals("registry.minApi is set to minimum level of 10", 10, registry.minApi)
     }
 }
