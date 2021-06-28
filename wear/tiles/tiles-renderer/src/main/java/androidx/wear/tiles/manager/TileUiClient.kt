@@ -36,6 +36,7 @@ import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.StateBuilders
 import androidx.wear.tiles.TimelineBuilders
+import androidx.wear.tiles.checkers.TimelineChecker
 import androidx.wear.tiles.connection.DefaultTileProviderClient
 import androidx.wear.tiles.renderer.TileRenderer
 import androidx.wear.tiles.timeline.TilesTimelineManager
@@ -61,12 +62,19 @@ import java.util.concurrent.Executors
 public class TileUiClient(
     private val context: Context,
     component: ComponentName,
-    private val parentView: ViewGroup
+    private val parentView: ViewGroup,
+    private val timelineChecker: TimelineChecker? = TimelineChecker()
 ) : AutoCloseable {
     private companion object {
         private const val ACTION_REQUEST_TILE_UPDATE =
             "androidx.wear.tiles.action.REQUEST_TILE_UPDATE"
     }
+
+    constructor(
+        context: Context,
+        component: ComponentName,
+        parentView: ViewGroup
+    ) : this(context, component, parentView, TimelineChecker())
 
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
@@ -158,6 +166,11 @@ public class TileUiClient(
 
             timelineManager?.apply {
                 close()
+            }
+
+            // Check the tile and raise any validation errors.
+            if (tile.timeline != null) {
+                timelineChecker?.doCheck(tile.timeline!!)
             }
 
             val localTimelineManager = TilesTimelineManager(
