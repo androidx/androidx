@@ -19,14 +19,14 @@ package androidx.room.vo
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.capitalize
+import androidx.room.ext.decapitalize
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.solver.types.StatementValueBinder
-import capitalize
 import com.squareup.javapoet.TypeName
-import decapitalize
 import java.util.Locale
 
 // used in cache matching, must stay as a data class or implement equals

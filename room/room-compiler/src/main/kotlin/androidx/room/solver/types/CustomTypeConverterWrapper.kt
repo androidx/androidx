@@ -20,6 +20,7 @@ import androidx.room.ProvidedTypeConverter
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
+import androidx.room.ext.decapitalize
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.CustomTypeConverter
 import androidx.room.writer.ClassWriter
@@ -28,7 +29,6 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
-import decapitalize
 import java.util.Locale
 import javax.lang.model.element.Modifier
 

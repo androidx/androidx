@@ -49,7 +49,7 @@ class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
     }
 
     companion object {
-        private val NO_OP_RESULT_ADAPTER = object : QueryResultAdapter(null) {
+        private val NO_OP_RESULT_ADAPTER = object : QueryResultAdapter(emptyList()) {
             override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
             }
         }

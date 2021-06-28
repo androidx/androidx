@@ -28,7 +28,7 @@ class MapQueryResultAdapter(
     private val valueTypeArg: XType,
     private val keyRowAdapter: RowAdapter,
     private val valueRowAdapter: RowAdapter,
-) : QueryResultAdapter(null) {
+) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)) {
     private val listType = ParameterizedTypeName.get(
         ClassName.get(List::class.java),
         valueTypeArg.typeName
@@ -82,14 +82,5 @@ class MapQueryResultAdapter(
             keyRowAdapter.onCursorFinished()?.invoke(scope)
             valueRowAdapter.onCursorFinished()?.invoke(scope)
         }
-    }
-
-    override fun shouldCopyCursor() =
-        (keyRowAdapter is PojoRowAdapter && keyRowAdapter.relationCollectors.isNotEmpty()) ||
-            (valueRowAdapter is PojoRowAdapter && valueRowAdapter.relationCollectors.isNotEmpty())
-
-    override fun accessedTableNames() = mutableListOf<String>().apply {
-        (keyRowAdapter as? PojoRowAdapter)?.relationTableNames()?.let { addAll(it) }
-        (valueRowAdapter as? PojoRowAdapter)?.relationTableNames()?.let { addAll(it) }
     }
 }

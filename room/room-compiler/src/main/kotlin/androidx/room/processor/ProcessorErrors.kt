@@ -250,16 +250,20 @@ object ProcessorErrors {
     }
 
     fun cursorPojoMismatch(
-        pojoTypeName: TypeName,
+        pojoTypeNames: List<TypeName>,
         unusedColumns: List<String>,
         allColumns: List<String>,
-        unusedFields: List<Field>,
-        allFields: List<Field>
+        pojoUnusedFields: Map<TypeName, List<Field>>,
     ): String {
         val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) {
+            val pojoNames = if (pojoTypeNames.size > 1) {
+                "any of [${pojoTypeNames.joinToString(", ")}]"
+            } else {
+                pojoTypeNames.single().toString()
+            }
             """
                 The query returns some columns [${unusedColumns.joinToString(", ")}] which are not
-                used by $pojoTypeName. You can use @ColumnInfo annotation on the fields to specify
+                used by $pojoNames. You can use @ColumnInfo annotation on the fields to specify
                 the mapping.
                 You can annotate the method with @RewriteQueriesToDropUnusedColumns to direct Room
                 to rewrite your query to avoid fetching unused columns.
@@ -267,24 +271,20 @@ object ProcessorErrors {
         } else {
             ""
         }
-        val unusedFieldsWarning = if (unusedFields.isNotEmpty()) {
+        val unusedFieldsWarning = pojoUnusedFields.map { (pojoName, unusedFields) ->
             """
-                $pojoTypeName has some fields
-                [${unusedFields.joinToString(", ") { it.columnName }}] which are not returned by the
-                query. If they are not supposed to be read from the result, you can mark them with
-                @Ignore annotation.
+                $pojoName has some fields
+                [${unusedFields.joinToString(", ") { it.columnName }}] which are not returned by
+                the query. If they are not supposed to be read from the result, you can mark them
+                with @Ignore annotation.
             """.trim()
-        } else {
-            ""
         }
-
         return """
             $unusedColumnsWarning
-            $unusedFieldsWarning
+            ${unusedFieldsWarning.joinToString(separator = " ")}
             You can suppress this warning by annotating the method with
             @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH).
             Columns returned by the query: ${allColumns.joinToString(", ")}.
-            Fields in $pojoTypeName: ${allFields.joinToString(", ") { it.columnName }}.
             """.trim()
     }
 

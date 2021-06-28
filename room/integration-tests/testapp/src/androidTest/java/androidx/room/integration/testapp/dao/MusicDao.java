@@ -21,7 +21,6 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.RawQuery;
-import androidx.room.RoomWarnings;
 import androidx.room.Transaction;
 import androidx.room.integration.testapp.vo.Album;
 import androidx.room.integration.testapp.vo.AlbumNameAndBandName;
@@ -42,8 +41,6 @@ import java.util.Map;
 import io.reactivex.Flowable;
 
 @Dao
-@SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-// TODO: (b/191693863) Cannot use @RewriteQueriesToDropUnusedColumns due to this bug.
 public interface MusicDao {
 
     @Insert
@@ -80,6 +77,7 @@ public interface MusicDao {
     @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
     Map<Artist, List<Song>> getAllArtistAndTheirSongs();
 
+    @Transaction
     @Query("SELECT * FROM Artist JOIN Album ON Artist.mArtistName = Album.mAlbumArtist")
     Map<Artist, List<AlbumWithSongs>> getAllArtistAndTheirAlbumsWithSongs();
 
@@ -93,9 +91,7 @@ public interface MusicDao {
     Flowable<Map<Artist, List<Song>>> getAllArtistAndTheirSongsAsFlowable();
 
     @Query("SELECT Album.mAlbumReleaseYear as mReleaseYear, Album.mAlbumName, Album.mAlbumArtist "
-            + "as mBandName"
-            + " from Album "
-            + "JOIN Song "
-            + "ON Album.mAlbumArtist = Song.mArtist AND Album.mAlbumName = Song.mAlbum")
+            + "as mBandName from Album JOIN Song ON Album.mAlbumArtist = Song.mArtist AND "
+            + "Album.mAlbumName = Song.mAlbum")
     Map<ReleasedAlbum, List<AlbumNameAndBandName>> getReleaseYearToAlbumsAndBands();
 }
