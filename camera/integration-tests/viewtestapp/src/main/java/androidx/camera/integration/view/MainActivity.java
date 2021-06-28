@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
                 startFragment();
@@ -118,6 +119,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.transform:
                 mMode = Mode.TRANSFORM;
                 break;
+            case R.id.compose_ui:
+                mMode = Mode.COMPOSE_UI;
+                break;
         }
         startFragment();
         return true;
@@ -143,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case TRANSFORM:
                 startFragment(R.string.transform, new TransformFragment());
+                break;
+            case COMPOSE_UI:
+                startFragment(R.string.compose_ui, new ComposeUiFragment());
         }
     }
 
@@ -164,6 +171,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum Mode {
-        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM
+        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI
     }
 }

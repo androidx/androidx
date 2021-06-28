@@ -46,6 +46,19 @@ android {
                     "proguard-rules.pro")
         }
     }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+        useIR = true
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion "1.0.0-beta09"
+    }
 }
 
 dependencies {
@@ -56,12 +69,19 @@ dependencies {
     implementation(project(":camera:camera-view"))
     implementation(libs.guavaAndroid)
     implementation("androidx.exifinterface:exifinterface:1.3.2")
+    compileOnly(libs.kotlinCompiler)
 
     // Lifecycle and LiveData
     implementation("androidx.lifecycle:lifecycle-livedata:2.2.0")
 
     // Android Support Library
-    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.appcompat:appcompat:1.3.0")
+
+    // Compose UI
+    implementation("androidx.compose.ui:ui:1.0.0-beta09")
+    implementation("androidx.compose.material:material:1.0.0-beta09")
+    implementation("androidx.compose.ui:ui-tooling:1.0.0-beta09")
+    implementation("androidx.activity:activity-compose:1.3.0-beta02")
 
     // Testing framework
     androidTestImplementation(libs.testExtJunit)
