@@ -18,6 +18,7 @@ package androidx.camera.video.internal.workaround;
 
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,26 +43,44 @@ public class EncoderFinder {
     /**
      * Selects an encoder by a given MediaFormat.
      *
-     * <p>There is one particular case when get a video encoder on API 21.
+     * <p>The encoder finder might temporarily alter the media format for better compatibility
+     * based on OS version. It is not thread safe to use the same media format instance.
      */
     @Nullable
     public String findEncoderForFormat(@NonNull MediaFormat mediaFormat,
             @NonNull MediaCodecList mediaCodecList) {
-        // If the frame rate value is assigned, keep it and restore it later.
-        String encoderName;
+        Integer tempFrameRate = null;
+        Integer tempAacProfile = null;
+        try {
+            // If the frame rate value is assigned, keep it and restore it later.
+            if (mShouldRemoveKeyFrameRate && mediaFormat.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+                tempFrameRate = Integer.valueOf(mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE));
+                // Reset frame rate value in API 21.
+                mediaFormat.setString(MediaFormat.KEY_FRAME_RATE, null);
+            }
 
-        if (mShouldRemoveKeyFrameRate && mediaFormat.containsKey(MediaFormat.KEY_FRAME_RATE)) {
-            int tempFrameRate = mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE);
-            // Reset frame rate value in API 21.
-            mediaFormat.setString(MediaFormat.KEY_FRAME_RATE, null);
-            encoderName = mediaCodecList.findEncoderForFormat(mediaFormat);
+            // TODO(b/192129356): Remove KEY_AAC_PROFILE when API <= 23 in order to find an encoder
+            //  name or it will get null. This is currently needed for not blocking e2e/MH test.
+            //  After the bug has been clarified, the workaround should be removed or a quirk should
+            //  be added.
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M && mediaFormat.containsKey(
+                    MediaFormat.KEY_AAC_PROFILE)) {
+                tempAacProfile = Integer.valueOf(
+                        mediaFormat.getInteger(MediaFormat.KEY_AAC_PROFILE));
+                mediaFormat.setString(MediaFormat.KEY_AAC_PROFILE, null);
+            }
+
+            return mediaCodecList.findEncoderForFormat(mediaFormat);
+        } finally {
             // Restore the frame rate value.
-            mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, tempFrameRate);
-        } else {
-            encoderName = mediaCodecList.findEncoderForFormat(mediaFormat);
+            if (tempFrameRate != null) {
+                mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, tempFrameRate.intValue());
+            }
+
+            // Restore the aac profile value.
+            if (tempAacProfile != null) {
+                mediaFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, tempAacProfile.intValue());
+            }
         }
-
-        return encoderName;
     }
-
 }
