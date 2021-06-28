@@ -499,17 +499,22 @@ public final class ExtensionsManager {
      * desired {@link LifecycleOwner} and then the specified extension mode will be enabled on
      * the camera.
      *
-     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
+     * @param cameraProvider     A {@link CameraProvider} which will be used to bind use cases. The
+     *                           {@link CameraProvider} can be the
+     *                           {@link androidx.camera.lifecycle.ProcessCameraProvider}
+     *                           which is obtained by
+     *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
      * @param baseCameraSelector The base {@link CameraSelector} on top of which the extension
      *                           config is applied.
      *                           {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)}
      *                           can be used to check whether any camera can support the specified
      *                           extension mode for the base camera selector.
-     * @param mode The target extension mode.
+     * @param mode               The target extension mode.
      * @return a {@link CameraSelector} for the specified Extensions mode.
      * @throws IllegalArgumentException If this device doesn't support extensions function, no
-     * camera can be found to support the specified extension mode, or the base
-     * {@link CameraSelector} has contained extension related configuration in it.
+     *                                  camera can be found to support the specified extension
+     *                                  mode, or the base {@link CameraSelector} has contained
+     *                                  extension related configuration in it.
      */
     @NonNull
     public CameraSelector getExtensionEnabledCameraSelector(@NonNull CameraProvider cameraProvider,
@@ -533,9 +538,13 @@ public final class ExtensionsManager {
      * Returns true if the particular extension mode is available for the specified
      * {@link CameraSelector}.
      *
-     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
+     * @param cameraProvider     A {@link CameraProvider} which will be used to bind use cases. The
+     *                           {@link CameraProvider} can be the
+     *                           {@link androidx.camera.lifecycle.ProcessCameraProvider}
+     *                           which is obtained by
+     *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
      * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
-     * @param mode The target extension mode to support.
+     * @param mode               The target extension mode to support.
      */
     public boolean isExtensionAvailable(@NonNull CameraProvider cameraProvider,
             @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
@@ -558,9 +567,13 @@ public final class ExtensionsManager {
      * <p>This includes the time spent processing the multi-frame capture request along with any
      * additional time for encoding of the processed buffer in the framework if necessary.
      *
-     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
-     * @param cameraSelector The {@link CameraSelector} to find a camera which supports the
-     *                       specified extension mode.
+     * @param cameraProvider    A {@link CameraProvider} which will be used to bind use cases. The
+     *                          {@link CameraProvider} can be the
+     *                          {@link androidx.camera.lifecycle.ProcessCameraProvider}
+     *                          which is obtained by
+     *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
+     * @param cameraSelector    The {@link CameraSelector} to find a camera which supports the
+     *                          specified extension mode.
      * @param mode              The extension mode to check.
      * @param surfaceResolution the surface resolution of the {@link ImageCapture} which will be
      *                          used to take a picture. If the input value of this parameter is
@@ -570,7 +583,7 @@ public final class ExtensionsManager {
      * @return the range of estimated minimal and maximal capture latency in milliseconds.
      * Returns null if no capture latency info can be provided.
      * @throws IllegalArgumentException If this device doesn't support extensions function, or no
-     * camera can be found to support the specified extension mode.
+     *                                  camera can be found to support the specified extension mode.
      */
     @Nullable
     public Range<Long> getEstimatedCaptureLatencyRange(@NonNull CameraProvider cameraProvider,
