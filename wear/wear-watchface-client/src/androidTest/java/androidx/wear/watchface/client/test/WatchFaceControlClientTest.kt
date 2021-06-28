@@ -784,16 +784,6 @@ public class WatchFaceControlClientTest {
 
         assertThat(interactiveInstance.instanceId).isEqualTo("testId2")
 
-        // The complicationSlots should have been cleared.
-        val leftComplication = interactiveInstance.complicationSlotsState[
-            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-        ]!!
-        val rightComplication = interactiveInstance.complicationSlotsState[
-            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
-        ]!!
-        assertThat(leftComplication.currentType).isEqualTo(ComplicationType.NO_DATA)
-        assertThat(rightComplication.currentType).isEqualTo(ComplicationType.NO_DATA)
-
         // It should be possible to create an instance with the updated id.
         val instance =
             service.getInteractiveWatchFaceClientInstance("testId2")

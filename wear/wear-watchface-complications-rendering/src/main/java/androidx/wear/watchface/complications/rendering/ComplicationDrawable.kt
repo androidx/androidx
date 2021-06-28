@@ -39,7 +39,6 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType.NO_DATA
 import androidx.wear.complications.data.ComplicationType.NO_PERMISSION
 import androidx.wear.complications.data.ComplicationType.RANGED_VALUE
-import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.rendering.ComplicationRenderer.OnInvalidateListener
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
@@ -303,9 +302,8 @@ public class ComplicationDrawable : Drawable {
         nonNullComplicationRenderer.setOnInvalidateListener(rendererInvalidateListener)
         if (noDataText == null) {
             noDataText = context.getString(R.string.complicationDrawable_noDataText)
-        } else {
-            nonNullComplicationRenderer.setNoDataText(noDataText)
         }
+        nonNullComplicationRenderer.setNoDataText(noDataText)
         nonNullComplicationRenderer.isRangedValueProgressHidden = isRangedValueProgressHidden
         nonNullComplicationRenderer.bounds = bounds
     }
@@ -541,8 +539,8 @@ public class ComplicationDrawable : Drawable {
         throw UnsupportedOperationException("getOpacity is not supported in ComplicationDrawable.")
 
     protected override fun onBoundsChange(bounds: Rect) {
-        if (complicationRenderer != null) {
-            complicationRenderer!!.bounds = bounds
+        complicationRenderer?.let {
+            it.bounds = bounds
         }
     }
 
@@ -570,20 +568,36 @@ public class ComplicationDrawable : Drawable {
         complicationData: ComplicationData?,
         loadDrawablesAsync: Boolean
     ) {
+        this.complicationData = complicationData
         assertInitialized()
-        complicationRenderer?.setComplicationData(
-            complicationData?.asWireComplicationData(),
-            loadDrawablesAsync
-        )
+        if (loadDrawablesAsync) {
+            // Calling nextRenderer.setComplicationData() causes it to render as blank until the
+            // async load has completed. To mask this we delay applying the update until the load
+            // has completed.
+            val nextRenderer = ComplicationRenderer(this.context, activeStyle, ambientStyle)
+            nextRenderer.setNoDataText(noDataText)
+            nextRenderer.isRangedValueProgressHidden = isRangedValueProgressHidden
+            nextRenderer.bounds = bounds
+            nextRenderer.setOnInvalidateListener {
+                complicationRenderer = nextRenderer
+                rendererInvalidateListener.onInvalidate()
+                // Replace this InvalidateListener with the normal one.
+                nextRenderer.setOnInvalidateListener(rendererInvalidateListener)
+            }
+            nextRenderer.setComplicationData(complicationData?.asWireComplicationData(), true)
+        } else {
+            complicationRenderer?.setComplicationData(
+                complicationData?.asWireComplicationData(),
+                false
+            )
+        }
     }
 
     /**
      * Returns the [ComplicationData] to be drawn by this ComplicationDrawable.
      */
-    public val complicationData: ComplicationData?
-        get() = if (complicationRenderer?.complicationData != null)
-            complicationRenderer!!.complicationData.toApiComplicationData()
-        else null
+    public var complicationData: ComplicationData? = null
+        private set
 
     /**
      * Sends the tap action for the complication if tap coordinates are inside the complication
@@ -628,8 +642,7 @@ public class ComplicationDrawable : Drawable {
                         ComplicationHelperActivity.createPermissionRequestHelperIntent(
                             context!!,
                             ComponentName(context!!, context!!.javaClass)
-                        )
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     )
                 } else {
                     return false
