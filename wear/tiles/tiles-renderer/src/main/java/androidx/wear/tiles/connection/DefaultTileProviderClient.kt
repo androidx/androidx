@@ -34,6 +34,7 @@ import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileEnterEventData
 import androidx.wear.tiles.TileLeaveEventData
 import androidx.wear.tiles.TileProvider
+import androidx.wear.tiles.TileProviderService
 import androidx.wear.tiles.TileRemoveEventData
 import androidx.wear.tiles.client.TileProviderClient
 import androidx.wear.tiles.proto.ResourceProto
@@ -93,6 +94,17 @@ public class DefaultTileProviderClient : TileProviderClient {
     private val coroutineDispatcher: CoroutineDispatcher
     private val connectionBinder: TilesConnectionBinder
 
+    /**
+     * Build an instance of [DefaultTileProviderClient] for use with a coroutine dispatcher.
+     *
+     * @param context The application context to use when binding to the [TileProviderService].
+     * @param componentName The [ComponentName] of the [TileProviderService] to bind to.
+     * @param coroutineScope A [CoroutineScope] to use when dispatching calls to the
+     *   [TileProviderService]. Cancelling the passed [CoroutineScope] will also cancel any pending
+     *   work in this class.
+     * @param coroutineDispatcher A [CoroutineDispatcher] to use when dispatching work from this
+     *   class.
+     */
     public constructor(
         context: Context,
         componentName: ComponentName,
@@ -105,6 +117,13 @@ public class DefaultTileProviderClient : TileProviderClient {
             TilesConnectionBinder(context, componentName, coroutineScope, coroutineDispatcher)
     }
 
+    /**
+     * Build an instance of [DefaultTileProviderClient] for use with a given [Executor].
+     *
+     * @param context The application context to use when binding to the [TileProviderService].
+     * @param componentName The [ComponentName] of the [TileProviderService] to bind to.
+     * @param executor An [Executor] to use when dispatching calls to the [TileProviderService].
+     */
     public constructor(context: Context, componentName: ComponentName, executor: Executor) {
         this.coroutineDispatcher = executor.asCoroutineDispatcher()
         this.coroutineScope = CoroutineScope(this.coroutineDispatcher)
