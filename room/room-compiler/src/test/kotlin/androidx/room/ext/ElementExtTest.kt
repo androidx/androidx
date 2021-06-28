@@ -262,10 +262,12 @@ class ElementExtTest(
         return processingEnv.requireTypeElement("java.lang.Object")
             .getAllMethods().map {
                 it.name
-            } - "registerNatives"
+            }.toList() - "registerNatives"
     }
 
     private fun List<XMethodElement>.names() = map { it.name }
+
+    private fun Sequence<XMethodElement>.names() = map { it.name }.toList()
 
     companion object {
         @JvmStatic

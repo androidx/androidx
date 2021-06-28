@@ -37,5 +37,8 @@ interface XFieldElement : XVariableElement, XHasModifiers {
     override val fallbackLocationText: String
         get() = "$name in ${enclosingElement.fallbackLocationText}"
 
+    /**
+     * Creates a new [XFieldElement] where containing element is replaced with [newContainer].
+     */
     fun copyTo(newContainer: XTypeElement): XFieldElement
 }

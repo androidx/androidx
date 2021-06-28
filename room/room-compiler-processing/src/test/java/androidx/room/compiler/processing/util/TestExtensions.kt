@@ -21,7 +21,7 @@ import androidx.room.compiler.processing.XTypeElement
 
 fun XTypeElement.getAllFieldNames() = getAllFieldsIncludingPrivateSupers().map {
     it.name
-}
+}.toList()
 
 fun XTypeElement.getDeclaredField(name: String) = getDeclaredFields().first {
     it.name == name
