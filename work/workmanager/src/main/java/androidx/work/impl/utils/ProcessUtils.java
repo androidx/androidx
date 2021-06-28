@@ -34,7 +34,6 @@ import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 import androidx.work.Logger;
 import androidx.work.WorkManager;
-import androidx.work.impl.background.greedy.GreedyScheduler;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -82,7 +81,7 @@ public class ProcessUtils {
             Class<?> activityThread = Class.forName(
                     "android.app.ActivityThread",
                     false,
-                    GreedyScheduler.class.getClassLoader());
+                    ProcessUtils.class.getClassLoader());
             final Object packageName;
             if (SDK_INT >= 18) {
                 Method currentProcessName = activityThread.getDeclaredMethod("currentProcessName");
