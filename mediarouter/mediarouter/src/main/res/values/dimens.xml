@@ -31,10 +31,10 @@
 
     <!-- Dimensions of each list item in MediaRouteChooserDialog -->
     <eat-comment />
-    <dimen name="mr_chooser_list_item_padding_start">24dp</dimen>
-    <dimen name="mr_chooser_list_item_padding_end">24dp</dimen>
-    <dimen name="mr_chooser_list_item_padding_top">12dp</dimen>
-    <dimen name="mr_chooser_list_item_padding_bottom">12dp</dimen>
+    <dimen name="mediarouter_chooser_list_item_padding_start">24dp</dimen>
+    <dimen name="mediarouter_chooser_list_item_padding_end">24dp</dimen>
+    <dimen name="mediarouter_chooser_list_item_padding_top">12dp</dimen>
+    <dimen name="mediarouter_chooser_list_item_padding_bottom">12dp</dimen>
 
     <!-- MediaRouteController's volume group list -->
     <eat-comment />
