@@ -128,7 +128,6 @@ internal class InteractiveWatchFaceImpl(
                 instanceId = newInstanceId
             }
             engine.setUserStyle(userStyle)
-            engine.clearComplicationData()
         }
     }
 
