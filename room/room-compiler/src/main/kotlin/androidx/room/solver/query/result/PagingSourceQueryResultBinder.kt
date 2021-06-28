@@ -25,9 +25,9 @@ import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
 /**
@@ -38,7 +38,8 @@ class PagingSourceQueryResultBinder(
     private val listAdapter: ListQueryResultAdapter?,
     private val tableNames: Set<String>,
 ) : QueryResultBinder(listAdapter) {
-    private val itemTypeName: TypeName = listAdapter?.rowAdapter?.out?.typeName ?: TypeName.OBJECT
+    private val itemTypeName: TypeName =
+        listAdapter?.rowAdapters?.firstOrNull()?.out?.typeName ?: TypeName.OBJECT
     private val limitOffsetPagingSourceTypeNam: ParameterizedTypeName = ParameterizedTypeName.get(
         RoomTypeNames.LIMIT_OFFSET_PAGING_SOURCE, itemTypeName
     )

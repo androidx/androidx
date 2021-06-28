@@ -36,6 +36,7 @@ import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
 import androidx.room.solver.query.result.PojoRowAdapter
+import androidx.room.solver.query.result.SingleColumnRowAdapter
 import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
 import androidx.room.testing.context
 import androidx.room.vo.Field
@@ -72,6 +73,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 package foo.bar;
                 import androidx.annotation.NonNull;
                 import androidx.room.*;
+                import java.util.Map;
+                import java.util.List;
                 @Dao
                 abstract class MyClass {
                 """
@@ -794,7 +797,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             val adapter = parsedQuery.queryResultBinder.adapter
             assertThat(checkNotNull(adapter))
             assertThat(adapter::class, `is`(SingleEntityQueryResultAdapter::class))
-            val rowAdapter = adapter.rowAdapter
+            val rowAdapter = adapter.rowAdapters.single()
             assertThat(checkNotNull(rowAdapter))
             assertThat(rowAdapter::class, `is`(PojoRowAdapter::class))
         }
@@ -843,8 +846,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 instanceOf(ListQueryResultAdapter::class.java)
             )
             val listAdapter = method.queryResultBinder.adapter as ListQueryResultAdapter
-            assertThat(listAdapter.rowAdapter, instanceOf(PojoRowAdapter::class.java))
-            val pojoRowAdapter = listAdapter.rowAdapter as PojoRowAdapter
+            assertThat(listAdapter.rowAdapters.single(), instanceOf(PojoRowAdapter::class.java))
+            val pojoRowAdapter = listAdapter.rowAdapters.single() as PojoRowAdapter
             assertThat(pojoRowAdapter.relationCollectors.size, `is`(1))
             assertThat(
                 pojoRowAdapter.relationCollectors[0].relationTypeName,
@@ -916,6 +919,28 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
     }
 
     @Test
+    fun primitive_removeUnusedColumns() {
+        if (!enableVerification) {
+            throw AssumptionViolatedException("nothing to test w/o db verification")
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @RewriteQueriesToDropUnusedColumns
+                @Query("select 1 from user")
+                abstract int getOne();
+                """
+        ) { method, invocation ->
+            val adapter = method.queryResultBinder.adapter?.rowAdapters?.single()
+            check(adapter is SingleColumnRowAdapter)
+            assertThat(method.query.original)
+                .isEqualTo("select 1 from user")
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
     fun pojo_removeUnusedColumns() {
         if (!enableVerification) {
             throw AssumptionViolatedException("nothing to test w/o db verification")
@@ -931,10 +956,50 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract Pojo loadUsers();
                 """
         ) { method, invocation ->
-            val adapter = method.queryResultBinder.adapter?.rowAdapter
+            val adapter = method.queryResultBinder.adapter?.rowAdapters?.single()
             check(adapter is PojoRowAdapter)
             assertThat(method.query.original)
                 .isEqualTo("SELECT `name`, `lastName` FROM (select * from user LIMIT 1)")
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun pojo_multimapQuery_removeUnusedColumns() {
+        if (!enableVerification) {
+            throw AssumptionViolatedException("nothing to test w/o db verification")
+        }
+        val relatingEntity = Source.java(
+            "foo.bar.Relation",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            @Entity
+            public class Relation {
+              @PrimaryKey
+              long relationId;
+              long userId;
+            }
+            """.trimIndent()
+        )
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                public static class Username {
+                    public String name;
+                }
+                @RewriteQueriesToDropUnusedColumns
+                @Query("SELECT * FROM User JOIN Relation ON (User.uid = Relation.userId)")
+                abstract Map<Username, List<Relation>> loadUserRelations();
+                """,
+            additionalSources = listOf(relatingEntity)
+        ) { method, invocation ->
+            assertThat(method.query.original)
+                .isEqualTo(
+                    "SELECT `name`, `relationId`, `userId` FROM " +
+                        "(SELECT * FROM User JOIN Relation ON (User.uid = Relation.userId))"
+                )
             invocation.assertCompilationResult {
                 hasNoWarnings()
             }
@@ -957,7 +1022,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract Pojo loadUsers();
                 """
         ) { method, invocation ->
-            val adapter = method.queryResultBinder.adapter?.rowAdapter
+            val adapter = method.queryResultBinder.adapter?.rowAdapters?.single()
             check(adapter is PojoRowAdapter)
             assertThat(method.query.original).isEqualTo("select * from user u, user u2 LIMIT 1")
             invocation.assertCompilationResult {
@@ -1003,17 +1068,15 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 )
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeName = POJO,
+                        pojoTypeNames = listOf(POJO),
                         unusedColumns = listOf("name", "lastName"),
-                        unusedFields = listOf(
-                            createField("nameX"),
-                            createField("lastNameX")
+                        pojoUnusedFields = mapOf(
+                            POJO to listOf(
+                                createField("nameX"),
+                                createField("lastNameX")
+                            )
                         ),
                         allColumns = listOf("name", "lastName"),
-                        allFields = listOf(
-                            createField("nameX"),
-                            createField("lastNameX")
-                        )
                     )
                 )
             }
@@ -1058,11 +1121,10 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeName = POJO,
+                        pojoTypeNames = listOf(POJO),
                         unusedColumns = listOf("uid"),
-                        unusedFields = emptyList(),
+                        pojoUnusedFields = emptyMap(),
                         allColumns = listOf("uid", "name", "lastName"),
-                        allFields = listOf(createField("name"), createField("lastName"))
                     )
                 )
             }
@@ -1088,11 +1150,10 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeName = POJO,
+                        pojoTypeNames = listOf(POJO),
                         unusedColumns = emptyList(),
-                        unusedFields = listOf(createField("name")),
                         allColumns = listOf("lastName"),
-                        allFields = listOf(createField("name"), createField("lastName"))
+                        pojoUnusedFields = mapOf(POJO to listOf(createField("name"))),
                     )
                 )
             }
@@ -1119,11 +1180,10 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeName = POJO,
+                        pojoTypeNames = listOf(POJO),
                         unusedColumns = emptyList(),
-                        unusedFields = listOf(createField("name")),
+                        pojoUnusedFields = mapOf(POJO to listOf(createField("name"))),
                         allColumns = listOf("lastName"),
-                        allFields = listOf(createField("name"), createField("lastName"))
                     )
                 )
                 hasErrorContaining(
@@ -1156,11 +1216,10 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeName = POJO,
+                        pojoTypeNames = listOf(POJO),
                         unusedColumns = listOf("uid"),
-                        unusedFields = listOf(createField("lastName")),
                         allColumns = listOf("uid", "name"),
-                        allFields = listOf(createField("name"), createField("lastName"))
+                        pojoUnusedFields = mapOf(POJO to listOf(createField("lastName")))
                     )
                 )
             }
@@ -1206,7 +1265,11 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             val adapter = parsedQuery.queryResultBinder.adapter
             if (enableVerification) {
                 if (adapter is SingleEntityQueryResultAdapter) {
-                    handler(adapter.rowAdapter as? PojoRowAdapter, parsedQuery, invocation)
+                    handler(
+                        adapter.rowAdapters.single() as? PojoRowAdapter,
+                        parsedQuery,
+                        invocation
+                    )
                 } else {
                     handler(null, parsedQuery, invocation)
                 }

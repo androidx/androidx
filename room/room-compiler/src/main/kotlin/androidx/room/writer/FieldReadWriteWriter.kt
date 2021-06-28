@@ -18,6 +18,7 @@ package androidx.room.writer
 
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.ext.capitalize
 import androidx.room.ext.defaultValue
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.CallType
@@ -27,7 +28,6 @@ import androidx.room.vo.Field
 import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
-import capitalize
 import com.squareup.javapoet.TypeName
 import java.util.Locale
 

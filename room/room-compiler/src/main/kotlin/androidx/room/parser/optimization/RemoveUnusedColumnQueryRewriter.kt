@@ -19,8 +19,7 @@ package androidx.room.parser.optimization
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SqlParser
 import androidx.room.processor.QueryRewriter
-import androidx.room.solver.query.result.PojoRowAdapter
-import androidx.room.solver.query.result.RowAdapter
+import androidx.room.solver.query.result.QueryResultAdapter
 
 /**
  * If the query response has unused columns, this rewrites the query to only fetch those columns.
@@ -31,18 +30,20 @@ import androidx.room.solver.query.result.RowAdapter
  * flattens the query to avoid fetching unused columns in intermediate steps.
  */
 object RemoveUnusedColumnQueryRewriter : QueryRewriter {
-    override fun rewrite(query: ParsedQuery, rowAdapter: RowAdapter): ParsedQuery {
-        if (rowAdapter !is PojoRowAdapter) {
-            return query
-        }
+    override fun rewrite(query: ParsedQuery, resultAdapter: QueryResultAdapter): ParsedQuery {
         // cannot do anything w/o a result info
         val resultInfo = query.resultInfo ?: return query
-
-        val unusedColumns = rowAdapter.mapping.unusedColumns
+        if (resultAdapter.mappings.isEmpty()) {
+            return query
+        }
+        val usedColumns = resultAdapter.mappings.flatMap { mapping ->
+            mapping.matchedFields.map { it.columnName }
+        }
+        val columnNames = resultInfo.columns.map { it.name }
+        val unusedColumns = columnNames - usedColumns
         if (unusedColumns.isEmpty()) {
             return query // nothing to optimize here
         }
-        val columnNames = resultInfo.columns.map { it.name }
         if (columnNames.size != columnNames.distinct().size) {
             // if result has duplicate columns, ignore for now
             return query

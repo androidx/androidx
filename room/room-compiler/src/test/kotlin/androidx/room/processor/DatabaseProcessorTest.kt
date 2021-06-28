@@ -828,7 +828,7 @@ class DatabaseProcessorTest {
                 .filterIsInstance<ReadQueryMethod>()
                 .find { it.name == "loadOne" }
             assertThat(loadOne, notNullValue())
-            val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapter
+            val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
             val adapterEntity = (adapter as EntityRowAdapter).entity
             assertThat(
@@ -840,7 +840,7 @@ class DatabaseProcessorTest {
                 .filterIsInstance<ReadQueryMethod>()
                 .find { it.name == "loadWithConverter" }
             assertThat(withConverter, notNullValue())
-            val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapter
+            val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
             val convAdapterEntity = (convAdapter as EntityRowAdapter).entity
             assertThat(
@@ -869,7 +869,7 @@ class DatabaseProcessorTest {
                 .filterIsInstance<ReadQueryMethod>()
                 .find { it.name == "loadOnePojo" }
             assertThat(loadOne, notNullValue())
-            val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapter
+            val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
             val adapterPojo = (adapter as PojoRowAdapter).pojo
 
@@ -877,7 +877,7 @@ class DatabaseProcessorTest {
                 .filterIsInstance<ReadQueryMethod>()
                 .find { it.name == "loadAllPojos" }
             assertThat(loadAll, notNullValue())
-            val loadAllAdapter = loadAll?.queryResultBinder?.adapter?.rowAdapter
+            val loadAllAdapter = loadAll?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", loadAllAdapter, instanceOf(PojoRowAdapter::class.java))
             val loadAllPojo = (loadAllAdapter as PojoRowAdapter).pojo
             assertThat(adapter, not(sameInstance(loadAllAdapter)))
@@ -887,7 +887,7 @@ class DatabaseProcessorTest {
                 .filterIsInstance<ReadQueryMethod>()
                 .find { it.name == "loadPojoWithConverter" }
             assertThat(withConverter, notNullValue())
-            val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapter
+            val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
             val convAdapterPojo = (convAdapter as PojoRowAdapter).pojo
             assertThat(convAdapterPojo, notNullValue())
