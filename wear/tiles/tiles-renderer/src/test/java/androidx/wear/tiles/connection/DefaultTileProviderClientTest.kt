@@ -99,7 +99,7 @@ public class DefaultTileProviderClientTest {
         fakeTileProvider.returnTile = expectedTile.toProto().toByteArray()
 
         val result = async {
-            clientUnderTest.tileRequest(RequestBuilders.TileRequest.builder().build()).await()
+            clientUnderTest.requestTile(RequestBuilders.TileRequest.builder().build()).await()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -114,7 +114,7 @@ public class DefaultTileProviderClientTest {
             fakeTileProvider.returnTile = byteArrayOf(127)
 
             val result = async {
-                clientUnderTest.tileRequest(RequestBuilders.TileRequest.builder().build()).await()
+                clientUnderTest.requestTile(RequestBuilders.TileRequest.builder().build()).await()
             }
             Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -132,7 +132,7 @@ public class DefaultTileProviderClientTest {
         fakeTileProvider.returnTileVersion = -1
 
         val result = async {
-            clientUnderTest.tileRequest(RequestBuilders.TileRequest.builder().build()).await()
+            clientUnderTest.requestTile(RequestBuilders.TileRequest.builder().build()).await()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
@@ -149,7 +149,7 @@ public class DefaultTileProviderClientTest {
 
         // This has to be dispatched on the correct dispatcher, so we can fully control its timing.
         val result = async(fakeCoroutineDispatcher) {
-            clientUnderTest.tileRequest(RequestBuilders.TileRequest.builder().build()).await()
+            clientUnderTest.requestTile(RequestBuilders.TileRequest.builder().build()).await()
         }
         Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
 
@@ -171,7 +171,7 @@ public class DefaultTileProviderClientTest {
         fakeTileProvider.returnResources = expectedResources.toProto().toByteArray()
 
         val result = async {
-            clientUnderTest.resourcesRequest(
+            clientUnderTest.requestResources(
                 RequestBuilders.ResourcesRequest.builder().build()
             ).await()
         }
@@ -185,7 +185,7 @@ public class DefaultTileProviderClientTest {
         fakeTileProvider.returnResources = byteArrayOf(127)
 
         val result = async {
-            clientUnderTest.resourcesRequest(
+            clientUnderTest.requestResources(
                 RequestBuilders.ResourcesRequest.builder().build()
             ).await()
         }
@@ -204,7 +204,7 @@ public class DefaultTileProviderClientTest {
         fakeTileProvider.returnResourcesVersion = -2
 
         val result = async {
-            clientUnderTest.resourcesRequest(
+            clientUnderTest.requestResources(
                 RequestBuilders.ResourcesRequest.builder().build()
             ).await()
         }
@@ -223,7 +223,7 @@ public class DefaultTileProviderClientTest {
 
         // This has to be dispatched on the correct dispatcher, so we can fully control its timing.
         val result = async(fakeCoroutineDispatcher) {
-            clientUnderTest.resourcesRequest(
+            clientUnderTest.requestResources(
                 RequestBuilders.ResourcesRequest.builder().build()
             ).await()
         }
@@ -244,7 +244,7 @@ public class DefaultTileProviderClientTest {
     @Test
     public fun onTileAdd_callsThrough(): Unit = fakeCoroutineScope.runBlockingTest {
         val job = launch {
-            clientUnderTest.onTileAdded().await()
+            clientUnderTest.sendOnTileAddedEvent().await()
         }
 
         Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
@@ -256,7 +256,7 @@ public class DefaultTileProviderClientTest {
     @Test
     public fun onTileRemove_callsThrough(): Unit = fakeCoroutineScope.runBlockingTest {
         val job = launch {
-            clientUnderTest.onTileRemoved().await()
+            clientUnderTest.sendOnTileRemovedEvent().await()
         }
 
         Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
@@ -268,7 +268,7 @@ public class DefaultTileProviderClientTest {
     @Test
     public fun onTileEnter_callsThrough(): Unit = fakeCoroutineScope.runBlockingTest {
         val job = launch {
-            clientUnderTest.onTileEnter().await()
+            clientUnderTest.sendOnTileEnterEvent().await()
         }
 
         Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
@@ -280,7 +280,7 @@ public class DefaultTileProviderClientTest {
     @Test
     public fun onTileLeave_callsThrough(): Unit = fakeCoroutineScope.runBlockingTest {
         val job = launch {
-            clientUnderTest.onTileLeave().await()
+            clientUnderTest.sendOnTileLeaveEvent().await()
         }
 
         Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...

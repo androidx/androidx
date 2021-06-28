@@ -29,31 +29,31 @@ import com.google.common.util.concurrent.ListenableFuture;
 public interface TileProviderClient {
     /** Gets the API version supported by the connected TileProviderService. */
     @NonNull
-    ListenableFuture<Integer> getApiVersion();
+    ListenableFuture<Integer> requestApiVersion();
 
     /** Request a tile payload from the connected TileProviderService. */
     @NonNull
-    ListenableFuture<TileBuilders.Tile> tileRequest(
+    ListenableFuture<TileBuilders.Tile> requestTile(
             @NonNull RequestBuilders.TileRequest requestParams);
 
     /** Request a resource bundle from the connected TileProviderService. */
     @NonNull
-    ListenableFuture<ResourceBuilders.Resources> resourcesRequest(
+    ListenableFuture<ResourceBuilders.Resources> requestResources(
             @NonNull RequestBuilders.ResourcesRequest requestParams);
 
     /** Send a Tile Added notification to the connected TileProviderService. */
     @NonNull
-    ListenableFuture<Void> onTileAdded();
+    ListenableFuture<Void> sendOnTileAddedEvent();
 
     /** Send a Tile Removed notification to the connected TileProviderService. */
     @NonNull
-    ListenableFuture<Void> onTileRemoved();
+    ListenableFuture<Void> sendOnTileRemovedEvent();
 
     /** Send a Tile Enter notification to the connected TileProviderService. */
     @NonNull
-    ListenableFuture<Void> onTileEnter();
+    ListenableFuture<Void> sendOnTileEnterEvent();
 
     /** Send a Tile Leave notification to the connected TileProviderService. */
     @NonNull
-    ListenableFuture<Void> onTileLeave();
+    ListenableFuture<Void> sendOnTileLeaveEvent();
 }
