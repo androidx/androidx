@@ -89,7 +89,7 @@ public class AutomotiveCarInfo implements CarInfo {
     }
 
     @Override
-    public void getModel(@NonNull Executor executor,
+    public void fetchModel(@NonNull Executor executor,
             @NonNull OnCarDataListener<Model> listener) {
         // Prepare request GetPropertyRequest
         List<GetPropertyRequest> request = new ArrayList<>();
@@ -104,7 +104,7 @@ public class AutomotiveCarInfo implements CarInfo {
     }
 
     @Override
-    public void getEnergyProfile(@NonNull Executor executor,
+    public void fetchEnergyProfile(@NonNull Executor executor,
             @NonNull OnCarDataListener<EnergyProfile> listener) {
         // Prepare request GetPropertyRequest
         List<GetPropertyRequest> request = new ArrayList<>();
@@ -350,7 +350,7 @@ public class AutomotiveCarInfo implements CarInfo {
                         }
                     }
                     Mileage mileage =
-                            new Mileage.Builder().setOdometer(
+                            new Mileage.Builder().setOdometerMeters(
                                     odometerValue).setDistanceDisplayUnit(
                                     distanceDisplayUnitValue).build();
                     mMileageOnCarDataListener.onCarData(mileage);
@@ -433,7 +433,7 @@ public class AutomotiveCarInfo implements CarInfo {
                             new EnergyLevel.Builder().setBatteryPercent(
                                     batteryPercentValue).setFuelPercent(
                                     fuelPercentValue).setEnergyIsLow(
-                                    energyIsLowValue).setRangeRemaining(
+                                    energyIsLowValue).setRangeRemainingMeters(
                                     rangeRemainingValue).setDistanceDisplayUnit(
                                     distanceDisplayUnitValue).build();
                     mEnergyLevelOnCarDataListener.onCarData(energyLevel);

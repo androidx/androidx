@@ -32,7 +32,7 @@ public interface CarInfo {
      * @param executor the executor which will be used for invoking the listener
      * @param listener the listener that will be invoked when data is available
      */
-    void getModel(@NonNull /* @CallbackExecutor */ Executor executor,
+    void fetchModel(@NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<Model> listener);
 
     /**
@@ -41,7 +41,7 @@ public interface CarInfo {
      * @param executor the executor which will be used for invoking the listener
      * @param listener the listener that will be invoked when data is available
      */
-    void getEnergyProfile(@NonNull /* @CallbackExecutor */ Executor executor,
+    void fetchEnergyProfile(@NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull OnCarDataListener<EnergyProfile> listener);
 
     /**

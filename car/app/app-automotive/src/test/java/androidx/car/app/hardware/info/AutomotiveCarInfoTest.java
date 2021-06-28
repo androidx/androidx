@@ -120,7 +120,7 @@ public class AutomotiveCarInfoTest {
             loadedResult.set(data);
             mCountDownLatch.countDown();
         };
-        mAutomotiveCarInfo.getModel(mExecutor, listener);
+        mAutomotiveCarInfo.fetchModel(mExecutor, listener);
         verify(mPropertyManager, times(1)).submitGetPropertyRequest(any(), any());
         mCountDownLatch.await();
         Model mModel = loadedResult.get();
@@ -148,7 +148,7 @@ public class AutomotiveCarInfoTest {
             loadedResult.set(data);
             mCountDownLatch.countDown();
         };
-        mAutomotiveCarInfo.getEnergyProfile(mExecutor, listener);
+        mAutomotiveCarInfo.fetchEnergyProfile(mExecutor, listener);
         verify(mPropertyManager, times(1)).submitGetPropertyRequest(any(), any());
         mCountDownLatch.await();
         EnergyProfile energyProfile = loadedResult.get();
@@ -183,7 +183,7 @@ public class AutomotiveCarInfoTest {
         mCountDownLatch.await();
 
         Mileage mileage = loadedResult.get();
-        assertThat(mileage.getOdometer().getValue()).isEqualTo(1f);
+        assertThat(mileage.getOdometerMeters().getValue()).isEqualTo(1f);
         assertThat(mileage.getDistanceDisplayUnit().getValue()).isEqualTo(2);
     }
 
@@ -233,7 +233,7 @@ public class AutomotiveCarInfoTest {
                 2f);
         assertThat(energyLevel.getEnergyIsLow().getValue()).isEqualTo(
                 true);
-        assertThat(energyLevel.getRangeRemaining().getValue()).isEqualTo(
+        assertThat(energyLevel.getRangeRemainingMeters().getValue()).isEqualTo(
                 5f);
         assertThat(energyLevel.getDistanceDisplayUnit().getValue()).isEqualTo(7);
     }

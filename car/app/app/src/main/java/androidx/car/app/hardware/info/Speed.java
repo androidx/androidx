@@ -33,16 +33,26 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(3)
 public final class Speed {
+    // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
     @Keep
-    @NonNull
+    @Nullable
     private final CarValue<Float> mRawSpeed;
 
     @Keep
-    @NonNull
+    @Nullable
+    private final CarValue<Float> mRawSpeedMetersPerSecond;
+
+    // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
+    @Keep
+    @Nullable
     private final CarValue<Float> mDisplaySpeed;
 
     @Keep
-    @NonNull
+    @Nullable
+    private final CarValue<Float> mDisplaySpeedMetersPerSecond;
+
+    @Keep
+    @Nullable
     private final CarValue<Integer> mSpeedDisplayUnit;
 
     /**
@@ -52,14 +62,63 @@ public final class Speed {
      * backwards and zero when stopped.
      */
     @NonNull
-    public CarValue<Float> getRawSpeed() {
+    public CarValue<Float> getRawSpeedMetersPerSecond() {
+        if (mRawSpeedMetersPerSecond != null) {
+            return requireNonNull(mRawSpeedMetersPerSecond);
+        }
         return requireNonNull(mRawSpeed);
     }
 
-    /** Returns the display speed of the car in meters/second. */
+    // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
+
+    /**
+     * Returns the raw speed of the car in meters/second.
+     *
+     * <p>The value is positive when the vehicle is moving forward, negative when moving
+     * backwards and zero when stopped.
+     *
+     * @deprecated use {@link #getRawSpeedMetersPerSecond()}
+     */
     @NonNull
-    public CarValue<Float> getDisplaySpeed() {
+    @Deprecated
+    public CarValue<Float> getRawSpeed() {
+        return getRawSpeedMetersPerSecond();
+    }
+
+    /**
+     * Returns the display speed of the car in meters/second.
+     *
+     * <p>Some cars display a slightly slower speed than the actual speed. This is usually
+     * displayed on the speedometer.
+     *
+     * <p>The value is positive when the vehicle is moving forward, negative when moving
+     * backwards and zero when stopped.
+     */
+    @NonNull
+    public CarValue<Float> getDisplaySpeedMetersPerSecond() {
+        if (mRawSpeedMetersPerSecond != null) {
+            return requireNonNull(mDisplaySpeedMetersPerSecond);
+        }
         return requireNonNull(mDisplaySpeed);
+    }
+
+    // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
+
+    /**
+     * Returns the display speed of the car in meters/second.
+     *
+     * <p>Some cars display a slightly slower speed than the actual speed. This is usually
+     * displayed on the speedometer.
+     *
+     * <p>The value is positive when the vehicle is moving forward, negative when moving
+     * backwards and zero when stopped.
+     *
+     * @deprecated use {@link #getDisplaySpeedMetersPerSecond()}
+     */
+    @NonNull
+    @Deprecated
+    public CarValue<Float> getDisplaySpeed() {
+        return getDisplaySpeedMetersPerSecond();
     }
 
     /**
@@ -76,9 +135,9 @@ public final class Speed {
     @NonNull
     public String toString() {
         return "[ raw speed: "
-                + mRawSpeed
+                + getRawSpeedMetersPerSecond()
                 + ", display speed: "
-                + mDisplaySpeed
+                + getDisplaySpeedMetersPerSecond()
                 + ", speed display unit: "
                 + mSpeedDisplayUnit
                 + "]";
@@ -86,7 +145,8 @@ public final class Speed {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mRawSpeed, mDisplaySpeed, mSpeedDisplayUnit);
+        return Objects.hash(getRawSpeedMetersPerSecond(), getDisplaySpeedMetersPerSecond(),
+                mSpeedDisplayUnit);
     }
 
     @Override
@@ -99,49 +159,86 @@ public final class Speed {
         }
         Speed otherSpeed = (Speed) other;
 
-        return Objects.equals(mRawSpeed, otherSpeed.mRawSpeed)
-                && Objects.equals(mDisplaySpeed, otherSpeed.mDisplaySpeed)
+        return Objects.equals(getRawSpeedMetersPerSecond(), otherSpeed.getRawSpeedMetersPerSecond())
+                && Objects.equals(getDisplaySpeedMetersPerSecond(),
+                otherSpeed.getDisplaySpeedMetersPerSecond())
                 && Objects.equals(mSpeedDisplayUnit, otherSpeed.mSpeedDisplayUnit);
     }
 
     Speed(Builder builder) {
-        mRawSpeed = requireNonNull(builder.mRawSpeed);
-        mDisplaySpeed = requireNonNull(builder.mDisplaySpeed);
+        mRawSpeed = null;
+        mRawSpeedMetersPerSecond = requireNonNull(builder.mRawSpeedMetersPerSecond);
+        mDisplaySpeed = null;
+        mDisplaySpeedMetersPerSecond = requireNonNull(builder.mDisplaySpeedMetersPerSecond);
         mSpeedDisplayUnit = requireNonNull(builder.mSpeedDisplayUnit);
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Speed() {
-        mRawSpeed = CarValue.UNIMPLEMENTED_FLOAT;
-        mDisplaySpeed = CarValue.UNIMPLEMENTED_FLOAT;
+        mRawSpeed = null;
+        mRawSpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
+        mDisplaySpeed = null;
+        mDisplaySpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
         mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
     }
 
     /** A builder of {@link Speed}. */
     public static final class Builder {
-        CarValue<Float> mRawSpeed = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Float> mDisplaySpeed = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Float> mRawSpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Float> mDisplaySpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
         CarValue<Integer> mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
 
+        // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
+
         /**
-         * Sets the raw speed.
+         * Sets the raw speed in meters per second.
          *
-         * @throws NullPointerException if {@code rawSpeed} is {@code null}
+         * @throws NullPointerException if {@code rawSpeedMetersPerSecond} is {@code null}
+         * @deprecated use {@link #setRawSpeedMetersPerSecond}
          */
+        @Deprecated
         @NonNull
         public Builder setRawSpeed(@NonNull CarValue<Float> rawSpeed) {
-            mRawSpeed = requireNonNull(rawSpeed);
+            mRawSpeedMetersPerSecond = requireNonNull(rawSpeed);
             return this;
         }
 
         /**
-         * Sets the display speed. *
+         * Sets the raw speed in meters per second.
          *
-         * @throws NullPointerException if {@code displaySpeed} is {@code null}
+         * @throws NullPointerException if {@code rawSpeedMetersPerSecond} is {@code null}
          */
         @NonNull
+        public Builder setRawSpeedMetersPerSecond(
+                @NonNull CarValue<Float> rawSpeedMetersPerSecond) {
+            mRawSpeedMetersPerSecond = requireNonNull(rawSpeedMetersPerSecond);
+            return this;
+        }
+
+        // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
+
+        /**
+         * Sets the display speed in meters per second. *
+         *
+         * @throws NullPointerException if {@code displaySpeedMetersPerSecond} is {@code null}
+         * @deprecated use {@link #setDisplaySpeedMetersPerSecond}
+         */
+        @Deprecated
+        @NonNull
         public Builder setDisplaySpeed(@NonNull CarValue<Float> displaySpeed) {
-            mDisplaySpeed = requireNonNull(displaySpeed);
+            mDisplaySpeedMetersPerSecond = requireNonNull(displaySpeed);
+            return this;
+        }
+
+        /**
+         * Sets the display speed in meters per second. *
+         *
+         * @throws NullPointerException if {@code displaySpeedMetersPerSecond} is {@code null}
+         */
+        @NonNull
+        public Builder setDisplaySpeedMetersPerSecond(
+                @NonNull CarValue<Float> displaySpeedMetersPerSecond) {
+            mDisplaySpeedMetersPerSecond = requireNonNull(displaySpeedMetersPerSecond);
             return this;
         }
 
