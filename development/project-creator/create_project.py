@@ -539,6 +539,8 @@ def is_group_id_atomic(group_id):
         cur_line = library_groups_lines[i]
         # Skip any line that doesn't declare a version.
         if 'LibraryGroup(' not in cur_line: continue
+        # Skip the definition of the LibraryGroup class too.
+        if 'data class LibraryGroup' in cur_line: continue
         group_id_in_line = cur_line.split('LibraryGroup(')[1].split('"')[1]
         # Account for Compose group id substitution variable.
         group_id_in_line = group_id_in_line.replace("$group", "androidx.compose")
