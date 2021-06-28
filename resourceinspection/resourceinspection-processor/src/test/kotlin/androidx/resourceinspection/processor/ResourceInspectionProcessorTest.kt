@@ -787,7 +787,7 @@ class ResourceInspectionProcessorTest {
                     """
                 )
             )
-        ).hadErrorContaining("Attribute name must include namespace")
+        ).hadErrorContaining("@Attribute must include namespace")
     }
 
     @Test
@@ -850,6 +850,72 @@ class ResourceInspectionProcessorTest {
                 )
             )
         ).hadErrorContaining("@Attribute getter must be public")
+    }
+
+    @Test
+    fun `fails when R file for namespace is not present`() {
+        assertThat(
+            compile(
+                java(
+                    "androidx.pkg.MissingRFileTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class MissingRFileTestView extends View {
+                            public MissingRFileTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute("bad.pkg:attribute")
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Attribute bad.pkg:attribute not found")
+    }
+
+    @Test
+    fun `fails when attribute is not present in R file`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "good"),
+                java(
+                    "androidx.pkg.MissingAttributeTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class MissingAttributeTestView extends View {
+                            public MissingAttributeTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute("androidx.pkg:good")
+                            public int getGood() {
+                                return 1;
+                            }
+
+                            @Attribute("androidx.pkg:bad")
+                            public int getBad() {
+                                return 2;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Attribute androidx.pkg:bad not found")
     }
 
     @Test

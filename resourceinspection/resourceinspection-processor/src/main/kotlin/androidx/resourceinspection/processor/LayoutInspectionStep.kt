@@ -145,22 +145,27 @@ internal class LayoutInspectionStep(
 
         val match = ATTRIBUTE_VALUE.matchEntire(value)
 
-        return if (match != null) {
-            val (namespace, name) = match.destructured
-            val intMapping = parseIntMapping(annotation)
-            val type = inferAttributeType(getter, intMapping)
-
-            // TODO(b/180041203): Verify attribute ID or at least existence of R files
-            // TODO(b/180041633): Validate consistency of int mapping
-
-            GetterAttribute(getter, annotation, namespace, name, type, intMapping)
-        } else if (!value.contains(':')) {
-            printError("Attribute name must include namespace", getter, annotation, annotationValue)
-            null
-        } else {
-            printError("Invalid attribute name", getter, annotation, annotationValue)
-            null
+        if (match == null) {
+            if (!value.contains(':')) {
+                printError("@Attribute must include namespace", getter, annotation, annotationValue)
+            } else {
+                printError("Invalid attribute name", getter, annotation, annotationValue)
+            }
+            return null
         }
+
+        val (namespace, name) = match.destructured
+        val intMapping = parseIntMapping(annotation)
+        val type = inferAttributeType(getter, intMapping)
+
+        if (!isAttributeInRFile(namespace, name)) {
+            printError("Attribute $namespace:$name not found", getter, annotation)
+            return null
+        }
+
+        // TODO(b/180041633): Validate consistency of int mapping
+
+        return GetterAttribute(getter, annotation, namespace, name, type, intMapping)
     }
 
     /** Parse `Attribute.intMapping`. */
@@ -247,6 +252,13 @@ internal class LayoutInspectionStep(
         }
 
         return attributes
+    }
+
+    /** Check if an R.java file exists for [namespace] and that it contains attribute [name] */
+    private fun isAttributeInRFile(namespace: String, name: String): Boolean {
+        return processingEnv.elementUtils.getTypeElement("$namespace.R")
+            ?.enclosedElements?.find { it.simpleName.contentEquals("attr") }
+            ?.enclosedElements?.find { it.simpleName.contentEquals(name) } != null
     }
 
     private fun Element.hasResourceIdAnnotation(): Boolean {
