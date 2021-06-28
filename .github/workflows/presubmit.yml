@@ -74,6 +74,8 @@ jobs:
       - name: "Get changed files in push or pull_request"
         id: changed-files
         uses: androidx/changed-files-action@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Warn on missing updateApi"
         run: |
