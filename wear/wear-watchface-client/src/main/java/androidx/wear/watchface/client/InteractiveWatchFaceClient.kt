@@ -84,6 +84,8 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * from the old ID but that's not a requirement). Sets the current [UserStyle] and clears
      * any complication data. Setting the new UserStyle may have a side effect of enabling or
      * disabling complicationSlots, which will be visible via [ComplicationSlotState.isEnabled].
+     *
+     * NB [setWatchUiState] and [updateWatchFaceInstance] can be called in any order.
      */
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle)
 
@@ -162,7 +164,10 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      */
     public val contentDescriptionLabels: List<ContentDescriptionLabel>
 
-    /** Updates the watch faces [WatchUiState]. */
+    /**
+     * Updates the watch faces [WatchUiState]. NB [setWatchUiState] and [updateWatchFaceInstance]
+     * can be called in any order.
+     */
     public fun setWatchUiState(watchUiState: androidx.wear.watchface.client.WatchUiState)
 
     /** Triggers watch face rendering into the surface when in ambient mode. */
