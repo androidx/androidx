@@ -43,7 +43,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.car.app.hardware.common.CarPropertyResponse;
 import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.hardware.common.GetPropertyRequest;
-import androidx.car.app.hardware.common.OnCarDataListener;
+import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 import androidx.car.app.hardware.common.OnCarPropertyResponseListener;
 import androidx.car.app.hardware.common.PropertyManager;
 
@@ -75,7 +75,7 @@ public class AutomotiveCarInfo implements CarInfo {
     private static final float UNKNOWN_CAPACITY = Float.NEGATIVE_INFINITY;
     private static final List<Integer> MILEAGE_REQUEST =
             Arrays.asList(PERF_ODOMETER, DISTANCE_DISPLAY_UNITS);
-    private final Map<OnCarDataListener<?>, OnCarPropertyResponseListener> mListenerMap =
+    private final Map<OnCarDataAvailableListener<?>, OnCarPropertyResponseListener> mListenerMap =
             new HashMap<>();
     private PropertyManager mPropertyManager;
 
@@ -90,7 +90,7 @@ public class AutomotiveCarInfo implements CarInfo {
 
     @Override
     public void fetchModel(@NonNull Executor executor,
-            @NonNull OnCarDataListener<Model> listener) {
+            @NonNull OnCarDataAvailableListener<Model> listener) {
         // Prepare request GetPropertyRequest
         List<GetPropertyRequest> request = new ArrayList<>();
 
@@ -105,7 +105,7 @@ public class AutomotiveCarInfo implements CarInfo {
 
     @Override
     public void fetchEnergyProfile(@NonNull Executor executor,
-            @NonNull OnCarDataListener<EnergyProfile> listener) {
+            @NonNull OnCarDataAvailableListener<EnergyProfile> listener) {
         // Prepare request GetPropertyRequest
         List<GetPropertyRequest> request = new ArrayList<>();
 
@@ -120,37 +120,38 @@ public class AutomotiveCarInfo implements CarInfo {
 
     @Override
     public void addTollListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<TollCard> listener) {
+            @NonNull OnCarDataAvailableListener<TollCard> listener) {
 
     }
 
     @Override
-    public void removeTollListener(@NonNull OnCarDataListener<TollCard> listener) {
+    public void removeTollListener(@NonNull OnCarDataAvailableListener<TollCard> listener) {
     }
 
     @Override
     public void addEnergyLevelListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<EnergyLevel> listener) {
+            @NonNull OnCarDataAvailableListener<EnergyLevel> listener) {
         getCapacitiesThenEnergyLevel(executor, listener);
     }
 
     @Override
-    public void removeEnergyLevelListener(@NonNull OnCarDataListener<EnergyLevel> listener) {
+    public void removeEnergyLevelListener(
+            @NonNull OnCarDataAvailableListener<EnergyLevel> listener) {
         removeListenerImpl(listener);
     }
 
     @Override
     public void addSpeedListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<Speed> listener) {
+            @NonNull OnCarDataAvailableListener<Speed> listener) {
     }
 
     @Override
-    public void removeSpeedListener(@NonNull OnCarDataListener<Speed> listener) {
+    public void removeSpeedListener(@NonNull OnCarDataAvailableListener<Speed> listener) {
     }
 
     @Override
     public void addMileageListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<Mileage> listener) {
+            @NonNull OnCarDataAvailableListener<Mileage> listener) {
         MileageListener mileageListener = new MileageListener(listener, executor);
         mPropertyManager.submitRegisterListenerRequest(MILEAGE_REQUEST, DEFAULT_SAMPLE_RATE,
                 mileageListener, executor);
@@ -158,7 +159,7 @@ public class AutomotiveCarInfo implements CarInfo {
     }
 
     @Override
-    public void removeMileageListener(@NonNull OnCarDataListener<Mileage> listener) {
+    public void removeMileageListener(@NonNull OnCarDataAvailableListener<Mileage> listener) {
         removeListenerImpl(listener);
     }
 
@@ -170,7 +171,7 @@ public class AutomotiveCarInfo implements CarInfo {
 
     @VisibleForTesting
     void getCapacitiesThenEnergyLevel(@NonNull Executor executor,
-            @NonNull OnCarDataListener<EnergyLevel> listener) {
+            @NonNull OnCarDataAvailableListener<EnergyLevel> listener) {
         // Prepare request GetPropertyRequest for battery and fuel capacities.
         List<GetPropertyRequest> request = new ArrayList<>();
 
@@ -215,7 +216,8 @@ public class AutomotiveCarInfo implements CarInfo {
         }, executor);
     }
 
-    private void populateModelData(@NonNull Executor executor, OnCarDataListener<Model> listener,
+    private void populateModelData(@NonNull Executor executor,
+            OnCarDataAvailableListener<Model> listener,
             ListenableFuture<List<CarPropertyResponse<?>>> future) {
         future.addListener(() -> {
             try {
@@ -243,7 +245,7 @@ public class AutomotiveCarInfo implements CarInfo {
                         .setManufacturer(modelValue)
                         .setYear(yearValue)
                         .build();
-                listener.onCarData(model);
+                listener.onCarDataAvailable(model);
             } catch (ExecutionException e) {
                 // TODO(b/191084385): Match exception style in {@link CarValue}.
                 Log.e(TAG, "Failed to get CarPropertyResponse for Model", e);
@@ -256,7 +258,7 @@ public class AutomotiveCarInfo implements CarInfo {
     }
 
     private void populateEnergyProfileData(@NonNull Executor executor,
-            OnCarDataListener<EnergyProfile> listener,
+            OnCarDataAvailableListener<EnergyProfile> listener,
             ListenableFuture<List<CarPropertyResponse<?>>> future) {
         future.addListener(() -> {
             try {
@@ -284,7 +286,7 @@ public class AutomotiveCarInfo implements CarInfo {
                         evConnector)
                         .setFuelTypes(fuel)
                         .build();
-                listener.onCarData(energyProfile);
+                listener.onCarDataAvailable(energyProfile);
             } catch (ExecutionException e) {
                 // TODO(b/191084385): Match exception style in {@link CarValue}.
                 Log.e(TAG, "Failed to get CarPropertyResponse for Energy Profile", e);
@@ -296,7 +298,7 @@ public class AutomotiveCarInfo implements CarInfo {
         }, executor);
     }
 
-    private void removeListenerImpl(OnCarDataListener<?> listener) {
+    private void removeListenerImpl(OnCarDataAvailableListener<?> listener) {
         OnCarPropertyResponseListener responseListener = mListenerMap.remove(listener);
         if (responseListener != null) {
             mPropertyManager.submitUnregisterListenerRequest(responseListener);
@@ -311,10 +313,10 @@ public class AutomotiveCarInfo implements CarInfo {
      */
     @VisibleForTesting
     static class MileageListener implements OnCarPropertyResponseListener {
-        private final OnCarDataListener<Mileage> mMileageOnCarDataListener;
+        private final OnCarDataAvailableListener<Mileage> mMileageOnCarDataListener;
         private final Executor mExecutor;
 
-        MileageListener(OnCarDataListener<Mileage> listener, Executor executor) {
+        MileageListener(OnCarDataAvailableListener<Mileage> listener, Executor executor) {
             mMileageOnCarDataListener = listener;
             mExecutor = executor;
         }
@@ -353,7 +355,7 @@ public class AutomotiveCarInfo implements CarInfo {
                             new Mileage.Builder().setOdometerMeters(
                                     odometerValue).setDistanceDisplayUnit(
                                     distanceDisplayUnitValue).build();
-                    mMileageOnCarDataListener.onCarData(mileage);
+                    mMileageOnCarDataListener.onCarDataAvailable(mileage);
                 });
             }
         }
@@ -364,12 +366,12 @@ public class AutomotiveCarInfo implements CarInfo {
      */
     @VisibleForTesting
     static class EnergyLevelListener implements OnCarPropertyResponseListener {
-        private final OnCarDataListener<EnergyLevel> mEnergyLevelOnCarDataListener;
+        private final OnCarDataAvailableListener<EnergyLevel> mEnergyLevelOnCarDataListener;
         private final Executor mExecutor;
         private float mEvBatteryCapacity;
         private float mFuelCapacity;
 
-        EnergyLevelListener(OnCarDataListener<EnergyLevel> listener, Executor executor,
+        EnergyLevelListener(OnCarDataAvailableListener<EnergyLevel> listener, Executor executor,
                 float evBatteryCapacity, float fuelCapacity) {
             mEnergyLevelOnCarDataListener = listener;
             mExecutor = executor;
@@ -436,7 +438,7 @@ public class AutomotiveCarInfo implements CarInfo {
                                     energyIsLowValue).setRangeRemainingMeters(
                                     rangeRemainingValue).setDistanceDisplayUnit(
                                     distanceDisplayUnitValue).build();
-                    mEnergyLevelOnCarDataListener.onCarData(energyLevel);
+                    mEnergyLevelOnCarDataListener.onCarDataAvailable(energyLevel);
                 });
             }
         }

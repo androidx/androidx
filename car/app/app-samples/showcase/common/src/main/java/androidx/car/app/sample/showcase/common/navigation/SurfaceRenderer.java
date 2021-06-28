@@ -33,7 +33,7 @@ import androidx.car.app.SurfaceCallback;
 import androidx.car.app.SurfaceContainer;
 import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.hardware.common.OnCarDataListener;
+import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 import androidx.car.app.hardware.info.Accelerometer;
 import androidx.car.app.hardware.info.CarHardwareLocation;
 import androidx.car.app.hardware.info.CarInfo;
@@ -97,7 +97,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
     @Nullable
     CarHardwareLocation mCarHardwareLocation;
 
-    private OnCarDataListener<Model> mModelListener = data -> {
+    private OnCarDataAvailableListener<Model> mModelListener = data -> {
         synchronized (SurfaceRenderer.this) {
             Log.i(TAG, "Received model information: " + data);
             mModel = data;
@@ -105,7 +105,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         }
     };
 
-    private OnCarDataListener<EnergyProfile> mEnergyProfileListener = data -> {
+    private OnCarDataAvailableListener<EnergyProfile> mEnergyProfileListener = data -> {
         synchronized (SurfaceRenderer.this) {
             Log.i(TAG, "Received energy profile information: " + data);
             mEnergyProfile = data;
@@ -113,7 +113,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         }
     };
 
-    private OnCarDataListener<TollCard> mTollListener = data -> {
+    private OnCarDataAvailableListener<TollCard> mTollListener = data -> {
         synchronized (SurfaceRenderer.this) {
             Log.i(TAG, "Received toll information:" + data);
             mTollCard = data;
@@ -121,7 +121,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         }
     };
 
-    private OnCarDataListener<EnergyLevel> mEnergyLevelListener = data -> {
+    private OnCarDataAvailableListener<EnergyLevel> mEnergyLevelListener = data -> {
         synchronized (SurfaceRenderer.this) {
             Log.i(TAG, "Received energy level information: " + data);
             mEnergyLevel = data;
@@ -129,7 +129,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         }
     };
 
-    private OnCarDataListener<Speed> mSpeedListener = data -> {
+    private OnCarDataAvailableListener<Speed> mSpeedListener = data -> {
         synchronized (SurfaceRenderer.this) {
             Log.i(TAG, "Received speed information: " + data);
             mSpeed = data;
@@ -137,7 +137,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         }
     };
 
-    private OnCarDataListener<Mileage> mMileageListener = data -> {
+    private OnCarDataAvailableListener<Mileage> mMileageListener = data -> {
         synchronized (SurfaceRenderer.this) {
             Log.i(TAG, "Received mileage: " + data);
             mMileage = data;
@@ -145,7 +145,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         }
     };
 
-    private OnCarDataListener<Accelerometer> mAccelerometerListener = data -> {
+    private OnCarDataAvailableListener<Accelerometer> mAccelerometerListener = data -> {
         synchronized (SurfaceRenderer.this) {
             Log.i(TAG, "Received accelerometer: " + data);
             mAccelerometer = data;
@@ -153,7 +153,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         }
     };
 
-    private OnCarDataListener<Gyroscope> mGyroscopeListener = data -> {
+    private OnCarDataAvailableListener<Gyroscope> mGyroscopeListener = data -> {
         synchronized (SurfaceRenderer.this) {
             Log.i(TAG, "Received gyroscope: " + data);
             mGyroscope = data;
@@ -161,7 +161,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         }
     };
 
-    private OnCarDataListener<Compass> mCompassListener = data -> {
+    private OnCarDataAvailableListener<Compass> mCompassListener = data -> {
         synchronized (SurfaceRenderer.this) {
             Log.i(TAG, "Received compass: " + data);
             mCompass = data;
@@ -169,7 +169,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         }
     };
 
-    private OnCarDataListener<CarHardwareLocation> mCarLocationListener = data -> {
+    private OnCarDataAvailableListener<CarHardwareLocation> mCarLocationListener = data -> {
         synchronized (SurfaceRenderer.this) {
             Log.i(TAG, "Received car location: " + data);
             mCarHardwareLocation = data;

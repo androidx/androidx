@@ -237,8 +237,8 @@ package androidx.car.app.hardware.common {
     field public static final int STATUS_UNKNOWN = 0; // 0x0
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public interface OnCarDataListener<T> {
-    method public void onCarData(T);
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public interface OnCarDataAvailableListener<T> {
+    method public void onCarDataAvailable(T);
   }
 
 }
@@ -256,27 +256,27 @@ package androidx.car.app.hardware.info {
   }
 
   @androidx.car.app.annotations.RequiresCarApi(3) public interface CarInfo {
-    method public void addEnergyLevelListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.EnergyLevel!>);
-    method public void addMileageListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Mileage!>);
-    method public void addSpeedListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Speed!>);
-    method public void addTollListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.TollCard!>);
-    method public void fetchEnergyProfile(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.EnergyProfile!>);
-    method public void fetchModel(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Model!>);
-    method public void removeEnergyLevelListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.EnergyLevel!>);
-    method public void removeMileageListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Mileage!>);
-    method public void removeSpeedListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Speed!>);
-    method public void removeTollListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.TollCard!>);
+    method public void addEnergyLevelListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyLevel!>);
+    method public void addMileageListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Mileage!>);
+    method public void addSpeedListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Speed!>);
+    method public void addTollListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.TollCard!>);
+    method public void fetchEnergyProfile(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyProfile!>);
+    method public void fetchModel(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Model!>);
+    method public void removeEnergyLevelListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyLevel!>);
+    method public void removeMileageListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Mileage!>);
+    method public void removeSpeedListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Speed!>);
+    method public void removeTollListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.TollCard!>);
   }
 
   @androidx.car.app.annotations.RequiresCarApi(3) public interface CarSensors {
-    method public void addAccelerometerListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Accelerometer!>);
-    method public void addCarHardwareLocationListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.CarHardwareLocation!>);
-    method public void addCompassListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Compass!>);
-    method public void addGyroscopeListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Gyroscope!>);
-    method public void removeAccelerometerListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Accelerometer!>);
-    method public void removeCarHardwareLocationListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.CarHardwareLocation!>);
-    method public void removeCompassListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Compass!>);
-    method public void removeGyroscopeListener(androidx.car.app.hardware.common.OnCarDataListener<androidx.car.app.hardware.info.Gyroscope!>);
+    method public void addAccelerometerListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Accelerometer!>);
+    method public void addCarHardwareLocationListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.CarHardwareLocation!>);
+    method public void addCompassListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Compass!>);
+    method public void addGyroscopeListener(int, java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Gyroscope!>);
+    method public void removeAccelerometerListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Accelerometer!>);
+    method public void removeCarHardwareLocationListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.CarHardwareLocation!>);
+    method public void removeCompassListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Compass!>);
+    method public void removeGyroscopeListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Gyroscope!>);
     field public static final int UPDATE_RATE_FASTEST = 3; // 0x3
     field public static final int UPDATE_RATE_NORMAL = 1; // 0x1
     field public static final int UPDATE_RATE_UI = 2; // 0x2

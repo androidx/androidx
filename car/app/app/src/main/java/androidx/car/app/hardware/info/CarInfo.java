@@ -17,7 +17,7 @@ package androidx.car.app.hardware.info;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.RequiresCarApi;
-import androidx.car.app.hardware.common.OnCarDataListener;
+import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 
 import java.util.concurrent.Executor;
 
@@ -27,13 +27,13 @@ import java.util.concurrent.Executor;
 @RequiresCarApi(3)
 public interface CarInfo {
     /**
-     * Request the {@link Model} information about the car hardware.
+     * Fetch the {@link Model} information about the car hardware.
      *
      * @param executor the executor which will be used for invoking the listener
      * @param listener the listener that will be invoked when data is available
      */
     void fetchModel(@NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<Model> listener);
+            @NonNull OnCarDataAvailableListener<Model> listener);
 
     /**
      * Reguest the {@link EnergyProfile} information about the car hardware.
@@ -42,7 +42,7 @@ public interface CarInfo {
      * @param listener the listener that will be invoked when data is available
      */
     void fetchEnergyProfile(@NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<EnergyProfile> listener);
+            @NonNull OnCarDataAvailableListener<EnergyProfile> listener);
 
     /**
      * Setup an ongoing listener to receive {@link TollCard} information from the car hardware.
@@ -53,7 +53,7 @@ public interface CarInfo {
      * @param listener the listener that will be invoked when data is available
      */
     void addTollListener(@NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<TollCard> listener);
+            @NonNull OnCarDataAvailableListener<TollCard> listener);
 
     /**
      * Remove an ongoing listener for {@link TollCard} information.
@@ -62,7 +62,7 @@ public interface CarInfo {
      *
      * @param listener the listener to remove
      */
-    void removeTollListener(@NonNull OnCarDataListener<TollCard> listener);
+    void removeTollListener(@NonNull OnCarDataAvailableListener<TollCard> listener);
 
     /**
      * Setup an ongoing listener to receive {@link EnergyLevel} information from the car hardware.
@@ -73,7 +73,7 @@ public interface CarInfo {
      * @param listener the listener that will be invoked when data is available
      */
     void addEnergyLevelListener(@NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<EnergyLevel> listener);
+            @NonNull OnCarDataAvailableListener<EnergyLevel> listener);
 
     /**
      * Remove an ongoing listener for {@link EnergyLevel} information.
@@ -82,7 +82,7 @@ public interface CarInfo {
      *
      * @param listener the listener to remove
      */
-    void removeEnergyLevelListener(@NonNull OnCarDataListener<EnergyLevel> listener);
+    void removeEnergyLevelListener(@NonNull OnCarDataAvailableListener<EnergyLevel> listener);
 
     /**
      * Setup an ongoing listener to receive {@link Speed} information from the car hardware.
@@ -93,7 +93,7 @@ public interface CarInfo {
      * @param listener the listener that will be invoked when data is available
      */
     void addSpeedListener(@NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<Speed> listener);
+            @NonNull OnCarDataAvailableListener<Speed> listener);
 
     /**
      * Remove an ongoing listener for {@link Speed} information.
@@ -102,7 +102,7 @@ public interface CarInfo {
      *
      * @param listener the listener to remove
      */
-    void removeSpeedListener(@NonNull OnCarDataListener<Speed> listener);
+    void removeSpeedListener(@NonNull OnCarDataAvailableListener<Speed> listener);
 
     /**
      * Setup an ongoing listener to receive {@link Mileage} information from the car hardware.
@@ -113,7 +113,7 @@ public interface CarInfo {
      * @param listener the listener that will be invoked when data is available
      */
     void addMileageListener(@NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<Mileage> listener);
+            @NonNull OnCarDataAvailableListener<Mileage> listener);
 
     /**
      * Remove an ongoing listener for {@link Mileage} information.
@@ -122,5 +122,5 @@ public interface CarInfo {
      *
      * @param listener the listener to remove
      */
-    void removeMileageListener(@NonNull OnCarDataListener<Mileage> listener);
+    void removeMileageListener(@NonNull OnCarDataAvailableListener<Mileage> listener);
 }

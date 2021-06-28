@@ -21,7 +21,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.RequiresCarApi;
-import androidx.car.app.hardware.common.OnCarDataListener;
+import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -81,7 +81,7 @@ public interface CarSensors {
      */
     void addAccelerometerListener(@UpdateRate int rate,
             @NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<Accelerometer> listener);
+            @NonNull OnCarDataAvailableListener<Accelerometer> listener);
 
     /**
      * Remove an ongoing listener for {@link Accelerometer} information.
@@ -89,7 +89,7 @@ public interface CarSensors {
      * @param listener the listener to remove. If the listener is not currently added, then nothing
      *                 will be removed.
      */
-    void removeAccelerometerListener(@NonNull OnCarDataListener<Accelerometer> listener);
+    void removeAccelerometerListener(@NonNull OnCarDataAvailableListener<Accelerometer> listener);
 
     /**
      * Setup an ongoing listener to receive {@link Gyroscope} data from the car hardware.
@@ -103,7 +103,7 @@ public interface CarSensors {
      */
     void addGyroscopeListener(@UpdateRate int rate,
             @NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<Gyroscope> listener);
+            @NonNull OnCarDataAvailableListener<Gyroscope> listener);
 
     /**
      * Remove an ongoing listener for {@link Gyroscope} information.
@@ -111,7 +111,7 @@ public interface CarSensors {
      * @param listener the listener to remove. If the listener is not currently added, then nothing
      *                 will be removed.
      */
-    void removeGyroscopeListener(@NonNull OnCarDataListener<Gyroscope> listener);
+    void removeGyroscopeListener(@NonNull OnCarDataAvailableListener<Gyroscope> listener);
 
     /**
      * Setup an ongoing listener to receive {@link Compass} data from the car hardware.
@@ -127,7 +127,7 @@ public interface CarSensors {
      */
     void addCompassListener(@UpdateRate int rate,
             @NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<Compass> listener);
+            @NonNull OnCarDataAvailableListener<Compass> listener);
 
     /**
      * Remove an ongoing listener for {@link Compass} information.
@@ -135,7 +135,7 @@ public interface CarSensors {
      * @param listener the listener to remove. If the listener is not currently added, then nothing
      *                 will be removed.
      */
-    void removeCompassListener(@NonNull OnCarDataListener<Compass> listener);
+    void removeCompassListener(@NonNull OnCarDataAvailableListener<Compass> listener);
 
     /**
      * Setup an ongoing listener to receive {@link CarHardwareLocation} data from the car hardware.
@@ -151,7 +151,7 @@ public interface CarSensors {
      */
     void addCarHardwareLocationListener(@UpdateRate int rate,
             @NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnCarDataListener<CarHardwareLocation> listener);
+            @NonNull OnCarDataAvailableListener<CarHardwareLocation> listener);
 
     /**
      * Remove an ongoing listener for {@link CarHardwareLocation} information.
@@ -160,5 +160,5 @@ public interface CarSensors {
      *                 will be removed.
      */
     void removeCarHardwareLocationListener(
-            @NonNull OnCarDataListener<CarHardwareLocation> listener);
+            @NonNull OnCarDataAvailableListener<CarHardwareLocation> listener);
 }
