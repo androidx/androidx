@@ -54,6 +54,7 @@ import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.StatusProto;
+import com.google.android.icing.proto.StorageInfoProto;
 import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
 import com.google.common.collect.ImmutableList;
@@ -1743,5 +1744,45 @@ public class AppSearchImplTest {
                 "id2",
                 Collections.emptyMap());
         assertThat(getResult).isEqualTo(document2);
+    }
+
+    @Test
+    public void testGetIcingSearchEngineStorageInfo() throws Exception {
+        // Setup the index
+        File appsearchDir = mTemporaryFolder.newFolder();
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir, /*initStatsBuilder=*/ null,
+                ALWAYS_OPTIMIZE);
+
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        appSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityStore=*/ null,
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0);
+
+        // Add two documents
+        GenericDocument document1 =
+                new GenericDocument.Builder<>("namespace1", "id1", "type").build();
+        appSearchImpl.putDocument("package", "database", document1, /*logger=*/null);
+        GenericDocument document2 =
+                new GenericDocument.Builder<>("namespace1", "id2", "type").build();
+        appSearchImpl.putDocument("package", "database", document2, /*logger=*/null);
+
+        StorageInfoProto storageInfo = appSearchImpl.getRawStorageInfoProto();
+
+        // Simple checks to verify if we can get correct StorageInfoProto from IcingSearchEngine
+        // No need to cover all the fields
+        assertThat(storageInfo.getTotalStorageSize()).isGreaterThan(0);
+        assertThat(
+                storageInfo.getDocumentStorageInfo().getNumAliveDocuments())
+                .isEqualTo(2);
+        assertThat(
+                storageInfo.getSchemaStoreStorageInfo().getNumSchemaTypes())
+                .isEqualTo(1);
     }
 }

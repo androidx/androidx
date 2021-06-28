@@ -91,6 +91,7 @@ import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.SetSchemaResultProto;
 import com.google.android.icing.proto.StatusProto;
+import com.google.android.icing.proto.StorageInfoProto;
 import com.google.android.icing.proto.StorageInfoResultProto;
 import com.google.android.icing.proto.TypePropertyMask;
 import com.google.android.icing.proto.UsageReport;
@@ -1213,7 +1214,8 @@ public final class AppSearchImpl implements Closeable {
                 return new StorageInfo.Builder().build();
             }
 
-            return getStorageInfoForNamespacesLocked(wantedPrefixedNamespaces);
+            return getStorageInfoForNamespaces(getRawStorageInfoProto(),
+                    wantedPrefixedNamespaces);
         } finally {
             mReadWriteLock.readLock().unlock();
         }
@@ -1245,29 +1247,48 @@ public final class AppSearchImpl implements Closeable {
                 return new StorageInfo.Builder().build();
             }
 
-            return getStorageInfoForNamespacesLocked(wantedPrefixedNamespaces);
+            return getStorageInfoForNamespaces(getRawStorageInfoProto(),
+                    wantedPrefixedNamespaces);
         } finally {
             mReadWriteLock.readLock().unlock();
         }
     }
 
-    @GuardedBy("mReadWriteLock")
+    /**
+     * Returns the native storage info capsuled in {@link StorageInfoResultProto} directly from
+     * IcingSearchEngine.
+     */
     @NonNull
-    private StorageInfo getStorageInfoForNamespacesLocked(@NonNull Set<String> prefixedNamespaces)
-            throws AppSearchException {
-        mLogUtil.piiTrace("getStorageInfo, request");
-        StorageInfoResultProto storageInfoResult = mIcingSearchEngineLocked.getStorageInfo();
-        mLogUtil.piiTrace(
-                "getStorageInfo, response", storageInfoResult.getStatus(), storageInfoResult);
-        checkSuccess(storageInfoResult.getStatus());
-        if (!storageInfoResult.hasStorageInfo()
-                || !storageInfoResult.getStorageInfo().hasDocumentStorageInfo()) {
+    public StorageInfoProto getRawStorageInfoProto() throws AppSearchException {
+        mReadWriteLock.readLock().lock();
+        try {
+            throwIfClosedLocked();
+            mLogUtil.piiTrace("getStorageInfo, request");
+            StorageInfoResultProto storageInfoResult = mIcingSearchEngineLocked.getStorageInfo();
+            mLogUtil.piiTrace("getStorageInfo, response", storageInfoResult.getStatus(),
+                    storageInfoResult);
+            checkSuccess(storageInfoResult.getStatus());
+            return storageInfoResult.getStorageInfo();
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Extracts and returns {@link StorageInfo} from {@link StorageInfoProto} based on
+     * prefixed namespaces.
+     */
+    @NonNull
+    private static StorageInfo getStorageInfoForNamespaces(
+            @NonNull StorageInfoProto storageInfoProto,
+            @NonNull Set<String> prefixedNamespaces) {
+        if (!storageInfoProto.hasDocumentStorageInfo()) {
             return new StorageInfo.Builder().build();
         }
-        long totalStorageSize = storageInfoResult.getStorageInfo().getTotalStorageSize();
 
+        long totalStorageSize = storageInfoProto.getTotalStorageSize();
         DocumentStorageInfoProto documentStorageInfo =
-                storageInfoResult.getStorageInfo().getDocumentStorageInfo();
+                storageInfoProto.getDocumentStorageInfo();
         int totalDocuments =
                 documentStorageInfo.getNumAliveDocuments()
                         + documentStorageInfo.getNumExpiredDocuments();
