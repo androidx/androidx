@@ -1451,6 +1451,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 initStyleAndComplicationsDone.await()
                 deferredWatchFaceImpl.complete(watchFaceImpl)
                 asyncWatchFaceConstructionPending = false
+                watchFaceImpl.initComplete = true
 
                 // For interactive instances we want to expedite the first frame to get something
                 // rendered as soon as its possible to do so. NB in tests we may not always want
