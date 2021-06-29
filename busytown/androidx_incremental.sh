@@ -40,7 +40,7 @@ function zipKotlinMetadata() {
 
 # Run Gradle
 EXIT_VALUE=0
-if impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
+if impl/build.sh --diagnose buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
     --profile "$@"; then
   echo build succeeded
   EXIT_VALUE=0
