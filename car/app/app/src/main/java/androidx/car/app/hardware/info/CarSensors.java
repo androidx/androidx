@@ -18,6 +18,7 @@ package androidx.car.app.hardware.info;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.RequiresCarApi;
@@ -32,6 +33,7 @@ import java.util.concurrent.Executor;
  * and gyroscope.
  */
 @RequiresCarApi(3)
+@MainThread
 public interface CarSensors {
 
     /**

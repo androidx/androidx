@@ -15,6 +15,7 @@
  */
 package androidx.car.app.hardware.info;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
@@ -25,6 +26,7 @@ import java.util.concurrent.Executor;
  * Manages access to car hardware specific info such as model, energy, and speed info.
  */
 @RequiresCarApi(3)
+@MainThread
 public interface CarInfo {
     /**
      * Fetch the {@link Model} information about the car hardware.
