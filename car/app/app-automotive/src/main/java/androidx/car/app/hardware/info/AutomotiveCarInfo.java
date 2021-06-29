@@ -313,11 +313,11 @@ public class AutomotiveCarInfo implements CarInfo {
      */
     @VisibleForTesting
     static class MileageListener implements OnCarPropertyResponseListener {
-        private final OnCarDataAvailableListener<Mileage> mMileageOnCarDataListener;
+        private final OnCarDataAvailableListener<Mileage> mMileageOnCarDataAvailableListener;
         private final Executor mExecutor;
 
         MileageListener(OnCarDataAvailableListener<Mileage> listener, Executor executor) {
-            mMileageOnCarDataListener = listener;
+            mMileageOnCarDataAvailableListener = listener;
             mExecutor = executor;
         }
 
@@ -355,7 +355,7 @@ public class AutomotiveCarInfo implements CarInfo {
                             new Mileage.Builder().setOdometerMeters(
                                     odometerValue).setDistanceDisplayUnit(
                                     distanceDisplayUnitValue).build();
-                    mMileageOnCarDataListener.onCarDataAvailable(mileage);
+                    mMileageOnCarDataAvailableListener.onCarDataAvailable(mileage);
                 });
             }
         }
@@ -366,14 +366,15 @@ public class AutomotiveCarInfo implements CarInfo {
      */
     @VisibleForTesting
     static class EnergyLevelListener implements OnCarPropertyResponseListener {
-        private final OnCarDataAvailableListener<EnergyLevel> mEnergyLevelOnCarDataListener;
+        private final OnCarDataAvailableListener<EnergyLevel>
+                mEnergyLevelOnCarDataAvailableListener;
         private final Executor mExecutor;
         private float mEvBatteryCapacity;
         private float mFuelCapacity;
 
         EnergyLevelListener(OnCarDataAvailableListener<EnergyLevel> listener, Executor executor,
                 float evBatteryCapacity, float fuelCapacity) {
-            mEnergyLevelOnCarDataListener = listener;
+            mEnergyLevelOnCarDataAvailableListener = listener;
             mExecutor = executor;
             mEvBatteryCapacity = evBatteryCapacity;
             mFuelCapacity = fuelCapacity;
@@ -438,7 +439,7 @@ public class AutomotiveCarInfo implements CarInfo {
                                     energyIsLowValue).setRangeRemainingMeters(
                                     rangeRemainingValue).setDistanceDisplayUnit(
                                     distanceDisplayUnitValue).build();
-                    mEnergyLevelOnCarDataListener.onCarDataAvailable(energyLevel);
+                    mEnergyLevelOnCarDataAvailableListener.onCarDataAvailable(energyLevel);
                 });
             }
         }
