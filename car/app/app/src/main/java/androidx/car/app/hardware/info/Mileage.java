@@ -15,6 +15,8 @@
  */
 package androidx.car.app.hardware.info;
 
+import static androidx.car.app.hardware.common.CarUnit.CarDistanceUnit;
+
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Keep;
@@ -42,7 +44,7 @@ public final class Mileage {
 
     @Keep
     @NonNull
-    private final CarValue<Integer> mDistanceDisplayUnit;
+    private final CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
 
     /** Returns the value of the odometer from the car hardware in meters. */
     @NonNull
@@ -54,6 +56,7 @@ public final class Mileage {
     }
 
     // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
+
     /**
      * Returns the value of the odometer from the car hardware in meters.
      *
@@ -71,7 +74,7 @@ public final class Mileage {
      * <p>See {@link CarUnit} for possible distance values.
      */
     @NonNull
-    public CarValue<Integer> getDistanceDisplayUnit() {
+    public CarValue<@CarDistanceUnit Integer> getDistanceDisplayUnit() {
         return requireNonNull(mDistanceDisplayUnit);
     }
 
@@ -120,7 +123,8 @@ public final class Mileage {
     /** A builder of {@link Mileage}. */
     public static final class Builder {
         CarValue<Float> mOdometerMeters = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Integer> mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit =
+                CarValue.UNIMPLEMENTED_INTEGER;
 
         // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
 
@@ -156,7 +160,8 @@ public final class Mileage {
          * @throws NullPointerException if {@code mileageDisplayUnit} is {@code null}
          */
         @NonNull
-        public Builder setDistanceDisplayUnit(@NonNull CarValue<Integer> mileageDisplayUnit) {
+        public Builder setDistanceDisplayUnit(
+                @NonNull CarValue<@CarDistanceUnit Integer> mileageDisplayUnit) {
             mDistanceDisplayUnit = requireNonNull(mileageDisplayUnit);
             return this;
         }

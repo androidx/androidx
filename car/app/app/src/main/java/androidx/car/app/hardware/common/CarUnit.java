@@ -23,8 +23,10 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /** Units such as speed and distance for car hardware measurements and display. */
 @CarProtocol
@@ -42,6 +44,7 @@ public final class CarUnit {
             MILE,
     })
     @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.TYPE_USE})
     @RestrictTo(LIBRARY)
     public @interface CarDistanceUnit {
     }
@@ -73,6 +76,7 @@ public final class CarUnit {
             MILES_PER_HOUR,
     })
     @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.TYPE_USE})
     @RestrictTo(LIBRARY)
     public @interface CarSpeedUnit {
     }
