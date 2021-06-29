@@ -30,10 +30,10 @@ import static android.car.VehiclePropertyIds.PERF_ODOMETER;
 import static android.car.VehiclePropertyIds.RANGE_REMAINING;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.car.app.activity.LogTags.TAG;
 
 import static java.util.Objects.requireNonNull;
 
+import android.car.VehiclePropertyIds;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -46,11 +46,14 @@ import androidx.car.app.hardware.common.GetPropertyRequest;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 import androidx.car.app.hardware.common.OnCarPropertyResponseListener;
 import androidx.car.app.hardware.common.PropertyManager;
+import androidx.car.app.hardware.common.PropertyUtils;
+import androidx.car.app.utils.LogTags;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,12 +75,28 @@ public class AutomotiveCarInfo implements CarInfo {
                     DISTANCE_DISPLAY_UNITS);
     @VisibleForTesting
     static final float DEFAULT_SAMPLE_RATE = 5f;
+
+    /*
+     * ELECTRONIC_TOLL_COLLECTION_CARD_STATUS in VehiclePropertyIds. The property is added after
+     * Android Q.
+     */
+    public static final int TOLL_CARD_STATUS_ID = 289410874;
+
+    // VEHICLE_SPEED_DISPLAY_UNIT in VehiclePropertyIds. The property is added after Android Q.
+    // TODO(192383417) check the compile SDK
+    public static final int SPEED_DISPLAY_UNIT_ID = 289408516;
+
     private static final float UNKNOWN_CAPACITY = Float.NEGATIVE_INFINITY;
     private static final List<Integer> MILEAGE_REQUEST =
             Arrays.asList(PERF_ODOMETER, DISTANCE_DISPLAY_UNITS);
+    private static final List<Integer> TOLL_REQUEST =
+            Collections.singletonList(TOLL_CARD_STATUS_ID);
+    private static final List<Integer> SPEED_REQUEST =
+            Arrays.asList(VehiclePropertyIds.PERF_VEHICLE_SPEED,
+                    VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY, SPEED_DISPLAY_UNIT_ID);
     private final Map<OnCarDataAvailableListener<?>, OnCarPropertyResponseListener> mListenerMap =
             new HashMap<>();
-    private PropertyManager mPropertyManager;
+    private final PropertyManager mPropertyManager;
 
     /**
      * AutomotiveCarInfo class constructor initializing PropertyWorkManager object.
@@ -121,11 +140,15 @@ public class AutomotiveCarInfo implements CarInfo {
     @Override
     public void addTollListener(@NonNull Executor executor,
             @NonNull OnCarDataAvailableListener<TollCard> listener) {
-
+        TollListener tollListener = new TollListener(listener, executor);
+        mPropertyManager.submitRegisterListenerRequest(TOLL_REQUEST, DEFAULT_SAMPLE_RATE,
+                tollListener, executor);
+        mListenerMap.put(listener, tollListener);
     }
 
     @Override
     public void removeTollListener(@NonNull OnCarDataAvailableListener<TollCard> listener) {
+        removeListenerImpl(listener);
     }
 
     @Override
@@ -143,10 +166,15 @@ public class AutomotiveCarInfo implements CarInfo {
     @Override
     public void addSpeedListener(@NonNull Executor executor,
             @NonNull OnCarDataAvailableListener<Speed> listener) {
+        SpeedListener speedListener = new SpeedListener(listener, executor);
+        mPropertyManager.submitRegisterListenerRequest(SPEED_REQUEST, DEFAULT_SAMPLE_RATE,
+                speedListener, executor);
+        mListenerMap.put(listener, speedListener);
     }
 
     @Override
     public void removeSpeedListener(@NonNull OnCarDataAvailableListener<Speed> listener) {
+        removeListenerImpl(listener);
     }
 
     @Override
@@ -163,7 +191,7 @@ public class AutomotiveCarInfo implements CarInfo {
         removeListenerImpl(listener);
     }
 
-    <T> CarValue<T> getCarValue(CarPropertyResponse<?> response, @Nullable T value) {
+    static <T> CarValue<T> getCarValue(CarPropertyResponse<?> response, @Nullable T value) {
         long timestampMillis = response.getTimestampMillis();
         int status = response.getStatus();
         return new CarValue<>(value, timestampMillis, status);
@@ -189,8 +217,9 @@ public class AutomotiveCarInfo implements CarInfo {
                 List<CarPropertyResponse<?>> result = future.get();
                 for (CarPropertyResponse<?> value : result) {
                     if (value.getValue() == null) {
-                        Log.w(TAG, "Failed to retrieve CarPropertyResponse value for property id "
-                                + value.getPropertyId());
+                        Log.w(LogTags.TAG_CAR_HARDWARE,
+                                "Failed to retrieve CarPropertyResponse value for property id "
+                                        + value.getPropertyId());
                         continue;
                     }
                     if (value.getPropertyId() == INFO_EV_BATTERY_CAPACITY) {
@@ -206,11 +235,11 @@ public class AutomotiveCarInfo implements CarInfo {
                         DEFAULT_SAMPLE_RATE, energyLevelListener, executor);
                 mListenerMap.put(listener, energyLevelListener);
             } catch (ExecutionException e) {
-                // TODO(b/191084385): Match exception style in {@link CarValue}.
-                Log.e(TAG, "Failed to get CarPropertyResponse for Energy Level", e);
+                Log.e(LogTags.TAG_CAR_HARDWARE,
+                        "Failed to get CarPropertyResponse for Energy Level", e);
             } catch (InterruptedException e) {
-                // TODO(b/191084385): Match exception style in {@link CarValue}.
-                Log.e(TAG, "Failed to get CarPropertyResponse for Energy Level", e);
+                Log.e(LogTags.TAG_CAR_HARDWARE,
+                        "Failed to get CarPropertyResponse for Energy Level", e);
                 Thread.currentThread().interrupt();
             }
         }, executor);
@@ -227,8 +256,9 @@ public class AutomotiveCarInfo implements CarInfo {
                 CarValue<String> modelValue = CarValue.UNIMPLEMENTED_STRING;
                 for (CarPropertyResponse<?> value : result) {
                     if (value.getValue() == null) {
-                        Log.w(TAG, "Failed to retrieve CarPropertyResponse value for property id "
-                                + value.getPropertyId());
+                        Log.w(LogTags.TAG_CAR_HARDWARE,
+                                "Failed to retrieve CarPropertyResponse value for property id "
+                                        + value.getPropertyId());
                         continue;
                     }
                     if (value.getPropertyId() == INFO_MAKE) {
@@ -247,11 +277,11 @@ public class AutomotiveCarInfo implements CarInfo {
                         .build();
                 listener.onCarDataAvailable(model);
             } catch (ExecutionException e) {
-                // TODO(b/191084385): Match exception style in {@link CarValue}.
-                Log.e(TAG, "Failed to get CarPropertyResponse for Model", e);
+                Log.e(LogTags.TAG_CAR_HARDWARE,
+                        "Failed to get CarPropertyResponse for Model", e);
             } catch (InterruptedException e) {
-                // TODO(b/191084385): Match exception style in {@link CarValue}.
-                Log.e(TAG, "Failed to get CarPropertyResponse for Model", e);
+                Log.e(LogTags.TAG_CAR_HARDWARE,
+                        "Failed to get CarPropertyResponse for Model", e);
                 Thread.currentThread().interrupt();
             }
         }, executor);
@@ -267,19 +297,23 @@ public class AutomotiveCarInfo implements CarInfo {
                 CarValue<List<Integer>> fuel = CarValue.UNIMPLEMENTED_INTEGER_LIST;
                 for (CarPropertyResponse<?> value : result) {
                     if (value.getValue() == null) {
-                        Log.w(TAG, "Failed to retrieve CarPropertyResponse value for property id "
-                                + value.getPropertyId());
+                        Log.w(LogTags.TAG_CAR_HARDWARE,
+                                "Failed to retrieve CarPropertyResponse value for property id"
+                                        + value.getPropertyId());
                         continue;
                     }
                     if (value.getPropertyId() == INFO_EV_CONNECTOR_TYPE) {
-                        evConnector = getCarValue(value, Arrays.stream((int[]) requireNonNull(
-                                value.getValue()))
-                                .boxed().collect(Collectors.toList()));
+                        Integer[] evConnectorsInVehicle = (Integer[]) value.getValue();
+                        List<Integer> evConnectorsInCarValue = new ArrayList<>();
+                        for (Integer connectorType : evConnectorsInVehicle) {
+                            evConnectorsInCarValue.add(
+                                    PropertyUtils.covertEvConnectorType(connectorType));
+                        }
+                        evConnector = getCarValue(value, evConnectorsInCarValue);
                     }
                     if (value.getPropertyId() == INFO_FUEL_TYPE) {
-                        fuel = getCarValue(value, Arrays.stream((int[]) requireNonNull(
-                                value.getValue()))
-                                .boxed().collect(Collectors.toList()));
+                        fuel = getCarValue(value, Arrays.stream((Integer[]) requireNonNull(
+                                value.getValue())).collect(Collectors.toList()));
                     }
                 }
                 EnergyProfile energyProfile = new EnergyProfile.Builder().setEvConnectorTypes(
@@ -288,11 +322,11 @@ public class AutomotiveCarInfo implements CarInfo {
                         .build();
                 listener.onCarDataAvailable(energyProfile);
             } catch (ExecutionException e) {
-                // TODO(b/191084385): Match exception style in {@link CarValue}.
-                Log.e(TAG, "Failed to get CarPropertyResponse for Energy Profile", e);
+                Log.e(LogTags.TAG_CAR_HARDWARE,
+                        "Failed to get CarPropertyResponse for Energy Profile", e);
             } catch (InterruptedException e) {
-                // TODO(b/191084385): Match exception style in {@link CarValue}.
-                Log.e(TAG, "Failed to get CarPropertyResponse for Energy Profile", e);
+                Log.e(LogTags.TAG_CAR_HARDWARE,
+                        "Failed to get CarPropertyResponse for Energy Profile", e);
                 Thread.currentThread().interrupt();
             }
         }, executor);
@@ -304,6 +338,81 @@ public class AutomotiveCarInfo implements CarInfo {
             mPropertyManager.submitUnregisterListenerRequest(responseListener);
         } else {
             throw new IllegalArgumentException("Listener is not registered yet");
+        }
+    }
+
+    private static class TollListener implements OnCarPropertyResponseListener {
+        private final OnCarDataAvailableListener<TollCard> mTollOnCarDataListener;
+        private final Executor mExecutor;
+
+        TollListener(OnCarDataAvailableListener<TollCard> listener, Executor executor) {
+            mTollOnCarDataListener = listener;
+            mExecutor = executor;
+        }
+
+        @Override
+        public void onCarPropertyResponses(
+                @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
+            if (carPropertyResponses.size() != 1
+                    || carPropertyResponses.get(0).getPropertyId() != TOLL_CARD_STATUS_ID) {
+                Log.e(LogTags.TAG_CAR_HARDWARE, "Invalid response callback in TollListener.");
+                return;
+            }
+            mExecutor.execute(() -> {
+                CarPropertyResponse<?> response = carPropertyResponses.get(0);
+                CarValue<Integer> tollValue = getCarValue(response, (Integer) response.getValue());
+                TollCard toll = new TollCard.Builder().setCardState(tollValue).build();
+                mTollOnCarDataListener.onCarDataAvailable(toll);
+            });
+        }
+    }
+
+    private static class SpeedListener implements OnCarPropertyResponseListener {
+        private final OnCarDataAvailableListener<Speed> mSpeedOnCarDataListener;
+        private final Executor mExecutor;
+
+        SpeedListener(OnCarDataAvailableListener<Speed> listener, Executor executor) {
+            mSpeedOnCarDataListener = listener;
+            mExecutor = executor;
+        }
+
+        @Override
+        public void onCarPropertyResponses(
+                @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
+            if (carPropertyResponses.size() != 3) {
+                Log.e(LogTags.TAG_CAR_HARDWARE, "Invalid response callback in SpeedListener.");
+                return;
+            }
+            mExecutor.execute(() -> {
+                CarValue<Float> rawSpeedValue = CarValue.UNIMPLEMENTED_FLOAT;
+                CarValue<Float> displaySpeedValue = CarValue.UNIMPLEMENTED_FLOAT;
+                CarValue<Integer> displayUnitValue = CarValue.UNIMPLEMENTED_INTEGER;
+                for (CarPropertyResponse<?> response : carPropertyResponses) {
+                    switch (response.getPropertyId()) {
+                        case VehiclePropertyIds.PERF_VEHICLE_SPEED:
+                            rawSpeedValue = getCarValue(response, (Float) response.getValue());
+                            break;
+                        case VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY:
+                            displaySpeedValue = getCarValue(response, (Float) response.getValue());
+                            break;
+                        case SPEED_DISPLAY_UNIT_ID:
+                            Integer speedUnit = null;
+                            if (response.getValue() != null) {
+                                speedUnit = PropertyUtils.covertSpeedUnit(
+                                        (Integer) response.getValue());
+                            }
+                            displayUnitValue = getCarValue(response, speedUnit);
+                            break;
+                        default:
+                            Log.e(LogTags.TAG_CAR_HARDWARE,
+                                    "Invalid response callback in SpeedListener.");
+                    }
+                }
+                Speed speed = new Speed.Builder().setRawSpeedMetersPerSecond(rawSpeedValue)
+                        .setDisplaySpeedMetersPerSecond(displaySpeedValue)
+                        .setSpeedDisplayUnit(displayUnitValue).build();
+                mSpeedOnCarDataListener.onCarDataAvailable(speed);
+            });
         }
     }
 
@@ -327,11 +436,10 @@ public class AutomotiveCarInfo implements CarInfo {
             if (carPropertyResponses.size() == 2) {
                 mExecutor.execute(() -> {
                     CarValue<Float> odometerValue = CarValue.UNIMPLEMENTED_FLOAT;
-                    CarValue<Integer> distanceDisplayUnitValue =
-                            CarValue.UNIMPLEMENTED_INTEGER;
+                    CarValue<Integer> distanceDisplayUnitValue = CarValue.UNIMPLEMENTED_INTEGER;
                     for (CarPropertyResponse<?> response : carPropertyResponses) {
                         if (response.getValue() == null) {
-                            Log.w(TAG,
+                            Log.w(LogTags.TAG_CAR_HARDWARE,
                                     "Failed to retrieve CarPropertyResponse value for property id "
                                             + response.getPropertyId());
                             continue;
@@ -343,12 +451,17 @@ public class AutomotiveCarInfo implements CarInfo {
                                         response.getTimestampMillis(), response.getStatus());
                                 break;
                             case DISTANCE_DISPLAY_UNITS:
-                                distanceDisplayUnitValue = new CarValue<>(
-                                        (Integer) response.getValue(),
+                                Integer displayUnit = null;
+                                if (response.getValue() != null) {
+                                    displayUnit = PropertyUtils.covertDistanceUnit(
+                                            (Integer) response.getValue());
+                                }
+                                distanceDisplayUnitValue = new CarValue<>(displayUnit,
                                         response.getTimestampMillis(), response.getStatus());
                                 break;
                             default:
-                                Log.e(TAG, "Invalid response callback in MileageListener");
+                                Log.e(LogTags.TAG_CAR_HARDWARE,
+                                        "Invalid response callback in MileageListener");
                         }
                     }
                     Mileage mileage =
@@ -393,7 +506,7 @@ public class AutomotiveCarInfo implements CarInfo {
                             CarValue.UNIMPLEMENTED_INTEGER;
                     for (CarPropertyResponse<?> response : carPropertyResponses) {
                         if (response.getValue() == null) {
-                            Log.w(TAG,
+                            Log.w(LogTags.TAG_CAR_HARDWARE,
                                     "Failed to retrieve CarPropertyResponse value for property id "
                                             + response.getPropertyId());
                             continue;
@@ -429,7 +542,8 @@ public class AutomotiveCarInfo implements CarInfo {
                                         response.getTimestampMillis(), response.getStatus());
                                 break;
                             default:
-                                Log.e(TAG, "Invalid response callback in EnergyLevelListener");
+                                Log.e(LogTags.TAG_CAR_HARDWARE,
+                                        "Invalid response callback in EnergyLevelListener");
                         }
                     }
                     EnergyLevel energyLevel =
