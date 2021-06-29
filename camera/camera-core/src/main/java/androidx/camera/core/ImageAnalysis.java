@@ -227,7 +227,8 @@ public final class ImageAnalysis extends UseCase {
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
         }
-        mDeferrableSurface = new ImmediateSurface(imageReaderProxy.getSurface());
+        mDeferrableSurface = new ImmediateSurface(imageReaderProxy.getSurface(), resolution,
+                getImageFormat());
         mDeferrableSurface.getTerminationFuture().addListener(imageReaderProxy::safeClose,
                 CameraXExecutors.mainThreadExecutor());
 
