@@ -31,6 +31,8 @@ import static android.car.VehiclePropertyIds.RANGE_REMAINING;
 
 import static androidx.car.app.hardware.common.CarValue.STATUS_SUCCESS;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.DEFAULT_SAMPLE_RATE;
+import static androidx.car.app.hardware.info.AutomotiveCarInfo.SPEED_DISPLAY_UNIT_ID;
+import static androidx.car.app.hardware.info.AutomotiveCarInfo.TOLL_CARD_STATUS_ID;
 import static androidx.car.app.hardware.info.EnergyProfile.EVCONNECTOR_TYPE_CHADEMO;
 import static androidx.car.app.hardware.info.EnergyProfile.FUEL_TYPE_UNLEADED;
 
@@ -45,9 +47,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
+import android.car.VehiclePropertyIds;
 import android.car.hardware.property.CarPropertyManager;
 
 import androidx.car.app.hardware.common.CarPropertyResponse;
+import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 import androidx.car.app.hardware.common.OnCarPropertyResponseListener;
 import androidx.car.app.hardware.common.PropertyManager;
@@ -134,11 +138,14 @@ public class AutomotiveCarInfoTest {
 
     @Test
     public void getEnergyProfile_verifyResponse() throws InterruptedException {
+        // chademo in car service
+        int chademoInVehicle = 4;
+
         // Add "evConnector" and "fuel" type of the vehicle to the requests.
         mResponse.add(CarPropertyResponse.create(INFO_EV_CONNECTOR_TYPE,
-                STATUS_SUCCESS, 1, new int[]{EVCONNECTOR_TYPE_CHADEMO}));
+                STATUS_SUCCESS, 1, new Integer[]{chademoInVehicle}));
         mResponse.add(CarPropertyResponse.create(INFO_FUEL_TYPE,
-                STATUS_SUCCESS, 2, new int[]{FUEL_TYPE_UNLEADED}));
+                STATUS_SUCCESS, 2, new Integer[]{FUEL_TYPE_UNLEADED}));
         ListenableFuture<List<CarPropertyResponse<?>>> listenableCarPropertyResponse =
                 Futures.immediateFuture(mResponse);
         when(mPropertyManager.submitGetPropertyRequest(any(), any())).thenReturn(
@@ -163,6 +170,8 @@ public class AutomotiveCarInfoTest {
 
     @Test
     public void getMileage_verifyResponse() throws InterruptedException {
+        // VehicleUnit.METER in car service
+        int meterUnit = 0x21;
         AtomicReference<Mileage> loadedResult = new AtomicReference<>();
         OnCarDataAvailableListener<Mileage> listener = (data) -> {
             loadedResult.set(data);
@@ -177,7 +186,8 @@ public class AutomotiveCarInfoTest {
                 captor.capture(), any());
 
         mResponse.add(CarPropertyResponse.create(PERF_ODOMETER, STATUS_SUCCESS, 1, 1f));
-        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS, STATUS_SUCCESS, 2, 2));
+        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS, STATUS_SUCCESS, 2,
+                meterUnit));
 
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
@@ -185,6 +195,68 @@ public class AutomotiveCarInfoTest {
         Mileage mileage = loadedResult.get();
         assertThat(mileage.getOdometerMeters().getValue()).isEqualTo(1f);
         assertThat(mileage.getDistanceDisplayUnit().getValue()).isEqualTo(2);
+    }
+
+    @Test
+    public void getTollCard_verifyResponse() throws InterruptedException {
+        AtomicReference<TollCard> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<TollCard> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addTollListener(mExecutor, listener);
+
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager).submitRegisterListenerRequest(any(), eq(DEFAULT_SAMPLE_RATE),
+                captor.capture(), any());
+
+        mResponse.add(CarPropertyResponse.create(TOLL_CARD_STATUS_ID,
+                STATUS_SUCCESS, 1, TollCard.TOLLCARD_STATE_VALID));
+
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        TollCard tollCard = loadedResult.get();
+        assertThat(tollCard.getCardState().getValue()).isEqualTo(TollCard.TOLLCARD_STATE_VALID);
+    }
+
+    @Test
+    public void getSpeed_verifyResponse() throws InterruptedException {
+        float defaultSpeed = 20f;
+        float defaultRawSpeed = 20.5f;
+
+        // VehicleUnit.METER_PER_SEC in car service
+        int metersPerSec = 0x01;
+
+        AtomicReference<Speed> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<Speed> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addSpeedListener(mExecutor, listener);
+
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager).submitRegisterListenerRequest(any(), eq(DEFAULT_SAMPLE_RATE),
+                captor.capture(), any());
+
+        mResponse.add(CarPropertyResponse.create(SPEED_DISPLAY_UNIT_ID, STATUS_SUCCESS, 1,
+                metersPerSec));
+        mResponse.add(CarPropertyResponse.create(VehiclePropertyIds.PERF_VEHICLE_SPEED,
+                STATUS_SUCCESS, 2, defaultRawSpeed));
+        mResponse.add(CarPropertyResponse.create(VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY,
+                STATUS_SUCCESS, 3, defaultSpeed));
+
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        Speed speed = loadedResult.get();
+        assertThat(speed.getRawSpeedMetersPerSecond().getValue()).isEqualTo(defaultRawSpeed);
+        assertThat(speed.getDisplaySpeedMetersPerSecond().getValue()).isEqualTo(defaultSpeed);
+        assertThat(speed.getSpeedDisplayUnit().getValue()).isEqualTo(CarUnit.METERS_PER_SEC);
     }
 
     @Test
