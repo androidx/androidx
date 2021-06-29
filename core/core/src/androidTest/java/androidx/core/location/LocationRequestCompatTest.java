@@ -70,6 +70,7 @@ public class LocationRequestCompatTest {
         assertEquals(10000, builder.build().getMaxUpdateDelayMillis());
 
         builder.setIntervalMillis(PASSIVE_INTERVAL);
+        builder.setMinUpdateIntervalMillis(0);
         assertEquals(PASSIVE_INTERVAL, builder.build().getIntervalMillis());
     }
 
