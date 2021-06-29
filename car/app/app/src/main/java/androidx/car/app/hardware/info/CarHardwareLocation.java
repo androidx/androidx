@@ -15,6 +15,8 @@
  */
 package androidx.car.app.hardware.info;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import static java.util.Objects.requireNonNull;
 
 import android.location.Location;
@@ -22,6 +24,7 @@ import android.location.Location;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
@@ -33,9 +36,10 @@ import java.util.Objects;
 @RequiresCarApi(3)
 public final class CarHardwareLocation {
 
-    // Not private because needed in builder.
-    static final CarValue<Location> UNIMPLEMENTED_LOCATION = new CarValue<>(null, 0,
-            CarValue.STATUS_UNAVAILABLE);
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    public static final CarValue<Location> UNIMPLEMENTED_LOCATION = new CarValue<>(null, 0,
+            CarValue.STATUS_UNIMPLEMENTED);
 
     @Keep
     @NonNull

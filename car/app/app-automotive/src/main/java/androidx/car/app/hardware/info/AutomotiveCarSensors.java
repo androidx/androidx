@@ -19,6 +19,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 
 import java.util.concurrent.Executor;
@@ -38,7 +39,8 @@ public class AutomotiveCarSensors implements CarSensors {
     public void addAccelerometerListener(@UpdateRate int rate,
             @NonNull Executor executor,
             @NonNull OnCarDataAvailableListener<Accelerometer> listener) {
-
+        executor.execute(()-> listener.onCarDataAvailable(new Accelerometer(
+                CarValue.UNIMPLEMENTED_FLOAT_LIST)));
     }
 
     @Override
@@ -50,7 +52,8 @@ public class AutomotiveCarSensors implements CarSensors {
     @Override
     public void addGyroscopeListener(@UpdateRate int rate, @NonNull Executor executor,
             @NonNull OnCarDataAvailableListener<Gyroscope> listener) {
-
+        executor.execute(()-> listener.onCarDataAvailable(new Gyroscope(
+                CarValue.UNIMPLEMENTED_FLOAT_LIST)));
     }
 
     @Override
@@ -61,7 +64,8 @@ public class AutomotiveCarSensors implements CarSensors {
     @Override
     public void addCompassListener(@UpdateRate int rate, @NonNull Executor executor,
             @NonNull OnCarDataAvailableListener<Compass> listener) {
-
+        executor.execute(()-> listener.onCarDataAvailable(new Compass(
+                CarValue.UNIMPLEMENTED_FLOAT_LIST)));
     }
 
     @Override
@@ -73,7 +77,8 @@ public class AutomotiveCarSensors implements CarSensors {
     public void addCarHardwareLocationListener(@UpdateRate int rate,
             @NonNull Executor executor,
             @NonNull OnCarDataAvailableListener<CarHardwareLocation> listener) {
-
+        executor.execute(()-> listener.onCarDataAvailable(new CarHardwareLocation(
+                CarHardwareLocation.UNIMPLEMENTED_LOCATION)));
     }
 
     @Override
