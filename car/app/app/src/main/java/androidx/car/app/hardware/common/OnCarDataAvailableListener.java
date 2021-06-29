@@ -31,7 +31,7 @@ public interface OnCarDataAvailableListener<T> {
     /**
      * Notifies that the requested data is available.
      *
-     * @param data car hardware data that was requested.
+     * @param data the car hardware data that was requested
      */
     void onCarDataAvailable(@NonNull T data);
 }
