@@ -73,6 +73,7 @@ import androidx.core.view.accessibility.AccessibilityEventCompat;
 import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
+import androidx.mediarouter.media.MediaRouterParams;
 import androidx.palette.graphics.Palette;
 
 import java.io.BufferedInputStream;
@@ -140,10 +141,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
     private TextView mRouteNameTextView;
 
     private boolean mVolumeControlEnabled = true;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final boolean mDisableGroupVolumeUX;
     // Layout for media controllers including play/pause button and the main volume slider.
     private LinearLayout mMediaMainControlLayout;
     private RelativeLayout mPlaybackControlLayout;
-    private LinearLayout mVolumeControlLayout;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    LinearLayout mVolumeControlLayout;
     private View mDividerView;
 
     OverlayListView mVolumeGroupList;
@@ -208,6 +212,10 @@ public class MediaRouteControllerDialog extends AlertDialog {
 
         mControllerCallback = new MediaControllerCallback();
         mRouter = MediaRouter.getInstance(mContext);
+        MediaRouterParams params = mRouter.getRouterParams();
+        Bundle extras = (params != null) ? params.getExtras() : null;
+        mDisableGroupVolumeUX = (extras != null
+                && extras.getBoolean(MediaRouterParams.EXTRAS_KEY_DISABLE_GROUP_VOLUME_UX));
         mCallback = new MediaRouterCallback();
         mRoute = mRouter.getSelectedRoute();
         setMediaSession(mRouter.getMediaSessionToken());
@@ -486,7 +494,9 @@ public class MediaRouteControllerDialog extends AlertDialog {
     public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
                 || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            mRoute.requestUpdateVolume(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? -1 : 1);
+            if (!mDisableGroupVolumeUX || !mIsGroupExpanded) {
+                mRoute.requestUpdateVolume(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? -1 : 1);
+            }
             return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -725,7 +735,17 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private void updateVolumeControlLayout() {
-        if (isVolumeControlAvailable(mRoute)) {
+        if (mDisableGroupVolumeUX && mRoute.isGroup()) {
+            mVolumeControlLayout.setVisibility(View.GONE);
+            mIsGroupExpanded = true;
+            mVolumeGroupList.setVisibility(View.VISIBLE);
+            loadInterpolator();
+            updateLayoutHeight(false);
+            return;
+        }
+        if ((mIsGroupExpanded && mDisableGroupVolumeUX) || !isVolumeControlAvailable(mRoute)) {
+            mVolumeControlLayout.setVisibility(View.GONE);
+        } else {
             if (mVolumeControlLayout.getVisibility() == View.GONE) {
                 mVolumeControlLayout.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
@@ -733,8 +753,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mGroupExpandCollapseButton.setVisibility(mRoute.isGroup()
                         ? View.VISIBLE : View.GONE);
             }
-        } else {
-            mVolumeControlLayout.setVisibility(View.GONE);
         }
     }
 
@@ -1086,7 +1104,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     void updateArtIconIfNeeded() {
-        if (mCustomControlView != null || !isIconChanged()) {
+        if (mCustomControlView != null || !isIconChanged()
+                || (mRoute.isGroup() && mDisableGroupVolumeUX)) {
             return;
         }
         if (mFetchArtTask != null) {
