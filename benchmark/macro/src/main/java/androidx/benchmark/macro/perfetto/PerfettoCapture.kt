@@ -76,7 +76,8 @@ public class PerfettoCapture(private val unbundled: Boolean = Build.VERSION.SDK_
      * such as result of `context.getExternalFilesDir(null)` or other similar `external` paths.
      */
     public fun stop(destinationPath: String) {
-        if (!helper.stopCollecting(400, destinationPath)) {
+        // Wait time determined empirically
+        if (!helper.stopCollecting(100, destinationPath)) {
             // TODO: move internal failures to be exceptions
             throw IllegalStateException("Unable to store perfetto trace in $destinationPath")
         }
