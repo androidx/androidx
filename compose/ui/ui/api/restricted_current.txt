@@ -447,9 +447,6 @@ package androidx.compose.ui.graphics {
 
 package androidx.compose.ui.graphics.vector {
 
-  public final class AnimatorKt {
-  }
-
   @androidx.compose.runtime.Immutable public final class ImageVector {
     method public float getDefaultHeight-D9Ej5fM();
     method public float getDefaultWidth-D9Ej5fM();
@@ -603,15 +600,6 @@ package androidx.compose.ui.graphics.vector {
 }
 
 package androidx.compose.ui.graphics.vector.compat {
-
-  public final class XmlAnimatedVectorParser_androidKt {
-  }
-
-  public final class XmlAnimatorParser_androidKt {
-  }
-
-  public final class XmlPullParserUtils_androidKt {
-  }
 
   public final class XmlVectorParser_androidKt {
   }
@@ -2000,6 +1988,16 @@ package androidx.compose.ui.platform {
   public final class DisposableSaveableStateRegistry_androidKt {
   }
 
+  public interface InfiniteAnimationPolicy extends kotlin.coroutines.CoroutineContext.Element {
+    method public default kotlin.coroutines.CoroutineContext.Key<?> getKey();
+    method public suspend <R> Object? onInfiniteOperation(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R> p);
+    property public default kotlin.coroutines.CoroutineContext.Key<?> key;
+    field public static final androidx.compose.ui.platform.InfiniteAnimationPolicy.Key Key;
+  }
+
+  public static final class InfiniteAnimationPolicy.Key implements kotlin.coroutines.CoroutineContext.Key<androidx.compose.ui.platform.InfiniteAnimationPolicy> {
+  }
+
   public interface InspectableValue {
     method public default kotlin.sequences.Sequence<androidx.compose.ui.platform.ValueElement> getInspectableElements();
     method public default String? getNameFallback();
@@ -2174,12 +2172,6 @@ package androidx.compose.ui.platform.actionmodecallback {
 }
 
 package androidx.compose.ui.res {
-
-  public final class AnimatedVectorResources_androidKt {
-  }
-
-  public final class AnimatorResources_androidKt {
-  }
 
   public final class ColorResources_androidKt {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static long colorResource(@ColorRes int id);
