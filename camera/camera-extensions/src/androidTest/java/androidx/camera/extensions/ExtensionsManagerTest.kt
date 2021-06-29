@@ -26,6 +26,7 @@ import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
@@ -310,6 +311,141 @@ class ExtensionsManagerTest(
                 emptyCameraSelector,
                 extensionMode,
                 null
+            )
+        }
+    }
+
+    @Test
+    fun canSetExtensionsConfig_whenNoUseCase() {
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assumeTrue(
+            extensionsManager.isExtensionAvailable(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
+        )
+
+        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            cameraProvider,
+            baseCameraSelector,
+            extensionMode
+        )
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }
+    }
+
+    @Test
+    fun canNotSetExtensionsConfig_whenUseCaseHasExisted() {
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assumeTrue(
+            extensionsManager.isExtensionAvailable(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
+        )
+
+        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            cameraProvider,
+            baseCameraSelector,
+            extensionMode
+        )
+
+        instrumentation.runOnMainSync {
+            val fakeLifecycleOwner = FakeLifecycleOwner()
+            // Binds a use case with the basic camera selector first.
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, baseCameraSelector, FakeUseCase())
+
+            // IllegalStateException should be thrown when bindToLifecycle is called with
+            // different extension camera config
+            assertThrows<IllegalStateException> {
+                cameraProvider.bindToLifecycle(fakeLifecycleOwner, extensionCameraSelector)
+            }
+        }
+    }
+
+    @Test
+    fun canSetSameExtensionsConfig_whenUseCaseHasExisted() {
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assumeTrue(
+            extensionsManager.isExtensionAvailable(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
+        )
+
+        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            cameraProvider,
+            baseCameraSelector,
+            extensionMode
+        )
+
+        instrumentation.runOnMainSync {
+            val fakeLifecycleOwner = FakeLifecycleOwner()
+
+            // Binds a use case with extension camera config first.
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                extensionCameraSelector,
+                FakeUseCase()
+            )
+
+            // Binds another use case with the same extension camera config.
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                extensionCameraSelector,
+                FakeUseCase()
+            )
+        }
+    }
+
+    @Test
+    fun canSwitchExtendedCameraConfig_afterUnbindUseCases() {
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assumeTrue(
+            extensionsManager.isExtensionAvailable(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
+        )
+
+        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            cameraProvider,
+            baseCameraSelector,
+            extensionMode
+        )
+
+        instrumentation.runOnMainSync {
+            val fakeLifecycleOwner = FakeLifecycleOwner()
+
+            // Binds a use case with extension camera config first.
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                extensionCameraSelector,
+                FakeUseCase()
+            )
+
+            // Unbinds all use cases
+            cameraProvider.unbindAll()
+
+            // Binds another use case with the basic camera selector.
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                baseCameraSelector,
+                FakeUseCase()
             )
         }
     }

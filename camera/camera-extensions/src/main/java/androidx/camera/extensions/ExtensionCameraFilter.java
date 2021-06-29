@@ -26,6 +26,7 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.Identifier;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.core.util.Preconditions;
@@ -38,41 +39,41 @@ import java.util.List;
  * unavailable, the camera will be considered available.
  */
 final class ExtensionCameraFilter implements CameraFilter {
-    private final Id mId;
+    private final Identifier mId;
     private final PreviewExtenderImpl mPreviewExtenderImpl;
     private final ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
 
     // TODO(b/183075483): These three constructors will be removed after new Extensions APIs are
     //  public and the old extender APIs are removed.
     ExtensionCameraFilter(@Nullable PreviewExtenderImpl previewExtenderImpl) {
-        mId = Id.DEFAULT;
+        mId = CameraFilter.DEFAULT_ID;
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = null;
     }
 
     ExtensionCameraFilter(@Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
-        mId = Id.DEFAULT;
+        mId = CameraFilter.DEFAULT_ID;
         mPreviewExtenderImpl = null;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
 
     ExtensionCameraFilter(@Nullable PreviewExtenderImpl previewExtenderImpl,
             @Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
-        mId = Id.DEFAULT;
+        mId = CameraFilter.DEFAULT_ID;
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
 
     ExtensionCameraFilter(@NonNull String filterId,
             @Nullable PreviewExtenderImpl previewExtenderImpl) {
-        mId = Id.create(filterId);
+        mId = Identifier.create(filterId);
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = null;
     }
 
     ExtensionCameraFilter(@NonNull String filterId,
             @Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
-        mId = Id.create(filterId);
+        mId = Identifier.create(filterId);
         mPreviewExtenderImpl = null;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
@@ -80,14 +81,14 @@ final class ExtensionCameraFilter implements CameraFilter {
     ExtensionCameraFilter(@NonNull String filterId,
             @Nullable PreviewExtenderImpl previewExtenderImpl,
             @Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
-        mId = Id.create(filterId);
+        mId = Identifier.create(filterId);
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
 
     @NonNull
     @Override
-    public Id getId() {
+    public Identifier getIdentifier() {
         return mId;
     }
 

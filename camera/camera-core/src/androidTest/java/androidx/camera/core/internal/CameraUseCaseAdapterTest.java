@@ -28,11 +28,16 @@ import static org.mockito.Mockito.verify;
 import android.util.Rational;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.Identifier;
 import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
@@ -264,5 +269,96 @@ public class CameraUseCaseAdapterTest {
         assertThat(fakeUseCase.getViewPortCropRect()).isNotNull();
         assertThat(new Rational(fakeUseCase.getViewPortCropRect().width(),
                 fakeUseCase.getViewPortCropRect().height())).isEqualTo(aspectRatio2);
+    }
+
+    @Test
+    public void canSetExtendedCameraConfig_whenNoUseCase() {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        cameraUseCaseAdapter.setExtendedConfig(new FakeCameraConfig());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void canNotSetExtendedCameraConfig_whenUseCaseHasExisted()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        // Adds use case first
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(new FakeUseCase()));
+
+        // Sets extended config after a use case is added
+        cameraUseCaseAdapter.setExtendedConfig(new FakeCameraConfig());
+    }
+
+    @Test
+    public void canSetSameExtendedCameraConfig_whenUseCaseHasExisted()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        CameraConfig cameraConfig = new FakeCameraConfig();
+        cameraUseCaseAdapter.setExtendedConfig(cameraConfig);
+
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(new FakeUseCase()));
+
+        // Sets extended config with the same camera config
+        cameraUseCaseAdapter.setExtendedConfig(cameraConfig);
+    }
+
+    @Test
+    public void canSwitchExtendedCameraConfig_afterUnbindUseCases()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        CameraConfig cameraConfig1 = new FakeCameraConfig();
+        cameraUseCaseAdapter.setExtendedConfig(cameraConfig1);
+
+        // Binds use case
+        FakeUseCase fakeUseCase = new FakeUseCase();
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
+
+        // Unbinds use case
+        cameraUseCaseAdapter.removeUseCases(Collections.singleton(fakeUseCase));
+
+        // Sets extended config with different camera config
+        CameraConfig cameraConfig2 = new FakeCameraConfig();
+        cameraUseCaseAdapter.setExtendedConfig(cameraConfig2);
+    }
+
+    private static final class FakeCameraConfig implements CameraConfig {
+        private final UseCaseConfigFactory mUseCaseConfigFactory = new UseCaseConfigFactory() {
+            @Nullable
+            @Override
+            public Config getConfig(@NonNull CaptureType captureType) {
+                return null;
+            }
+        };
+
+        private final Identifier mIdentifier = Identifier.create(new Object());
+
+        @NonNull
+        @Override
+        public UseCaseConfigFactory getUseCaseConfigFactory() {
+            return mUseCaseConfigFactory;
+        }
+
+        @NonNull
+        @Override
+        public Identifier getCompatibilityId() {
+            return mIdentifier;
+        }
+
+        @NonNull
+        @Override
+        public Config getConfig() {
+            return OptionsBundle.emptyBundle();
+        }
     }
 }
