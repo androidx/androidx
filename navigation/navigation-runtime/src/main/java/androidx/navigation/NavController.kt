@@ -679,6 +679,9 @@ public open class NavController(
             entry.destination !is NavGraph
         }
 
+    private var dispatchReentrantCount = 0
+    private val backStackEntriesToDispatch = mutableListOf<NavBackStackEntry>()
+
     /**
      * Dispatch changes to all OnDestinationChangedListeners.
      *
@@ -694,34 +697,53 @@ public open class NavController(
         ) {
             // Keep popping
         }
-        if (!backQueue.isEmpty()) {
-            updateBackStackLifecycle()
-
-            // Now call all registered OnDestinationChangedListener instances
-            val backStackEntry = backQueue.last()
-            for (listener in onDestinationChangedListeners) {
-                listener.onDestinationChanged(
-                    this,
-                    backStackEntry.destination,
-                    backStackEntry.arguments
-                )
-            }
-            _currentBackStackEntryFlow.tryEmit(backStackEntry)
-            return true
+        val lastBackStackEntry = backQueue.lastOrNull()
+        if (lastBackStackEntry != null) {
+            backStackEntriesToDispatch += lastBackStackEntry
         }
-        return false
+        // Track that we're updating the back stack lifecycle
+        // just in case updateBackStackLifecycle() results in
+        // additional calls to navigate() or popBackStack()
+        dispatchReentrantCount++
+        updateBackStackLifecycle()
+        dispatchReentrantCount--
+
+        if (dispatchReentrantCount == 0) {
+            // Only the outermost dispatch should dispatch
+            val dispatchList = backStackEntriesToDispatch.toMutableList()
+            backStackEntriesToDispatch.clear()
+            for (backStackEntry in dispatchList) {
+                // Now call all registered OnDestinationChangedListener instances
+                for (listener in onDestinationChangedListeners) {
+                    listener.onDestinationChanged(
+                        this,
+                        backStackEntry.destination,
+                        backStackEntry.arguments
+                    )
+                }
+                _currentBackStackEntryFlow.tryEmit(backStackEntry)
+            }
+        }
+        return lastBackStackEntry != null
     }
 
     internal fun updateBackStackLifecycle() {
+        // Operate on a copy of the queue to avoid issues with reentrant
+        // calls if updating the Lifecycle calls navigate() or popBackStack()
+        val backStack = backQueue.toMutableList()
+        if (backStack.isEmpty()) {
+            // Nothing to update
+            return
+        }
         // First determine what the current resumed destination is and, if and only if
         // the current resumed destination is a FloatingWindow, what destination is
         // underneath it that must remain started.
-        var nextResumed: NavDestination? = backQueue.last().destination
+        var nextResumed: NavDestination? = backStack.last().destination
         var nextStarted: NavDestination? = null
         if (nextResumed is FloatingWindow) {
             // Find the next destination in the back stack as that destination
             // should still be STARTED when the FloatingWindow destination is above it.
-            val iterator = backQueue.reversed().iterator()
+            val iterator = backStack.reversed().iterator()
             while (iterator.hasNext()) {
                 val destination = iterator.next().destination
                 if (destination !is NavGraph && destination !is FloatingWindow) {
@@ -735,7 +757,7 @@ public open class NavController(
         // This ensures proper nesting where parent navigation graphs are started before
         // their children and stopped only after their children are stopped.
         val upwardStateTransitions = HashMap<NavBackStackEntry, Lifecycle.State>()
-        var iterator = backQueue.reversed().iterator()
+        var iterator = backStack.reversed().iterator()
         while (iterator.hasNext()) {
             val entry = iterator.next()
             val currentMaxLifecycle = entry.maxLifecycle
@@ -772,7 +794,7 @@ public open class NavController(
         }
         // Apply all upward Lifecycle transitions by iterating through the stack again,
         // this time applying the new lifecycle to the parent navigation graphs first
-        iterator = backQueue.iterator()
+        iterator = backStack.iterator()
         while (iterator.hasNext()) {
             val entry = iterator.next()
             val newState = upwardStateTransitions[entry]
@@ -1499,7 +1521,7 @@ public open class NavController(
         }
         if (popped || navigated || launchSingleTop) {
             dispatchOnDestinationChanged()
-        } else if (backQueue.isNotEmpty()) {
+        } else {
             updateBackStackLifecycle()
         }
     }

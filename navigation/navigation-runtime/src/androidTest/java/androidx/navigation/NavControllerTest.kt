@@ -28,6 +28,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.get
@@ -859,14 +861,118 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
 
-        var lastReceivedDestinationId = -1
+        val receivedDestinationIds = mutableListOf<Int>()
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            lastReceivedDestinationId = destination.id
+            receivedDestinationIds += destination.id
             if (destination.id == R.id.start_test) {
                 navController.navigate(R.id.second_test)
             }
         }
-        assertThat(lastReceivedDestinationId).isEqualTo(R.id.second_test)
+
+        assertThat(receivedDestinationIds)
+            .containsExactly(R.id.start_test, R.id.second_test)
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopFromOnDestinationChangedListener() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+
+        val receivedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            receivedDestinationIds += destination.id
+            if (destination.id == R.id.second_test) {
+                navController.popBackStack()
+            }
+        }
+        navController.navigate(R.id.second_test)
+
+        assertThat(receivedDestinationIds)
+            .containsExactly(R.id.start_test, R.id.second_test, R.id.start_test)
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateFromLifecycleObserver() {
+        val navController = createNavController()
+        navController.setLifecycleOwner(TestLifecycleOwner(Lifecycle.State.RESUMED))
+        navController.setGraph(R.navigation.nav_simple)
+
+        val receivedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            receivedDestinationIds += destination.id
+        }
+
+        navController.navigate(R.id.second_test)
+
+        val startLifecycle = navController.getBackStackEntry(R.id.start_test).lifecycle
+        assertThat(startLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        startLifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    navController.navigate(R.id.start_test_with_default_arg)
+                }
+            }
+        })
+
+        // Now call popBackStack() to trigger our observer
+        navController.popBackStack()
+
+        // And assert that we navigated correctly
+        assertThat(navController.currentDestination?.id)
+            .isEqualTo(R.id.start_test_with_default_arg)
+        assertThat(receivedDestinationIds)
+            .containsExactly(
+                R.id.start_test,
+                R.id.second_test,
+                R.id.start_test,
+                R.id.start_test_with_default_arg
+            )
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopFromLifecycleObserver() {
+        val navController = createNavController()
+        navController.setLifecycleOwner(TestLifecycleOwner(Lifecycle.State.RESUMED))
+        navController.setGraph(R.navigation.nav_simple)
+
+        val receivedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            receivedDestinationIds += destination.id
+        }
+
+        navController.navigate(R.id.second_test)
+        navController.navigate(R.id.start_test_with_default_arg)
+
+        val startLifecycle = navController.getBackStackEntry(R.id.second_test).lifecycle
+        assertThat(startLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        startLifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    navController.popBackStack()
+                }
+            }
+        })
+
+        // Now call popBackStack() to trigger our observer
+        navController.popBackStack()
+
+        // And assert that we navigated correctly
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+        assertThat(receivedDestinationIds)
+            .containsExactly(
+                R.id.start_test,
+                R.id.second_test,
+                R.id.start_test_with_default_arg,
+                R.id.second_test,
+                R.id.start_test
+            )
+            .inOrder()
     }
 
     @UiThreadTest
