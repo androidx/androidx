@@ -240,6 +240,11 @@ public final class VideoCapture extends UseCase {
     private volatile ParcelFileDescriptor mParcelFileDescriptor;
     private final AtomicBoolean mIsAudioEnabled = new AtomicBoolean(true);
 
+    private VideoEncoderInitStatus mVideoEncoderInitStatus =
+            VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_UNINITIALIZED;
+    @Nullable
+    private Throwable mVideoEncoderErrorMessage;
+
     /**
      * Creates a new video capture use case from the given configuration.
      *
@@ -366,6 +371,19 @@ public final class VideoCapture extends UseCase {
             // Not bound. Notify callback.
             postListener.onError(ERROR_INVALID_CAMERA,
                     "Not bound to a Camera [" + VideoCapture.this + "]", null);
+            return;
+        }
+
+        // Check video encoder initialization status, if there is any error happened
+        // return error callback directly.
+        if (mVideoEncoderInitStatus
+                == VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INSUFFICIENT_RESOURCE
+                || mVideoEncoderInitStatus
+                == VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INITIALIZED_FAILED
+                || mVideoEncoderInitStatus
+                == VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_RESOURCE_RECLAIMED) {
+            postListener.onError(ERROR_ENCODER, "Video encoder initlization failed before start "
+                            + "recording ", mVideoEncoderErrorMessage);
             return;
         }
 
@@ -634,11 +652,46 @@ public final class VideoCapture extends UseCase {
 
         // video encoder setup
         mVideoEncoder.reset();
-        mVideoEncoder.configure(
-                createVideoMediaFormat(config, resolution), /*surface*/
-                null, /*crypto*/
-                null,
-                MediaCodec.CONFIGURE_FLAG_ENCODE);
+        mVideoEncoderInitStatus = VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_UNINITIALIZED;
+
+        // Configures a Video encoder, if there is any exception, will abort follow up actions
+        try {
+            mVideoEncoder.configure(
+                    createVideoMediaFormat(config, resolution), /*surface*/
+                    null, /*crypto*/
+                    null,
+                    MediaCodec.CONFIGURE_FLAG_ENCODE);
+        } catch (MediaCodec.CodecException e) {
+            int errorCode = 0;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                errorCode = Api23Impl.getCodecExceptionErrorCode(e);
+                String diagnosticInfo = e.getDiagnosticInfo();
+                if (errorCode == MediaCodec.CodecException.ERROR_INSUFFICIENT_RESOURCE) {
+                    Logger.i(TAG,
+                            "CodecException: code: " + errorCode + " diagnostic: "
+                                    + diagnosticInfo);
+                    mVideoEncoderInitStatus =
+                            VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INSUFFICIENT_RESOURCE;
+                } else if (errorCode == MediaCodec.CodecException.ERROR_RECLAIMED) {
+                    Logger.i(TAG,
+                            "CodecException: code: " + errorCode + " diagnostic: "
+                                    + diagnosticInfo);
+                    mVideoEncoderInitStatus =
+                            VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_RESOURCE_RECLAIMED;
+                }
+            } else {
+                mVideoEncoderInitStatus =
+                        VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INITIALIZED_FAILED;
+            }
+            mVideoEncoderErrorMessage = e;
+            return;
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            mVideoEncoderInitStatus =
+                    VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INITIALIZED_FAILED;
+            mVideoEncoderErrorMessage = e;
+            return;
+        }
+
         if (mCameraSurface != null) {
             releaseCameraSurface(false);
         }
@@ -1150,6 +1203,13 @@ public final class VideoCapture extends UseCase {
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface VideoCaptureError {
+    }
+
+    enum VideoEncoderInitStatus {
+        VIDEO_ENCODER_INIT_STATUS_UNINITIALIZED,
+        VIDEO_ENCODER_INIT_STATUS_INITIALIZED_FAILED,
+        VIDEO_ENCODER_INIT_STATUS_INSUFFICIENT_RESOURCE,
+        VIDEO_ENCODER_INIT_STATUS_RESOURCE_RECLAIMED,
     }
 
     /** Listener containing callbacks for video file I/O events. */
@@ -1933,6 +1993,21 @@ public final class VideoCapture extends UseCase {
         static MediaMuxer createMediaMuxer(@NonNull FileDescriptor fileDescriptor, int format)
                 throws IOException {
             return new MediaMuxer(fileDescriptor, format);
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
+     */
+    @RequiresApi(23)
+    private static class Api23Impl {
+
+        private Api23Impl() {
+        }
+
+        @DoNotInline
+        static int getCodecExceptionErrorCode(MediaCodec.CodecException e) {
+            return e.getErrorCode();
         }
     }
 }
