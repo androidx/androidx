@@ -459,7 +459,9 @@ public final class ImageCapture extends UseCase {
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
         }
-        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
+        mDeferrableSurface = new ImmediateSurface(
+                mImageReader.getSurface(), new Size(mImageReader.getWidth(),
+                mImageReader.getHeight()), mImageReader.getImageFormat());
         mDeferrableSurface.getTerminationFuture().addListener(
                 imageReaderProxy::safeClose, CameraXExecutors.mainThreadExecutor());
         sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
