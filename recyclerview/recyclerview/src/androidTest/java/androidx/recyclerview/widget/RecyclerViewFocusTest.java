@@ -274,7 +274,7 @@ public class RecyclerViewFocusTest {
         }
 
         @Override
-        public View onFocusSearchFailed(View focused, int focusDirection,
+        public View onFocusSearchFailed(View focused, int direction,
                 RecyclerView.Recycler recycler, RecyclerView.State state) {
             mOnFocusSearchFailedCalled = true;
             return mViewToReturnFromonFocusSearchFailed;
