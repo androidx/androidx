@@ -181,13 +181,30 @@ class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
             return this
         }
 
-        /** Inserts options from other [Config] object.  */
+        /**
+         * Inserts all capture request options in the map to the setting with
+         * [Config.OptionPriority].
+         */
+        fun addAllCaptureRequestOptionsWithPriority(
+            values: Map<CaptureRequest.Key<*>, Any>,
+            priority: Config.OptionPriority
+        ): Builder {
+            values.forEach { (key, value) ->
+                val opt = key.createCaptureRequestOption()
+                mutableOptionsBundle.insertOption(opt, priority, value)
+            }
+            return this
+        }
+
+        /** Inserts options from other [Config] objects. */
         fun insertAllOptions(config: Config): Builder {
             for (option in config.listOptions()) {
-                // Options/values are being copied directly
+                // Options/values and priority are being copied directly
                 @Suppress("UNCHECKED_CAST")
                 val objectOpt = option as Config.Option<Any>
-                mutableOptionsBundle.insertOption(objectOpt, config.retrieveOption(objectOpt))
+                mutableOptionsBundle.insertOption(
+                    objectOpt, config.getOptionPriority(option), config.retrieveOption(objectOpt)
+                )
             }
             return this
         }
@@ -212,4 +229,18 @@ internal fun CaptureRequest.Key<*>.createCaptureRequestOption(): Config.Option<A
      * options within the Camera2ImplConfig and Camera2ImplConfig.Builder classes.
      */
     return Config.Option.create(CAPTURE_REQUEST_ID_STEM + name, Any::class.java, this)
+}
+
+/**
+ * Convert the Config to the CaptureRequest key-value map.
+ */
+fun Config.toParameters(): Map<CaptureRequest.Key<*>, Any> {
+    val parameters = mutableMapOf<CaptureRequest.Key<*>, Any>()
+    for (configOption in listOptions()) {
+        val requestKey = configOption.token as? CaptureRequest.Key<*> ?: continue
+        val value = retrieveOption(configOption) ?: continue
+        parameters[requestKey] = value
+    }
+
+    return parameters
 }
