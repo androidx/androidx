@@ -148,6 +148,7 @@ skikoMacOsArm64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-macos-arm64"
 skikoMacOsX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-macos-x64", version.ref = "skiko" }
 skikoWindowsX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-windows-x64", version.ref = "skiko" }
 skikoLinuxX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-linux-x64", version.ref = "skiko" }
+skikoLinuxArm64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-linux-arm64", version.ref = "skiko" }
 sqldelightAndroid = { module = "com.squareup.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelightCoroutinesExt = { module = "com.squareup.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqliteJdbc = { module = "org.xerial:sqlite-jdbc", version = "3.34.0" }
