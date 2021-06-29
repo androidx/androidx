@@ -29,6 +29,10 @@ public interface CameraConfig extends ReadableConfig {
             Option.create("camerax.core.camera.useCaseConfigFactory",
                     UseCaseConfigFactory.class);
 
+    Option<Identifier> OPTION_COMPATIBILITY_ID =
+            Option.create("camerax.core.camera.compatibilityId",
+                    Identifier.class);
+
     /**
      * Retrieves the use case config factory instance.
      */
@@ -36,11 +40,29 @@ public interface CameraConfig extends ReadableConfig {
     UseCaseConfigFactory getUseCaseConfigFactory();
 
     /**
+     * Retrieves the compatibility {@link Identifier}.
+     *
+     * <p>If camera configs have the same compatibility identifier, they will allow to bind a new
+     * use case without unbinding all use cases first.
+     */
+    @NonNull
+    Identifier getCompatibilityId();
+
+    /**
      * Builder for creating a {@link CameraConfig}.
      * @param <B> the top level builder type for which this builder is composed with.
      */
     interface Builder<B> {
+        /**
+         * Sets a {@link UseCaseConfigFactory} for the camera config.
+         */
         @NonNull
         B setUseCaseConfigFactory(@NonNull UseCaseConfigFactory factory);
+
+        /**
+         * Sets compatibility {@link Identifier} for the camera config.
+         */
+        @NonNull
+        B setCompatibilityId(@NonNull Identifier identifier);
     }
 }

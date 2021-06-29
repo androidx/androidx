@@ -429,10 +429,11 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
 
         // Retrieves extended camera configs from ExtendedCameraConfigProviderStore
         for (CameraFilter cameraFilter : cameraSelector.getCameraFilterSet()) {
-            if (cameraFilter.getId() != CameraFilter.Id.DEFAULT) {
+            if (cameraFilter.getIdentifier() != CameraFilter.DEFAULT_ID) {
                 CameraConfig extendedCameraConfig =
-                        ExtendedCameraConfigProviderStore.getConfigProvider(cameraFilter.getId())
-                                .getConfig(lifecycleCameraToBind.getCameraInfo(), mContext);
+                        ExtendedCameraConfigProviderStore.getConfigProvider(
+                                cameraFilter.getIdentifier()).getConfig(
+                                lifecycleCameraToBind.getCameraInfo(), mContext);
                 if (extendedCameraConfig == null) { // ignore IDs unrelated to camera configs.
                     continue;
                 }
