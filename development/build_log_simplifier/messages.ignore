@@ -151,6 +151,20 @@ Type\-safe dependency accessors is an incubating feature\.
 updated local\.properties
 # > Configure project :compose:test\-utils
 The following Kotlin source sets were configured but not added to any Kotlin compilation:
+\* iosArm[0-9]+Main
+\* iosArm[0-9]+Test
+\* iosX[0-9]+Main
+\* iosX[0-9]+Test
+\* jsMain
+\* jsTest
+\* linuxX[0-9]+Main
+\* linuxX[0-9]+Test
+\* macosX[0-9]+Main
+\* macosX[0-9]+Test
+\* mingwX[0-9]+Main
+\* mingwX[0-9]+Test
+\* nativeTest
+\* nonJvmMain
 \* androidAndroidTestRelease
 \* androidTestFixtures
 \* androidTestFixturesDebug
@@ -159,6 +173,10 @@ The following Kotlin source sets were configured but not added to any Kotlin com
 \* test
 You can add a source set to a target's compilation by connecting it with the compilation's default source set using 'dependsOn'\.
 See https://kotlinlang\.org/docs/reference/building\-mpp\-with\-gradle\.html\#connecting\-source\-sets
+Some Kotlin/Native targets cannot be built on this macos_x[0-9]+ machine and are disabled:
+\* In project ':collection:collection[0-9]+':
+\* target 'mingwX[0-9]+' \(can be built with a mingw_x[0-9]+ host\)
+To hide this message, add 'kotlin\.native\.ignoreDisabledTargets=true' to the Gradle properties\.
 \* jvmMain
 # > Task :listTaskOutputs
 Wrote \$DIST_DIR/task_outputs\.txt

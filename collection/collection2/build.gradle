@@ -14,20 +14,105 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryGroups
+import me.champeau.gradle.japicmp.JapicmpTask
+
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.Publish
+import androidx.build.RunApiTasks
+
+buildscript {
+    dependencies {
+        classpath(libs.japicmpPlugin)
+        classpath(libs.atomicFu)
+    }
+}
+
 plugins {
     id("AndroidXPlugin")
     id("org.jetbrains.kotlin.multiplatform")
+    id("me.champeau.gradle.japicmp")
 }
 
+// This should be true when building from GitHub, and false when building
+// from AOSP.  Use this to block out any features or code that we're not
+// ready to build yet in AOSP
+
+def githubBuild = project.properties['androidx.github.build'] ?: false
+
 kotlin {
+
     jvm {
         withJava()
     }
+    if (githubBuild) {
+        js {
+            nodejs()
+        }
+        macosX64 {
+            binaries {
+                framework {
+                    baseName = "CollectionKMP"
+                }
+            }
+        }
+
+        linuxX64()
+        mingwX64()
+        macosX64()
+        iosX64()
+        iosArm64()
+        iosArm32()
+    }
 
     sourceSets {
+        all {
+            languageSettings {
+                progressiveMode = true
+                useExperimentalAnnotation("kotlin.ExperimentalStdlibApi") // STOPSHIP
+            }
+        }
         commonMain {
             dependencies {
                 api(libs.kotlinStdlibCommon)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+            }
+        }
+
+        if (githubBuild) {
+            nonJvmMain {
+                // Used for JS and all native targets.
+                dependencies {
+                    api("org.jetbrains.kotlinx:atomicfu:$atomicfu_version")
+                }
+            }
+
+            configure([macosX64Main, linuxX64Main, mingwX64Main, iosX64Main, iosArm32Main, iosArm64Main]) {
+                dependsOn nonJvmMain
+            }
+        }
+
+        nativeTest // Used for all native targets.
+        configure([macosX64Test, linuxX64Test, mingwX64Test, iosX64Test, iosArm32Test, iosArm64Test]) {
+            dependsOn nativeTest
+        }
+
+        if (githubBuild) {
+            jsMain {
+                dependsOn nonJvmMain
+                dependencies {
+                    api(libs.kotlinStdlibJs)
+                }
+            }
+            jsTest {
+                dependencies {
+                    implementation(libs.kotlinTestJs)
+                }
             }
         }
         jvmMain {
@@ -36,5 +121,61 @@ kotlin {
                 api("androidx.annotation:annotation:1.1.0")
             }
         }
+        jvmTest {
+            dependencies {
+                implementation(libs.kotlinTestJunit)
+                implementation(libs.truth)
+            }
+        }
     }
 }
+
+if (githubBuild) {
+   // Workaround for https://youtrack.jetbrains.com/issue/KT-31603
+   sourceSets.test.java.srcDir('../collection/src/test/java')
+}
+
+androidx {
+    name = "Android Support Library collections"
+    if (githubBuild) {
+        publish = Publish.SNAPSHOT_AND_RELEASE
+    } else {
+        publish = Publish.NONE
+    }
+    mavenGroup = LibraryGroups.COLLECTION
+    inceptionYear = "2020"
+    description = "Standalone efficient collections."
+    legacyDisableKotlinStrictApiMode = true // TODO: Re-enable this!
+    runApiTasks = new RunApiTasks.No("metalava issues prevent api checks on kmp: b/188171162")
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    jvmApiBaseline
+}
+
+dependencies {
+    jvmApiBaseline('androidx.collection:collection:1.1.0') {
+        transitive = false
+        force = true
+    }
+}
+
+def japicmpProvider = tasks.register("japicmp", JapicmpTask) { task ->
+    def jvmJar = tasks.getByName("jvmJar")
+    dependsOn(jvmJar)
+
+    task.oldClasspath = configurations.jvmApiBaseline
+    task.newClasspath = files(jvmJar.archivePath)
+    task.onlyBinaryIncompatibleModified = true
+    task.failOnModification = true
+    task.ignoreMissingClasses = true
+    task.includeSynthetic = true
+    task.txtOutputFile = file("$buildDir/reports/japi.txt")
+}
+
+// TODO(b/190741472): runErrorProne is currently broken.
+runErrorProne.enabled = false
