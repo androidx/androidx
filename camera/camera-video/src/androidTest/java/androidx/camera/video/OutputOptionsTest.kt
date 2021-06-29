@@ -34,7 +34,7 @@ import java.io.File
 class OutputOptionsTest {
 
     companion object {
-        private const val FILE_SIZE_LIMIT = 1024
+        private const val FILE_SIZE_LIMIT = 1024L
     }
 
     @Test

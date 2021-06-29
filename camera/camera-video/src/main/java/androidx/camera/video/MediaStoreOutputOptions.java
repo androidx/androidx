@@ -86,7 +86,7 @@ public abstract class MediaStoreOutputOptions extends OutputOptions {
      * Gets the limit for the file length in bytes.
      */
     @Override
-    public abstract int getFileSizeLimit();
+    public abstract long getFileSizeLimit();
 
     /** The builder of the {@link MediaStoreOutputOptions}. */
     @AutoValue.Builder
@@ -114,7 +114,7 @@ public abstract class MediaStoreOutputOptions extends OutputOptions {
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
          */
         @NonNull
-        public abstract Builder setFileSizeLimit(int bytes);
+        public abstract Builder setFileSizeLimit(long bytes);
 
         /** Builds the MediaStoreOutputOptions instance. */
         @NonNull

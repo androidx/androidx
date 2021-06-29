@@ -84,6 +84,13 @@ public interface Encoder {
      */
     void setEncoderCallback(@NonNull EncoderCallback encoderCallback, @NonNull Executor executor);
 
+    /**
+     * Request a key frame.
+     *
+     * <p>Only take effect when the encoder is a video encoder and encoder is started.
+     */
+    void requestKeyFrame();
+
     /** The encoder's input. */
     interface EncoderInput {
     }

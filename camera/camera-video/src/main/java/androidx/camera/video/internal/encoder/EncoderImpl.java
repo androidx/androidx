@@ -295,7 +295,7 @@ public class EncoderImpl implements Encoder {
                     // the resume process as soon as possible in MediaCodec.Callback
                     // .onOutputBufferAvailable().
                     if (mIsVideoEncoder) {
-                        requestKeyFrame();
+                        requestKeyFrameToMediaCodec();
                     }
                     setState(STARTED);
                     break;
@@ -397,12 +397,6 @@ public class EncoderImpl implements Encoder {
                     final long pauseTimeUs = generatePresentationTimeUs();
                     Logger.d(mTag, "Pause on " + DebugUtils.readableUs(pauseTimeUs));
                     mActivePauseResumeTimeRanges.addLast(Range.create(pauseTimeUs, NO_LIMIT_LONG));
-                    // If this is a video encoder, then request a key frame in order to complete
-                    // the pause process as soon as possible in MediaCodec.Callback
-                    // .onOutputBufferAvailable().
-                    if (mIsVideoEncoder) {
-                        requestKeyFrame();
-                    }
                     setState(PAUSED);
                     break;
                 case PENDING_RELEASE:
@@ -474,6 +468,29 @@ public class EncoderImpl implements Encoder {
         }
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public void requestKeyFrame() {
+        mEncoderExecutor.execute(() -> {
+            switch (mState) {
+                case STARTED:
+                    requestKeyFrameToMediaCodec();
+                    break;
+                case CONFIGURED:
+                case PAUSED:
+                case ERROR:
+                case STOPPING:
+                case PENDING_START:
+                case PENDING_START_PAUSED:
+                    // No-op
+                    break;
+                case RELEASED:
+                case PENDING_RELEASE:
+                    throw new IllegalStateException("Encoder is released");
+            }
+        });
+    }
+
     @ExecutedBy("mEncoderExecutor")
     private void setState(InternalState state) {
         if (mState == state) {
@@ -493,7 +510,7 @@ public class EncoderImpl implements Encoder {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mEncoderExecutor")
-    void requestKeyFrame() {
+    void requestKeyFrameToMediaCodec() {
         Bundle bundle = new Bundle();
         bundle.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
         mMediaCodec.setParameters(bundle);
@@ -765,6 +782,7 @@ public class EncoderImpl implements Encoder {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     class MediaCodecCallback extends MediaCodec.Callback {
 
+        private boolean mHasSendStartCallback = false;
         private boolean mHasFirstData = false;
         private boolean mHasEndData = false;
         /** The last presentation time of BufferInfo without modified. */
@@ -823,8 +841,8 @@ public class EncoderImpl implements Encoder {
                         }
 
                         // Handle start of stream
-                        if (!mHasFirstData) {
-                            mHasFirstData = true;
+                        if (!mHasSendStartCallback) {
+                            mHasSendStartCallback = true;
                             try {
                                 executor.execute(encoderCallback::onEncodeStart);
                             } catch (RejectedExecutionException e) {
@@ -833,6 +851,9 @@ public class EncoderImpl implements Encoder {
                         }
 
                         if (!shouldDropBuffer(bufferInfo)) {
+                            if (!mHasFirstData) {
+                                mHasFirstData = true;
+                            }
                             if (mTotalPausedDurationUs > 0) {
                                 bufferInfo.presentationTimeUs -= mTotalPausedDurationUs;
                                 if (DEBUG) {
@@ -958,6 +979,12 @@ public class EncoderImpl implements Encoder {
                 return true;
             }
 
+            if (!mHasFirstData && mIsVideoEncoder && !isKeyFrame(bufferInfo)) {
+                Logger.d(mTag, "Drop buffer by first video frame is not key frame.");
+                requestKeyFrameToMediaCodec();
+                return true;
+            }
+
             return false;
         }
 
@@ -988,7 +1015,7 @@ public class EncoderImpl implements Encoder {
                     // after resume, otherwise output video will have "shattered" transitioning
                     // effect.
                     Logger.d(mTag, "Not a key frame, don't switch to resume state.");
-                    requestKeyFrame();
+                    requestKeyFrameToMediaCodec();
                 } else {
                     // It should check if the adjusted time is valid before switch to resume.
                     // It may get invalid adjusted time, see b/189114207.

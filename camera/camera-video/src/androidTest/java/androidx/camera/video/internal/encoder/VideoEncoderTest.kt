@@ -223,6 +223,26 @@ class VideoEncoderTest {
     }
 
     @Test
+    fun startVideoEncoder_firstEncodedDataIsKeyFrame() {
+        for (i in 0..2) {
+            clearInvocations(videoEncoderCallback)
+
+            videoEncoder.start()
+            val captor = ArgumentCaptor.forClass(EncodedData::class.java)
+            verify(
+                videoEncoderCallback,
+                timeout(5000L).atLeastOnce()
+            ).onEncodedData(captor.capture())
+
+            assertThat(isKeyFrame(captor.allValues.first().bufferInfo)).isTrue()
+
+            videoEncoder.stop()
+
+            verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
+        }
+    }
+
+    @Test
     fun resumeVideoEncoder_firstEncodedDataIsKeyFrame() {
         videoEncoder.start()
         verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
@@ -236,7 +256,7 @@ class VideoEncoderTest {
         val captor = ArgumentCaptor.forClass(EncodedData::class.java)
         verify(videoEncoderCallback, timeout(15000L).atLeastOnce()).onEncodedData(captor.capture())
 
-        assertThat(isKeyFrame(captor.value.bufferInfo)).isTrue()
+        assertThat(isKeyFrame(captor.allValues.first().bufferInfo)).isTrue()
     }
 
     private fun initVideoEncoder() {
