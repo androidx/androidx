@@ -490,10 +490,17 @@ public class WatchFaceImpl @UiThread constructor(
         }
 
     private var inOnSetStyle = false
+    internal var initComplete = false
 
     private val ambientObserver = Observer<Boolean> {
-        scheduleDraw()
-        watchFaceHostApi.invalidate()
+        TraceEvent("WatchFaceImpl.ambientObserver").use {
+            // It's not safe to draw until initComplete because the ComplicationSlotManager init
+            // may not have completed.
+            if (initComplete) {
+                onDraw()
+            }
+            scheduleDraw()
+        }
     }
 
     private val interruptionFilterObserver = Observer<Int> {
@@ -515,11 +522,16 @@ public class WatchFaceImpl @UiThread constructor(
                 // Update time zone in case it changed while we weren't visible.
                 calendar.timeZone = TimeZone.getDefault()
                 watchFaceHostApi.invalidate()
+
+                // It's not safe to draw until initComplete because the ComplicationSlotManager init
+                // may not have completed.
+                if (initComplete) {
+                    onDraw()
+                }
+                scheduleDraw()
             } else {
                 unregisterReceivers()
             }
-
-            scheduleDraw()
         }
     }
 
