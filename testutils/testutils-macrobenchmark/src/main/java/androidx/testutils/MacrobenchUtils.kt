@@ -46,7 +46,11 @@ fun MacrobenchmarkRule.measureStartup(
 }
 
 fun createStartupCompilationParams(
-    startupModes: List<StartupMode> = listOf(StartupMode.HOT, StartupMode.WARM, StartupMode.COLD),
+    startupModes: List<StartupMode> = listOf(
+        StartupMode.HOT,
+        StartupMode.WARM,
+        StartupMode.COLD
+    ),
     compilationModes: List<CompilationMode> = listOf(
         CompilationMode.None,
         CompilationMode.Interpreted,

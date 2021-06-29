@@ -21,6 +21,99 @@ import androidx.test.uiautomator.UiDevice
 import java.io.File
 import java.io.InputStream
 
+internal data class ShellOutput(val stdout: String, val stderr: String)
+
+/**
+ * Provides shell scripting functionality, as well as stdin/stderr capabilities (for the first/last
+ * command, respectively)
+ *
+ * A better way to implement stdin/stderr may be to have an additional wrapper script when
+ * stdin/stderr is required, so that all stderr can be captured (instead of redirecting the
+ * last command), and stdin can be read by other commands in the script (instead of just the 1st).
+ */
+private fun UiDevice.executeShellScript(
+    script: String,
+    stdin: String?,
+    includeStderr: Boolean
+): Pair<String, String?> {
+    // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
+    // so we copy to /data/local/tmp
+    val externalDir = Outputs.dirUsableByAppAndShell
+    val writableScriptFile = File.createTempFile("temporaryScript", ".sh", externalDir)
+    val runnableScriptPath = "/data/local/tmp/" + writableScriptFile.name
+
+    // only create/read/delete stdin/stderr files if they are needed
+    val stdinFile = stdin?.run {
+        File.createTempFile("temporaryStdin", null, externalDir)
+    }
+    val stderrPath = if (includeStderr) {
+        // we use a modified runnableScriptPath (as opposed to externalDir) because some shell
+        // commands fail to redirect stderr to externalDir (notably, `am start`).
+        // This also means we need to `cat` the file to read it, and `rm` to remove it.
+        runnableScriptPath + "_stderr"
+    } else {
+        null
+    }
+
+    try {
+        var scriptText: String = script
+        if (stdinFile != null) {
+            stdinFile.writeText(stdin)
+            scriptText = "cat ${stdinFile.absolutePath} | $scriptText"
+        }
+        if (stderrPath != null) {
+            scriptText = "$scriptText 2> $stderrPath"
+        }
+        writableScriptFile.writeText(scriptText)
+
+        // Note: we don't check for return values from the below, since shell based file
+        // permission errors generally crash our process.
+        executeShellCommand("cp ${writableScriptFile.absolutePath} $runnableScriptPath")
+        executeShellCommand("chmod +x $runnableScriptPath")
+
+        val stdout = executeShellCommand(runnableScriptPath)
+        val stderr = stderrPath?.run { executeShellCommand("cat $stderrPath") }
+
+        return Pair(stdout, stderr)
+    } finally {
+        stdinFile?.delete()
+        stderrPath?.run {
+            executeShellCommand("rm $stderrPath")
+        }
+        writableScriptFile.delete()
+        executeShellCommand("rm $runnableScriptPath")
+    }
+}
+
+/**
+ * Convenience wrapper around [UiDevice.executeShellCommand()] which enables redirects, piping, and
+ * all other shell script functionality, and captures stderr of last command.
+ *
+ * Unlike [UiDevice.executeShellCommand()], this method supports arbitrary multi-line shell
+ * expressions, as it creates and executes a shell script in `/data/local/tmp/`.
+ *
+ * Note that shell scripting capabilities differ based on device version. To see which utilities
+ * are available on which platform versions,see
+ * [Android's shell and utilities](https://android.googlesource.com/platform/system/core/+/master/shell_and_utilities/README.md#)
+ *
+ * @param script Script content to run
+ * @param stdin String to pass in as stdin to first command in script
+ *
+ * @return ShellOutput, including stdout of full script, and stderr of last command.
+ */
+internal fun UiDevice.executeShellScriptWithStderr(
+    script: String,
+    stdin: String? = null
+): ShellOutput {
+    return executeShellScript(
+        script = script,
+        stdin = stdin,
+        includeStderr = true
+    ).run {
+        ShellOutput(first, second!!)
+    }
+}
+
 /**
  * Convenience wrapper around [UiDevice.executeShellCommand()] which enables redirects, piping, and
  * all other shell script functionality.
@@ -34,34 +127,11 @@ import java.io.InputStream
  *
  * @param script Script content to run
  * @param stdin String to pass in as stdin to first command in script
+ *
+ * @return Stdout string
  */
 internal fun UiDevice.executeShellScript(script: String, stdin: String? = null): String {
-    // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
-    // so we copy to /data/local/tmp
-    val externalDir = Outputs.dirUsableByAppAndShell
-    val stdinFile = File.createTempFile("temporaryStdin", null, externalDir)
-    val writableScriptFile = File.createTempFile("temporaryScript", ".sh", externalDir)
-    val runnableScriptPath = "/data/local/tmp/" + writableScriptFile.name
-
-    try {
-        if (stdin != null) {
-            stdinFile.writeText(stdin)
-            writableScriptFile.writeText("cat ${stdinFile.absolutePath} | $script")
-        } else {
-            writableScriptFile.writeText(script)
-        }
-
-        // Note: we don't check for return values from the below, since shell based file
-        // permission errors generally crash our process.
-        executeShellCommand("cp ${writableScriptFile.absolutePath} $runnableScriptPath")
-        executeShellCommand("chmod +x $runnableScriptPath")
-
-        return executeShellCommand(runnableScriptPath)
-    } finally {
-        stdinFile.delete()
-        writableScriptFile.delete()
-        executeShellCommand("rm $runnableScriptPath")
-    }
+    return executeShellScript(script, stdin, false).first
 }
 
 /**
