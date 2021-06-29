@@ -24,7 +24,6 @@ import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.getSystemClasspathFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
@@ -333,7 +332,7 @@ class DatabaseProcessorTest {
                 @Database(entities = {test.library.MissingEntityAnnotationPojo.class}, version = 1)
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-            classpath = listOf(libraryClasspath) + getSystemClasspathFiles()
+            classpath = libraryClasspath
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 compilationDidFail()
@@ -367,7 +366,7 @@ class DatabaseProcessorTest {
                     abstract test.library.MissingAnnotationsBaseDao getBadDao();
                 }
                 """,
-            USER, classpath = listOf(libraryClasspath) + getSystemClasspathFiles()
+            USER, classpath = libraryClasspath
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 compilationDidFail()

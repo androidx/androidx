@@ -18,6 +18,8 @@ package androidx.room.compiler.processing.javac.kotlin
 
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.runJavaProcessorTest
 import androidx.room.compiler.processing.util.runKaptTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.AssumptionViolatedException
@@ -463,6 +465,35 @@ class KotlinMetadataElementTest {
                 assertThat(it.isNullable()).isFalse()
                 assertThat(it.typeArguments).isEmpty()
             }
+        }
+    }
+
+    @Test
+    fun withoutKotlinInClasspath() {
+        val libSource = Source.kotlin(
+            "lib.kt",
+            """
+            class KotlinClass {
+                val b: String = TODO()
+                val a: String = TODO()
+                val c: String = TODO()
+                val isB:String = TODO()
+                val isA:String = TODO()
+                val isC:String = TODO()
+            }
+            """.trimIndent()
+        )
+        val classpath = compileFiles(listOf(libSource))
+        runJavaProcessorTest(
+            sources = emptyList(),
+            classpath = classpath
+        ) { invocation ->
+            val (_, metadata) =
+                getMetadataElement(
+                    (invocation.processingEnv as JavacProcessingEnv).delegate,
+                    "KotlinClass"
+                )
+            assertThat(metadata).isNotNull()
         }
     }
 

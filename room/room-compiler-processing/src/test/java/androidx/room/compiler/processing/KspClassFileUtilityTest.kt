@@ -49,7 +49,7 @@ class KspClassFileUtilityTest {
         val classpath = compileFiles(listOf(libSource))
         runProcessorTest(
             sources = emptyList(),
-            classpath = listOf(classpath)
+            classpath = classpath
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("KotlinClass")
             assertThat(element.getAllFieldNames())
@@ -76,7 +76,7 @@ class KspClassFileUtilityTest {
         val classpath = compileFiles(listOf(libSource))
         runProcessorTest(
             sources = emptyList(),
-            classpath = listOf(classpath)
+            classpath = classpath
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("JavaClass")
             assertThat(element.getAllFieldNames())
@@ -103,7 +103,7 @@ class KspClassFileUtilityTest {
         val classpath = compileFiles(listOf(libSource))
         runProcessorTest(
             sources = listOf(Source.kotlin("Placeholder.kt", "")),
-            classpath = listOf(classpath)
+            classpath = classpath
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("KotlinClass")
             assertThat(element.getDeclaredMethods().map { it.name })
@@ -130,7 +130,7 @@ class KspClassFileUtilityTest {
         val classpath = compileFiles(listOf(libSource))
         runProcessorTest(
             sources = listOf(Source.kotlin("Placeholder.kt", "")),
-            classpath = listOf(classpath)
+            classpath = classpath
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("JavaClass")
             assertThat(element.getDeclaredMethods().map { it.name })
@@ -168,7 +168,7 @@ class KspClassFileUtilityTest {
         )
         runKspTest(
             sources = createSources("main"),
-            classpath = listOf(preCompiled)
+            classpath = preCompiled
         ) { invocation ->
             assertThat(
                 invocation.findOrigin("lib.JavaClass")
