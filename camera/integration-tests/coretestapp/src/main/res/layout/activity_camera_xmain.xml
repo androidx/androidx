@@ -287,6 +287,30 @@ limitations under the License.
         app:layout_constraintHorizontal_bias="0.612"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <Button
+        android:id="@+id/zoom_reset_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_zoom_reset"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintStart_toStartOf="@+id/Picture"
+        app:layout_constraintBottom_toTopOf="@+id/Picture" />
+
+    <Button
+        android:id="@+id/zoom_in_2x_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_zoom_in_2x"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@+id/zoom_reset_toggle"
+        app:layout_constraintBottom_toTopOf="@+id/Picture" />
+
     <TextView
         android:id="@+id/zoomRatio"
         android:layout_width="wrap_content"
