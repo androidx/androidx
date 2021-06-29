@@ -30,7 +30,7 @@ public class JetpackOptimizeStrategyTest {
     JetpackOptimizeStrategy mJetpackOptimizeStrategy = new JetpackOptimizeStrategy();
 
     @Test
-    public void testShouldOptimize_docCountThreshold() {
+    public void testShouldOptimize_byteThreshold() {
         GetOptimizeInfoResultProto optimizeInfo = GetOptimizeInfoResultProto.newBuilder()
                 .setTimeSinceLastOptimizeMs(0)
                 .setEstimatedOptimizableBytes(BYTES_OPTIMIZE_THRESHOLD)
@@ -41,7 +41,7 @@ public class JetpackOptimizeStrategyTest {
     }
 
     @Test
-    public void testShouldOptimize_byteThreshold() {
+    public void testShouldNotOptimize_timeThreshold() {
         GetOptimizeInfoResultProto optimizeInfo = GetOptimizeInfoResultProto.newBuilder()
                 .setTimeSinceLastOptimizeMs(Integer.MAX_VALUE)
                 .setEstimatedOptimizableBytes(0)
@@ -52,7 +52,7 @@ public class JetpackOptimizeStrategyTest {
     }
 
     @Test
-    public void testShouldNotOptimize_timeThreshold() {
+    public void testShouldOptimize_docCountThreshold() {
         GetOptimizeInfoResultProto optimizeInfo = GetOptimizeInfoResultProto.newBuilder()
                 .setTimeSinceLastOptimizeMs(0)
                 .setEstimatedOptimizableBytes(0)
