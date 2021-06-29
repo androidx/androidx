@@ -64,7 +64,7 @@ package androidx.wear.phone.interactions.authentication {
     method @UiThread public void close();
     method public static androidx.wear.phone.interactions.authentication.RemoteAuthClient create(android.content.Context context);
     method protected void finalize();
-    method @UiThread public void sendAuthorizationRequest(androidx.wear.phone.interactions.authentication.OAuthRequest request, androidx.wear.phone.interactions.authentication.RemoteAuthClient.Callback clientCallback);
+    method @UiThread public void sendAuthorizationRequest(androidx.wear.phone.interactions.authentication.OAuthRequest request, java.util.concurrent.Executor executor, androidx.wear.phone.interactions.authentication.RemoteAuthClient.Callback clientCallback);
     field public static final androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion Companion;
     field public static final int ERROR_PHONE_UNAVAILABLE = 1; // 0x1
     field public static final int ERROR_UNSUPPORTED = 0; // 0x0
@@ -73,7 +73,7 @@ package androidx.wear.phone.interactions.authentication {
 
   public abstract static class RemoteAuthClient.Callback {
     ctor public RemoteAuthClient.Callback();
-    method @UiThread public abstract void onAuthorizationError(int errorCode);
+    method @UiThread public abstract void onAuthorizationError(androidx.wear.phone.interactions.authentication.OAuthRequest request, int errorCode);
     method @UiThread public abstract void onAuthorizationResponse(androidx.wear.phone.interactions.authentication.OAuthRequest request, androidx.wear.phone.interactions.authentication.OAuthResponse response);
   }
 
