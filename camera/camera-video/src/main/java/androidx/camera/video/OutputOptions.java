@@ -47,7 +47,7 @@ public abstract class OutputOptions {
     /**
      * Gets the limit for the file length in bytes.
      */
-    public abstract int getFileSizeLimit();
+    public abstract long getFileSizeLimit();
 
     /**
      * Type of the output options.

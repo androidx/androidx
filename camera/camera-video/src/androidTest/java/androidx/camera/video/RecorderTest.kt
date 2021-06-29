@@ -421,6 +421,40 @@ class RecorderTest {
     }
 
     @Test
+    fun setFileSizeLimit() {
+        val fileSizeLimit = 500L * 1024L // 500 KB
+
+        invokeSurfaceRequest()
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.builder()
+            .setFile(file)
+            .setFileSizeLimit(fileSizeLimit)
+            .build()
+
+        val pendingRecording = recorder.prepareRecording(outputOptions)
+        pendingRecording.withEventListener(
+            CameraXExecutors.directExecutor(),
+            videoRecordEventListener
+        ).start()
+
+        verify(
+            videoRecordEventListener,
+            timeout(60000L)
+        ).accept(any(VideoRecordEvent.Finalize::class.java))
+
+        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
+        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
+
+        assertThat(captor.value.eventType).isEqualTo(VideoRecordEvent.EventType.FINALIZE)
+        val finalize = captor.value as VideoRecordEvent.Finalize
+        assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED)
+        assertThat(file.length()).isGreaterThan(0)
+        assertThat(file.length()).isLessThan(fileSizeLimit)
+
+        file.delete()
+    }
+
+    @Test
     fun checkStreamState() {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
