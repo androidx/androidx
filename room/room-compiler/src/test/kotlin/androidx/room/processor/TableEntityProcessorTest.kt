@@ -19,7 +19,6 @@ package androidx.room.processor
 import COMMON
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.getSystemClasspathFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
@@ -113,7 +112,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         singleEntity(
             "",
             baseClass = "test.library.MissingGetterEntity",
-            classpathFiles = listOf(libraryClasspath) + getSystemClasspathFiles()
+            classpathFiles = libraryClasspath
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)

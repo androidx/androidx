@@ -30,7 +30,6 @@ import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
-import androidx.room.compiler.processing.util.getSystemClasspathFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.typeName
@@ -69,7 +68,7 @@ class XAnnotationTest(
             runProcessorTest(
                 sources = newSources,
                 handler = handler,
-                classpath = listOf(compiled) + getSystemClasspathFiles()
+                classpath = compiled
             )
         } else {
             runProcessorTest(

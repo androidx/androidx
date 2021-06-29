@@ -183,7 +183,7 @@ fun runProcessorTest(
     runTests(
         params = TestCompilationParameters(
             sources = sources,
-            classpath = classpath,
+            classpath = classpath.distinct(),
             options = options,
             handlers = handlers
         ),
@@ -306,8 +306,9 @@ fun runKspTest(
 }
 
 /**
- * Compiles the given set of sources into a temporary folder and returns the output classes
- * directory.
+ * Compiles the given set of sources into a temporary folder and returns the full classpath that
+ * includes both the compilation output and dependencies.
+ *
  * @param sources The list of source files to compile
  * @param options The annotation processor arguments
  * @param annotationProcessors The list of Java annotation processors to run with compilation
@@ -321,7 +322,7 @@ fun compileFiles(
     annotationProcessors: List<Processor> = emptyList(),
     symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
     javacArguments: List<String> = emptyList()
-): File {
+): List<File> {
     val outputStream = ByteArrayOutputStream()
     val compilation = KotlinCompilationUtil.prepareCompilation(
         sources = sources,
@@ -340,5 +341,5 @@ fun compileFiles(
     check(result.exitCode == KotlinCompilation.ExitCode.OK) {
         "compilation failed: ${outputStream.toString(Charsets.UTF_8)}"
     }
-    return compilation.classesDir
+    return listOf(compilation.classesDir) + compilation.classpaths
 }

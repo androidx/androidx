@@ -511,7 +511,7 @@ class XTypeElementTest {
         )
         runProcessorTest(
             listOf(javaSource, kotlinSource),
-            classpath = listOf(dependency)
+            classpath = dependency
         ) { invocation ->
             listOf(
                 "JavaSubject", "DependencyJavaSubject",
@@ -949,7 +949,7 @@ class XTypeElementTest {
         )
         runProcessorTest(
             sources = createSources("app"),
-            classpath = listOf(classpath)
+            classpath = classpath
         ) { invocation ->
             listOf(
                 "lib.KotlinEnum", "lib.JavaEnum",
