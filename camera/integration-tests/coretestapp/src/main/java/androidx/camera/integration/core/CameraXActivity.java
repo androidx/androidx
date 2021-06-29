@@ -142,6 +142,7 @@ public class CameraXActivity extends AppCompatActivity {
     private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
     private final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
     private static final String BACKWARD = "BACKWARD";
+
     private ActiveRecording mActiveRecording;
     /** The camera to use */
     CameraSelector mCurrentCameraSelector = BACK_SELECTOR;
@@ -170,6 +171,8 @@ public class CameraXActivity extends AppCompatActivity {
     private Button mDecEV;
     private TextView mZoomRatioLabel;
     private SeekBar mZoomSeekBar;
+    private Button mZoomIn2XToggle;
+    private Button mZoomResetToggle;
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
@@ -624,6 +627,7 @@ public class CameraXActivity extends AppCompatActivity {
         }
         mPlusEV.setEnabled(isExposureCompensationSupported());
         mDecEV.setEnabled(isExposureCompensationSupported());
+        mZoomIn2XToggle.setEnabled(is2XZoomSupported());
     }
 
     private void setUpButtonEvents() {
@@ -638,6 +642,7 @@ public class CameraXActivity extends AppCompatActivity {
         setUpCameraDirectionButton();
         setUpTorchButton();
         setUpEVButton();
+        setUpZoomButton();
         mCaptureQualityToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
     }
 
@@ -668,6 +673,8 @@ public class CameraXActivity extends AppCompatActivity {
         mDecEV = findViewById(R.id.dec_ev_toggle);
         mZoomSeekBar = findViewById(R.id.seekBar);
         mZoomRatioLabel = findViewById(R.id.zoomRatio);
+        mZoomIn2XToggle = findViewById(R.id.zoom_in_2x_toggle);
+        mZoomResetToggle = findViewById(R.id.zoom_reset_toggle);
 
         mTextView = findViewById(R.id.textView);
         mRecordUi = new RecordUi(
@@ -974,30 +981,9 @@ public class CameraXActivity extends AppCompatActivity {
                     }
 
                     CameraInfo cameraInfo = mCamera.getCameraInfo();
-                    CameraControl cameraControl = mCamera.getCameraControl();
-                    float newZoom =
-                            cameraInfo.getZoomState().getValue().getZoomRatio()
-                                    * detector.getScaleFactor();
-                    float clampedNewZoom = MathUtils.clamp(newZoom,
-                            cameraInfo.getZoomState().getValue().getMinZoomRatio(),
-                            cameraInfo.getZoomState().getValue().getMaxZoomRatio());
-
-                    Log.d(TAG, "setZoomRatio ratio: " + clampedNewZoom);
-                    showNormalZoomRatio();
-                    ListenableFuture<Void> listenableFuture = cameraControl.setZoomRatio(
-                            clampedNewZoom);
-                    Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
-                        @Override
-                        public void onSuccess(@Nullable Void result) {
-                            Log.d(TAG, "setZoomRatio onSuccess: " + clampedNewZoom);
-                            showZoomRatioIsAlive();
-                        }
-
-                        @Override
-                        public void onFailure(Throwable t) {
-                            Log.d(TAG, "setZoomRatio failed, " + t);
-                        }
-                    }, ContextCompat.getMainExecutor(CameraXActivity.this));
+                    float newZoom = cameraInfo.getZoomState().getValue().getZoomRatio()
+                            * detector.getScaleFactor();
+                    setZoomRatio(newZoom);
                     return true;
                 }
             };
@@ -1087,6 +1073,51 @@ public class CameraXActivity extends AppCompatActivity {
                 mZoomRatioLabel.setText(str);
                 mZoomSeekBar.setProgress((int) (MAX_SEEKBAR_VALUE * state.getLinearZoom()));
             });
+    }
+
+    private boolean is2XZoomSupported() {
+        CameraInfo cameraInfo = getCameraInfo();
+        return cameraInfo != null
+                && cameraInfo.getZoomState().getValue().getMaxZoomRatio() >= 2.0f;
+    }
+
+    private void setUpZoomButton() {
+        mZoomIn2XToggle.setOnClickListener(v -> {
+            setZoomRatio(2.0f);
+        });
+
+        mZoomResetToggle.setOnClickListener(v -> {
+            setZoomRatio(1.0f);
+        });
+    }
+
+    void setZoomRatio(float newZoom) {
+        if (mCamera == null) {
+            return;
+        }
+
+        CameraInfo cameraInfo = mCamera.getCameraInfo();
+        CameraControl cameraControl = mCamera.getCameraControl();
+        float clampedNewZoom = MathUtils.clamp(newZoom,
+                cameraInfo.getZoomState().getValue().getMinZoomRatio(),
+                cameraInfo.getZoomState().getValue().getMaxZoomRatio());
+
+        Log.d(TAG, "setZoomRatio ratio: " + clampedNewZoom);
+        showNormalZoomRatio();
+        ListenableFuture<Void> listenableFuture = cameraControl.setZoomRatio(
+                clampedNewZoom);
+        Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+                Log.d(TAG, "setZoomRatio onSuccess: " + clampedNewZoom);
+                showZoomRatioIsAlive();
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "setZoomRatio failed, " + t);
+            }
+        }, ContextCompat.getMainExecutor(CameraXActivity.this));
     }
 
     private void setupViewFinderGestureControls() {
