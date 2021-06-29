@@ -20,10 +20,8 @@ import android.content.Context
 import android.util.Log
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
@@ -53,8 +51,7 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 @RunWith(Parameterized::class)
 class MLKitBarcodeTest(
-    private val resolution: Size,
-    private val cameraConfig: CameraXConfig
+    private val resolution: Size
 ) {
 
     @get:Rule
@@ -70,12 +67,7 @@ class MLKitBarcodeTest(
         private val size720p = Size(1280, 720)
         @JvmStatic
         @Parameterized.Parameters
-        fun data() = listOf(
-            arrayOf(size480p, Camera2Config.defaultConfig()),
-            arrayOf(size720p, Camera2Config.defaultConfig()),
-            arrayOf(size480p, CameraPipeConfig.defaultConfig()),
-            arrayOf(size720p, CameraPipeConfig.defaultConfig())
-        )
+        fun data() = listOf(size480p, size720p)
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -85,7 +77,7 @@ class MLKitBarcodeTest(
 
     @Before
     fun setup() {
-        CameraX.initialize(context, cameraConfig).get(10, TimeUnit.SECONDS)
+        CameraX.initialize(context, Camera2Config.defaultConfig()).get(10, TimeUnit.SECONDS)
 
         barcodeScanner = BarcodeScanning.getClient(
             BarcodeScannerOptions.Builder().setBarcodeFormats(FORMAT_QR_CODE).build()
@@ -135,7 +127,7 @@ class MLKitBarcodeTest(
     }
 
     private fun assertBarcodeDetect(imageAnalysis: ImageAnalysis) {
-        val latchForBarcodeDetect = CountDownLatch(4)
+        val latchForBarcodeDetect = CountDownLatch(2)
 
         imageAnalysis.setAnalyzer(
             Dispatchers.Main.asExecutor(),
@@ -150,8 +142,8 @@ class MLKitBarcodeTest(
                         barcodes.forEach {
                             if ("Hi, CamX!" == it.displayValue) {
                                 latchForBarcodeDetect.countDown()
-                                Log.d(TAG, "barcode display value: {${it.displayValue}} ")
                             }
+                            Log.d(TAG, "barcode display value: {${it.displayValue}} ")
                         }
                     }
                     .addOnFailureListener { exception ->
@@ -167,7 +159,12 @@ class MLKitBarcodeTest(
         )
 
         // Verify it is the CameraX lab test environment and can detect qr-code.
-        assertTrue(latchForBarcodeDetect.await(DETECT_TIMEOUT, TimeUnit.MILLISECONDS))
+        assertTrue(
+            "Fail to detect qrcode, resolution: $resolution, " +
+                "rearCameraE2E: ${isLoggable(true)}, " +
+                "frontCameraE2E: ${isLoggable(false)} ",
+            latchForBarcodeDetect.await(DETECT_TIMEOUT, TimeUnit.MILLISECONDS)
+        )
     }
 
     private fun initImageAnalysis(): ImageAnalysis {
@@ -175,5 +172,13 @@ class MLKitBarcodeTest(
             .setTargetName("ImageAnalysis")
             .setTargetResolution(resolution)
             .build()
+    }
+
+    private fun isLoggable(isRear: Boolean): Boolean {
+        return if (isRear) {
+            Log.isLoggable("rearCameraE2E", Log.DEBUG)
+        } else {
+            Log.isLoggable("frontCameraE2E", Log.DEBUG)
+        }
     }
 }
