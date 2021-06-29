@@ -47,6 +47,7 @@ androidLintMinComposeApi = { module = "com.android.tools.lint:lint-api", version
 androidLintChecks = { module = "com.android.tools.lint:lint-checks", version.ref = "androidLint" }
 androidLintTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLint" }
 autoCommon = { module = "com.google.auto:auto-common", version = "0.11" }
+atomicFu = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version = "0.14.4" }
 autoServiceAnnotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "autoService" }
 autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
 autoValue = { module = "com.google.auto.value:auto-value", version.ref = "autoValue" }
@@ -77,6 +78,7 @@ hiltAndroidGradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plug
 hiltCompiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 hiltCore = { module = "com.google.dagger:hilt-core", version.ref = "hilt" }
 intellijAnnotations = { module = "com.intellij:annotations", version = "12.0" }
+japicmpPlugin = { module = "me.champeau.gradle:japicmp-gradle-plugin", version = "0.2.8" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version = "3.1" }
 jsr250 = { module = "javax.annotation:javax.annotation-api", version = "1.2" }
