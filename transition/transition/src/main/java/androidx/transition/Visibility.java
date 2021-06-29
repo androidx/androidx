@@ -508,18 +508,18 @@ public abstract class Visibility extends Transition {
 
     @Override
     public boolean isTransitionRequired(@Nullable TransitionValues startValues,
-            @Nullable TransitionValues newValues) {
-        if (startValues == null && newValues == null) {
+            @Nullable TransitionValues endValues) {
+        if (startValues == null && endValues == null) {
             return false;
         }
-        if (startValues != null && newValues != null
-                && newValues.values.containsKey(PROPNAME_VISIBILITY)
+        if (startValues != null && endValues != null
+                && endValues.values.containsKey(PROPNAME_VISIBILITY)
                 != startValues.values.containsKey(PROPNAME_VISIBILITY)) {
             // The transition wasn't targeted in either the start or end, so it couldn't
             // have changed.
             return false;
         }
-        VisibilityInfo changeInfo = getVisibilityChangeInfo(startValues, newValues);
+        VisibilityInfo changeInfo = getVisibilityChangeInfo(startValues, endValues);
         return changeInfo.mVisibilityChange && (changeInfo.mStartVisibility == View.VISIBLE
                 || changeInfo.mEndVisibility == View.VISIBLE);
     }
