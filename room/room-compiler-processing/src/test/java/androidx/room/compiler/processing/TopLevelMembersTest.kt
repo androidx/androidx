@@ -59,7 +59,7 @@ class TopLevelMembersTest {
         )
         runKspTest(
             sources = listOf(appSrc),
-            classpath = listOf(classpath)
+            classpath = classpath
         ) { invocation ->
             // b/188822146
             // TODO add lib package here once Room updates to a version that includes the

@@ -51,7 +51,7 @@ class TypeAliasTest {
         val lib = compileFiles(listOf(produceSource("lib")))
         runProcessorTest(
             sources = listOf(produceSource("app")),
-            classpath = listOf(lib)
+            classpath = lib
         ) { invocation ->
             listOf("lib", "app").forEach { pkg ->
                 val elm = invocation.processingEnv.requireTypeElement("$pkg.Subject")

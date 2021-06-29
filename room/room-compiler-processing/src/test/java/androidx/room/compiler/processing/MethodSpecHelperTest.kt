@@ -384,7 +384,7 @@ class MethodSpecHelperTest(
         ignoreInheritedMethods: Boolean = false
     ) {
         val (sources: List<Source>, classpath: List<File>) = if (preCompiledCode) {
-            emptyList<Source>() to listOf(compileFiles(sources.toList()))
+            emptyList<Source>() to compileFiles(sources.toList())
         } else {
             sources.toList() to emptyList()
         }

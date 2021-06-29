@@ -63,7 +63,7 @@ class KSTypeExtTest {
 
         val subjectSrc = createSubject(pkg = "main")
         val classpath = compileFiles(listOf(createSubject(pkg = "lib")))
-        runKspTest(sources = listOf(subjectSrc), classpath = listOf(classpath)) { invocation ->
+        runKspTest(sources = listOf(subjectSrc), classpath = classpath) { invocation ->
             listOf("main", "lib").map {
                 it to invocation.kspResolver.requireClass("$it.Baz")
             }.forEach { (pkg, subject) ->
@@ -115,7 +115,7 @@ class KSTypeExtTest {
 
         val subjectSrc = createSubject(pkg = "main")
         val classpath = compileFiles(listOf(createSubject(pkg = "lib")))
-        runKspTest(sources = listOf(subjectSrc), classpath = listOf(classpath)) { invocation ->
+        runKspTest(sources = listOf(subjectSrc), classpath = classpath) { invocation ->
             listOf("main.Baz", "lib.Baz").map {
                 invocation.kspResolver.requireClass(it)
             }.forEach { subject ->
@@ -235,7 +235,7 @@ class KSTypeExtTest {
         // classQName.methodName -> returnType, ...paramTypes
         val golden = mutableMapOf<String, List<TypeName>>()
         runKaptTest(
-            sources = listOf(src), classpath = listOf(classpath)
+            sources = listOf(src), classpath = classpath
         ) { invocation ->
             listOf("main.Subject", "lib.Subject").map {
                 val env = (invocation.processingEnv as JavacProcessingEnv)
@@ -253,7 +253,7 @@ class KSTypeExtTest {
         }
         val kspResults = mutableMapOf<String, List<TypeName>>()
         runKspTest(
-            sources = listOf(src), classpath = listOf(classpath)
+            sources = listOf(src), classpath = classpath
         ) { invocation ->
             listOf("main.Subject", "lib.Subject").map {
                 val env = (invocation.processingEnv as KspProcessingEnv)

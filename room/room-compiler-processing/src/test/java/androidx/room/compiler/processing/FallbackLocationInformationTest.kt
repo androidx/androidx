@@ -62,7 +62,7 @@ class FallbackLocationInformationTest {
         val dependency = compileFiles(listOf(kotlinSource, javaSource))
         runProcessorTest(
             sources = listOf(placeholder),
-            classpath = listOf(dependency)
+            classpath = dependency
         ) { invocation ->
             val kotlinSubject = invocation.processingEnv.requireTypeElement("foo.bar.KotlinSubject")
             assertThat(

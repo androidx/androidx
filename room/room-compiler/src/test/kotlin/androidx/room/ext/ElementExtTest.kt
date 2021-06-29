@@ -247,7 +247,7 @@ class ElementExtTest(
         handler: (XTestInvocation) -> Unit
     ) {
         val (sources, classpath) = if (preCompile && sources.isNotEmpty()) {
-            emptyList<Source>() to listOf(compileFiles(sources))
+            emptyList<Source>() to compileFiles(sources)
         } else {
             sources to emptyList()
         }
