@@ -32,7 +32,12 @@ dependencyResolutionManagement {
             } else if (os.startsWith("win")) {
                 currentOsArtifact = "skiko-jvm-runtime-windows-x64"
             } else if (os.startsWith("linux") ) {
-                currentOsArtifact = "skiko-jvm-runtime-linux-x64"
+                def arch = System.getProperty("os.arch")
+                if (arch == "aarch64") {
+                    currentOsArtifact = "skiko-jvm-runtime-linux-arm64"
+                } else {
+                    currentOsArtifact = "skiko-jvm-runtime-linux-x64"
+                }
             } else {
                 throw GradleException("Unsupported operating system $os")
             }
