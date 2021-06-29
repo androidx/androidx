@@ -15,6 +15,8 @@
  */
 package androidx.car.app.hardware.info;
 
+import static androidx.car.app.hardware.common.CarUnit.CarSpeedUnit;
+
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Keep;
@@ -52,8 +54,8 @@ public final class Speed {
     private final CarValue<Float> mDisplaySpeedMetersPerSecond;
 
     @Keep
-    @Nullable
-    private final CarValue<Integer> mSpeedDisplayUnit;
+    @NonNull
+    private final CarValue<@CarSpeedUnit Integer> mSpeedDisplayUnit;
 
     /**
      * Returns the raw speed of the car in meters/second.
@@ -127,7 +129,7 @@ public final class Speed {
      * <p>See {@link CarUnit} for valid speed units.
      */
     @NonNull
-    public CarValue<Integer> getSpeedDisplayUnit() {
+    public CarValue<@CarSpeedUnit Integer> getSpeedDisplayUnit() {
         return requireNonNull(mSpeedDisplayUnit);
     }
 
@@ -186,7 +188,7 @@ public final class Speed {
     public static final class Builder {
         CarValue<Float> mRawSpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
         CarValue<Float> mDisplaySpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Integer> mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<@CarSpeedUnit Integer> mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
 
         // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
 
@@ -250,7 +252,8 @@ public final class Speed {
          * @throws NullPointerException if {@code speedDisplayUnit} is {@code null}
          */
         @NonNull
-        public Builder setSpeedDisplayUnit(@NonNull CarValue<Integer> speedDisplayUnit) {
+        public Builder setSpeedDisplayUnit(
+                @NonNull CarValue<@CarSpeedUnit Integer> speedDisplayUnit) {
             mSpeedDisplayUnit = requireNonNull(speedDisplayUnit);
             return this;
         }
