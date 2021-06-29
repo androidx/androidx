@@ -20,7 +20,7 @@ import datetime, filecmp, math, multiprocessing, os, psutil, shutil, subprocess,
 from collections import OrderedDict
 
 def usage():
-  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--assume-input-states-are-correct] [--work-path <workpath>] [--num-jobs <count>] [--debug] <passingPath> <failingPath> <shellCommand>
+  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--assume-input-states-are-correct] [--work-path <workpath>] [--num-jobs <count>] [--timeout <seconds>] [--debug] <passingPath> <failingPath> <shellCommand>
 
 diff-filterer.py attempts to transform (a copy of) the contents of <passingPath> into the contents of <failingPath> subject to the constraint that when <shellCommand> is run in that directory, it returns 0
 
@@ -35,6 +35,9 @@ OPTIONS
   --num-jobs <count>
     The maximum number of concurrent executions of <shellCommand> to spawn at once
     Specify 'auto' to have diff-filterer.py dynamically adjust the number of jobs based on system load
+  --timeout <seconds>
+    Approximate maximum amount of time to run. If diff-filterer.py expects that running a test would exceed this timeout, then it will skip running the test, terminate early, and report what it did find.
+    diff-filterer.py doesn't terminate any child processes that have already started, so it is still possible that diff-filterer.py might exceed this timeout by the amount of time required to run one test.
   --debug
     Enable some debug checks in diff-filterer.py
 """)
@@ -565,7 +568,7 @@ class Job(object):
 
 # Runner class that determines which diffs between two directories cause the given shell command to fail
 class DiffRunner(object):
-  def __init__(self, failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, maxNumJobsAtOnce):
+  def __init__(self, failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, maxNumJobsAtOnce, timeoutSeconds):
     # some simple params
     self.workPath = os.path.abspath(workPath)
     self.bestState_path = fileIo.join(self.workPath, "bestResults")
@@ -577,6 +580,7 @@ class DiffRunner(object):
     self.originalFailingPath = os.path.abspath(failingPath)
     self.assumeNoSideEffects = assumeNoSideEffects
     self.assumeInputStatesAreCorrect = assumeInputStatesAreCorrect
+    self.timeoutSeconds = timeoutSeconds
 
     # lists of all the files under the two dirs
     print("Finding files in " + passingPath)
@@ -697,8 +701,9 @@ class DiffRunner(object):
     probablyAcceptableStates = []
     numCompletedTests = 2 # Already tested initial passing state and initial failing state
     numJobsAtFirstSuccessAfterMerge = None
+    timedOut = False
     # continue until all files fail and no jobs are running
-    while numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size() or len(activeTestStatesById) > 0:
+    while (numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size() and not timedOut) or len(activeTestStatesById) > 0:
       # display status message
       now = datetime.datetime.now()
       elapsedDuration = now - start
@@ -713,6 +718,14 @@ class DiffRunner(object):
       estimatedRemainingDuration = datetime.timedelta(seconds = elapsedDuration.total_seconds() * float(estimatedNumTestsRemaining) / float(numCompletedTests))
       message = "Elapsed duration: " + str(elapsedDuration) + ". Waiting for " + str(len(activeTestStatesById)) + " active subprocesses (" + str(len(availableTestStates) + len(activeTestStatesById)) + " total available jobs). " + str(self.resetTo_state.size()) + " changes left to test, should take about " + str(estimatedNumTestsRemaining) + " tests, about " + str(estimatedRemainingDuration)
       print(message)
+      if self.timeoutSeconds is not None:
+        # what fraction of the time is left
+        remainingTimeFraction = 1.0 - (elapsedDuration.total_seconds() / self.timeoutSeconds)
+        # how many jobs there will be if we add another one
+        possibleNumPendingJobs = len(activeTestStatesById) + 1
+        if possibleNumPendingJobs / (numCompletedTests + possibleNumPendingJobs) > remainingTimeFraction:
+          # adding one more job would be likely to cause us to exceed our time limit
+          timedOut = True
 
       if len(activeTestStatesById) > 0:
         # wait for a response from a worker
@@ -849,34 +862,40 @@ class DiffRunner(object):
                 targetNumJobs = 1
             print("System idle = " + str(systemIdleFraction) + ", current num jobs = " + str(len(activeTestStatesById) + 1) + ", target num jobs = " + str(targetNumJobs))
 
-        while len(activeTestStatesById) < targetNumJobs and len(activeTestStatesById) < self.resetTo_state.size() and len(availableTestStates) > 0:
-          # find next pending job
-          box = availableTestStates[0]
-          # find next unused job id
-          jobId = 0
-          while jobId in activeTestStatesById:
-            jobId += 1
-          # start job
-          workingDir = self.getWorkPath(jobId)
-          cacheDir = self.getFilesCachePath(jobId)
-          if jobId in workerStatesById:
-            workerPreviousState = workerStatesById[jobId]
-          else:
-            workerPreviousState = FilesState()
-          runJobInOtherProcess(self.testScript_path, workingDir, cacheDir, workerPreviousState, self.assumeNoSideEffects, self.full_resetTo_state, box, queue, jobId)
-          activeTestStatesById[jobId] = box
-          availableTestStates = availableTestStates[1:]
+        if timedOut:
+          print("Timeout reached, not starting new jobs")
+        else:
+          while len(activeTestStatesById) < targetNumJobs and len(activeTestStatesById) < self.resetTo_state.size() and len(availableTestStates) > 0:
+            # find next pending job
+            box = availableTestStates[0]
+            # find next unused job id
+            jobId = 0
+            while jobId in activeTestStatesById:
+              jobId += 1
+            # start job
+            workingDir = self.getWorkPath(jobId)
+            cacheDir = self.getFilesCachePath(jobId)
+            if jobId in workerStatesById:
+              workerPreviousState = workerStatesById[jobId]
+            else:
+              workerPreviousState = FilesState()
+            runJobInOtherProcess(self.testScript_path, workingDir, cacheDir, workerPreviousState, self.assumeNoSideEffects, self.full_resetTo_state, box, queue, jobId)
+            activeTestStatesById[jobId] = box
+            availableTestStates = availableTestStates[1:]
 
-    print("double-checking results")
-    wasSuccessful = True
-    if not self.runnerTest(filesStateFromTree(self.bestState_path))[0]:
-      message = "Error: expected best state at " + self.bestState_path + " did not pass the second time. Could the test be non-deterministic?"
-      if self.assumeNoSideEffects:
-        message += " (it may help to remove the --assume-no-side-effects flag)"
-      if self.assumeInputStatesAreCorrect:
-        message += " (it may help to remove the --assume-input-states-are-correct flag)"
-      print(message)
+    if timedOut:
       wasSuccessful = False
+    else:
+      print("double-checking results")
+      wasSuccessful = True
+      if not self.runnerTest(filesStateFromTree(self.bestState_path))[0]:
+        message = "Error: expected best state at " + self.bestState_path + " did not pass the second time. Could the test be non-deterministic?"
+        if self.assumeNoSideEffects:
+          message += " (it may help to remove the --assume-no-side-effects flag)"
+        if self.assumeInputStatesAreCorrect:
+          message += " (it may help to remove the --assume-input-states-are-correct flag)"
+        print(message)
+        wasSuccessful = False
 
     self.cleanupTempDirs()
 
@@ -888,12 +907,15 @@ class DiffRunner(object):
     print("Done trying to transform the contents of passing path:\n " + self.originalPassingPath + "\ninto the contents of failing path:\n " + self.originalFailingPath)
     print("Of " + str(self.originalNumDifferences) + " differences, could not accept: " + filesDescription)
     print("The final accepted state can be seen at " + self.bestState_path)
+    if timedOut:
+      print("Note that these results might not be optimal due to reaching the timeout of " + str(self.timeoutSeconds) + " seconds")
     return wasSuccessful
 
 def main(args):
   assumeNoSideEffects = False
   assumeInputStatesAreCorrect = False
   workPath = "/tmp/diff-filterer"
+  timeoutSeconds = None
   maxNumJobsAtOnce = 1
   while len(args) > 0:
     arg = args[0]
@@ -921,6 +943,13 @@ def main(args):
         maxNumJobsAtOnce = int(val)
       args = args[2:]
       continue
+    if arg == "--timeout":
+      if len(args) < 2:
+        usage()
+      val = args[1]
+      timeoutSeconds = float(val)
+      args = args[2:]
+      continue
     if arg == "--debug":
       global debug
       debug = True
@@ -942,7 +971,7 @@ def main(args):
   if not os.path.exists(failingPath):
     print("Specified failing path " + failingPath + " does not exist")
     sys.exit(1)
-  success = DiffRunner(failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, maxNumJobsAtOnce).run()
+  success = DiffRunner(failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, maxNumJobsAtOnce, timeoutSeconds).run()
   endTime = datetime.datetime.now()
   duration = endTime - startTime
   if success:
