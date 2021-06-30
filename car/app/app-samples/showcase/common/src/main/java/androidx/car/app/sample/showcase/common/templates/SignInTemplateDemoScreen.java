@@ -231,10 +231,7 @@ public class SignInTemplateDemoScreen extends Screen {
     }
 
     private Template getPinSignInTemplate() {
-        PinSignInMethod pinSignInMethod = new PinSignInMethod.Builder("123456789abc"
-                .toString().toUpperCase())
-                .build();
-
+        PinSignInMethod pinSignInMethod = new PinSignInMethod("123456789ABC");
         return new SignInTemplate.Builder(pinSignInMethod)
                 .setTitle("Sign in with PIN")
                 .setInstructions("Type this PIN in your phone")
@@ -248,7 +245,7 @@ public class SignInTemplateDemoScreen extends Screen {
                 R.drawable.ic_googleg);
         CarColor noTint = CarColor.createCustom(Color.TRANSPARENT, Color.TRANSPARENT);
 
-        ProviderSignInMethod providerSignInMethod = new ProviderSignInMethod.Builder(
+        ProviderSignInMethod providerSignInMethod = new ProviderSignInMethod(
                 new Action.Builder()
                         .setTitle(Utils.colorize("Sign in with Google",
                                 CarColor.createCustom(Color.BLACK, Color.BLACK), 0, 19))
@@ -257,8 +254,7 @@ public class SignInTemplateDemoScreen extends Screen {
                                 .setTint(noTint)
                                 .build())
                         .setOnClickListener(ParkedOnlyOnClickListener.create(
-                                this::performSignInWithGoogleFlow)).build()
-        ).build();
+                                this::performSignInWithGoogleFlow)).build());
 
         return new SignInTemplate.Builder(providerSignInMethod)
                 .setTitle("Sign in with Google")

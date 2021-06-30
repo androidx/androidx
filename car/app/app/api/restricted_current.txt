@@ -990,21 +990,13 @@ package androidx.car.app.model.signin {
   }
 
   @androidx.car.app.annotations.RequiresCarApi(2) public final class PinSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+    ctor public PinSignInMethod(CharSequence);
     method public androidx.car.app.model.CarText getPinCode();
   }
 
-  public static final class PinSignInMethod.Builder {
-    ctor public PinSignInMethod.Builder(CharSequence);
-    method public androidx.car.app.model.signin.PinSignInMethod build();
-  }
-
   @androidx.car.app.annotations.RequiresCarApi(2) public final class ProviderSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+    ctor public ProviderSignInMethod(androidx.car.app.model.Action);
     method public androidx.car.app.model.Action getAction();
-  }
-
-  public static final class ProviderSignInMethod.Builder {
-    ctor public ProviderSignInMethod.Builder(androidx.car.app.model.Action);
-    method public androidx.car.app.model.signin.ProviderSignInMethod build();
   }
 
   @androidx.car.app.annotations.RequiresCarApi(2) public final class SignInTemplate implements androidx.car.app.model.Template {

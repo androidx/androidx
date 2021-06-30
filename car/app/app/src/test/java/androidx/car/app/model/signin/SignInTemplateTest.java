@@ -40,7 +40,7 @@ public class SignInTemplateTest {
 
     @Test
     public void createInstance_noHeaderTitleOrAction_throws() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         assertThrows(IllegalStateException.class,
                 () -> new SignInTemplate.Builder(signInMethod).build());
 
@@ -51,7 +51,7 @@ public class SignInTemplateTest {
 
     @Test
     public void moreThanTwoActions_throws() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         assertThrows(IllegalArgumentException.class,
                 () -> new SignInTemplate.Builder(signInMethod)
                         .addAction(mAction)
@@ -61,7 +61,7 @@ public class SignInTemplateTest {
 
     @Test
     public void createInstance_defaultValues() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle("Title")
                 .build();
@@ -78,7 +78,7 @@ public class SignInTemplateTest {
 
     @Test
     public void createInstance_setHeaderAction_invalidActionThrows() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
@@ -91,7 +91,7 @@ public class SignInTemplateTest {
 
     @Test
     public void createInstance_setLoading() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setHeaderAction(Action.BACK)
                 .setLoading(true)
@@ -101,7 +101,7 @@ public class SignInTemplateTest {
 
     @Test
     public void createInstance_setHeaderAction() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setHeaderAction(Action.BACK)
                 .build();
@@ -111,7 +111,7 @@ public class SignInTemplateTest {
     @Test
     public void createInstance_setActionStrip() {
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle("Title")
                 .setActionStrip(actionStrip)
@@ -122,7 +122,7 @@ public class SignInTemplateTest {
 
     @Test
     public void createInstance_setInstructions() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle("Title")
                 .setInstructions("Text")
@@ -133,7 +133,7 @@ public class SignInTemplateTest {
 
     @Test
     public void createInstance_setAdditionalText() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle("Title")
                 .setAdditionalText("Text")
@@ -151,7 +151,7 @@ public class SignInTemplateTest {
         Action action2 = new Action.Builder()
                 .setTitle("Action").setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
                 })).build();
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle("Title")
                 .addAction(action1)
@@ -167,7 +167,7 @@ public class SignInTemplateTest {
                 .setTitle("Action")
                 .setOnClickListener(() -> { })
                 .build();
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -176,7 +176,7 @@ public class SignInTemplateTest {
 
     @Test
     public void equals() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         String title = "Title";
         String instructions = "instructions";
         String additionalText = "Text";
@@ -205,7 +205,7 @@ public class SignInTemplateTest {
 
     @Test
     public void notEquals_differentLoadingState() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         String title = "Title";
         String instructions = "instructions";
         String additionalText = "Text";
@@ -234,7 +234,7 @@ public class SignInTemplateTest {
 
     @Test
     public void notEquals_differentSignInMethod() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         String title = "Title";
         String instructions = "instructions";
         String additionalText = "Text";
@@ -248,7 +248,7 @@ public class SignInTemplateTest {
                 .setActionStrip(actionStrip)
                 .build();
 
-        PinSignInMethod signInMethod2 = new PinSignInMethod.Builder("DEF").build();
+        PinSignInMethod signInMethod2 = new PinSignInMethod("DEF");
         assertThat(template)
                 .isNotEqualTo(
                         new SignInTemplate.Builder(signInMethod2)
@@ -262,7 +262,7 @@ public class SignInTemplateTest {
 
     @Test
     public void notEquals_differentTitle() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         String instructions = "instructions";
         String additionalText = "Text";
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
@@ -287,7 +287,7 @@ public class SignInTemplateTest {
 
     @Test
     public void notEquals_differentInstructions() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         String title = "Title";
         String additionalText = "Text";
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
@@ -312,7 +312,7 @@ public class SignInTemplateTest {
 
     @Test
     public void notEquals_differentAdditionalText() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         String instructions = "instructions";
         String title = "Title";
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
@@ -337,7 +337,7 @@ public class SignInTemplateTest {
 
     @Test
     public void notEquals_differentAction() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         String instructions = "instructions";
         String title = "Title";
         String additionalText = "Text";
@@ -362,7 +362,7 @@ public class SignInTemplateTest {
 
     @Test
     public void notEquals_differentActionStrip() {
-        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
         String instructions = "instructions";
         String title = "Title";
         String additionalText = "Text";
