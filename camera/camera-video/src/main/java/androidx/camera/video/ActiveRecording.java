@@ -30,6 +30,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Provides controls for the currently active recording.
  *
+ * <p>An active recording is created by starting a pending recording with
+ * {@link PendingRecording#start()}. If there are no errors starting the recording, upon
+ * creation, an active recording will provide controls to pause, resume or stop a recording. If
+ * errors occur while starting the recording, the active recording will be instantiated in a
+ * {@link VideoRecordEvent.Finalize finalized} state, and all controls will be no-ops. The state
+ * of the recording can be observed by
+ * {@link PendingRecording#withEventListener(Executor, Consumer) adding a video record event
+ * listener} to the pending recording before starting.
+ *
  * <p>Either {@link #stop()} or {@link #close()} can be called when it is desired to
  * stop the recording, and must be called before this object and the
  * {@link Recorder} from which this object was created will no longer be referenced.
@@ -79,10 +88,15 @@ public final class ActiveRecording implements AutoCloseable {
     /**
      * Pauses the current recording if active.
      *
+     * <p>Successful pausing of a recording will generate a {@link VideoRecordEvent.Pause} event
+     * which will be sent to the listener set on
+     * {@link PendingRecording#withEventListener(Executor, Consumer)}.
+     *
      * <p>If the recording has already been paused or has been finalized internally, this is a
      * no-op.
      *
-     * @throws IllegalStateException if the recording has been stopped.
+     * @throws IllegalStateException if the recording has been stopped with
+     * {@link #close()} or {@link #stop()}.
      */
     public void pause() {
         if (mIsStopped.get()) {
@@ -97,9 +111,14 @@ public final class ActiveRecording implements AutoCloseable {
     /**
      * Resumes the current recording if paused.
      *
+     * <p>Successful resuming of a recording will generate a {@link VideoRecordEvent.Resume} event
+     * which will be sent to the listener set on
+     * {@link PendingRecording#withEventListener(Executor, Consumer)}.
+     *
      * <p>If the recording is active or has been finalized internally, this is a no-op.
      *
-     * @throws IllegalStateException if the recording has been stopped.
+     * @throws IllegalStateException if the recording has been stopped with
+     * {@link #close()} or {@link #stop()}.
      */
     public void resume() {
         if (mIsStopped.get()) {
@@ -114,14 +133,14 @@ public final class ActiveRecording implements AutoCloseable {
     /**
      * Stops the recording.
      *
-     * <p>Once stop, all other methods of this ActiveRecording will throw an
-     * {@link IllegalStateException}.
+     * <p>Once stopped, all methods for controlling the state of this recording besides
+     * {@code stop()} or {@link #close()} will throw an {@link IllegalStateException}.
      *
-     * <p>Once an ActiveRecording has been stopped, the next recording can be started with
+     * <p>Once an active recording has been stopped, the next recording can be started with
      * {@link PendingRecording#start()}.
      *
-     * <p>If the recording has already been stopped or has been finalized internally, this is a
-     * no-op.
+     * <p>This method is idempotent; if the recording has already been stopped or has been
+     * finalized internally, calling {@code stop()} is a no-op.
      */
     public void stop() {
         mCloseGuard.close();
@@ -148,9 +167,12 @@ public final class ActiveRecording implements AutoCloseable {
     }
 
     /**
-     * {@inheritDoc}
+     * Close this recording, as if calling {@link #stop()}.
      *
-     * This method is equivalent to calling {@link #stop()}
+     * <p>This method is invoked automatically on active recording instances managed by the {@code
+     * try-with-resources} statement.
+     *
+     * <p>This method is equivalent to calling {@link #stop()}.
      */
     @Override
     public void close() {
