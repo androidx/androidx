@@ -35,17 +35,17 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(TilesTestingTestRunner::class)
 @DoNotInstrument
-public class TestingTileProviderClientTest {
+public class TestTileProviderClientTest {
     private companion object {
         private val RESOURCES_VERSION = "10"
     }
     private val fakeTileProvider = FakeTileProviderService()
-    private lateinit var clientUnderTest: TestingTileProviderClient<FakeTileProviderService>
+    private lateinit var clientUnderTest: TestTileProviderClient<FakeTileProviderService>
 
     @Before
     public fun setUp() {
         val executor = InlineExecutorService()
-        clientUnderTest = TestingTileProviderClient(fakeTileProvider, executor)
+        clientUnderTest = TestTileProviderClient(fakeTileProvider, executor)
     }
 
     @Test

@@ -46,14 +46,14 @@ import java.util.concurrent.Executor
  * unbind, but not destroy the service. If you wish to test service destruction, you can instead
  * call [Service.onDestroy] on the passed in `service` instance.
  */
-public class TestingTileProviderClient<T : TileProviderService> : TileProviderClient {
+public class TestTileProviderClient<T : TileProviderService> : TileProviderClient {
     private val controller: ServiceController<T>
     private val componentName: ComponentName
     private val innerTileProvider: DefaultTileProviderClient
     private var hasBound = false
 
     /**
-     * Build a [TestingTileProviderClient] for use with a coroutine dispatcher.
+     * Build a [TestTileProviderClient] for use with a coroutine dispatcher.
      *
      * @param service An instance of the [TileProviderService] class to bind to.
      * @param coroutineScope A [CoroutineScope] to use when dispatching calls to the
@@ -82,7 +82,7 @@ public class TestingTileProviderClient<T : TileProviderService> : TileProviderCl
     }
 
     /**
-     * Build a [TestingTileProviderClient] for use with a given [Executor]
+     * Build a [TestTileProviderClient] for use with a given [Executor]
      *
      * @param service An instance of the [TileProviderService] class to bind to.
      * @param executor An [Executor] to use when dispatching calls to the [TileProviderService].
