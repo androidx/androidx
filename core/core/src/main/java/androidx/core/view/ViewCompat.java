@@ -38,6 +38,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.ContentInfo;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -2749,6 +2750,10 @@ public class ViewCompat {
      */
     public static void setOnReceiveContentListener(@NonNull View view, @Nullable String[] mimeTypes,
             @Nullable OnReceiveContentListener listener) {
+        if (Build.VERSION.SDK_INT >= 31) {
+            Api31Impl.setOnReceiveContentListener(view, mimeTypes, listener);
+            return;
+        }
         mimeTypes = (mimeTypes == null || mimeTypes.length == 0) ? null : mimeTypes;
         if (listener != null) {
             Preconditions.checkArgument(mimeTypes != null,
@@ -2794,6 +2799,9 @@ public class ViewCompat {
      */
     @Nullable
     public static String[] getOnReceiveContentMimeTypes(@NonNull View view) {
+        if (Build.VERSION.SDK_INT >= 31) {
+            return Api31Impl.getReceiveContentMimeTypes(view);
+        }
         return (String[]) view.getTag(R.id.tag_on_receive_content_mime_types);
     }
 
@@ -2821,6 +2829,9 @@ public class ViewCompat {
             Log.d(TAG, "performReceiveContent: " + payload
                     + ", view=" + view.getClass().getSimpleName() + "[" + view.getId() + "]");
         }
+        if (Build.VERSION.SDK_INT >= 31) {
+            return Api31Impl.performReceiveContent(view, payload);
+        }
         OnReceiveContentListener listener =
                 (OnReceiveContentListener) view.getTag(R.id.tag_on_receive_content_listener);
         if (listener != null) {
@@ -2839,6 +2850,71 @@ public class ViewCompat {
 
     private static final OnReceiveContentViewBehavior NO_OP_ON_RECEIVE_CONTENT_VIEW_BEHAVIOR =
             payload -> payload;
+
+    @RequiresApi(31)
+    private static final class Api31Impl {
+        private Api31Impl() {}
+
+        @DoNotInline
+        public static void setOnReceiveContentListener(@NonNull View view,
+                @Nullable String[] mimeTypes, @Nullable final OnReceiveContentListener listener) {
+            if (listener == null) {
+                view.setOnReceiveContentListener(mimeTypes, null);
+            } else {
+                view.setOnReceiveContentListener(mimeTypes,
+                        new OnReceiveContentListenerAdapter(listener));
+            }
+        }
+
+        @DoNotInline
+        @Nullable
+        public static String[] getReceiveContentMimeTypes(@NonNull View view) {
+            return view.getReceiveContentMimeTypes();
+        }
+
+        @DoNotInline
+        @Nullable
+        public static ContentInfoCompat performReceiveContent(@NonNull View view,
+                @NonNull ContentInfoCompat payload) {
+            ContentInfo platPayload = payload.toContentInfo();
+            ContentInfo platResult = view.performReceiveContent(platPayload);
+            if (platResult == null) {
+                return null;
+            }
+            if (platResult == platPayload) {
+                // Avoid unnecessary conversion when returning the original payload unchanged.
+                return payload;
+            }
+            return ContentInfoCompat.toContentInfoCompat(platResult);
+        }
+    }
+
+    @RequiresApi(31)
+    private static final class OnReceiveContentListenerAdapter implements
+            android.view.OnReceiveContentListener {
+
+        @NonNull
+        private final OnReceiveContentListener mJetpackListener;
+
+        OnReceiveContentListenerAdapter(@NonNull OnReceiveContentListener jetpackListener) {
+            mJetpackListener = jetpackListener;
+        }
+
+        @Nullable
+        @Override
+        public ContentInfo onReceiveContent(@NonNull View view, @NonNull ContentInfo platPayload) {
+            ContentInfoCompat payload = ContentInfoCompat.toContentInfoCompat(platPayload);
+            ContentInfoCompat result = mJetpackListener.onReceiveContent(view, payload);
+            if (result == null) {
+                return null;
+            }
+            if (result == payload) {
+                // Avoid unnecessary conversion when returning the original payload unchanged.
+                return platPayload;
+            }
+            return result.toContentInfo();
+        }
+    }
 
     /**
      * Controls whether the entire hierarchy under this view will save its

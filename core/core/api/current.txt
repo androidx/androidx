@@ -2004,11 +2004,16 @@ package androidx.core.view {
     method public android.net.Uri? getLinkUri();
     method public int getSource();
     method public android.util.Pair<androidx.core.view.ContentInfoCompat!,androidx.core.view.ContentInfoCompat!> partition(androidx.core.util.Predicate<android.content.ClipData.Item!>);
+    method @RequiresApi(31) public static android.util.Pair<android.view.ContentInfo!,android.view.ContentInfo!> partition(android.view.ContentInfo, java.util.function.Predicate<android.content.ClipData.Item!>);
+    method @RequiresApi(31) public android.view.ContentInfo toContentInfo();
+    method @RequiresApi(31) public static androidx.core.view.ContentInfoCompat toContentInfoCompat(android.view.ContentInfo);
     field public static final int FLAG_CONVERT_TO_PLAIN_TEXT = 1; // 0x1
     field public static final int SOURCE_APP = 0; // 0x0
+    field public static final int SOURCE_AUTOFILL = 4; // 0x4
     field public static final int SOURCE_CLIPBOARD = 1; // 0x1
     field public static final int SOURCE_DRAG_AND_DROP = 3; // 0x3
     field public static final int SOURCE_INPUT_METHOD = 2; // 0x2
+    field public static final int SOURCE_PROCESS_TEXT = 5; // 0x5
   }
 
   public static final class ContentInfoCompat.Builder {

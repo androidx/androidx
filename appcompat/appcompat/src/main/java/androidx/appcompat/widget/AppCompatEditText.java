@@ -230,10 +230,15 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         mTextHelper.populateSurroundingTextIfNeeded(this, ic, outAttrs);
         ic = AppCompatHintHelper.onCreateInputConnection(ic, outAttrs, this);
 
-        String[] mimeTypes = ViewCompat.getOnReceiveContentMimeTypes(this);
-        if (ic != null && mimeTypes != null) {
-            EditorInfoCompat.setContentMimeTypes(outAttrs, mimeTypes);
-            ic = InputConnectionCompat.createWrapper(this, ic, outAttrs);
+        // On SDK 30 and below, we manually configure the InputConnection here to use
+        // ViewCompat.performReceiveContent. On S and above, the platform's BaseInputConnection
+        // implementation calls View.performReceiveContent by default.
+        if (ic != null && Build.VERSION.SDK_INT <= 30) {
+            String[] mimeTypes = ViewCompat.getOnReceiveContentMimeTypes(this);
+            if (mimeTypes != null) {
+                EditorInfoCompat.setContentMimeTypes(outAttrs, mimeTypes);
+                ic = InputConnectionCompat.createWrapper(this, ic, outAttrs);
+            }
         }
         return mAppCompatEmojiEditTextHelper.onCreateInputConnection(ic, outAttrs);
     }
