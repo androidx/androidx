@@ -44,6 +44,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.managers.Manager;
+import androidx.car.app.managers.ResultManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.testing.TestLifecycleOwner;
 import androidx.lifecycle.Lifecycle.Event;
@@ -205,6 +206,25 @@ public class CarContextTest {
         mCarContext.finishCarApp();
 
         verify(mMockCarHost).finish();
+    }
+
+    @Test
+    public void getCallingComponent_resultsManagerAvailable_returnsComponent() {
+        ComponentName mockCallingComponent = new ComponentName("foo", "bar");
+        ResultManager manager = mock(ResultManager.class);
+        when(manager.getCallingComponent()).thenReturn(mockCallingComponent);
+        mCarContext.getManagers().addFactory(ResultManager.class, null, () -> manager);
+
+        ComponentName name = mCarContext.getCallingComponent();
+
+        assertThat(name).isEqualTo(mockCallingComponent);
+    }
+
+    @Test
+    public void getCallingComponent_resultsManagerNotAvailable_returnsNull() {
+        ComponentName name = mCarContext.getCallingComponent();
+
+        assertThat(name).isNull();
     }
 
     @Test
