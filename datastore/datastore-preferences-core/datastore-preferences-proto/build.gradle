@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.PROTOBUF_COMPILER
-import static androidx.build.dependencies.DependenciesKt.PROTOBUF_LITE
+import androidx.build.dependencies.DependenciesKt
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 
@@ -26,13 +25,13 @@ plugins {
 }
 
 dependencies {
-    implementation(PROTOBUF_LITE)
+    implementation(libs.protobufLite)
     api(project(":datastore:datastore-core"))
 }
 
 protobuf {
     protoc {
-        artifact = PROTOBUF_COMPILER
+        artifact = DependenciesKt.getDependencyAsString(libs.protobufCompiler)
     }
 
     // Generates the java proto-lite code for the protos in this project. See
@@ -63,7 +62,7 @@ def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
     // depend on datastore as well as proto-lite directly, these files conflict since jarjar only
     // renames the java classes. Remove them here since they are unused.
     from(zipTree(configurations.detachedConfiguration(
-            dependencies.create(PROTOBUF_LITE)).getSingleFile())) {
+            dependencies.create(libs.protobufLite.get())).getSingleFile())) {
         exclude("**/*.proto")
     }
 }
