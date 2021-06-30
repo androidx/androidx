@@ -15,9 +15,11 @@
  */
 package androidx.window
 
-import android.graphics.Rect
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.window.FoldingFeature.State.Companion.FLAT
+import androidx.window.FoldingFeature.State.Companion.HALF_OPENED
+import androidx.window.FoldingFeature.Type.Companion.HINGE
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -38,14 +40,8 @@ public class WindowLayoutInfoTest {
 
     @Test
     public fun testBuilder_setDisplayFeatures() {
-        val feature1: DisplayFeature = FoldingFeature(
-            Rect(1, 0, 3, 4),
-            FoldingFeature.TYPE_HINGE, FoldingFeature.STATE_FLAT
-        )
-        val feature2: DisplayFeature = FoldingFeature(
-            Rect(1, 0, 1, 4),
-            FoldingFeature.STATE_FLAT, FoldingFeature.STATE_FLAT
-        )
+        val feature1: DisplayFeature = FoldingFeature(Bounds(1, 0, 3, 4), HINGE, FLAT)
+        val feature2: DisplayFeature = FoldingFeature(Bounds(1, 0, 1, 4), HINGE, HALF_OPENED)
         val displayFeatures = listOf(feature1, feature2)
         val builder = WindowLayoutInfo.Builder()
         builder.setDisplayFeatures(displayFeatures)
@@ -64,13 +60,8 @@ public class WindowLayoutInfoTest {
     @Test
     public fun testEquals_differentFeatures() {
         val originalFeatures = listOf<DisplayFeature>()
-        val rect = Rect(1, 0, 1, 10)
-        val differentFeatures = listOf(
-            FoldingFeature(
-                rect, FoldingFeature.TYPE_HINGE,
-                FoldingFeature.STATE_FLAT
-            )
-        )
+        val rect = Bounds(1, 0, 1, 10)
+        val differentFeatures = listOf(FoldingFeature(rect, HINGE, FLAT))
         val original = WindowLayoutInfo(originalFeatures)
         val different = WindowLayoutInfo(differentFeatures)
         assertNotEquals(original, different)
@@ -88,16 +79,8 @@ public class WindowLayoutInfoTest {
 
     @Test
     public fun testHashCode_matchesIfEqualFeatures() {
-        val originalFeature: DisplayFeature = FoldingFeature(
-            Rect(0, 0, 100, 0),
-            FoldingFeature.TYPE_HINGE,
-            FoldingFeature.STATE_FLAT
-        )
-        val matchingFeature: DisplayFeature = FoldingFeature(
-            Rect(0, 0, 100, 0),
-            FoldingFeature.TYPE_HINGE,
-            FoldingFeature.STATE_FLAT
-        )
+        val originalFeature: DisplayFeature = FoldingFeature(Bounds(0, 0, 100, 0), HINGE, FLAT)
+        val matchingFeature: DisplayFeature = FoldingFeature(Bounds(0, 0, 100, 0), HINGE, FLAT)
         val firstFeatures = listOf(originalFeature)
         val secondFeatures = listOf(matchingFeature)
         val first = WindowLayoutInfo(firstFeatures)

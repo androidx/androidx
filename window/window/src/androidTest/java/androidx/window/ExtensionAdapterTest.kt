@@ -17,8 +17,13 @@ package androidx.window
 
 import android.app.Activity
 import android.graphics.Rect
+import androidx.window.FoldingFeature.State.Companion.FLAT
+import androidx.window.FoldingFeature.Type.Companion.FOLD
 import androidx.window.extensions.ExtensionDisplayFeature
 import androidx.window.extensions.ExtensionFoldingFeature
+import androidx.window.extensions.ExtensionFoldingFeature.STATE_FLAT
+import androidx.window.extensions.ExtensionFoldingFeature.TYPE_FOLD
+import androidx.window.extensions.ExtensionFoldingFeature.TYPE_HINGE
 import androidx.window.extensions.ExtensionWindowLayoutInfo
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
@@ -47,15 +52,10 @@ public class ExtensionAdapterTest : TranslatorTestInterface {
     override fun testTranslate_validFeature() {
         val mockActivity = mock<Activity>()
         val bounds = Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0)
-        val foldFeature: ExtensionDisplayFeature = ExtensionFoldingFeature(
-            bounds,
-            ExtensionFoldingFeature.TYPE_FOLD, ExtensionFoldingFeature.STATE_FLAT
-        )
+        val foldFeature = ExtensionFoldingFeature(bounds, TYPE_FOLD, STATE_FLAT)
         val extensionDisplayFeatures = listOf(foldFeature)
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
-        val expectedFeatures = listOf(
-            FoldingFeature(foldFeature.bounds, FoldingFeature.TYPE_FOLD, FoldingFeature.STATE_FLAT)
-        )
+        val expectedFeatures = listOf(FoldingFeature(Bounds(foldFeature.bounds), FOLD, FLAT))
         val expected = WindowLayoutInfo(expectedFeatures)
         val adapter = ExtensionAdapter(windowBoundsCalculator)
         val actual = adapter.translate(mockActivity, windowLayoutInfo)
@@ -73,14 +73,8 @@ public class ExtensionAdapterTest : TranslatorTestInterface {
             WINDOW_BOUNDS.bottom / 2
         )
         val extensionDisplayFeatures = listOf(
-            ExtensionFoldingFeature(
-                fullWidthBounds,
-                ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT
-            ),
-            ExtensionFoldingFeature(
-                fullHeightBounds,
-                ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT
-            )
+            ExtensionFoldingFeature(fullWidthBounds, TYPE_HINGE, STATE_FLAT),
+            ExtensionFoldingFeature(fullHeightBounds, TYPE_HINGE, STATE_FLAT)
         )
         val extensionCallbackAdapter = ExtensionAdapter(windowBoundsCalculator)
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
@@ -106,14 +100,8 @@ public class ExtensionAdapterTest : TranslatorTestInterface {
             WINDOW_BOUNDS.bottom / 2
         )
         val extensionDisplayFeatures = listOf(
-            ExtensionFoldingFeature(
-                fullWidthBounds,
-                ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT
-            ),
-            ExtensionFoldingFeature(
-                fullHeightBounds,
-                ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT
-            )
+            ExtensionFoldingFeature(fullWidthBounds, TYPE_HINGE, STATE_FLAT),
+            ExtensionFoldingFeature(fullHeightBounds, TYPE_HINGE, STATE_FLAT)
         )
         val adapter = ExtensionAdapter(windowBoundsCalculator)
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
@@ -130,7 +118,7 @@ public class ExtensionAdapterTest : TranslatorTestInterface {
         val bounds = Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0)
         val foldFeature: ExtensionDisplayFeature = ExtensionFoldingFeature(
             bounds,
-            0 /* unknown */, ExtensionFoldingFeature.STATE_FLAT
+            0 /* unknown */, STATE_FLAT
         )
         val extensionDisplayFeatures = listOf(foldFeature)
         val windowLayoutInfo = ExtensionWindowLayoutInfo(extensionDisplayFeatures)
