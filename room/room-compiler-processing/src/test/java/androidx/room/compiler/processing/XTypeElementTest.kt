@@ -974,6 +974,9 @@ class XTypeElementTest {
                         contains("x")
                         containsNoneOf("VAL1", "VAL2")
                     }
+                assertWithMessage("$qName  does not report enum constants in declared fields")
+                    .that(typeElement.getDeclaredFields().map { it.name })
+                    .containsExactly("x")
             }
         }
     }
