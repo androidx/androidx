@@ -16,8 +16,6 @@
 
 package androidx.appsearch.compiler;
 
-import static androidx.appsearch.compiler.IntrospectionHelper.getPropertyAnnotation;
-
 import androidx.annotation.NonNull;
 
 import com.squareup.javapoet.ClassName;
@@ -98,7 +96,7 @@ class SchemaCodeGenerator {
 
     private CodeBlock createPropertySchema(@NonNull VariableElement property)
             throws ProcessingException {
-        AnnotationMirror annotation = getPropertyAnnotation(property);
+        AnnotationMirror annotation = mModel.getPropertyAnnotation(property);
         Map<String, Object> params = mHelper.getAnnotationParams(annotation);
 
         // Find the property type

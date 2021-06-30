@@ -21,6 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import com.google.auto.common.BasicAnnotationProcessor;
+import com.google.auto.common.MoreElements;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
@@ -40,7 +42,11 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 
-/** Processes @Document annotations. */
+/**
+ * Processes {@code androidx.appsearch.annotation.Document} annotations.
+ *
+ * <p>Only plain Java objects and AutoValue Document classes without builders are supported.
+ */
 @SupportedAnnotationTypes({IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedOptions({AppSearchCompiler.OUTPUT_DIR_OPTION})
@@ -86,6 +92,10 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
             for (TypeElement document : documentElements) {
                 try {
                     processDocument(document);
+                } catch (MissingTypeException e) {
+                    // Save it for next round to wait for the AutoValue annotation processor to
+                    // be run first.
+                    return ImmutableSet.of(e.getTypeName());
                 } catch (ProcessingException e) {
                     // Prints error message.
                     e.printDiagnostic(mMessager);
@@ -95,13 +105,31 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
             return ImmutableSet.of();
         }
 
-        private void processDocument(@NonNull TypeElement element) throws ProcessingException {
+        private void processDocument(@NonNull TypeElement element)
+                throws ProcessingException, MissingTypeException {
             if (element.getKind() != ElementKind.CLASS) {
                 throw new ProcessingException(
                         "@Document annotation on something other than a class", element);
             }
 
-            DocumentModel model = DocumentModel.create(mProcessingEnv, element);
+            DocumentModel model;
+            if (element.getAnnotation(AutoValue.class) != null) {
+                // Document class is annotated as AutoValue class. For processing the AutoValue
+                // class, we also need the generated class from AutoValue annotation processor.
+                TypeElement generatedElement =
+                        mProcessingEnv.getElementUtils().getTypeElement(
+                                getAutoValueGeneratedClassName(element));
+                if (generatedElement == null) {
+                    // Generated class is not found.
+                    throw new MissingTypeException(element);
+                } else {
+                    model = DocumentModel.createAutoValueModel(mProcessingEnv, element,
+                            generatedElement);
+                }
+            } else {
+                // Non-AutoValue AppSearch Document class.
+                model = DocumentModel.createPojoModel(mProcessingEnv, element);
+            }
             CodeGenerator generator = CodeGenerator.generate(mProcessingEnv, model);
             String outputDir = mProcessingEnv.getOptions().get(OUTPUT_DIR_OPTION);
             try {
@@ -120,6 +148,23 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
                 pe.initCause(e);
                 throw pe;
             }
+        }
+
+        /**
+         * Gets the generated class name of an AutoValue annotated class.
+         *
+         * <p>This is the same naming strategy used by AutoValue's processor.
+         */
+        private String getAutoValueGeneratedClassName(TypeElement element) {
+            TypeElement type = element;
+            String name = type.getSimpleName().toString();
+            while (type.getEnclosingElement() instanceof TypeElement) {
+                type = (TypeElement) type.getEnclosingElement();
+                name = type.getSimpleName().toString() + "_" + name;
+            }
+            String pkg = MoreElements.getPackage(type).getQualifiedName().toString();
+            String dot = pkg.isEmpty() ? "" : ".";
+            return pkg + dot + "AutoValue_" + name;
         }
     }
 }

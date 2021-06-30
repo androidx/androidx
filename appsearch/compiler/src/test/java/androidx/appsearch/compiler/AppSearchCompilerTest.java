@@ -18,6 +18,7 @@ package androidx.appsearch.compiler;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 
+import com.google.auto.value.processor.AutoValueProcessor;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.truth.Truth;
@@ -176,7 +177,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testPropertyOnField() {
+    public void testPropertyOnFieldForNonAutoValueClass() {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
@@ -186,7 +187,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "annotation type not applicable to this kind of declaration");
+                "AppSearch annotation is not applicable to methods for Non-AutoValue class");
     }
 
     @Test
@@ -883,6 +884,28 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testAutoValueDocument() throws IOException {
+        Compilation compilation = compile(
+                "import com.google.auto.value.AutoValue;\n"
+                        + "import com.google.auto.value.AutoValue.*;\n"
+                        + "@Document\n"
+                        + "@AutoValue\n"
+                        + "public abstract class Gift {\n"
+                        + "  @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "  @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "  @CopyAnnotations\n"
+                        + "  @Document.StringProperty abstract String property();\n"
+                        + "  public static Gift create(String id, String namespace, String"
+                        + " property) {\n"
+                        + "    return new AutoValue_Gift(id, namespace, property);\n"
+                        + "  }\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
     public void testInnerClass() throws Exception {
         Compilation compilation = compile(
                 "import java.util.*;\n"
@@ -920,7 +943,7 @@ public class AppSearchCompilerTest {
                 AppSearchCompiler.OUTPUT_DIR_OPTION,
                 mGenFilesDir.getAbsolutePath());
         return Compiler.javac()
-                .withProcessors(new AppSearchCompiler())
+                .withProcessors(new AppSearchCompiler(), new AutoValueProcessor())
                 .withOptions(outputDirFlag)
                 .compile(jfo);
     }

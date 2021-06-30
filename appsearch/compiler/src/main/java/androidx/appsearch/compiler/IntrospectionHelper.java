@@ -23,11 +23,9 @@ import com.squareup.javapoet.ClassName;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -123,29 +121,6 @@ class IntrospectionHelper {
         }
         throw new ProcessingException(
                 "Missing annotation " + IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS, element);
-    }
-
-    /**
-     * Returns the first found AppSearch property annotation element from the input element's
-     * annotations.
-     *
-     * @throws ProcessingException if no AppSearch property annotation is found.
-     */
-    @NonNull
-    public static AnnotationMirror getPropertyAnnotation(@NonNull Element element)
-            throws ProcessingException {
-        Objects.requireNonNull(element);
-        Set<String> propertyClassPaths = new HashSet<>();
-        for (PropertyClass propertyClass : PropertyClass.values()) {
-            propertyClassPaths.add(propertyClass.getClassFullPath());
-        }
-        for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
-            String annotationFq = annotation.getAnnotationType().toString();
-            if (propertyClassPaths.contains(annotationFq)) {
-                return annotation;
-            }
-        }
-        throw new ProcessingException("Missing AppSearch property annotation.", element);
     }
 
     /** Checks whether the property data type is one of the valid types. */

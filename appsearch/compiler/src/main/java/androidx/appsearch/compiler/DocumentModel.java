@@ -15,6 +15,7 @@
  */
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -41,6 +43,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.util.ElementFilter;
 
 /**
  * Processes @Document annotations.
@@ -51,19 +54,21 @@ import javax.lang.model.element.VariableElement;
 class DocumentModel {
 
     /** Enumeration of fields that must be handled specially (i.e. are not properties) */
-    enum SpecialField { ID, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE }
+    enum SpecialField {ID, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE}
+
     /** Determines how the annotation processor has decided to read the value of a field. */
-    enum ReadKind { FIELD, GETTER }
+    enum ReadKind {FIELD, GETTER}
+
     /** Determines how the annotation processor has decided to write the value of a field. */
-    enum WriteKind { FIELD, SETTER, CREATION_METHOD }
+    enum WriteKind {FIELD, SETTER, CREATION_METHOD}
 
     private final IntrospectionHelper mHelper;
     private final TypeElement mClass;
     private final AnnotationMirror mDocumentAnnotation;
-
     // Warning: if you change this to a HashSet, we may choose different getters or setters from
     // run to run, causing the generated code to bounce.
     private final Set<ExecutableElement> mAllMethods = new LinkedHashSet<>();
+    private final boolean mIsAutoValueDocument;
     // Key: Name of the field which is accessed through the getter method.
     // Value: ExecutableElement of the getter method.
     private final Map<String, ExecutableElement> mGetterMethods = new HashMap<>();
@@ -87,34 +92,52 @@ class DocumentModel {
 
     private DocumentModel(
             @NonNull ProcessingEnvironment env,
-            @NonNull TypeElement clazz)
+            @NonNull TypeElement clazz,
+            @Nullable TypeElement generatedAutoValueElement)
             throws ProcessingException {
-        mHelper = new IntrospectionHelper(env);
-        mClass = clazz;
-        if (mClass.getModifiers().contains(Modifier.PRIVATE)) {
-            throw new ProcessingException("@Document annotated class is private", mClass);
+        if (clazz.getModifiers().contains(Modifier.PRIVATE)) {
+            throw new ProcessingException("@Document annotated class is private", clazz);
         }
 
+        mHelper = new IntrospectionHelper(env);
+        mClass = clazz;
         mDocumentAnnotation = getDocumentAnnotation(mClass);
 
-        // Scan methods and constructors. AppSearch doesn't define any annotations that apply to
-        // these, but we will need this info when processing fields to make sure the fields can
-        // be get and set.
-        Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
-        for (Element child : mClass.getEnclosedElements()) {
-            if (child.getKind() == ElementKind.CONSTRUCTOR) {
-                creationMethods.add((ExecutableElement) child);
-            } else if (child.getKind() == ElementKind.METHOD) {
+        if (generatedAutoValueElement != null) {
+            mIsAutoValueDocument = true;
+            // Scan factory methods from AutoValue class.
+            Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
+            for (Element child : ElementFilter.methodsIn(mClass.getEnclosedElements())) {
                 ExecutableElement method = (ExecutableElement) child;
-                mAllMethods.add(method);
                 if (isFactoryMethod(method)) {
                     creationMethods.add(method);
                 }
             }
-        }
+            mAllMethods.addAll(
+                    ElementFilter.methodsIn(generatedAutoValueElement.getEnclosedElements()));
 
-        scanFields();
-        scanCreationMethods(creationMethods);
+            scanFields(generatedAutoValueElement);
+            scanCreationMethods(creationMethods);
+        } else {
+            mIsAutoValueDocument = false;
+            // Scan methods and constructors. We will need this info when processing fields to
+            // make sure the fields can be get and set.
+            Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
+            for (Element child : mClass.getEnclosedElements()) {
+                if (child.getKind() == ElementKind.CONSTRUCTOR) {
+                    creationMethods.add((ExecutableElement) child);
+                } else if (child.getKind() == ElementKind.METHOD) {
+                    ExecutableElement method = (ExecutableElement) child;
+                    mAllMethods.add(method);
+                    if (isFactoryMethod(method)) {
+                        creationMethods.add(method);
+                    }
+                }
+            }
+
+            scanFields(mClass);
+            scanCreationMethods(creationMethods);
+        }
     }
 
     /**
@@ -122,10 +145,23 @@ class DocumentModel {
      *
      * @throws ProcessingException if the @{@code Document}-annotated class is invalid.
      */
-    public static DocumentModel create(
+    public static DocumentModel createPojoModel(
             @NonNull ProcessingEnvironment env, @NonNull TypeElement clazz)
             throws ProcessingException {
-        return new DocumentModel(env, clazz);
+        return new DocumentModel(env, clazz, null);
+    }
+
+    /**
+     * Tries to create an {@link DocumentModel} from the given AutoValue {@link Element} and
+     * corresponding generated class.
+     *
+     * @throws ProcessingException if the @{@code Document}-annotated class is invalid.
+     */
+    public static DocumentModel createAutoValueModel(
+            @NonNull ProcessingEnvironment env, @NonNull TypeElement clazz,
+            @NonNull TypeElement generatedAutoValueElement)
+            throws ProcessingException {
+        return new DocumentModel(env, clazz, generatedAutoValueElement);
     }
 
     @NonNull
@@ -189,13 +225,39 @@ class DocumentModel {
      */
     @NonNull
     public String getPropertyName(@NonNull VariableElement property) throws ProcessingException {
-        AnnotationMirror annotation = IntrospectionHelper.getPropertyAnnotation(property);
+        AnnotationMirror annotation = getPropertyAnnotation(property);
         Map<String, Object> params = mHelper.getAnnotationParams(annotation);
         String propertyName = params.get("name").toString();
         if (propertyName.isEmpty()) {
             propertyName = getNormalizedFieldName(property.getSimpleName().toString());
         }
         return propertyName;
+    }
+
+    /**
+     * Returns the first found AppSearch property annotation element from the input element's
+     * annotations.
+     *
+     * @throws ProcessingException if no AppSearch property annotation is found.
+     */
+    @NonNull
+    public AnnotationMirror getPropertyAnnotation(@NonNull Element element)
+            throws ProcessingException {
+        Objects.requireNonNull(element);
+        if (mIsAutoValueDocument) {
+            element = getGetterForField(element.getSimpleName().toString());
+        }
+        Set<String> propertyClassPaths = new HashSet<>();
+        for (PropertyClass propertyClass : PropertyClass.values()) {
+            propertyClassPaths.add(propertyClass.getClassFullPath());
+        }
+        for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
+            String annotationFq = annotation.getAnnotationType().toString();
+            if (propertyClassPaths.contains(annotationFq)) {
+                return annotation;
+            }
+        }
+        throw new ProcessingException("Missing AppSearch property annotation.", element);
     }
 
     @NonNull
@@ -215,74 +277,90 @@ class DocumentModel {
                 && method.getReturnType() == mClass.asType();
     }
 
-    private void scanFields() throws ProcessingException {
+    private void scanFields(TypeElement element) throws ProcessingException {
         Element namespaceField = null;
         Element idField = null;
         Element creationTimestampField = null;
         Element ttlField = null;
         Element scoreField = null;
-        for (Element childElement : mClass.getEnclosedElements()) {
-            if (!childElement.getKind().isField()) continue;
-            VariableElement child = (VariableElement) childElement;
-            String fieldName = child.getSimpleName().toString();
-            for (AnnotationMirror annotation : child.getAnnotationMirrors()) {
+        List<? extends Element> enclosedElements = element.getEnclosedElements();
+        for (int i = 0; i < enclosedElements.size(); i++) {
+            Element childElement = enclosedElements.get(i);
+            if (mIsAutoValueDocument && childElement.getKind() != ElementKind.METHOD) {
+                continue;
+            }
+            String fieldName = childElement.getSimpleName().toString();
+            for (AnnotationMirror annotation : childElement.getAnnotationMirrors()) {
                 String annotationFq = annotation.getAnnotationType().toString();
-                boolean isAppSearchField = true;
-                if (IntrospectionHelper.ID_CLASS.equals(annotationFq)) {
-                    if (idField != null) {
-                        throw new ProcessingException(
-                                "Class contains multiple fields annotated @Id", child);
-                    }
-                    idField = child;
-                    mSpecialFieldNames.put(SpecialField.ID, fieldName);
-
-                } else if (IntrospectionHelper.NAMESPACE_CLASS.equals(annotationFq)) {
-                    if (namespaceField != null) {
-                        throw new ProcessingException(
-                                "Class contains multiple fields annotated @Namespace", child);
-                    }
-                    namespaceField = child;
-                    mSpecialFieldNames.put(SpecialField.NAMESPACE, fieldName);
-
-                } else if (
-                        IntrospectionHelper.CREATION_TIMESTAMP_MILLIS_CLASS.equals(annotationFq)) {
-                    if (creationTimestampField != null) {
-                        throw new ProcessingException(
-                                "Class contains multiple fields annotated @CreationTimestampMillis",
-                                child);
-                    }
-                    creationTimestampField = child;
-                    mSpecialFieldNames.put(SpecialField.CREATION_TIMESTAMP_MILLIS, fieldName);
-
-                } else if (IntrospectionHelper.TTL_MILLIS_CLASS.equals(annotationFq)) {
-                    if (ttlField != null) {
-                        throw new ProcessingException(
-                                "Class contains multiple fields annotated @TtlMillis", child);
-                    }
-                    ttlField = child;
-                    mSpecialFieldNames.put(SpecialField.TTL_MILLIS, fieldName);
-
-                } else if (IntrospectionHelper.SCORE_CLASS.equals(annotationFq)) {
-                    if (scoreField != null) {
-                        throw new ProcessingException(
-                                "Class contains multiple fields annotated @Score", child);
-                    }
-                    scoreField = child;
-                    mSpecialFieldNames.put(SpecialField.SCORE, fieldName);
-
+                if (!annotationFq.startsWith(DOCUMENT_ANNOTATION_CLASS)) {
+                    continue;
+                }
+                VariableElement child;
+                if (mIsAutoValueDocument) {
+                    child = findFieldForFunctionWithSameName(enclosedElements, childElement);
                 } else {
-                    PropertyClass propertyClass = getPropertyClass(annotationFq);
-                    if (propertyClass != null) {
-                        checkFieldTypeForPropertyAnnotation(child, propertyClass);
-                        mPropertyFields.put(fieldName, child);
+                    if (childElement.getKind() == ElementKind.METHOD) {
+                        throw new ProcessingException(
+                                "AppSearch annotation is not applicable to methods for "
+                                        + "Non-AutoValue class",
+                                childElement);
                     } else {
-                        isAppSearchField = false;
+                        child = (VariableElement) childElement;
                     }
                 }
-
-                if (isAppSearchField) {
-                    mAllAppSearchFields.put(fieldName, child);
+                switch (annotationFq) {
+                    case IntrospectionHelper.ID_CLASS:
+                        if (idField != null) {
+                            throw new ProcessingException(
+                                    "Class contains multiple fields annotated @Id", child);
+                        }
+                        idField = child;
+                        mSpecialFieldNames.put(SpecialField.ID, fieldName);
+                        break;
+                    case IntrospectionHelper.NAMESPACE_CLASS:
+                        if (namespaceField != null) {
+                            throw new ProcessingException(
+                                    "Class contains multiple fields annotated @Namespace",
+                                    child);
+                        }
+                        namespaceField = child;
+                        mSpecialFieldNames.put(SpecialField.NAMESPACE, fieldName);
+                        break;
+                    case IntrospectionHelper.CREATION_TIMESTAMP_MILLIS_CLASS:
+                        if (creationTimestampField != null) {
+                            throw new ProcessingException(
+                                    "Class contains multiple fields annotated "
+                                            + "@CreationTimestampMillis",
+                                    child);
+                        }
+                        creationTimestampField = child;
+                        mSpecialFieldNames.put(SpecialField.CREATION_TIMESTAMP_MILLIS, fieldName);
+                        break;
+                    case IntrospectionHelper.TTL_MILLIS_CLASS:
+                        if (ttlField != null) {
+                            throw new ProcessingException(
+                                    "Class contains multiple fields annotated @TtlMillis",
+                                    child);
+                        }
+                        ttlField = child;
+                        mSpecialFieldNames.put(SpecialField.TTL_MILLIS, fieldName);
+                        break;
+                    case IntrospectionHelper.SCORE_CLASS:
+                        if (scoreField != null) {
+                            throw new ProcessingException(
+                                    "Class contains multiple fields annotated @Score", child);
+                        }
+                        scoreField = child;
+                        mSpecialFieldNames.put(SpecialField.SCORE, fieldName);
+                        break;
+                    default:
+                        PropertyClass propertyClass = getPropertyClass(annotationFq);
+                        if (propertyClass != null) {
+                            checkFieldTypeForPropertyAnnotation(child, propertyClass);
+                            mPropertyFields.put(fieldName, child);
+                        }
                 }
+                mAllAppSearchFields.put(fieldName, child);
             }
         }
 
@@ -303,6 +381,21 @@ class DocumentModel {
         for (VariableElement appSearchField : mAllAppSearchFields.values()) {
             chooseAccessKinds(appSearchField);
         }
+    }
+
+    @NonNull
+    private VariableElement findFieldForFunctionWithSameName(
+            @NonNull List<? extends Element> elements,
+            @NonNull Element functionElement) throws ProcessingException {
+        String fieldName = functionElement.getSimpleName().toString();
+        for (VariableElement field : ElementFilter.fieldsIn(elements)) {
+            if (fieldName.equals(field.getSimpleName().toString())) {
+                return field;
+            }
+        }
+        throw new ProcessingException(
+                "Cannot find the corresponding field for the annotated function",
+                functionElement);
     }
 
     /**
@@ -363,7 +456,8 @@ class DocumentModel {
      * Returns the {@link PropertyClass} with {@code annotationFq} as full class path, and {@code
      * null} if failed to find such a {@link PropertyClass}.
      */
-    private @Nullable PropertyClass getPropertyClass(@Nullable String annotationFq) {
+    @Nullable
+    private PropertyClass getPropertyClass(@Nullable String annotationFq) {
         for (PropertyClass propertyClass : PropertyClass.values()) {
             if (propertyClass.isPropertyClass(annotationFq)) {
                 return propertyClass;

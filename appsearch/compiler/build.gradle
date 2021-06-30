@@ -26,6 +26,8 @@ dependencies {
     api('androidx.annotation:annotation:1.1.0')
     api(libs.jsr250)
     implementation(libs.autoCommon)
+    implementation(libs.autoValue)
+    implementation(libs.autoValueAnnotations)
     implementation(libs.javapoet)
 
     // For testing, add in the compiled classes from appsearch to get access to annotations.

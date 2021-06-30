@@ -51,18 +51,18 @@ class ToGenericDocumentCodeGenerator {
     private final IntrospectionHelper mHelper;
     private final DocumentModel mModel;
 
-    public static void generate(
-            @NonNull ProcessingEnvironment env,
-            @NonNull DocumentModel model,
-            @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
-        new ToGenericDocumentCodeGenerator(env, model).generate(classBuilder);
-    }
-
     private ToGenericDocumentCodeGenerator(
             @NonNull ProcessingEnvironment env, @NonNull DocumentModel model) {
         mEnv = env;
         mHelper = new IntrospectionHelper(env);
         mModel = model;
+    }
+
+    public static void generate(
+            @NonNull ProcessingEnvironment env,
+            @NonNull DocumentModel model,
+            @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
+        new ToGenericDocumentCodeGenerator(env, model).generate(classBuilder);
     }
 
     private void generate(TypeSpec.Builder classBuilder) throws ProcessingException {

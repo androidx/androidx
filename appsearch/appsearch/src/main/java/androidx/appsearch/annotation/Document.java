@@ -101,7 +101,7 @@ public @interface Document {
      */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface Id {}
 
     /**
@@ -119,7 +119,7 @@ public @interface Document {
      */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface Namespace {}
 
     /**
@@ -139,7 +139,7 @@ public @interface Document {
      */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface CreationTimestampMillis {}
 
     /**
@@ -158,7 +158,7 @@ public @interface Document {
      */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface TtlMillis {}
 
     /**
@@ -178,13 +178,13 @@ public @interface Document {
      */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface Score {}
 
     /** Configures a string member field of a class as a property known to AppSearch. */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface StringProperty {
         /**
          * The name of this property. This string is used to query against this property.
@@ -233,7 +233,7 @@ public @interface Document {
      */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface DocumentProperty {
         /**
          * The name of this property. This string is used to query against this property.
@@ -265,7 +265,7 @@ public @interface Document {
     /** Configures a 64-bit integer field of a class as a property known to AppSearch. */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface LongProperty {
         /**
          * The name of this property. This string is used to query against this property.
@@ -292,7 +292,7 @@ public @interface Document {
      */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface DoubleProperty {
         /**
          * The name of this property. This string is used to query against this property.
@@ -316,7 +316,7 @@ public @interface Document {
     /** Configures a boolean member field of a class as a property known to AppSearch. */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface BooleanProperty {
         /**
          * The name of this property. This string is used to query against this property.
@@ -340,7 +340,7 @@ public @interface Document {
     /** Configures a byte array member field of a class as a property known to AppSearch. */
     @Documented
     @Retention(RetentionPolicy.CLASS)
-    @Target(ElementType.FIELD)
+    @Target({ElementType.FIELD, ElementType.METHOD})
     @interface BytesProperty {
         /**
          * The name of this property. This string is used to query against this property.
