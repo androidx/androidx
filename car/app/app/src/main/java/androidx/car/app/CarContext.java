@@ -389,16 +389,21 @@ public class CarContext extends ContextWrapper {
      * <p>This is who the data in {@link #setCarAppResult(int, Intent)} will be sent to. You can
      * use this information to validate that the recipient is allowed to receive the data.
      *
-     * <p><b>This method is not implemented in Android Auto.</b>
+     * <p><b>Starting applications for result is not implemented in Android Auto, and this method
+     * will always return null for that platform.</b>
      *
      * @return the {@link ComponentName} of the component that will receive your reply, or
      * {@code null} if none
-     * @throws IllegalStateException if the method is not supported in the current platform.
      */
     @Nullable
     @RequiresCarApi(2)
     public ComponentName getCallingComponent() {
-        return getCarService(ResultManager.class).getCallingComponent();
+        try {
+            return getCarService(ResultManager.class).getCallingComponent();
+        } catch (IllegalStateException ex) {
+            // ResultManager is not implemented in the current platform.
+            return null;
+        }
     }
 
     /**
@@ -639,6 +644,12 @@ public class CarContext extends ContextWrapper {
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
+    ManagerCache getManagers() {
+        return mManagers;
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     @SuppressWarnings({
             "argument.type.incompatible",
             "method.invocation.invalid"
@@ -657,7 +668,7 @@ public class CarContext extends ContextWrapper {
                 () -> ConstraintManager.create(this, hostDispatcher));
         mManagers.addFactory(CarHardwareManager.class, HARDWARE_SERVICE,
                 () -> CarHardwareManager.create(this, hostDispatcher));
-        mManagers.addFactory(ResultManager.class, null, () -> ResultManager.create());
+        mManagers.addFactory(ResultManager.class, null, ResultManager::create);
 
         mOnBackPressedDispatcher =
                 new OnBackPressedDispatcher(() -> getCarService(ScreenManager.class).pop());
