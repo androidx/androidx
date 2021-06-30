@@ -82,6 +82,9 @@ public abstract class DeferrableSurface {
         }
     }
 
+    // The size of the surface is not defined.
+    public static final Size SIZE_UNDEFINED = new Size(0, 0);
+
     private static final String TAG = "DeferrableSurface";
     private static final boolean DEBUG = Logger.isDebugEnabled(TAG);
 
@@ -113,7 +116,7 @@ public abstract class DeferrableSurface {
      * Creates a new DeferrableSurface which has no use count.
      */
     public DeferrableSurface() {
-        this(new Size(0, 0), ImageFormat.UNKNOWN);
+        this(SIZE_UNDEFINED, ImageFormat.UNKNOWN);
     }
 
     /**
