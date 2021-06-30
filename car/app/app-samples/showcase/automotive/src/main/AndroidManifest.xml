@@ -41,7 +41,6 @@
   <uses-permission android:name="android.car.permission.READ_CAR_DISPLAY_UNITS"/>
   <uses-permission android:name="android.car.permission.CAR_ENERGY_PORTS"/>
 
-
   <uses-feature android:name="android.software.car.templates_host" />
 
   <application
