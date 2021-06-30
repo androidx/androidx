@@ -67,6 +67,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -1016,6 +1017,13 @@ public final class Recorder implements VideoOutput {
                             OutputUtil.getAbsolutePathFromUri(
                                     mediaStoreOutputOptions.getContentResolver(),
                                     mOutputUri, MEDIA_COLUMN);
+                    if (path == null) {
+                        throw new IOException("Unable to get path from uri " + mOutputUri);
+                    }
+                    File parentFile = new File(path).getParentFile();
+                    if (parentFile != null && !parentFile.mkdirs()) {
+                        Logger.w(TAG, "Failed to create folder for " + path);
+                    }
                     mMediaMuxer = new MediaMuxer(path, outputFormat);
                 } else {
                     ParcelFileDescriptor fileDescriptor =
