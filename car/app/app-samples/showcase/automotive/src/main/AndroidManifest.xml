@@ -90,5 +90,16 @@
       <meta-data android:name="distractionOptimized" android:value="true"/>
     </activity>
 
+    <activity
+        android:name="androidx.car.app.sample.showcase.automotive.DebugActivity"
+        android:exported="true"
+        android:label="Showcase - Debug">
+
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
   </application>
 </manifest>

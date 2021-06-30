@@ -28,6 +28,7 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.managers.Manager;
 import androidx.car.app.model.TemplateInfo;
 import androidx.car.app.model.TemplateWrapper;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -46,7 +47,7 @@ import java.util.List;
  * Manages the stack of {@link Screen}s and their respective {@link Lifecycle}s.
  */
 @MainThread
-public class ScreenManager {
+public class ScreenManager implements Manager {
     private final Deque<Screen> mScreenStack = new ArrayDeque<>();
     private final CarContext mCarContext;
     private final Lifecycle mAppLifecycle;
