@@ -150,7 +150,7 @@ public class TileUiClient(
                 .setDeviceParameters(buildDeviceParameters())
                 .build()
 
-            val tile = tilesConnection.tileRequest(tileRequest).await()
+            val tile = tilesConnection.requestTile(tileRequest).await()
 
             if (tile.resourcesVersion.isNotEmpty() &&
                 tile.resourcesVersion != tileResources?.version
@@ -161,7 +161,7 @@ public class TileUiClient(
                     .setDeviceParameters(buildDeviceParameters())
                     .build()
 
-                tileResources = tilesConnection.resourcesRequest(resourcesRequest).await()
+                tileResources = tilesConnection.requestResources(resourcesRequest).await()
             }
 
             timelineManager?.apply {
