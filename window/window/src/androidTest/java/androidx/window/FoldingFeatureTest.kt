@@ -15,10 +15,14 @@
  */
 package androidx.window
 
-import android.graphics.Rect
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.window.FoldingFeature.OcclusionType
+import androidx.window.FoldingFeature.Orientation
+import androidx.window.FoldingFeature.State.Companion.FLAT
+import androidx.window.FoldingFeature.State.Companion.HALF_OPENED
+import androidx.window.FoldingFeature.Type.Companion.FOLD
+import androidx.window.FoldingFeature.Type.Companion.HINGE
 import androidx.window.TestFoldingFeatureUtil.allFoldStates
 import androidx.window.TestFoldingFeatureUtil.allFoldingFeatureTypeAndStates
 import org.junit.Assert.assertEquals
@@ -35,71 +39,45 @@ public class FoldingFeatureTest {
 
     @Test(expected = IllegalArgumentException::class)
     public fun tesEmptyRect() {
-        FoldingFeature(Rect(), FoldingFeature.TYPE_HINGE, FoldingFeature.STATE_HALF_OPENED)
+        FoldingFeature(Bounds(0, 0, 0, 0), HINGE, HALF_OPENED)
     }
 
     @Test(expected = IllegalArgumentException::class)
     public fun testHorizontalHingeWithNonZeroOrigin() {
-        FoldingFeature(
-            Rect(1, 10, 20, 10),
-            FoldingFeature.TYPE_HINGE,
-            FoldingFeature.STATE_HALF_OPENED
-        )
+        FoldingFeature(Bounds(1, 10, 20, 10), HINGE, HALF_OPENED)
     }
 
     @Test(expected = IllegalArgumentException::class)
     public fun testVerticalHingeWithNonZeroOrigin() {
-        FoldingFeature(
-            Rect(10, 1, 19, 29),
-            FoldingFeature.TYPE_HINGE,
-            FoldingFeature.STATE_HALF_OPENED
-        )
+        FoldingFeature(Bounds(10, 1, 19, 29), HINGE, HALF_OPENED)
     }
 
     @Test(expected = IllegalArgumentException::class)
     public fun testHorizontalFoldWithNonZeroOrigin() {
-        FoldingFeature(
-            Rect(1, 10, 20, 10),
-            FoldingFeature.TYPE_FOLD,
-            FoldingFeature.STATE_HALF_OPENED
-        )
+        FoldingFeature(Bounds(1, 10, 20, 10), FOLD, HALF_OPENED)
     }
 
     @Test(expected = IllegalArgumentException::class)
     public fun testVerticalFoldWithNonZeroOrigin() {
-        FoldingFeature(
-            Rect(10, 1, 10, 20),
-            FoldingFeature.TYPE_FOLD,
-            FoldingFeature.STATE_HALF_OPENED
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    public fun testInvalidType() {
-        FoldingFeature(Rect(0, 10, 30, 10), -1, FoldingFeature.STATE_HALF_OPENED)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    public fun testInvalidState() {
-        FoldingFeature(Rect(0, 10, 30, 10), FoldingFeature.TYPE_FOLD, -1)
+        FoldingFeature(Bounds(10, 1, 10, 20), FOLD, HALF_OPENED)
     }
 
     @Test // TODO(b/173739071) remove when getType is package private
     public fun testSetBoundsAndType() {
-        val bounds = Rect(0, 10, 30, 10)
-        val type = FoldingFeature.TYPE_HINGE
-        val state = FoldingFeature.STATE_HALF_OPENED
+        val bounds = Bounds(0, 10, 30, 10)
+        val type = HINGE
+        val state = HALF_OPENED
         val feature = FoldingFeature(bounds, type, state)
-        assertEquals(bounds, feature.bounds)
-        assertEquals(type.toLong(), feature.type.toLong())
-        assertEquals(state.toLong(), feature.state.toLong())
+        assertEquals(bounds.toRect(), feature.bounds)
+        assertEquals(type, feature.type)
+        assertEquals(state, feature.state)
     }
 
     @Test
     public fun testEquals_sameAttributes() {
-        val bounds = Rect(1, 0, 1, 10)
-        val type = FoldingFeature.TYPE_FOLD
-        val state = FoldingFeature.STATE_FLAT
+        val bounds = Bounds(1, 0, 1, 10)
+        val type = FOLD
+        val state = FLAT
         val original = FoldingFeature(bounds, type, state)
         val copy = FoldingFeature(bounds, type, state)
         assertEquals(original, copy)
@@ -107,10 +85,10 @@ public class FoldingFeatureTest {
 
     @Test
     public fun testEquals_differentRect() {
-        val originalRect = Rect(1, 0, 1, 10)
-        val otherRect = Rect(2, 0, 2, 10)
-        val type = FoldingFeature.TYPE_FOLD
-        val state = FoldingFeature.STATE_FLAT
+        val originalRect = Bounds(1, 0, 1, 10)
+        val otherRect = Bounds(2, 0, 2, 10)
+        val type = FOLD
+        val state = FLAT
         val original = FoldingFeature(originalRect, type, state)
         val other = FoldingFeature(otherRect, type, state)
         assertNotEquals(original, other)
@@ -118,10 +96,10 @@ public class FoldingFeatureTest {
 
     @Test
     public fun testEquals_differentType() {
-        val rect = Rect(1, 0, 1, 10)
-        val originalType = FoldingFeature.TYPE_FOLD
-        val otherType = FoldingFeature.TYPE_HINGE
-        val state = FoldingFeature.STATE_FLAT
+        val rect = Bounds(1, 0, 1, 10)
+        val originalType = FOLD
+        val otherType = HINGE
+        val state = FLAT
         val original = FoldingFeature(rect, originalType, state)
         val other = FoldingFeature(rect, otherType, state)
         assertNotEquals(original, other)
@@ -129,10 +107,10 @@ public class FoldingFeatureTest {
 
     @Test
     public fun testEquals_differentState() {
-        val rect = Rect(1, 0, 1, 10)
-        val type = FoldingFeature.TYPE_FOLD
-        val originalState = FoldingFeature.STATE_FLAT
-        val otherState = FoldingFeature.STATE_HALF_OPENED
+        val rect = Bounds(1, 0, 1, 10)
+        val type = FOLD
+        val originalState = FLAT
+        val otherState = HALF_OPENED
         val original = FoldingFeature(rect, type, originalState)
         val other = FoldingFeature(rect, type, otherState)
         assertNotEquals(original, other)
@@ -140,10 +118,10 @@ public class FoldingFeatureTest {
 
     @Test
     public fun testHashCode_matchesIfEqual() {
-        val originalRect = Rect(1, 0, 1, 10)
-        val matchingRect = Rect(1, 0, 1, 10)
-        val type = FoldingFeature.TYPE_FOLD
-        val state = FoldingFeature.STATE_FLAT
+        val originalRect = Bounds(1, 0, 1, 10)
+        val matchingRect = Bounds(1, 0, 1, 10)
+        val type = FOLD
+        val state = FLAT
         val original = FoldingFeature(originalRect, type, state)
         val matching = FoldingFeature(matchingRect, type, state)
         assertEquals(original, matching)
@@ -152,132 +130,70 @@ public class FoldingFeatureTest {
 
     @Test
     public fun testIsSeparating_trueForHinge() {
-        val bounds = Rect(1, 0, 1, 10)
-        for (feature in allFoldStates(bounds, FoldingFeature.TYPE_HINGE)) {
-            assertTrue(separatingModeErrorMessage(true, feature), feature.isSeparating)
+        val bounds = Bounds(1, 0, 1, 10)
+        for (feature in allFoldStates(bounds, HINGE)) {
+            assertTrue(feature.isSeparating)
         }
     }
 
     @Test
     public fun testIsSeparating_falseForFlatFold() {
-        val bounds = Rect(1, 0, 1, 10)
-        val feature = FoldingFeature(bounds, FoldingFeature.TYPE_FOLD, FoldingFeature.STATE_FLAT)
-        assertFalse(separatingModeErrorMessage(false, feature), feature.isSeparating)
+        val bounds = Bounds(1, 0, 1, 10)
+        val feature = FoldingFeature(bounds, FOLD, FLAT)
+        assertFalse(feature.isSeparating)
     }
 
     @Test
     public fun testIsSeparating_trueForNotFlatFold() {
-        val bounds = Rect(1, 0, 1, 10)
+        val bounds = Bounds(1, 0, 1, 10)
         val nonFlatFeatures = mutableListOf<FoldingFeature>()
-        for (feature in allFoldStates(bounds, FoldingFeature.TYPE_FOLD)) {
-            if (feature.state != FoldingFeature.STATE_FLAT) {
+        for (feature in allFoldStates(bounds, FOLD)) {
+            if (feature.state != FLAT) {
                 nonFlatFeatures.add(feature)
             }
         }
         for (feature in nonFlatFeatures) {
-            assertTrue(separatingModeErrorMessage(true, feature), feature.isSeparating)
+            assertTrue(feature.isSeparating)
         }
     }
 
     @Test
     public fun testOcclusionTypeNone_emptyFeature() {
-        val bounds = Rect(0, 100, 100, 100)
+        val bounds = Bounds(0, 100, 100, 100)
         for (feature in allFoldingFeatureTypeAndStates(bounds)) {
-            assertEquals(
-                occlusionTypeErrorMessage(FoldingFeature.OCCLUSION_NONE, feature),
-                FoldingFeature.OCCLUSION_NONE.toLong(), feature.occlusionMode.toLong()
-            )
+            assertEquals(OcclusionType.NONE, feature.occlusionType)
         }
     }
 
     @Test
     public fun testOcclusionTypeFull_nonEmptyHingeFeature() {
-        val bounds = Rect(0, 100, 100, 101)
-        for (feature in allFoldStates(bounds, FoldingFeature.TYPE_HINGE)) {
-            assertEquals(
-                occlusionTypeErrorMessage(FoldingFeature.OCCLUSION_FULL, feature),
-                FoldingFeature.OCCLUSION_FULL.toLong(), feature.occlusionMode.toLong()
-            )
+        val bounds = Bounds(0, 100, 100, 101)
+        for (feature in allFoldStates(bounds, HINGE)) {
+            assertEquals(OcclusionType.FULL, feature.occlusionType)
         }
     }
 
     @Test
     public fun testGetFeatureOrientation_isHorizontalWhenWidthIsGreaterThanHeight() {
-        val bounds = Rect(0, 100, 200, 100)
+        val bounds = Bounds(0, 100, 200, 100)
         for (feature in allFoldingFeatureTypeAndStates(bounds)) {
-            assertEquals(
-                featureOrientationErrorMessage(FoldingFeature.ORIENTATION_HORIZONTAL, feature),
-                FoldingFeature.ORIENTATION_HORIZONTAL.toLong(), feature.orientation.toLong()
-            )
+            assertEquals(Orientation.HORIZONTAL, feature.orientation)
         }
     }
 
     @Test
     public fun testGetFeatureOrientation_isVerticalWhenHeightIsGreaterThanWidth() {
-        val bounds = Rect(100, 0, 100, 200)
+        val bounds = Bounds(100, 0, 100, 200)
         for (feature in allFoldingFeatureTypeAndStates(bounds)) {
-            assertEquals(
-                featureOrientationErrorMessage(FoldingFeature.ORIENTATION_VERTICAL, feature),
-                FoldingFeature.ORIENTATION_VERTICAL.toLong(), feature.orientation.toLong()
-            )
+            assertEquals(Orientation.VERTICAL, feature.orientation)
         }
     }
 
     @Test
     public fun testGetFeatureOrientation_isVerticalWhenHeightIsEqualToWidth() {
-        val bounds = Rect(0, 0, 100, 100)
+        val bounds = Bounds(0, 0, 100, 100)
         for (feature in allFoldingFeatureTypeAndStates(bounds)) {
-            assertEquals(
-                featureOrientationErrorMessage(FoldingFeature.ORIENTATION_VERTICAL, feature),
-                FoldingFeature.ORIENTATION_VERTICAL.toLong(), feature.orientation.toLong()
-            )
-        }
-    }
-
-    private fun separatingModeErrorMessage(expected: Boolean, feature: FoldingFeature): String {
-        return errorMessage(
-            FoldingFeature::class.java.simpleName,
-            "isSeparating",
-            expected.toString(),
-            feature.isSeparating.toString(),
-            feature
-        )
-    }
-
-    internal companion object {
-        private fun occlusionTypeErrorMessage(
-            @OcclusionType expected: Int,
-            feature: FoldingFeature
-        ): String {
-            return errorMessage(
-                FoldingFeature::class.java.simpleName, "getOcclusionMode",
-                FoldingFeature.occlusionTypeToString(expected),
-                FoldingFeature.occlusionTypeToString(feature.occlusionMode), feature
-            )
-        }
-
-        private fun featureOrientationErrorMessage(
-            @FoldingFeature.Orientation expected: Int,
-            feature: FoldingFeature
-        ): String {
-            return errorMessage(
-                FoldingFeature::class.java.simpleName, "getFeatureOrientation",
-                FoldingFeature.orientationToString(expected),
-                FoldingFeature.orientationToString(feature.orientation), feature
-            )
-        }
-
-        private fun errorMessage(
-            className: String,
-            methodName: String,
-            expected: String,
-            actual: String,
-            value: Any
-        ): String {
-            return String.format(
-                "%s#%s was expected to be %s but was %s. %s: %s", className,
-                methodName, expected, actual, className, value.toString()
-            )
+            assertEquals(Orientation.VERTICAL, feature.orientation)
         }
     }
 }

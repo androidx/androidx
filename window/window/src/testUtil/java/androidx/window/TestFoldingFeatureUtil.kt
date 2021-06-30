@@ -16,6 +16,8 @@
 package androidx.window
 
 import android.graphics.Rect
+import androidx.window.FoldingFeature.State.Companion.FLAT
+import androidx.window.FoldingFeature.State.Companion.HALF_OPENED
 
 /**
  * A class containing static methods for creating different window bound types. Test methods are
@@ -75,10 +77,10 @@ internal object TestFoldingFeatureUtil {
      * given type.
      */
     @JvmStatic
-    fun allFoldStates(bounds: Rect, @FoldingFeature.Type type: Int): List<FoldingFeature> {
+    fun allFoldStates(bounds: Bounds, type: FoldingFeature.Type): List<FoldingFeature> {
         return listOf(
-            FoldingFeature(bounds, type, FoldingFeature.STATE_FLAT),
-            FoldingFeature(bounds, type, FoldingFeature.STATE_HALF_OPENED)
+            FoldingFeature(bounds, type, FLAT),
+            FoldingFeature(bounds, type, HALF_OPENED)
         )
     }
 
@@ -88,8 +90,8 @@ internal object TestFoldingFeatureUtil {
      * types.
      */
     @JvmStatic
-    fun allFoldingFeatureTypeAndStates(bounds: Rect): List<FoldingFeature> {
-        return allFoldStates(bounds, FoldingFeature.TYPE_HINGE) +
-            allFoldStates(bounds, FoldingFeature.TYPE_FOLD)
+    fun allFoldingFeatureTypeAndStates(bounds: Bounds): List<FoldingFeature> {
+        return allFoldStates(bounds, FoldingFeature.Type.HINGE) +
+            allFoldStates(bounds, FoldingFeature.Type.FOLD)
     }
 }
