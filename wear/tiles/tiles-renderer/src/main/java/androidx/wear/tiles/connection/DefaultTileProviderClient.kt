@@ -63,7 +63,7 @@ import kotlin.coroutines.resumeWithException
  * the same binder).
  *
  * Note that there is a timeout of 10s when connecting to the `TileProviderService`, and a
- * timeout of 30s for [tileRequest] and [resourcesRequest] to return a payload.
+ * timeout of 30s for [requestTile] and [requestResources] to return a payload.
  */
 public class DefaultTileProviderClient : TileProviderClient {
     internal companion object {
@@ -131,11 +131,11 @@ public class DefaultTileProviderClient : TileProviderClient {
             TilesConnectionBinder(context, componentName, coroutineScope, coroutineDispatcher)
     }
 
-    public override fun getApiVersion(): ListenableFuture<Int> {
+    public override fun requestApiVersion(): ListenableFuture<Int> {
         return runForFuture { it.apiVersion }
     }
 
-    public override fun tileRequest(
+    public override fun requestTile(
         requestParams: RequestBuilders.TileRequest
     ): ListenableFuture<TileBuilders.Tile> {
         return runForFuture {
@@ -150,7 +150,7 @@ public class DefaultTileProviderClient : TileProviderClient {
         }
     }
 
-    public override fun resourcesRequest(
+    public override fun requestResources(
         requestParams: RequestBuilders.ResourcesRequest
     ): ListenableFuture<ResourceBuilders.Resources> {
         return runForFuture {
@@ -168,28 +168,28 @@ public class DefaultTileProviderClient : TileProviderClient {
         }
     }
 
-    public override fun onTileAdded(): ListenableFuture<Void?> {
+    public override fun sendOnTileAddedEvent(): ListenableFuture<Void?> {
         return runForFuture {
             it.onTileAddEvent(TILE_ADD_EVENT)
             null
         }
     }
 
-    public override fun onTileEnter(): ListenableFuture<Void?> {
+    public override fun sendOnTileEnterEvent(): ListenableFuture<Void?> {
         return runForFuture {
             it.onTileEnterEvent(TILE_ENTER_EVENT)
             null
         }
     }
 
-    public override fun onTileLeave(): ListenableFuture<Void?> {
+    public override fun sendOnTileLeaveEvent(): ListenableFuture<Void?> {
         return runForFuture {
             it.onTileLeaveEvent(TILE_LEAVE_EVENT)
             null
         }
     }
 
-    public override fun onTileRemoved(): ListenableFuture<Void?> {
+    public override fun sendOnTileRemovedEvent(): ListenableFuture<Void?> {
         return runForFuture {
             it.onTileRemoveEvent(TILE_REMOVE_EVENT)
             null

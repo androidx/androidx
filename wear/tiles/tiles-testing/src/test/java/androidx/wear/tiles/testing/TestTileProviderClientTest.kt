@@ -50,7 +50,7 @@ public class TestTileProviderClientTest {
 
     @Test
     public fun canCallGetApiVersion() {
-        val future = clientUnderTest.apiVersion
+        val future = clientUnderTest.requestApiVersion()
 
         shadowOf(Looper.getMainLooper()).idle()
         assertThat(future.isDone).isTrue()
@@ -59,7 +59,7 @@ public class TestTileProviderClientTest {
 
     @Test
     public fun canCallOnTileRequest() {
-        val future = clientUnderTest.tileRequest(RequestBuilders.TileRequest.builder().build())
+        val future = clientUnderTest.requestTile(RequestBuilders.TileRequest.builder().build())
 
         shadowOf(Looper.getMainLooper()).idle()
         assertThat(future.isDone).isTrue()
@@ -68,7 +68,7 @@ public class TestTileProviderClientTest {
 
     @Test
     public fun canCallOnResourcesRequest() {
-        val future = clientUnderTest.resourcesRequest(
+        val future = clientUnderTest.requestResources(
             RequestBuilders.ResourcesRequest.builder().build()
         )
         shadowOf(Looper.getMainLooper()).idle()
@@ -79,7 +79,7 @@ public class TestTileProviderClientTest {
 
     @Test
     public fun canCallOnTileAdd() {
-        val f = clientUnderTest.onTileAdded()
+        val f = clientUnderTest.sendOnTileAddedEvent()
 
         shadowOf(Looper.getMainLooper()).idle()
 
@@ -92,7 +92,7 @@ public class TestTileProviderClientTest {
 
     @Test
     public fun canCallOnTileRemove() {
-        val f = clientUnderTest.onTileRemoved()
+        val f = clientUnderTest.sendOnTileRemovedEvent()
 
         shadowOf(Looper.getMainLooper()).idle()
 
@@ -105,7 +105,7 @@ public class TestTileProviderClientTest {
 
     @Test
     public fun canCallOnTileEnter() {
-        val f = clientUnderTest.onTileEnter()
+        val f = clientUnderTest.sendOnTileEnterEvent()
 
         shadowOf(Looper.getMainLooper()).idle()
 
@@ -118,7 +118,7 @@ public class TestTileProviderClientTest {
 
     @Test
     public fun canCallOnTileLeave() {
-        val f = clientUnderTest.onTileLeave()
+        val f = clientUnderTest.sendOnTileLeaveEvent()
 
         shadowOf(Looper.getMainLooper()).idle()
 

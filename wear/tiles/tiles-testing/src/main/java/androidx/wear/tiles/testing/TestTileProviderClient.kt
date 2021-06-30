@@ -101,43 +101,43 @@ public class TestTileProviderClient<T : TileProviderService> : TileProviderClien
         )
     }
 
-    override fun getApiVersion(): ListenableFuture<Int> {
+    override fun requestApiVersion(): ListenableFuture<Int> {
         maybeBind()
-        return innerTileProvider.apiVersion
+        return innerTileProvider.requestApiVersion()
     }
 
-    override fun tileRequest(
+    override fun requestTile(
         requestParams: RequestBuilders.TileRequest
     ): ListenableFuture<TileBuilders.Tile> {
         maybeBind()
-        return innerTileProvider.tileRequest(requestParams)
+        return innerTileProvider.requestTile(requestParams)
     }
 
-    override fun resourcesRequest(
+    override fun requestResources(
         requestParams: RequestBuilders.ResourcesRequest
     ): ListenableFuture<ResourceBuilders.Resources> {
         maybeBind()
-        return innerTileProvider.resourcesRequest(requestParams)
+        return innerTileProvider.requestResources(requestParams)
     }
 
-    override fun onTileAdded(): ListenableFuture<Void?> {
+    override fun sendOnTileAddedEvent(): ListenableFuture<Void?> {
         maybeBind()
-        return innerTileProvider.onTileAdded()
+        return innerTileProvider.sendOnTileAddedEvent()
     }
 
-    override fun onTileRemoved(): ListenableFuture<Void?> {
+    override fun sendOnTileRemovedEvent(): ListenableFuture<Void?> {
         maybeBind()
-        return innerTileProvider.onTileRemoved()
+        return innerTileProvider.sendOnTileRemovedEvent()
     }
 
-    override fun onTileEnter(): ListenableFuture<Void?> {
+    override fun sendOnTileEnterEvent(): ListenableFuture<Void?> {
         maybeBind()
-        return innerTileProvider.onTileEnter()
+        return innerTileProvider.sendOnTileEnterEvent()
     }
 
-    override fun onTileLeave(): ListenableFuture<Void?> {
+    override fun sendOnTileLeaveEvent(): ListenableFuture<Void?> {
         maybeBind()
-        return innerTileProvider.onTileLeave()
+        return innerTileProvider.sendOnTileLeaveEvent()
     }
 
     private fun maybeBind() {

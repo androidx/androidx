@@ -4,13 +4,13 @@ package androidx.wear.tiles.testing {
   public final class TestTileProviderClient<T extends androidx.wear.tiles.TileProviderService> implements androidx.wear.tiles.client.TileProviderClient {
     ctor public TestTileProviderClient(T service, kotlinx.coroutines.CoroutineScope coroutineScope, kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
     ctor public TestTileProviderClient(T service, java.util.concurrent.Executor executor);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer> getApiVersion();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileAdded();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileEnter();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileLeave();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> onTileRemoved();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> resourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> tileRequest(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer> requestApiVersion();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> requestTile(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> sendOnTileAddedEvent();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> sendOnTileEnterEvent();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> sendOnTileLeaveEvent();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> sendOnTileRemovedEvent();
   }
 
 }
