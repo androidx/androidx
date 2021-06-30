@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.localstorage.stats.InitializeStats;
+import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
@@ -27,6 +28,7 @@ import androidx.core.util.Preconditions;
 import com.google.android.icing.proto.DeleteByQueryStatsProto;
 import com.google.android.icing.proto.DeleteStatsProto;
 import com.google.android.icing.proto.InitializeStatsProto;
+import com.google.android.icing.proto.OptimizeStatsProto;
 import com.google.android.icing.proto.PutDocumentStatsProto;
 import com.google.android.icing.proto.QueryStatsProto;
 
@@ -95,8 +97,8 @@ public final class AppSearchLoggerHelper {
                 .setSchemaTypeCount(fromNativeStats.getNumSchemaTypes());
     }
 
-    /*
-     * Copy native Query stats to builder.
+    /**
+     * Copies native Query stats to builder.
      *
      * @param fromNativeStats Stats copied from.
      * @param toStatsBuilder Stats copied to.
@@ -125,8 +127,8 @@ public final class AppSearchLoggerHelper {
                         fromNativeStats.getDocumentRetrievalLatencyMs());
     }
 
-    /*
-     * Copy native Delete stats to builder.
+    /**
+     * Copies native Delete stats to builder.
      *
      * @param fromNativeStats Stats copied from.
      * @param toStatsBuilder Stats copied to.
@@ -141,8 +143,8 @@ public final class AppSearchLoggerHelper {
                 .setDeletedDocumentCount(fromNativeStats.getNumDocumentsDeleted());
     }
 
-    /*
-     * Copy native DeleteByQuery stats to builder.
+    /**
+     * Copies native DeleteByQuery stats to builder.
      *
      * @param fromNativeStats Stats copied from.
      * @param toStatsBuilder Stats copied to.
@@ -158,5 +160,28 @@ public final class AppSearchLoggerHelper {
                 .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
                 .setDeleteType(deleteType)
                 .setDeletedDocumentCount(fromNativeStats.getNumDocumentsDeleted());
+    }
+
+    /**
+     * Copies native {@link OptimizeStatsProto} to builder.
+     *
+     * @param fromNativeStats Stats copied from.
+     * @param toStatsBuilder Stats copied to.
+     */
+    static void copyNativeStats(@NonNull OptimizeStatsProto fromNativeStats,
+            @NonNull OptimizeStats.Builder toStatsBuilder) {
+        Preconditions.checkNotNull(fromNativeStats);
+        Preconditions.checkNotNull(toStatsBuilder);
+        toStatsBuilder
+                .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
+                .setDocumentStoreOptimizeLatencyMillis(
+                        fromNativeStats.getDocumentStoreOptimizeLatencyMs())
+                .setIndexRestorationLatencyMillis(fromNativeStats.getIndexRestorationLatencyMs())
+                .setOriginalDocumentCount(fromNativeStats.getNumOriginalDocuments())
+                .setDeletedDocumentCount(fromNativeStats.getNumDeletedDocuments())
+                .setExpiredDocumentCount(fromNativeStats.getNumExpiredDocuments())
+                .setStorageSizeBeforeBytes(fromNativeStats.getStorageSizeBefore())
+                .setStorageSizeAfterBytes(fromNativeStats.getStorageSizeAfter())
+                .setTimeSinceLastOptimizeMillis(fromNativeStats.getTimeSinceLastOptimizeMs());
     }
 }
