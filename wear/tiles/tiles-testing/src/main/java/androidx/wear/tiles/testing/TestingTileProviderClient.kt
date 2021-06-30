@@ -52,6 +52,16 @@ public class TestingTileProviderClient<T : TileProviderService> : TileProviderCl
     private val innerTileProvider: DefaultTileProviderClient
     private var hasBound = false
 
+    /**
+     * Build a [TestingTileProviderClient] for use with a coroutine dispatcher.
+     *
+     * @param service An instance of the [TileProviderService] class to bind to.
+     * @param coroutineScope A [CoroutineScope] to use when dispatching calls to the
+     *   [TileProviderService]. Cancelling the passed [CoroutineScope] will also cancel any pending
+     *   work in this class.
+     * @param coroutineDispatcher A [CoroutineDispatcher] to use when dispatching work from this
+     *   class.
+     */
     public constructor(
         service: T,
         coroutineScope: CoroutineScope,
@@ -71,6 +81,12 @@ public class TestingTileProviderClient<T : TileProviderService> : TileProviderCl
         )
     }
 
+    /**
+     * Build a [TestingTileProviderClient] for use with a given [Executor]
+     *
+     * @param service An instance of the [TileProviderService] class to bind to.
+     * @param executor An [Executor] to use when dispatching calls to the [TileProviderService].
+     */
     public constructor(service: T, executor: Executor) {
         val bindIntent = Intent(TileProviderService.ACTION_BIND_TILE_PROVIDER)
         this.componentName = ComponentName(getApplicationContext(), service.javaClass)
