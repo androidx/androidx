@@ -368,8 +368,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     @Override
     public void onNestedScrollAccepted(
-            @NonNull View child, @NonNull View target, int nestedScrollAxes) {
-        onNestedScrollAccepted(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+            @NonNull View child, @NonNull View target, int axes) {
+        onNestedScrollAccepted(child, target, axes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
