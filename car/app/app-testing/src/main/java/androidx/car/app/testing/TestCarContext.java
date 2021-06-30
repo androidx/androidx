@@ -32,6 +32,7 @@ import androidx.car.app.HostDispatcher;
 import androidx.car.app.ICarHost;
 import androidx.car.app.IStartCarApp;
 import androidx.car.app.OnRequestPermissionsListener;
+import androidx.car.app.managers.Manager;
 import androidx.car.app.testing.navigation.TestNavigationManager;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -80,7 +81,7 @@ public class TestCarContext extends CarContext {
 
     @NonNull
     @Override
-    public <T> T getCarService(@NonNull Class<T> serviceClass) {
+    public <T extends Manager> T getCarService(@NonNull Class<T> serviceClass) {
         String serviceName;
 
         if (serviceClass.isInstance(mTestAppManager)) {
@@ -207,7 +208,8 @@ public class TestCarContext extends CarContext {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void overrideCarService(@NonNull Class<?> serviceClass, @NonNull Object service) {
+    public void overrideCarService(@NonNull Class<? extends Manager> serviceClass,
+            @NonNull Object service) {
         requireNonNull(service);
         requireNonNull(serviceClass);
 

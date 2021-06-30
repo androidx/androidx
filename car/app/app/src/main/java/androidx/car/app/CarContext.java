@@ -24,6 +24,7 @@ import static androidx.car.app.utils.LogTags.TAG;
 
 import static java.util.Objects.requireNonNull;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -45,6 +46,9 @@ import androidx.annotation.StringDef;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.hardware.CarHardwareManager;
+import androidx.car.app.managers.Manager;
+import androidx.car.app.managers.ManagerCache;
+import androidx.car.app.managers.ResultManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.notification.CarPendingIntent;
 import androidx.car.app.utils.RemoteUtils;
@@ -158,21 +162,10 @@ public class CarContext extends ContextWrapper {
     static final String EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY =
             "androidx.car.app.action.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_LISTENER_KEY";
 
-    /**
-     * Holds an exception to be thrown when accessing {@link CarHardwareManager} if there is an
-     * error during initialization.
-     */
-    @Nullable
-    private final IllegalStateException mCarHardwareManagerException;
-
-    private final AppManager mAppManager;
-    private final NavigationManager mNavigationManager;
-    private final ScreenManager mScreenManager;
-    private final ConstraintManager mConstraintManager;
-    private final CarHardwareManager mCarHardwareManager;
     private final OnBackPressedDispatcher mOnBackPressedDispatcher;
     private final HostDispatcher mHostDispatcher;
     private final Lifecycle mLifecycle;
+    private final ManagerCache mManagers = new ManagerCache();
 
     /** API level, updated once host connection handshake is completed. */
     @CarAppApiLevel
@@ -209,30 +202,14 @@ public class CarContext extends ContextWrapper {
      *             {@link #NAVIGATION_SERVICE} or {@link #SCREEN_SERVICE}
      * @return The car service instance
      * @throws IllegalArgumentException if {@code name} does not refer to a valid car service
+     * @throws IllegalStateException    if the service referred by {@code name} can not be
+     *                                  instantiated (e.g. missing library dependency)
      * @throws NullPointerException     if {@code name} is {@code null}
      */
-    // This is kept for the testing library.
     @NonNull
     public Object getCarService(@CarServiceType @NonNull String name) {
-        switch (requireNonNull(name)) {
-            case APP_SERVICE:
-                return mAppManager;
-            case NAVIGATION_SERVICE:
-                return mNavigationManager;
-            case SCREEN_SERVICE:
-                return mScreenManager;
-            case CONSTRAINT_SERVICE:
-                return mConstraintManager;
-            case HARDWARE_SERVICE:
-                if (mCarHardwareManagerException != null) {
-                    throw mCarHardwareManagerException;
-                }
-                return mCarHardwareManager;
-            default: // fall out
-        }
-
-        throw new IllegalArgumentException(
-                "The name '" + name + "' does not correspond to a car service");
+        requireNonNull(name);
+        return mManagers.getOrCreate(name);
     }
 
     /**
@@ -247,11 +224,14 @@ public class CarContext extends ContextWrapper {
      * @param serviceClass the class of the requested service
      * @throws IllegalArgumentException if {@code serviceClass} is not the class of a supported car
      *                                  service
+     * @throws IllegalStateException    if {@code serviceClass} can not be instantiated (e.g.
+     *                                  missing library dependency)
      * @throws NullPointerException     if {@code serviceClass} is {@code null}
      */
     @NonNull
-    public <T> T getCarService(@NonNull Class<T> serviceClass) {
-        return requireNonNull(serviceClass).cast(getCarService(getCarServiceName(serviceClass)));
+    public <T extends Manager> T getCarService(@NonNull Class<T> serviceClass) {
+        requireNonNull(serviceClass);
+        return mManagers.getOrCreate(serviceClass);
     }
 
     /**
@@ -269,20 +249,9 @@ public class CarContext extends ContextWrapper {
      */
     @NonNull
     @CarServiceType
-    public String getCarServiceName(@NonNull Class<?> serviceClass) {
-        if (requireNonNull(serviceClass).isInstance(mAppManager)) {
-            return APP_SERVICE;
-        } else if (serviceClass.isInstance(mNavigationManager)) {
-            return NAVIGATION_SERVICE;
-        } else if (serviceClass.isInstance(mScreenManager)) {
-            return SCREEN_SERVICE;
-        } else if (serviceClass.isInstance(mConstraintManager)) {
-            return CONSTRAINT_SERVICE;
-        } else if (serviceClass.isInstance(mCarHardwareManager)) {
-            return HARDWARE_SERVICE;
-        }
-
-        throw new IllegalArgumentException("The class does not correspond to a car service");
+    public String getCarServiceName(@NonNull Class<? extends Manager> serviceClass) {
+        requireNonNull(serviceClass);
+        return mManagers.getName(serviceClass);
     }
 
     /**
@@ -397,6 +366,42 @@ public class CarContext extends ContextWrapper {
     }
 
     /**
+     * Sets the result of this car app.
+     *
+     * <p>In Android Automotive OS, this is equivalent to {@link Activity#setResult(int, Intent)}.
+     * Call this to set the result that your {@code CarAppActivity} will return to its caller.
+     *
+     * <p><b>This method is not implemented in Android Auto.</b>
+     *
+     * @param resultCode the result code to propagate back to the originating app, often
+     *                   {@link Activity#RESULT_CANCELED} or {@link Activity#RESULT_OK}
+     * @param data       the data to propagate back to the originating app
+     * @throws IllegalStateException if the method is not supported in the current platform.
+     */
+    @RequiresCarApi(2)
+    public void setCarAppResult(int resultCode, @Nullable Intent data) {
+        getCarService(ResultManager.class).setCarAppResult(resultCode, data);
+    }
+
+    /**
+     * Return the component (service or activity) that invoked this car app.
+     *
+     * <p>This is who the data in {@link #setCarAppResult(int, Intent)} will be sent to. You can
+     * use this information to validate that the recipient is allowed to receive the data.
+     *
+     * <p><b>This method is not implemented in Android Auto.</b>
+     *
+     * @return the {@link ComponentName} of the component that will receive your reply, or
+     * {@code null} if none
+     * @throws IllegalStateException if the method is not supported in the current platform.
+     */
+    @Nullable
+    @RequiresCarApi(2)
+    public ComponentName getCallingComponent() {
+        return getCarService(ResultManager.class).getCallingComponent();
+    }
+
+    /**
      * Returns {@code true} if the car is set to dark mode.
      *
      * <p>Navigation applications must redraw their map with the proper dark colors when the host
@@ -505,8 +510,8 @@ public class CarContext extends ContextWrapper {
      * platform's permissions UI over it. You can choose to not
      * use this method and instead implement your own activity and code to request the
      * permissions in that platform. On Automotive OS however, distraction-optimized activities
-     * other than {@link androidx.car.app.activity.CarAppActivity} are not allowed and may be
-     * rejected during app submission. See {@link androidx.car.app.activity.CarAppActivity} for
+     * other than {@code CarAppActivity} are not allowed and may be
+     * rejected during app submission. See {@code CarAppActivity} for
      * more details.
      *
      * @param permissions the runtime permissions to request from the user
@@ -642,27 +647,17 @@ public class CarContext extends ContextWrapper {
         super(null);
 
         mHostDispatcher = hostDispatcher;
-        mAppManager = AppManager.create(this, hostDispatcher, lifecycle);
-        mNavigationManager = NavigationManager.create(this, hostDispatcher, lifecycle);
-        mScreenManager = ScreenManager.create(this, lifecycle);
-        mConstraintManager = ConstraintManager.create(this, hostDispatcher);
-
-        // Try to instantiate a CarHardwareManager.
-        CarHardwareManager carHardwareManager = null;
-        IllegalStateException carHardwareManagerException = null;
-        try {
-            carHardwareManager = CarHardwareManager.create(this, hostDispatcher);
-            if (carHardwareManager == null) {
-                carHardwareManagerException = new IllegalStateException("CarHardwareManager not "
-                        + "configured. Did you forget to add a dependency on automotive or "
-                        + "projected artifacts?");
-            }
-        } catch (IllegalStateException e) {
-            carHardwareManager = new CarHardwareManager() { };
-            carHardwareManagerException = e;
-        }
-        mCarHardwareManager = carHardwareManager;
-        mCarHardwareManagerException = carHardwareManagerException;
+        mManagers.addFactory(AppManager.class, APP_SERVICE,
+                () -> AppManager.create(this, hostDispatcher, lifecycle));
+        mManagers.addFactory(NavigationManager.class, NAVIGATION_SERVICE,
+                () -> NavigationManager.create(this, hostDispatcher, lifecycle));
+        mManagers.addFactory(ScreenManager.class, SCREEN_SERVICE,
+                () -> ScreenManager.create(this, lifecycle));
+        mManagers.addFactory(ConstraintManager.class, CONSTRAINT_SERVICE,
+                () -> ConstraintManager.create(this, hostDispatcher));
+        mManagers.addFactory(CarHardwareManager.class, HARDWARE_SERVICE,
+                () -> CarHardwareManager.create(this, hostDispatcher));
+        mManagers.addFactory(ResultManager.class, null, () -> ResultManager.create());
 
         mOnBackPressedDispatcher =
                 new OnBackPressedDispatcher(() -> getCarService(ScreenManager.class).pop());

@@ -43,6 +43,7 @@ import android.util.DisplayMetrics;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.car.app.hardware.CarHardwareManager;
+import androidx.car.app.managers.Manager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.testing.TestLifecycleOwner;
 import androidx.lifecycle.Lifecycle.Event;
@@ -160,7 +161,7 @@ public class CarContextTest {
     public void getCarService_null_throws() {
         assertThrows(NullPointerException.class, () -> mCarContext.getCarService((String) null));
         assertThrows(NullPointerException.class,
-                () -> mCarContext.getCarService((Class<Object>) null));
+                () -> mCarContext.getCarService((Class<Manager>) null));
     }
 
     @Test
@@ -184,13 +185,6 @@ public class CarContextTest {
     public void getCarServiceName_hardwareManager_throws() {
         assertThat(mCarContext.getCarServiceName(CarHardwareManager.class)).isEqualTo(
                 HARDWARE_SERVICE);
-    }
-
-    @Test
-    public void getCarServiceName_unexpectedClass_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> mCarContext.getCarServiceName(CarAppService.class));
     }
 
     @Test

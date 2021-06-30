@@ -21,22 +21,19 @@ import android.content.Context;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.info.CarInfo;
 import androidx.car.app.hardware.info.CarSensors;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import androidx.car.app.managers.Manager;
 
 /**
  * Manages access to car hardware specific properties and sensors.
  */
 @RequiresCarApi(3)
 @MainThread
-public interface CarHardwareManager {
+public interface CarHardwareManager extends Manager {
     /**
      * Returns the {@link CarInfo} that can be used to query the car hardware information
      * such as make, model, etc.
@@ -64,36 +61,21 @@ public interface CarHardwareManager {
     @RestrictTo(LIBRARY)
     @NonNull
     static CarHardwareManager create(@NonNull Context context,
-            @Nullable HostDispatcher hostDispatcher) throws IllegalStateException {
+            @NonNull HostDispatcher hostDispatcher) throws IllegalStateException {
+        CarHardwareManager manager = Manager.create(CarHardwareManager.class,
+                "androidx.car.app.hardware.AutomotiveCarHardwareManager", context);
 
-        try { // Check for automotive library first.
-            Class<?> c = Class.forName("androidx.car.app.hardware.AutomotiveCarHardwareManager");
-            Constructor<?> ctor = c.getConstructor(Context.class);
-            Object object = ctor.newInstance(context);
-            return (CarHardwareManager) object;
-        } catch (ClassNotFoundException e) {
-            // No Automotive. Fall through.
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
-                | InvocationTargetException e) {
-            // Something went wrong with accessing the constructor or calling newInstance().
-            throw new IllegalStateException("Mismatch with app-automotive artifact", e);
+        if (manager == null) {
+            manager = Manager.create(CarHardwareManager.class,
+                    "androidx.car.app.hardware.ProjectedCarHardwareManager", hostDispatcher);
         }
 
-        try { // Check for automotive library first.
-            Class<?> c = Class.forName("androidx.car.app.hardware.ProjectedCarHardwareManager");
-            Constructor<?> ctor = c.getConstructor(HostDispatcher.class);
-            Object object = ctor.newInstance(hostDispatcher);
-            return (CarHardwareManager) object;
-        } catch (ClassNotFoundException e) {
-            // No Projected. Fall through.
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
-                | InvocationTargetException e) {
-            // Something went wrong with accessing the constructor or calling newInstance().
-            throw new IllegalStateException("Mismatch with app-projected artifact", e);
+        if (manager == null) {
+            throw new IllegalStateException("Unable to instantiate " + CarHardwareManager.class
+                    + ". Did you forget to add a dependency on app-automotive or app-projected "
+                    + "artifacts?");
         }
 
-        throw new IllegalStateException("Vehicle Manager not "
-                + "configured. Did you forget to add a dependency on automotive or "
-                + "projected artifacts?");
+        return manager;
     }
 }
