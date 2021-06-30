@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+import androidx.build.AndroidXPluginKt
+import androidx.build.BuildOnServerKt
+import androidx.build.BuildServerConfigurationKt
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -40,7 +44,23 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
 }
 
-rootProject.tasks.getByName("buildOnServer").dependsOn(project.path + ":assembleRelease")
+// We want to publish a release apk of this project for webkit team's use
+def copyReleaseApk = tasks.register("copyReleaseApk", Copy) { task ->
+    android.applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            task.from(variant.packageApplicationProvider.get().outputDirectory)
+        }
+    }
+    task.include("*.apk")
+    task.rename { fileName ->
+        "${AndroidXPluginKt.asFilenamePrefix(project.path)}_$fileName"
+    }
+    task.destinationDir =
+            new File(BuildServerConfigurationKt.getDistributionDirectory(project), "apks")
+    task.dependsOn(project.path + ":assembleRelease")
+}
+
+BuildOnServerKt.addToBuildOnServer(project, copyReleaseApk)
 
 android {
     defaultConfig {
