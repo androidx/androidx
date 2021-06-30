@@ -201,17 +201,26 @@ package androidx.wear.compose.material {
   }
 
   public final class ToggleChipDefaults {
+    method @androidx.compose.runtime.Composable public void CheckboxIcon(boolean checked);
+    method @androidx.compose.runtime.Composable public void RadioIcon(boolean checked);
+    method @androidx.compose.runtime.Composable public void SwitchIcon(boolean checked);
+    method public androidx.compose.ui.graphics.vector.ImageVector getCheckboxOn();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method public float getIconSize();
+    method public androidx.compose.ui.graphics.vector.ImageVector getRadioOff();
+    method public androidx.compose.ui.graphics.vector.ImageVector getRadioOn();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ToggleChipColors toggleChipColors(optional long checkedStartBackgroundColor, optional long checkedEndBackgroundColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedToggleIconTintColor, optional long uncheckedStartBackgroundColor, optional long uncheckedEndBackgroundColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedToggleIconTintColor, optional long splitBackgroundOverlayColor, optional androidx.compose.ui.unit.LayoutDirection gradientDirection);
+    property public final androidx.compose.ui.graphics.vector.ImageVector CheckboxOn;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     property public final float IconSize;
+    property public final androidx.compose.ui.graphics.vector.ImageVector RadioOff;
+    property public final androidx.compose.ui.graphics.vector.ImageVector RadioOn;
     field public static final androidx.wear.compose.material.ToggleChipDefaults INSTANCE;
   }
 
   public final class ToggleChipKt {
-    method @androidx.compose.runtime.Composable public static void SplitToggleChip(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, kotlin.jvm.functions.Function0<kotlin.Unit> label, kotlin.jvm.functions.Function0<kotlin.Unit> toggleIcon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryLabel, optional androidx.wear.compose.material.ToggleChipColors colors, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource checkedInteractionSource, optional androidx.compose.foundation.interaction.MutableInteractionSource clickInteractionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape);
-    method @androidx.compose.runtime.Composable public static void ToggleChip(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, kotlin.jvm.functions.Function0<kotlin.Unit> label, kotlin.jvm.functions.Function0<kotlin.Unit> toggleIcon, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? appIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryLabel, optional androidx.wear.compose.material.ToggleChipColors colors, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape);
+    method @androidx.compose.runtime.Composable public static void SplitToggleChip(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, kotlin.jvm.functions.Function0<kotlin.Unit> label, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> toggleIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryLabel, optional androidx.wear.compose.material.ToggleChipColors colors, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource checkedInteractionSource, optional androidx.compose.foundation.interaction.MutableInteractionSource clickInteractionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape);
+    method @androidx.compose.runtime.Composable public static void ToggleChip(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, kotlin.jvm.functions.Function0<kotlin.Unit> label, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> toggleIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? appIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryLabel, optional androidx.wear.compose.material.ToggleChipColors colors, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape);
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
