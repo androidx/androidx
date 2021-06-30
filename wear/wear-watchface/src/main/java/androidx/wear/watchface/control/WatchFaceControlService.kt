@@ -33,11 +33,15 @@ import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.DefaultProviderPoliciesParams
+import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams
+import androidx.wear.watchface.control.data.GetUserStyleSchemaParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
+import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat
 import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.runBlockingOnHandlerWithTracing
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import java.io.FileDescriptor
 import java.io.PrintWriter
 
@@ -198,6 +202,30 @@ public open class IWatchFaceInstanceServiceStub(
     ).use {
         createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
             val result = engine.getDefaultProviderPolicies()
+            engine.onDestroy()
+            result
+        }
+    }
+
+    override fun getUserStyleSchema(
+        params: GetUserStyleSchemaParams
+    ): UserStyleSchemaWireFormat? = TraceEvent(
+        "IWatchFaceInstanceServiceStub.getUserStyleSchema"
+    ).use {
+        createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
+            val result = engine.getUserStyleSchemaWireFormat()
+            engine.onDestroy()
+            result
+        }
+    }
+
+    override fun getComplicationSlotMetadata(
+        params: GetComplicationSlotMetadataParams
+    ): Array<ComplicationSlotMetadataWireFormat>? = TraceEvent(
+        "IWatchFaceInstanceServiceStub.getComplicationSlotMetadata"
+    ).use {
+        createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
+            val result = engine.getComplicationSlotMetadataWireFormats()
             engine.onDestroy()
             result
         }

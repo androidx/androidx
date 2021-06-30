@@ -468,12 +468,14 @@ package androidx.wear.watchface.control {
     method public android.os.IBinder! asBinder();
     method public androidx.wear.watchface.control.IHeadlessWatchFace? createHeadlessWatchFaceInstance(androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams params);
     method public int getApiVersion();
+    method public androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat![]? getComplicationSlotMetadata(androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams params);
     method public androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat![]? getDefaultProviderPolicies(androidx.wear.watchface.control.data.DefaultProviderPoliciesParams params);
     method public androidx.wear.watchface.editor.EditorService getEditorService();
     method public androidx.wear.watchface.control.IInteractiveWatchFace? getInteractiveWatchFaceInstance(String instanceId);
     method public androidx.wear.watchface.control.IInteractiveWatchFace? getOrCreateInteractiveWatchFace(androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams params, androidx.wear.watchface.control.IPendingInteractiveWatchFace callback);
+    method public androidx.wear.watchface.style.data.UserStyleSchemaWireFormat? getUserStyleSchema(androidx.wear.watchface.control.data.GetUserStyleSchemaParams params);
     method public boolean onTransact(int, android.os.Parcel!, android.os.Parcel!, int) throws android.os.RemoteException;
-    field public static final int API_VERSION = 2; // 0x2
+    field public static final int API_VERSION = 3; // 0x3
   }
 
   @RequiresApi(27) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @VisibleForTesting public class WatchFaceControlService extends android.app.Service {
