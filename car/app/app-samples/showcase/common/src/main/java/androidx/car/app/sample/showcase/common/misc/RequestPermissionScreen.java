@@ -91,6 +91,11 @@ public class RequestPermissionScreen extends Screen {
 
         if (declaredPermissions != null) {
             for (String declaredPermission : declaredPermissions) {
+                // Don't include permissions against the car app host as they are all normal but
+                // show up as ungranted by the system.
+                if (declaredPermission.startsWith("androidx.car.app")) {
+                    continue;
+                }
                 try {
                     CarAppPermission.checkHasPermission(getCarContext(), declaredPermission);
                 } catch (SecurityException e) {
