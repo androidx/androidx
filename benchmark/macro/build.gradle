@@ -69,12 +69,12 @@ dependencies {
 
     implementation(project(":benchmark:benchmark-common"))
     implementation(project(":profileinstaller:profileinstaller"))
+    implementation("androidx.tracing:tracing-ktx:1.0.0")
     implementation(libs.testCore)
     implementation(libs.testUiautomator)
     implementation(libs.wireRuntime)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
-    androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
