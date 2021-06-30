@@ -448,8 +448,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     @Override
-    public void onChanged(@Nullable Slice slice) {
-        setSlice(slice);
+    public void onChanged(@Nullable Slice t) {
+        setSlice(t);
     }
 
     /**
