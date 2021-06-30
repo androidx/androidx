@@ -295,7 +295,7 @@ class ExportToFramework:
                     .replace('package androidx.appsearch',
                             'package com.android.server.appsearch.external')
                     .replace('com.google.android.icing.proto.',
-                            'com.android.server.appsearch.proto.')
+                            'com.android.server.appsearch.icing.proto.')
                     .replace('com.google.android.icing.protobuf.',
                             'com.android.server.appsearch.protobuf.')
             )
