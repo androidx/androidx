@@ -31,7 +31,16 @@
   <!-- For the navigation demos. -->
   <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES"/>
   <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
+
+  <!-- For Access to Car Hardware. -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+  <uses-permission android:name="android.car.permission.CAR_MILEAGE"/>
+  <uses-permission android:name="android.car.permission.CAR_SPEED"/>
+  <uses-permission android:name="android.car.permission.CAR_INFO"/>
+  <uses-permission android:name="android.car.permission.CAR_ENERGY"/>
+  <uses-permission android:name="android.car.permission.READ_CAR_DISPLAY_UNITS"/>
+  <uses-permission android:name="android.car.permission.CAR_ENERGY_PORTS"/>
+
 
   <uses-feature android:name="android.software.car.templates_host" />
 

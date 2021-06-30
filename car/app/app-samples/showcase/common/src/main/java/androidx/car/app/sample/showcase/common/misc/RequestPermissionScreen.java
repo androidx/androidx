@@ -16,14 +16,17 @@
 
 package androidx.car.app.sample.showcase.common.misc;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
+import androidx.car.app.CarAppPermission;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
+import androidx.car.app.model.LongMessageTemplate;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
@@ -34,8 +37,28 @@ import java.util.List;
 
 /**
  * A screen to show a request for a runtime permission from the user.
+ *
+ * <p>Scans through the possible dangerous permissions and shows which ones have not been
+ * granted in the message. Clicking on the action button will launch the permission request on
+ * the phone.
+ *
+ * <p>If all permissions are granted, corresponding message is displayed with a refresh button which
+ * will scan again when clicked.
  */
 public class RequestPermissionScreen extends Screen {
+
+    /**
+     * Action which invalidates the template.
+     *
+     * <p>This can give the user a chance to revoke the permissions and then refresh will pickup
+     * the permissions that need to be granted.
+     */
+    private final Action mRefreshAction = new Action.Builder()
+            .setTitle("Refresh")
+            .setBackgroundColor(CarColor.BLUE)
+            .setOnClickListener(() -> invalidate())
+            .build();
+
     public RequestPermissionScreen(@NonNull CarContext carContext) {
         super(carContext);
     }
@@ -44,9 +67,42 @@ public class RequestPermissionScreen extends Screen {
     @Override
     public Template onGetTemplate() {
         List<String> permissions = new ArrayList<>();
-        permissions.add(ACCESS_FINE_LOCATION);
+        String[] declaredPermissions = null;
+        try {
+            PackageInfo info =
+                    getCarContext().getPackageManager().getPackageInfo(
+                            getCarContext().getPackageName(),
+                            PackageManager.GET_PERMISSIONS);
+            declaredPermissions = info.requestedPermissions;
+        } catch (PackageManager.NameNotFoundException e) {
+            return new MessageTemplate.Builder("Package Not found.")
+                    .setHeaderAction(Action.BACK)
+                    .addAction(mRefreshAction)
+                    .build();
+        }
 
-        String message = "This app needs access to location in order to navigate";
+        if (declaredPermissions != null) {
+            for (String declaredPermission : declaredPermissions) {
+                try {
+                    CarAppPermission.checkHasPermission(getCarContext(), declaredPermission);
+                } catch (SecurityException e) {
+                    permissions.add(declaredPermission);
+                }
+            }
+        }
+        if (permissions.isEmpty()) {
+            return new MessageTemplate.Builder("All permissions have been granted. Please "
+                    + "revoke permissions from Settings.")
+                    .setHeaderAction(Action.BACK)
+                    .build();
+        }
+
+        StringBuilder message = new StringBuilder()
+                .append("The app needs access to the following permissions:\n");
+        for (String permission : permissions) {
+            message.append(permission);
+            message.append("\n");
+        }
 
         OnClickListener listener = ParkedOnlyOnClickListener.create(() -> {
             getCarContext().requestPermissions(
@@ -64,7 +120,10 @@ public class RequestPermissionScreen extends Screen {
                 .setOnClickListener(listener)
                 .build();
 
-        return new MessageTemplate.Builder(message).addAction(action).setHeaderAction(
-                Action.BACK).build();
+        return new LongMessageTemplate.Builder(message)
+                .setTitle("Required Permissions")
+                .addAction(action)
+                .setHeaderAction(Action.BACK)
+                .build();
     }
 }
