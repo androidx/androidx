@@ -101,7 +101,7 @@ class SearchResultsImpl implements SearchResults {
                             =*/ null);
                 }
             } else {
-                searchResultPage = mAppSearchImpl.getNextPage(mNextPageToken);
+                searchResultPage = mAppSearchImpl.getNextPage(mPackageName, mNextPageToken);
             }
             mNextPageToken = searchResultPage.getNextPageToken();
             return searchResultPage.getResults();
@@ -115,7 +115,7 @@ class SearchResultsImpl implements SearchResults {
         // critical to the correct functioning of the system; also, the return value is void.
         if (!mIsClosed) {
             FutureUtil.execute(mExecutor, () -> {
-                mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
+                mAppSearchImpl.invalidateNextPageToken(mPackageName, mNextPageToken);
                 mIsClosed = true;
                 return null;
             });

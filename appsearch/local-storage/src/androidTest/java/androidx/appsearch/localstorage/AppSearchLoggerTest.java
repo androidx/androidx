@@ -526,7 +526,7 @@ public class AppSearchLoggerTest {
                         .setPropertyString("subject", "testPut example1")
                         .build();
 
-        mAppSearchImpl.putDocument(PACKAGE_NAME, DATABASE, document, mLogger);
+        mAppSearchImpl.putDocument(testPackageName, testDatabase, document, mLogger);
 
         PutDocumentStats pStats = mLogger.mPutDocumentStats;
         assertThat(pStats).isNotNull();
@@ -637,8 +637,8 @@ public class AppSearchLoggerTest {
         SearchStats sStats = mLogger.mSearchStats;
 
         assertThat(sStats).isNotNull();
-        assertThat(sStats.getPackageName()).isEqualTo(PACKAGE_NAME);
-        assertThat(sStats.getDatabase()).isEqualTo(DATABASE);
+        assertThat(sStats.getPackageName()).isEqualTo(testPackageName);
+        assertThat(sStats.getDatabase()).isEqualTo(testDatabase);
         assertThat(sStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
         assertThat(sStats.getTotalLatencyMillis()).isGreaterThan(0);
         assertThat(sStats.getVisibilityScope()).isEqualTo(SearchStats.VISIBILITY_SCOPE_LOCAL);
