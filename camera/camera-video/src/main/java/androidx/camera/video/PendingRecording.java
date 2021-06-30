@@ -25,6 +25,14 @@ import java.util.concurrent.Executor;
 
 /**
  * A recording that can be started at a future time.
+ *
+ * <p>A pending recording allows for configuration of a recording before it is started. Once a
+ * pending recording is started with {@link #start()}, any changes to the pending recording will
+ * not affect the actual recording; any modifications to the recording will need to occur through
+ * the controls of the {@link ActiveRecording} class returned by {@link #start()}.
+ *
+ * <p>A pending recording can be created using one of the {@link Recorder} methods for starting a
+ * recording such as {@link Recorder#prepareRecording(MediaStoreOutputOptions)}.
  */
 public final class PendingRecording {
 
@@ -80,6 +88,20 @@ public final class PendingRecording {
      *
      * <p>Only a single recording can be active at a time, so if another recording is active,
      * this will throw an {@link IllegalStateException}.
+     *
+     * <p>If there are no errors starting the recording, the returned {@link ActiveRecording}
+     * can be used to {@link ActiveRecording#pause() pause}, {@link ActiveRecording#resume() resume
+     * }, or {@link ActiveRecording#stop() stop} the recording.
+     *
+     * <p>Upon successfully starting the recording, a {@link VideoRecordEvent.Start} event will
+     * be the first event sent to the listener set in
+     * {@link #withEventListener(Executor, Consumer)}.
+     *
+     * <p>If errors occur while starting the recording, a {@link VideoRecordEvent.Finalize} event
+     * will be the first event sent to the listener set in
+     * {@link #withEventListener(Executor, Consumer)}, and information about the error can be
+     * found in that event's {@link VideoRecordEvent.Finalize#getError()} method. The returned
+     * {@link ActiveRecording} will be in a finalized state, and all controls will be no-ops.
      *
      * @throws IllegalStateException if the associated Recorder currently has an unfinished
      * active recording.
