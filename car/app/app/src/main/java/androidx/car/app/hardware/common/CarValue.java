@@ -18,6 +18,7 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -85,9 +86,12 @@ public final class CarValue<T> {
     @StatusCode
     public static final int STATUS_UNAVAILABLE = 3;
 
+    @Keep
     @Nullable
     private final T mValue;
+    @Keep
     private final long mTimestampMillis;
+    @Keep
     @StatusCode
     private final int mStatus;
 
