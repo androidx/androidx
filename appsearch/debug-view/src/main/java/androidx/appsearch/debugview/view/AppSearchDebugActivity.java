@@ -110,7 +110,6 @@ public class AppSearchDebugActivity extends FragmentActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, menuFragment)
-                .addToBackStack(/*name=*/null)
                 .commit();
     }
 
