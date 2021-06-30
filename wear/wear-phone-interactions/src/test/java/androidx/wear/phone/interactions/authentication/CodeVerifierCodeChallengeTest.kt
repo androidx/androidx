@@ -27,13 +27,13 @@ public class CodeVerifierCodeChallengeTest {
     @Test
     public fun testVerifierDefaultConstructor() {
         val verifier = CodeVerifier()
-        assertEquals(43, verifier.getValue().length)
+        assertEquals(43, verifier.value.length)
     }
 
     @Test
     public fun testVerifierConstructor() {
         val verifier = CodeVerifier(96)
-        assertEquals(128, verifier.getValue().length)
+        assertEquals(128, verifier.value.length)
     }
 
     @Test
@@ -49,7 +49,7 @@ public class CodeVerifierCodeChallengeTest {
     @Test
     public fun testVerifierEquality() {
         val verifier = CodeVerifier()
-        assertTrue(verifier.equals(CodeVerifier(verifier.getValue())))
+        assertTrue(verifier.equals(CodeVerifier(verifier.value)))
     }
 
     @Test
@@ -64,7 +64,7 @@ public class CodeVerifierCodeChallengeTest {
         // see https://tools.ietf.org/html/rfc7636#appendix-A
         val verifier = CodeVerifier("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")
         val challenge = CodeChallenge(verifier)
-        assertEquals("E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM", challenge.getValue())
+        assertEquals("E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM", challenge.value)
     }
 
     @Test

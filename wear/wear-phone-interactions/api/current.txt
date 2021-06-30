@@ -21,17 +21,21 @@ package androidx.wear.phone.interactions.authentication {
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeChallenge {
     ctor public CodeChallenge(androidx.wear.phone.interactions.authentication.CodeVerifier codeVerifier);
     method public String getValue();
+    property public final String value;
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeVerifier {
     ctor public CodeVerifier(optional int byteLength);
     ctor public CodeVerifier(String value);
     method public String getValue();
+    property public final String value;
   }
 
   public final class OAuthRequest {
     method public String getPackageName();
     method public android.net.Uri getRequestUrl();
+    property public final String packageName;
+    property public final android.net.Uri requestUrl;
     field public static final androidx.wear.phone.interactions.authentication.OAuthRequest.Companion Companion;
     field public static final String WEAR_REDIRECT_URL_PREFIX = "https://wear.googleapis.com/3p_auth/";
   }
@@ -51,6 +55,8 @@ package androidx.wear.phone.interactions.authentication {
   public final class OAuthResponse {
     method public int getErrorCode();
     method public android.net.Uri? getResponseUrl();
+    property public final int errorCode;
+    property public final android.net.Uri? responseUrl;
   }
 
   public static final class OAuthResponse.Builder {

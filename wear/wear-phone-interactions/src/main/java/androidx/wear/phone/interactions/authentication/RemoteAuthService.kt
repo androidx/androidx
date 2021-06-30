@@ -109,8 +109,8 @@ public abstract class RemoteAuthService : Service() {
 
         internal fun buildBundleFromResponse(response: OAuthResponse, packageName: String): Bundle =
             Bundle().apply {
-                putParcelable(KEY_RESPONSE_URL, response.getResponseUrl())
-                putInt(KEY_ERROR_CODE, response.getErrorCode())
+                putParcelable(KEY_RESPONSE_URL, response.responseUrl)
+                putInt(KEY_ERROR_CODE, response.errorCode)
                 putString(KEY_PACKAGE_NAME, packageName)
             }
     }
