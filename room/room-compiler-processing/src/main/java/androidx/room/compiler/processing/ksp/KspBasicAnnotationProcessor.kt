@@ -20,10 +20,12 @@ import androidx.room.compiler.processing.XBasicAnnotationProcessor
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
+import com.google.devtools.ksp.isLocal
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.validate
 
 /**
@@ -47,7 +49,7 @@ abstract class KspBasicAnnotationProcessor(
             val elementsByAnnotation = step.annotations().associateWith { annotation ->
                 val annotatedElements = round.getElementsAnnotatedWith(annotation)
                 annotatedElements
-                    .filter { (it as KspElement).declaration.validate() }
+                    .filter { (it as KspElement).declaration.validateExceptLocals() }
                     .also { invalidElements.addAll(annotatedElements - it) }
                     .toSet()
             }
@@ -55,5 +57,19 @@ abstract class KspBasicAnnotationProcessor(
         }
         postRound(processingEnv, round)
         return deferredElements.map { (it as KspElement).declaration }
+    }
+}
+
+/**
+ * TODO remove this once we update to KSP beta03
+ * https://github.com/google/ksp/pull/479
+ */
+private fun KSAnnotated.validateExceptLocals(): Boolean {
+    return this.validate { parent, current ->
+        // skip locals
+        // https://github.com/google/ksp/issues/489
+        val skip = (parent as? KSDeclaration)?.isLocal() == true ||
+            (current as? KSDeclaration)?.isLocal() == true
+        !skip
     }
 }
