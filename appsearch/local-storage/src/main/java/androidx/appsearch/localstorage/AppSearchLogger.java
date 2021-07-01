@@ -18,9 +18,9 @@ package androidx.appsearch.localstorage;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
+import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
@@ -41,32 +41,37 @@ public interface AppSearchLogger {
     /**
      * Logs {@link CallStats}
      */
-    void logStats(@NonNull CallStats stats) throws AppSearchException;
+    void logStats(@NonNull CallStats stats);
 
     /**
      * Logs {@link PutDocumentStats}
      */
-    void logStats(@NonNull PutDocumentStats stats) throws AppSearchException;
+    void logStats(@NonNull PutDocumentStats stats);
 
     /**
      * Logs {@link InitializeStats}
      */
-    void logStats(@NonNull InitializeStats stats) throws AppSearchException;
+    void logStats(@NonNull InitializeStats stats);
 
     /**
      * Logs {@link SearchStats}
      */
-    void logStats(@NonNull SearchStats stats) throws AppSearchException;
+    void logStats(@NonNull SearchStats stats);
 
     /**
      * Logs {@link RemoveStats}
      */
-    void logStats(@NonNull RemoveStats stats) throws AppSearchException;
+    void logStats(@NonNull RemoveStats stats);
+
+    /**
+     * Logs {@link OptimizeStats}
+     */
+    void logStats(@NonNull OptimizeStats stats);
 
     /**
      * Logs {@link SetSchemaStats}
      */
-    void logStats(@NonNull SetSchemaStats stats) throws AppSearchException;
+    void logStats(@NonNull SetSchemaStats stats);
 
     // TODO(b/173532925) Add remaining logStats once we add all the stats.
 }

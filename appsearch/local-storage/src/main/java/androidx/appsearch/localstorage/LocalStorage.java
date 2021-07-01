@@ -30,6 +30,7 @@ import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.InitializeStats;
+import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.core.util.Preconditions;
 
@@ -327,10 +328,27 @@ public class LocalStorage {
         }
 
         executor.execute(() -> {
+            long totalOptimizeLatencyStartMillis = SystemClock.elapsedRealtime();
+            OptimizeStats.Builder builder = null;
             try {
-                mAppSearchImpl.checkForOptimize();
+                if (logger != null) {
+                    builder = new OptimizeStats.Builder();
+                }
+                mAppSearchImpl.checkForOptimize(builder);
             } catch (AppSearchException e) {
                 Log.w(TAG, "Error occurred when check for optimize", e);
+            } finally {
+                if (builder != null) {
+                    OptimizeStats oStats = builder
+                            .setTotalLatencyMillis(
+                                    (int) (SystemClock.elapsedRealtime()
+                                            - totalOptimizeLatencyStartMillis))
+                            .build();
+                    if (logger != null && oStats.getOriginalDocumentCount() > 0) {
+                        // see if optimize has been run by checking originalDocumentCount
+                        logger.logStats(builder.build());
+                    }
+                }
             }
         });
     }

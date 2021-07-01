@@ -39,6 +39,7 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
@@ -480,20 +481,52 @@ class SearchSessionImpl implements AppSearchSession {
 
     private void checkForOptimize(int mutateBatchSize) {
         mExecutor.execute(() -> {
+            long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+            OptimizeStats.Builder builder = null;
             try {
-                mAppSearchImpl.checkForOptimize(mutateBatchSize);
+                if (mLogger != null) {
+                    builder = new OptimizeStats.Builder();
+                }
+                mAppSearchImpl.checkForOptimize(mutateBatchSize, builder);
             } catch (AppSearchException e) {
                 Log.w(TAG, "Error occurred when check for optimize", e);
+            } finally {
+                if (builder != null) {
+                    OptimizeStats oStats = builder
+                            .setTotalLatencyMillis(
+                                    (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis))
+                            .build();
+                    if (mLogger != null && oStats.getOriginalDocumentCount() > 0) {
+                        // see if optimize has been run by checking originalDocumentCount
+                        mLogger.logStats(oStats);
+                    }
+                }
             }
         });
     }
 
     private void checkForOptimize() {
         mExecutor.execute(() -> {
+            long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+            OptimizeStats.Builder builder = null;
             try {
-                mAppSearchImpl.checkForOptimize();
+                if (mLogger != null) {
+                    builder = new OptimizeStats.Builder();
+                }
+                mAppSearchImpl.checkForOptimize(builder);
             } catch (AppSearchException e) {
                 Log.w(TAG, "Error occurred when check for optimize", e);
+            } finally {
+                if (builder != null) {
+                    OptimizeStats oStats = builder
+                            .setTotalLatencyMillis(
+                                    (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis))
+                            .build();
+                    if (mLogger != null && oStats.getOriginalDocumentCount() > 0) {
+                        // see if optimize has been run by checking originalDocumentCount
+                        mLogger.logStats(oStats);
+                    }
+                }
             }
         });
     }

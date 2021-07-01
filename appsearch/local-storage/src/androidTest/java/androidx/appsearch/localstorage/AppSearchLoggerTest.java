@@ -92,6 +92,8 @@ public class AppSearchLoggerTest {
         @Nullable
         RemoveStats mRemoveStats;
         @Nullable
+        OptimizeStats mOptimizeStats;
+        @Nullable
         SetSchemaStats mSetSchemaStats;
 
         @Override
@@ -117,6 +119,11 @@ public class AppSearchLoggerTest {
         @Override
         public void logStats(@NonNull RemoveStats stats) {
             mRemoveStats = stats;
+        }
+
+        @Override
+        public void logStats(@NonNull OptimizeStats stats) {
+            mOptimizeStats = stats;
         }
 
         @Override
