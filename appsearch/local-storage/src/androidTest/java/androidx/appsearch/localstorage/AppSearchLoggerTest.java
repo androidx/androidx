@@ -66,7 +66,10 @@ public class AppSearchLoggerTest {
     @Before
     public void setUp() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
-                mTemporaryFolder.newFolder(), /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE);
+                mTemporaryFolder.newFolder(),
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/ null,
+                ALWAYS_OPTIMIZE);
         mLogger = new TestLogger();
     }
 
@@ -292,7 +295,11 @@ public class AppSearchLoggerTest {
     public void testLoggingStats_initializeWithoutDocuments_success() throws Exception {
         // Create an unused AppSearchImpl to generated an InitializeStats.
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
-        AppSearchImpl.create(mTemporaryFolder.newFolder(), initStatsBuilder, ALWAYS_OPTIMIZE);
+        AppSearchImpl.create(
+                mTemporaryFolder.newFolder(),
+                new UnlimitedLimitConfig(),
+                initStatsBuilder,
+                ALWAYS_OPTIMIZE);
         InitializeStats iStats = initStatsBuilder.build();
 
         assertThat(iStats).isNotNull();
@@ -317,6 +324,7 @@ public class AppSearchLoggerTest {
 
         AppSearchImpl appSearchImpl = AppSearchImpl.create(
                 folder,
+                new UnlimitedLimitConfig(),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE);
         List<AppSearchSchema> schemas = ImmutableList.of(
@@ -341,7 +349,7 @@ public class AppSearchLoggerTest {
 
         // Create another appsearchImpl on the same folder
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
-        AppSearchImpl.create(folder, initStatsBuilder, ALWAYS_OPTIMIZE);
+        AppSearchImpl.create(folder, new UnlimitedLimitConfig(), initStatsBuilder, ALWAYS_OPTIMIZE);
         InitializeStats iStats = initStatsBuilder.build();
 
         assertThat(iStats).isNotNull();
@@ -364,8 +372,8 @@ public class AppSearchLoggerTest {
         final String testDatabase = "testDatabase";
         final File folder = mTemporaryFolder.newFolder();
 
-        AppSearchImpl appSearchImpl =
-                AppSearchImpl.create(folder, /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE);
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(
+                folder, new UnlimitedLimitConfig(), /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE);
 
         List<AppSearchSchema> schemas = ImmutableList.of(
                 new AppSearchSchema.Builder("Type1").build(),
@@ -397,7 +405,7 @@ public class AppSearchLoggerTest {
 
         // Create another appsearchImpl on the same folder
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
-        AppSearchImpl.create(folder, initStatsBuilder, ALWAYS_OPTIMIZE);
+        AppSearchImpl.create(folder, new UnlimitedLimitConfig(), initStatsBuilder, ALWAYS_OPTIMIZE);
         InitializeStats iStats = initStatsBuilder.build();
 
         // Some of other fields are already covered by AppSearchImplTest#testReset()
