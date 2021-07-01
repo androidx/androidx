@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.wear.complications.provider.samples
+package androidx.wear.complications.datasource.samples
 
-import androidx.wear.complications.ComplicationProviderService
-import androidx.wear.complications.ComplicationRequest
+import androidx.wear.complications.datasource.ComplicationDataSourceService
+import androidx.wear.complications.datasource.ComplicationRequest
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
 
-/** A minimal complication provider which reports the ID of the complication immediately. */
-class SynchronousProviderService : ComplicationProviderService() {
+/** A minimal complication data source which reports the ID of the complication immediately. */
+class SynchronousDataSourceService : ComplicationDataSourceService() {
 
     override fun onComplicationRequest(
         request: ComplicationRequest,

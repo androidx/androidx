@@ -1,8 +1,8 @@
 // Signature format: 4.0
 package androidx.wear.complications {
 
-  public final class ComplicationProviderInfo {
-    ctor public ComplicationProviderInfo(String appName, String name, android.graphics.drawable.Icon icon, androidx.wear.complications.data.ComplicationType type, android.content.ComponentName? componentName);
+  public final class ComplicationDataSourceInfo {
+    ctor public ComplicationDataSourceInfo(String appName, String name, android.graphics.drawable.Icon icon, androidx.wear.complications.data.ComplicationType type, android.content.ComponentName? componentName);
     method public String getAppName();
     method public android.content.ComponentName? getComponentName();
     method public android.graphics.drawable.Icon getIcon();
@@ -15,6 +15,27 @@ package androidx.wear.complications {
     property public final androidx.wear.complications.data.ComplicationType type;
   }
 
+  public final class ComplicationDataSourceInfoRetriever implements java.lang.AutoCloseable {
+    ctor public ComplicationDataSourceInfoRetriever(android.content.Context context);
+    method public void close();
+    method @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? retrieveComplicationDataSourceInfo(android.content.ComponentName watchFaceComponent, int[] watchFaceComplicationIds, kotlin.coroutines.Continuation<? super androidx.wear.complications.ComplicationDataSourceInfoRetriever.Result[]> p) throws androidx.wear.complications.ComplicationDataSourceInfoRetriever.ServiceDisconnectedException;
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? retrievePreviewComplicationData(android.content.ComponentName complicationDataSourceComponent, androidx.wear.complications.data.ComplicationType complicationType, kotlin.coroutines.Continuation<? super androidx.wear.complications.data.ComplicationData> p) throws androidx.wear.complications.ComplicationDataSourceInfoRetriever.ServiceDisconnectedException;
+  }
+
+  public static final class ComplicationDataSourceInfoRetriever.Result {
+    method public androidx.wear.complications.ComplicationDataSourceInfo? getInfo();
+    method public int getSlotId();
+    property public final androidx.wear.complications.ComplicationDataSourceInfo? info;
+    property public final int slotId;
+  }
+
+  public static final class ComplicationDataSourceInfoRetriever.ServiceDisconnectedException extends java.lang.Exception {
+    ctor public ComplicationDataSourceInfoRetriever.ServiceDisconnectedException();
+  }
+
+  public final class ComplicationDataSourceInfoRetrieverKt {
+  }
+
   public final class ComplicationSlotBounds {
     ctor public ComplicationSlotBounds(java.util.Map<androidx.wear.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
     ctor public ComplicationSlotBounds(android.graphics.RectF bounds);
@@ -22,61 +43,40 @@ package androidx.wear.complications {
     property public final java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
   }
 
-  public final class DefaultComplicationProviderPolicy {
-    ctor public DefaultComplicationProviderPolicy();
-    ctor public DefaultComplicationProviderPolicy(int systemProvider);
-    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName provider, int systemProviderFallback);
-    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName primaryProvider, android.content.ComponentName secondaryProvider, int systemProviderFallback);
-    method public android.content.ComponentName? getPrimaryProvider();
-    method public android.content.ComponentName? getSecondaryProvider();
-    method public int getSystemProviderFallback();
+  public final class DefaultComplicationDataSourcePolicy {
+    ctor public DefaultComplicationDataSourcePolicy();
+    ctor public DefaultComplicationDataSourcePolicy(int systemProvider);
+    ctor public DefaultComplicationDataSourcePolicy(android.content.ComponentName dataSource, int systemDataSourceFallback);
+    ctor public DefaultComplicationDataSourcePolicy(android.content.ComponentName primaryDataSource, android.content.ComponentName secondaryDataSource, int systemDataSourceFallback);
+    method public android.content.ComponentName? getPrimaryDataSource();
+    method public android.content.ComponentName? getSecondaryDataSource();
+    method public int getSystemDataSourceFallback();
     method public boolean isEmpty();
-    property public final android.content.ComponentName? primaryProvider;
-    property public final android.content.ComponentName? secondaryProvider;
-    property public final int systemProviderFallback;
+    property public final android.content.ComponentName? primaryDataSource;
+    property public final android.content.ComponentName? secondaryDataSource;
+    property public final int systemDataSourceFallback;
   }
 
-  public final class ProviderInfoRetriever implements java.lang.AutoCloseable {
-    ctor public ProviderInfoRetriever(android.content.Context context);
-    method public void close();
-    method @RequiresApi(android.os.Build.VERSION_CODES.R) @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? retrievePreviewComplicationData(android.content.ComponentName providerComponent, androidx.wear.complications.data.ComplicationType complicationType, kotlin.coroutines.Continuation<? super androidx.wear.complications.data.ComplicationData> p) throws androidx.wear.complications.ProviderInfoRetriever.ServiceDisconnectedException;
-    method @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? retrieveProviderInfo(android.content.ComponentName watchFaceComponent, int[] watchFaceComplicationIds, kotlin.coroutines.Continuation<? super androidx.wear.complications.ProviderInfoRetriever.ProviderInfo[]> p) throws androidx.wear.complications.ProviderInfoRetriever.ServiceDisconnectedException;
+  public final class SystemDataSources {
+    field public static final androidx.wear.complications.SystemDataSources.Companion Companion;
+    field public static final int DATA_SOURCE_APP_SHORTCUT = 6; // 0x6
+    field public static final int DATA_SOURCE_DATE = 2; // 0x2
+    field public static final int DATA_SOURCE_DAY_AND_DATE = 16; // 0x10
+    field public static final int DATA_SOURCE_DAY_OF_WEEK = 13; // 0xd
+    field public static final int DATA_SOURCE_FAVORITE_CONTACT = 14; // 0xe
+    field public static final int DATA_SOURCE_NEXT_EVENT = 9; // 0x9
+    field public static final int DATA_SOURCE_RETAIL_CHAT = 11; // 0xb
+    field public static final int DATA_SOURCE_RETAIL_STEP_COUNT = 10; // 0xa
+    field public static final int DATA_SOURCE_STEP_COUNT = 4; // 0x4
+    field public static final int DATA_SOURCE_SUNRISE_SUNSET = 12; // 0xc
+    field public static final int DATA_SOURCE_TIME_AND_DATE = 3; // 0x3
+    field public static final int DATA_SOURCE_UNREAD_NOTIFICATION_COUNT = 7; // 0x7
+    field public static final int DATA_SOURCE_WATCH_BATTERY = 1; // 0x1
+    field public static final int DATA_SOURCE_WORLD_CLOCK = 5; // 0x5
+    field public static final int NO_DATA_SOURCE = -1; // 0xffffffff
   }
 
-  public static final class ProviderInfoRetriever.ProviderInfo {
-    method public int getComplicationSlotId();
-    method public androidx.wear.complications.ComplicationProviderInfo? getInfo();
-    property public final int complicationSlotId;
-    property public final androidx.wear.complications.ComplicationProviderInfo? info;
-  }
-
-  public static final class ProviderInfoRetriever.ServiceDisconnectedException extends java.lang.Exception {
-    ctor public ProviderInfoRetriever.ServiceDisconnectedException();
-  }
-
-  public final class ProviderInfoRetrieverKt {
-  }
-
-  public final class SystemProviders {
-    field public static final androidx.wear.complications.SystemProviders.Companion Companion;
-    field public static final int NO_PROVIDER = -1; // 0xffffffff
-    field public static final int PROVIDER_APP_SHORTCUT = 6; // 0x6
-    field public static final int PROVIDER_DATE = 2; // 0x2
-    field public static final int PROVIDER_DAY_AND_DATE = 16; // 0x10
-    field public static final int PROVIDER_DAY_OF_WEEK = 13; // 0xd
-    field public static final int PROVIDER_FAVORITE_CONTACT = 14; // 0xe
-    field public static final int PROVIDER_NEXT_EVENT = 9; // 0x9
-    field public static final int PROVIDER_RETAIL_CHAT = 11; // 0xb
-    field public static final int PROVIDER_RETAIL_STEP_COUNT = 10; // 0xa
-    field public static final int PROVIDER_STEP_COUNT = 4; // 0x4
-    field public static final int PROVIDER_SUNRISE_SUNSET = 12; // 0xc
-    field public static final int PROVIDER_TIME_AND_DATE = 3; // 0x3
-    field public static final int PROVIDER_UNREAD_NOTIFICATION_COUNT = 7; // 0x7
-    field public static final int PROVIDER_WATCH_BATTERY = 1; // 0x1
-    field public static final int PROVIDER_WORLD_CLOCK = 5; // 0x5
-  }
-
-  public static final class SystemProviders.Companion {
+  public static final class SystemDataSources.Companion {
   }
 
 }

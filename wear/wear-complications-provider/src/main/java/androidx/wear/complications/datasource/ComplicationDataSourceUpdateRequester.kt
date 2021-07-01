@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.wear.complications
+package androidx.wear.complications.datasource
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -21,33 +21,39 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.RestrictTo
+import androidx.wear.complications.ComplicationDataSourceUpdateRequesterConstants
 
 /**
- * Allows complication providers to request update calls from the system. This effectively allows
- * providers to push updates to the system outside of the update request cycle.
+ * Allows complication complication data source to request update calls from the system. This
+ * effectively allows complication data source to push updates to the system outside of the update
+ * request cycle.
+ *
+ * @param context The [ComplicationDataSourceService]'s [Context]
+ * @param complicationDataSourceComponent The [ComponentName] of the ComplicationDataSourceService]
+ * to reload.
  */
-public class ProviderUpdateRequester(
+public class ComplicationDataSourceUpdateRequester(
     private val context: Context,
-    private val providerComponent: ComponentName
+    private val complicationDataSourceComponent: ComponentName
 ) {
     /**
      * Requests that the system call
-     * [onComplicationUpdate][ComplicationProviderService.onComplicationRequest] on the specified
-     * provider, for all active complications using that provider.
+     * [onComplicationUpdate][ComplicationDataSourceService.onComplicationRequest] on the specified
+     * complication data source, for all active complications using that complication data source.
      *
      * This will do nothing if no active complications are configured to use the specified
-     * provider.
+     * omplication data source.
      *
-     * This will also only work if called from the same package as the provider.
+     * This will also only work if called from the same package as the omplication data source.
      */
     @SuppressLint("PendingIntentMutability")
     public fun requestUpdateAll() {
         val intent = Intent(ACTION_REQUEST_UPDATE_ALL)
         intent.setPackage(UPDATE_REQUEST_RECEIVER_PACKAGE)
-        intent.putExtra(EXTRA_PROVIDER_COMPONENT, providerComponent)
+        intent.putExtra(EXTRA_PROVIDER_COMPONENT, complicationDataSourceComponent)
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
-            ProviderUpdateRequesterConstants.EXTRA_PENDING_INTENT,
+            ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
             PendingIntent.getActivity(context, 0, Intent(""), 0)
         )
         context.sendBroadcast(intent)
@@ -55,30 +61,30 @@ public class ProviderUpdateRequester(
 
     /**
      * Requests that the system call
-     * [onComplicationUpdate][ComplicationProviderService.onComplicationRequest] on the specified
-     * provider, for the given complication ids. Inactive complications are ignored, as are
-     * complications configured to use a different provider.
+     * [onComplicationUpdate][ComplicationDataSourceService.onComplicationRequest] on the specified
+     * complication data source, for the given complication ids. Inactive complications are ignored,
+     * as are complications configured to use a different complication data source.
      *
-     * @param complicationInstanceIds The system's IDs for the complications to be updated as provided
-     * to [ComplicationProviderService.onComplicationActivated] and
-     * [ComplicationProviderService.onComplicationRequest].
+     * @param complicationInstanceIds The system's IDs for the complications to be updated as
+     * provided to [ComplicationDataSourceService.onComplicationActivated] and
+     * [ComplicationDataSourceService.onComplicationRequest].
      */
     @SuppressLint("PendingIntentMutability")
     public fun requestUpdate(vararg complicationInstanceIds: Int) {
         val intent = Intent(ACTION_REQUEST_UPDATE)
         intent.setPackage(UPDATE_REQUEST_RECEIVER_PACKAGE)
-        intent.putExtra(EXTRA_PROVIDER_COMPONENT, providerComponent)
+        intent.putExtra(EXTRA_PROVIDER_COMPONENT, complicationDataSourceComponent)
         intent.putExtra(EXTRA_COMPLICATION_IDS, complicationInstanceIds)
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
-            ProviderUpdateRequesterConstants.EXTRA_PENDING_INTENT,
+            ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
             PendingIntent.getActivity(context, 0, Intent(""), 0)
         )
         context.sendBroadcast(intent)
     }
 
     public companion object {
-        /** The package of the service that accepts provider requests.  */
+        /** The package of the service that accepts complication data source requests.  */
         private const val UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app"
 
         /** @hide

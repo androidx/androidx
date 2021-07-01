@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.wear.complications.provider.samples
+package androidx.wear.complications;
 
-import androidx.wear.complications.data.PlainComplicationText
+import androidx.annotation.RestrictTo;
 
-internal fun plainText(text: CharSequence) =
-    PlainComplicationText.Builder(text).build()
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ComplicationDataSourceUpdateRequesterConstants {
+    public static final String EXTRA_PENDING_INTENT =
+            "android.support.wearable.complications.EXTRA_PENDING_INTENT";
+
+    private ComplicationDataSourceUpdateRequesterConstants() {}
+}

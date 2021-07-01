@@ -28,8 +28,8 @@ import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
@@ -121,9 +121,9 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
         ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
         .build()
 
     public override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))

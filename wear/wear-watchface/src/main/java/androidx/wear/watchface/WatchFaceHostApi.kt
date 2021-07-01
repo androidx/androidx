@@ -22,7 +22,7 @@ import android.os.Handler
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import androidx.wear.complications.SystemProviders.ProviderId
+import androidx.wear.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
@@ -69,9 +69,9 @@ public interface WatchFaceHostApi {
      *
      * Any ids not in the provided [complicationSlotIds] will be considered inactive.
      *
-     * If providers and complication data types have been configured, the data received will
-     * match the type chosen by the user. If no provider has been configured, data of type
-     * [ComplicationData.TYPE_NOT_CONFIGURED] will be received.
+     * If complication data sources and complication data types have been configured, the data
+     * received will match the type chosen by the user. If no complication data source has been
+     * configured, data of type [ComplicationData.TYPE_NOT_CONFIGURED] will be received.
      *
      * Ids here are chosen by the watch face to represent each complication and can be any
      * integer.
@@ -79,38 +79,40 @@ public interface WatchFaceHostApi {
     public fun setActiveComplicationSlots(complicationSlotIds: IntArray)
 
     /**
-     * Accepts a list of custom providers to attempt to set as the default provider for the
-     * specified watch face [ComplicationSlot] id. The custom providers are tried in turn, if the
-     * first doesn't exist then the next one is tried and so on. If none of them exist then the
-     * specified system provider is set as the default instead.
+     * Accepts a list of custom complication data sources to attempt to set as the default
+     * complication data source for the specified watch face [ComplicationSlot] id. The custom
+     * complication data sources are tried in turn, if the first doesn't exist then the next one
+     * is tried and so on. If none of them exist then the specified system complication data
+     * source is set as the default instead.
      *
-     * This will do nothing if the providers are not installed, or if the specified type is
-     * not supported by the providers, or if the user has already selected a provider for the
-     * [ComplicationSlot].
+     * This will do nothing if the complication data sources are not installed, or if the specified
+     * type is not supported by the complication data sources, or if the user has already selected a
+     * complication data source for the [ComplicationSlot].
      *
      * Note that if the watch face has not yet been granted the `RECEIVE_COMPLICATION_DATA`
-     * permission, it will not be able to receive data from the provider unless the provider is
-     * from the same app package as the watch face, or the provider lists the watch face as a
-     * safe watch face. For system providers that may be used before your watch face has the
-     * permission, use [setDefaultSystemComplicationProvider] with a safe provider
-     * instead.
+     * permission, it will not be able to receive data from the complication data source unless the
+     * complication data source is from the same app package as the watch face, or the complication
+     * data source lists the watch face as a safe watch face. For system complication data sources
+     * that may be used before your watch face has the permission, use a safe complication data
+     * source instead.
      *
-     * A provider not satisfying the above conditions may still be set as a default using
+     * A complication data source not satisfying the above conditions may still be set as a default using
      * this method, but the watch face will receive placeholder data of type
      * [ComplicationData.TYPE_NO_PERMISSION] until the permission has been granted.
      *
      * @param complicationSlotId The [ComplicationSlot] id.
-     * @param providers The list of non-system providers to try in order before falling back to
+     * @param dataSources data sources The list of non-system complication data sources to try in
+     * order before falling back to
      * fallbackSystemProvider. This list may be null.
-     * @param fallbackSystemProvider The system provider to use if none of the providers could be
+     * @param fallbackSystemProvider The system complication data source to use if none of the complication data sources could be
      * used.
      * @param type The type of complication data that should be provided. Must be one of the types
      * defined in [ComplicationData].
      */
-    public fun setDefaultComplicationProviderWithFallbacks(
+    public fun setDefaultComplicationDataSourceWithFallbacks(
         complicationSlotId: Int,
-        providers: List<ComponentName>?,
-        @ProviderId fallbackSystemProvider: Int,
+        dataSources: List<ComponentName>?,
+        @DataSourceId fallbackSystemProvider: Int,
         type: Int
     )
 

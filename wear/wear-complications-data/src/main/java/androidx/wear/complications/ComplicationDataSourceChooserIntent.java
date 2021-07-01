@@ -29,18 +29,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * Utilities to allow watch faces to launch the complication provider chooser.
+ * Utilities to allow watch faces to launch the complication data source chooser.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ProviderChooserIntent {
+public class ComplicationDataSourceChooserIntent {
 
     /**
-     * The intent action used to open the provider chooser activity.
+     * The intent action used to open the complication data source chooser activity.
      */
     @SuppressWarnings("ActionValue")
-    private static final String ACTION_CHOOSE_PROVIDER =
+    private static final String ACTION_CHOOSE_DATA_SOURCE =
             "com.google.android.clockwork.home.complications.ACTION_CHOOSE_PROVIDER";
 
     /**
@@ -93,10 +93,10 @@ public class ProviderChooserIntent {
             "androidx.wear.complications.EXTRA_WATCHFACE_INSTANCE_ID";
 
     /**
-     * Key for an extra used to include details of the chosen provider in the activity result
-     * returned by the provider chooser.
+     * Key for an extra used to include details of the chosen complication data source in the
+     * activity result returned by the complication data source chooser.
      *
-     * @see #createProviderChooserIntent
+     * @see #createComplicationDataSourceChooserIntent
      */
     @SuppressWarnings("ActionValue")
     public static final String EXTRA_PROVIDER_INFO =
@@ -104,8 +104,8 @@ public class ProviderChooserIntent {
 
     /**
      * Returns an intent that may be used to start an activity to allow the user to select a
-     * provider for the given complication. The activity will show a list of all providers that can
-     * supply data of at least one of the {@code supportedTypes}.
+     * complication data source for the given complication. The activity will show a list of all
+     * complication data source that can supply data of at least one of the {@code supportedTypes}.
      *
      * <p>This shouldn't be used by WatchFaces directly. Instead the androidx WatchFaceService calls
      * this as needed on your behalf.
@@ -115,14 +115,15 @@ public class ProviderChooserIntent {
      * it will be easier to use {@link ComplicationHelperActivity} to perform the permission request
      * automatically if it is not already granted.
      *
-     * <p>When the user chooses a provider, the configuration will be set up in the complications
-     * system - the watch face does not need to do anything else.
+     * <p>When the user chooses a complication data source, the configuration will be set up in the
+     * complications system - the watch face does not need to do anything else.
      *
      * <p>The activity must be started using {@link Activity#startActivityForResult}, or else this
      * will not work. The result delivered back to your activity will have a result code of {@link
-     * Activity#RESULT_OK RESULT_OK} if a provider was successfully set, or a result code of {@link
-     * Activity#RESULT_CANCELED RESULT_CANCELED} if no provider was set. In the case where a
-     * provider was set, {@link ComplicationProviderInfo} for the chosen provider will be included
+     * Activity#RESULT_OK RESULT_OK} if a complication data source was successfully set, or a result
+     * code of {@link Activity#RESULT_CANCELED RESULT_CANCELED} if no complication data source was
+     * set. In the case where a complication data source was set,
+     * {@link ComplicationProviderInfo} for the chosen complication data source will be included
      * in the data intent of the result, as an extra with the key {@link #EXTRA_PROVIDER_INFO}.
      *
      * <p>The package of the calling Activity must match the package of the watch face, or this will
@@ -133,16 +134,16 @@ public class ProviderChooserIntent {
      *     This must match the id passed in when the watch face calls
      *     WatchFaceService.Engine#setActiveComplications.
      * @param supportedTypes the types supported by the complication, in decreasing order of
-     *     preference. If a provider can supply data for more than one of these types, the type
+     *     preference. If a data source can supply data for more than one of these types, the type
      *     chosen will be whichever was specified first.
      * @see ComplicationHelperActivity
      */
     @NonNull
-    public static Intent createProviderChooserIntent(
+    public static Intent createComplicationDataSourceChooserIntent(
             @NonNull ComponentName watchFace,
             int watchFaceComplicationId,
             @NonNull @ComplicationData.ComplicationType int... supportedTypes) {
-        Intent intent = new Intent(ACTION_CHOOSE_PROVIDER);
+        Intent intent = new Intent(ACTION_CHOOSE_DATA_SOURCE);
         intent.putExtra(EXTRA_WATCH_FACE_COMPONENT_NAME, watchFace);
         intent.putExtra(EXTRA_COMPLICATION_ID, watchFaceComplicationId);
         intent.putExtra(EXTRA_SUPPORTED_TYPES, supportedTypes);
@@ -150,9 +151,9 @@ public class ProviderChooserIntent {
     }
 
     /**
-     * Starts an activity to allow the user to select a provider for the given complication. The
-     * activity will show a list of all providers that can supply data of at least one of the {@code
-     * supportedTypes}.
+     * Starts an activity to allow the user to select a data source for the given complication. The
+     * activity will show a list of all data sources that can supply data of at least one of the
+     * {@code supportedTypes}.
      *
      * <p>This should only be used if the user has already granted the {@code
      * com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA} permission. In most cases
@@ -160,7 +161,8 @@ public class ProviderChooserIntent {
      * automatically if it is not already granted.
      *
      * <p>This is intended for use when starting the chooser directly from the watch face. If the
-     * chooser is being started from an Activity, use {@link #createProviderChooserIntent} instead.
+     * chooser is being started from an Activity, use
+     * {@link #createComplicationDataSourceChooserIntent} instead.
      *
      * <p>The package of the caller must match the package of the watch face, or this will not work.
      *
@@ -170,7 +172,7 @@ public class ProviderChooserIntent {
      *     This must match the id passed in when the watch face calls
      *     WatchFaceService.Engine#setActiveComplications.
      * @param supportedTypes the types supported by the complication, in decreasing order of
-     *     preference. If a provider can supply data for more than one of these types, the type
+     *     preference. If a data source can supply data for more than one of these types, the type
      *     chosen will be whichever was specified first.
      */
     @SuppressLint("PendingIntentMutability")
@@ -179,8 +181,8 @@ public class ProviderChooserIntent {
             @NonNull ComponentName watchFace,
             int watchFaceComplicationId,
             @NonNull @ComplicationData.ComplicationType int... supportedTypes) {
-        Intent intent =
-                createProviderChooserIntent(watchFace, watchFaceComplicationId, supportedTypes);
+        Intent intent = createComplicationDataSourceChooserIntent(
+                watchFace, watchFaceComplicationId, supportedTypes);
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
                 EXTRA_PENDING_INTENT, PendingIntent.getActivity(context, 0, new Intent(""), 0));
@@ -188,5 +190,5 @@ public class ProviderChooserIntent {
         context.startActivity(intent);
     }
 
-    private ProviderChooserIntent() {}
+    private ComplicationDataSourceChooserIntent() {}
 }

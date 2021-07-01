@@ -1,30 +1,40 @@
 // Signature format: 4.0
-package androidx.wear.complications {
+package androidx.wear.complications.datasource {
 
-  public abstract class ComplicationProviderService extends android.app.Service {
-    ctor public ComplicationProviderService();
+  public abstract class ComplicationDataSourceService extends android.app.Service {
+    ctor public ComplicationDataSourceService();
     method public abstract androidx.wear.complications.data.ComplicationData? getPreviewData(androidx.wear.complications.data.ComplicationType type);
     method public final android.os.IBinder? onBind(android.content.Intent intent);
     method @UiThread public void onComplicationActivated(int complicationInstanceId, androidx.wear.complications.data.ComplicationType type);
     method @UiThread public void onComplicationDeactivated(int complicationInstanceId);
-    method @UiThread public abstract void onComplicationRequest(androidx.wear.complications.ComplicationRequest request, androidx.wear.complications.ComplicationProviderService.ComplicationRequestListener listener);
+    method @UiThread public abstract void onComplicationRequest(androidx.wear.complications.datasource.ComplicationRequest request, androidx.wear.complications.datasource.ComplicationDataSourceService.ComplicationRequestListener listener);
     field public static final String ACTION_COMPLICATION_UPDATE_REQUEST = "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST";
-    field public static final String CATEGORY_PROVIDER_CONFIG = "android.support.wearable.complications.category.PROVIDER_CONFIG";
-    field public static final androidx.wear.complications.ComplicationProviderService.Companion Companion;
+    field public static final String CATEGORY_DATA_SOURCE_CONFIG = "android.support.wearable.complications.category.PROVIDER_CONFIG";
+    field public static final androidx.wear.complications.datasource.ComplicationDataSourceService.Companion Companion;
     field public static final String EXTRA_CONFIG_COMPLICATION_ID = "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_ID";
     field public static final String EXTRA_CONFIG_COMPLICATION_TYPE = "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_TYPE";
-    field public static final String EXTRA_CONFIG_PROVIDER_COMPONENT = "android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT";
-    field public static final String METADATA_KEY_PROVIDER_CONFIG_ACTION = "android.support.wearable.complications.PROVIDER_CONFIG_ACTION";
+    field public static final String EXTRA_CONFIG_DATA_SOURCE_COMPONENT = "android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT";
+    field public static final String METADATA_KEY_DATA_SOURCE_CONFIG_ACTION = "android.support.wearable.complications.PROVIDER_CONFIG_ACTION";
     field public static final String METADATA_KEY_SAFE_WATCH_FACES = "android.support.wearable.complications.SAFE_WATCH_FACES";
     field public static final String METADATA_KEY_SUPPORTED_TYPES = "android.support.wearable.complications.SUPPORTED_TYPES";
     field public static final String METADATA_KEY_UPDATE_PERIOD_SECONDS = "android.support.wearable.complications.UPDATE_PERIOD_SECONDS";
   }
 
-  public static final class ComplicationProviderService.Companion {
+  public static final class ComplicationDataSourceService.Companion {
   }
 
-  public static interface ComplicationProviderService.ComplicationRequestListener {
+  public static interface ComplicationDataSourceService.ComplicationRequestListener {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void onComplicationData(androidx.wear.complications.data.ComplicationData? complicationData) throws android.os.RemoteException;
+  }
+
+  public final class ComplicationDataSourceUpdateRequester {
+    ctor public ComplicationDataSourceUpdateRequester(android.content.Context context, android.content.ComponentName complicationDataSourceComponent);
+    method public void requestUpdate(int... complicationInstanceIds);
+    method public void requestUpdateAll();
+    field public static final androidx.wear.complications.datasource.ComplicationDataSourceUpdateRequester.Companion Companion;
+  }
+
+  public static final class ComplicationDataSourceUpdateRequester.Companion {
   }
 
   public final class ComplicationRequest {
@@ -33,16 +43,6 @@ package androidx.wear.complications {
     method public androidx.wear.complications.data.ComplicationType getComplicationType();
     property public final int complicationInstanceId;
     property public final androidx.wear.complications.data.ComplicationType complicationType;
-  }
-
-  public final class ProviderUpdateRequester {
-    ctor public ProviderUpdateRequester(android.content.Context context, android.content.ComponentName providerComponent);
-    method public void requestUpdate(int... complicationInstanceIds);
-    method public void requestUpdateAll();
-    field public static final androidx.wear.complications.ProviderUpdateRequester.Companion Companion;
-  }
-
-  public static final class ProviderUpdateRequester.Companion {
   }
 
 }

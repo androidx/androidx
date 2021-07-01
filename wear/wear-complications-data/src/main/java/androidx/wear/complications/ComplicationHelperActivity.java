@@ -40,16 +40,17 @@ import java.util.Objects;
 /**
  * Activity to handle permission requests for complications.
  *
- * <p>This can be used to start the provider chooser, making a permission request if necessary, or
- * to just make a permission request, and update all active complications if the permission is
- * granted.
+ * <p>This can be used to start the complication data source chooser, making a permission request
+ * if necessary, or to just make a permission request, and update all active complications if the
+ * permission is granted.
  *
  * <p>To use, add this activity to your app, and also add the {@code
  * com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA} permission.
  *
- * <p>Then, to start the provider chooser, use {@link #createProviderChooserHelperIntent} to obtain
- * an intent. If the permission has not yet been granted, the permission will be requested and the
- * provider chooser will only be started if the request is accepted by the user.
+ * <p>Then, to start the complication data source chooser chooser, use
+ * {@link #createComplicationDataSourceChooserHelperIntent} to obtain an intent. If the
+ * permission has not yet been granted, the permission will be requested and the complication
+ * data source chooser chooser will only be started if the request is accepted by the user.
  *
  * <p>Or, to request the permission, for instance if {@link ComplicationData} of {@link
  * ComplicationData#TYPE_NO_PERMISSION TYPE_NO_PERMISSION} has been received and tapped on, use
@@ -64,14 +65,16 @@ public final class ComplicationHelperActivity extends Activity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     /**
-     * Whether to invoke a specified activity instead of the system's provider chooser.
+     * Whether to invoke a specified activity instead of the system's complication data source
+     * chooser.
      *
      * To be used in tests.
      */
-    public static boolean useTestComplicationProviderChooserActivity = false;
+    public static boolean useTestComplicationDataSourceChooserActivity = false;
 
     /**
-     * Whether to skip th permission check and directly attempt to invoke the provider chooser.
+     * Whether to skip th permission check and directly attempt to invoke the complication data
+     * source chooser.
      *
      * To be used in tests.
      */
@@ -97,7 +100,7 @@ public final class ComplicationHelperActivity extends Activity
     public static final String ACTION_PERMISSION_REQUEST_ONLY =
             "android.support.wearable.complications.ACTION_PERMISSION_REQUEST_ONLY";
 
-    /** The package of the service that accepts provider requests. */
+    /** The package of the service that accepts complication data source requests. */
     private static final String UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app";
 
     private static final int START_REQUEST_CODE_PROVIDER_CHOOSER = 1;
@@ -129,15 +132,16 @@ public final class ComplicationHelperActivity extends Activity
 
         switch (Objects.requireNonNull(intent.getAction())) {
             case ACTION_START_PROVIDER_CHOOSER:
-                mWatchFace =
-                        intent.getParcelableExtra(
-                                ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
+                mWatchFace = intent.getParcelableExtra(
+                        ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
                 mWfComplicationId =
-                        intent.getIntExtra(ProviderChooserIntent.EXTRA_COMPLICATION_ID, 0);
-                mTypes = intent.getIntArrayExtra(ProviderChooserIntent.EXTRA_SUPPORTED_TYPES);
+                        intent.getIntExtra(
+                                ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_ID, 0);
+                mTypes = intent.getIntArrayExtra(
+                        ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES);
                 mAdditionalExtras = getAdditionalExtras(intent);
                 if (checkPermission()) {
-                    startProviderChooser();
+                    startComplicationDataSourceChooser();
                 } else {
                     ActivityCompat.requestPermissions(
                             this,
@@ -146,9 +150,8 @@ public final class ComplicationHelperActivity extends Activity
                 }
                 break;
             case ACTION_PERMISSION_REQUEST_ONLY:
-                mWatchFace =
-                        intent.getParcelableExtra(
-                                ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
+                mWatchFace = intent.getParcelableExtra(
+                    ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
                 if (checkPermission()) {
                     finish();
                 } else {
@@ -173,7 +176,7 @@ public final class ComplicationHelperActivity extends Activity
         }
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (requestCode == PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER) {
-                startProviderChooser();
+                startComplicationDataSourceChooser();
             } else {
                 finish();
             }
@@ -200,27 +203,27 @@ public final class ComplicationHelperActivity extends Activity
     }
 
     /**
-     * Returns an intent that may be used to start the provider chooser activity via the
-     * ComplicationHelperActivity. This allows the required permission to be checked before the
-     * provider chooser is displayed.
+     * Returns an intent that may be used to start the complication data source chooser activity via
+     * the ComplicationHelperActivity. This allows the required permission to be checked before the
+     * complication data source chooser is displayed.
      *
      * <p>To use this, the ComplicationHelperActivity must be added to your app, and your app must
      * include the {@code com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA}
      * permission in its manifest.
      *
-     * <p>The provider chooser activity will show a list of all providers that can supply data of at
-     * least one of the {@code supportedTypes}.
+     * <p>The complication data source chooser activity will show a list of all complication data
+     * sources that can supply data of at least one of the {@code supportedTypes}.
      *
-     * <p>When the user chooses a provider, the configuration will be set up in the complications
-     * system - the watch face does not need to do anything else.
+     * <p>When the user chooses a complication data source, the configuration will be set up in the
+     * complications system - the watch face does not need to do anything else.
      *
      * <p>The activity may be started using {@link Activity#startActivityForResult}. The result
      * delivered back to your activity will have a result code of {@link Activity#RESULT_OK
-     * RESULT_OK} if a provider was successfully set, or a result code of {@link
-     * Activity#RESULT_CANCELED RESULT_CANCELED} if no provider was set. In the case where a
-     * provider was set, {@link ComplicationProviderInfo} for the chosen provider will be included
-     * in the data intent of the result, as an extra with the key
-     * android.support.wearable.complications.EXTRA_PROVIDER_INFO.
+     * RESULT_OK} if a complication data source was successfully set, or a result code of {@link
+     * Activity#RESULT_CANCELED RESULT_CANCELED} if no complication data source was set. In the case
+     * where a complication data source was set, {@link ComplicationProviderInfo} for the chosen
+     * complication data source will be included in the data intent of the result, as an extra
+     * with the key android.support.wearable.complications.EXTRA_PROVIDER_INFO.
      *
      * <p>The package of the calling app must match the package of the watch face, or this will not
      * work.
@@ -235,13 +238,13 @@ public final class ComplicationHelperActivity extends Activity
      *                                WatchFaceService.Engine#setActiveComplications.
      * @param supportedTypes          the types supported by the complication, in decreasing
      *                                order of
-     *                                preference. If a provider can supply data for more than one
-     *                                of these types, the type
-     *                                chosen will be whichever was specified first.
+     *                                preference. If a complication data source can supply data for
+     *                                more than one of these types, the type chosen will be
+     *                                whichever was specified first.
      * @param watchFaceInstanceId     The ID of the watchface being edited.
      */
     @NonNull
-    public static Intent createProviderChooserHelperIntent(
+    public static Intent createComplicationDataSourceChooserHelperIntent(
             @NonNull Context context,
             @NonNull ComponentName watchFace,
             int watchFaceComplicationId,
@@ -249,17 +252,21 @@ public final class ComplicationHelperActivity extends Activity
             @Nullable String watchFaceInstanceId) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_START_PROVIDER_CHOOSER);
-        intent.putExtra(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME, watchFace);
-        intent.putExtra(ProviderChooserIntent.EXTRA_COMPLICATION_ID, watchFaceComplicationId);
+        intent.putExtra(
+                ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME, watchFace);
+        intent.putExtra(
+                ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_ID, watchFaceComplicationId);
         if (watchFaceInstanceId != null) {
-            intent.putExtra(ProviderChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID, watchFaceInstanceId);
+            intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID,
+                    watchFaceInstanceId);
         }
         int[] wireSupportedTypes = new int[supportedTypes.size()];
         int i = 0;
         for (ComplicationType supportedType : supportedTypes) {
             wireSupportedTypes[i++] = supportedType.toWireComplicationType();
         }
-        intent.putExtra(ProviderChooserIntent.EXTRA_SUPPORTED_TYPES, wireSupportedTypes);
+        intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES,
+                wireSupportedTypes);
         return intent;
     }
 
@@ -287,13 +294,14 @@ public final class ComplicationHelperActivity extends Activity
             @NonNull Context context, @NonNull ComponentName watchFace) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_PERMISSION_REQUEST_ONLY);
-        intent.putExtra(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME, watchFace);
+        intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME,
+                watchFace);
         return intent;
     }
 
-    private void startProviderChooser() {
+    private void startComplicationDataSourceChooser() {
         Intent intent =
-                ProviderChooserIntent.createProviderChooserIntent(
+                ComplicationDataSourceChooserIntent.createComplicationDataSourceChooserIntent(
                         mWatchFace, mWfComplicationId, mTypes);
         // Add the extras that were provided to the ComplicationHelperActivity. This is done by
         // first taking the additional extras and adding to that anything that was set in the
@@ -302,10 +310,10 @@ public final class ComplicationHelperActivity extends Activity
         Bundle extras = new Bundle(mAdditionalExtras);
         extras.putAll(intent.getExtras());
         intent.replaceExtras(extras);
-        if (useTestComplicationProviderChooserActivity) {
+        if (useTestComplicationDataSourceChooserActivity) {
             intent.setComponent(new ComponentName(
                     "androidx.wear.watchface.editor.test",
-                    "androidx.wear.watchface.editor.TestComplicationProviderChooserActivity"));
+                    "androidx.wear.watchface.editor.TestComplicationDataSourceChooserActivity"));
         }
         startActivityForResult(intent, START_REQUEST_CODE_PROVIDER_CHOOSER);
     }
@@ -317,7 +325,7 @@ public final class ComplicationHelperActivity extends Activity
         intent.putExtra(EXTRA_WATCH_FACE_COMPONENT, watchFaceComponent);
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
-                ProviderUpdateRequesterConstants.EXTRA_PENDING_INTENT,
+                ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
                 PendingIntent.getActivity(this, 0, new Intent(""), 0));
         sendBroadcast(intent);
     }
@@ -329,9 +337,9 @@ public final class ComplicationHelperActivity extends Activity
      */
     private Bundle getAdditionalExtras(Intent intent) {
         Bundle extras = intent.getExtras();
-        extras.remove(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
-        extras.remove(ProviderChooserIntent.EXTRA_COMPLICATION_ID);
-        extras.remove(ProviderChooserIntent.EXTRA_SUPPORTED_TYPES);
+        extras.remove(ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
+        extras.remove(ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_ID);
+        extras.remove(ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES);
         return extras;
     }
 }

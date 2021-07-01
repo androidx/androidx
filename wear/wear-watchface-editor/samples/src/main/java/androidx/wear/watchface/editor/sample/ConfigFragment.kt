@@ -35,7 +35,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.recyclerview.widget.RecyclerView
-import androidx.wear.complications.ProviderInfoRetriever
+import androidx.wear.complications.ComplicationDataSourceInfoRetriever
 import androidx.wear.watchface.R
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
@@ -133,7 +133,7 @@ internal class ConfigFragment : Fragment() {
     }
 
     private fun createBackgroundConfigOption(): ConfigOption {
-        // Initially assume there is no background image provider.
+        // Initially assume there is no background image data source.
         val backgroundConfigOption = ConfigOption(
             id = Constants.KEY_BACKGROUND_IMAGE_SETTINGS,
             icon = Icon.createWithResource(
@@ -144,11 +144,12 @@ internal class ConfigFragment : Fragment() {
             summary = resources.getString(R.string.none_background_image_provider)
         )
 
-        // Update the summary with the actual background complication provider name, if there is
+        // Update the summary with the actual background complication data source name, if there is
         // one.
         watchFaceConfigActivity.coroutineScope.launch {
-            val providerInfoRetriever = ProviderInfoRetriever(activity as WatchFaceConfigActivity)
-            val infoArray = providerInfoRetriever.retrieveProviderInfo(
+            val dataSourceInfoRetriever =
+                ComplicationDataSourceInfoRetriever(activity as WatchFaceConfigActivity)
+            val infoArray = dataSourceInfoRetriever.retrieveComplicationDataSourceInfo(
                 watchFaceConfigActivity.editorSession.watchFaceComponentName,
                 intArrayOf(watchFaceConfigActivity.editorSession.backgroundComplicationSlotId!!)
             )
@@ -158,7 +159,7 @@ internal class ConfigFragment : Fragment() {
                 }
                 configViewAdapter.notifyDataSetChanged()
             }
-            providerInfoRetriever.close()
+            dataSourceInfoRetriever.close()
         }
         return backgroundConfigOption
     }

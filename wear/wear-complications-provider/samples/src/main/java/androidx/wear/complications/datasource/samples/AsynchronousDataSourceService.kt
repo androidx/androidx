@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.wear.complications.provider.samples
+package androidx.wear.complications.datasource.samples
 
 import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
-import androidx.wear.complications.ComplicationProviderService
-import androidx.wear.complications.ComplicationRequest
+import androidx.wear.complications.datasource.ComplicationDataSourceService
+import androidx.wear.complications.datasource.ComplicationRequest
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
 import java.util.concurrent.Executors
 
-/** A minimal complication provider which reports the ID of the complication asynchronously. */
-class AsynchronousProviderService : ComplicationProviderService() {
+/** A minimal complication data source which reports the ID of the complication asynchronously. */
+class AsynchronousDataSourceService : ComplicationDataSourceService() {
     val executor = Executors.newFixedThreadPool(5)
 
     override fun onComplicationRequest(

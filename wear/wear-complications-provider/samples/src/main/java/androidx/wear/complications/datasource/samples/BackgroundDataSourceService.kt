@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.wear.complications.provider.samples
+package androidx.wear.complications.datasource.samples
 
 import android.content.ComponentName
 import android.os.Handler
 import android.os.Looper
-import androidx.wear.complications.ComplicationProviderService
-import androidx.wear.complications.ComplicationRequest
-import androidx.wear.complications.ProviderUpdateRequester
+import androidx.wear.complications.datasource.ComplicationDataSourceService
+import androidx.wear.complications.datasource.ComplicationRequest
+import androidx.wear.complications.datasource.ComplicationDataSourceUpdateRequester
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
@@ -30,18 +30,18 @@ import androidx.wear.complications.data.ShortTextComplicationData
 const val UPDATE_CADEANCE_MS = 10000L
 
 var counter = 0
-var updateRequester: ProviderUpdateRequester? = null
+var updateRequester: ComplicationDataSourceUpdateRequester? = null
 
 /** Example where we push updates to a counter every 10 seconds. */
-class BackgroundProviderService : ComplicationProviderService() {
+class BackgroundDataSourceService : ComplicationDataSourceService() {
 
     private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate() {
         if (updateRequester == null) {
-            updateRequester = ProviderUpdateRequester(
+            updateRequester = ComplicationDataSourceUpdateRequester(
                 this,
-                ComponentName(this, BackgroundProviderService::class.java)
+                ComponentName(this, BackgroundDataSourceService::class.java)
             )
         }
     }

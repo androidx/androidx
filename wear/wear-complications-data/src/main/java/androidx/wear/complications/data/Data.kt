@@ -58,9 +58,9 @@ public sealed class ComplicationData constructor(
 }
 
 /**
- * Type that can be sent by any provider, regardless of the configured type, when the provider
- * has no data to be displayed. Watch faces may choose whether to render this in some way or
- * leave the slot empty.
+ * Type that can be sent by any complication data source, regardless of the configured type, when
+ * the complication data source has no data to be displayed. Watch faces may choose whether to
+ * render this in some way or  leave the slot empty.
  */
 public class NoDataComplicationData : ComplicationData(TYPE, null, null) {
     /** @hide */
@@ -76,9 +76,9 @@ public class NoDataComplicationData : ComplicationData(TYPE, null, null) {
 }
 
 /**
- * Type sent when the user has specified that an active complication should have no provider,
- * i.e. when the user has chosen "Empty" in the provider chooser. Providers cannot send data of
- * this type.
+ * Type sent when the user has specified that an active complication should have no complication
+ * data source, i.e. when the user has chosen "Empty" in the complication data source chooser.
+ * Complication data sources cannot send data of this type.
  */
 public class EmptyComplicationData : ComplicationData(TYPE, null, null) {
     /** @hide */
@@ -94,10 +94,10 @@ public class EmptyComplicationData : ComplicationData(TYPE, null, null) {
 }
 
 /**
- * Type sent when a complication does not have a provider configured. The system will send data
- * of this type to watch faces when the user has not chosen a provider for an active
- * complication, and the watch face has not set a default provider. Providers cannot send data
- * of this type.
+ * Type sent when a complication does not have a complication data source configured. The system
+ * will send data of this type to watch faces when the user has not chosen a complication data
+ * source for an active complication, and the watch face has not set a default complication data
+ * source. Complication data sources cannot send data of this type.
  */
 public class NotConfiguredComplicationData : ComplicationData(TYPE, null, null) {
     /** @hide */

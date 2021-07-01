@@ -19,7 +19,7 @@ package androidx.wear.watchface.client
 import android.graphics.Rect
 import android.os.Bundle
 import androidx.annotation.RestrictTo
-import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.ComplicationSlot
@@ -34,31 +34,31 @@ import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyle
  * @param bounds Screen space bounds of the [ComplicationSlot] in pixels.
  * @param boundsType The type of the complication's bounds.
  * @param supportedTypes The [ComplicationType]s supported by this complication.
- * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] for this complication.
- * @param defaultProviderType The default [ComplicationType] for this complication.
+ * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] for this complication.
+ * @param defaultDataSourceType The default [ComplicationType] for this complication.
  * @param isEnabled Whether or not the complication is currently enabled (i.e. it should be drawn).
  * @param isInitiallyEnabled Whether or not the complication was initially enabled before
  * considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or disable
  * complicationSlots.
  * @param currentType The [ComplicationType] of the complication's current [ComplicationData].
- * @param fixedComplicationProvider Whether or not the complication provider is fixed (i.e the user
- * can't configure it).
+ * @param fixedComplicationDataSource Whether or not the complication data source is fixed (i.e the
+ * user can't configure it).
  * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
- * provider chooser activity.
+ * complication data source chooser activity.
  */
 public class ComplicationSlotState(
     public val bounds: Rect,
     @ComplicationSlotBoundsType public val boundsType: Int,
     public val supportedTypes: List<ComplicationType>,
-    public val defaultProviderPolicy: DefaultComplicationProviderPolicy,
-    public val defaultProviderType: ComplicationType,
+    public val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
+    public val defaultDataSourceType: ComplicationType,
     @get:JvmName("isEnabled")
     public val isEnabled: Boolean,
     @get:JvmName("isInitiallyEnabled")
     public val isInitiallyEnabled: Boolean,
     public val currentType: ComplicationType,
-    @get:JvmName("isFixedComplicationProvider")
-    public val fixedComplicationProvider: Boolean,
+    @get:JvmName("isFixedComplicationDataSource")
+    public val fixedComplicationDataSource: Boolean,
     public val complicationConfigExtras: Bundle
 ) {
     /** @hide */
@@ -69,7 +69,7 @@ public class ComplicationSlotState(
         complicationStateWireFormat.bounds,
         complicationStateWireFormat.boundsType,
         complicationStateWireFormat.supportedTypes.map { ComplicationType.fromWireType(it) },
-        DefaultComplicationProviderPolicy(
+        DefaultComplicationDataSourcePolicy(
             complicationStateWireFormat.defaultProvidersToTry ?: emptyList(),
             complicationStateWireFormat.fallbackSystemProvider
         ),

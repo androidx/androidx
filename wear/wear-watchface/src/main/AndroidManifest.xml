@@ -17,7 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="androidx.wear.watchface">
   <queries>
     <intent>
-      <!-- Needed to have visibility on complication providers installed on the device. -->
+      <!-- Needed to have visibility on complication data sources installed on the device. -->
       <action
           android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
     </intent>
