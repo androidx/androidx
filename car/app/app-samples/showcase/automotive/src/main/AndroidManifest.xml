@@ -90,6 +90,7 @@
     <activity
         android:name="androidx.car.app.activity.CarAppActivity"
         android:exported="true"
+        android:launchMode="singleTask"
         android:label="Showcase">
 
       <intent-filter>
@@ -102,6 +103,7 @@
     <activity
         android:name="androidx.car.app.sample.showcase.automotive.DebugActivity"
         android:exported="true"
+        android:launchMode="singleTask"
         android:label="Showcase - Debug">
 
       <intent-filter>
