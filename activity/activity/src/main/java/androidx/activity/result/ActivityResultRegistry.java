@@ -67,7 +67,7 @@ public abstract class ActivityResultRegistry {
     private Random mRandom = new Random();
 
     private final Map<Integer, String> mRcToKey = new HashMap<>();
-    private final Map<String, Integer> mKeyToRc = new HashMap<>();
+    final Map<String, Integer> mKeyToRc = new HashMap<>();
     private final Map<String, LifecycleContainer> mKeyToLifecycleContainers = new HashMap<>();
     ArrayList<String> mLaunchedKeys = new ArrayList<>();
 
@@ -163,7 +163,8 @@ public abstract class ActivityResultRegistry {
             @Override
             public void launch(I input, @Nullable ActivityOptionsCompat options) {
                 mLaunchedKeys.add(key);
-                onLaunch(requestCode, contract, input, options);
+                Integer innerCode = mKeyToRc.get(key);
+                onLaunch((innerCode != null) ? innerCode : requestCode, contract, input, options);
             }
 
             @Override
@@ -221,7 +222,8 @@ public abstract class ActivityResultRegistry {
             @Override
             public void launch(I input, @Nullable ActivityOptionsCompat options) {
                 mLaunchedKeys.add(key);
-                onLaunch(requestCode, contract, input, options);
+                Integer innerCode = mKeyToRc.get(key);
+                onLaunch((innerCode != null) ? innerCode : requestCode, contract, input, options);
             }
 
             @Override
@@ -277,9 +279,9 @@ public abstract class ActivityResultRegistry {
      */
     public final void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putIntegerArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_RCS,
-                new ArrayList<>(mRcToKey.keySet()));
+                new ArrayList<>(mKeyToRc.values()));
         outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS,
-                new ArrayList<>(mRcToKey.values()));
+                new ArrayList<>(mKeyToRc.keySet()));
         outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS,
                 new ArrayList<>(mLaunchedKeys));
         outState.putBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS,
@@ -303,15 +305,28 @@ public abstract class ActivityResultRegistry {
         if (keys == null || rcs == null) {
             return;
         }
-        int numKeys = keys.size();
-        for (int i = 0; i < numKeys; i++) {
-            bindRcKey(rcs.get(i), keys.get(i));
-        }
         mLaunchedKeys =
                 savedInstanceState.getStringArrayList(KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS);
         mRandom = (Random) savedInstanceState.getSerializable(KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT);
         mPendingResults.putAll(
                 savedInstanceState.getBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS));
+        for (int i = 0; i < keys.size(); i++) {
+            String key = keys.get(i);
+            // Developers may have already registered with this same key by the time we restore
+            // state, which caused us to generate a new requestCode that doesn't match what we're
+            // about to restore. Clear out the new requestCode to ensure that we use the
+            // previously saved requestCode.
+            if (mKeyToRc.containsKey(key)) {
+                Integer newRequestCode = mKeyToRc.remove(key);
+                // On the chance that developers have already called launch() with this new
+                // requestCode, keep the mapping around temporarily to ensure the result is
+                // properly delivered to both the new requestCode and the restored requestCode
+                if (!mPendingResults.containsKey(key)) {
+                    mRcToKey.remove(newRequestCode);
+                }
+            }
+            bindRcKey(rcs.get(i), keys.get(i));
+        }
     }
 
     /**
