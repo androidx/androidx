@@ -46,6 +46,8 @@ import java.util.List;
  * will scan again when clicked.
  */
 public class RequestPermissionScreen extends Screen {
+    // This field can and should be removed once b/192386096 and/or b/192385602 have been resolved.
+    private final boolean mPreSeedMode;
 
     /**
      * Action which invalidates the template.
@@ -56,18 +58,24 @@ public class RequestPermissionScreen extends Screen {
     private final Action mRefreshAction = new Action.Builder()
             .setTitle("Refresh")
             .setBackgroundColor(CarColor.BLUE)
-            .setOnClickListener(() -> invalidate())
+            .setOnClickListener(this::invalidate)
             .build();
 
     public RequestPermissionScreen(@NonNull CarContext carContext) {
+        this(carContext, false);
+    }
+
+    public RequestPermissionScreen(@NonNull CarContext carContext, boolean preSeedMode) {
         super(carContext);
+        this.mPreSeedMode = preSeedMode;
     }
 
     @NonNull
     @Override
     public Template onGetTemplate() {
+        final Action headerAction = mPreSeedMode ? Action.APP_ICON : Action.BACK;
         List<String> permissions = new ArrayList<>();
-        String[] declaredPermissions = null;
+        String[] declaredPermissions;
         try {
             PackageInfo info =
                     getCarContext().getPackageManager().getPackageInfo(
@@ -76,7 +84,7 @@ public class RequestPermissionScreen extends Screen {
             declaredPermissions = info.requestedPermissions;
         } catch (PackageManager.NameNotFoundException e) {
             return new MessageTemplate.Builder("Package Not found.")
-                    .setHeaderAction(Action.BACK)
+                    .setHeaderAction(headerAction)
                     .addAction(mRefreshAction)
                     .build();
         }
@@ -93,7 +101,11 @@ public class RequestPermissionScreen extends Screen {
         if (permissions.isEmpty()) {
             return new MessageTemplate.Builder("All permissions have been granted. Please "
                     + "revoke permissions from Settings.")
-                    .setHeaderAction(Action.BACK)
+                    .setHeaderAction(headerAction)
+                    .addAction(new Action.Builder()
+                            .setTitle("Close")
+                            .setOnClickListener(this::finish)
+                            .build())
                     .build();
         }
 
@@ -123,7 +135,7 @@ public class RequestPermissionScreen extends Screen {
         return new LongMessageTemplate.Builder(message)
                 .setTitle("Required Permissions")
                 .addAction(action)
-                .setHeaderAction(Action.BACK)
+                .setHeaderAction(headerAction)
                 .build();
     }
 }
