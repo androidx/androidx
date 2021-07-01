@@ -54,7 +54,7 @@ class PlayStoreAvailabilityTest {
         val context: Context = ApplicationProvider.getApplicationContext()
         contentResolver = context.contentResolver
         shadowPackageManager = Shadows.shadowOf(context.packageManager)
-        shadowPackageManager?.setSystemFeature(PlayStoreAvailability.SYSTEM_FEATURE_WATCH, true)
+        shadowPackageManager?.setSystemFeature(RemoteInteractionsUtil.SYSTEM_FEATURE_WATCH, true)
     }
 
     @Test

@@ -21,6 +21,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.wear.remote.interactions.RemoteInteractionsUtil.isCurrentDeviceAWatch
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 
@@ -58,8 +59,6 @@ public class PlayStoreAvailability private constructor() {
         // versions from R.
         private const val SETTINGS_PLAY_STORE_AVAILABILITY = "phone_play_store_availability"
 
-        internal const val SYSTEM_FEATURE_WATCH: String = "android.hardware.type.watch"
-
         /**
          * Returns whether the Play Store is available on the Phone. If
          * [PLAY_STORE_ERROR_UNKNOWN] is returned, the caller should try again later. This
@@ -71,11 +70,7 @@ public class PlayStoreAvailability private constructor() {
         @JvmStatic
         @PlayStoreStatus
         public fun getPlayStoreAvailabilityOnPhone(context: Context): Int {
-            val isCurrentDeviceAWatch = context.packageManager.hasSystemFeature(
-                SYSTEM_FEATURE_WATCH
-            )
-
-            if (!isCurrentDeviceAWatch) {
+            if (!isCurrentDeviceAWatch(context)) {
                 val isPlayServiceAvailable =
                     GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(context)
                 return if (isPlayServiceAvailable == ConnectionResult.SUCCESS) PLAY_STORE_AVAILABLE

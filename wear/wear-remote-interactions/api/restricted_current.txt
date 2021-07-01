@@ -13,6 +13,32 @@ package androidx.wear.remote.interactions {
     method public int getPlayStoreAvailabilityOnPhone(android.content.Context context);
   }
 
+  public final class RemoteIntentHelper {
+    ctor public RemoteIntentHelper(android.content.Context context, optional java.util.concurrent.Executor executor);
+    method public static android.content.IntentFilter createActionRemoteIntentFilter();
+    method public static android.content.Intent? getRemoteIntentExtraIntent(android.content.Intent intent);
+    method public static String? getRemoteIntentNodeId(android.content.Intent intent);
+    method public static boolean hasActionRemoteIntent(android.content.IntentFilter intentFilter);
+    method public static boolean isActionRemoteIntent(android.content.Intent intent);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent intent, optional String? nodeId);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent intent);
+    field public static final androidx.wear.remote.interactions.RemoteIntentHelper.Companion Companion;
+    field public static final int RESULT_FAILED = 1; // 0x1
+    field public static final int RESULT_OK = 0; // 0x0
+  }
+
+  public static final class RemoteIntentHelper.Companion {
+    method public android.content.IntentFilter createActionRemoteIntentFilter();
+    method public android.content.Intent? getRemoteIntentExtraIntent(android.content.Intent intent);
+    method public String? getRemoteIntentNodeId(android.content.Intent intent);
+    method public boolean hasActionRemoteIntent(android.content.IntentFilter intentFilter);
+    method public boolean isActionRemoteIntent(android.content.Intent intent);
+  }
+
+  public static final class RemoteIntentHelper.RemoteIntentException extends java.lang.Exception {
+    ctor public RemoteIntentHelper.RemoteIntentException(String message);
+  }
+
   public final class WatchFaceConfigIntentHelper {
     method public static String? getPeerIdExtra(android.content.Intent watchFaceIntent);
     method public static android.content.ComponentName? getWatchFaceComponentExtra(android.content.Intent watchFaceIntent);
