@@ -56,6 +56,7 @@ import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
+import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.util.LogUtil;
 import androidx.collection.ArrayMap;
@@ -372,6 +373,8 @@ public final class AppSearchImpl implements Closeable {
      *                                      incompatible. Documents
      *                                      which do not comply with the new schema will be deleted.
      * @param version                       The overall version number of the request.
+     * @param setSchemaStatsBuilder         Builder for {@link SetSchemaStats} to hold stats for
+     *                                      setSchema
      * @return The response contains deleted schema types and incompatible schema types of this
      * call.
      * @throws AppSearchException On IcingSearchEngine error. If the status code is
@@ -387,7 +390,8 @@ public final class AppSearchImpl implements Closeable {
             @NonNull List<String> schemasNotDisplayedBySystem,
             @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages,
             boolean forceOverride,
-            int version) throws AppSearchException {
+            int version,
+            @Nullable SetSchemaStats.Builder setSchemaStatsBuilder) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
@@ -416,6 +420,13 @@ public final class AppSearchImpl implements Closeable {
                     mIcingSearchEngineLocked.setSchema(finalSchema, forceOverride);
             mLogUtil.piiTrace(
                     "setSchema, response", setSchemaResultProto.getStatus(), setSchemaResultProto);
+
+            if (setSchemaStatsBuilder != null) {
+                setSchemaStatsBuilder.setStatusCode(statusProtoToResultCode(
+                        setSchemaResultProto.getStatus()));
+                AppSearchLoggerHelper.copyNativeStats(setSchemaResultProto,
+                        setSchemaStatsBuilder);
+            }
 
             // Determine whether it succeeded.
             try {

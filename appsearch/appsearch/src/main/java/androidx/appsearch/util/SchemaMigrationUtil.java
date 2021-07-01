@@ -72,7 +72,7 @@ public final class SchemaMigrationUtil {
 
     /**
      * Checks the setSchema() call won't delete any types or has incompatible types after
-     * all {@link Migrator} has been triggered..
+     * all {@link Migrator} has been triggered.
      */
     public static void checkDeletedAndIncompatibleAfterMigration(
             @NonNull SetSchemaResponse setSchemaResponse,

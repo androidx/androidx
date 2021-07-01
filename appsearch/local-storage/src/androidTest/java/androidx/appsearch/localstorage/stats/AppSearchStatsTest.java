@@ -272,16 +272,14 @@ public class AppSearchStatsTest {
                 .setMigratedDocumentCount(6)
                 .setSavedDocumentCount(7)
                 .build();
-        int nativeLatencyMillis = 1;
-        int newTypeCount = 2;
-        int compatibleTypeChangeCount = 3;
-        int indexIncompatibleTypeChangeCount = 4;
-        int backwardsIncompatibleTypeChangeCount = 5;
+        int newTypeCount = 1;
+        int compatibleTypeChangeCount = 2;
+        int indexIncompatibleTypeChangeCount = 3;
+        int backwardsIncompatibleTypeChangeCount = 4;
         SetSchemaStats sStats = new SetSchemaStats.Builder(TEST_PACKAGE_NAME, TEST_DATA_BASE)
                 .setStatusCode(TEST_STATUS_CODE)
                 .setSchemaMigrationStats(schemaMigrationStats)
                 .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
-                .setNativeLatencyMillis(nativeLatencyMillis)
                 .setNewTypeCount(newTypeCount)
                 .setCompatibleTypeChangeCount(compatibleTypeChangeCount)
                 .setIndexIncompatibleTypeChangeCount(indexIncompatibleTypeChangeCount)
@@ -294,7 +292,6 @@ public class AppSearchStatsTest {
         assertThat(sStats.getSchemaMigrationStats()).isEqualTo(schemaMigrationStats);
         assertThat(sStats.getTotalLatencyMillis()).isEqualTo(
                 TEST_TOTAL_LATENCY_MILLIS);
-        assertThat(sStats.getNativeLatencyMillis()).isEqualTo(nativeLatencyMillis);
         assertThat(sStats.getNewTypeCount()).isEqualTo(newTypeCount);
         assertThat(sStats.getCompatibleTypeChangeCount()).isEqualTo(compatibleTypeChangeCount);
         assertThat(sStats.getIndexIncompatibleTypeChangeCount()).isEqualTo(

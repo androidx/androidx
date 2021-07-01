@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
@@ -31,6 +32,7 @@ import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -92,9 +94,10 @@ class AppSearchMigrationHelper implements Closeable {
      */
     @WorkerThread
     public void queryAndTransform(@NonNull Map<String, Migrator> migrators, int currentVersion,
-            int finalVersion)
+            int finalVersion, @Nullable SchemaMigrationStats.Builder schemaMigrationStatsBuilder)
             throws IOException, AppSearchException {
         Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");
+        int migratedDocsCount = 0;
         try (FileOutputStream outputStream = new FileOutputStream(mFile, /*append=*/ true)) {
             CodedOutputStream codedOutputStream = CodedOutputStream.newInstance(outputStream);
             SearchResultPage searchResultPage = mAppSearchImpl.query(mPackageName, mDatabaseName,
@@ -140,11 +143,15 @@ class AppSearchMigrationHelper implements Closeable {
                     codedOutputStream.writeByteArrayNoTag(serializedMessage);
                 }
                 codedOutputStream.flush();
+                migratedDocsCount += searchResultPage.getResults().size();
                 searchResultPage = mAppSearchImpl.getNextPage(searchResultPage.getNextPageToken());
                 outputStream.flush();
             }
         }
         mAreDocumentsMigrated = true;
+        if (schemaMigrationStatsBuilder != null) {
+            schemaMigrationStatsBuilder.setMigratedDocumentCount(migratedDocsCount);
+        }
     }
 
     /**
@@ -164,7 +171,8 @@ class AppSearchMigrationHelper implements Closeable {
      */
     @NonNull
     @WorkerThread
-    public SetSchemaResponse readAndPutDocuments(@NonNull SetSchemaResponse.Builder responseBuilder)
+    public SetSchemaResponse readAndPutDocuments(@NonNull SetSchemaResponse.Builder responseBuilder,
+            SchemaMigrationStats.Builder schemaMigrationStatsBuilder)
             throws IOException, AppSearchException {
         Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");
         if (!mAreDocumentsMigrated) {
@@ -172,11 +180,13 @@ class AppSearchMigrationHelper implements Closeable {
         }
         try (InputStream inputStream = new FileInputStream(mFile)) {
             CodedInputStream codedInputStream = CodedInputStream.newInstance(inputStream);
+            int savedDocsCount = 0;
             while (!codedInputStream.isAtEnd()) {
                 GenericDocument document = readDocumentFromInputStream(codedInputStream);
                 try {
                     mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document,
                             /*logger=*/ null);
+                    savedDocsCount++;
                 } catch (Throwable t) {
                     responseBuilder.addMigrationFailure(
                             new SetSchemaResponse.MigrationFailure(
@@ -187,6 +197,9 @@ class AppSearchMigrationHelper implements Closeable {
                 }
             }
             mAppSearchImpl.persistToDisk(PersistType.Code.FULL);
+            if (schemaMigrationStatsBuilder != null) {
+                schemaMigrationStatsBuilder.setSavedDocumentCount(savedDocsCount);
+            }
         }
         return responseBuilder.build();
     }
