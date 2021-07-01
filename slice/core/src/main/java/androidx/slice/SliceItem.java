@@ -72,12 +72,14 @@ import java.util.List;
  * <p>
  * A SliceItem a piece of content and some hints about what that content
  * means or how it should be displayed. The types of content can be:
- * <li>{@link android.app.slice.SliceItem#FORMAT_SLICE}</li>
- * <li>{@link android.app.slice.SliceItem#FORMAT_TEXT}</li>
- * <li>{@link android.app.slice.SliceItem#FORMAT_IMAGE}</li>
- * <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
- * <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
- * <li>{@link android.app.slice.SliceItem#FORMAT_LONG}</li>
+ * <ul>
+ *   <li>{@link android.app.slice.SliceItem#FORMAT_SLICE}</li>
+ *   <li>{@link android.app.slice.SliceItem#FORMAT_TEXT}</li>
+ *   <li>{@link android.app.slice.SliceItem#FORMAT_IMAGE}</li>
+ *   <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
+ *   <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
+ *   <li>{@link android.app.slice.SliceItem#FORMAT_LONG}</li>
+ * </ul>
  * <p>
  * The hints that a {@link SliceItem} are a set of strings which annotate
  * the content. The hints that are guaranteed to be understood by the system
@@ -199,13 +201,15 @@ public final class SliceItem extends CustomVersionedParcelable {
      * Get the format of this SliceItem.
      * <p>
      * The format will be one of the following types supported by the platform:
-     * <li>{@link android.app.slice.SliceItem#FORMAT_SLICE}</li>
-     * <li>{@link android.app.slice.SliceItem#FORMAT_TEXT}</li>
-     * <li>{@link android.app.slice.SliceItem#FORMAT_IMAGE}</li>
-     * <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
-     * <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
-     * <li>{@link android.app.slice.SliceItem#FORMAT_LONG}</li>
-     * <li>{@link android.app.slice.SliceItem#FORMAT_REMOTE_INPUT}</li>
+     * <ul>
+     *   <li>{@link android.app.slice.SliceItem#FORMAT_SLICE}</li>
+     *   <li>{@link android.app.slice.SliceItem#FORMAT_TEXT}</li>
+     *   <li>{@link android.app.slice.SliceItem#FORMAT_IMAGE}</li>
+     *   <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
+     *   <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
+     *   <li>{@link android.app.slice.SliceItem#FORMAT_LONG}</li>
+     *   <li>{@link android.app.slice.SliceItem#FORMAT_REMOTE_INPUT}</li>
+     * </ul>
      * @see #getSubType() ()
      */
     public @SliceType String getFormat() {
