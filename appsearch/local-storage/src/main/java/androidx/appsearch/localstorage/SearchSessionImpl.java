@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage;
 
 import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -39,6 +40,8 @@ import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.RemoveStats;
+import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
+import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.appsearch.util.SchemaMigrationUtil;
 import androidx.collection.ArrayMap;
@@ -56,8 +59,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 
 /**
- * An implementation of {@link AppSearchSession} which stores data locally
- * in the app's storage space using a bundled version of the search native library.
+ * An implementation of {@link AppSearchSession} which stores data locally in the app's storage
+ * space using a bundled version of the search native library.
  *
  * <p>Queries are executed multi-threaded, but a single thread is used for mutate requests (put,
  * delete, etc..).
@@ -93,6 +96,8 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
 
         ListenableFuture<SetSchemaResponse> future = execute(() -> {
+            long startMillis = SystemClock.elapsedRealtime();
+
             // Convert the inner set into a List since Binder can't handle Set.
             Map<String, Set<PackageIdentifier>> schemasVisibleToPackages =
                     request.getSchemasVisibleToPackagesInternal();
@@ -103,10 +108,23 @@ class SearchSessionImpl implements AppSearchSession {
                         new ArrayList<>(entry.getValue()));
             }
 
+            SetSchemaStats.Builder setSchemaStatsBuilder = null;
+            if (mLogger != null) {
+                setSchemaStatsBuilder = new SetSchemaStats.Builder(mPackageName, mDatabaseName);
+            }
+
             Map<String, Migrator> migrators = request.getMigrators();
             // No need to trigger migration if user never set migrator.
             if (migrators.size() == 0) {
-                return setSchemaNoMigrations(request, copySchemasVisibleToPackages);
+                SetSchemaResponse setSchemaResponse =
+                        setSchemaNoMigrations(request, copySchemasVisibleToPackages,
+                                setSchemaStatsBuilder);
+                if (setSchemaStatsBuilder != null) {
+                    setSchemaStatsBuilder.setTotalLatencyMillis(
+                            (int) (SystemClock.elapsedRealtime() - startMillis));
+                    mLogger.logStats(setSchemaStatsBuilder.build());
+                }
+                return setSchemaResponse;
             }
 
             // Migration process
@@ -119,11 +137,20 @@ class SearchSessionImpl implements AppSearchSession {
                     getSchemaResponse.getSchemas(), migrators, currentVersion, finalVersion);
             // No need to trigger migration if no migrator is active.
             if (activeMigrators.size() == 0) {
-                return setSchemaNoMigrations(request, copySchemasVisibleToPackages);
+                SetSchemaResponse setSchemaResponse =
+                        setSchemaNoMigrations(request, copySchemasVisibleToPackages,
+                                setSchemaStatsBuilder);
+                if (setSchemaStatsBuilder != null) {
+                    setSchemaStatsBuilder.setTotalLatencyMillis(
+                            (int) (SystemClock.elapsedRealtime() - startMillis));
+                    mLogger.logStats(setSchemaStatsBuilder.build());
+                }
+                return setSchemaResponse;
             }
 
             // 2. SetSchema with forceOverride=false, to retrieve the list of incompatible/deleted
             // types.
+            long firstSetSchemaLatencyStartMillis = SystemClock.elapsedRealtime();
             SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
                     mPackageName,
                     mDatabaseName,
@@ -132,23 +159,32 @@ class SearchSessionImpl implements AppSearchSession {
                     new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                     copySchemasVisibleToPackages,
                     /*forceOverride=*/false,
-                    request.getVersion());
+                    request.getVersion(),
+                    setSchemaStatsBuilder);
 
             // 3. If forceOverride is false, check that all incompatible types will be migrated.
             // If some aren't we must throw an error, rather than proceeding and deleting those
             // types.
+            long queryAndTransformLatencyStartMillis = SystemClock.elapsedRealtime();
             if (!request.isForceOverride()) {
                 SchemaMigrationUtil.checkDeletedAndIncompatibleAfterMigration(setSchemaResponse,
                         activeMigrators.keySet());
             }
 
+            SchemaMigrationStats.Builder schemaMigrationStatsBuilder = null;
+            if (setSchemaStatsBuilder != null) {
+                schemaMigrationStatsBuilder = new SchemaMigrationStats.Builder();
+            }
+
             try (AppSearchMigrationHelper migrationHelper = new AppSearchMigrationHelper(
                     mAppSearchImpl, mPackageName, mDatabaseName, request.getSchemas())) {
                 // 4. Trigger migration for all activity migrators.
-                migrationHelper.queryAndTransform(activeMigrators, currentVersion, finalVersion);
+                migrationHelper.queryAndTransform(activeMigrators, currentVersion, finalVersion,
+                        schemaMigrationStatsBuilder);
 
                 // 5. SetSchema a second time with forceOverride=true if the first attempted failed
                 // due to backward incompatible changes.
+                long secondSetSchemaLatencyStartMillis = SystemClock.elapsedRealtime();
                 if (!setSchemaResponse.getIncompatibleTypes().isEmpty()
                         || !setSchemaResponse.getDeletedTypes().isEmpty()) {
                     setSchemaResponse = mAppSearchImpl.setSchema(
@@ -159,14 +195,43 @@ class SearchSessionImpl implements AppSearchSession {
                             new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                             copySchemasVisibleToPackages,
                             /*forceOverride=*/ true,
-                            request.getVersion());
+                            request.getVersion(),
+                            setSchemaStatsBuilder);
                 }
                 SetSchemaResponse.Builder responseBuilder = setSchemaResponse.toBuilder()
                         .addMigratedTypes(activeMigrators.keySet());
                 mIsMutated = true;
 
                 // 6. Put all the migrated documents into the index, now that the new schema is set.
-                return migrationHelper.readAndPutDocuments(responseBuilder);
+                long saveDocumentLatencyStartMillis = SystemClock.elapsedRealtime();
+                SetSchemaResponse finalSetSchemaResponse =
+                        migrationHelper.readAndPutDocuments(responseBuilder,
+                                schemaMigrationStatsBuilder);
+
+                if (schemaMigrationStatsBuilder != null) {
+                    long endMillis = SystemClock.elapsedRealtime();
+                    schemaMigrationStatsBuilder
+                            .setSaveDocumentLatencyMillis(
+                                    (int) (endMillis - saveDocumentLatencyStartMillis))
+                            .setGetSchemaLatencyMillis(
+                                    (int) (firstSetSchemaLatencyStartMillis - startMillis))
+                            .setFirstSetSchemaLatencyMillis(
+                                    (int) (queryAndTransformLatencyStartMillis
+                                            - firstSetSchemaLatencyStartMillis))
+                            .setQueryAndTransformLatencyMillis(
+                                    (int) (secondSetSchemaLatencyStartMillis
+                                            - queryAndTransformLatencyStartMillis))
+                            .setSecondSetSchemaLatencyMillis(
+                                    (int) (saveDocumentLatencyStartMillis
+                                            - secondSetSchemaLatencyStartMillis));
+                    setSchemaStatsBuilder
+                            .setSchemaMigrationStats(
+                                    schemaMigrationStatsBuilder.build())
+                            .setTotalLatencyMillis((int) (endMillis - startMillis));
+                    mLogger.logStats(setSchemaStatsBuilder.build());
+                }
+
+                return finalSetSchemaResponse;
             }
         });
 
@@ -390,7 +455,8 @@ class SearchSessionImpl implements AppSearchSession {
      * forceoverride in the request.
      */
     private SetSchemaResponse setSchemaNoMigrations(@NonNull SetSchemaRequest request,
-            @NonNull Map<String, List<PackageIdentifier>> copySchemasVisibleToPackages)
+            @NonNull Map<String, List<PackageIdentifier>> copySchemasVisibleToPackages,
+            SetSchemaStats.Builder setSchemaStatsBuilder)
             throws AppSearchException {
         SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
                 mPackageName,
@@ -400,7 +466,8 @@ class SearchSessionImpl implements AppSearchSession {
                 new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                 copySchemasVisibleToPackages,
                 request.isForceOverride(),
-                request.getVersion());
+                request.getVersion(),
+                setSchemaStatsBuilder);
         if (!request.isForceOverride()) {
             // check both deleted types and incompatible types are empty. That's the only case we
             // swallowed in the AppSearchImpl#setSchema().

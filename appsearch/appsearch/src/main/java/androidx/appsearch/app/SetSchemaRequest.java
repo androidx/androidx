@@ -69,7 +69,7 @@ import java.util.Set;
  * <p>Backward incompatible changes can be made by :
  * <ul>
  *     <li>setting {@link SetSchemaRequest.Builder#setForceOverride} method to {@code true}.
- *         This deletes all  documents that are incompatible with the new schema. The new schema is
+ *         This deletes all documents that are incompatible with the new schema. The new schema is
  *         then saved and persisted to disk.
  *     <li>Add a {@link Migrator} for each incompatible type and make no deletion. The migrator
  *         will migrate documents from it's old schema version to the new version. Migrated types

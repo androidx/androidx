@@ -23,6 +23,7 @@ import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
+import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DeleteByQueryStatsProto;
@@ -31,6 +32,7 @@ import com.google.android.icing.proto.InitializeStatsProto;
 import com.google.android.icing.proto.OptimizeStatsProto;
 import com.google.android.icing.proto.PutDocumentStatsProto;
 import com.google.android.icing.proto.QueryStatsProto;
+import com.google.android.icing.proto.SetSchemaResultProto;
 
 /**
  * Class contains helper functions for logging.
@@ -183,5 +185,25 @@ public final class AppSearchLoggerHelper {
                 .setStorageSizeBeforeBytes(fromNativeStats.getStorageSizeBefore())
                 .setStorageSizeAfterBytes(fromNativeStats.getStorageSizeAfter())
                 .setTimeSinceLastOptimizeMillis(fromNativeStats.getTimeSinceLastOptimizeMs());
+    }
+
+    /*
+     * Copy SetSchema result stats to builder.
+     *
+     * @param fromProto Stats copied from.
+     * @param toStatsBuilder Stats copied to.
+     */
+    static void copyNativeStats(@NonNull SetSchemaResultProto fromProto,
+            @NonNull SetSchemaStats.Builder toStatsBuilder) {
+        Preconditions.checkNotNull(fromProto);
+        Preconditions.checkNotNull(toStatsBuilder);
+        toStatsBuilder
+                .setNewTypeCount(fromProto.getNewSchemaTypesCount())
+                .setDeletedTypeCount(fromProto.getDeletedSchemaTypesCount())
+                .setCompatibleTypeChangeCount(fromProto.getFullyCompatibleChangedSchemaTypesCount())
+                .setIndexIncompatibleTypeChangeCount(
+                        fromProto.getIndexIncompatibleChangedSchemaTypesCount())
+                .setBackwardsIncompatibleTypeChangeCount(
+                        fromProto.getIncompatibleSchemaTypesCount());
     }
 }
