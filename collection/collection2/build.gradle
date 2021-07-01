@@ -24,7 +24,7 @@ import androidx.build.RunApiTasks
 buildscript {
     dependencies {
         classpath(libs.japicmpPlugin)
-        classpath(libs.atomicFu)
+        classpath(libs.atomicFuPlugin)
     }
 }
 
@@ -88,7 +88,7 @@ kotlin {
             nonJvmMain {
                 // Used for JS and all native targets.
                 dependencies {
-                    api("org.jetbrains.kotlinx:atomicfu:$atomicfu_version")
+                    api(libs.atomicFu)
                 }
             }
 

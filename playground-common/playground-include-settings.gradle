@@ -61,6 +61,7 @@ def setupPlayground(settings, String relativePathToRoot) {
             google()
             mavenCentral()
             jcenter()
+            gradlePluginPortal()
         }
     }
     settings.enableFeaturePreview("VERSION_CATALOGS")
