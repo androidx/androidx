@@ -22,7 +22,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.annotation.Px
-import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.utility.AsyncTraceEvent
@@ -183,37 +183,37 @@ public interface WatchFaceControlClient : AutoCloseable {
 
     /**
      * Returns a map of [androidx.wear.watchface.ComplicationSlot] id to the
-     * [DefaultComplicationProviderPolicyAndType] for each
+     * [DefaultComplicationDataSourcePolicyAndType] for each
      * [androidx.wear.watchface.ComplicationSlot] in the watchface corresponding to [watchFaceName].
      * Where possible a fast path is used that doesn't need to fully construct the corresponding
      * watch face.
      *
      * @param watchFaceName The [ComponentName] of the watch face to obtain the map of
-     * [DefaultComplicationProviderPolicyAndType]s for. It must be in the same APK the
+     * [DefaultComplicationDataSourcePolicyAndType]s for. It must be in the same APK the
      * WatchFaceControlClient is connected to. NB a single apk can contain multiple watch faces.
      */
-    public fun getDefaultComplicationProviderPoliciesAndType(
+    public fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
-    ): Map<Int, DefaultComplicationProviderPolicyAndType>
+    ): Map<Int, DefaultComplicationDataSourcePolicyAndType>
 }
 
 /**
- * A pair of [DefaultComplicationProviderPolicy] and [ComplicationType] describing the default state
- * of an [androidx.wear.watchface.ComplicationSlot].
+ * A pair of [DefaultComplicationDataSourcePolicy] and [ComplicationType] describing the default
+ * state of a [androidx.wear.watchface.ComplicationSlot].
  *
- * @param policy The [DefaultComplicationProviderPolicy] for the
+ * @param policy The [DefaultComplicationDataSourcePolicy] for the
  * [androidx.wear.watchface.ComplicationSlot].
  * @param type The default [ComplicationType] for the [androidx.wear.watchface.ComplicationSlot].
  */
-public class DefaultComplicationProviderPolicyAndType(
-    public val policy: DefaultComplicationProviderPolicy,
+public class DefaultComplicationDataSourcePolicyAndType(
+    public val policy: DefaultComplicationDataSourcePolicy,
     public val type: ComplicationType
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as DefaultComplicationProviderPolicyAndType
+        other as DefaultComplicationDataSourcePolicyAndType
 
         if (policy != other.policy) return false
         if (type != other.type) return false
@@ -351,9 +351,9 @@ internal class WatchFaceControlClientImpl internal constructor(
         return EditorServiceClientImpl(service.editorService)
     }
 
-    override fun getDefaultComplicationProviderPoliciesAndType(
+    override fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
-    ): Map<Int, DefaultComplicationProviderPolicyAndType> = TraceEvent(
+    ): Map<Int, DefaultComplicationDataSourcePolicyAndType> = TraceEvent(
         "WatchFaceControlClientImpl.getDefaultProviderPolicies"
     ).use {
         requireNotClosed()
@@ -365,8 +365,8 @@ internal class WatchFaceControlClientImpl internal constructor(
                         it.id
                     },
                     {
-                        DefaultComplicationProviderPolicyAndType(
-                            DefaultComplicationProviderPolicy(
+                        DefaultComplicationDataSourcePolicyAndType(
+                            DefaultComplicationDataSourcePolicy(
                                 it.defaultProvidersToTry ?: emptyList(),
                                 it.fallbackSystemProvider
                             ),
@@ -386,9 +386,9 @@ internal class WatchFaceControlClientImpl internal constructor(
             // NB .use {} syntax doesn't compile here.
             try {
                 headlessClient.complicationSlotsState.mapValues {
-                    DefaultComplicationProviderPolicyAndType(
-                        it.value.defaultProviderPolicy,
-                        it.value.defaultProviderType
+                    DefaultComplicationDataSourcePolicyAndType(
+                        it.value.defaultDataSourcePolicy,
+                        it.value.defaultDataSourceType
                     )
                 }
             } finally {

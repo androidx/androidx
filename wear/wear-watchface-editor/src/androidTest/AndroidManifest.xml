@@ -35,8 +35,8 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name="androidx.wear.watchface.editor.TestComplicationProviderChooserActivity" />
+        <activity android:name=
+            "androidx.wear.watchface.editor.TestComplicationDataSourceChooserActivity" />
 
         <activity android:name="androidx.wear.complications.ComplicationHelperActivity" />
     </application>

@@ -17,14 +17,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.wear.watchface.samples">
 
-    <!-- Required for complications to receive complication data and open the provider chooser. -->
+    <!--
+      Required for complications to receive complication data and open the data source chooser.
+     -->
     <uses-feature android:name="android.hardware.type.watch" />
     <meta-data android:name="com.google.android.wearable.standalone" android:value="true" />
 
     <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
-    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA_PRIVILEGED" />
+    <uses-permission android:name=
+        "com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
+    <uses-permission android:name=
+        "com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA_PRIVILEGED" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- Required to act as a custom watch face. -->
@@ -42,7 +46,8 @@
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
             <meta-data
@@ -67,7 +72,8 @@
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
             <meta-data
@@ -92,7 +98,8 @@
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
             <meta-data
@@ -117,7 +124,8 @@
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
             <meta-data
@@ -146,7 +154,8 @@
             <intent-filter>
                 <action android:name="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
 
-                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

@@ -173,10 +173,10 @@ public open class ListenableWatchFaceControlClient(
     override fun getEditorServiceClient(): EditorServiceClient =
         watchFaceControlClient.getEditorServiceClient()
 
-    override fun getDefaultComplicationProviderPoliciesAndType(
+    override fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
-    ): Map<Int, DefaultComplicationProviderPolicyAndType> =
-        watchFaceControlClient.getDefaultComplicationProviderPoliciesAndType(watchFaceName)
+    ): Map<Int, DefaultComplicationDataSourcePolicyAndType> =
+        watchFaceControlClient.getDefaultComplicationDataSourcePoliciesAndType(watchFaceName)
 
     override fun close() {
         watchFaceControlClient.close()

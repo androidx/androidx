@@ -27,8 +27,8 @@ import android.graphics.drawable.Icon
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
@@ -241,9 +241,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
         val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
@@ -255,9 +255,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_STEP_COUNT),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_STEP_COUNT),
             ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
         return ComplicationSlotsManager(
             listOf(leftComplication, rightComplication),

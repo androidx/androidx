@@ -25,8 +25,8 @@ import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.Sampled
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
@@ -123,9 +123,11 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.MONOCHROMATIC_IMAGE,
                             ComplicationType.SMALL_IMAGE
                         ),
-                        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+                        DefaultComplicationDataSourcePolicy(
+                            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
+                        ),
                         ComplicationSlotBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
-                    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
                         .build(),
                     ComplicationSlot.createRoundRectComplicationSlotBuilder(
                         /*id */ 1,
@@ -137,9 +139,11 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.MONOCHROMATIC_IMAGE,
                             ComplicationType.SMALL_IMAGE
                         ),
-                        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_STEP_COUNT),
+                        DefaultComplicationDataSourcePolicy(
+                            SystemDataSources.DATA_SOURCE_STEP_COUNT
+                        ),
                         ComplicationSlotBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
-                    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
                         .build()
                 ),
                 currentUserStyleRepository

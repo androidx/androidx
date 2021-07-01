@@ -40,8 +40,8 @@ import androidx.annotation.Px
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -185,9 +185,9 @@ public class WatchFaceServiceTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
     private val rightComplication =
@@ -207,9 +207,9 @@ public class WatchFaceServiceTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
             ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
     private val edgeComplicationHitTester = mock<ComplicationTapFilter>()
@@ -230,10 +230,10 @@ public class WatchFaceServiceTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
             ComplicationSlotBounds(RectF(0.0f, 0.4f, 0.4f, 0.6f)),
             edgeComplicationHitTester
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
     private val backgroundComplication =
@@ -249,8 +249,8 @@ public class WatchFaceServiceTest {
             listOf(
                 ComplicationType.PHOTO_IMAGE
             ),
-            DefaultComplicationProviderPolicy()
-        ).setDefaultProviderType(ComplicationType.PHOTO_IMAGE)
+            DefaultComplicationDataSourcePolicy()
+        ).setDefaultDataSourceType(ComplicationType.PHOTO_IMAGE)
             .build()
 
     private val leftAndRightComplicationsOption = ComplicationSlotsOption(
@@ -370,7 +370,7 @@ public class WatchFaceServiceTest {
         for (complication in complicationSlots) {
             setComplicationViaWallpaperCommand(
                 complication.id,
-                when (complication.defaultProviderType) {
+                when (complication.defaultDataSourceType) {
                     ComplicationType.SHORT_TEXT ->
                         ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                             .setShortText(ComplicationText.plainText("Initial Short"))
@@ -1574,22 +1574,22 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun defaultProvidersWithFallbacks_newApi() {
-        val provider1 = ComponentName("com.app1", "com.app1.App1")
-        val provider2 = ComponentName("com.app2", "com.app2.App2")
+    public fun defaultComplicationDataSourcesWithFallbacks_newApi() {
+        val dataSource1 = ComponentName("com.app1", "com.app1.App1")
+        val dataSource2 = ComponentName("com.app2", "com.app2.App2")
         val complication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
             },
             emptyList(),
-            DefaultComplicationProviderPolicy(
-                provider1,
-                provider2,
-                SystemProviders.PROVIDER_SUNRISE_SUNSET
+            DefaultComplicationDataSourcePolicy(
+                dataSource1,
+                dataSource2,
+                SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
             ),
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), UserStyleSchema(emptyList()))
 
@@ -1597,29 +1597,29 @@ public class WatchFaceServiceTest {
 
         verify(iWatchFaceService).setDefaultComplicationProviderWithFallbacks(
             LEFT_COMPLICATION_ID,
-            listOf(provider1, provider2),
-            SystemProviders.PROVIDER_SUNRISE_SUNSET,
+            listOf(dataSource1, dataSource2),
+            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
             ComplicationData.TYPE_SHORT_TEXT
         )
     }
 
     @Test
-    public fun defaultProvidersWithFallbacks_oldApi() {
-        val provider1 = ComponentName("com.app1", "com.app1.App1")
-        val provider2 = ComponentName("com.app2", "com.app2.App2")
+    public fun defaultComplicationDataSourcesWithFallbacks_oldApi() {
+        val dataSource1 = ComponentName("com.app1", "com.app1.App1")
+        val dataSource2 = ComponentName("com.app2", "com.app2.App2")
         val complication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
             { watchState, listener ->
                 CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
             },
             emptyList(),
-            DefaultComplicationProviderPolicy(
-                provider1,
-                provider2,
-                SystemProviders.PROVIDER_SUNRISE_SUNSET
+            DefaultComplicationDataSourcePolicy(
+                dataSource1,
+                dataSource2,
+                SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
             ),
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
         initEngine(
             WatchFaceType.ANALOG,
@@ -1631,14 +1631,14 @@ public class WatchFaceServiceTest {
         runPostedTasksFor(0)
 
         verify(iWatchFaceService).setDefaultComplicationProvider(
-            LEFT_COMPLICATION_ID, provider2, ComplicationData.TYPE_SHORT_TEXT
+            LEFT_COMPLICATION_ID, dataSource2, ComplicationData.TYPE_SHORT_TEXT
         )
         verify(iWatchFaceService).setDefaultComplicationProvider(
-            LEFT_COMPLICATION_ID, provider1, ComplicationData.TYPE_SHORT_TEXT
+            LEFT_COMPLICATION_ID, dataSource1, ComplicationData.TYPE_SHORT_TEXT
         )
         verify(iWatchFaceService).setDefaultSystemComplicationProvider(
             LEFT_COMPLICATION_ID,
-            SystemProviders.PROVIDER_SUNRISE_SUNSET,
+            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
             ComplicationData.TYPE_SHORT_TEXT
         )
     }
@@ -2008,9 +2008,9 @@ public class WatchFaceServiceTest {
                     listOf(
                         ComplicationType.RANGED_VALUE,
                     ),
-                    DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+                    DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
                     ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-                ).setDefaultProviderType(ComplicationType.RANGED_VALUE)
+                ).setDefaultDataSourceType(ComplicationType.RANGED_VALUE)
                     .setEnabled(false)
                     .build(),
 
@@ -2022,9 +2022,9 @@ public class WatchFaceServiceTest {
                     listOf(
                         ComplicationType.LONG_TEXT,
                     ),
-                    DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+                    DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
                     ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-                ).setDefaultProviderType(ComplicationType.LONG_TEXT)
+                ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
                     .setEnabled(false)
                     .build()
             ),
@@ -2630,9 +2630,9 @@ public class WatchFaceServiceTest {
                 listOf(
                     ComplicationType.SHORT_TEXT,
                 ),
-                DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
+                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
                 ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-            ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
                 .build()
 
         val rightCanvasComplication = mock<CanvasComplication>()
@@ -2643,9 +2643,9 @@ public class WatchFaceServiceTest {
                 listOf(
                     ComplicationType.SHORT_TEXT,
                 ),
-                DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DATE),
+                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DATE),
                 ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-            ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
                 .build()
 
         initEngine(

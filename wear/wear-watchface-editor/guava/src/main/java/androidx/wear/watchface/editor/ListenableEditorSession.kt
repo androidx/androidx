@@ -24,7 +24,7 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.concurrent.futures.ResolvableFuture
-import androidx.wear.complications.ComplicationProviderInfo
+import androidx.wear.complications.ComplicationDataSourceInfo
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.ComplicationSlotState
@@ -141,13 +141,13 @@ public class ListenableEditorSession(
             return future
         }
 
-    /** [ListenableFuture] wrapper around [EditorSession.getComplicationsProviderInfo]. */
+    /** [ListenableFuture] wrapper around [EditorSession.getComplicationsDataSourceInfo]. */
     public fun getListenableComplicationsProviderInfo():
-        ListenableFuture<Map<Int, ComplicationProviderInfo?>> {
-            val future = ResolvableFuture.create<Map<Int, ComplicationProviderInfo?>>()
+        ListenableFuture<Map<Int, ComplicationDataSourceInfo?>> {
+            val future = ResolvableFuture.create<Map<Int, ComplicationDataSourceInfo?>>()
             getCoroutineScope().launch {
                 try {
-                    future.set(wrappedEditorSession.getComplicationsProviderInfo())
+                    future.set(wrappedEditorSession.getComplicationsDataSourceInfo())
                 } catch (e: Exception) {
                     future.setException(e)
                 }
@@ -158,8 +158,8 @@ public class ListenableEditorSession(
     override suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData> =
         wrappedEditorSession.getComplicationsPreviewData()
 
-    override suspend fun getComplicationsProviderInfo(): Map<Int, ComplicationProviderInfo?> =
-        wrappedEditorSession.getComplicationsProviderInfo()
+    override suspend fun getComplicationsDataSourceInfo(): Map<Int, ComplicationDataSourceInfo?> =
+        wrappedEditorSession.getComplicationsDataSourceInfo()
 
     @get:SuppressWarnings("AutoBoxing")
     override val backgroundComplicationSlotId: Int?
@@ -179,15 +179,15 @@ public class ListenableEditorSession(
         slotIdToComplicationData
     )
 
-    /** [ListenableFuture] wrapper around [EditorSession.openComplicationProviderChooser]. */
-    public fun listenableOpenComplicationProviderChooser(
+    /** [ListenableFuture] wrapper around [EditorSession.openComplicationDataSourceChooser]. */
+    public fun listenableOpenComplicationDataSourceChooser(
         complicationSlotId: Int
-    ): ListenableFuture<ChosenComplicationProvider?> {
-        val future = ResolvableFuture.create<ChosenComplicationProvider?>()
+    ): ListenableFuture<ChosenComplicationDataSource?> {
+        val future = ResolvableFuture.create<ChosenComplicationDataSource?>()
         getCoroutineScope().launch {
             try {
                 future.set(
-                    wrappedEditorSession.openComplicationProviderChooser(complicationSlotId)
+                    wrappedEditorSession.openComplicationDataSourceChooser(complicationSlotId)
                 )
             } catch (e: Exception) {
                 future.setException(e)
@@ -196,9 +196,9 @@ public class ListenableEditorSession(
         return future
     }
 
-    override suspend fun openComplicationProviderChooser(complicationSlotId: Int):
-        ChosenComplicationProvider? =
-            wrappedEditorSession.openComplicationProviderChooser(complicationSlotId)
+    override suspend fun openComplicationDataSourceChooser(complicationSlotId: Int):
+        ChosenComplicationDataSource? =
+            wrappedEditorSession.openComplicationDataSourceChooser(complicationSlotId)
 
     override fun close() {
         wrappedEditorSession.close()

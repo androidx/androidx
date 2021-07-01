@@ -35,6 +35,8 @@ import androidx.wear.complications.data.ComplicationText;
 import androidx.wear.complications.data.ComplicationType;
 import androidx.wear.complications.data.LongTextComplicationData;
 import androidx.wear.complications.data.PlainComplicationText;
+import androidx.wear.complications.datasource.ComplicationDataSourceService;
+import androidx.wear.complications.datasource.ComplicationRequest;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -46,12 +48,12 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
-/** Tests for {@link ComplicationProviderService}. */
+/** Tests for {@link ComplicationDataSourceService}. */
 @RunWith(ComplicationsTestRunner.class)
 @DoNotInstrument
-public class ComplicationProviderServiceTest {
+public class ComplicationDataSourceServiceTest {
 
-    private static final String TAG = "ComplicationProviderServiceTest";
+    private static final String TAG = "ComplicationDataSourceServiceTest";
 
     @Mock
     private IComplicationManager mRemoteManager;
@@ -67,7 +69,7 @@ public class ComplicationProviderServiceTest {
     private IComplicationProvider.Stub mComplicationProvider;
     private IComplicationProvider.Stub mNoUpdateComplicationProvider;
 
-    private ComplicationProviderService mTestService = new ComplicationProviderService() {
+    private ComplicationDataSourceService mTestService = new ComplicationDataSourceService() {
 
         @Override
         public void onComplicationRequest(
@@ -100,7 +102,8 @@ public class ComplicationProviderServiceTest {
         }
     };
 
-    private ComplicationProviderService mNoUpdateTestService = new ComplicationProviderService() {
+    private ComplicationDataSourceService mNoUpdateTestService =
+            new ComplicationDataSourceService() {
 
         @Override
         public void onComplicationRequest(
@@ -129,11 +132,13 @@ public class ComplicationProviderServiceTest {
         MockitoAnnotations.initMocks(this);
         mComplicationProvider =
                 (IComplicationProvider.Stub) mTestService.onBind(
-                        new Intent(ComplicationProviderService.ACTION_COMPLICATION_UPDATE_REQUEST));
+                        new Intent(
+                                ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST));
 
         mNoUpdateComplicationProvider =
                 (IComplicationProvider.Stub) mNoUpdateTestService.onBind(
-                        new Intent(ComplicationProviderService.ACTION_COMPLICATION_UPDATE_REQUEST));
+                        new Intent(
+                                ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST));
     }
 
     @Test

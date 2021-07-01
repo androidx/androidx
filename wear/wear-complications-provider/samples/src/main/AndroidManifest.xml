@@ -15,14 +15,15 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.wear.complications.provider.samples">
+    package="androidx.wear.complications.datasource.samples">
     <application
         android:label="@string/app_name"
         android:icon="@drawable/circle"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <service
-            android:name=".AsynchronousProviderService"
-            android:label="@string/asynchronous_provider_name"
+            android:name=
+                "androidx.wear.complications.datasource.samples.AsynchronousDataSourceService"
+            android:label="@string/asynchronous_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
@@ -33,13 +34,15 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="0"/>
             <intent-filter>
-                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
             </intent-filter>
         </service>
 
         <service
-            android:name=".BackgroundProviderService"
-            android:label="@string/background_provider_name"
+            android:name=
+                "androidx.wear.complications.datasource.samples.BackgroundDataSourceService"
+            android:label="@string/background_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
@@ -50,13 +53,15 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="0"/>
             <intent-filter>
-                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
             </intent-filter>
         </service>
 
         <service
-            android:name=".SynchronousProviderService"
-            android:label="@string/synchronous_provider_name"
+            android:name=
+                "androidx.wear.complications.datasource.samples.SynchronousDataSourceService"
+            android:label="@string/synchronous_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
@@ -67,7 +72,8 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="10000"/>
             <intent-filter>
-                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
             </intent-filter>
         </service>
     </application>

@@ -50,7 +50,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.versionedparcelable.ParcelUtils
-import androidx.wear.complications.SystemProviders.ProviderId
+import androidx.wear.complications.SystemDataSources.DataSourceId
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.AsyncTraceEvent
@@ -477,8 +477,8 @@ public abstract class WatchFaceService : WallpaperService() {
 
         fun setDefaultComplicationProviderWithFallbacks(
             complicationSlotId: Int,
-            providers: List<ComponentName>?,
-            @ProviderId fallbackSystemProvider: Int,
+            dataSources: List<ComponentName>?,
+            @DataSourceId fallbackSystemDataSource: Int,
             type: Int
         ) {
 
@@ -490,28 +490,28 @@ public abstract class WatchFaceService : WallpaperService() {
             if (systemApiVersion >= 2) {
                 iWatchFaceService.setDefaultComplicationProviderWithFallbacks(
                     complicationSlotId,
-                    providers,
-                    fallbackSystemProvider,
+                    dataSources,
+                    fallbackSystemDataSource,
                     type
                 )
             } else {
                 // If the implementation doesn't support the new API we emulate its behavior by
-                // setting complication providers in the reverse order. This works because if
+                // setting complication data sources in the reverse order. This works because if
                 // setDefaultComplicationProvider attempts to set a non-existent or incompatible
-                // provider it does nothing, which allows us to emulate the same semantics as
+                // data source it does nothing, which allows us to emulate the same semantics as
                 // setDefaultComplicationProviderWithFallbacks albeit with more calls.
-                if (fallbackSystemProvider != WatchFaceImpl.NO_DEFAULT_PROVIDER) {
+                if (fallbackSystemDataSource != WatchFaceImpl.NO_DEFAULT_DATA_SOURCE) {
                     iWatchFaceService.setDefaultSystemComplicationProvider(
-                        complicationSlotId, fallbackSystemProvider, type
+                        complicationSlotId, fallbackSystemDataSource, type
                     )
                 }
 
-                if (providers != null) {
+                if (dataSources != null) {
                     // Iterate in reverse order. This could be O(n^2) but n is expected to be small
                     // and the list is probably an ArrayList so it's probably O(n) in practice.
-                    for (i in providers.size - 1 downTo 0) {
+                    for (i in dataSources.size - 1 downTo 0) {
                         iWatchFaceService.setDefaultComplicationProvider(
-                            complicationSlotId, providers[i], type
+                            complicationSlotId, dataSources[i], type
                         )
                     }
                 }
@@ -1607,15 +1607,15 @@ public abstract class WatchFaceService : WallpaperService() {
         internal fun watchFaceCreatedOrPending() =
             watchFaceCreated() || asyncWatchFaceConstructionPending
 
-        override fun setDefaultComplicationProviderWithFallbacks(
+        override fun setDefaultComplicationDataSourceWithFallbacks(
             complicationSlotId: Int,
-            providers: List<ComponentName>?,
-            @ProviderId fallbackSystemProvider: Int,
+            dataSources: List<ComponentName>?,
+            @DataSourceId fallbackSystemProvider: Int,
             type: Int
         ) {
             wslFlow.setDefaultComplicationProviderWithFallbacks(
                 complicationSlotId,
-                providers,
+                dataSources,
                 fallbackSystemProvider,
                 type
             )
