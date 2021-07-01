@@ -6,6 +6,7 @@ plugins {
 dependencies {
     docs(project(":activity:activity"))
     docs(project(":activity:activity-compose"))
+    samples(project(":activity:activity-compose:activity-compose-samples"))
     docs(project(":activity:activity-ktx"))
     docs(project(":ads:ads-identifier"))
     docs(project(":ads:ads-identifier-common"))
