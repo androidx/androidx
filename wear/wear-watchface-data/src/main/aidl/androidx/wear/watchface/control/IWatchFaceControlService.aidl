@@ -20,9 +20,13 @@ import androidx.wear.watchface.control.IInteractiveWatchFace;
 import androidx.wear.watchface.control.IHeadlessWatchFace;
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace;
 import androidx.wear.watchface.control.data.DefaultProviderPoliciesParams;
+import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams;
+import androidx.wear.watchface.control.data.GetUserStyleSchemaParams;
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams;
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat;
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams;
+import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat;
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 import androidx.wear.watchface.editor.IEditorService;
 
 /**
@@ -38,7 +42,7 @@ interface IWatchFaceControlService {
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 2;
+    const int API_VERSION = 3;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -103,4 +107,19 @@ interface IWatchFaceControlService {
      */
     IdTypeAndDefaultProviderPolicyWireFormat[] getDefaultProviderPolicies(
             in DefaultProviderPoliciesParams params) = 6;
+
+    /**
+     * Returns the static {@link UserStyleSchemaWireFormat}
+     *
+     * @since API version 3.
+     */
+    UserStyleSchemaWireFormat getUserStyleSchema(in GetUserStyleSchemaParams params) = 7;
+
+    /**
+     * Returns the static {@link ComplicationSlotMetadataWireFormat}
+     *
+     * @since API version 3.
+     */
+    ComplicationSlotMetadataWireFormat[] getComplicationSlotMetadata(
+            in GetComplicationSlotMetadataParams params) = 8;
 }

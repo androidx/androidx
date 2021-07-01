@@ -1,6 +1,26 @@
 // Signature format: 4.0
 package androidx.wear.watchface.client {
 
+  @androidx.wear.watchface.client.WatchFaceClientExperimental public final class ComplicationSlotMetadata {
+    ctor public ComplicationSlotMetadata(androidx.wear.complications.ComplicationSlotBounds? bounds, int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.data.ComplicationType defaultDataSourceType, boolean isInitiallyEnabled, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras);
+    method public androidx.wear.complications.ComplicationSlotBounds? getBounds();
+    method public int getBoundsType();
+    method public android.os.Bundle getComplicationConfigExtras();
+    method public androidx.wear.complications.DefaultComplicationDataSourcePolicy getDefaultDataSourcePolicy();
+    method public androidx.wear.complications.data.ComplicationType getDefaultDataSourceType();
+    method public boolean getFixedComplicationDataSource();
+    method public java.util.List<androidx.wear.complications.data.ComplicationType> getSupportedTypes();
+    method public boolean isInitiallyEnabled();
+    property public final androidx.wear.complications.ComplicationSlotBounds? bounds;
+    property public final int boundsType;
+    property public final android.os.Bundle complicationConfigExtras;
+    property public final androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;
+    property public final androidx.wear.complications.data.ComplicationType defaultDataSourceType;
+    property public final boolean fixedComplicationDataSource;
+    property public final boolean isInitiallyEnabled;
+    property public final java.util.List<androidx.wear.complications.data.ComplicationType> supportedTypes;
+  }
+
   public final class ComplicationSlotState {
     ctor public ComplicationSlotState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.data.ComplicationType defaultDataSourceType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras);
     method public android.graphics.Rect getBounds();
@@ -134,6 +154,9 @@ package androidx.wear.watchface.client {
     field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
+  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") public @interface WatchFaceClientExperimental {
+  }
+
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
     method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, @Px int surfaceWidth, @Px int surfaceHeight);
     method public default static suspend Object? createWatchFaceControlClient(android.content.Context p, String context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> watchFacePackageName);
@@ -160,6 +183,25 @@ package androidx.wear.watchface.client {
     ctor public WatchFaceId(String id);
     method public String getId();
     property public final String id;
+  }
+
+  @androidx.wear.watchface.client.WatchFaceClientExperimental public interface WatchFaceMetadataClient extends java.lang.AutoCloseable {
+    method public default static suspend Object? createWatchFaceMetadataClient(android.content.Context p, android.content.ComponentName context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceMetadataClient> watchFaceName);
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotMetadata> getComplicationSlotMetadataMap();
+    method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
+    field public static final androidx.wear.watchface.client.WatchFaceMetadataClient.Companion Companion;
+  }
+
+  public static final class WatchFaceMetadataClient.Companion {
+    method public suspend Object? createWatchFaceMetadataClient(android.content.Context context, android.content.ComponentName watchFaceName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceMetadataClient> p);
+  }
+
+  public static final class WatchFaceMetadataClient.ServiceNotBoundException extends java.lang.Exception {
+    ctor public WatchFaceMetadataClient.ServiceNotBoundException();
+  }
+
+  public static final class WatchFaceMetadataClient.ServiceStartFailureException extends java.lang.Exception {
+    ctor public WatchFaceMetadataClient.ServiceStartFailureException(optional String message);
   }
 
   public final class WatchUiState {
