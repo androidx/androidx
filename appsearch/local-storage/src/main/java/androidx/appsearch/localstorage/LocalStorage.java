@@ -315,7 +315,10 @@ public class LocalStorage {
         }
 
         mAppSearchImpl = AppSearchImpl.create(
-                icingDir, initStatsBuilder, new JetpackOptimizeStrategy());
+                icingDir,
+                new UnlimitedLimitConfig(),
+                initStatsBuilder,
+                new JetpackOptimizeStrategy());
 
         if (logger != null) {
             initStatsBuilder.setTotalLatencyMillis(

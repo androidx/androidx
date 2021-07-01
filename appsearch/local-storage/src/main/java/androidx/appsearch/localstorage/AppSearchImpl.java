@@ -150,10 +150,9 @@ public final class AppSearchImpl implements Closeable {
     static final int CHECK_OPTIMIZE_INTERVAL = 100;
 
     private final ReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
-
     private final LogUtil mLogUtil = new LogUtil(TAG);
-
     private final OptimizeStrategy mOptimizeStrategy;
+    private final LimitConfig mLimitConfig;
 
     @GuardedBy("mReadWriteLock")
     @VisibleForTesting
@@ -171,6 +170,10 @@ public final class AppSearchImpl implements Closeable {
     // TODO(b/172360376): Check if this can be replaced with an ArrayMap
     @GuardedBy("mReadWriteLock")
     private final Map<String, Set<String>> mNamespaceMapLocked = new HashMap<>();
+
+    /** Maps package name to active document count. */
+    @GuardedBy("mReadWriteLock")
+    private final Map<String, Integer> mDocumentCountMapLocked = new ArrayMap<>();
 
     /**
      * The counter to check when to call {@link #checkForOptimize}. The
@@ -200,10 +203,11 @@ public final class AppSearchImpl implements Closeable {
     @NonNull
     public static AppSearchImpl create(
             @NonNull File icingDir,
+            @NonNull LimitConfig limitConfig,
             @Nullable InitializeStats.Builder initStatsBuilder,
             @NonNull OptimizeStrategy optimizeStrategy)
             throws AppSearchException {
-        return new AppSearchImpl(icingDir, initStatsBuilder, optimizeStrategy);
+        return new AppSearchImpl(icingDir, limitConfig, initStatsBuilder, optimizeStrategy);
     }
 
     /**
@@ -211,10 +215,12 @@ public final class AppSearchImpl implements Closeable {
      */
     private AppSearchImpl(
             @NonNull File icingDir,
+            @NonNull LimitConfig limitConfig,
             @Nullable InitializeStats.Builder initStatsBuilder,
             @NonNull OptimizeStrategy optimizeStrategy)
             throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
+        mLimitConfig = Preconditions.checkNotNull(limitConfig);
         mOptimizeStrategy = Preconditions.checkNotNull(optimizeStrategy);
 
         mReadWriteLock.writeLock().lock();
@@ -248,9 +254,9 @@ public final class AppSearchImpl implements Closeable {
                     AppSearchLoggerHelper.copyNativeStats(
                             initializeResultProto.getInitializeStats(), initStatsBuilder);
                 }
-
                 checkSuccess(initializeResultProto.getStatus());
 
+                // Read all protos we need to construct AppSearchImpl's cache maps
                 long prepareSchemaAndNamespacesLatencyStartMillis = SystemClock.elapsedRealtime();
                 SchemaProto schemaProto = getSchemaProtoLocked();
 
@@ -262,6 +268,9 @@ public final class AppSearchImpl implements Closeable {
                         getAllNamespacesResultProto.getNamespacesCount(),
                         getAllNamespacesResultProto);
 
+                StorageInfoProto storageInfoProto = getRawStorageInfoProto();
+
+                // Log the time it took to read the data that goes into the cache maps
                 if (initStatsBuilder != null) {
                     initStatsBuilder.setStatusCode(
                             statusProtoToResultCode(getAllNamespacesResultProto.getStatus()))
@@ -269,19 +278,26 @@ public final class AppSearchImpl implements Closeable {
                                     (int) (SystemClock.elapsedRealtime()
                                             - prepareSchemaAndNamespacesLatencyStartMillis));
                 }
-
                 checkSuccess(getAllNamespacesResultProto.getStatus());
 
                 // Populate schema map
-                for (SchemaTypeConfigProto schema : schemaProto.getTypesList()) {
+                List<SchemaTypeConfigProto> schemaProtoTypesList = schemaProto.getTypesList();
+                for (int i = 0; i < schemaProtoTypesList.size(); i++) {
+                    SchemaTypeConfigProto schema = schemaProtoTypesList.get(i);
                     String prefixedSchemaType = schema.getSchemaType();
                     addToMap(mSchemaMapLocked, getPrefix(prefixedSchemaType), schema);
                 }
 
                 // Populate namespace map
-                for (String prefixedNamespace : getAllNamespacesResultProto.getNamespacesList()) {
+                List<String> prefixedNamespaceList =
+                        getAllNamespacesResultProto.getNamespacesList();
+                for (int i = 0; i < prefixedNamespaceList.size(); i++) {
+                    String prefixedNamespace = prefixedNamespaceList.get(i);
                     addToMap(mNamespaceMapLocked, getPrefix(prefixedNamespace), prefixedNamespace);
                 }
+
+                // Populate document count map
+                rebuildDocumentCountMapLocked(storageInfoProto);
 
                 // logging prepare_schema_and_namespaces latency
                 if (initStatsBuilder != null) {
@@ -594,10 +610,18 @@ public final class AppSearchImpl implements Closeable {
             long rewriteDocumentTypeEndTimeMillis = SystemClock.elapsedRealtime();
             DocumentProto finalDocument = documentBuilder.build();
 
+            // Check limits
+            int newDocumentCount = enforceLimitConfigLocked(
+                    packageName, finalDocument.getUri(), finalDocument.getSerializedSize());
+
+            // Insert document
             mLogUtil.piiTrace("putDocument, request", finalDocument.getUri(), finalDocument);
-            PutResultProto putResultProto = mIcingSearchEngineLocked.put(documentBuilder.build());
+            PutResultProto putResultProto = mIcingSearchEngineLocked.put(finalDocument);
             mLogUtil.piiTrace("putDocument, response", putResultProto.getStatus(), putResultProto);
-            addToMap(mNamespaceMapLocked, prefix, documentBuilder.getNamespace());
+
+            // Update caches
+            addToMap(mNamespaceMapLocked, prefix, finalDocument.getNamespace());
+            mDocumentCountMapLocked.put(packageName, newDocumentCount);
 
             // Logging stats
             if (pStatsBuilder != null) {
@@ -624,6 +648,61 @@ public final class AppSearchImpl implements Closeable {
                 logger.logStats(pStatsBuilder.build());
             }
         }
+    }
+
+    /**
+     * Checks that a new document can be added to the given packageName with the given serialized
+     * size without violating our {@link LimitConfig}.
+     *
+     * @return the new count of documents for the given package, including the new document.
+     * @throws AppSearchException with a code of {@link AppSearchResult#RESULT_OUT_OF_SPACE} if the
+     *                            limits are violated by the new document.
+     */
+    @GuardedBy("mReadWriteLock")
+    private int enforceLimitConfigLocked(String packageName, String newDocUri, int newDocSize)
+            throws AppSearchException {
+        // Limits check: size of document
+        if (newDocSize > mLimitConfig.getMaxDocumentSizeBytes()) {
+            throw new AppSearchException(
+                    AppSearchResult.RESULT_OUT_OF_SPACE,
+                    "Document \"" + newDocUri + "\" for package \"" + packageName
+                            + "\" serialized to " + newDocSize + " bytes, which exceeds "
+                            + "limit of " + mLimitConfig.getMaxDocumentSizeBytes() + " bytes");
+        }
+
+        // Limits check: number of documents
+        Integer oldDocumentCount = mDocumentCountMapLocked.get(packageName);
+        int newDocumentCount;
+        if (oldDocumentCount == null) {
+            newDocumentCount = 1;
+        } else {
+            newDocumentCount = oldDocumentCount + 1;
+        }
+        if (newDocumentCount > mLimitConfig.getMaxDocumentCount()) {
+            // Our management of mDocumentCountMapLocked doesn't account for document
+            // replacements, so our counter might have overcounted if the app has replaced docs.
+            // Rebuild the counter from StorageInfo in case this is so.
+            // TODO(b/170371356):  If Icing lib exposes something in the result which says
+            //  whether the document was a replacement, we could subtract 1 again after the put
+            //  to keep the count accurate. That would allow us to remove this code.
+            rebuildDocumentCountMapLocked(getRawStorageInfoProto());
+            oldDocumentCount = mDocumentCountMapLocked.get(packageName);
+            if (oldDocumentCount == null) {
+                newDocumentCount = 1;
+            } else {
+                newDocumentCount = oldDocumentCount + 1;
+            }
+        }
+        if (newDocumentCount > mLimitConfig.getMaxDocumentCount()) {
+            // Now we really can't fit it in, even accounting for replacements.
+            throw new AppSearchException(
+                    AppSearchResult.RESULT_OUT_OF_SPACE,
+                    "Package \"" + packageName + "\" exceeded limit of "
+                            + mLimitConfig.getMaxDocumentCount() + " documents. Some documents "
+                            + "must be removed to index additional ones.");
+        }
+
+        return newDocumentCount;
     }
 
     /**
@@ -1104,6 +1183,9 @@ public final class AppSearchImpl implements Closeable {
                         removeStatsBuilder);
             }
             checkSuccess(deleteResultProto.getStatus());
+
+            // Update derived maps
+            updateDocumentCountAfterRemovalLocked(packageName, /*numDocumentsDeleted=*/ 1);
         } finally {
             mReadWriteLock.writeLock().unlock();
             if (removeStatsBuilder != null) {
@@ -1177,11 +1259,32 @@ public final class AppSearchImpl implements Closeable {
             // not in the DB because it was not there or was successfully deleted.
             checkCodeOneOf(deleteResultProto.getStatus(),
                     StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
+
+            // Update derived maps
+            int numDocumentsDeleted =
+                    deleteResultProto.getDeleteByQueryStats().getNumDocumentsDeleted();
+            updateDocumentCountAfterRemovalLocked(packageName, numDocumentsDeleted);
         } finally {
             mReadWriteLock.writeLock().unlock();
             if (removeStatsBuilder != null) {
                 removeStatsBuilder.setTotalLatencyMillis(
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartTimeMillis));
+            }
+        }
+    }
+
+    @GuardedBy("mReadWriteLock")
+    private void updateDocumentCountAfterRemovalLocked(
+            @NonNull String packageName, int numDocumentsDeleted) {
+        if (numDocumentsDeleted > 0) {
+            Integer oldDocumentCount = mDocumentCountMapLocked.get(packageName);
+            // This should always be true: how can we delete documents for a package without
+            // having seen that package during init? This is just a safeguard.
+            if (oldDocumentCount != null) {
+                // This should always be >0; how can we remove more documents than we've indexed?
+                // This is just a safeguard.
+                int newDocumentCount = Math.max(oldDocumentCount - numDocumentsDeleted, 0);
+                mDocumentCountMapLocked.put(packageName, newDocumentCount);
             }
         }
     }
@@ -1437,6 +1540,7 @@ public final class AppSearchImpl implements Closeable {
                 String packageName = entry.getKey();
                 Set<String> databaseNames = entry.getValue();
                 if (!installedPackages.contains(packageName) && databaseNames != null) {
+                    mDocumentCountMapLocked.remove(packageName);
                     for (String databaseName : databaseNames) {
                         String removedPrefix = createPrefix(packageName, databaseName);
                         mSchemaMapLocked.remove(removedPrefix);
@@ -1469,6 +1573,7 @@ public final class AppSearchImpl implements Closeable {
         mOptimizeIntervalCountLocked = 0;
         mSchemaMapLocked.clear();
         mNamespaceMapLocked.clear();
+        mDocumentCountMapLocked.clear();
         if (initStatsBuilder != null) {
             initStatsBuilder
                     .setHasReset(true)
@@ -1476,6 +1581,26 @@ public final class AppSearchImpl implements Closeable {
         }
 
         checkSuccess(resetResultProto.getStatus());
+    }
+
+    @GuardedBy("mReadWriteLock")
+    private void rebuildDocumentCountMapLocked(@NonNull StorageInfoProto storageInfoProto) {
+        mDocumentCountMapLocked.clear();
+        List<NamespaceStorageInfoProto> namespaceStorageInfoProtoList =
+                storageInfoProto.getDocumentStorageInfo().getNamespaceStorageInfoList();
+        for (int i = 0; i < namespaceStorageInfoProtoList.size(); i++) {
+            NamespaceStorageInfoProto namespaceStorageInfoProto =
+                    namespaceStorageInfoProtoList.get(i);
+            String packageName = getPackageName(namespaceStorageInfoProto.getNamespace());
+            Integer oldCount = mDocumentCountMapLocked.get(packageName);
+            int newCount;
+            if (oldCount == null) {
+                newCount = namespaceStorageInfoProto.getNumAliveDocuments();
+            } else {
+                newCount = oldCount + namespaceStorageInfoProto.getNumAliveDocuments();
+            }
+            mDocumentCountMapLocked.put(packageName, newCount);
+        }
     }
 
     /** Wrapper around schema changes */
