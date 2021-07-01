@@ -53,6 +53,7 @@ import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.complications.SystemDataSources.DataSourceId
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.toApiComplicationData
+import androidx.wear.complications.data.toWireTypes
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
@@ -64,6 +65,7 @@ import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
@@ -1174,6 +1176,34 @@ public abstract class WatchFaceService : WallpaperService() {
                 CurrentUserStyleRepository(createUserStyleSchema())
             ).getDefaultProviderPolicies()
         }
+
+        /** This will be called from a binder thread. */
+        @WorkerThread
+        internal fun getUserStyleSchemaWireFormat() = createUserStyleSchema().toWireFormat()
+
+        /** This will be called from a binder thread. */
+        @WorkerThread
+        internal fun getComplicationSlotMetadataWireFormats() =
+            createComplicationSlotsManager(
+                CurrentUserStyleRepository(createUserStyleSchema())
+            ).complicationSlots.map {
+                ComplicationSlotMetadataWireFormat(
+                    it.key,
+                    it.value.complicationSlotBounds.perComplicationTypeBounds.keys.map {
+                        it.toWireComplicationType()
+                    }.toIntArray(),
+                    it.value.complicationSlotBounds.perComplicationTypeBounds
+                        .values.toTypedArray(),
+                    it.value.boundsType,
+                    it.value.supportedTypes.toWireTypes(),
+                    it.value.defaultDataSourcePolicy.dataSourcesAsList(),
+                    it.value.defaultDataSourcePolicy.systemDataSourceFallback,
+                    it.value.defaultDataSourceType.toWireComplicationType(),
+                    it.value.initiallyEnabled,
+                    it.value.fixedComplicationDataSource,
+                    it.value.configExtras
+                )
+            }.toTypedArray()
 
         @RequiresApi(27)
         internal fun createHeadlessInstance(

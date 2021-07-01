@@ -165,23 +165,24 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
  * ComplicationSlots is fixed (see [ComplicationSlotsManager]) but ComplicationSlots can be
  * enabled or disabled via [UserStyleSetting.ComplicationSlotsUserStyleSetting].
  *
- * @param id The Watch Face's ID for the complication.
+ * @param id The Watch Face's ID for the complication slot.
  * @param accessibilityTraversalIndex Used to sort Complications when generating accessibility
  * content description labels.
- * @param boundsType The [ComplicationSlotBoundsType] of the complication.
- * @param bounds The complication's [ComplicationSlotBounds].
+ * @param boundsType The [ComplicationSlotBoundsType] of the complication slot.
+ * @param bounds The complication slot's [ComplicationSlotBounds].
  * @param canvasComplicationFactory The [CanvasComplicationFactory] used to generate a
  * [CanvasComplication] for rendering the complication. The factory allows us to decouple
  * ComplicationSlot from potentially expensive asset loading.
- * @param supportedTypes The list of [ComplicationType]s accepted by this complication. Used
- * during complication, this list should be non-empty.
+ * @param supportedTypes The list of [ComplicationType]s accepted by this complication slot. Used
+ * during complication data source selection, this list should be non-empty.
  * @param defaultPolicy The [DefaultComplicationDataSourcePolicy] which controls the
  * initial complication data source when the watch face is first installed.
  * @param defaultDataSourceType The default [ComplicationType] for the default complication data
  * source.
- * @param initiallyEnabled At creation a complication is either enabled or disabled. This can be
- * overridden by a [ComplicationSlotsUserStyleSetting] (see [ComplicationSlotOverlay.enabled]).
- * Editors need to know the initial state of a complication to predict the effects of making a
+ * @param initiallyEnabled At creation a complication slot is either enabled or disabled. This
+ * can be overridden by a [ComplicationSlotsUserStyleSetting] (see
+ * [ComplicationSlotOverlay.enabled]).
+ * Editors need to know the initial state of a complication slot to predict the effects of making a
  * style change.
  * @param configExtras Extras to be merged into the Intent sent when invoking the complication data
  * source chooser activity.
@@ -189,7 +190,7 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
  * can't be changed by the user).  This is useful for watch faces built around specific
  * complications.
  * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
- * complication.
+ * complication slot.
  */
 public class ComplicationSlot internal constructor(
     public val id: Int,

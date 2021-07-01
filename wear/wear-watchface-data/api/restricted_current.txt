@@ -146,6 +146,22 @@ package androidx.wear.watchface.control.data {
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.DefaultProviderPoliciesParams!>! CREATOR;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class GetComplicationSlotMetadataParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public GetComplicationSlotMetadataParams(android.content.ComponentName);
+    method public int describeContents();
+    method public android.content.ComponentName getWatchFaceName();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams!>! CREATOR;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class GetUserStyleSchemaParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public GetUserStyleSchemaParams(android.content.ComponentName);
+    method public int describeContents();
+    method public android.content.ComponentName getWatchFaceName();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.GetUserStyleSchemaParams!>! CREATOR;
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class HeadlessWatchFaceInstanceParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
     ctor public HeadlessWatchFaceInstanceParams(android.content.ComponentName, androidx.wear.watchface.data.DeviceConfig, int, int);
     method public int describeContents();
@@ -208,6 +224,24 @@ package androidx.wear.watchface.data {
     field public static final int BACKGROUND = 1; // 0x1
     field public static final int EDGE = 2; // 0x2
     field public static final int ROUND_RECT = 0; // 0x0
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationSlotMetadataWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public ComplicationSlotMetadataWireFormat(int, int[], android.graphics.RectF![], @androidx.wear.watchface.data.ComplicationSlotBoundsType int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, android.os.Bundle);
+    method public int describeContents();
+    method @androidx.wear.watchface.data.ComplicationSlotBoundsType public int getBoundsType();
+    method public android.graphics.RectF![] getComplicationBounds();
+    method public int[] getComplicationBoundsType();
+    method public android.os.Bundle getComplicationConfigExtras();
+    method @android.support.wearable.complications.ComplicationData.ComplicationType public int getDefaultDataSourceType();
+    method public java.util.List<android.content.ComponentName!>? getDefaultDataSourcesToTry();
+    method public int getFallbackSystemDataSource();
+    method public int getId();
+    method @android.support.wearable.complications.ComplicationData.ComplicationType public int[] getSupportedTypes();
+    method public boolean isFixedComplicationDataSource();
+    method public boolean isInitiallyEnabled();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat!>! CREATOR;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationStateWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
