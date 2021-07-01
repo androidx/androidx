@@ -635,6 +635,8 @@ as XML tag names.
 
 ## Helpful links
 
+[Writing Custom Lint Rules](https://googlesamples.github.io/android-custom-lint-rules/)
+
 [Studio Lint Rules](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks/)
 
 [Lint Detectors and Scanners Source Code](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/)
