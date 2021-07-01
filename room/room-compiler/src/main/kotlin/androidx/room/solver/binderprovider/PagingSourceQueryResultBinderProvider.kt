@@ -69,6 +69,8 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
     }
 
     override fun matches(declared: XType): Boolean {
+        val collectionTypeRaw = context.COMMON_TYPES.READONLY_COLLECTION.rawType
+
         if (pagingSourceType == null) {
             return false
         }
@@ -83,6 +85,10 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
 
         if (declared.typeArguments.first().typeName != TypeName.INT.box()) {
             context.logger.e(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_TYPE)
+        }
+
+        if (collectionTypeRaw.isAssignableFrom(declared.typeArguments.last().rawType)) {
+            context.logger.e(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE)
         }
 
         return true
