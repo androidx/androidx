@@ -140,7 +140,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      *  does not include static methods in parent interfaces
      */
     fun getAllMethods(): List<XMethodElement> {
-        return collectAllMethods()
+        return collectAllMethods(this).toList()
     }
 
     /**

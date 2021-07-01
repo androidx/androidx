@@ -25,10 +25,10 @@ import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.tryBox
-import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
@@ -37,7 +37,6 @@ import com.google.devtools.ksp.isOpen
 import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
 import com.squareup.javapoet.ClassName
@@ -134,32 +133,7 @@ internal sealed class KspTypeElement(
     }
 
     private val _declaredFieldsIncludingSupers by lazy {
-        // Read all properties from all supers and select the ones that are not overridden.
-        val myPropertyFields = getDeclaredFields()
-        val selectedNames = myPropertyFields.mapTo(mutableSetOf()) {
-            it.name
-        }
-        val selection = mutableListOf<KSPropertyDeclaration>()
-        declaration.getAllSuperTypes().map {
-            it.declaration
-        }.filterIsInstance(KSClassDeclaration::class.java)
-            .filter {
-                it.classKind != ClassKind.INTERFACE
-            }
-            .flatMap {
-                it.getDeclaredProperties().asSequence()
-            }.forEach {
-                if (selectedNames.add(it.simpleName.asString())) {
-                    selection.add(it)
-                }
-            }
-        myPropertyFields + selection.map {
-            KspFieldElement(
-                env = env,
-                declaration = it,
-                containing = this
-            )
-        }
+        collectFieldsIncludingPrivateSupers(this).toList()
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
