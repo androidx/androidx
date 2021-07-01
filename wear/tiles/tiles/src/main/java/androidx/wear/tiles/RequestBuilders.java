@@ -146,8 +146,13 @@ public final class RequestBuilders {
         }
 
         /**
-         * Gets requested resource IDs. If not specified, all resources for the given version must
-         * be provided in the response.
+         * Gets requested resource IDs. This specifies which tile resources should be returned in
+         * the {@link androidx.wear.tiles.ResourceBuilders.Resources} response. If not specified,
+         * all resources for the given version must be provided in the response.
+         *
+         * <p>Note that resource IDs here correspond to tile resources (i.e. keys that would be used
+         * in {@link androidx.wear.tiles.ResourceBuilders.Resources}.idToImage), not Android
+         * resource names or similar.
          */
         @NonNull
         public List<String> getResourceIds() {
@@ -205,8 +210,14 @@ public final class RequestBuilders {
             }
 
             /**
-             * Adds one item to requested resource IDs. If not specified, all resources for the
-             * given version must be provided in the response.
+             * Adds one item to requested resource IDs. This specifies which tile resources should
+             * be returned in the {@link androidx.wear.tiles.ResourceBuilders.Resources} response.
+             * If not specified, all resources for the given version must be provided in the
+             * response.
+             *
+             * <p>Note that resource IDs here correspond to tile resources (i.e. keys that would be
+             * used in {@link androidx.wear.tiles.ResourceBuilders.Resources}.idToImage), not
+             * Android resource names or similar.
              */
             @NonNull
             public Builder addResourceId(@NonNull String resourceId) {

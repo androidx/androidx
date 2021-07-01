@@ -26,8 +26,13 @@ message ResourcesRequest {
   // requested resource version, passed in Tile.
   string version = 1;
 
-  // Requested resource IDs. If not specified, all resources for the given
-  // version must be provided in the response.
+  // Requested resource IDs. This specifies which tile resources should be
+  // returned in the Resources response. If not specified, all resources for the
+  // given version must be provided in the response.
+  //
+  // Note that resource IDs here correspond to tile resources (i.e. keys that
+  // would be used in Resources.idToImage), not Android resource names or
+  // similar.
   repeated string resource_ids = 2;
 
   // Parameters describing the device requesting the resources.

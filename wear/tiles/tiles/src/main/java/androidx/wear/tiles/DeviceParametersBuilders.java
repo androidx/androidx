@@ -46,7 +46,7 @@ public final class DeviceParametersBuilders {
     /** Device platform is undefined. */
     public static final int DEVICE_PLATFORM_UNDEFINED = 0;
 
-    /** Device is a Wear OS by Google device. */
+    /** Device is a Wear OS device. */
     public static final int DEVICE_PLATFORM_WEAR_OS = 1;
 
     /**
