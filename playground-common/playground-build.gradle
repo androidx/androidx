@@ -49,6 +49,7 @@ buildscript {
                 artifact()
             }
         }
+        gradlePluginPortal()
     }
 
     ext.repos = [:]
@@ -59,6 +60,7 @@ buildscript {
         classpath(libs.gson)
         classpath "androidx.build:gradle-plugin:0.1.0"
         classpath(libs.shadow)
+        classpath(libs.japicmpPlugin)
     }
 }
 
