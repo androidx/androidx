@@ -300,7 +300,7 @@ class TransactionMethodProcessorTest {
                         it,
                         it.getAllMethods().filter {
                             it.hasAnnotation(Transaction::class)
-                        }
+                        }.toList()
                     )
                 }.first { it.second.isNotEmpty() }
             val processor = TransactionMethodProcessor(

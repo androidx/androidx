@@ -1305,7 +1305,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                         typeElement,
                         typeElement.getAllMethods().filter { method ->
                             method.hasAnnotation(Query::class)
-                        }
+                        }.toList()
                     )
                 }.first { it.second.isNotEmpty() }
             val verifier = if (enableVerification) {

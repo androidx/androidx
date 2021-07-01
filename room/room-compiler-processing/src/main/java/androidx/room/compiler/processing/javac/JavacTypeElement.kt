@@ -22,7 +22,6 @@ import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -73,14 +72,6 @@ internal sealed class JavacTypeElement(
 
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
-    }
-
-    private val _allFieldsIncludingPrivateSupers by lazy {
-        collectFieldsIncludingPrivateSupers(this).toList()
-    }
-
-    override fun getAllFieldsIncludingPrivateSupers(): List<XFieldElement> {
-        return _allFieldsIncludingPrivateSupers
     }
 
     override fun isKotlinObject() = kotlinMetadata?.isObject() == true

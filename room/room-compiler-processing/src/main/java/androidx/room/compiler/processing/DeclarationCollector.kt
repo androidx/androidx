@@ -37,7 +37,7 @@ private fun <T> collectDeclarations(
      * Returns a list of possible elements that can be included in the final list.
      * The receiver is either a super class or interface.
      */
-    getCandidateDeclarations: XTypeElement.() -> Iterable<T>,
+    getCandidateDeclarations: XTypeElement.() -> Sequence<T>,
     /**
      * Returns a partitan key for each element to optimize override checks etc.
      */
