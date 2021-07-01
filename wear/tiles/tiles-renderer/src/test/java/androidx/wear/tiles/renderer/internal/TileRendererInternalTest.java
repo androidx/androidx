@@ -467,6 +467,57 @@ public class TileRendererInternalTest {
     }
 
     @Test
+    public void inflate_clickableModifier_withLaunchAction_requiresPermissionIsNoOp() {
+        final String packageName = "androidx.wear.tiles.test";
+        final String className = "androidx.wear.tiles.test.TestActivity";
+        final String textContents = "I am a clickable";
+
+        // Register the activity so the intent can be resolved.
+        ComponentName cn = new ComponentName(packageName, className);
+        ShadowPackageManager pkgManager = shadowOf(getApplicationContext().getPackageManager());
+        ActivityInfo ai = pkgManager.addActivityIfNotPresent(cn);
+
+        // Activity has a permission associated with it; shouldn't be called.
+        ai.exported = true;
+        ai.permission = "android.MY_PERMISSION";
+
+        LaunchAction launchAction =
+                LaunchAction.newBuilder()
+                        .setAndroidActivity(AndroidActivity.newBuilder()
+                                .setPackageName(packageName).setClassName(className))
+                        .build();
+
+        Action action = Action.newBuilder().setLaunchAction(launchAction).build();
+
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(StringProp.newBuilder().setValue(textContents))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setClickable(Clickable.newBuilder()
+                                                                .setId("foo").setOnClick(action))))
+                        .build();
+
+        FrameLayout rootLayout = inflateProto(root);
+
+        // Should be just a text view as the root.
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        assertThat(rootLayout.getChildAt(0)).isInstanceOf(TextView.class);
+
+        TextView tv = (TextView) rootLayout.getChildAt(0);
+
+        shadowOf((Application) getApplicationContext()).clearNextStartedActivities();
+
+        // Try and fire the intent.
+        tv.performClick();
+
+        expect.that(
+                shadowOf((Application) getApplicationContext()).getNextStartedActivity()).isNull();
+    }
+
+    @Test
     public void inflate_clickableModifier_withLoadAction() {
         final String textContents = "I am a clickable";
 

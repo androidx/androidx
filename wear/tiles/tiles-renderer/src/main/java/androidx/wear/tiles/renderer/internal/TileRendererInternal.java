@@ -579,6 +579,15 @@ public final class TileRendererInternal {
         }
     }
 
+    // Package private to avoid synthetic accessor.
+    void dispatchLaunchActionIntent(Intent i) {
+        ActivityInfo ai = i.resolveActivityInfo(mAppContext.getPackageManager(), /* flags= */ 0);
+
+        if (ai != null && ai.exported && (ai.permission == null || ai.permission.isEmpty())) {
+            mAppContext.startActivity(i);
+        }
+    }
+
     private void applyClickable(View view, Clickable clickable) {
         view.setTag(clickable.getId());
 
@@ -593,13 +602,7 @@ public final class TileRendererInternal {
                     view.setOnClickListener(
                             v -> {
                                 i.setSourceBounds(getSourceBounds(view));
-                                ActivityInfo ai =
-                                        i.resolveActivityInfo(
-                                                mAppContext.getPackageManager(), /* flags= */ 0);
-
-                                if (ai != null && ai.exported) {
-                                    mAppContext.startActivity(i);
-                                }
+                                dispatchLaunchActionIntent(i);
                             });
                 }
                 break;
@@ -1838,9 +1841,7 @@ public final class TileRendererInternal {
                     Intent i =
                             buildLaunchActionIntent(action.getLaunchAction(), mClickable.getId());
                     if (i != null) {
-                        if (i.resolveActivity(mAppContext.getPackageManager()) != null) {
-                            mAppContext.startActivity(i);
-                        }
+                        dispatchLaunchActionIntent(i);
                     }
                     break;
                 case LOAD_ACTION:
