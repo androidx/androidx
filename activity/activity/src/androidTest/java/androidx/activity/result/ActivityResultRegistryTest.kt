@@ -360,6 +360,35 @@ class ActivityResultRegistryTest {
     }
 
     @Test
+    fun testRegisterBeforeRestoreInstanceState() {
+        registry.register("key", StartActivityForResult()) { }
+
+        val savedState = Bundle()
+        registry.onSaveInstanceState(savedState)
+
+        val restoredRegistry = object : ActivityResultRegistry() {
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                dispatchResult(requestCode, RESULT_OK, Intent())
+            }
+        }
+
+        restoredRegistry.register("key", StartActivityForResult()) { }
+        restoredRegistry.onRestoreInstanceState(savedState)
+
+        val newSavedState = Bundle()
+        restoredRegistry.onSaveInstanceState(newSavedState)
+
+        val keys = newSavedState.getStringArrayList("KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS")
+
+        assertThat(keys?.size).isEqualTo(1)
+    }
+
+    @Test
     fun testKeepKeyAfterLaunch() {
         var code = 0
         val noDispatchRegistry = object : ActivityResultRegistry() {
@@ -415,5 +444,53 @@ class ActivityResultRegistryTest {
         noDispatchRegistry.dispatchResult(code, ActivityResult(RESULT_OK, Intent()))
 
         assertThat(callbackExecuted).isTrue()
+    }
+
+    @Test
+    fun testSavePendingOnRestore() {
+        var code = 0
+        val noDispatchRegistry = object : ActivityResultRegistry() {
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                code = requestCode
+            }
+        }
+
+        val contract = StartActivityForResult()
+        val launcher = noDispatchRegistry.register("key", contract) { }
+
+        launcher.launch(Intent())
+        launcher.unregister()
+
+        noDispatchRegistry.dispatchResult(code, RESULT_OK, Intent())
+
+        val savedState = Bundle()
+        noDispatchRegistry.onSaveInstanceState(savedState)
+
+        val newNoDispatchRegistry = object : ActivityResultRegistry() {
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                code = requestCode
+            }
+        }
+
+        var completedLaunch = false
+        newNoDispatchRegistry.register("key", contract) {
+            completedLaunch = true
+        }
+
+        newNoDispatchRegistry.onRestoreInstanceState(savedState)
+
+        newNoDispatchRegistry.dispatchResult(code, RESULT_OK, Intent())
+
+        assertThat(completedLaunch).isTrue()
     }
 }
