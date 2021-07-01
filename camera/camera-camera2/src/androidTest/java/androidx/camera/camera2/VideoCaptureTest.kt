@@ -29,6 +29,7 @@ import android.util.Size
 import androidx.annotation.NonNull
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
+import androidx.camera.core.Logger
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.VideoCapture
@@ -71,6 +72,8 @@ public class VideoCaptureTest {
         @ClassRule
         @JvmField
         public val useRecordingResource: TestRule = CameraUtil.checkVideoRecordingResource()
+
+        private const val TAG = "VideoCaptureTest"
     }
 
     @get:Rule
@@ -144,7 +147,7 @@ public class VideoCaptureTest {
         file.delete()
     }
 
-    @Test
+    @Test(timeout = 30000)
     @SdkSuppress(minSdkVersion = 26)
     public fun startRecordingWithFileDescriptor_whenAPILevelLargerThan26() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
@@ -189,7 +192,7 @@ public class VideoCaptureTest {
         )
 
         // Recording for seconds
-        Thread.sleep(3000)
+        recordingUntilKeyFrameArrived(videoCapture)
 
         // Stop recording
         videoCapture.stopRecording()
@@ -200,7 +203,7 @@ public class VideoCaptureTest {
     }
 
     @FlakyTest // b/182165222
-    @Test
+    @Test(timeout = 30000)
     public fun unbind_shouldStopRecording() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()
@@ -231,8 +234,7 @@ public class VideoCaptureTest {
             callback
         )
 
-        // Recording for seconds
-        Thread.sleep(3000)
+        recordingUntilKeyFrameArrived(videoCapture)
 
         instrumentation.runOnMainSync {
             cameraUseCaseAdapter.removeUseCases(listOf(videoCapture, preview))
@@ -242,7 +244,7 @@ public class VideoCaptureTest {
         file.delete()
     }
 
-    @Test
+    @Test(timeout = 30000)
     @SdkSuppress(minSdkVersion = 26)
     public fun startRecordingWithUri_whenAPILevelLargerThan26() {
         val preview = Preview.Builder().build()
@@ -266,7 +268,7 @@ public class VideoCaptureTest {
             CameraXExecutors.mainThreadExecutor(),
             callback
         )
-        Thread.sleep(3000)
+        recordingUntilKeyFrameArrived(videoCapture)
 
         videoCapture.stopRecording()
 
@@ -286,7 +288,7 @@ public class VideoCaptureTest {
         contentResolver.delete(saveLocationUri!!, null, null)
     }
 
-    @Test
+    @Test(timeout = 30000)
     public fun videoCapture_saveResultToFile() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()
@@ -314,13 +316,50 @@ public class VideoCaptureTest {
             callback
         )
 
-        Thread.sleep(3000)
-
+        recordingUntilKeyFrameArrived(videoCapture)
         videoCapture.stopRecording()
 
         // Wait for the signal that the video has been saved.
         verify(callback, timeout(10000)).onVideoSaved(any())
         file.delete()
+    }
+
+    @Test(timeout = 30000)
+    public fun videoCapture_noKeyFrameVideoShouldCallOnError() {
+        val realFile = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder().build()
+
+        assumeTrue(
+            "This combination (videoCapture, preview) is not supported.",
+            checkUseCasesCombinationSupported(videoCapture, preview)
+        )
+        instrumentation.runOnMainSync {
+            preview.setSurfaceProvider(
+                CameraXExecutors.mainThreadExecutor(),
+                getSurfaceProvider()
+            )
+            cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
+        }
+
+        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
+        videoCapture.startRecording(
+            VideoCapture.OutputFileOptions.Builder(realFile).build(),
+            CameraXExecutors.mainThreadExecutor(),
+            callback
+        )
+
+        // Stop recording directly
+        videoCapture.stopRecording()
+        // Wait for the signal that the video has been saved.
+        verify(callback, timeout(10000)).onError(
+            VideoCapture.ERROR_RECORDING_TOO_SHORT, "The file has no video key frame.", null
+        )
+        // If verification fails, it still needs to be removed.
+        if (realFile.exists()) {
+            realFile.delete()
+        }
     }
 
     /** Return a VideoOutputFileOption which is used to save a video.  */
@@ -362,5 +401,22 @@ public class VideoCaptureTest {
             return false
         }
         return true
+    }
+
+    private fun recordingUntilKeyFrameArrived(videoCapture: VideoCapture) {
+        Logger.i(TAG, "recordingUntilKeyFrameArrived begins: " + System.nanoTime() / 1000)
+        while (true) {
+            if (videoCapture.mIsFirstVideoKeyFrameWrite.get() && videoCapture
+                .mIsFirstAudioSampleWrite.get()
+            ) {
+                Logger.i(
+                    TAG,
+                    "Video Key Frame and audio frame Arrived: " + System.nanoTime() / 1000
+                )
+                break
+            }
+            Thread.sleep(100)
+        }
+        Logger.i(TAG, "recordingUntilKeyFrameArrived ends: " + System.nanoTime() / 1000)
     }
 }
