@@ -25,7 +25,6 @@ import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.tryBox
@@ -130,10 +129,6 @@ internal sealed class KspTypeElement(
                 )
             }
         declaredProperties + companionProperties
-    }
-
-    private val _declaredFieldsIncludingSupers by lazy {
-        collectFieldsIncludingPrivateSupers(this).toList()
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
@@ -247,10 +242,6 @@ internal sealed class KspTypeElement(
 
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
-    }
-
-    override fun getAllFieldsIncludingPrivateSupers(): List<XFieldElement> {
-        return _declaredFieldsIncludingSupers
     }
 
     override fun findPrimaryConstructor(): XConstructorElement? {

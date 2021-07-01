@@ -398,7 +398,7 @@ class RawQueryMethodProcessorTest {
                         it,
                         it.getAllMethods().filter {
                             it.hasAnnotation(RawQuery::class)
-                        }
+                        }.toList()
                     )
                 }.first { it.second.isNotEmpty() }
             val parser = RawQueryMethodProcessor(

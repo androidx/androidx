@@ -117,7 +117,9 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      * All fields, including private supers.
      * Room only ever reads fields this way.
      */
-    fun getAllFieldsIncludingPrivateSupers(): List<XFieldElement>
+    fun getAllFieldsIncludingPrivateSupers(): Sequence<XFieldElement> {
+        return collectFieldsIncludingPrivateSupers(this)
+    }
 
     /**
      * Returns the primary constructor for the type, if it exists.
@@ -134,13 +136,13 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
 
     /**
      * Methods declared in this type and its parents
-     *  includes all instance/static methods in this
+     *  includes all instance/static methods in this (including private)
      *  includes all instance/static methods in parent CLASS if they are accessible from this (e.g.
      *  not private).
      *  does not include static methods in parent interfaces
      */
-    fun getAllMethods(): List<XMethodElement> {
-        return collectAllMethods(this).toList()
+    fun getAllMethods(): Sequence<XMethodElement> {
+        return collectAllMethods(this)
     }
 
     /**
@@ -148,7 +150,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      *  include non private instance methods
      *  also includes non-private instance methods from supers
      */
-    fun getAllNonPrivateInstanceMethods(): List<XMethodElement> {
+    fun getAllNonPrivateInstanceMethods(): Sequence<XMethodElement> {
         return getAllMethods().filter {
             !it.isPrivate() && !it.isStatic()
         }

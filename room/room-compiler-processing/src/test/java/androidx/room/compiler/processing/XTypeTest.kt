@@ -195,7 +195,7 @@ class XTypeTest {
                 }
             }.map { (first, second) ->
                 first.name to second.name
-            }
+            }.toList()
 
             val expected = setOf(
                 "intField" to "intProp",

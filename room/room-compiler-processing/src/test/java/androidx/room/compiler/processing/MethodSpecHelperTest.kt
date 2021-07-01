@@ -458,7 +458,7 @@ class MethodSpecHelperTest(
         val methods = if (ignoreInheritedMethods) {
             target.getDeclaredMethods().filter { !it.isStatic() }
         } else {
-            target.getAllNonPrivateInstanceMethods()
+            target.getAllNonPrivateInstanceMethods().toList()
         }
         val selectedMethods = methods.filter {
             it.isOverrideableIgnoringContainer()

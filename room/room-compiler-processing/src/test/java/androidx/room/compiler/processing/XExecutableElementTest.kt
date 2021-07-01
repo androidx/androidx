@@ -274,7 +274,7 @@ class XExecutableElementTest {
             val klass = invocation.processingEnv.requireTypeElement("MyDataClass")
             val methodNames = klass.getAllMethods().map {
                 it.name
-            }
+            }.toList()
             assertThat(methodNames).containsNoneIn(
                 listOf(
                     "setX", "setProp1", "setProp3", "setZ", "setProp4", "getProp4", "setProp7"

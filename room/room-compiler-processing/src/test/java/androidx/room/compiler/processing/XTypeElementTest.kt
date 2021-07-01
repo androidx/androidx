@@ -408,7 +408,7 @@ class XTypeElementTest {
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("MyInterface")
-            assertThat(element.getAllFieldsIncludingPrivateSupers()).isEmpty()
+            assertThat(element.getAllFieldsIncludingPrivateSupers().toList()).isEmpty()
             element.getMethod("getX").let {
                 assertThat(it.isAbstract()).isTrue()
             }
@@ -1052,7 +1052,11 @@ class XTypeElementTest {
         .getAllMethods()
         .names()
 
+    private fun Sequence<XMethodElement>.names() = map {
+        it.name
+    }.toList()
+
     private fun List<XMethodElement>.names() = map {
         it.name
-    }
+    }.toList()
 }

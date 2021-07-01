@@ -85,7 +85,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         val methods = element.getAllMethods()
         val converterMethods = methods.filter {
             it.hasAnnotation(TypeConverter::class)
-        }
+        }.toList()
         val isProvidedConverter = element.hasAnnotation(ProvidedTypeConverter::class)
         context.checker.check(converterMethods.isNotEmpty(), element, TYPE_CONVERTER_EMPTY_CLASS)
         val allStatic = converterMethods.all { it.isStatic() }
