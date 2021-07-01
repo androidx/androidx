@@ -252,6 +252,8 @@ public class CurrentUserStyleRepository(
 
     /**
      * Adds a [UserStyleChangeListener] which is called immediately and whenever the style changes.
+     *
+     * NB the order in which ambient vs style changes are reported is not guaranteed.
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")
