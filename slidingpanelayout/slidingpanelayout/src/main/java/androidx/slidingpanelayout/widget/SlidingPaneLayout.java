@@ -45,7 +45,6 @@ import androidx.annotation.Px;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
-import androidx.core.util.Consumer;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -53,11 +52,8 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
-import androidx.window.DisplayFeature;
 import androidx.window.FoldingFeature;
 import androidx.window.WindowInfoRepo;
-import androidx.window.WindowLayoutInfo;
-import androidx.window.java.WindowInfoRepoCallbackAdapter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -331,7 +327,11 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
 
         try {
-            FoldingFeatureObserver foldingFeatureObserver = new FoldingFeatureObserver(context);
+            Activity activity = requireActivity(context);
+            WindowInfoRepo repo = WindowInfoRepo.create(activity);
+            Executor mainExecutor = ContextCompat.getMainExecutor(activity);
+            FoldingFeatureObserver foldingFeatureObserver = new FoldingFeatureObserver(repo,
+                    mainExecutor);
             setFoldingFeatureObserver(foldingFeatureObserver);
         } catch (IllegalArgumentException exception) {
             // Disable fold detection.
@@ -1880,108 +1880,17 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         return foldRectInView;
     }
 
-    /**
-     * A device folding feature observer is used to notify listener when there is a folding feature
-     * change.
-     */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    static class FoldingFeatureObserver {
-        /**
-         * Interface definition for a callback to be invoked when there is a folding feature change
-         */
-        private interface OnFoldingFeatureChangeListener {
-            /**
-             * Callback method to update window layout when there is a folding feature change
-             */
-            void onFoldingFeatureChange(@NonNull FoldingFeature foldingFeature);
-        }
-
-        class LayoutStateChangeCallback implements Consumer<WindowLayoutInfo> {
-            private FoldingFeature mLastFoldingFeature;
-
-            @Override
-            public void accept(WindowLayoutInfo windowLayoutInfo) {
-                final FoldingFeature currentFoldingFeature = getFoldingFeature(windowLayoutInfo);
-                if (currentFoldingFeature != null) {
-                    // Update window layout when folding feature changed
-                    if (!currentFoldingFeature.equals(mLastFoldingFeature)) {
-                        dispatchOnFoldingFeatureChange(currentFoldingFeature);
-                    }
-                    mLastFoldingFeature = currentFoldingFeature;
-                }
+    private static Activity requireActivity(Context context) {
+        Context iterator = context;
+        while (iterator instanceof ContextWrapper) {
+            if (iterator instanceof Activity) {
+                return (Activity) iterator;
             }
-
-            private FoldingFeature getFoldingFeature(WindowLayoutInfo windowLayoutInfo) {
-                for (DisplayFeature displayFeature : windowLayoutInfo.getDisplayFeatures()) {
-                    if (displayFeature instanceof FoldingFeature) {
-                        return (FoldingFeature) displayFeature;
-                    }
-                }
-                return null;
-            }
+            iterator = ((ContextWrapper) iterator).getBaseContext();
         }
-
-        private final WindowInfoRepoCallbackAdapter mWindowInfoRepo;
-        private final Executor mExecutor;
-        private OnFoldingFeatureChangeListener mOnFoldingFeatureChangeListener;
-        private final LayoutStateChangeCallback mLayoutStateChangeCallback =
-                new LayoutStateChangeCallback();
-
-        /**
-         * Create an instance of a folding feature observer
-         *
-         * @param context A visual context, such as an {@link Activity} or a {@link ContextWrapper}
-         */
-        FoldingFeatureObserver(@NonNull Context context) {
-            Activity activity = requireActivity(context);
-            mWindowInfoRepo = new WindowInfoRepoCallbackAdapter(WindowInfoRepo.create(activity));
-            mExecutor = ContextCompat.getMainExecutor(context);
-        }
-
-        /**
-         * Register a listener that can be notified when there is a folding feature change.
-         *
-         * @param onFoldingFeatureChangeListener The listener to be added
-         */
-        void setOnFoldingFeatureChangeListener(
-                @NonNull OnFoldingFeatureChangeListener onFoldingFeatureChangeListener) {
-            mOnFoldingFeatureChangeListener = onFoldingFeatureChangeListener;
-        }
-
-        void dispatchOnFoldingFeatureChange(@NonNull FoldingFeature foldingFeature) {
-            if (mOnFoldingFeatureChangeListener == null) {
-                return;
-            }
-            mOnFoldingFeatureChangeListener.onFoldingFeatureChange(foldingFeature);
-        }
-
-        /**
-         * Registers a callback for layout changes of the window for the supplied {@link Activity}.
-         * Must be called only after the it is attached to the window.
-         */
-        void registerLayoutStateChangeCallback() {
-            mWindowInfoRepo.addWindowLayoutInfoListener(mExecutor, mLayoutStateChangeCallback);
-        }
-
-        /**
-         * Unregisters a callback for window layout changes of the {@link Activity} window.
-         */
-        void unregisterLayoutStateChangeCallback() {
-            mWindowInfoRepo.removeWindowLayoutInfoListener(mLayoutStateChangeCallback);
-        }
-
-        private static Activity requireActivity(Context context) {
-            Context iterator = context;
-            while (iterator instanceof ContextWrapper) {
-                if (iterator instanceof Activity) {
-                    return (Activity) iterator;
-                }
-                iterator = ((ContextWrapper) iterator).getBaseContext();
-            }
-            throw new IllegalArgumentException("Used non-visual Context to obtain an instance of "
-                    + "WindowManager. Please use an Activity or a ContextWrapper around one "
-                    + "instead."
-            );
-        }
+        throw new IllegalArgumentException("Used non-visual Context to obtain an instance of "
+                + "WindowManager. Please use an Activity or a ContextWrapper around one "
+                + "instead."
+        );
     }
 }
