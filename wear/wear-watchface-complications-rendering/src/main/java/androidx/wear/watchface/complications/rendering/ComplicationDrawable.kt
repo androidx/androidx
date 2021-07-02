@@ -34,11 +34,11 @@ import android.util.Xml
 import androidx.annotation.IntRange
 import androidx.annotation.Px
 import androidx.annotation.VisibleForTesting
-import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType.NO_DATA
 import androidx.wear.complications.data.ComplicationType.NO_PERMISSION
 import androidx.wear.complications.data.ComplicationType.RANGED_VALUE
+import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.watchface.complications.rendering.ComplicationRenderer.OnInvalidateListener
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException

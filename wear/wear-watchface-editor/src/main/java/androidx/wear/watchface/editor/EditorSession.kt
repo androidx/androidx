@@ -34,7 +34,6 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationDataSourceInfo
 import androidx.wear.complications.ComplicationDataSourceInfoRetriever
-import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
@@ -43,6 +42,7 @@ import androidx.wear.complications.data.MonochromaticImage
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.complications.toApiComplicationDataSourceInfo
+import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.utility.launchWithTracing

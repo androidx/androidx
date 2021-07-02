@@ -42,10 +42,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.wear.complications.ComplicationDataSourceChooserIntent
 import androidx.wear.complications.ComplicationDataSourceInfo
 import androidx.wear.complications.ComplicationDataSourceInfoRetriever
-import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.SystemDataSources
@@ -58,6 +56,8 @@ import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.BroadcastsObserver
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.ComplicationDataSourceChooserIntent
+import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.MutableWatchState
