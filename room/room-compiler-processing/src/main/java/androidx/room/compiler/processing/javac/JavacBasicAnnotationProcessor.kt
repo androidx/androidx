@@ -37,7 +37,7 @@ abstract class JavacBasicAnnotationProcessor :
     // This state is cached here so that it can be shared by all steps in a given processing round.
     // The state is initialized at beginning of each round using the InitializingStep, and
     // the state is cleared at the end of each round in BasicAnnotationProcessor#postRound()
-    private var xEnv: JavacProcessingEnv? = null
+    private var cachedXEnv: JavacProcessingEnv? = null
 
     final override fun steps(): Iterable<Step> {
         val delegatingSteps = processingSteps().map { DelegatingStep(it) }
@@ -52,7 +52,7 @@ abstract class JavacBasicAnnotationProcessor :
         override fun process(
             elementsByAnnotation: ImmutableSetMultimap<String, Element>
         ): Set<Element> {
-            xEnv = JavacProcessingEnv(processingEnv)
+            cachedXEnv = JavacProcessingEnv(processingEnv)
             return emptySet()
         }
     }
@@ -64,28 +64,26 @@ abstract class JavacBasicAnnotationProcessor :
         override fun process(
             elementsByAnnotation: ImmutableSetMultimap<String, Element>
         ): Set<Element> {
+            val xEnv = checkNotNull(cachedXEnv)
             val xElementsByAnnotation = mutableMapOf<String, Set<XElement>>()
             xStep.annotations().forEach { annotation ->
                 xElementsByAnnotation[annotation] =
                     elementsByAnnotation[annotation].mapNotNull { element ->
-                        xEnv!!.wrapAnnotatedElement(element, annotation)
+                        xEnv.wrapAnnotatedElement(element, annotation)
                     }.toSet()
             }
-            return xStep.process(xEnv!!, xElementsByAnnotation).map {
+            return xStep.process(xEnv, xElementsByAnnotation).map {
                 (it as JavacElement).element
             }.toSet()
         }
     }
 
     final override fun postRound(roundEnv: RoundEnvironment) {
-        if (xEnv == null) {
-            // On the last round of processing, postRound() is called without calling any of the
-            // processing steps, so we'll need to initialize xEnv ourselves.
-            assert(roundEnv.processingOver())
-            xEnv = JavacProcessingEnv(processingEnv)
-        }
-        val xRound = XRoundEnv.create(xEnv!!, roundEnv)
-        postRound(xEnv!!, xRound)
-        xEnv = null // Reset after every round to allow GC
+        // The cachedXEnv can be null if none of the steps were processed in the round.
+        // In this case, we just create a new one since there is no cached one to share.
+        val xEnv = cachedXEnv ?: JavacProcessingEnv(processingEnv)
+        val xRound = XRoundEnv.create(xEnv, roundEnv)
+        postRound(xEnv, xRound)
+        cachedXEnv = null // Reset after every round to allow GC
     }
 }

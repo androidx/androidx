@@ -44,16 +44,25 @@ abstract class KspBasicAnnotationProcessor(
             symbolProcessorEnvironment.logger
         )
         val round = XRoundEnv.create(processingEnv)
-        val deferredElements = processingSteps().flatMap { step ->
-            val invalidElements = mutableSetOf<XElement>()
-            val elementsByAnnotation = step.annotations().associateWith { annotation ->
+        val deferredElements = mutableSetOf<XElement>()
+        processingSteps().forEach { step ->
+            val elementsByAnnotation = mutableMapOf<String, Set<XElement>>()
+            step.annotations().forEach { annotation ->
                 val annotatedElements = round.getElementsAnnotatedWith(annotation)
-                annotatedElements
-                    .filter { (it as KspElement).declaration.validateExceptLocals() }
-                    .also { invalidElements.addAll(annotatedElements - it) }
-                    .toSet()
+                val validAnnotatedElements =
+                    annotatedElements
+                        .filter { (it as KspElement).declaration.validateExceptLocals() }
+                        .toSet()
+
+                deferredElements.addAll(annotatedElements - validAnnotatedElements)
+                if (!validAnnotatedElements.isEmpty()) {
+                    elementsByAnnotation[annotation] = validAnnotatedElements
+                }
             }
-            invalidElements + step.process(processingEnv, elementsByAnnotation)
+            // Only process the step if there are annotated elements found for this step.
+            if (!elementsByAnnotation.isEmpty()) {
+                deferredElements.addAll(step.process(processingEnv, elementsByAnnotation))
+            }
         }
         postRound(processingEnv, round)
         return deferredElements.map { (it as KspElement).declaration }
@@ -69,7 +78,7 @@ private fun KSAnnotated.validateExceptLocals(): Boolean {
         // skip locals
         // https://github.com/google/ksp/issues/489
         val skip = (parent as? KSDeclaration)?.isLocal() == true ||
-            (current as? KSDeclaration)?.isLocal() == true
+          (current as? KSDeclaration)?.isLocal() == true
         !skip
     }
 }

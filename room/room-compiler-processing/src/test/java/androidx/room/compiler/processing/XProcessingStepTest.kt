@@ -388,7 +388,7 @@ class XProcessingStepTest {
     }
 
     @Test
-    fun stepOnlyCalledIfElementsToProcess() {
+    fun javacStepOnlyCalledIfElementsToProcess() {
         val main = JavaFileObjects.forSourceString(
             "foo.bar.Main",
             """
@@ -498,5 +498,60 @@ class XProcessingStepTest {
             .containsExactly("foo.bar.Main")
         assertThat(elementsByStep[otherStep])
             .containsExactly("foo.bar.Other")
+    }
+
+    @Test
+    fun kspStepOnlyCalledIfElementsToProcess() {
+        val main = SourceFile.kotlin(
+            "Classes.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            @MainAnnotation(
+                typeList = [],
+                singleType = Any::class,
+                intMethod = 3,
+                singleOtherAnnotation = OtherAnnotation("y")
+            )
+            class Main {
+            }
+            """.trimIndent()
+        )
+        val stepsProcessed = mutableListOf<XProcessingStep>()
+        val mainStep = object : XProcessingStep {
+            override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                stepsProcessed.add(this)
+                return emptySet()
+            }
+        }
+        val otherStep = object : XProcessingStep {
+            override fun annotations() = setOf(OtherAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                stepsProcessed.add(this)
+                return emptySet()
+            }
+        }
+        val processorProvider = object : SymbolProcessorProvider {
+            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+                return object : KspBasicAnnotationProcessor(environment) {
+                    override fun processingSteps() = listOf(mainStep, otherStep)
+                }
+            }
+        }
+        KotlinCompilation().apply {
+            workingDir = temporaryFolder.root
+            inheritClassPath = true
+            symbolProcessorProviders = listOf(processorProvider)
+            sources = listOf(main)
+            verbose = false
+        }.compile()
+        assertThat(stepsProcessed).containsExactly(mainStep)
     }
 }
