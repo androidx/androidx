@@ -20,8 +20,6 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.DiffingChangePayload.ITEM_TO_PLACEHOLDER
 import androidx.paging.ListUpdateEvent.Changed
 import androidx.paging.ListUpdateEvent.Inserted
-import androidx.paging.ListUpdateEvent.Moved
-import androidx.paging.ListUpdateEvent.Removed
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.recyclerview.widget.DiffUtil
@@ -49,35 +47,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-private class ListUpdateCapture : ListUpdateCallback {
-    private var lastEventsListIndex = -1
-
-    val events = mutableListOf<ListUpdateEvent>()
-
-    override fun onChanged(position: Int, count: Int, payload: Any?) {
-        events.add(Changed(position, count, payload))
-    }
-
-    override fun onMoved(fromPosition: Int, toPosition: Int) {
-        events.add(Moved(fromPosition, toPosition))
-    }
-
-    override fun onInserted(position: Int, count: Int) {
-        events.add(Inserted(position, count))
-    }
-
-    override fun onRemoved(position: Int, count: Int) {
-        events.add(Removed(position, count))
-    }
-
-    fun newEvents(): List<ListUpdateEvent> {
-        return events.drop(lastEventsListIndex + 1).also {
-            lastEventsListIndex = events.lastIndex
-        }
-    }
-}
-
-private sealed class ListUpdateEvent {
+sealed class ListUpdateEvent {
     data class Changed(val position: Int, val count: Int, val payload: Any?) : ListUpdateEvent()
 
     data class Moved(val fromPosition: Int, val toPosition: Int) : ListUpdateEvent()

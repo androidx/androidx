@@ -19,6 +19,9 @@ package androidx.paging
 import androidx.annotation.VisibleForTesting
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.APPEND
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
@@ -155,7 +158,7 @@ open class AsyncPagedListDiffer<T : Any> {
             }
         }
 
-    private val loadStateListener = loadStateManager::onStateChanged
+    private val loadStateListener = loadStateManager::setState
 
     internal val loadStateListeners: MutableList<(LoadType, LoadState) -> Unit> =
         CopyOnWriteArrayList()
@@ -343,8 +346,27 @@ open class AsyncPagedListDiffer<T : Any> {
         // incrementing generation means any currently-running diffs are discarded when they finish
         val runGeneration = ++maxScheduledGeneration
 
+        // Ignore incoming PagedList if it is already being presented.
+        // Note: Still need to increment generation, since we may have ongoing work.
         if (pagedList === this.pagedList) {
-            // nothing to do (Note - still had to inc generation, since may have ongoing work)
+            commitCallback?.run()
+            return
+        }
+
+        val currentPagedList = this.pagedList
+
+        // Ignore incoming PagedList if it is an InitialPagedList, the placeholder initial value
+        // for PagedList stream builders. This allows users to switch to a new PagedList stream
+        // without needing to manually filter InitialPagedList to prevent it from clearing the
+        // list. Returning early here and ignoring the events from the InitialPagedList allows us
+        // to maintain behavior compatibility with Paging2, while still supporting LoadState.
+        // Note: Still need to increment generation, since we may have ongoing work.
+        if (currentPagedList != null && pagedList is InitialPagedList<*, *>) {
+            currentPagedList.removeWeakCallback(pagedListCallback)
+            currentPagedList.removeWeakLoadStateListener(loadStateListener)
+            loadStateManager.setState(REFRESH, LoadState.Loading)
+            loadStateManager.setState(PREPEND, LoadState.NotLoading(endOfPaginationReached = false))
+            loadStateManager.setState(APPEND, LoadState.NotLoading(endOfPaginationReached = false))
             commitCallback?.run()
             return
         }
@@ -353,7 +375,6 @@ open class AsyncPagedListDiffer<T : Any> {
 
         if (pagedList == null) {
             val removedCount = itemCount
-            val currentPagedList = this.pagedList
             if (currentPagedList != null) {
                 currentPagedList.removeWeakCallback(pagedListCallback)
                 currentPagedList.removeWeakLoadStateListener(loadStateListener)

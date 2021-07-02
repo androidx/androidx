@@ -31,12 +31,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestExecutor
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -650,6 +653,90 @@ class AsyncPagedListDifferTest {
         assert(differ.listeners.size == 1)
         differ.removePagedListListener(noopCallback)
         assert(differ.listeners.size == 0)
+    }
+
+    @Test
+    fun submitList_initialPagedListEvents() {
+        val config = PagedList.Config.Builder().apply {
+            setPageSize(1)
+        }.build()
+        val listUpdateCallback = ListUpdateCapture()
+        val loadStateListener = LoadStateCapture()
+        val differ = createDiffer(listUpdateCallback).apply {
+            addLoadStateListener(loadStateListener)
+        }
+
+        // Initial state.
+        drain()
+        assertThat(listUpdateCallback.newEvents()).isEmpty()
+        assertThat(loadStateListener.newEvents()).containsExactly(
+            LoadStateEvent(
+                loadType = LoadType.REFRESH,
+                loadState = LoadState.NotLoading(endOfPaginationReached = false)
+            ),
+            LoadStateEvent(
+                loadType = LoadType.PREPEND,
+                loadState = LoadState.NotLoading(endOfPaginationReached = false)
+            ),
+            LoadStateEvent(
+                loadType = LoadType.APPEND,
+                loadState = LoadState.NotLoading(endOfPaginationReached = false)
+            ),
+        )
+
+        // First InitialPagedList.
+        differ.submitList(
+            InitialPagedList(
+                coroutineScope = CoroutineScope(EmptyCoroutineContext),
+                notifyDispatcher = mainThread.asCoroutineDispatcher(),
+                backgroundDispatcher = diffThread.asCoroutineDispatcher(),
+                config = config,
+                initialLastKey = null
+            )
+        )
+        drain()
+        assertThat(listUpdateCallback.newEvents()).containsExactly(
+            ListUpdateEvent.Inserted(position = 0, count = 0),
+        )
+        assertThat(loadStateListener.newEvents()).isEmpty()
+
+        // Real PagedList with non-empty data.
+        differ.submitList(
+            createPagedListFromListAndPos(config, ALPHABET_LIST, 0)
+        )
+        drain()
+        assertThat(listUpdateCallback.newEvents()).containsExactly(
+            ListUpdateEvent.Inserted(position = 0, count = 26)
+        )
+        assertThat(loadStateListener.newEvents()).containsExactly(
+            LoadStateEvent(
+                loadType = LoadType.PREPEND,
+                loadState = LoadState.NotLoading(endOfPaginationReached = true)
+            ),
+        )
+
+        // Second InitialPagedList.
+        differ.submitList(
+            InitialPagedList(
+                coroutineScope = CoroutineScope(EmptyCoroutineContext),
+                notifyDispatcher = mainThread.asCoroutineDispatcher(),
+                backgroundDispatcher = diffThread.asCoroutineDispatcher(),
+                config = config,
+                initialLastKey = null
+            )
+        )
+        drain()
+        assertThat(listUpdateCallback.newEvents()).isEmpty()
+        assertThat(loadStateListener.newEvents()).containsExactly(
+            LoadStateEvent(
+                loadType = LoadType.REFRESH,
+                loadState = LoadState.Loading
+            ),
+            LoadStateEvent(
+                loadType = LoadType.PREPEND,
+                loadState = LoadState.NotLoading(endOfPaginationReached = false)
+            ),
+        )
     }
 
     private fun drainExceptDiffThread() {
