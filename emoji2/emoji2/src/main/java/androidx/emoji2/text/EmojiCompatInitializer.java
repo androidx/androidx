@@ -84,6 +84,7 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
      * @param context application context
      * @return result of default init
      */
+    @SuppressWarnings("AutoBoxing")
     @NonNull
     @Override
     public Boolean create(@NonNull Context context) {

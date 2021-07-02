@@ -21,8 +21,6 @@ MissingNullability: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.ap
     Missing nullability on method `navArgs` return
 
 
-NullableCollection: androidx.navigation.NavBackStackEntry#getArguments():
-    Return type of method androidx.navigation.NavBackStackEntry.getArguments() is a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.navigation.NavController#saveState():
     Return type of method androidx.navigation.NavController.saveState() is a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.navigation.NavController.OnDestinationChangedListener#onDestinationChanged(androidx.navigation.NavController, androidx.navigation.NavDestination, android.os.Bundle) parameter #2:

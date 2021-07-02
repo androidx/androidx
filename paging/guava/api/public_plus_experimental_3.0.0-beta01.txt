@@ -14,7 +14,7 @@ package androidx.paging {
 
   public abstract class ListenableFuturePagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
     ctor public ListenableFuturePagingSource();
-    method public suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> p, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> $completion);
+    method public suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagingSource.LoadResult<Key,Value>> loadFuture(androidx.paging.PagingSource.LoadParams<Key> params);
   }
 

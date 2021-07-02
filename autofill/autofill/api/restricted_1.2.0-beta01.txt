@@ -98,7 +98,7 @@ package androidx.autofill.inline.common {
     ctor public ImageViewStyle.Builder();
     method public androidx.autofill.inline.common.ImageViewStyle build();
     method public androidx.autofill.inline.common.ImageViewStyle.Builder setBackground(android.graphics.drawable.Icon);
-    method public androidx.autofill.inline.common.ImageViewStyle.Builder setBackgroundColor(int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setBackgroundColor(@ColorInt int);
     method public androidx.autofill.inline.common.ImageViewStyle.Builder setLayoutMargin(int, int, int, int);
     method public androidx.autofill.inline.common.ImageViewStyle.Builder setMaxHeight(int);
     method public androidx.autofill.inline.common.ImageViewStyle.Builder setMaxWidth(int);
@@ -114,7 +114,7 @@ package androidx.autofill.inline.common {
     ctor public TextViewStyle.Builder();
     method public androidx.autofill.inline.common.TextViewStyle build();
     method public androidx.autofill.inline.common.TextViewStyle.Builder setBackground(android.graphics.drawable.Icon);
-    method public androidx.autofill.inline.common.TextViewStyle.Builder setBackgroundColor(int);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setBackgroundColor(@ColorInt int);
     method public androidx.autofill.inline.common.TextViewStyle.Builder setLayoutMargin(int, int, int, int);
     method public androidx.autofill.inline.common.TextViewStyle.Builder setPadding(int, int, int, int);
     method public androidx.autofill.inline.common.TextViewStyle.Builder setTextColor(@ColorInt int);
@@ -130,7 +130,7 @@ package androidx.autofill.inline.common {
     ctor public ViewStyle.Builder();
     method public androidx.autofill.inline.common.ViewStyle build();
     method public androidx.autofill.inline.common.ViewStyle.Builder setBackground(android.graphics.drawable.Icon);
-    method public androidx.autofill.inline.common.ViewStyle.Builder setBackgroundColor(int);
+    method public androidx.autofill.inline.common.ViewStyle.Builder setBackgroundColor(@ColorInt int);
     method public androidx.autofill.inline.common.ViewStyle.Builder setLayoutMargin(int, int, int, int);
     method public androidx.autofill.inline.common.ViewStyle.Builder setPadding(int, int, int, int);
   }

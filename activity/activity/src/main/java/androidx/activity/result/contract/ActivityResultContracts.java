@@ -257,6 +257,7 @@ public final class ActivityResultContracts {
             return RequestMultiplePermissions.createIntent(new String[] { input });
         }
 
+        @SuppressWarnings("AutoBoxing")
         @NonNull
         @Override
         public Boolean parseResult(int resultCode, @Nullable Intent intent) {
@@ -340,6 +341,7 @@ public final class ActivityResultContracts {
             return null;
         }
 
+        @SuppressWarnings("AutoBoxing")
         @NonNull
         @Override
         public final Boolean parseResult(int resultCode, @Nullable Intent intent) {
@@ -406,6 +408,7 @@ public final class ActivityResultContracts {
                     .putExtra(MediaStore.EXTRA_OUTPUT, input);
         }
 
+        @SuppressWarnings("AutoBoxing")
         @Nullable
         @Override
         public final SynchronousResult<Boolean> getSynchronousResult(@NonNull Context context,
@@ -413,6 +416,7 @@ public final class ActivityResultContracts {
             return null;
         }
 
+        @SuppressWarnings("AutoBoxing")
         @NonNull
         @Override
         public final Boolean parseResult(int resultCode, @Nullable Intent intent) {
