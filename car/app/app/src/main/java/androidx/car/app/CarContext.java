@@ -277,8 +277,7 @@ public class CarContext extends ContextWrapper {
      *   <dt>An {@link Intent} to start this app in the car.
      *   <dd>The component name of the intent must be the one for the {@link CarAppService} that
      *       contains this {@link CarContext}. If the component name is for a different
-     *       component, the
-     *       method will throw a {@link SecurityException}.
+     *       component, the method will throw a {@link SecurityException}.
      * </dl>
      *
      * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
