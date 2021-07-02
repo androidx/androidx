@@ -55,9 +55,9 @@ import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.window.DisplayFeature;
 import androidx.window.FoldingFeature;
-import androidx.window.WindowBackend;
+import androidx.window.WindowInfoRepo;
 import androidx.window.WindowLayoutInfo;
-import androidx.window.WindowManager;
+import androidx.window.java.WindowInfoRepoCallbackAdapter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -331,8 +331,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
 
         try {
-            FoldingFeatureObserver foldingFeatureObserver = new FoldingFeatureObserver(context,
-                    null);
+            FoldingFeatureObserver foldingFeatureObserver = new FoldingFeatureObserver(context);
             setFoldingFeatureObserver(foldingFeatureObserver);
         } catch (IllegalArgumentException exception) {
             // Disable fold detection.
@@ -1922,21 +1921,20 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             }
         }
 
-        private WindowManager mWindowManager;
-        private Executor mExecutor;
+        private final WindowInfoRepoCallbackAdapter mWindowInfoRepo;
+        private final Executor mExecutor;
         private OnFoldingFeatureChangeListener mOnFoldingFeatureChangeListener;
-        private LayoutStateChangeCallback
-                mLayoutStateChangeCallback = new LayoutStateChangeCallback();
+        private final LayoutStateChangeCallback mLayoutStateChangeCallback =
+                new LayoutStateChangeCallback();
 
         /**
          * Create an instance of a folding feature observer
          *
          * @param context A visual context, such as an {@link Activity} or a {@link ContextWrapper}
-         * @param windowBackend A custom implementation of {@link WindowBackend} for testing
          */
-        FoldingFeatureObserver(@NonNull Context context, @Nullable WindowBackend windowBackend) {
-            mWindowManager = windowBackend == null ? new WindowManager(context) :
-                    new WindowManager(context, windowBackend);
+        FoldingFeatureObserver(@NonNull Context context) {
+            Activity activity = requireActivity(context);
+            mWindowInfoRepo = new WindowInfoRepoCallbackAdapter(WindowInfoRepo.create(activity));
             mExecutor = ContextCompat.getMainExecutor(context);
         }
 
@@ -1962,14 +1960,28 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
          * Must be called only after the it is attached to the window.
          */
         void registerLayoutStateChangeCallback() {
-            mWindowManager.registerLayoutChangeCallback(mExecutor, mLayoutStateChangeCallback);
+            mWindowInfoRepo.addWindowLayoutInfoListener(mExecutor, mLayoutStateChangeCallback);
         }
 
         /**
          * Unregisters a callback for window layout changes of the {@link Activity} window.
          */
         void unregisterLayoutStateChangeCallback() {
-            mWindowManager.unregisterLayoutChangeCallback(mLayoutStateChangeCallback);
+            mWindowInfoRepo.removeWindowLayoutInfoListener(mLayoutStateChangeCallback);
+        }
+
+        private static Activity requireActivity(Context context) {
+            Context iterator = context;
+            while (iterator instanceof ContextWrapper) {
+                if (iterator instanceof Activity) {
+                    return (Activity) iterator;
+                }
+                iterator = ((ContextWrapper) iterator).getBaseContext();
+            }
+            throw new IllegalArgumentException("Used non-visual Context to obtain an instance of "
+                    + "WindowManager. Please use an Activity or a ContextWrapper around one "
+                    + "instead."
+            );
         }
     }
 }
