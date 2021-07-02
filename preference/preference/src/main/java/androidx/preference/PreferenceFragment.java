@@ -62,10 +62,12 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * <p>The preference hierarchy can be formed in multiple ways:
  *
- * <li> From an XML file specifying the hierarchy
- * <li> From different {@link android.app.Activity Activities} that each specify its own
- * preferences in an XML file via {@link android.app.Activity} meta-data
- * <li> From an object hierarchy rooted with {@link PreferenceScreen}
+ * <ul>
+ *   <li> From an XML file specifying the hierarchy
+ *   <li> From different {@link android.app.Activity Activities} that each specify its own
+ *        preferences in an XML file via {@link android.app.Activity} meta-data
+ *   <li> From an object hierarchy rooted with {@link PreferenceScreen}
+ * </ul>
  *
  * <p>To inflate from XML, use the {@link #addPreferencesFromResource(int)}. The root element
  * should be a {@link PreferenceScreen}. Subsequent elements can point to actual
