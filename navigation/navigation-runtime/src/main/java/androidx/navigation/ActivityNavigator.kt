@@ -403,6 +403,28 @@ public open class ActivityNavigator(
             }
             return sb.toString()
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is Destination) return false
+            return super.equals(other) &&
+                intent == other.intent &&
+                dataPattern == other.dataPattern &&
+                targetPackage == other.targetPackage &&
+                component == other.component &&
+                action == other.action &&
+                data == other.data
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + intent.hashCode()
+            result = 31 * result + dataPattern.hashCode()
+            result = 31 * result + targetPackage.hashCode()
+            result = 31 * result + component.hashCode()
+            result = 31 * result + action.hashCode()
+            result = 31 * result + data.hashCode()
+            return result
+        }
     }
 
     /**

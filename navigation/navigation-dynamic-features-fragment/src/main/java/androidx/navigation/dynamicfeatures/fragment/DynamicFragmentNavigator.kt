@@ -91,5 +91,16 @@ public class DynamicFragmentNavigator(
                 moduleName = getString(R.styleable.DynamicFragmentNavigator_moduleName)
             }
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is Destination) return false
+            return super.equals(other) && moduleName == other.moduleName
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + moduleName.hashCode()
+            return result
+        }
     }
 }

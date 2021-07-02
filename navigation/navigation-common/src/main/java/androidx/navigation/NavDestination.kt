@@ -24,6 +24,8 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import androidx.collection.SparseArrayCompat
+import androidx.collection.forEach
+import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.navigation.common.R
 import kotlin.reflect.KClass
@@ -512,6 +514,55 @@ public open class NavDestination(
             sb.append(label)
         }
         return sb.toString()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is NavDestination) return false
+
+        val equalDeepLinks = deepLinks.intersect(other.deepLinks).size == deepLinks.size
+
+        val equalActions = actions.size() == other.actions.size() &&
+            actions.valueIterator().asSequence().all { other.actions.containsValue(it) } &&
+            other.actions.valueIterator().asSequence().all { actions.containsValue(it) }
+
+        val equalArguments = arguments.size == other.arguments.size &&
+            arguments.asSequence().all {
+                other.arguments.containsKey(it.key) &&
+                    other.arguments[it.key] == it.value
+            } &&
+            other.arguments.asSequence().all {
+                arguments.containsKey(it.key) &&
+                    arguments[it.key] == it.value
+            }
+
+        return id == other.id &&
+            route == other.route &&
+            equalDeepLinks &&
+            equalActions &&
+            equalArguments
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + route.hashCode()
+        deepLinks.forEach {
+            result = 31 * result + it.uriPattern.hashCode()
+            result = 31 * result + it.action.hashCode()
+            result = 31 * result + it.mimeType.hashCode()
+        }
+        actions.valueIterator().forEach { value ->
+            result = 31 * result + value.destinationId
+            result = 31 * result + value.navOptions.hashCode()
+            value.defaultArguments?.keySet()?.forEach {
+                result = 31 * result + value.defaultArguments!!.get(it).hashCode()
+            }
+        }
+        result = 31 * result + actions.hashCode()
+        arguments.keys.forEach {
+            result = 31 * result + it.hashCode()
+            result = 31 * result + arguments[it].hashCode()
+        }
+        return result
     }
 
     public companion object {
