@@ -20,12 +20,12 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.paging.CombinedLoadStates
 import androidx.paging.DifferCallback
@@ -59,39 +59,34 @@ public class LazyPagingItems<T : Any> internal constructor(
     private val mainDispatcher = Dispatchers.Main
 
     /**
-     * The number of items which can be accessed.
+     * Contains the latest items list snapshot collected from the [flow].
      */
-    var itemCount: Int by mutableStateOf(0)
-        private set
+    private var itemSnapshotList by mutableStateOf(
+        ItemSnapshotList<T>(0, 0, emptyList())
+    )
 
     /**
-     * Set of value holders associated with the currently (composed) indexes. Once we got a new
-     * value from the repository we can just update the value in the state.
+     * The number of items which can be accessed.
      */
-    private val activeHolders = HashSet<ActiveItemValueHolder<T>>()
+    val itemCount: Int get() = itemSnapshotList.size
 
     @SuppressLint("RestrictedApi")
     private val differCallback: DifferCallback = object : DifferCallback {
         override fun onChanged(position: Int, count: Int) {
             if (count > 0) {
-                updateValueHolders(position, count)
+                updateItemSnapshotList()
             }
         }
 
         override fun onInserted(position: Int, count: Int) {
             if (count > 0) {
-                // we have to update all the items starting from this position as the insertion
-                // changes the positions for all the next items
-                updateValueHolders(position, pagingDataDiffer.size - position)
+                updateItemSnapshotList()
             }
         }
 
         override fun onRemoved(position: Int, count: Int) {
             if (count > 0) {
-                // we have to update all the items starting from this position as the removal
-                // changes the positions for all the next items. plus we also want to set null
-                // for the items which are now out of the valid bounds.
-                updateValueHolders(position, pagingDataDiffer.size + count - position)
+                updateItemSnapshotList()
             }
         }
     }
@@ -108,10 +103,24 @@ public class LazyPagingItems<T : Any> internal constructor(
             onListPresentable: () -> Unit
         ): Int? {
             onListPresentable()
-            val oldSize = itemCount
-            updateValueHolders(0, maxOf(newList.size, oldSize))
+            updateItemSnapshotList()
             return null
         }
+    }
+
+    private fun updateItemSnapshotList() {
+        itemSnapshotList = pagingDataDiffer.snapshot()
+    }
+
+    /**
+     * Returns the presented item at the specified position, notifying Paging of the item access to
+     * trigger any loads necessary to fulfill prefetchDistance.
+     *
+     * @see peek
+     */
+    operator fun get(index: Int): T? {
+        pagingDataDiffer[index] // this registers the value load
+        return itemSnapshotList[index]
     }
 
     /**
@@ -123,39 +132,12 @@ public class LazyPagingItems<T : Any> internal constructor(
      * placeholder or [index] is not within the correct bounds.
      */
     @Composable
+    @Deprecated(
+        "Use get() instead. It will return you the value not wrapped into a State",
+        ReplaceWith("this[index]")
+    )
     fun getAsState(index: Int): State<T?> {
-        require(index >= 0) { "Index can't be negative. $index was passed." }
-        val holder = remember(index) {
-            val initial = if (index < pagingDataDiffer.size) {
-                pagingDataDiffer[index]
-            } else {
-                null
-            }
-            ActiveItemValueHolder(index, initial)
-        }
-        DisposableEffect(index) {
-            activeHolders.add(holder)
-            onDispose {
-                activeHolders.remove(holder)
-            }
-        }
-        return holder.state
-    }
-
-    private fun updateValueHolders(position: Int, count: Int) {
-        itemCount = pagingDataDiffer.size
-        if (count > 0) {
-            activeHolders.forEach {
-                if (it.index in position until position + count) {
-                    val newValue = if (it.index < pagingDataDiffer.size) {
-                        pagingDataDiffer[it.index]
-                    } else {
-                        null
-                    }
-                    it.state.value = newValue
-                }
-            }
-        }
+        return rememberUpdatedState(get(index))
     }
 
     /**
@@ -166,7 +148,7 @@ public class LazyPagingItems<T : Any> internal constructor(
      * @return The presented item at position [index], `null` if it is a placeholder
      */
     fun peek(index: Int): T? {
-        return pagingDataDiffer.peek(index)
+        return itemSnapshotList[index]
     }
 
     /**
@@ -174,7 +156,7 @@ public class LazyPagingItems<T : Any> internal constructor(
      * placeholders if they are enabled.
      */
     fun snapshot(): ItemSnapshotList<T> {
-        return pagingDataDiffer.snapshot()
+        return itemSnapshotList
     }
 
     /**
@@ -234,10 +216,6 @@ public class LazyPagingItems<T : Any> internal constructor(
             pagingDataDiffer.collectFrom(it)
         }
     }
-
-    private class ActiveItemValueHolder<T : Any>(val index: Int, initialValue: T?) {
-        val state = mutableStateOf(initialValue)
-    }
 }
 
 private val IncompleteLoadState = LoadState.NotLoading(false)
@@ -285,7 +263,7 @@ public fun <T : Any> LazyListScope.items(
     itemContent: @Composable LazyItemScope.(value: T?) -> Unit
 ) {
     items(lazyPagingItems.itemCount) { index ->
-        itemContent(lazyPagingItems.getAsState(index).value)
+        itemContent(lazyPagingItems[index])
     }
 }
 
@@ -307,6 +285,6 @@ public fun <T : Any> LazyListScope.itemsIndexed(
     itemContent: @Composable LazyItemScope.(index: Int, value: T?) -> Unit
 ) {
     items(lazyPagingItems.itemCount) { index ->
-        itemContent(index, lazyPagingItems.getAsState(index).value)
+        itemContent(index, lazyPagingItems[index])
     }
 }

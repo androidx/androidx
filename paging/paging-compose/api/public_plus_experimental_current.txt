@@ -2,7 +2,8 @@
 package androidx.paging.compose {
 
   public final class LazyPagingItems<T> {
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<T> getAsState(int index);
+    method public operator T? get(int index);
+    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.runtime.State<T> getAsState(int index);
     method public int getItemCount();
     method public androidx.paging.CombinedLoadStates getLoadState();
     method public T? peek(int index);

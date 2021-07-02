@@ -186,7 +186,7 @@ class LazyPagingItemsTest {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
 
             for (i in 0 until lazyPagingItems.itemCount) {
-                lazyPagingItems.getAsState(i).value
+                lazyPagingItems[i]
             }
             composedCount = lazyPagingItems.itemCount
         }
@@ -208,7 +208,7 @@ class LazyPagingItemsTest {
 
             // Trigger page fetch until all items 0-6 are loaded
             for (i in 0 until minOf(lazyPagingItems.itemCount, 5)) {
-                lazyPagingItems.getAsState(i).value
+                lazyPagingItems[i]
             }
             composedCount = lazyPagingItems.itemCount
         }
@@ -335,7 +335,7 @@ class LazyPagingItemsTest {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
             LazyColumn(Modifier.height(300.dp)) {
                 items(lazyPagingItems.itemCount) {
-                    val item by lazyPagingItems.getAsState(it)
+                    val item = lazyPagingItems[it]
                     Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag("$item"))
                 }
             }
