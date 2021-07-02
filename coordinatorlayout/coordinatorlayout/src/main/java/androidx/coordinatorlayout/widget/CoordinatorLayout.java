@@ -1814,14 +1814,14 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     @Override
-    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
-        onNestedScrollAccepted(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+    public void onNestedScrollAccepted(View child, View target, int axes) {
+        onNestedScrollAccepted(child, target, axes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes, int type) {
-        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes, type);
+    public void onNestedScrollAccepted(View child, View target, int axes, int type) {
+        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes, type);
         mNestedScrollingTarget = target;
 
         final int childCount = getChildCount();
@@ -1835,7 +1835,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             final Behavior viewBehavior = lp.getBehavior();
             if (viewBehavior != null) {
                 viewBehavior.onNestedScrollAccepted(this, view, child, target,
-                        nestedScrollAxes, type);
+                        axes, type);
             }
         }
     }
