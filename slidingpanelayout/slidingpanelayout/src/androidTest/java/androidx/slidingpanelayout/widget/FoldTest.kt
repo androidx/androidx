@@ -18,7 +18,6 @@ package androidx.slidingpanelayout.widget
 
 import android.view.View
 import androidx.slidingpanelayout.test.R
-import androidx.slidingpanelayout.widget.helpers.FakeWindowBackend
 import androidx.slidingpanelayout.widget.helpers.TestActivity
 import androidx.slidingpanelayout.widget.helpers.findViewById
 import androidx.slidingpanelayout.widget.helpers.findViewX
@@ -27,9 +26,16 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
-import androidx.window.WindowManager
+import androidx.window.FoldingFeature.Orientation.Companion.VERTICAL
+import androidx.window.FoldingFeature.State.Companion.FLAT
+import androidx.window.FoldingFeature.State.Companion.HALF_OPENED
+import androidx.window.WindowLayoutInfo
+import androidx.window.WindowMetricsCalculator
+import androidx.window.testing.FoldingFeature
+import androidx.window.testing.WindowLayoutInfoPublisherRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -39,6 +45,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 public class FoldTest {
+
+    @get:Rule
+    val rule: WindowLayoutInfoPublisherRule = WindowLayoutInfoPublisherRule()
 
     @After
     public fun tearDown() {
@@ -53,28 +62,18 @@ public class FoldTest {
     public fun testFoldVertical() {
         TestActivity.onActivityCreated = { activity ->
             activity.setContentView(R.layout.activity_test_fold_layout)
-            val slidingPaneLayout =
-                activity.findViewById<SlidingPaneLayout>(R.id.sliding_pane_fold_layout)
-            val foldingFeatureObserver = SlidingPaneLayout.FoldingFeatureObserver(
-                activity,
-                FakeWindowBackend(FakeWindowBackend.FoldAxis.VERTICAL)
-            )
-            slidingPaneLayout.setFoldingFeatureObserver(foldingFeatureObserver)
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
             val foldPosition = withActivity {
-                FakeWindowBackend.getFoldPosition(
-                    this,
-                    FakeWindowBackend.FoldAxis.VERTICAL,
-                    0
-                )
+                val testFeature = FoldingFeature(activity = this, orientation = VERTICAL)
+                val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(testFeature))
+                    .build()
+                rule.overrideWindowLayoutInfo(info)
+                testFeature.bounds
             }
-            assertThat(findViewById(R.id.list_pane).width).isEqualTo(
-                findViewById(
-                    R.id.detail_pane
-                ).width
-            )
+            assertThat(findViewById(R.id.list_pane).width)
+                .isEqualTo(findViewById(R.id.detail_pane).width)
             assertThat(findViewX(R.id.detail_pane)).isEqualTo(foldPosition.left)
         }
     }
@@ -86,22 +85,11 @@ public class FoldTest {
     public fun testFoldHorizontal() {
         TestActivity.onActivityCreated = { activity ->
             activity.setContentView(R.layout.activity_test_fold_layout)
-            val slidingPaneLayout =
-                activity.findViewById<SlidingPaneLayout>(R.id.sliding_pane_fold_layout)
-            val foldingFeatureObserver = SlidingPaneLayout.FoldingFeatureObserver(
-                activity,
-                FakeWindowBackend(FakeWindowBackend.FoldAxis.HORIZONTAL)
-            )
-            slidingPaneLayout.setFoldingFeatureObserver(foldingFeatureObserver)
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            assertThat(findViewById(R.id.list_pane).width).isLessThan(
-                findViewById(
-                    R.id
-                        .detail_pane
-                ).width
-            )
+            assertThat(findViewById(R.id.list_pane).width)
+                .isLessThan(findViewById(R.id.detail_pane).width)
             assertThat(findViewX(R.id.list_pane)).isLessThan(findViewX(R.id.detail_pane))
         }
     }
@@ -115,20 +103,23 @@ public class FoldTest {
         val detailViewExtraWidth = 200
         TestActivity.onActivityCreated = { activity ->
             activity.setContentView(R.layout.activity_test_fold_layout)
-            val slidingPaneLayout =
-                activity.findViewById<SlidingPaneLayout>(R.id.sliding_pane_fold_layout)
-            val foldingFeatureObserver = SlidingPaneLayout.FoldingFeatureObserver(
-                activity,
-                FakeWindowBackend(FakeWindowBackend.FoldAxis.VERTICAL)
-            )
-            slidingPaneLayout.setFoldingFeatureObserver(foldingFeatureObserver)
             val detailView = activity.findViewById<View>(R.id.detail_pane)
-            val window = WindowManager(activity).getCurrentWindowMetrics().bounds
+            detailView.minimumWidth = WindowMetricsCalculator.create()
+                .computeCurrentWindowMetrics(activity)
+                .bounds
+                .width() / 2 + detailViewExtraWidth
+            val window = WindowMetricsCalculator.create()
+                .computeCurrentWindowMetrics(activity).bounds
             detailView.minimumWidth = window.width() / 2 + detailViewExtraWidth
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            val window = withActivity { WindowManager(this).getCurrentWindowMetrics().bounds }
+            val window = withActivity {
+                val feature = FoldingFeature(activity = this, orientation = VERTICAL)
+                val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
+                rule.overrideWindowLayoutInfo(info)
+                WindowMetricsCalculator.create().computeCurrentWindowMetrics(this).bounds
+            }
             assertThat(findViewById(R.id.detail_pane).width).isEqualTo(window.width())
         }
     }
@@ -140,24 +131,28 @@ public class FoldTest {
     public fun testUnfold() {
         TestActivity.onActivityCreated = { activity ->
             activity.setContentView(R.layout.activity_test_fold_layout)
-            val slidingPaneLayout =
-                activity.findViewById<SlidingPaneLayout>(R.id.sliding_pane_fold_layout)
-            val fakeWindowBackend = FakeWindowBackend(FakeWindowBackend.FoldAxis.VERTICAL)
-            fakeWindowBackend.toggleFoldState(activity)
-            val foldingFeatureObserver = SlidingPaneLayout.FoldingFeatureObserver(
-                activity,
-                fakeWindowBackend
-            )
-            slidingPaneLayout.setFoldingFeatureObserver(foldingFeatureObserver)
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            assertThat(findViewById(R.id.list_pane).width).isLessThan(
-                findViewById(
-                    R.id
-                        .detail_pane
-                ).width
-            )
+            onActivity { activity ->
+                val halfOpenFeature = FoldingFeature(
+                    activity = activity,
+                    state = HALF_OPENED,
+                    orientation = VERTICAL
+                )
+                val flat = FoldingFeature(
+                    activity = activity,
+                    state = FLAT,
+                    orientation = VERTICAL
+                )
+                val halfOpenInfo = WindowLayoutInfo.Builder()
+                    .setDisplayFeatures(listOf(halfOpenFeature)).build()
+                val flatInfo = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(flat)).build()
+                rule.overrideWindowLayoutInfo(halfOpenInfo)
+                rule.overrideWindowLayoutInfo(flatInfo)
+            }
+            assertThat(findViewById(R.id.list_pane).width)
+                .isLessThan(findViewById(R.id.detail_pane).width)
             assertThat(findViewX(R.id.list_pane)).isLessThan(findViewX(R.id.detail_pane))
         }
     }
