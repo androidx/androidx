@@ -53,10 +53,10 @@ android {
 }
 
 androidx {
-    name = "Android Wear Complications"
+    name = "Android Wear Complications Data Source"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR
-    mavenVersion = LibraryVersions.WEAR_COMPLICATIONS_PROVIDER
+    mavenVersion = LibraryVersions.WEAR_COMPLICATIONS_DATA_SOURCE
     inceptionYear = "2020"
-    description = "Android Wear Complications"
+    description = "Android Wear Complications Data Source"
 }
