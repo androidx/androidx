@@ -35,7 +35,7 @@ import com.google.auto.value.AutoValue;
 public abstract class FileDescriptorOutputOptions extends OutputOptions {
 
     FileDescriptorOutputOptions() {
-        super(Type.FILE_DESCRIPTOR);
+        super(OPTIONS_TYPE_FILE_DESCRIPTOR);
     }
 
     /** Returns a builder for this FileDescriptorOutputOptions. */

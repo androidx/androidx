@@ -974,7 +974,7 @@ public final class Recorder implements VideoOutput {
     private void setupMediaMuxer(@NonNull OutputOptions options) throws IOException {
         int outputFormat = getObservableData(mMediaSpec).getOutputFormat();
         switch (options.getType()) {
-            case FILE:
+            case OutputOptions.OPTIONS_TYPE_FILE:
                 Preconditions.checkState(options instanceof FileOutputOptions, "Invalid "
                                 + "OutputOptions type");
                 FileOutputOptions fileOutputOptions = (FileOutputOptions) options;
@@ -982,7 +982,7 @@ public final class Recorder implements VideoOutput {
                         fileOutputOptions.getFile().getAbsolutePath(),
                         outputFormat);
                 break;
-            case FILE_DESCRIPTOR:
+            case OutputOptions.OPTIONS_TYPE_FILE_DESCRIPTOR:
                 Preconditions.checkState(options instanceof FileDescriptorOutputOptions, "Invalid "
                         + "OutputOptions type");
                 FileDescriptorOutputOptions fileDescriptorOutputOptions =
@@ -997,7 +997,7 @@ public final class Recorder implements VideoOutput {
                             "MediaMuxer doesn't accept FileDescriptor as output destination.");
                 }
                 break;
-            case MEDIA_STORE:
+            case OutputOptions.OPTIONS_TYPE_MEDIA_STORE:
                 Preconditions.checkState(options instanceof MediaStoreOutputOptions, "Invalid "
                         + "OutputOptions type");
                 MediaStoreOutputOptions mediaStoreOutputOptions = (MediaStoreOutputOptions) options;
@@ -1034,6 +1034,9 @@ public final class Recorder implements VideoOutput {
                     fileDescriptor.close();
                 }
                 break;
+            default:
+                throw new IllegalArgumentException(
+                        "Invalid output options type." + options.getType());
         }
         // TODO: Add more metadata to MediaMuxer, e.g. location information.
         if (mSurfaceTransformationInfo != null) {
