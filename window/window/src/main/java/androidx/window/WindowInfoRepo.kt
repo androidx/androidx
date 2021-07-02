@@ -20,7 +20,6 @@ import android.app.Activity
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -29,13 +28,12 @@ import kotlinx.coroutines.flow.Flow
 public interface WindowInfoRepo {
 
     /**
-     * Returns the [WindowMetrics] according to the current system state.
-     *
+     * Returns a [Flow] for consuming the current [WindowMetrics] according to the current
+     * system state.
      *
      * The metrics describe the size of the area the window would occupy with
      * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
      * and any combination of flags that would allow the window to extend behind display cutouts.
-     *
      *
      * The value of this is based on the **current** windowing state of the system. For
      * example, for activities in multi-window mode, the metrics returned are based on the
@@ -45,21 +43,23 @@ public interface WindowInfoRepo {
      * @see maximumWindowMetrics
      * @see android.view.WindowManager.getCurrentWindowMetrics
      */
-    public val currentWindowMetrics: WindowMetrics
+    public val currentWindowMetrics: Flow<WindowMetrics>
 
     /**
-     * Returns the largest [WindowMetrics] an app may expect in the current system state.
-     *
+     * Returns the current maximum [WindowMetrics]. The maximum metrics are the
+     * largest [WindowMetrics] an app may expect in the current system state. These can change at
+     * runtime such as a user attaching a secondary display and moving an [Activity] that is in
+     * as a result of display or display size change. In some cases the change of maximum metrics
+     * will not result in current metrics and configuration change. For example, if a floating
+     * window is moved between displays.
      *
      * The metrics describe the size of the largest potential area the window might occupy with
      * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
      * and any combination of flags that would allow the window to extend behind display cutouts.
      *
-     *
      * The value of this is based on the largest **potential** windowing state of the system.
      * For example, for activities in multi-window mode the metrics returned are based on what the
      * bounds would be if the user expanded the window to cover the entire screen.
-     *
      *
      * Note that this might still be smaller than the size of the physical display if certain
      * areas of the display are not available to windows created for the associated [Context].
@@ -84,11 +84,10 @@ public interface WindowInfoRepo {
         private var decorator: WindowInfoRepoDecorator = EmptyDecorator
 
         @JvmStatic
-        @ExperimentalCoroutinesApi
         public fun create(activity: Activity): WindowInfoRepo {
             val taggedRepo = activity.getTag(R.id.androidx_window_activity_scope) as? WindowInfoRepo
             val repo = taggedRepo ?: activity.getOrCreateTag(R.id.androidx_window_activity_scope) {
-                WindowInfoRepoImp(
+                WindowInfoRepoImpl(
                     activity,
                     WindowMetricsCalculatorCompat,
                     ExtensionWindowBackend.getInstance(activity)

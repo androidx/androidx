@@ -23,7 +23,7 @@ import android.view.Display
 /**
  * An interface to calculate the [WindowMetrics] for an [Activity].
  */
-internal interface WindowMetricsCalculator {
+interface WindowMetricsCalculator {
 
     /**
      * Computes the size and position of the area the window would occupy with
@@ -73,4 +73,11 @@ internal interface WindowMetricsCalculator {
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
     fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics
+
+    companion object {
+        @JvmStatic
+        fun create(): WindowMetricsCalculator {
+            return WindowMetricsCalculatorCompat
+        }
+    }
 }

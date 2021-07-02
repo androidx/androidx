@@ -2,11 +2,11 @@
 package androidx.window.testing {
 
   public final class DisplayFeatureTesting {
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size, optional androidx.window.FoldingFeature.State state, optional androidx.window.FoldingFeature.Orientation orientation);
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size, optional androidx.window.FoldingFeature.State state);
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size);
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center);
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity);
+    method public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size, optional androidx.window.FoldingFeature.State state, optional androidx.window.FoldingFeature.Orientation orientation);
+    method public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size, optional androidx.window.FoldingFeature.State state);
+    method public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size);
+    method public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center);
+    method public static androidx.window.FoldingFeature createFoldingFeature(android.app.Activity activity);
   }
 
   public final class WindowLayoutInfoPublisherRule implements org.junit.rules.TestRule {

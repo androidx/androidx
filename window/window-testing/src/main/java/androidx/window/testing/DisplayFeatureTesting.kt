@@ -27,24 +27,21 @@ import androidx.window.FoldingFeature.State
 import androidx.window.FoldingFeature.State.Companion.HALF_OPENED
 import androidx.window.FoldingFeature.Type.Companion.FOLD
 import androidx.window.FoldingFeature.Type.Companion.HINGE
-import androidx.window.windowInfoRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import androidx.window.WindowMetricsCalculator
 
 /**
  * A convenience method to get a test fold with default values provided. With the default values
  * it returns a [FoldingFeature.State.HALF_OPENED] feature that splits the screen along the
  * [FoldingFeature.Orientation.HORIZONTAL] axis.
  *
- * The bounds of the feature are calculated based on [orientation], [center], and [size]. If the
- * feature is [VERTICAL] then the top-left x-coordinate is [center] - ([size] / 2) and the top-right
- * x-coordinate is [center] + ([size] / 2). If the feature is [HORIZONTAL] then the top-left
- * y-coordinate is [center] - ([size] / 2) and the bottom-left y-coordinate is
- * [center] - ([size] / 2). The folding features always cover the window in one dimension and that
- * determines the other coordinates.
+ * The bounds of the feature are calculated based on [orientation] and [size]. If the
+ * feature is [VERTICAL] then the feature is centered horizontally. The top-left x-coordinate is
+ * center - ([size] / 2) and the top-right x-coordinate is center + ([size] / 2). If the feature is
+ * [HORIZONTAL] then the feature is centered vertically. The top-left y-coordinate is center -
+ * ([size] / 2) and the bottom-left y-coordinate is center - ([size] / 2). The folding features
+ * always cover the window in one dimension and that determines the other coordinates.
  *
- * @param activity [Activity] that will host the test [FoldingFeature].
- * @param center The coordinate along the axis matching the [Orientation]. The default is centered
- * along the [HORIZONTAL] axis.
+ * @param activity that will house the [FoldingFeature].
  * @param size the smaller dimension  of the fold. The larger dimension  always covers the entire
  * window.
  * @param state [State] of the fold. The default value is [HALF_OPENED]
@@ -53,12 +50,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
  * [Orientation] axis.
  */
 @Suppress("FunctionName")
-@ExperimentalCoroutinesApi
 @JvmOverloads
 @JvmName("createFoldingFeature")
-public fun FoldingFeature(
+fun FoldingFeature(
     activity: Activity,
-    center: Int = activity.windowInfoRepository().currentWindowMetrics.bounds.centerX(),
+    center: Int = WindowMetricsCalculator.create().computeCurrentWindowMetrics(activity).bounds
+        .centerX(),
     size: Int = 0,
     state: State = HALF_OPENED,
     orientation: Orientation = HORIZONTAL
@@ -71,11 +68,12 @@ public fun FoldingFeature(
     val offset = size / 2
     val start = center - offset
     val end = center + offset
+    val metrics = WindowMetricsCalculator.create().computeCurrentWindowMetrics(activity)
     val bounds = if (orientation == VERTICAL) {
-        val windowHeight = activity.windowInfoRepository().currentWindowMetrics.bounds.height()
+        val windowHeight = metrics.bounds.height()
         Rect(start, 0, end, windowHeight)
     } else {
-        val windowWidth = activity.windowInfoRepository().currentWindowMetrics.bounds.width()
+        val windowWidth = metrics.bounds.width()
         Rect(0, start, windowWidth, end)
     }
     return FoldingFeature(bounds, type, state)

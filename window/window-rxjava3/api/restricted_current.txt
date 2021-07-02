@@ -2,6 +2,10 @@
 package androidx.window.rxjava3 {
 
   public final class WindowInfoRepoRx {
+    method public static io.reactivex.rxjava3.core.Flowable<androidx.window.WindowMetrics> currentWindowMetricsFlowable(androidx.window.WindowInfoRepo);
+    method public static io.reactivex.rxjava3.core.Observable<androidx.window.WindowMetrics> currentWindowMetricsObservable(androidx.window.WindowInfoRepo);
+    method public static io.reactivex.rxjava3.core.Flowable<androidx.window.WindowLayoutInfo> windowLayoutInfoFlowable(androidx.window.WindowInfoRepo);
+    method public static io.reactivex.rxjava3.core.Observable<androidx.window.WindowLayoutInfo> windowLayoutInfoObservable(androidx.window.WindowInfoRepo);
   }
 
 }

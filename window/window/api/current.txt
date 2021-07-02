@@ -2,6 +2,7 @@
 package androidx.window {
 
   public final class ActivityExtKt {
+    method public static androidx.window.WindowInfoRepo windowInfoRepository(android.app.Activity);
   }
 
   public interface DisplayFeature {
@@ -77,16 +78,18 @@ package androidx.window {
   }
 
   public interface WindowInfoRepo {
-    method public androidx.window.WindowMetrics getCurrentWindowMetrics();
+    method public default static androidx.window.WindowInfoRepo create(android.app.Activity activity);
+    method public kotlinx.coroutines.flow.Flow<androidx.window.WindowMetrics> getCurrentWindowMetrics();
     method public androidx.window.WindowMetrics getMaximumWindowMetrics();
     method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> getWindowLayoutInfo();
-    property public abstract androidx.window.WindowMetrics currentWindowMetrics;
+    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.WindowMetrics> currentWindowMetrics;
     property public abstract androidx.window.WindowMetrics maximumWindowMetrics;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> windowLayoutInfo;
     field public static final androidx.window.WindowInfoRepo.Companion Companion;
   }
 
   public static final class WindowInfoRepo.Companion {
+    method public androidx.window.WindowInfoRepo create(android.app.Activity activity);
   }
 
   public final class WindowLayoutInfo {
@@ -113,6 +116,17 @@ package androidx.window {
     ctor public WindowMetrics(android.graphics.Rect bounds);
     method public android.graphics.Rect getBounds();
     property public final android.graphics.Rect bounds;
+  }
+
+  public interface WindowMetricsCalculator {
+    method public androidx.window.WindowMetrics computeCurrentWindowMetrics(android.app.Activity activity);
+    method public androidx.window.WindowMetrics computeMaximumWindowMetrics(android.app.Activity activity);
+    method public default static androidx.window.WindowMetricsCalculator create();
+    field public static final androidx.window.WindowMetricsCalculator.Companion Companion;
+  }
+
+  public static final class WindowMetricsCalculator.Companion {
+    method public androidx.window.WindowMetricsCalculator create();
   }
 
 }
