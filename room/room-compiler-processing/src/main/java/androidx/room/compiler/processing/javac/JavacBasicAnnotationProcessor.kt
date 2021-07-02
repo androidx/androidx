@@ -18,9 +18,12 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XBasicAnnotationProcessor
 import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XRoundEnv
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.collect.ImmutableSetMultimap
+import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 
@@ -31,43 +34,58 @@ import javax.lang.model.element.Element
 abstract class JavacBasicAnnotationProcessor :
     BasicAnnotationProcessor(), XBasicAnnotationProcessor {
 
-    final override fun steps(): Iterable<Step> {
-        // Execute all processing steps in a single auto-common Step. This is done to share the
-        // XProcessingEnv and its cached across steps in the same round.
-        val steps = processingSteps()
-        val parentStep = object : Step {
-            override fun annotations() = steps.flatMap { it.annotations() }.toSet()
+    // This state is cached here so that it can be shared by all steps in a given processing round.
+    // The state is initialized at beginning of each round using the InitializingStep, and
+    // the state is cleared at the end of each round in BasicAnnotationProcessor#postRound()
+    private var xEnv: JavacProcessingEnv? = null
 
-            override fun process(
-                elementsByAnnotation: ImmutableSetMultimap<String, Element>
-            ): Set<Element> {
-                val xEnv = JavacProcessingEnv(processingEnv)
-                val convertedElementsByAnnotation = mutableMapOf<String, Set<XElement>>()
-                annotations().forEach { annotation ->
-                    convertedElementsByAnnotation[annotation] =
-                        elementsByAnnotation[annotation].mapNotNull { element ->
-                            xEnv.wrapAnnotatedElement(element, annotation)
-                        }.toSet()
-                }
-                val results = steps.flatMap { step ->
-                    step.process(
-                        env = xEnv,
-                        elementsByAnnotation = step.annotations().associateWith {
-                            convertedElementsByAnnotation[it] ?: emptySet()
-                        }
-                    )
-                }
-                return results.map { (it as JavacElement).element }.toSet()
-            }
+    final override fun steps(): Iterable<Step> {
+        val delegatingSteps = processingSteps().map { DelegatingStep(it) }
+        val initializingStep = InitializingStep(delegatingSteps)
+        return mutableListOf<Step>(initializingStep) + delegatingSteps
+    }
+
+    /** A step that initializes the state before every processing round.  */
+    private inner class InitializingStep(val delegatingSteps: Iterable<DelegatingStep>): Step {
+        override fun annotations() = delegatingSteps.flatMap { it.annotations() }.toSet()
+
+        override fun process(
+            elementsByAnnotation: ImmutableSetMultimap<String, Element>
+        ): Set<Element> {
+            xEnv = JavacProcessingEnv(processingEnv)
+            return emptySet()
         }
-        return listOf(parentStep)
+    }
+
+    /** A [Step] that delegates to an [XProcessingStep]. */
+    private inner class DelegatingStep(val xStep: XProcessingStep): Step {
+        override fun annotations() = xStep.annotations()
+
+        override fun process(
+            elementsByAnnotation: ImmutableSetMultimap<String, Element>
+        ): Set<Element> {
+            val xElementsByAnnotation = mutableMapOf<String, Set<XElement>>()
+            xStep.annotations().forEach { annotation ->
+                xElementsByAnnotation[annotation] =
+                    elementsByAnnotation[annotation].mapNotNull { element ->
+                        xEnv!!.wrapAnnotatedElement(element, annotation)
+                    }.toSet()
+            }
+            return xStep.process(xEnv!!, xElementsByAnnotation).map {
+                (it as JavacElement).element
+            }.toSet()
+        }
     }
 
     final override fun postRound(roundEnv: RoundEnvironment) {
-        // Due to BasicAnnotationProcessor taking over AbstractProcessor#process() we can't
-        // share the same XProcessingEnv from the steps, but that might be ok...
-        val xEnv = JavacProcessingEnv(processingEnv)
-        val xRound = XRoundEnv.create(xEnv, roundEnv)
-        postRound(xEnv, xRound)
+        if (xEnv == null) {
+            // On the last round of processing, postRound() is called without calling any of the
+            // processing steps, so we'll need to initialize xEnv ourselves.
+            assert(roundEnv.processingOver())
+            xEnv = JavacProcessingEnv(processingEnv)
+        }
+        val xRound = XRoundEnv.create(xEnv!!, roundEnv)
+        postRound(xEnv!!, xRound)
+        xEnv = null // Reset after every round to allow GC
     }
 }

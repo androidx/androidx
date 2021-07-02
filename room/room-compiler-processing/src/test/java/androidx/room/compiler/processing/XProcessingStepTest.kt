@@ -388,6 +388,56 @@ class XProcessingStepTest {
     }
 
     @Test
+    fun stepOnlyCalledIfElementsToProcess() {
+        val main = JavaFileObjects.forSourceString(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @MainAnnotation(
+                typeList = {},
+                singleType = Object.class,
+                intMethod = 3,
+                singleOtherAnnotation = @OtherAnnotation("y")
+            )
+            class Main {
+            }
+            """.trimIndent()
+        )
+        val stepsProcessed = mutableListOf<XProcessingStep>()
+        val mainStep = object : XProcessingStep {
+            override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                stepsProcessed.add(this)
+                return emptySet()
+            }
+        }
+        val otherStep = object : XProcessingStep {
+            override fun annotations() = setOf(OtherAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                stepsProcessed.add(this)
+                return emptySet()
+            }
+        }
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(mainStep, otherStep)
+            }
+        ).compilesWithoutError()
+        assertThat(stepsProcessed).containsExactly(mainStep)
+    }
+
+    @Test
     fun kspAnnotatedElementsByStep() {
         val main = SourceFile.kotlin(
             "Classes.kt",
