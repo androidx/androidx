@@ -262,10 +262,10 @@ public class CarAppActivityTest {
                     verify(rendererCallback, times(1)).onBackPressed();
 
                     // Verify focus request sent to host.
-                    activity.mSurfaceView.requestFocus();
-                    verify(callback, times(1)).onWindowFocusChanged(true, false);
                     activity.mSurfaceView.clearFocus();
                     verify(callback, times(1)).onWindowFocusChanged(false, false);
+                    activity.mSurfaceView.requestFocus();
+                    verify(callback, times(1)).onWindowFocusChanged(true, false);
 
                     long downTime = SystemClock.uptimeMillis();
                     long eventTime = SystemClock.uptimeMillis();
