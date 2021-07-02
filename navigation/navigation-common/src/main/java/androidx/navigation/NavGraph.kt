@@ -20,6 +20,9 @@ import android.util.AttributeSet
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import androidx.collection.SparseArrayCompat
+import androidx.collection.forEach
+import androidx.collection.size
+import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.navigation.common.R
 import java.lang.StringBuilder
@@ -372,6 +375,25 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
             sb.append("}")
         }
         return sb.toString()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is NavGraph) return false
+        val copy = nodes.valueIterator().asSequence().toMutableList()
+        other.nodes.valueIterator().forEach { copy.remove(it) }
+        return super.equals(other) &&
+            nodes.size == other.nodes.size &&
+            startDestinationId == other.startDestinationId &&
+            copy.isEmpty()
+    }
+
+    override fun hashCode(): Int {
+        var result = startDestinationId
+        nodes.forEach { key, value ->
+            result = 31 * result + key
+            result = 31 * result + value.hashCode()
+        }
+        return result
     }
 
     public companion object {
