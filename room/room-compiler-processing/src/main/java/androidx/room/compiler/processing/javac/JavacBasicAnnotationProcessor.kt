@@ -18,12 +18,10 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XBasicAnnotationProcessor
 import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XRoundEnv
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.collect.ImmutableSetMultimap
-import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 
@@ -46,7 +44,7 @@ abstract class JavacBasicAnnotationProcessor :
     }
 
     /** A step that initializes the state before every processing round.  */
-    private inner class InitializingStep(val delegatingSteps: Iterable<DelegatingStep>): Step {
+    private inner class InitializingStep(val delegatingSteps: Iterable<DelegatingStep>) : Step {
         override fun annotations() = delegatingSteps.flatMap { it.annotations() }.toSet()
 
         override fun process(
@@ -58,7 +56,7 @@ abstract class JavacBasicAnnotationProcessor :
     }
 
     /** A [Step] that delegates to an [XProcessingStep]. */
-    private inner class DelegatingStep(val xStep: XProcessingStep): Step {
+    private inner class DelegatingStep(val xStep: XProcessingStep) : Step {
         override fun annotations() = xStep.annotations()
 
         override fun process(

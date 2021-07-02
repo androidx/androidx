@@ -79,7 +79,7 @@ private fun KSAnnotated.validateExceptLocals(): Boolean {
         // skip locals
         // https://github.com/google/ksp/issues/489
         val skip = (parent as? KSDeclaration)?.isLocal() == true ||
-          (current as? KSDeclaration)?.isLocal() == true
+            (current as? KSDeclaration)?.isLocal() == true
         !skip
     }
 }
