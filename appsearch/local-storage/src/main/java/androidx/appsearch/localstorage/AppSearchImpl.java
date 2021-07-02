@@ -178,12 +178,16 @@ public final class AppSearchImpl implements Closeable {
 
     // Maps packages to the set of valid nextPageTokens that the package can manipulate. A token
     // is unique and constant per query (i.e. the same token '123' is used to iterate through
-    // pages of search results).
+    // pages of search results). The tokens themselves are generated and tracked by
+    // IcingSearchEngine. IcingSearchEngine considers a token valid and won't be reused
+    // until we call invalidateNextPageToken on the token.
     //
     // Note that we synchronize on itself because the nextPageToken cache is checked at
     // query-time, and queries are done in parallel with a read lock. Ideally, this would be
     // guarded by the normal mReadWriteLock.writeLock, but ReentrantReadWriteLocks can't upgrade
-    // read to write locks.
+    // read to write locks. This lock should be acquired at the smallest scope possible.
+    // mReadWriteLock is a higher-level lock, so calls shouldn't be made out
+    // to any functions that grab the lock.
     @GuardedBy("mNextPageTokensLocked")
     private final Map<String, Set<Long>> mNextPageTokensLocked = new ArrayMap<>();
 
@@ -1134,7 +1138,7 @@ public final class AppSearchImpl implements Closeable {
      */
     public void invalidateNextPageToken(@NonNull String packageName, long nextPageToken)
             throws AppSearchException {
-        mReadWriteLock.writeLock().lock();
+        mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
 
@@ -1148,7 +1152,7 @@ public final class AppSearchImpl implements Closeable {
                 mNextPageTokensLocked.get(packageName).remove(nextPageToken);
             }
         } finally {
-            mReadWriteLock.writeLock().unlock();
+            mReadWriteLock.readLock().unlock();
         }
     }
 
