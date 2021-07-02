@@ -19,11 +19,14 @@ package androidx.paging
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
+import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.recyclerview.widget.DiffUtil
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestExecutor
@@ -323,6 +326,69 @@ class LivePagedListBuilderTest {
         pagedLists.last().loadAround(2)
         drain()
         assertThat(requestedLoadSizes).containsExactly(3, 3, 3, 3)
+    }
+
+    @Test
+    fun initialPagedListEvents() {
+        ArchTaskExecutor.getInstance().setDelegate(object : TaskExecutor() {
+            override fun executeOnDiskIO(runnable: Runnable) {
+                runnable.run()
+            }
+
+            override fun postToMainThread(runnable: Runnable) {
+                runnable.run()
+            }
+
+            override fun isMainThread(): Boolean {
+                return true
+            }
+        })
+
+        val listUpdateCallback = ListUpdateCapture()
+        val loadStateListener = LoadStateCapture()
+        val differ = AsyncPagedListDiffer<Int>(
+            listUpdateCallback = listUpdateCallback,
+            config = AsyncDifferConfig.Builder(
+                object : DiffUtil.ItemCallback<Int>() {
+                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+
+                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                }
+            ).apply {
+                setBackgroundThreadExecutor(backgroundExecutor)
+            }.build()
+        )
+        differ.addLoadStateListener(loadStateListener)
+
+        val observer = Observer<PagedList<Int>> { t -> differ.submitList(t) }
+
+        // LivePagedList which immediately produces a real PagedList, skipping InitialPagedList.
+        val livePagedList = LivePagedListBuilder(
+            pagingSourceFactory = { TestPagingSource(loadDelay = 0) },
+            pageSize = 10,
+        ).build()
+        livePagedList.observeForever(observer)
+
+        drain()
+        livePagedList.removeObserver(observer)
+
+        assertThat(listUpdateCallback.newEvents()).containsExactly(
+            ListUpdateEvent.Inserted(position = 0, count = 100)
+        )
+
+        // LivePagedList which will emit InitialPagedList first.
+        val livePagedListWithInitialPagedList = LivePagedListBuilder(
+            pagingSourceFactory = { TestPagingSource(loadDelay = 1000) },
+            pageSize = 10,
+        ).build()
+        livePagedListWithInitialPagedList.observeForever(observer)
+
+        drain()
+        assertThat(listUpdateCallback.newEvents()).isEmpty()
     }
 
     private fun drain() {
