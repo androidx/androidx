@@ -18,7 +18,6 @@ package androidx.window
 import android.app.Activity
 import android.os.IBinder
 import android.os.Looper
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
  * A utility method [Activity] to return an optional [IBinder] window token from an [Activity].
@@ -48,7 +47,6 @@ internal inline fun <reified T> Activity.getOrCreateTag(id: Int, producer: () ->
 /**
  * Provide an instance of [WindowInfoRepo] that is associated to the given [Activity]
  */
-@ExperimentalCoroutinesApi
 public fun Activity.windowInfoRepository(): WindowInfoRepo {
     return WindowInfoRepo.create(this)
 }

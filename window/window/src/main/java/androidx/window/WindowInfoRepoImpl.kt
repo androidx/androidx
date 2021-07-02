@@ -17,14 +17,14 @@
 package androidx.window
 
 import android.app.Activity
+import android.content.ComponentCallbacks
 import android.content.Context
+import android.content.res.Configuration
 import androidx.core.util.Consumer
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
-import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 
 /**
  * An implementation of [WindowInfoRepo] that provides the [WindowLayoutInfo] and
@@ -34,8 +34,7 @@ import kotlinx.coroutines.flow.callbackFlow
  * @param windowMetricsCalculator a helper to calculate the [WindowMetrics] for the [Activity].
  * @param windowBackend a helper to provide the [WindowLayoutInfo].
  */
-@ExperimentalCoroutinesApi
-internal class WindowInfoRepoImp(
+internal class WindowInfoRepoImpl(
     private val activity: Activity,
     private val windowMetricsCalculator: WindowMetricsCalculator,
     private val windowBackend: WindowBackend
@@ -58,9 +57,11 @@ internal class WindowInfoRepoImp(
      * @see maximumWindowMetrics
      * @see android.view.WindowManager.getCurrentWindowMetrics
      */
-    override val currentWindowMetrics: WindowMetrics
+    override val currentWindowMetrics: Flow<WindowMetrics>
         get() {
-            return windowMetricsCalculator.computeCurrentWindowMetrics(activity)
+            return configurationChanged {
+                windowMetricsCalculator.computeCurrentWindowMetrics(activity)
+            }
         }
 
     /**
@@ -93,15 +94,59 @@ internal class WindowInfoRepoImp(
             return windowMetricsCalculator.computeMaximumWindowMetrics(activity)
         }
 
+    private fun <T> configurationChanged(producer: () -> T): Flow<T> {
+        return flow {
+            val channel = Channel<T>(
+                capacity = BUFFER_CAPACITY,
+                onBufferOverflow = DROP_OLDEST
+            )
+            val publish: () -> Unit = { channel.trySend(producer()) }
+            val configChangeObserver = object : ComponentCallbacks {
+                override fun onConfigurationChanged(newConfig: Configuration) {
+                    publish()
+                }
+
+                override fun onLowMemory() {
+                }
+            }
+            publish()
+            activity.registerComponentCallbacks(configChangeObserver)
+            try {
+                for (item in channel) {
+                    emit(item)
+                }
+            } finally {
+                activity.unregisterComponentCallbacks(configChangeObserver)
+            }
+        }
+    }
+
     /**
      * A [Flow] of window layout changes in the current visual [Context].
      *
      * @see Activity.onAttachedToWindow
      */
     override val windowLayoutInfo: Flow<WindowLayoutInfo>
-        get() = callbackFlow {
-            val callback = Consumer<WindowLayoutInfo> { info -> trySend(info) }
-            windowBackend.registerLayoutChangeCallback(activity, Runnable::run, callback)
-            awaitClose { windowBackend.unregisterLayoutChangeCallback(callback) }
-        }.buffer(capacity = UNLIMITED)
+        get() {
+            // TODO(b/191386826) migrate to callbackFlow once the API is stable
+            return flow {
+                val channel = Channel<WindowLayoutInfo>(
+                    capacity = BUFFER_CAPACITY,
+                    onBufferOverflow = DROP_OLDEST
+                )
+                val listener = Consumer<WindowLayoutInfo> { info -> channel.trySend(info) }
+                windowBackend.registerLayoutChangeCallback(activity, Runnable::run, listener)
+                try {
+                    for (item in channel) {
+                        emit(item)
+                    }
+                } finally {
+                    windowBackend.unregisterLayoutChangeCallback(listener)
+                }
+            }
+        }
+
+    internal companion object {
+        private const val BUFFER_CAPACITY = 10
+    }
 }

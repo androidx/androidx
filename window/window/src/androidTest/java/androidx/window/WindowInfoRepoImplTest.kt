@@ -17,7 +17,9 @@
 package androidx.window
 
 import android.app.Activity
+import android.content.pm.ActivityInfo
 import androidx.core.util.Consumer
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -30,7 +32,7 @@ import org.junit.Test
 import java.util.concurrent.Executor
 
 @OptIn(ExperimentalCoroutinesApi::class)
-public class WindowInfoRepoImpTest {
+public class WindowInfoRepoImplTest {
 
     @get:Rule
     public val activityScenario: ActivityScenarioRule<TestActivity> =
@@ -39,23 +41,72 @@ public class WindowInfoRepoImpTest {
     private val testScope = TestCoroutineScope()
 
     @Test
-    public fun testGetCurrentWindowMetrics() {
+    public fun testGetCurrentWindowMetrics(): Unit = testScope.runBlockingTest {
         activityScenario.scenario.onActivity { testActivity ->
-            val repo = WindowInfoRepoImp(
+            val repo = WindowInfoRepoImpl(
                 testActivity,
                 WindowMetricsCalculatorCompat,
                 FakeWindowBackend()
             )
             val expected = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(testActivity)
-            val actual = repo.currentWindowMetrics
-            assertEquals(expected, actual)
+            val consumer = TestConsumer<WindowMetrics>()
+            testScope.launch {
+                repo.currentWindowMetrics.collect { consumer.accept(it) }
+            }
+            consumer.assertValue(expected)
         }
     }
 
     @Test
+    public fun testGetCurrentWindowMetrics_multicasting(): Unit = testScope.runBlockingTest {
+        activityScenario.scenario.onActivity { testActivity ->
+            val repo = WindowInfoRepoImpl(
+                testActivity,
+                WindowMetricsCalculatorCompat,
+                FakeWindowBackend()
+            )
+            val expected = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(testActivity)
+            val consumer = TestConsumer<WindowMetrics>()
+            testScope.launch {
+                repo.currentWindowMetrics.collect { consumer.accept(it) }
+            }
+            testScope.launch {
+                repo.currentWindowMetrics.collect { consumer.accept(it) }
+            }
+            consumer.assertValues(expected, expected)
+        }
+    }
+
+    @Test
+    public fun testGetCurrentWindowMetrics_configChangesEmitNewMetrics(): Unit =
+        testScope.runBlockingTest {
+            val scenario = ActivityScenario.launch(TestConfigChangeHandlingActivity::class.java)
+            val collector = TestConsumer<WindowMetrics>()
+            scenario.onActivity { activity ->
+                val repo = WindowInfoRepoImpl(
+                    activity,
+                    WindowMetricsCalculatorCompat,
+                    FakeWindowBackend()
+                )
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                activity.waitForLayout()
+                testScope.launch {
+                    repo.currentWindowMetrics.collect { collector.accept(it) }
+                }
+            }
+            scenario.onActivity { activity ->
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                activity.waitForLayout()
+            }
+            scenario.onActivity {
+                collector.assertValueCount(2)
+            }
+        }
+
+    @Test
     public fun testGetMaximumWindowMetrics() {
         activityScenario.scenario.onActivity { testActivity ->
-            val repo = WindowInfoRepoImp(
+            val repo = WindowInfoRepoImpl(
                 testActivity,
                 WindowMetricsCalculatorCompat,
                 FakeWindowBackend()
@@ -71,7 +122,7 @@ public class WindowInfoRepoImpTest {
         activityScenario.scenario.onActivity { testActivity ->
             val windowMetricsCalculator = WindowMetricsCalculatorCompat
             val fakeBackend = FakeWindowBackend()
-            val repo = WindowInfoRepoImp(
+            val repo = WindowInfoRepoImpl(
                 testActivity,
                 windowMetricsCalculator,
                 fakeBackend
@@ -82,6 +133,28 @@ public class WindowInfoRepoImpTest {
             }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
             collector.assertValue(WindowLayoutInfo(emptyList()))
+        }
+    }
+
+    @Test
+    public fun testWindowLayoutFeatures_multicasting(): Unit = testScope.runBlockingTest {
+        activityScenario.scenario.onActivity { testActivity ->
+            val windowMetricsCalculator = WindowMetricsCalculatorCompat
+            val fakeBackend = FakeWindowBackend()
+            val repo = WindowInfoRepoImpl(
+                testActivity,
+                windowMetricsCalculator,
+                fakeBackend
+            )
+            val collector = TestConsumer<WindowLayoutInfo>()
+            testScope.launch {
+                repo.windowLayoutInfo.collect(collector::accept)
+            }
+            testScope.launch {
+                repo.windowLayoutInfo.collect(collector::accept)
+            }
+            fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
+            collector.assertValues(WindowLayoutInfo(emptyList()), WindowLayoutInfo(emptyList()))
         }
     }
 
@@ -112,7 +185,7 @@ public class WindowInfoRepoImpTest {
         }
 
         override fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>) {
-            consumers.removeIf { it.callback == callback }
+            consumers.remove(callback)
         }
     }
 }

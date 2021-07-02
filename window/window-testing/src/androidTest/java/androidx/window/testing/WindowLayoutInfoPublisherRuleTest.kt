@@ -28,6 +28,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toCollection
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -42,6 +43,8 @@ public class WindowLayoutInfoPublisherRuleTest {
 
     private val activityRule = ActivityScenarioRule(TestActivity::class.java)
     private val publisherRule = WindowLayoutInfoPublisherRule()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val testScope = TestCoroutineScope()
 
     @get:Rule
     public val testRule: TestRule
@@ -52,10 +55,10 @@ public class WindowLayoutInfoPublisherRuleTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    public fun testWindowLayoutInfo_relayValue(): Unit = runBlockingTest {
+    public fun testWindowLayoutInfo_relayValue(): Unit = testScope.runBlockingTest {
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(emptyList()).build()
         activityRule.scenario.onActivity { activity ->
-            val value = async {
+            val value = testScope.async {
                 activity.windowInfoRepository().windowLayoutInfo.first()
             }
             publisherRule.overrideWindowLayoutInfo(expected)
@@ -68,7 +71,7 @@ public class WindowLayoutInfoPublisherRuleTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    public fun testWindowLayoutInfo_multipleValues(): Unit = runBlockingTest {
+    public fun testWindowLayoutInfo_multipleValues(): Unit = testScope.runBlockingTest {
         val feature1 = object : DisplayFeature {
             override val bounds: Rect
                 get() = Rect()
@@ -81,7 +84,7 @@ public class WindowLayoutInfoPublisherRuleTest {
         val expected2 = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature2)).build()
         activityRule.scenario.onActivity { activity ->
             val values = mutableListOf<WindowLayoutInfo>()
-            val value = async {
+            val value = testScope.async {
                 activity.windowInfoRepository().windowLayoutInfo.take(4).toCollection(values)
             }
             publisherRule.overrideWindowLayoutInfo(expected1)
