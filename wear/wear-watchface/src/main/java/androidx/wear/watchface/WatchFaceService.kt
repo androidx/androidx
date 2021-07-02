@@ -219,6 +219,10 @@ public annotation class TapType {
  *    <meta-data
  *      android:name="android.service.wallpaper"
  *      android:resource="@xml/watch_face" />
+ *    <meta-data
+ *      android:name=
+ *         "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
+ *      android:value="true" />
  *  </service>
  * ```
  *
