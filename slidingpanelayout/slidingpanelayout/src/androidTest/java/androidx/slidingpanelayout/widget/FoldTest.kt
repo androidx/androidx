@@ -21,7 +21,11 @@ import androidx.slidingpanelayout.test.R
 import androidx.slidingpanelayout.widget.helpers.TestActivity
 import androidx.slidingpanelayout.widget.helpers.findViewById
 import androidx.slidingpanelayout.widget.helpers.findViewX
+import androidx.slidingpanelayout.widget.helpers.isTwoPane
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
@@ -33,6 +37,7 @@ import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.testing.layout.FoldingFeature
 import androidx.window.testing.layout.WindowLayoutInfoPublisherRule
 import com.google.common.truth.Truth.assertThat
+import org.hamcrest.core.IsNot.not
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -43,13 +48,13 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-public class FoldTest {
+class FoldTest {
 
     @get:Rule
     val rule: WindowLayoutInfoPublisherRule = WindowLayoutInfoPublisherRule()
 
     @After
-    public fun tearDown() {
+    fun tearDown() {
         TestActivity.onActivityCreated = {}
     }
 
@@ -57,13 +62,13 @@ public class FoldTest {
      * Test split views in middle when fold vertically
      */
     @Test
-    public fun testFoldVertical() {
+    fun testFoldVertical() {
         TestActivity.onActivityCreated = { activity ->
             activity.setContentView(R.layout.activity_test_fold_layout)
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            val foldPosition = withActivity {
+            withActivity {
                 val testFeature = FoldingFeature(activity = this, orientation = VERTICAL)
                 val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(testFeature))
                     .build()
@@ -72,7 +77,8 @@ public class FoldTest {
             }
             assertThat(findViewById(R.id.list_pane).width)
                 .isEqualTo(findViewById(R.id.detail_pane).width)
-            assertThat(findViewX(R.id.detail_pane)).isEqualTo(foldPosition.left)
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_fold_layout))
+                .check(ViewAssertions.matches(isTwoPane()))
         }
     }
 
@@ -80,7 +86,7 @@ public class FoldTest {
      * Test split views not applicable when fold horizontally.
      */
     @Test
-    public fun testFoldHorizontal() {
+    fun testFoldHorizontal() {
         TestActivity.onActivityCreated = { activity ->
             activity.setContentView(R.layout.activity_test_fold_layout)
         }
@@ -96,7 +102,7 @@ public class FoldTest {
      * Test split views when fold pane is smaller than required min width
      */
     @Test
-    public fun testFoldExceedMinWidth() {
+    fun testFoldExceedMinWidth() {
         val detailViewExtraWidth = 200
         TestActivity.onActivityCreated = { activity ->
             activity.setContentView(R.layout.activity_test_fold_layout)
@@ -111,13 +117,14 @@ public class FoldTest {
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            val window = withActivity {
+            withActivity {
                 val feature = FoldingFeature(activity = this, orientation = VERTICAL)
                 val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
                 rule.overrideWindowLayoutInfo(info)
                 WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this).bounds
             }
-            assertThat(findViewById(R.id.detail_pane).width).isEqualTo(window.width())
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_fold_layout))
+                .check(ViewAssertions.matches(not(isTwoPane())))
         }
     }
 
@@ -125,7 +132,7 @@ public class FoldTest {
      * Test layout updates when unfold a foldable device
      */
     @Test
-    public fun testUnfold() {
+    fun testUnfold() {
         TestActivity.onActivityCreated = { activity ->
             activity.setContentView(R.layout.activity_test_fold_layout)
         }

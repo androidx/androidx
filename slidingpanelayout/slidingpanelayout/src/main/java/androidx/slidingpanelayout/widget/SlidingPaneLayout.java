@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
@@ -557,6 +558,26 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     @Override
+    public void addView(@NonNull View child, int index, @Nullable ViewGroup.LayoutParams params) {
+        if (getChildCount() == 1) {
+            // Wrap detail view inside a touch blocker container
+            View detailView = new TouchBlocker(child);
+            super.addView(detailView, index, params);
+            return;
+        }
+        super.addView(child, index, params);
+    }
+
+    @Override
+    public void removeView(@NonNull View view) {
+        if (view.getParent() instanceof TouchBlocker) {
+            super.removeView((View) view.getParent());
+            return;
+        }
+        super.removeView(view);
+    }
+
+    @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mFirstLayout = true;
@@ -739,8 +760,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
                         MeasureSpec.AT_MOST);
                 child.measure(childWidthSpec, childHeightSpec);
                 if ((child.getMeasuredWidthAndState() & MEASURED_STATE_TOO_SMALL) == 1 || (
-                        ViewCompat.getMinimumWidth(child) != 0
-                                && splitView.width() < ViewCompat.getMinimumWidth(child))) {
+                        getMinimumWidth(child) != 0
+                                && splitView.width() < getMinimumWidth(child))) {
                     childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
                             MeasureSpec.EXACTLY);
                     child.measure(childWidthSpec, childHeightSpec);
@@ -768,6 +789,13 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             // Cancel scrolling in progress, it's no longer relevant.
             mDragHelper.abort();
         }
+    }
+
+    private static int getMinimumWidth(View child) {
+        if (child instanceof TouchBlocker) {
+            return ViewCompat.getMinimumWidth(((TouchBlocker) child).getChildAt(0));
+        }
+        return ViewCompat.getMinimumWidth(child);
     }
 
     private static int measureChildHeight(@NonNull View child,
@@ -1780,6 +1808,23 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             dest.addAction(src.getActions());
 
             dest.setMovementGranularities(src.getMovementGranularities());
+        }
+    }
+
+    private static class TouchBlocker extends FrameLayout {
+        TouchBlocker(View view) {
+            super(view.getContext());
+            addView(view);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            return true;
+        }
+
+        @Override
+        public boolean onGenericMotionEvent(MotionEvent event) {
+            return true;
         }
     }
 
