@@ -66,6 +66,8 @@ public final class TemplateSurfaceView extends SurfaceView {
 
     @Nullable
     ISurfaceControl mSurfaceControl;
+    @Nullable
+    SurfacePackage mSurfacePackage;
     private boolean mIsInInputMode;
 
     // Package public to avoid synthetic accessor
@@ -240,7 +242,7 @@ public final class TemplateSurfaceView extends SurfaceView {
         requireNonNull(mViewModel);
 
         if (SUPPORTS_SURFACE_CONTROL && surfacePackage instanceof SurfacePackage) {
-            Api30Impl.setSurfacePackage(this, (SurfacePackage) surfacePackage);
+            setSurfacePackage((SurfacePackage) surfacePackage);
         } else if (surfacePackage instanceof LegacySurfacePackage) {
             setSurfacePackage((LegacySurfacePackage) surfacePackage);
         } else {
@@ -250,9 +252,9 @@ public final class TemplateSurfaceView extends SurfaceView {
     }
 
     /**
-     * Updates the surface control with the {@link LegacySurfacePackage}.
+     * Updates the surface control with the {@link LegacySurfacePackage}
      *
-     * This control is used to communicate the UI events and focus with the host.
+     * This is used in Android API level 29 to communicate UI events and focus with the host.
      */
     @SuppressLint({"ClickableViewAccessibility"})
     private void setSurfacePackage(LegacySurfacePackage surfacePackage) {
@@ -264,6 +266,24 @@ public final class TemplateSurfaceView extends SurfaceView {
                 surfaceControl.setSurfaceWrapper(Bundleable.create(surfaceWrapper)));
         mSurfaceControl = surfaceControl;
         setOnTouchListener((view, event) -> handleTouchEvent(event));
+    }
+
+    /**
+     * Updates the surface control with the {@link SurfacePackage}.
+     *
+     * This is used in Android API level 30+ to communicate UI events with a remote
+     * {@link SurfaceView}
+     */
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    private void setSurfacePackage(SurfacePackage surfacePackage) {
+        // Although the Javadoc in SurfaceView#setChildSurfacePackage suggests that SurfaceView
+        // should take care of releasing the SurfacePackage, we have found cases where a manual
+        // release is necessary.
+        if (mSurfacePackage != null) {
+            Api30Impl.releaseSurfacePackage(mSurfacePackage);
+        }
+        mSurfacePackage = surfacePackage;
+        Api30Impl.setSurfacePackage(this, (SurfacePackage) surfacePackage);
     }
 
     @Override
@@ -306,6 +326,11 @@ public final class TemplateSurfaceView extends SurfaceView {
         @DoNotInline
         static void setSurfacePackage(TemplateSurfaceView view, SurfacePackage surfacePackage) {
             view.setChildSurfacePackage(surfacePackage);
+        }
+
+        @DoNotInline
+        public static void releaseSurfacePackage(SurfacePackage surfacePackage) {
+            surfacePackage.release();
         }
     }
 }
