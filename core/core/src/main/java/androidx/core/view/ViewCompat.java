@@ -841,7 +841,7 @@ public class ViewCompat {
      * <li>The view can be autofilled by an {@link android.service.autofill.AutofillService}.
      * <li>The view contents can help an {@link android.service.autofill.AutofillService}
      *     determine how other views can be autofilled.
-     * <ol>
+     * </ol>
      *
      * <p>For example, view containers should typically return {@code false} for performance reasons
      * (since the important info is provided by their children), but if its properties have relevant
