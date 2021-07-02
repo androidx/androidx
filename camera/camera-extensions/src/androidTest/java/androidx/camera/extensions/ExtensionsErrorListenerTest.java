@@ -286,61 +286,6 @@ public final class ExtensionsErrorListenerTest {
                 ExtensionsErrorListener.ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
     }
 
-    @Test
-    public void receiveErrorCode_whenOnlyBindImageCapture() throws InterruptedException {
-        ExtensionsManager.setExtensionsErrorListener(mExtensionsErrorListener);
-
-        ImageCapture imageCapture = new ImageCapture.Builder().build();
-
-        mErrorCode.set(null);
-
-        mInstrumentation.runOnMainSync(
-                () -> mProcessCameraProvider.bindToLifecycle(mFakeLifecycleOwner,
-                        mExtensionsCameraSelector, imageCapture));
-
-        // Waits for one second to get error code.
-        mLatch.await(1, TimeUnit.SECONDS);
-        assertThat(mErrorCode.get()).isEqualTo(
-                ExtensionsErrorListener.ExtensionsErrorCode.PREVIEW_EXTENSION_REQUIRED);
-    }
-
-    @Test
-    public void receiveErrorCode_whenOnlyBindPreview() throws InterruptedException {
-        ExtensionsManager.setExtensionsErrorListener(mExtensionsErrorListener);
-
-        Preview preview = new Preview.Builder().build();
-
-        mErrorCode.set(null);
-
-        mInstrumentation.runOnMainSync(
-                () -> mProcessCameraProvider.bindToLifecycle(mFakeLifecycleOwner,
-                        mExtensionsCameraSelector, preview));
-
-        // Waits for one second to get error code.
-        mLatch.await(1, TimeUnit.SECONDS);
-        assertThat(mErrorCode.get()).isEqualTo(
-                ExtensionsErrorListener.ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
-    }
-
-    @Test
-    public void notReceiveErrorCode_whenBindBothImageCapturePreview()
-            throws InterruptedException, CameraAccessException, CameraInfoUnavailableException {
-        assumeTrue(canSupportImageCaptureTogetherWithPreview(mEffectMode, mEffectMode));
-        ExtensionsErrorListener mockExtensionsErrorListener = mock(ExtensionsErrorListener.class);
-        ExtensionsManager.setExtensionsErrorListener(mockExtensionsErrorListener);
-
-        ImageCapture imageCapture = new ImageCapture.Builder().build();
-        Preview preview = new Preview.Builder().build();
-
-        mInstrumentation.runOnMainSync(
-                () -> mProcessCameraProvider.bindToLifecycle(mFakeLifecycleOwner,
-                        mExtensionsCameraSelector, preview, imageCapture));
-
-        // Waits for one second to get error code.
-        Thread.sleep(1000);
-        verifyZeroInteractions(mockExtensionsErrorListener);
-    }
-
     private boolean canSupportImageCaptureTogetherWithPreview(
             @NonNull ExtensionsManager.EffectMode imageCaptureEffectMode,
             @NonNull ExtensionsManager.EffectMode previewEffectMode)

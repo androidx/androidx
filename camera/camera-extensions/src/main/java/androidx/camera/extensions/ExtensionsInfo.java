@@ -31,6 +31,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigProvider;
 import androidx.camera.core.impl.CameraFilters;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
@@ -261,6 +262,8 @@ final class ExtensionsInfo {
                         .setExtensionMode(mode)
                         .setUseCaseConfigFactory(factory)
                         .setCompatibilityId(id)
+                        .setUseCaseCombinationRequiredRule(
+                                CameraConfig.REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE)
                         .build();
             });
         }

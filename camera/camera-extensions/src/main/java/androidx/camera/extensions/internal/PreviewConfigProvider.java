@@ -16,8 +16,6 @@
 
 package androidx.camera.extensions.internal;
 
-import static androidx.camera.extensions.internal.ImageCaptureConfigProvider.OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE;
-
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
@@ -43,7 +41,6 @@ import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.extensions.ExtensionMode;
-import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
@@ -52,9 +49,7 @@ import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
-import androidx.core.util.Consumer;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -149,17 +144,6 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
                 new CameraEventCallbacks(previewEventAdapter));
         builder.setUseCaseEventCallback(previewEventAdapter);
 
-        try {
-            Consumer<Collection<UseCase>> attachedUseCasesUpdateListener =
-                    useCases -> checkImageCaptureEnabled(effectMode, useCases);
-            builder.setAttachedUseCasesUpdateListener(attachedUseCasesUpdateListener);
-        } catch (NoSuchMethodError e) {
-            // setAttachedUseCasesUpdateListener function may not exist in the used core library.
-            // Catches the NoSuchMethodError and make the extensions be able to be enabled but
-            // only the ExtensionsErrorListener does not work.
-            Logger.e(TAG, "Can't set attached use cases update listener.");
-        }
-
         builder.getMutableConfig().insertOption(OPTION_PREVIEW_CONFIG_PROVIDER_MODE, effectMode);
         List<Pair<Integer, Size[]>> supportedResolutions = getSupportedResolutions(impl);
         if (supportedResolutions != null) {
@@ -181,40 +165,6 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         } catch (NoSuchMethodError e) {
             Logger.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
             return null;
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private void checkImageCaptureEnabled(@ExtensionMode.Mode int effectMode,
-            Collection<UseCase> activeUseCases) {
-        boolean isImageCaptureExtenderEnabled = false;
-        boolean isMismatched = false;
-
-        // In case all use cases are unbound when doing the check.
-        if (activeUseCases == null || activeUseCases.isEmpty()) {
-            return;
-        }
-
-        for (UseCase useCase : activeUseCases) {
-            int imageCaptureExtenderMode = useCase.getCurrentConfig().retrieveOption(
-                    OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE,
-                    ExtensionMode.NONE);
-
-            if (effectMode == imageCaptureExtenderMode) {
-                isImageCaptureExtenderEnabled = true;
-            } else if (imageCaptureExtenderMode != ExtensionMode.NONE) {
-                isMismatched = true;
-            }
-        }
-
-        if (isMismatched) {
-            ExtensionsManager.postExtensionsError(
-                    androidx.camera.extensions.ExtensionsErrorListener
-                            .ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
-        } else if (!isImageCaptureExtenderEnabled) {
-            ExtensionsManager.postExtensionsError(
-                    androidx.camera.extensions.ExtensionsErrorListener
-                            .ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
         }
     }
 
