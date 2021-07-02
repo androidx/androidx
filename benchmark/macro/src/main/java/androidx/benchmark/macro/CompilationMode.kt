@@ -109,7 +109,9 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
         // triggering this broadcast will cause the baseline profile to get installed
         // synchronously, instead of waiting for the
         val action = ProfileInstallReceiver.ACTION_INSTALL_PROFILE
-        val result = device.executeShellCommand("am broadcast -a $action -p $packageName")
+        // Use an explicit broadcast given the app was force-stopped.
+        val name = ProfileInstallReceiver::class.java.name
+        val result = device.executeShellCommand("am broadcast -a $action $packageName/$name")
             .substringAfter("Broadcast completed: result=")
             .trim()
             .toIntOrNull()
