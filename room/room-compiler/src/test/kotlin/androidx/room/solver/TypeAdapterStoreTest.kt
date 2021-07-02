@@ -801,6 +801,89 @@ class TypeAdapterStoreTest {
     }
 
     @Test
+    fun findPagingSourceJavaCollectionValue() {
+        runProcessorTest { invocation ->
+            val pagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingSource::class)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val collectionType = invocation.processingEnv.requireType("java.util.Collection")
+            val pagingSourceIntCollectionType = invocation.processingEnv
+                .getDeclaredType(pagingSourceElement, intType, collectionType)
+
+            assertThat(pagingSourceIntCollectionType).isNotNull()
+            assertThat(
+                PagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(pagingSourceIntCollectionType)
+            ).isTrue()
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE)
+            }
+        }
+    }
+
+    @Test
+    fun findPagingSourceKotlinCollectionValue() {
+        runProcessorTest { invocation ->
+            val pagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingSource::class)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val kotlinCollectionType = invocation.processingEnv.requireType(Collection::class)
+            val pagingSourceIntCollectionType = invocation.processingEnv
+                .getDeclaredType(pagingSourceElement, intType, kotlinCollectionType)
+
+            assertThat(pagingSourceIntCollectionType).isNotNull()
+            assertThat(
+                PagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(pagingSourceIntCollectionType)
+            ).isTrue()
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE)
+            }
+        }
+    }
+
+    @Test
+    fun findPagingSourceJavaListValue() {
+        runProcessorTest { invocation ->
+            val pagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingSource::class)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val javaListType = invocation.processingEnv.requireType("java.util.List")
+            val pagingSourceIntListType = invocation.processingEnv
+                .getDeclaredType(pagingSourceElement, intType, javaListType)
+            assertThat(pagingSourceIntListType).isNotNull()
+            assertThat(
+                PagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(pagingSourceIntListType)
+            ).isTrue()
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE)
+            }
+        }
+    }
+
+    @Test
+    fun findPagingSourceKotlinMutableSetValue() {
+        runProcessorTest { invocation ->
+            val pagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingSource::class)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val mutableSetType = invocation.processingEnv.requireType(MutableSet::class)
+            val pagingSourceIntCollectionType = invocation.processingEnv
+                .getDeclaredType(pagingSourceElement, intType, mutableSetType)
+
+            assertThat(pagingSourceIntCollectionType).isNotNull()
+            assertThat(
+                PagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(pagingSourceIntCollectionType)
+            ).isTrue()
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE)
+            }
+        }
+    }
+
+    @Test
     fun testNewPagingSourceBinder() {
         val inputSource =
             Source.java(

@@ -611,6 +611,9 @@ object ProcessorErrors {
     val PAGING_SPECIFY_PAGING_SOURCE_TYPE = "For now, Room only supports PagingSource with Key of" +
         " type Int."
 
+    val PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE = "For now, Room only supports PagingSource with" +
+        " Value that is not of Collection type."
+
     fun primaryKeyNull(field: String): String {
         return "You must annotate primary keys with @NonNull. \"$field\" is nullable. SQLite " +
             "considers this a " +
