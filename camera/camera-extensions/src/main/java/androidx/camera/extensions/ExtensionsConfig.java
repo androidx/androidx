@@ -64,6 +64,11 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
         return retrieveOption(OPTION_COMPATIBILITY_ID);
     }
 
+    @Override
+    public int getUseCaseCombinationRequiredRule() {
+        return retrieveOption(OPTION_USE_CASE_COMBINATION_REQUIRED_RULE);
+    }
+
     static final class Builder implements CameraConfig.Builder<Builder> {
         private final MutableOptionsBundle mConfig = MutableOptionsBundle.create();
 
@@ -87,6 +92,14 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
         @Override
         public Builder setCompatibilityId(@NonNull Identifier identifier) {
             mConfig.insertOption(OPTION_COMPATIBILITY_ID, identifier);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setUseCaseCombinationRequiredRule(int useCaseCombinationRequiredRule) {
+            mConfig.insertOption(OPTION_USE_CASE_COMBINATION_REQUIRED_RULE,
+                    useCaseCombinationRequiredRule);
             return this;
         }
     }

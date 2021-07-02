@@ -30,6 +30,8 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraConfig;
@@ -44,6 +46,7 @@ import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
@@ -52,8 +55,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 /** JUnit test cases for {@link CameraUseCaseAdapter} class. */
 @SmallTest
@@ -330,6 +335,293 @@ public class CameraUseCaseAdapterTest {
         // Sets extended config with different camera config
         CameraConfig cameraConfig2 = new FakeCameraConfig();
         cameraUseCaseAdapter.setExtendedConfig(cameraConfig2);
+    }
+
+    @Test
+    @UiThreadTest
+    public void noExtraUseCase_whenBindEmptyUseCaseList()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        cameraUseCaseAdapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig());
+
+        cameraUseCaseAdapter.addUseCases(Collections.emptyList());
+
+        List<UseCase> useCases = cameraUseCaseAdapter.getUseCases();
+        assertThat(useCases.size()).isEqualTo(0);
+    }
+
+    @Test
+    @UiThreadTest
+    public void addExtraImageCapture_whenOnlyBindPreview()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        cameraUseCaseAdapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig());
+
+        Preview preview = new Preview.Builder().build();
+
+        // Adds a Preview only
+        cameraUseCaseAdapter.addUseCases(Collections.singletonList(preview));
+
+        // Checks whether an extra ImageCapture is added.
+        assertThat(containsImageCapture(cameraUseCaseAdapter.getUseCases())).isTrue();
+    }
+
+    @Test
+    @UiThreadTest
+    public void removeExtraImageCapture_afterBindImageCapture()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        cameraUseCaseAdapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig());
+
+        Preview preview = new Preview.Builder().build();
+
+        // Adds a Preview only
+        cameraUseCaseAdapter.addUseCases(Collections.singletonList(preview));
+
+        // Checks whether an extra ImageCapture is added.
+        assertThat(containsImageCapture(cameraUseCaseAdapter.getUseCases()));
+
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+
+        // Adds an ImageCapture
+        cameraUseCaseAdapter.addUseCases(Collections.singletonList(imageCapture));
+
+        // Checks the preview and the added imageCapture contained in the CameraUseCaseAdapter
+        assertThat(cameraUseCaseAdapter.getUseCases()).containsExactly(preview, imageCapture);
+    }
+
+    @Test
+    @UiThreadTest
+    public void addExtraImageCapture_whenUnbindImageCapture()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        cameraUseCaseAdapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig());
+
+        List<UseCase> useCases = new ArrayList<>();
+        Preview preview = new Preview.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        useCases.add(preview);
+        useCases.add(imageCapture);
+
+        // Adds both Preview and ImageCapture
+        cameraUseCaseAdapter.addUseCases(useCases);
+
+        // Checks whether exactly two use cases contained in the CameraUseCaseAdapter
+        assertThat(cameraUseCaseAdapter.getUseCases().size()).isEqualTo(2);
+
+        // Removes the ImageCapture
+        cameraUseCaseAdapter.removeUseCases(Collections.singletonList(imageCapture));
+
+        // Checks whether an extra ImageCapture is added.
+        assertThat(containsImageCapture(cameraUseCaseAdapter.getUseCases())).isTrue();
+    }
+
+    @Test
+    @UiThreadTest
+    public void addExtraPreview_whenOnlyBindImageCapture()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        cameraUseCaseAdapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig());
+
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+
+        // Adds an ImageCapture only
+        cameraUseCaseAdapter.addUseCases(Collections.singletonList(imageCapture));
+
+        // Checks whether an extra Preview is added.
+        assertThat(containsPreview(cameraUseCaseAdapter.getUseCases())).isTrue();
+    }
+
+    @Test
+    @UiThreadTest
+    public void removeExtraPreview_afterBindPreview()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        cameraUseCaseAdapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig());
+
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+
+        // Adds a ImageCapture only
+        cameraUseCaseAdapter.addUseCases(Collections.singletonList(imageCapture));
+
+        // Checks whether an extra Preview is added.
+        assertThat(containsPreview(cameraUseCaseAdapter.getUseCases()));
+
+        Preview preview = new Preview.Builder().build();
+
+        // Adds an Preview
+        cameraUseCaseAdapter.addUseCases(Collections.singletonList(preview));
+        // Checks the imageCapture and the added preview contained in the CameraUseCaseAdapter
+        assertThat(cameraUseCaseAdapter.getUseCases()).containsExactly(imageCapture, preview);
+    }
+
+    @Test
+    @UiThreadTest
+    public void addExtraPreview_whenUnbindPreview()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        cameraUseCaseAdapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig());
+
+        List<UseCase> useCases = new ArrayList<>();
+        Preview preview = new Preview.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        useCases.add(preview);
+        useCases.add(imageCapture);
+
+        // Adds both Preview and ImageCapture
+        cameraUseCaseAdapter.addUseCases(useCases);
+
+        // Checks whether exactly two use cases contained in the CameraUseCaseAdapter
+        assertThat(cameraUseCaseAdapter.getUseCases().size()).isEqualTo(2);
+
+        // Removes the Preview
+        cameraUseCaseAdapter.removeUseCases(Collections.singletonList(preview));
+
+        // Checks whether an extra Preview is added.
+        assertThat(containsPreview(cameraUseCaseAdapter.getUseCases())).isTrue();
+    }
+
+    @Test
+    @UiThreadTest
+    public void noExtraUseCase_whenUnbindBothPreviewAndImageCapture()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        cameraUseCaseAdapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig());
+
+        List<UseCase> useCases = new ArrayList<>();
+        Preview preview = new Preview.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        useCases.add(preview);
+        useCases.add(imageCapture);
+
+        // Adds both Preview and ImageCapture
+        cameraUseCaseAdapter.addUseCases(useCases);
+
+        // Checks whether exactly two use cases contained in the CameraUseCaseAdapter
+        assertThat(cameraUseCaseAdapter.getUseCases().size()).isEqualTo(2);
+
+        // Removes all use cases
+        cameraUseCaseAdapter.removeUseCases(useCases);
+
+        // Checks whether any extra use cases is added
+        assertThat(cameraUseCaseAdapter.getUseCases().size()).isEqualTo(0);
+    }
+
+    @Test
+    @UiThreadTest
+    public void noExtraImageCapture_whenOnlyBindPreviewWithoutRule()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        Preview preview = new Preview.Builder().build();
+
+        // Adds a Preview only
+        cameraUseCaseAdapter.addUseCases(Collections.singletonList(preview));
+
+        // Checks that no extra use case is added.
+        assertThat(cameraUseCaseAdapter.getUseCases().size()).isEqualTo(1);
+    }
+
+    @Test
+    @UiThreadTest
+    public void noExtraPreview_whenOnlyBindImageCaptureWithoutRule()
+            throws CameraUseCaseAdapter.CameraException {
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+
+        // Adds an ImageCapture only
+        cameraUseCaseAdapter.addUseCases(Collections.singletonList(imageCapture));
+
+        // Checks that no extra use case is added.
+        assertThat(cameraUseCaseAdapter.getUseCases().size()).isEqualTo(1);
+    }
+
+    @NonNull
+    private CameraConfig createCoexistingRequiredRuleCameraConfig() {
+        return new CameraConfig() {
+
+            private final UseCaseConfigFactory mUseCaseConfigFactory = new UseCaseConfigFactory() {
+                @Nullable
+                @Override
+                public Config getConfig(@NonNull CaptureType captureType) {
+                    return null;
+                }
+            };
+
+            private final Identifier mIdentifier = Identifier.create(new Object());
+
+            @NonNull
+            @Override
+            public UseCaseConfigFactory getUseCaseConfigFactory() {
+                return mUseCaseConfigFactory;
+            }
+
+            @NonNull
+            @Override
+            public Identifier getCompatibilityId() {
+                return mIdentifier;
+            }
+
+            @NonNull
+            @Override
+            public Config getConfig() {
+                return OptionsBundle.emptyBundle();
+            }
+
+            @Override
+            public int getUseCaseCombinationRequiredRule() {
+                return CameraConfig.REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE;
+            }
+        };
+    }
+
+    private boolean containsPreview(@NonNull List<UseCase> useCases) {
+        for (UseCase useCase : useCases) {
+            if (useCase instanceof Preview) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean containsImageCapture(@NonNull List<UseCase> useCases) {
+        for (UseCase useCase : useCases) {
+            if (useCase instanceof ImageCapture) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static final class FakeCameraConfig implements CameraConfig {
