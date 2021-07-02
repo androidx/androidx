@@ -44,19 +44,13 @@ public interface WatchFaceHostApi {
     public fun getInitialUserStyle(): UserStyleWireFormat?
 
     /**
-     * Sets ContentDescriptionLabels for text-to-speech screen readers to make your
+     * Creates/updates ContentDescriptionLabels for text-to-speech screen readers to make your
      * [ComplicationSlot]s, buttons, and any other text on your watchface accessible.
      *
-     * Each label is a region of the screen in absolute coordinates, along with
-     * time-dependent text. The regions must not overlap.
-     *
-     * You must set all labels at the same time; previous labels will be cleared. An empty
-     * array clears all labels.
-     *
-     * In addition to labeling your [ComplicationSlot]s, please include a label that will read the
-     * current time. You can use [android.support.wearable.watchface.accessibility
-     * .AccessibilityUtils.makeTimeAsComplicationText] to generate the proper
-     * [android.support.wearable.complications.ComplicationText].
+     * Each label is a region of the screen in absolute pixel coordinates, along with
+     * time-dependent text, the labels are generated from data in [ComplicationSlotsManager],
+     * [Renderer.additionalContentDescriptionLabels], [Renderer.screenBounds] and
+     * [Renderer.getMainClockElementBounds].
      *
      * This is a fairly expensive operation so use it sparingly (e.g. do not call it in
      * `onDraw()`).
