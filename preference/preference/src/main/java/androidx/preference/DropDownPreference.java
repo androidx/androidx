@@ -125,12 +125,12 @@ public class DropDownPreference extends ListPreference {
     }
 
     @Override
-    public void onBindViewHolder(PreferenceViewHolder view) {
-        mSpinner = view.itemView.findViewById(R.id.spinner);
+    public void onBindViewHolder(PreferenceViewHolder holder) {
+        mSpinner = holder.itemView.findViewById(R.id.spinner);
         mSpinner.setAdapter(mAdapter);
         mSpinner.setOnItemSelectedListener(mItemSelectedListener);
         mSpinner.setSelection(findSpinnerIndexOfValue(getValue()));
-        super.onBindViewHolder(view);
+        super.onBindViewHolder(holder);
     }
 
     private int findSpinnerIndexOfValue(String value) {
