@@ -44,24 +44,25 @@ abstract class KspBasicAnnotationProcessor(
             symbolProcessorEnvironment.logger
         )
         val round = XRoundEnv.create(processingEnv)
-        val deferredElements = mutableSetOf<XElement>()
-        processingSteps().forEach { step ->
-            val elementsByAnnotation = mutableMapOf<String, Set<XElement>>()
-            step.annotations().forEach { annotation ->
+        val deferredElements = processingSteps().flatMap { step ->
+            val invalidElements = mutableSetOf<XElement>()
+            val elementsByAnnotation = step.annotations().mapNotNull { annotation ->
                 val annotatedElements = round.getElementsAnnotatedWith(annotation)
-                val validAnnotatedElements =
-                    annotatedElements
-                        .filter { (it as KspElement).declaration.validateExceptLocals() }
-                        .toSet()
-
-                deferredElements.addAll(annotatedElements - validAnnotatedElements)
-                if (!validAnnotatedElements.isEmpty()) {
-                    elementsByAnnotation[annotation] = validAnnotatedElements
+                val validElements = annotatedElements
+                    .filter { (it as KspElement).declaration.validateExceptLocals() }
+                    .toSet()
+                invalidElements.addAll(annotatedElements - validElements)
+                if (validElements.isNotEmpty()) {
+                    annotation to validElements
+                } else {
+                    null
                 }
-            }
+            }.toMap()
             // Only process the step if there are annotated elements found for this step.
-            if (!elementsByAnnotation.isEmpty()) {
-                deferredElements.addAll(step.process(processingEnv, elementsByAnnotation))
+            if (elementsByAnnotation.isNotEmpty()) {
+                invalidElements + step.process(processingEnv, elementsByAnnotation)
+            } else {
+                invalidElements
             }
         }
         postRound(processingEnv, round)
