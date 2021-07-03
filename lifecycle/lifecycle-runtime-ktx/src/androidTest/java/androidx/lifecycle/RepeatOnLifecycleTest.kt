@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -70,6 +71,7 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.DESTROYED)
         assertThat(repeatingWorkJob.isCompleted).isTrue()
     }
+
     @Test
     fun testBlockRunsWhenResumedStateIsReached() = runBlocking(Dispatchers.Main) {
         owner.setState(Lifecycle.State.CREATED)
@@ -88,6 +90,7 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.DESTROYED)
         assertThat(repeatingWorkJob.isCompleted).isTrue()
     }
+
     @Test
     fun testBlocksRepeatsExecution() = runBlocking(Dispatchers.Main) {
         owner.setState(Lifecycle.State.CREATED)
@@ -112,6 +115,47 @@ class RepeatOnLifecycleTest {
         restarted = true
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(6)
+        owner.setState(Lifecycle.State.DESTROYED)
+        assertThat(repeatingWorkJob.isCompleted).isTrue()
+    }
+
+    @Test
+    fun testBlocksRepeatsExecutionSerially() = runBlocking(Dispatchers.Main) {
+        owner.setState(Lifecycle.State.CREATED)
+        var restarted = false
+        expectations.expect(1)
+
+        val repeatingWorkJob = owner.lifecycleScope.launch {
+            owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                if (!restarted) {
+                    expectations.expect(2)
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        withContext(NonCancellable) {
+                            expectations.expect(4)
+                            yield()
+                            expectations.expect(6)
+                            yield()
+                            expectations.expect(8)
+                        }
+                    }
+                } else {
+                    expectations.expect(9)
+                }
+            }
+        }
+
+        owner.setState(Lifecycle.State.RESUMED)
+        expectations.expect(3)
+        owner.setState(Lifecycle.State.STARTED)
+        expectations.expect(5)
+
+        restarted = true
+        owner.setState(Lifecycle.State.RESUMED)
+        yield()
+        expectations.expect(7)
+        yield()
         owner.setState(Lifecycle.State.DESTROYED)
         assertThat(repeatingWorkJob.isCompleted).isTrue()
     }
