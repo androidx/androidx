@@ -316,6 +316,8 @@ public final class Recorder implements VideoOutput {
         }
     }
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     @NonNull
     public Observable<MediaSpec> getMediaSpec() {

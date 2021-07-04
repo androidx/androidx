@@ -122,7 +122,9 @@ public interface VideoOutput {
      * changes may not come for free and may require the video frame producer to re-initialize,
      * which could cause a new {@link SurfaceRequest} to be sent to
      * {@link #onSurfaceRequested(SurfaceRequest)}.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY)
     @NonNull
     default Observable<MediaSpec> getMediaSpec() {
         return ConstantObservable.withValue(null);
