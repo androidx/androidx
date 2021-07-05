@@ -203,46 +203,39 @@ class UseCaseCameraImpl(
                 callbackMap: CameraCallbackMap,
                 threads: UseCaseThreads,
             ): UseCaseCamera {
-                val streamConfigs = mutableListOf<CameraStream.Config>()
-                val useCaseMap = mutableMapOf<CameraStream.Config, UseCase>()
+                val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
 
                 // TODO: This may need to combine outputs that are (or will) share the same output
-                //  imageReader or surface. Right now, each UseCase gets its own [StreamConfig]
-                // TODO: useCases only have a single `attachedSurfaceResolution`, yet they have a
-                //  list of deferrableSurfaces.
-                for (useCase in useCases) {
+                //  imageReader or surface.
+                val adapter = SessionConfigAdapter(useCases, threads)
+                adapter.getValidSessionConfigOrNull()?.surfaces?.forEach {
                     val outputConfig = CameraStream.Config.create(
-                        size = useCase.attachedSurfaceResolution!!,
-                        format = StreamFormat(useCase.imageFormat),
+                        size = it.prescribedSize,
+                        format = StreamFormat(it.prescribedStreamFormat),
                         camera = cameraConfig.cameraId
                     )
-                    streamConfigs.add(outputConfig)
-                    useCaseMap[outputConfig] = useCase
+                    streamConfigMap[outputConfig] = it
+                    debug {
+                        "Prepare config for: $it " +
+                            "(${it.prescribedSize}, ${it.prescribedStreamFormat})"
+                    }
                 }
 
                 // Build up a config (using TEMPLATE_PREVIEW by default)
                 val config = CameraGraph.Config(
                     camera = cameraConfig.cameraId,
-                    streams = streamConfigs,
+                    streams = streamConfigMap.keys.toList(),
                     defaultListeners = listOf(callbackMap),
                 )
                 val graph = cameraPipe.create(config)
 
                 val surfaceToStreamMap = mutableMapOf<DeferrableSurface, StreamId>()
-                for ((streamConfig, useCase) in useCaseMap) {
-                    val stream = graph.streams[streamConfig]
-                    val useCaseSessionConfig = useCase.sessionConfig
-
-                    // TODO: UseCases have inconsistent opinions about how surfaces are handled,
-                    //  this code assumes only a single surface per UseCase.
-                    val deferredSurfaces = useCaseSessionConfig?.surfaces
-                    if (stream != null && deferredSurfaces != null && deferredSurfaces.size == 1) {
-                        val deferredSurface = deferredSurfaces.first()
-                        surfaceToStreamMap[deferredSurface] = stream.id
+                streamConfigMap.forEach { (streamConfig, deferrableSurface) ->
+                    graph.streams[streamConfig]?.let {
+                        surfaceToStreamMap[deferrableSurface] = it.id
                     }
                 }
 
-                val adapter = SessionConfigAdapter(useCases, threads)
                 if (adapter.isSessionConfigValid()) {
                     adapter.setupSurfaceAsync(graph, surfaceToStreamMap)
                 } else {
