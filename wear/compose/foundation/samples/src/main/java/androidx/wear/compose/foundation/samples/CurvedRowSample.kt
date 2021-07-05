@@ -34,9 +34,7 @@ import androidx.wear.compose.foundation.CurvedRow
 @Sampled
 @Composable
 fun SimpleCurvedRow() {
-    CurvedRow(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    CurvedRow(modifier = Modifier.fillMaxSize()) {
         BasicText(
             "Simple",
             Modifier.background(Color.White).padding(2.dp),
