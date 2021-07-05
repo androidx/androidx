@@ -129,6 +129,33 @@ public final class Recorder implements VideoOutput {
         ERROR
     }
 
+    enum AudioState {
+        /**
+         * The audio is being initializing.
+         */
+        INITIALIZING,
+        /**
+         * Audio recording is not supported by this Recorder.
+         */
+        UNSUPPORTED,
+        /**
+         * Audio recording is disabled for the running recording.
+         */
+        DISABLED,
+        /**
+         * The recording is being recorded with audio.
+         */
+        RECORDING,
+        /**
+         * The recording is muted because the audio source is silenced.
+         */
+        SOURCE_SILENCED,
+        /**
+         * The recording is muted because the audio encoder encountered errors.
+         */
+        ENCODER_ERROR
+    }
+
     private static final AudioSpec AUDIO_SPEC_DEFAULT =
             AudioSpec.builder()
                     .setSourceFormat(
@@ -198,7 +225,7 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     EncoderImpl mAudioEncoder = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    boolean mMuted = false;
+    AudioState mAudioState = AudioState.INITIALIZING;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Uri mOutputUri = Uri.EMPTY;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -212,6 +239,8 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @VideoRecordEvent.VideoRecordError
     int mRecordingStopError = VideoRecordEvent.ERROR_UNKNOWN;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    AudioState mCachedAudioState;
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec) {
         mUserProvidedExecutor = executor;
@@ -221,7 +250,7 @@ public final class Recorder implements VideoOutput {
         mMediaSpec = MutableStateObservable.withInitialState(composeRecorderMediaSpec(mediaSpec));
         if (getObservableData(mMediaSpec).getAudioSpec().getChannelCount()
                 == AudioSpec.CHANNEL_COUNT_NONE) {
-            mMuted = true;
+            setAudioState(AudioState.UNSUPPORTED);
         }
     }
 
@@ -577,7 +606,7 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private void initializeInternal(SurfaceRequest surfaceRequest) {
-        if (!mMuted) {
+        if (mAudioState != AudioState.UNSUPPORTED) {
             // Skip setting up audio as the media spec shows there's no audio channel.
             setupAudio();
         }
@@ -745,42 +774,53 @@ public final class Recorder implements VideoOutput {
 
             @Override
             public void onEncodeError(@NonNull EncodeException e) {
-                mEncodingCompleters.get(mAudioTrackIndex).setException(e);
+                // If the audio encoder encounters error, update the status event to notify users.
+                // Then continue recording without audio data.
+                setAudioState(AudioState.ENCODER_ERROR);
+                updateStatusEvent();
+                mEncodingCompleters.get(mAudioTrackIndex).set(null);
             }
 
             @Override
             public void onEncodedData(@NonNull EncodedData encodedData) {
                 try (EncodedData encodedDataToClose = encodedData) {
-                    if (!mMuted && mAudioTrackIndex == null) {
-                        // Throw an exception if the data comes before the track is added.
+                    if (mAudioState == AudioState.DISABLED) {
                         throw new IllegalStateException(
-                                "Audio data comes before the track is added to MediaMuxer.");
-                    }
-                    if (mVideoTrackIndex == null) {
-                        Logger.d(TAG, "Drop audio data since video track hasn't been added.");
-                        return;
-                    }
+                                "Audio is not enabled but audio encoded data is produced.");
+                    } else if (mAudioState == AudioState.RECORDING
+                            || mAudioState == AudioState.SOURCE_SILENCED) {
+                        if (mAudioTrackIndex == null) {
+                            // Throw an exception if the data comes before the track is added.
+                            throw new IllegalStateException(
+                                    "Audio data comes before the track is added to MediaMuxer.");
+                        }
+                        if (mVideoTrackIndex == null) {
+                            Logger.d(TAG, "Drop audio data since video track hasn't been added.");
+                            return;
+                        }
 
-                    long newRecordingBytes = mRecordingBytes + encodedData.size();
-                    if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
-                            && mRecordingBytes + encodedData.size() > mFileSizeLimitInBytes) {
-                        Logger.d(TAG,
-                                String.format("Reach file size limit %d > %d", newRecordingBytes,
-                                        mFileSizeLimitInBytes));
-                        stopInternal(VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED);
-                        return;
+                        long newRecordingBytes = mRecordingBytes + encodedData.size();
+                        if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
+                                && mRecordingBytes + encodedData.size() > mFileSizeLimitInBytes) {
+                            Logger.d(TAG,
+                                    String.format("Reach file size limit %d > %d",
+                                            newRecordingBytes,
+                                            mFileSizeLimitInBytes));
+                            stopInternal(VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED);
+                            return;
+                        }
+
+                        mMediaMuxer.writeSampleData(mAudioTrackIndex, encodedData.getByteBuffer(),
+                                encodedData.getBufferInfo());
+
+                        mRecordingBytes = newRecordingBytes;
                     }
-
-                    mMediaMuxer.writeSampleData(mAudioTrackIndex, encodedData.getByteBuffer(),
-                            encodedData.getBufferInfo());
-
-                    mRecordingBytes = newRecordingBytes;
                 }
             }
 
             @Override
             public void onOutputConfigUpdate(@NonNull OutputConfig outputConfig) {
-                if (!mMuted && mAudioTrackIndex == null) {
+                if (isAudioEnabled() && mAudioTrackIndex == null) {
                     mAudioTrackIndex = Preconditions.checkNotNull(mMediaMuxer).addTrack(
                             outputConfig.getMediaFormat());
                     mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
@@ -801,7 +841,7 @@ public final class Recorder implements VideoOutput {
     @NonNull
     private AudioSource setupAudioSource(@NonNull BufferProvider<InputBuffer> bufferProvider,
             @NonNull AudioSpec audioSpec) throws AudioSourceAccessException {
-        return new AudioSource.Builder()
+        AudioSource audioSource = new AudioSource.Builder()
                 .setExecutor(CameraXExecutors.ioExecutor())
                 .setBufferProvider(bufferProvider)
                 .setAudioSource(audioSpec.getSource())
@@ -809,6 +849,45 @@ public final class Recorder implements VideoOutput {
                 .setChannelCount(audioSpec.getChannelCount())
                 .setAudioFormat(audioSpec.getSourceFormat())
                 .build();
+        audioSource.setAudioSourceCallback(mSequentialExecutor,
+                new AudioSource.AudioSourceCallback() {
+                    @Override
+                    public void onSilenced(boolean silenced) {
+                        switch (mAudioState) {
+                            case UNSUPPORTED:
+                                // Fall-through
+                            case DISABLED:
+                                // Fall-through
+                            case ENCODER_ERROR:
+                                // Fall-through
+                            case INITIALIZING:
+                                // No-op
+                                break;
+                            case RECORDING:
+                                if (silenced) {
+                                    mCachedAudioState = mAudioState;
+                                    setAudioState(AudioState.SOURCE_SILENCED);
+                                    updateStatusEvent();
+                                }
+                                break;
+                            case SOURCE_SILENCED:
+                                if (!silenced) {
+                                    setAudioState(mCachedAudioState);
+                                    updateStatusEvent();
+                                }
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable throwable) {
+                        if (throwable instanceof AudioSourceAccessException) {
+                            setAudioState(AudioState.DISABLED);
+                            updateStatusEvent();
+                        }
+                    }
+                });
+        return audioSource;
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -892,7 +971,7 @@ public final class Recorder implements VideoOutput {
                         throw new IllegalStateException(
                                 "Video data comes before the track is added to MediaMuxer.");
                     }
-                    if (!mMuted && mAudioTrackIndex == null) {
+                    if (isAudioEnabled() && mAudioTrackIndex == null) {
                         Logger.d(TAG, "Drop video data since audio track hasn't been added.");
                         return;
                     }
@@ -931,6 +1010,15 @@ public final class Recorder implements VideoOutput {
                                     mRunningRecording.getOutputOptions(),
                                     getCurrentRecordingStats()));
                 }
+                mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
+                        encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
+                mRecordingBytes += encodedData.size();
+
+                Preconditions.checkNotNull(mMediaMuxer).writeSampleData(mVideoTrackIndex,
+                        encodedData.getByteBuffer(), encodedData.getBufferInfo());
+                encodedData.close();
+
+                updateStatusEvent();
             }
 
             @Override
@@ -944,9 +1032,11 @@ public final class Recorder implements VideoOutput {
                                 return "videoEncodingFuture";
                             }));
                 }
-                if (!mMuted && mAudioTrackIndex != null) {
-                    startMediaMuxer();
+                if (isAudioEnabled() && mAudioTrackIndex == null) {
+                    // The audio is enabled but audio track hasn't been configured.
+                    return;
                 }
+                startMediaMuxer();
             }
         }, mSequentialExecutor);
     }
@@ -1046,6 +1136,11 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     private void startInternal() {
+        if (mAudioState == AudioState.INITIALIZING) {
+            setAudioState(mRunningRecording.isAudioEnabled() ? AudioState.RECORDING
+                    : AudioState.DISABLED);
+        }
+
         try {
             setupMediaMuxer(Preconditions.checkNotNull(mRunningRecording).getOutputOptions());
         } catch (IOException e) {
@@ -1063,8 +1158,10 @@ public final class Recorder implements VideoOutput {
             mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
         }
 
-        mAudioSource.start();
-        mAudioEncoder.start();
+        if (isAudioEnabled()) {
+            mAudioSource.start();
+            mAudioEncoder.start();
+        }
         mVideoEncoder.start();
 
         updateVideoRecordEvent(VideoRecordEvent.start(
@@ -1074,7 +1171,9 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     private void pauseInternal() {
-        mAudioEncoder.pause();
+        if (isAudioEnabled()) {
+            mAudioEncoder.pause();
+        }
         mVideoEncoder.pause();
 
         updateVideoRecordEvent(VideoRecordEvent.pause(
@@ -1084,7 +1183,9 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     private void resumeInternal() {
-        mAudioEncoder.start();
+        if (isAudioEnabled()) {
+            mAudioEncoder.start();
+        }
         mVideoEncoder.start();
 
         updateVideoRecordEvent(VideoRecordEvent.resume(
@@ -1096,7 +1197,9 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     void stopInternal(@VideoRecordEvent.VideoRecordError int stopError) {
         mRecordingStopError = stopError;
-        mAudioEncoder.stop();
+        if (isAudioEnabled()) {
+            mAudioEncoder.stop();
+        }
         mVideoEncoder.stop();
     }
 
@@ -1117,6 +1220,30 @@ public final class Recorder implements VideoOutput {
 
         mSurfaceRequested.set(false);
         setState(State.RELEASED);
+    }
+
+    private int internalAudioStateToEventAudioState(AudioState audioState) {
+        switch (audioState) {
+            case UNSUPPORTED:
+                // Fall-through
+            case DISABLED:
+                return RecordingStats.AUDIO_DISABLED;
+            case INITIALIZING:
+                // Fall-through
+            case RECORDING:
+                return RecordingStats.AUDIO_RECORDING;
+            case SOURCE_SILENCED:
+                return RecordingStats.AUDIO_SOURCE_SILENCED;
+            case ENCODER_ERROR:
+                return RecordingStats.AUDIO_ENCODER_ERROR;
+        }
+        // Should not reach.
+        throw new IllegalStateException("Invalid internal audio state: " + audioState);
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    boolean isAudioEnabled() {
+        return mAudioState != AudioState.UNSUPPORTED && mAudioState != AudioState.DISABLED;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1156,6 +1283,13 @@ public final class Recorder implements VideoOutput {
         mFirstRecordingVideoDataTimeUs = 0L;
         mRecordingStopError = VideoRecordEvent.ERROR_UNKNOWN;
         mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
+        // Reset audio setting to the Recorder default.
+        if (getObservableData(mMediaSpec).getAudioSpec().getChannelCount()
+                == AudioSpec.CHANNEL_COUNT_NONE) {
+            setAudioState(AudioState.UNSUPPORTED);
+        } else {
+            setAudioState(AudioState.INITIALIZING);
+        }
 
         synchronized (mLock) {
             if (getObservableData(mState) == State.RELEASING) {
@@ -1167,6 +1301,18 @@ public final class Recorder implements VideoOutput {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mSequentialExecutor")
+    void updateStatusEvent() {
+        if (mRunningRecording != null) {
+            updateVideoRecordEvent(
+                    VideoRecordEvent.status(
+                            mRunningRecording.getOutputOptions(),
+                            getCurrentRecordingStats()));
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mSequentialExecutor")
     void updateVideoRecordEvent(@NonNull VideoRecordEvent event) {
         if (mRunningRecording != null) {
             mRunningRecording.updateVideoRecordEvent(event);
@@ -1177,7 +1323,8 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     @NonNull
     RecordingStats getCurrentRecordingStats() {
-        return RecordingStats.of(mRecordingDurationNs, mRecordingBytes);
+        return RecordingStats.of(mRecordingDurationNs, mRecordingBytes,
+                internalAudioStateToEventAudioState(mAudioState));
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1205,6 +1352,12 @@ public final class Recorder implements VideoOutput {
                 mStreamState.setState(StreamState.INACTIVE);
             }
         }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void setAudioState(AudioState audioState) {
+        Logger.d(TAG, "Transitioning audio state: " + mAudioState + " --> " + audioState);
+        mAudioState = audioState;
     }
 
     /**

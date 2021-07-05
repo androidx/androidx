@@ -175,7 +175,7 @@ class RecorderTest {
         pendingRecording.withEventListener(
             CameraXExecutors.directExecutor(),
             videoRecordEventListener
-        )
+        ).withAudioEnabled()
 
         val activeRecording = pendingRecording.start()
 
@@ -225,7 +225,7 @@ class RecorderTest {
                     finalizeSemaphore.release()
                 }
             }
-        )
+        ).withAudioEnabled()
 
         val activeRecording = pendingRecording.start()
 
@@ -261,7 +261,7 @@ class RecorderTest {
             pendingRecording.withEventListener(
                 CameraXExecutors.directExecutor(),
                 videoRecordEventListener
-            )
+            ).withAudioEnabled()
 
             val activeRecording = pendingRecording.start()
 
@@ -315,7 +315,7 @@ class RecorderTest {
         pendingRecording.withEventListener(
             CameraXExecutors.directExecutor(),
             videoRecordEventListener
-        )
+        ).withAudioEnabled()
 
         val activeRecording = pendingRecording.start()
 
@@ -356,7 +356,7 @@ class RecorderTest {
         pendingRecording.withEventListener(
             CameraXExecutors.directExecutor(),
             videoRecordEventListener
-        )
+        ).withAudioEnabled()
 
         val inOrder = inOrder(videoRecordEventListener)
 
@@ -505,7 +505,7 @@ class RecorderTest {
         pendingRecording.withEventListener(
             CameraXExecutors.directExecutor(),
             videoRecordEventListener
-        )
+        ).withAudioEnabled()
 
         val activeRecording = pendingRecording.start()
 
@@ -534,7 +534,7 @@ class RecorderTest {
         pendingRecording.withEventListener(
             CameraXExecutors.directExecutor(),
             videoRecordEventListener
-        )
+        ).withAudioEnabled()
 
         val activeRecording = pendingRecording.start()
         activeRecording.pause()
@@ -564,7 +564,7 @@ class RecorderTest {
         pendingRecording.withEventListener(
             CameraXExecutors.directExecutor(),
             videoRecordEventListener
-        )
+        ).withAudioEnabled()
 
         val activeRecording = pendingRecording.start()
         activeRecording.pause()
@@ -633,6 +633,38 @@ class RecorderTest {
         assertThat(recorder.executor).isNull()
     }
 
+    @Test
+    fun canRecordWithoutAudio() {
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.builder().setFile(file).build()
+
+        val pendingRecording = recorder.prepareRecording(outputOptions)
+        pendingRecording.withEventListener(
+            CameraXExecutors.directExecutor(),
+            videoRecordEventListener
+        )
+
+        val activeRecording = pendingRecording.start()
+
+        val inOrder = inOrder(videoRecordEventListener)
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
+
+        activeRecording.stop()
+
+        verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        checkFileAudio(Uri.fromFile(file), false)
+        checkFileVideo(Uri.fromFile(file), true)
+
+        file.delete()
+    }
+
     private fun invokeSurfaceRequest() {
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider { request: SurfaceRequest ->
@@ -642,14 +674,39 @@ class RecorderTest {
     }
 
     private fun checkFileHasAudioAndVideo(uri: Uri) {
+        checkFileAudio(uri, true)
+        checkFileVideo(uri, true)
+    }
+
+    private fun checkFileAudio(uri: Uri, hasAudio: Boolean) {
         val mediaRetriever = MediaMetadataRetriever()
         mediaRetriever.apply {
             setDataSource(context, uri)
-            val hasAudio = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
-            val hasVideo = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
+            val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
 
-            assertThat(hasAudio).isEqualTo("yes")
-            assertThat(hasVideo).isEqualTo("yes")
+            assertThat(value).isEqualTo(
+                if (hasAudio) {
+                    "yes"
+                } else {
+                    null
+                }
+            )
+        }
+    }
+
+    private fun checkFileVideo(uri: Uri, hasVideo: Boolean) {
+        val mediaRetriever = MediaMetadataRetriever()
+        mediaRetriever.apply {
+            setDataSource(context, uri)
+            val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
+
+            assertThat(value).isEqualTo(
+                if (hasVideo) {
+                    "yes"
+                } else {
+                    null
+                }
+            )
         }
     }
 }
