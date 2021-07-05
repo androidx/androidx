@@ -39,14 +39,18 @@ import java.util.concurrent.Executors
  * The following example opens play store for the given app on another device:
  *
  * ```
- * RemoteIntentHelper.startRemoteActivity(
- *     context, nodeId,
+ * val remoteIntentHelper = RemoteIntentHelper(context, executor)
+ *
+ * val result = remoteIntentHelper.startRemoteActivity(
  *     new Intent(Intent.ACTION_VIEW).setData(
  *         Uri.parse("http://play.google.com/store/apps/details?id=com.example.myapp")
  *     ),
- *     null
+ *     nodeId
  * )
  * ```
+ *
+ * [startRemoteActivity] returns a [ListenableFuture], which is completed after the intent has
+ * been sent or failed if there was an issue with sending the intent.
  *
  * @param context The [Context] of the application for sending the intent.
  * @param executor [Executor] used for getting data to be passed in remote intent. If not
