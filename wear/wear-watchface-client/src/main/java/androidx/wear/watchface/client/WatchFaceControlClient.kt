@@ -253,12 +253,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         return service.createHeadlessWatchFaceInstance(
             HeadlessWatchFaceInstanceParams(
                 watchFaceName,
-                androidx.wear.watchface.data.DeviceConfig(
-                    deviceConfig.hasLowBitAmbient,
-                    deviceConfig.hasBurnInProtection,
-                    deviceConfig.analogPreviewReferenceTimeMillis,
-                    deviceConfig.digitalPreviewReferenceTimeMillis
-                ),
+                deviceConfig.asWireDeviceConfig(),
                 surfaceWidth,
                 surfaceHeight
             )

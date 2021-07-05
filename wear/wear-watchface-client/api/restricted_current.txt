@@ -36,6 +36,7 @@ package androidx.wear.watchface.client {
 
   public final class DeviceConfig {
     ctor public DeviceConfig(boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.watchface.data.DeviceConfig asWireDeviceConfig();
     method public long getAnalogPreviewReferenceTimeMillis();
     method public long getDigitalPreviewReferenceTimeMillis();
     method public boolean getHasBurnInProtection();
@@ -44,6 +45,10 @@ package androidx.wear.watchface.client {
     property public final long digitalPreviewReferenceTimeMillis;
     property public final boolean hasBurnInProtection;
     property public final boolean hasLowBitAmbient;
+  }
+
+  public final class DeviceConfigKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.watchface.client.DeviceConfig asApiDeviceConfig(androidx.wear.watchface.data.DeviceConfig);
   }
 
   public interface EditorListener {

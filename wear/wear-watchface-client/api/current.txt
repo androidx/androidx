@@ -45,6 +45,9 @@ package androidx.wear.watchface.client {
     property public final boolean hasLowBitAmbient;
   }
 
+  public final class DeviceConfigKt {
+  }
+
   public interface EditorListener {
     method public void onEditorStateChanged(androidx.wear.watchface.client.EditorState editorState);
   }

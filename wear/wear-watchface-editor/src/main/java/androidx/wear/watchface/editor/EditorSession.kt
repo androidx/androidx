@@ -55,6 +55,7 @@ import androidx.wear.watchface.client.EditorServiceClient
 import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceId
+import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
@@ -67,6 +68,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
@@ -261,9 +263,24 @@ public abstract class EditorSession : AutoCloseable {
             withContext(coroutineScope.coroutineContext) {
                 withTimeout(EDITING_SESSION_TIMEOUT_MILLIS) {
                     session.setEditorDelegate(
-                        WatchFace.getOrCreateEditorDelegate(
-                            editorRequest.watchFaceComponentName
-                        ).await()
+                        // Either create a delegate for a new headless client or await an
+                        // interactive one.
+                        if (editorRequest.headlessDeviceConfig != null) {
+                            WatchFace.createHeadlessSessionDelegate(
+                                editorRequest.watchFaceComponentName,
+                                HeadlessWatchFaceInstanceParams(
+                                    editorRequest.watchFaceComponentName,
+                                    editorRequest.headlessDeviceConfig.asWireDeviceConfig(),
+                                    activity.resources.displayMetrics.widthPixels,
+                                    activity.resources.displayMetrics.heightPixels
+                                ),
+                                activity
+                            )
+                        } else {
+                            WatchFace.getOrCreateEditorDelegate(
+                                editorRequest.watchFaceComponentName
+                            ).await()
+                        }
                     )
                     // Resolve only after init has been completed.
                     session
@@ -350,7 +367,11 @@ public abstract class BaseEditorSession internal constructor(
     private val editorSessionTraceEvent = AsyncTraceEvent("EditorSession")
     private val closeCallback = object : EditorService.CloseCallback() {
         override fun onClose() {
-            forceClose()
+            // onClose could be called on any thread but forceClose needs to be called from the UI
+            // thread.
+            coroutineScope.launch {
+                forceClose()
+            }
         }
     }
 
@@ -702,9 +723,6 @@ internal class OnWatchFaceEditorSessionImpl(
     }
 
     override fun releaseResources() {
-        if (this::editorDelegate.isInitialized) {
-            editorDelegate.onDestroy()
-        }
         // In android R flow we always revert any changes to the user style that was set during the
         // editing session. The system will update the user style and communicate it to the active
         // watch  face if needed. This guarantees that the system is always the source of truth
@@ -713,6 +731,11 @@ internal class OnWatchFaceEditorSessionImpl(
         // commitChangesOnClose is false.
         if ((isRFlow || !commitChangesOnClose) && this::previousWatchFaceUserStyle.isInitialized) {
             userStyle = previousWatchFaceUserStyle
+        }
+
+        // Note this has to be done after resetting userStyle to ensure tests are not racy.
+        if (this::editorDelegate.isInitialized) {
+            editorDelegate.onDestroy()
         }
 
         if (this::backgroundCoroutineScope.isInitialized) {

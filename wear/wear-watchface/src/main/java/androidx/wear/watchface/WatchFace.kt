@@ -19,6 +19,7 @@ package androidx.wear.watchface
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
@@ -49,6 +50,7 @@ import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 import androidx.wear.watchface.control.data.ComplicationRenderParams
+import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
@@ -169,6 +171,40 @@ public class WatchFace(
             pendingComponentName = componentName
             pendingEditorDelegateCB = CompletableDeferred()
             return pendingEditorDelegateCB!!
+        }
+
+        /**
+         * For use by on watch face editors.
+         * @hide
+         */
+        @SuppressLint("NewApi")
+        @JvmStatic
+        @UiThread
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public suspend fun createHeadlessSessionDelegate(
+            componentName: ComponentName,
+            params: HeadlessWatchFaceInstanceParams,
+            context: Context
+        ): EditorDelegate {
+            // Attempt to construct the class for the specified watchFaceName, failing if it either
+            // doesn't exist or isn't a [WatchFaceService].
+            val watchFaceServiceClass =
+                Class.forName(componentName.className) ?: throw IllegalArgumentException(
+                    "Can't create ${componentName.className}"
+                )
+            if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
+                throw IllegalArgumentException(
+                    "${componentName.className} is not a WatchFaceService"
+                )
+            } else {
+                val watchFaceService =
+                    watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
+                watchFaceService.setContext(context)
+                val engine = watchFaceService.createHeadlessEngine() as
+                    WatchFaceService.EngineWrapper
+                engine.createHeadlessInstance(params)
+                return engine.deferredWatchFaceImpl.await().WFEditorDelegate()
+            }
         }
     }
 

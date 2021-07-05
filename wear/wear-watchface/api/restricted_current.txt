@@ -344,6 +344,7 @@ package androidx.wear.watchface {
   public final class WatchFace {
     ctor public WatchFace(int watchFaceType, androidx.wear.watchface.Renderer renderer);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread @VisibleForTesting public static void clearAllEditorDelegates();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public static suspend Object? createHeadlessSessionDelegate(android.content.ComponentName componentName, androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams params, android.content.Context context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace.EditorDelegate> p);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public static kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFace.EditorDelegate> getOrCreateEditorDelegate(android.content.ComponentName componentName);
     method public Long? getOverridePreviewReferenceTimeMillis();
@@ -365,6 +366,7 @@ package androidx.wear.watchface {
 
   public static final class WatchFace.Companion {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread @VisibleForTesting public void clearAllEditorDelegates();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public suspend Object? createHeadlessSessionDelegate(android.content.ComponentName componentName, androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams params, android.content.Context context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace.EditorDelegate> p);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFace.EditorDelegate> getOrCreateEditorDelegate(android.content.ComponentName componentName);
     method public boolean isLegacyWatchFaceOverlayStyleSupported();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public void registerEditorDelegate(android.content.ComponentName componentName, androidx.wear.watchface.WatchFace.EditorDelegate editorDelegate);
@@ -525,6 +527,7 @@ package androidx.wear.watchface.editor {
     method public void addCloseCallback(androidx.wear.watchface.editor.EditorService.CloseCallback closeCallback);
     method public android.os.IBinder! asBinder();
     method public void broadcastEditorState(androidx.wear.watchface.editor.data.EditorStateWireFormat editorState);
+    method public void clearCloseCallbacks();
     method public void closeEditor();
     method public int getApiVersion();
     method public boolean onTransact(int, android.os.Parcel!, android.os.Parcel!, int) throws android.os.RemoteException;

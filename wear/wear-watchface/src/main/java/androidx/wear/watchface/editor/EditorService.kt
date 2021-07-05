@@ -97,6 +97,15 @@ public class EditorService : IEditorService.Stub() {
     }
 
     /**
+     * Removes all [closeEditorCallbacks].
+     */
+    public fun clearCloseCallbacks() {
+        synchronized(lock) {
+            closeEditorCallbacks.clear()
+        }
+    }
+
+    /**
      * Calls [IEditorObserver.onEditorStateChange] with [editorState] for each [IEditorObserver].
      */
     public fun broadcastEditorState(editorState: EditorStateWireFormat) {

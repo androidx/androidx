@@ -33,14 +33,16 @@ package androidx.wear.watchface.editor {
   }
 
   public final class EditorRequest {
-    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle, @RequiresApi androidx.wear.watchface.client.WatchFaceId watchFaceId);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle, @RequiresApi androidx.wear.watchface.client.WatchFaceId watchFaceId, androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig);
     ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle);
     method @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public static androidx.wear.watchface.editor.EditorRequest createFromIntent(android.content.Intent intent) throws kotlinx.coroutines.TimeoutCancellationException;
     method public String getEditorPackageName();
+    method public androidx.wear.watchface.client.DeviceConfig? getHeadlessDeviceConfig();
     method public androidx.wear.watchface.style.UserStyleData? getInitialUserStyle();
     method public android.content.ComponentName getWatchFaceComponentName();
     method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     property public final String editorPackageName;
+    property public final androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig;
     property public final androidx.wear.watchface.style.UserStyleData? initialUserStyle;
     property public final android.content.ComponentName watchFaceComponentName;
     property @RequiresApi(android.os.Build.VERSION_CODES.R) public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
