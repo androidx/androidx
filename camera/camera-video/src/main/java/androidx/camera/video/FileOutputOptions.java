@@ -34,7 +34,7 @@ import java.io.File;
 public abstract class FileOutputOptions extends OutputOptions {
 
     FileOutputOptions() {
-        super(Type.FILE);
+        super(OPTIONS_TYPE_FILE);
     }
 
     /** Returns a builder for this FileOutputOptions. */

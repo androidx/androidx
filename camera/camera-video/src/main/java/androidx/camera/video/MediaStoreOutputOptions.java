@@ -16,8 +16,6 @@
 
 package androidx.camera.video;
 
-import static androidx.camera.video.OutputOptions.Type.MEDIA_STORE;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
@@ -52,7 +50,7 @@ import com.google.auto.value.AutoValue;
 public abstract class MediaStoreOutputOptions extends OutputOptions {
 
     MediaStoreOutputOptions() {
-        super(MEDIA_STORE);
+        super(OPTIONS_TYPE_MEDIA_STORE);
     }
 
     /**

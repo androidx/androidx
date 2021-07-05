@@ -48,7 +48,7 @@ class OutputOptionsTest {
             .build()
 
         assertThat(fileOutputOptions).isNotNull()
-        assertThat(fileOutputOptions.type).isEqualTo(OutputOptions.Type.FILE)
+        assertThat(fileOutputOptions.type).isEqualTo(OutputOptions.OPTIONS_TYPE_FILE)
         assertThat(fileOutputOptions.file).isNotNull()
         assertThat(fileOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
         savedFile.delete()
@@ -77,7 +77,7 @@ class OutputOptionsTest {
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         )
         assertThat(mediaStoreOutputOptions.contentValues).isEqualTo(contentValues)
-        assertThat(mediaStoreOutputOptions.type).isEqualTo(OutputOptions.Type.MEDIA_STORE)
+        assertThat(mediaStoreOutputOptions.type).isEqualTo(OutputOptions.OPTIONS_TYPE_MEDIA_STORE)
         assertThat(mediaStoreOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
     }
 
@@ -95,7 +95,7 @@ class OutputOptionsTest {
                 .build()
 
             assertThat(fdOutputOptions).isNotNull()
-            assertThat(fdOutputOptions.type).isEqualTo(OutputOptions.Type.FILE_DESCRIPTOR)
+            assertThat(fdOutputOptions.type).isEqualTo(OutputOptions.OPTIONS_TYPE_FILE_DESCRIPTOR)
             assertThat(fdOutputOptions.parcelFileDescriptor).isNotNull()
             assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
         }
