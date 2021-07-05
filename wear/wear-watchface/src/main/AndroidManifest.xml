@@ -33,5 +33,20 @@
         <action android:name="com.google.android.wearable.action.WATCH_FACE_CONTROL"/>
       </intent-filter>
     </service>
+
+    <!--
+      Used to configure complications. Applications can remove this using:
+      <activity
+	  android:name="androidx.wear.watchface.ComplicationHelperActivity"
+	  tools:node="remove" />
+      in their manifest if they do not support complications and want to allow
+      R8 to remove the code associated with this activity. If the activity is
+      remove while it is needed, this may lead to a runtime exception of type
+      android.content.ActivityNotFoundException.
+    -->
+    <activity
+	android:name="androidx.wear.watchface.ComplicationHelperActivity"
+	android:exported="false" />
+
   </application>
 </manifest>

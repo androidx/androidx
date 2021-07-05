@@ -143,10 +143,6 @@
         </service>
 
         <activity
-            android:name="androidx.wear.watchface.ComplicationHelperActivity"
-            android:exported="false" />
-
-        <activity
             android:name="androidx.wear.watchface.editor.sample.WatchFaceConfigActivity"
             android:exported="true"
             android:label="Config"
