@@ -19,7 +19,6 @@ package androidx.wear.complications.data
 import android.app.PendingIntent
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
-import androidx.wear.complications.ComplicationHelperActivity
 
 /** The wire format for [ComplicationData]. */
 internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
@@ -699,7 +698,8 @@ public class PhotoImageComplicationData internal constructor(
  * The text, title, and icon may be displayed by watch faces, but this is not required.
  *
  * It is recommended that, where possible, tapping on the complication when in this state
- * should trigger a permission request. A [ComplicationHelperActivity] may be used to make
+ * should trigger a permission request. A
+ * [androidx.wear.watchface.ComplicationHelperActivity] may be used to make
  * this request and update all complications if the permission is granted.
  */
 public class NoPermissionComplicationData internal constructor(

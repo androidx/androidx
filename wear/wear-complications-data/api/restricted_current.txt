@@ -158,17 +158,6 @@ package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) android.
 
 package androidx.wear.complications {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ComplicationDataSourceChooserIntent {
-    method public static android.content.Intent createComplicationDataSourceChooserIntent(android.content.ComponentName, int, @android.support.wearable.complications.ComplicationData.ComplicationType int...);
-    method public static void startProviderChooserActivity(android.content.Context, android.content.ComponentName, int, @android.support.wearable.complications.ComplicationData.ComplicationType int...);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_COMPLICATION_ID = "android.support.wearable.complications.EXTRA_COMPLICATION_ID";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_PENDING_INTENT = "android.support.wearable.complications.EXTRA_PENDING_INTENT";
-    field public static final String EXTRA_PROVIDER_INFO = "android.support.wearable.complications.EXTRA_PROVIDER_INFO";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_SUPPORTED_TYPES = "android.support.wearable.complications.EXTRA_SUPPORTED_TYPES";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_WATCHFACE_INSTANCE_ID = "androidx.wear.complications.EXTRA_WATCHFACE_INSTANCE_ID";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_WATCH_FACE_COMPONENT_NAME = "android.support.wearable.complications.EXTRA_WATCH_FACE_COMPONENT_NAME";
-  }
-
   public final class ComplicationDataSourceInfo {
     ctor public ComplicationDataSourceInfo(String appName, String name, android.graphics.drawable.Icon icon, androidx.wear.complications.data.ComplicationType type, android.content.ComponentName? componentName);
     method public String getAppName();
@@ -208,18 +197,6 @@ package androidx.wear.complications {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ComplicationDataSourceUpdateRequesterConstants {
     field public static final String EXTRA_PENDING_INTENT = "android.support.wearable.complications.EXTRA_PENDING_INTENT";
-  }
-
-  @RequiresApi(android.os.Build.VERSION_CODES.N) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
-    ctor public ComplicationHelperActivity();
-    method public static android.content.Intent createComplicationDataSourceChooserHelperIntent(android.content.Context, android.content.ComponentName, int, java.util.Collection<androidx.wear.complications.data.ComplicationType!>, String?);
-    method public static android.content.Intent createPermissionRequestHelperIntent(android.content.Context, android.content.ComponentName);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_PERMISSION_REQUEST_ONLY = "android.support.wearable.complications.ACTION_PERMISSION_REQUEST_ONLY";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_REQUEST_UPDATE_ALL_ACTIVE = "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL_ACTIVE";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_START_PROVIDER_CHOOSER = "android.support.wearable.complications.ACTION_START_PROVIDER_CHOOSER";
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_WATCH_FACE_COMPONENT = "android.support.wearable.complications.EXTRA_WATCH_FACE_COMPONENT";
-    field public static boolean skipPermissionCheck;
-    field public static boolean useTestComplicationDataSourceChooserActivity;
   }
 
   public final class ComplicationSlotBounds {

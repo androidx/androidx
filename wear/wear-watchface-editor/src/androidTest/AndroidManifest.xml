@@ -38,6 +38,6 @@
         <activity android:name=
             "androidx.wear.watchface.editor.TestComplicationDataSourceChooserActivity" />
 
-        <activity android:name="androidx.wear.complications.ComplicationHelperActivity" />
+        <activity android:name="androidx.wear.watchface.ComplicationHelperActivity" />
     </application>
 </manifest>
