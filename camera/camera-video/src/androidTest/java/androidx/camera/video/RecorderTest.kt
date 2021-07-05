@@ -445,7 +445,7 @@ class RecorderTest {
         val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
         verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
 
-        assertThat(captor.value.eventType).isEqualTo(VideoRecordEvent.EventType.FINALIZE)
+        assertThat(captor.value.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_FINALIZE)
         val finalize = captor.value as VideoRecordEvent.Finalize
         assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED)
         assertThat(file.length()).isGreaterThan(0)

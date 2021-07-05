@@ -403,7 +403,7 @@ public class CameraXActivity extends AppCompatActivity {
         updateRecordingStats(event.getRecordingStats());
 
         switch (event.getEventType()) {
-            case FINALIZE:
+            case VideoRecordEvent.EVENT_TYPE_FINALIZE:
                 VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
 
                 switch (finalize.getError()) {
