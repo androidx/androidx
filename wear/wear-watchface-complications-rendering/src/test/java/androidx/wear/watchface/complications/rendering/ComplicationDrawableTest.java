@@ -49,9 +49,9 @@ import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.wear.complications.ComplicationHelperActivity;
 import androidx.wear.complications.data.DataKt;
 import androidx.wear.watchface.CanvasType;
+import androidx.wear.watchface.ComplicationHelperActivity;
 import androidx.wear.watchface.ComplicationSlotsManager;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;

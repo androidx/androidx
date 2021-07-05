@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.complications;
+package androidx.wear.watchface;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
+import androidx.wear.complications.ComplicationDataSourceUpdateRequesterConstants;
 import androidx.wear.complications.data.ComplicationType;
 
 import java.util.Collection;

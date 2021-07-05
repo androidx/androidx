@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.wear.complications
+package androidx.wear.watchface
 
 import android.content.ComponentName
 import android.content.Context
