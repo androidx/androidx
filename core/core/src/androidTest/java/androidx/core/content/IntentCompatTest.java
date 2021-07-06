@@ -26,26 +26,20 @@ import static android.os.Build.VERSION_CODES.Q;
 import static android.os.Build.VERSION_CODES.R;
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
+import static androidx.core.content.PackageManagerCompatTest.setupPermissionRevocationApps;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ProviderInfo;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -55,9 +49,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -141,7 +133,7 @@ public class IntentCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = M, maxSdkVersion = Q)
     public void createManageUnusedAppRestrictionsIntent_preApi30_noVerifierRevocationApp() {
-        setupPermissionRevocationApps(Arrays.asList(NON_VERIFIER_PACKAGE_NAME));
+        setupPermissionRevocationApps(mPackageManager, Arrays.asList(NON_VERIFIER_PACKAGE_NAME));
         // Do not set this app as the Verifier on the device
         when(mPackageManager.checkPermission("android.permission.PACKAGE_VERIFICATION_AGENT",
                 NON_VERIFIER_PACKAGE_NAME)).thenReturn(PERMISSION_DENIED);
@@ -154,7 +146,7 @@ public class IntentCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = M, maxSdkVersion = Q)
     public void createManageUnusedAppRestrictionsIntent_preApi30_verifierRevocationApp() {
-        setupPermissionRevocationApps(Arrays.asList(VERIFIER_PACKAGE_NAME));
+        setupPermissionRevocationApps(mPackageManager, Arrays.asList(VERIFIER_PACKAGE_NAME));
         // Set this app as the Verifier on the device
         when(mPackageManager.checkPermission("android.permission.PACKAGE_VERIFICATION_AGENT",
                 VERIFIER_PACKAGE_NAME)).thenReturn(PERMISSION_GRANTED);
@@ -171,7 +163,8 @@ public class IntentCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = M, maxSdkVersion = Q)
     public void createManageUnusedAppRestrictionsIntent_preApi30_manyVerifierRevocationApps() {
-        setupPermissionRevocationApps(Arrays.asList(VERIFIER_PACKAGE_NAME, VERIFIER_PACKAGE_NAME2));
+        setupPermissionRevocationApps(mPackageManager,
+                Arrays.asList(VERIFIER_PACKAGE_NAME, VERIFIER_PACKAGE_NAME2));
         // Set both apps as the Verifier on the device, but we should fail gracefully.
         when(mPackageManager.checkPermission("android.permission.PACKAGE_VERIFICATION_AGENT",
                 VERIFIER_PACKAGE_NAME)).thenReturn(PERMISSION_GRANTED);
@@ -194,36 +187,5 @@ public class IntentCompatTest {
         assertThrows(UnsupportedOperationException.class,
                 () -> IntentCompat.createManageUnusedAppRestrictionsIntent(
                         mContext, PACKAGE_NAME));
-    }
-
-    /**
-     * Setup applications that can handle unused app restriction features. In this case,
-     * they are permission revocation apps.
-     */
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void setupPermissionRevocationApps(List<String> packageNames) {
-        List<ResolveInfo> resolveInfos = new ArrayList<>();
-
-        for (String packageName : packageNames) {
-            ApplicationInfo appInfo = new ApplicationInfo();
-            appInfo.uid = 12345;
-            appInfo.packageName = packageName;
-
-            ActivityInfo activityInfo = new ActivityInfo();
-            activityInfo.packageName = packageName;
-            activityInfo.name = "Name needed to keep toString() happy :)";
-            activityInfo.applicationInfo = appInfo;
-
-            ResolveInfo resolveInfo = new ResolveInfo();
-            resolveInfo.activityInfo = activityInfo;
-            resolveInfo.providerInfo = new ProviderInfo();
-            resolveInfo.providerInfo.name = "Name needed to keep toString() happy :)";
-
-            resolveInfos.add(resolveInfo);
-        }
-
-        // Mark the applications as being able to resolve the AUTO_REVOKE_PERMISSIONS intent
-        when(mPackageManager.queryIntentActivities(
-                nullable(Intent.class), eq(0))).thenReturn(resolveInfos);
     }
 }

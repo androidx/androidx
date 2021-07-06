@@ -33,9 +33,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.concurrent.futures.ResolvableFuture;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 /**
  * Helper for accessing features in {@link PackageManager}.
@@ -106,6 +110,10 @@ public final class PackageManagerCompat {
      * Returns the status of Unused App Restriction features for the current application, i.e.
      * whether the features are available and if so, enabled for the application.
      *
+     * The returned value is a ListenableFuture with an Integer corresponding to the
+     * UnusedAppRestrictionsStatus (e.g. {@link #UNUSED_APP_RESTRICTION_STATUS_UNKNOWN} or
+     * {@link #PERMISSION_REVOCATION_DISABLED}).
+     *
      * Compatibility behavior:
      * <ul>
      * <li>SDK 31 and above, if {@link PackageManager#isAutoRevokeWhitelisted()} is true, this
@@ -121,45 +129,68 @@ public final class PackageManagerCompat {
      * yet.
      * </ul>
      */
-    public static @UnusedAppRestrictionsStatus int getUnusedAppRestrictionsStatus(
+    @NonNull
+    public static ListenableFuture<Integer> getUnusedAppRestrictionsStatus(
             @NonNull Context context) {
-        // Return false if the Android OS version is before M, because Android M introduced runtime
-        // permissions
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE;
+        ResolvableFuture<Integer> resultFuture = ResolvableFuture.create();
+        if (!areUnusedAppRestrictionsAvailable(context.getPackageManager())) {
+            resultFuture.set(UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE);
+            return resultFuture;
         }
 
         // TODO: replace with VERSION_CODES.S once it's defined
         if (Build.VERSION.SDK_INT >= 31) {
-            return Api30Impl.areUnusedAppRestrictionsEnabled(context)
-                    ? APP_HIBERNATION_ENABLED
-                    : APP_HIBERNATION_DISABLED;
+            if (Api30Impl.areUnusedAppRestrictionsEnabled(context)) {
+                resultFuture.set(APP_HIBERNATION_ENABLED);
+            } else {
+                resultFuture.set(APP_HIBERNATION_DISABLED);
+            }
+            return resultFuture;
         }
 
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            return Api30Impl.areUnusedAppRestrictionsEnabled(context)
-                    ? PERMISSION_REVOCATION_ENABLED
-                    : PERMISSION_REVOCATION_DISABLED;
+            if (Api30Impl.areUnusedAppRestrictionsEnabled(context)) {
+                resultFuture.set(PERMISSION_REVOCATION_ENABLED);
+            } else {
+                resultFuture.set(PERMISSION_REVOCATION_DISABLED);
+            }
+            return resultFuture;
         }
 
-        // Else, check for an app with the verifier role that can resolve the intent
-        String verifierPackageName = getVerifierRolePackageName(context.getPackageManager());
-        // Check that we were able to get the one Verifier's package name. If no Verifier or
-        // more than one Verifier exists on the device, unused app restrictions are not available
-        // on the device.
-        return (verifierPackageName == null)
-                ? UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE
-                // TODO(b/177234481): Implement the backport behavior of this API
-                : UNUSED_APP_RESTRICTION_STATUS_UNKNOWN;
+        UnusedAppRestrictionsBackportServiceConnection backportServiceConnection =
+                new UnusedAppRestrictionsBackportServiceConnection(context);
+
+        resultFuture.addListener(() -> {
+            // Keep the connection object alive until the async operation completes, and then
+            // disconnect it.
+            backportServiceConnection.disconnectFromService();
+        }, Executors.newSingleThreadExecutor());
+
+        // Start binding the service and fetch the result
+        backportServiceConnection.connectAndFetchResult(resultFuture);
+
+        return resultFuture;
+    }
+
+    /** Returns whether any unused app restriction features are available on the device. */
+    static boolean areUnusedAppRestrictionsAvailable(
+            @NonNull PackageManager packageManager) {
+        boolean restrictionsBuiltIntoOs = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
+        boolean isOsMThroughQ =
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                        && (Build.VERSION.SDK_INT < Build.VERSION_CODES.R);
+        boolean hasBackportFeature = getPermissionRevocationVerifierApp(packageManager) != null;
+
+        return restrictionsBuiltIntoOs || (isOsMThroughQ && hasBackportFeature);
     }
 
     /**
-     * Returns the package name of the one and only Verifier on the device. If none exist, this
-     * will return {@code null}. Likewise, if multiple Verifiers exist, this method will return
-     * the first Verifier's package name.
+     * Returns the package name of the one and only Verifier on the device that can support
+     * permission revocation. If none exist, this will return {@code null}. Likewise, if multiple
+     * Verifiers exist, this method will return the first Verifier's package name.
      */
     @Nullable
-    static String getVerifierRolePackageName(@NonNull PackageManager packageManager) {
+    static String getPermissionRevocationVerifierApp(@NonNull PackageManager packageManager) {
         Intent permissionRevocationSettingsIntent =
                 new Intent(ACTION_PERMISSION_REVOCATION_SETTINGS)
                         .setData(Uri.fromParts(
