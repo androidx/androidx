@@ -26,12 +26,14 @@ import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
 import androidx.camera.core.CameraInfo;
 import androidx.core.util.Preconditions;
 
+import java.util.Map;
+
 /**
  * An interface for retrieving Camera2-related camera information.
  */
 @ExperimentalCamera2Interop
 public final class Camera2CameraInfo {
-
+    private static final String TAG = "Camera2CameraInfo";
     private final Camera2CameraInfoImpl mCamera2CameraInfoImpl;
 
     /**
@@ -50,8 +52,8 @@ public final class Camera2CameraInfo {
      * @param cameraInfo The {@link CameraInfo} to get from.
      * @return The camera information with Camera2 implementation.
      * @throws IllegalArgumentException if the camera info does not contain the camera2 information
-     *                               (e.g., if CameraX was not initialized with a
-     *                               {@link androidx.camera.camera2.Camera2Config}).
+     *                                  (e.g., if CameraX was not initialized with a
+     *                                  {@link androidx.camera.camera2.Camera2Config}).
      */
     @NonNull
     public static Camera2CameraInfo from(@NonNull CameraInfo cameraInfo) {
@@ -73,7 +75,6 @@ public final class Camera2CameraInfo {
      * one time. When the CameraDevice changes then the camera id will change.
      *
      * @return the camera ID.
-
      * @throws IllegalStateException if the camera info does not contain the camera 2 camera ID
      *                               (e.g., if CameraX was not initialized with a
      *                               {@link androidx.camera.camera2.Camera2Config}).
@@ -90,8 +91,8 @@ public final class Camera2CameraInfo {
      * that would be obtained from
      * {@link android.hardware.camera2.CameraManager#getCameraCharacteristics(String)}.
      *
-     * @param <T>        The type of the characteristic value.
-     * @param key        The {@link CameraCharacteristics.Key} of the characteristic.
+     * @param <T> The type of the characteristic value.
+     * @param key The {@link CameraCharacteristics.Key} of the characteristic.
      * @return the value of the characteristic.
      */
     @Nullable
@@ -111,7 +112,6 @@ public final class Camera2CameraInfo {
      * @throws IllegalStateException if the camera info does not contain the camera 2
      *                               characteristics(e.g., if CameraX was not initialized with a
      *                               {@link androidx.camera.camera2.Camera2Config}).
-     *
      * @hide
      */
     // TODO: Hidden until new extensions API released.
@@ -123,5 +123,20 @@ public final class Camera2CameraInfo {
                 + "not contain any Camera2 information.");
         Camera2CameraInfoImpl impl = (Camera2CameraInfoImpl) cameraInfo;
         return impl.getCameraCharacteristicsCompat().toCameraCharacteristics();
+    }
+
+    /**
+     * Returns a map consisting of the camera ids and the {@link CameraCharacteristics}s.
+     *
+     * <p>For every camera, the map contains at least the CameraCharacteristics for the camera id.
+     * If the camera is logical camera, it will also contain associated physical camera ids and
+     * their CameraCharacteristics.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public Map<String, CameraCharacteristics> getCameraCharacteristicsMap() {
+        return mCamera2CameraInfoImpl.getCameraCharacteristicsMap();
     }
 }

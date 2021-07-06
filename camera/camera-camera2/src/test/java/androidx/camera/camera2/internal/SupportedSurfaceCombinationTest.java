@@ -2222,8 +2222,7 @@ public final class SupportedSurfaceCombinationTest {
         mCameraManagerCompat = CameraManagerCompat.from(mContext);
 
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
-                new Camera2CameraInfoImpl(cameraId,
-                        mCameraManagerCompat.getCameraCharacteristicsCompat(cameraId))));
+                new Camera2CameraInfoImpl(cameraId, mCameraManagerCompat)));
 
         initCameraX();
     }
