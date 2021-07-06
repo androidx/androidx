@@ -25,6 +25,7 @@ import android.util.Log
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.Preview
@@ -76,6 +77,7 @@ class VideoRecordingTest(
     private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private lateinit var preview: Preview
+    private lateinit var cameraInfo: CameraInfo
 
     private lateinit var latchForVideoSaved: CountDownLatch
     private lateinit var latchForVideoRecording: CountDownLatch
@@ -118,6 +120,7 @@ class VideoRecordingTest(
 
         CameraX.initialize(context, Camera2Config.defaultConfig()).get()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
+        cameraInfo = cameraUseCaseAdapter.cameraInfo
 
         // Add extra Preview to provide an additional surface for b/168187087.
         preview = Preview.Builder().build()
@@ -167,6 +170,54 @@ class VideoRecordingTest(
 
     // TODO: Add other metadata info check, e.g. location, after Recorder add more metadata.
 
+    @Test
+    fun getCorrectResolution_when_setSupportedQuality() {
+        Assume.assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
+
+        val qualityList = QualitySelector.getSupportedQualities(cameraInfo)
+        instrumentation.runOnMainSync {
+            cameraUseCaseAdapter.addUseCases(listOf(preview))
+        }
+
+        Log.d(TAG, "CameraSelector: ${cameraSelector.lensFacing}, QualityList: $qualityList ")
+        qualityList.forEach loop@{ quality ->
+            val targetResolution = QualitySelector.getResolution(cameraInfo, quality)
+            if (targetResolution == null) {
+                // If targetResolution is null, try next one
+                Log.e(TAG, "Unable to get resolution for the quality: $quality")
+                return@loop
+            }
+
+            val recorder = Recorder.Builder()
+                .setQualitySelector(QualitySelector.of(quality)).build()
+
+            val videoCapture = VideoCapture.withOutput(recorder)
+            val file = File.createTempFile("video_$targetResolution", ".tmp")
+                .apply { deleteOnExit() }
+
+            latchForVideoSaved = CountDownLatch(1)
+            latchForVideoRecording = CountDownLatch(5)
+
+            instrumentation.runOnMainSync {
+                cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
+            }
+
+            // Act.
+            completeVideoRecording(videoCapture, file)
+
+            // Verify.
+            verifyVideoResolution(targetResolution, file)
+
+            // Cleanup.
+            file.delete()
+            instrumentation.runOnMainSync {
+                cameraUseCaseAdapter.apply {
+                    removeUseCases(listOf(videoCapture))
+                }
+            }
+        }
+    }
+
     private fun completeVideoRecording(videoCapture: VideoCapture<Recorder>, file: File) {
         val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
@@ -206,6 +257,26 @@ class VideoRecordingTest(
                 ", videoRotation: $videoRotation" +
                 ", relativeRotation: $relativeRotation"
         ).that(videoRotation).isEqualTo(relativeRotation)
+    }
+
+    private fun verifyVideoResolution(targetResolution: Size, file: File) {
+        val mediaRetriever = MediaMetadataRetriever()
+        lateinit var resolution: Size
+        mediaRetriever.apply {
+            setDataSource(context, Uri.fromFile(file))
+            val height = extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
+                .toInt()
+            val width = extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
+                .toInt()
+            resolution = Size(width, height)
+        }
+
+        // Compare with the resolution of video and the targetResolution in QualitySelector
+        assertWithMessage(
+            TAG + ", verifyVideoResolution failure:" +
+                ", videoResolution: $resolution" +
+                ", targetResolution: $targetResolution"
+        ).that(resolution).isEqualTo(targetResolution)
     }
 
     private fun getRotationInMetadata(uri: Uri): Int {
