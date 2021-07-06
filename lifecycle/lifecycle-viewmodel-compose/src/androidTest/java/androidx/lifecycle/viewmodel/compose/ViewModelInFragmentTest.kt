@@ -24,7 +24,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModel
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -56,7 +55,6 @@ public class ViewModelInFragmentTest(private val viewModelClass: Class<out ViewM
         activity = activityTestRule.activity
     }
 
-    @FlakyTest(bugId = 190608770)
     @Test
     public fun viewModelCreatedInFragment() {
         val fragment = TestFragment(viewModelClass)
