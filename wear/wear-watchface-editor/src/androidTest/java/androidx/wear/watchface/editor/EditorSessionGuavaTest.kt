@@ -147,7 +147,7 @@ public class EditorSessionGuavaTest {
         return ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)
+                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId, null)
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),

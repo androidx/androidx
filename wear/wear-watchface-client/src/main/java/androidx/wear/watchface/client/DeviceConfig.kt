@@ -16,6 +16,10 @@
 
 package androidx.wear.watchface.client
 
+import androidx.annotation.RestrictTo
+
+typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
+
 /**
  * Describes the hardware configuration of the device the watch face is running on.
  *
@@ -33,4 +37,22 @@ public class DeviceConfig(
     public val hasBurnInProtection: Boolean,
     public val analogPreviewReferenceTimeMillis: Long,
     public val digitalPreviewReferenceTimeMillis: Long
+) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun asWireDeviceConfig(): WireDeviceConfig = WireDeviceConfig(
+        hasLowBitAmbient,
+        hasBurnInProtection,
+        analogPreviewReferenceTimeMillis,
+        digitalPreviewReferenceTimeMillis
+    )
+}
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun WireDeviceConfig.asApiDeviceConfig(): DeviceConfig = DeviceConfig(
+    hasLowBitAmbient,
+    hasBurnInProtection,
+    analogPreviewReferenceTimeMillis,
+    digitalPreviewReferenceTimeMillis
 )
