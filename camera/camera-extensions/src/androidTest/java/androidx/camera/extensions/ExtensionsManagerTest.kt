@@ -360,6 +360,17 @@ class ExtensionsManagerTest(
 
         instrumentation.runOnMainSync {
             val fakeLifecycleOwner = FakeLifecycleOwner()
+
+            // This test works only if the camera is the same no matter running normal or
+            // extension modes.
+            val normalCamera =
+                cameraProvider.bindToLifecycle(fakeLifecycleOwner, baseCameraSelector)
+            val extensionCamera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                extensionCameraSelector
+            )
+            assumeTrue(extensionCamera == normalCamera)
+
             // Binds a use case with the basic camera selector first.
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, baseCameraSelector, FakeUseCase())
 
