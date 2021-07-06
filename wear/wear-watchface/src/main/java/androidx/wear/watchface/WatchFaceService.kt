@@ -722,6 +722,12 @@ public abstract class WatchFaceService : WallpaperService() {
             isHeadless = headless
         }
 
+        // It's possible for two getOrCreateInteractiveWatchFaceClient calls to come in back to
+        // back for the same instance. If the second one specifies a UserStyle we need to apply it
+        // but if the instance isn't fully initialized we need to defer application to avoid
+        // blocking in getOrCreateInteractiveWatchFaceClient until the watch face is ready.
+        internal var pendingUserStyle: UserStyleWireFormat? = null
+
         /**
          * Whether or not we allow watchfaces to animate. In some tests or for headless
          * rendering (for remote config) we don't want this.
@@ -925,7 +931,11 @@ public abstract class WatchFaceService : WallpaperService() {
         internal suspend fun setUserStyle(
             userStyle: UserStyleWireFormat
         ): Unit = TraceEvent("EngineWrapper.setUserStyle").use {
-            val watchFaceImpl = deferredWatchFaceImpl.await()
+            setUserStyleImpl(deferredWatchFaceImpl.await(), userStyle)
+        }
+
+        @UiThread
+        private fun setUserStyleImpl(watchFaceImpl: WatchFaceImpl, userStyle: UserStyleWireFormat) {
             watchFaceImpl.onSetStyleInternal(
                 UserStyle(UserStyleData(userStyle), watchFaceImpl.currentUserStyleRepository.schema)
             )
@@ -1483,6 +1493,15 @@ public abstract class WatchFaceService : WallpaperService() {
                 // deferredWatchFaceImpl) occurs before initStyleAndComplications has
                 // executed. NB usually we won't have to wait at all.
                 initStyleAndComplicationsDone.await()
+
+                // Its possible a second getOrCreateInteractiveWatchFaceClient call came in before
+                // the watch face for the first one had finished initalizing, in that case we want
+                // to apply the updated style. NB pendingUserStyle is accessed on the UiThread so
+                // there shouldn't be any problems with race conditions.
+                pendingUserStyle?.let {
+                    setUserStyleImpl(watchFaceImpl, it)
+                    pendingUserStyle = null
+                }
                 deferredWatchFaceImpl.complete(watchFaceImpl)
                 asyncWatchFaceConstructionPending = false
                 watchFaceImpl.initComplete = true

@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.client.test
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -200,6 +201,7 @@ class WatchFaceControlClientTest {
         return value!!
     }
 
+    @SuppressLint("NewApi") // renderWatchFaceToBitmap
     @Test
     fun headlessScreenshot() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
@@ -229,6 +231,7 @@ class WatchFaceControlClientTest {
         headlessInstance.close()
     }
 
+    @SuppressLint("NewApi") // renderWatchFaceToBitmap
     @Test
     fun yellowComplicationHighlights() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
@@ -262,6 +265,7 @@ class WatchFaceControlClientTest {
         headlessInstance.close()
     }
 
+    @SuppressLint("NewApi") // renderWatchFaceToBitmap
     @Test
     fun highlightOnlyLayer() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
@@ -395,6 +399,7 @@ class WatchFaceControlClientTest {
         assertThat(headlessInstance.userStyleSchema.userStyleSettings.size).isEqualTo(4)
     }
 
+    @SuppressLint("NewApi") // renderWatchFaceToBitmap
     @Test
     fun getOrCreateInteractiveWatchFaceClient() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
@@ -430,6 +435,7 @@ class WatchFaceControlClientTest {
         }
     }
 
+    @SuppressLint("NewApi") // renderWatchFaceToBitmap
     @Test
     fun getOrCreateInteractiveWatchFaceClient_initialStyle() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
@@ -588,6 +594,62 @@ class WatchFaceControlClientTest {
         }
 
         assertThat(awaitWithTimeout(deferredInteractiveInstance2).instanceId).isEqualTo("testId")
+    }
+
+    @SuppressLint("NewApi") // renderWatchFaceToBitmap
+    @Test
+    fun getOrCreateInteractiveWatchFaceClient_existingOpenInstance_styleChange() {
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        createEngine()
+
+        awaitWithTimeout(deferredInteractiveInstance)
+
+        val deferredInteractiveInstance2 = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                UserStyleData(
+                    mapOf(
+                        "color_style_setting" to "blue_style".encodeToByteArray(),
+                        "draw_hour_pips_style_setting" to BooleanOption(false).id.value,
+                        "watch_hand_length_style_setting" to DoubleRangeOption(0.25).id.value
+                    )
+                ),
+                complications
+            )
+        }
+
+        val interactiveInstance2 = awaitWithTimeout(deferredInteractiveInstance2)
+        assertThat(interactiveInstance2.instanceId).isEqualTo("testId")
+
+        val bitmap = interactiveInstance2.renderWatchFaceToBitmap(
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                null
+            ),
+            1234567,
+            null,
+            complications
+        )
+
+        try {
+            // Note the hour hand pips and both complicationSlots should be visible in this image.
+            bitmap.assertAgainstGolden(screenshotRule, "existingOpenInstance_styleChange")
+        } finally {
+            interactiveInstance2.close()
+        }
     }
 
     @Test
@@ -749,6 +811,7 @@ class WatchFaceControlClientTest {
             .isEqualTo("After")
     }
 
+    @SuppressLint("NewApi") // renderWatchFaceToBitmap
     @Test
     fun updateInstance() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
