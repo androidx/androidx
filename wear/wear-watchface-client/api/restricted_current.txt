@@ -63,10 +63,12 @@ package androidx.wear.watchface.client {
 
   public final class EditorState {
     method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getPreviewComplicationsData();
+    method public android.graphics.Bitmap? getPreviewImage();
     method public boolean getShouldCommitChanges();
     method public androidx.wear.watchface.style.UserStyleData getUserStyle();
     method public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     property public final java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> previewComplicationsData;
+    property public final android.graphics.Bitmap? previewImage;
     property public final boolean shouldCommitChanges;
     property public final androidx.wear.watchface.style.UserStyleData userStyle;
     property public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
