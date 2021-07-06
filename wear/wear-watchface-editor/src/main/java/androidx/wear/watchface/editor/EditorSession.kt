@@ -76,13 +76,17 @@ private typealias WireComplicationProviderInfo =
     android.support.wearable.complications.ComplicationProviderInfo
 
 /**
- * Interface for manipulating watch face state during an editing session for a watch face editing
- * session. The editor should adjust [userStyle] and call [openComplicationDataSourceChooser] to
- * configure the watch face and call [close] when done. This reports the updated [EditorState] to
- * the [EditorListener]s registered via [EditorServiceClient.addListener]. Style changes applied
- * during the editor session are temporary and will be reverted when the editor session completes.
- * In the event that the editor sessions results in a new watch face configuration that will be
- * subsequently reapplied when the new configuration is provided by the system.
+ * Interface for manipulating watch face state during a watch face editing session. The editor
+ * should adjust [userStyle] and call [openComplicationDataSourceChooser] to configure the watch
+ * face and call [close] when done. This reports the updated [EditorState] to the [EditorListener]s
+ * registered via [EditorServiceClient.addListener].
+ *
+ * For EditorSessions backed by a headless instance (see [createHeadlessEditingSession] and
+ * [EditorRequest.headlessDeviceConfig]), style changes are not applied to the interactive
+ * instance and it's up to the system to apply them. For EditorSessions backed by an
+ * interactive instance style changes are applied immediately. Its possible the system might fail to
+ * persist the style changes (e.g. to data base write failure or a crash) and if this happens its
+ * the responsibiltiy of the system to revert the style change.
  */
 public abstract class EditorSession : AutoCloseable {
     /** The [ComponentName] of the watch face being edited. */
@@ -723,13 +727,11 @@ internal class OnWatchFaceEditorSessionImpl(
     }
 
     override fun releaseResources() {
-        // In android R flow we always revert any changes to the user style that was set during the
-        // editing session. The system will update the user style and communicate it to the active
-        // watch  face if needed. This guarantees that the system is always the source of truth
-        // for the current style.
-        // Pre android R the watch face is the source of truth and we only revert if
-        // commitChangesOnClose is false.
-        if ((isRFlow || !commitChangesOnClose) && this::previousWatchFaceUserStyle.isInitialized) {
+        // If commitChangesOnClose is true, the userStyle is not restored which for non-headless
+        // watch faces meaning the style is applied immediately. It's possible for the System to
+        // fail to persist this change and we rely on the system reverting the style change in this
+        // eventuality.
+        if (!commitChangesOnClose && this::previousWatchFaceUserStyle.isInitialized) {
             userStyle = previousWatchFaceUserStyle
         }
 
