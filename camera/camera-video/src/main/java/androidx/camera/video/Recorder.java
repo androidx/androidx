@@ -1250,11 +1250,25 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     void finalizeRecording(@VideoRecordEvent.VideoRecordError int error,
             @Nullable Throwable throwable) {
+        int errorToSend = error;
+        if (mMediaMuxer != null) {
+            try {
+                mMediaMuxer.stop();
+            } catch (IllegalStateException e) {
+                Logger.e(TAG, "MediaMuxer failed to stop with error: " + e.getMessage());
+                if (errorToSend == VideoRecordEvent.ERROR_NONE) {
+                    errorToSend = VideoRecordEvent.ERROR_UNKNOWN;
+                }
+            }
+            mMediaMuxer.release();
+            mMediaMuxer = null;
+        }
+
         OutputOptions outputOptions =
                 Preconditions.checkNotNull(mRunningRecording).getOutputOptions();
         RecordingStats stats = getCurrentRecordingStats();
         OutputResults outputResults = OutputResults.of(mOutputUri);
-        updateVideoRecordEvent(error == VideoRecordEvent.ERROR_NONE
+        updateVideoRecordEvent(errorToSend == VideoRecordEvent.ERROR_NONE
                 ? VideoRecordEvent.finalize(
                         outputOptions,
                         stats,
@@ -1263,14 +1277,8 @@ public final class Recorder implements VideoOutput {
                         outputOptions,
                         stats,
                         outputResults,
-                        error,
+                        errorToSend,
                         throwable));
-
-        if (mMediaMuxer != null) {
-            mMediaMuxer.stop();
-            mMediaMuxer.release();
-            mMediaMuxer = null;
-        }
 
         mAudioTrackIndex = null;
         mVideoTrackIndex = null;
@@ -1283,6 +1291,7 @@ public final class Recorder implements VideoOutput {
         mFirstRecordingVideoDataTimeUs = 0L;
         mRecordingStopError = VideoRecordEvent.ERROR_UNKNOWN;
         mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
+
         // Reset audio setting to the Recorder default.
         if (getObservableData(mMediaSpec).getAudioSpec().getChannelCount()
                 == AudioSpec.CHANNEL_COUNT_NONE) {
@@ -1290,7 +1299,6 @@ public final class Recorder implements VideoOutput {
         } else {
             setAudioState(AudioState.INITIALIZING);
         }
-
         synchronized (mLock) {
             if (getObservableData(mState) == State.RELEASING) {
                 releaseInternal();
