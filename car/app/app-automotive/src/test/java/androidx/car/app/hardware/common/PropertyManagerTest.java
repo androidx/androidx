@@ -129,8 +129,7 @@ public class PropertyManagerTest extends MockedCarTestBase {
         requests.add(GetPropertyRequest.create(VehiclePropertyIds.INFO_FUEL_TYPE));
 
         ListenableFuture<List<CarPropertyResponse<?>>> future =
-                mPropertyManager.submitGetPropertyRequest(requests,
-                        mExecutor);
+                mPropertyManager.submitGetPropertyRequest(requests, mExecutor);
         List<CarPropertyResponse<?>> responses = future.get();
         CarPropertyResponse<?> response = responses.get(0);
 
