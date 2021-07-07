@@ -337,7 +337,7 @@ public class AutomotiveCarInfo implements CarInfo {
         if (responseListener != null) {
             mPropertyManager.submitUnregisterListenerRequest(responseListener);
         } else {
-            throw new IllegalArgumentException("Listener is not registered yet");
+            Log.d(LogTags.TAG_CAR_HARDWARE, "Listener is not registered yet");
         }
     }
 
