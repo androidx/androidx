@@ -71,7 +71,8 @@ interface XType {
     fun isAssignableFrom(other: XType): Boolean
 
     /**
-     * Returns `true` if this type can be assigned from [other] while ignoring the type variance.
+     * Returns `true` if this can be assigned from an instance of [other] without checking for
+     * variance.
      */
     fun isAssignableFromWithoutVariance(other: XType): Boolean {
         return isAssignableWithoutVariance(other, this)
@@ -121,14 +122,6 @@ interface XType {
      * Returns the extends bound if this is a wildcard or self.
      */
     fun extendsBoundOrSelf(): XType = extendsBound() ?: this
-
-    /**
-     * Returns `true` if this can be assigned from an instance of [other] without checking for
-     * variance.
-     */
-    fun isAssignableWithoutVariance(other: XType): Boolean {
-        return isAssignableWithoutVariance(other, this)
-    }
 
     /**
      * If this is a wildcard with an extends bound, returns that bounded typed.
