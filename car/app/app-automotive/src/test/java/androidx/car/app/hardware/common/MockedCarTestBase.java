@@ -19,6 +19,7 @@ package androidx.car.app.hardware.common;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -37,6 +38,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.Collections;
 
 /**
  * Base class for testing with mocked car.
@@ -82,16 +85,17 @@ public class MockedCarTestBase {
         when(mCarMock.getCarManager(anyString())).thenReturn(mCarPropertyManagerMock);
 
         // Mocks car property manager
-        doReturn(mModelYearConfigMock).when(mCarPropertyManagerMock)
-                .getCarPropertyConfig(eq(VehiclePropertyIds.INFO_MODEL_YEAR));
+        doReturn(Collections.singletonList(mModelYearConfigMock)).when(mCarPropertyManagerMock)
+                .getPropertyList(
+                        argThat((set) -> set.contains(VehiclePropertyIds.INFO_MODEL_YEAR)));
         doReturn(mModelYearValueMock).when(mCarPropertyManagerMock).getProperty(
                 any(), eq(VehiclePropertyIds.INFO_MODEL_YEAR), anyInt());
-        doReturn(mManufacturerConfigMock).when(mCarPropertyManagerMock)
-                .getCarPropertyConfig(eq(VehiclePropertyIds.INFO_MAKE));
+        doReturn(Collections.singletonList(mManufacturerConfigMock)).when(mCarPropertyManagerMock)
+                .getPropertyList(argThat((set) -> set.contains(VehiclePropertyIds.INFO_MAKE)));
         doReturn(mManufacturerValueMock).when(mCarPropertyManagerMock).getProperty(
                 any(), eq(VehiclePropertyIds.INFO_MAKE), anyInt());
-        doReturn(mModelNameConfigMock).when(mCarPropertyManagerMock)
-                .getCarPropertyConfig(eq(VehiclePropertyIds.INFO_MODEL));
+        doReturn(Collections.singletonList(mModelNameConfigMock)).when(mCarPropertyManagerMock)
+                .getPropertyList(argThat((set) -> set.contains(VehiclePropertyIds.INFO_MODEL)));
         doReturn(mModelNameValueMock).when(mCarPropertyManagerMock).getProperty(
                 any(), eq(VehiclePropertyIds.INFO_MODEL), anyInt());
 

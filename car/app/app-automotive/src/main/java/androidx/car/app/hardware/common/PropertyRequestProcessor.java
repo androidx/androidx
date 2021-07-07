@@ -23,6 +23,7 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
+import android.util.ArraySet;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,8 @@ import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 /**
  * A class for interacting with the {@link CarPropertyManager} for getting any vehicle property.
@@ -119,8 +122,7 @@ final class PropertyRequestProcessor {
         List<CarInternalError> errors = new ArrayList<>();
         for (Pair<Integer, Integer> request : requests) {
             try {
-                CarPropertyConfig<?> propertyConfig =
-                        mCarPropertyManager.getCarPropertyConfig(request.first);
+                CarPropertyConfig<?> propertyConfig = getPropertyConfig(request.first);
                 if (propertyConfig == null) {
                     errors.add(CarInternalError.create(request.first, request.second,
                             CarValue.STATUS_UNIMPLEMENTED));
@@ -131,7 +133,6 @@ final class PropertyRequestProcessor {
                     values.add(propertyValue);
                 }
             } catch (IllegalArgumentException e) {
-                // TODO(b/191084385): consider using exception inside CarValue
                 errors.add(CarInternalError.create(request.first, request.second,
                         CarValue.STATUS_UNIMPLEMENTED));
             } catch (Exception e) {
@@ -150,7 +151,7 @@ final class PropertyRequestProcessor {
      * @throws IllegalArgumentException if a property is not implemented in the car
      */
     public void registerProperty(int propertyId, float sampleRate) {
-        if (mCarPropertyManager.getCarPropertyConfig(propertyId) == null) {
+        if (getPropertyConfig(propertyId) == null) {
             throw new IllegalArgumentException("Property is not implemented in the car: "
                     + propertyId);
         }
@@ -164,7 +165,7 @@ final class PropertyRequestProcessor {
      * @throws IllegalArgumentException if a property is not implemented in the car
      */
     public void unregisterProperty(int propertyId) {
-        if (mCarPropertyManager.getCarPropertyConfig(propertyId) == null) {
+        if (getPropertyConfig(propertyId) == null) {
             throw new IllegalArgumentException("Property is not implemented in the car: "
                     + propertyId);
         }
@@ -175,5 +176,14 @@ final class PropertyRequestProcessor {
         Car car = Car.createCar(context);
         mCarPropertyManager = (CarPropertyManager) car.getCarManager(Car.PROPERTY_SERVICE);
         mPropertyEventCallback = callback;
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Nullable
+    private CarPropertyConfig<?> getPropertyConfig(int propertyId) {
+        ArraySet<Integer> propertySet = new ArraySet<>(1);
+        propertySet.add(propertyId);
+        List<CarPropertyConfig> configs = mCarPropertyManager.getPropertyList(propertySet);
+        return configs.size() == 0 ? null : configs.get(0);
     }
 }
