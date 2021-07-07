@@ -171,6 +171,9 @@ public class CarContext extends ContextWrapper {
     @CarAppApiLevel
     private int mCarAppApiLevel = CarAppApiLevels.UNKNOWN;
 
+    @Nullable
+    private HostInfo mHostInfo = null;
+
     /** @hide */
     @NonNull
     @RestrictTo(LIBRARY)
@@ -482,6 +485,17 @@ public class CarContext extends ContextWrapper {
     }
 
     /**
+     * Returns information about the host attached to this service.
+     *
+     * @return The {@link HostInfo} of the connected host, or {@code null} if it is not available.
+     * @see HostInfo
+     */
+    @Nullable
+    public HostInfo getHostInfo() {
+        return mHostInfo;
+    }
+
+    /**
      * Requests the provided {@code permissions} from the user, calling the provided {@code
      * listener} in the main thread.
      *
@@ -589,8 +603,19 @@ public class CarContext extends ContextWrapper {
      */
     @RestrictTo(LIBRARY)
     @MainThread
-    void updateHandshakeInfo(HandshakeInfo handshakeInfo) {
+    void updateHandshakeInfo(@NonNull HandshakeInfo handshakeInfo) {
         mCarAppApiLevel = handshakeInfo.getHostCarAppApiLevel();
+    }
+
+    /**
+     * Updates host information based on the information provided during connection handshake
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @MainThread
+    void updateHostInfo(@NonNull HostInfo hostInfo) {
+        mHostInfo = hostInfo;
     }
 
     /**

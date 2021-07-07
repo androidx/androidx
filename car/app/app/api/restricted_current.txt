@@ -45,6 +45,7 @@ package androidx.car.app {
     method public Object getCarService(String);
     method public <T extends androidx.car.app.managers.Manager> T getCarService(Class<T!>);
     method public String getCarServiceName(Class<? extends androidx.car.app.managers.Manager>);
+    method public androidx.car.app.HostInfo? getHostInfo();
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public boolean isDarkMode();
     method public void requestPermissions(java.util.List<java.lang.String!>, androidx.car.app.OnRequestPermissionsListener);

@@ -365,7 +365,9 @@ public abstract class CarAppService extends Service {
                             setCurrentSession(session);
                         }
 
-                        session.configure(CarAppService.this, requireNonNull(getHandshakeInfo()),
+                        session.configure(CarAppService.this,
+                                requireNonNull(getHandshakeInfo()),
+                                requireNonNull(getHostInfo()),
                                 carHost, configuration);
 
                         // Whenever the host unbinds, the screens in the stack are destroyed.  If
