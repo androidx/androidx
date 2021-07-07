@@ -1321,9 +1321,6 @@ public class EditorSessionTest {
         val editorObserver = TestEditorObserver()
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
 
-        val oldWFColorStyleSetting = editorDelegate.userStyle[colorStyleSetting]!!.id.value
-        val oldWFWatchHandStyleSetting = editorDelegate.userStyle[watchHandStyleSetting]!!.id.value
-
         scenario.onActivity { activity ->
             runBlocking {
                 // Select [blueStyleOption] and [gothicStyleOption].
@@ -1349,12 +1346,11 @@ public class EditorSessionTest {
         assertThat(result.watchFaceId.id).isEqualTo(testInstanceId.id)
         assertTrue(result.shouldCommitChanges)
 
-        // The style change shouldn't be applied to the watchface as it gets reverted to the old
-        // one when editor closes.
+        // The style change should also be applied to the watchface.
         assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
-            .isEqualTo(oldWFColorStyleSetting)
+            .isEqualTo(blueStyleOption.id.value)
         assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
-            .isEqualTo(oldWFWatchHandStyleSetting)
+            .isEqualTo(gothicStyleOption.id.value)
 
         assertThat(result.previewComplicationsData.size).isEqualTo(2)
         val leftComplicationData = result.previewComplicationsData[LEFT_COMPLICATION_ID] as
