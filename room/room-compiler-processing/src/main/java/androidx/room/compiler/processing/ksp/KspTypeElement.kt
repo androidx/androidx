@@ -37,7 +37,6 @@ import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
-import com.google.devtools.ksp.symbol.Origin
 import com.squareup.javapoet.ClassName
 
 internal sealed class KspTypeElement(
@@ -132,62 +131,36 @@ internal sealed class KspTypeElement(
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
-        _declaredProperties.flatMap {
-            if (it.type.ksType.isInline()) {
-                // KAPT does not generate getters/setters for inlines, we'll hide them as well
-                // until room generates kotlin code
-                return@flatMap emptyList()
-            }
-
-            val setter = it.declaration.setter
-            val needsSetter = when {
-                it.declaration.hasJvmFieldAnnotation() -> {
-                    // jvm fields cannot have accessors but KSP generates synthetic accessors for
-                    // them. We check for JVM field first before checking the setter
-                    false
+        _declaredProperties.flatMap { field ->
+            when {
+                field.type.ksType.isInline() -> {
+                    // KAPT does not generate getters/setters for inlines, we'll hide them as well
+                    // until room generates kotlin code
+                    emptyList()
                 }
-                it.declaration.isPrivate() -> false
-                setter != null -> !setter.modifiers.contains(Modifier.PRIVATE)
-                it.declaration.origin != Origin.KOTLIN -> {
-                    // no reason to generate synthetics non kotlin code. If it had a setter, that
-                    // would show up as a setter
-                    false
-                }
-                else -> it.declaration.isMutable
-            }
-            val getter = it.declaration.getter
-            val needsGetter = when {
-                it.declaration.hasJvmFieldAnnotation() -> {
+                field.declaration.hasJvmFieldAnnotation() -> {
                     // jvm fields cannot have accessors but KSP generates synthetic accessors for
                     // them. We check for JVM field first before checking the getter
-                    false
+                    emptyList()
                 }
-                it.declaration.isPrivate() -> false
-                getter != null -> !getter.modifiers.contains(Modifier.PRIVATE)
-                it.declaration.origin != Origin.KOTLIN -> {
-                    // no reason to generate synthetics non kotlin code. If it had a getter, that
-                    // would show up as a getter
-                    false
-                }
-                else -> true
+                field.declaration.isPrivate() -> emptyList()
+
+                else ->
+                    sequenceOf(field.declaration.getter, field.declaration.setter)
+                        .filterNotNull()
+                        .filterNot {
+                            // KAPT does not generate methods for privates, KSP does so we filter
+                            // them out.
+                            it.modifiers.contains(Modifier.PRIVATE)
+                        }
+                        .map { accessor ->
+                            KspSyntheticPropertyMethodElement.create(
+                                env = env,
+                                field = field,
+                                accessor = accessor
+                            )
+                        }.toList()
             }
-            val setterElm = if (needsSetter) {
-                KspSyntheticPropertyMethodElement.Setter(
-                    env = env,
-                    field = it
-                )
-            } else {
-                null
-            }
-            val getterElm = if (needsGetter) {
-                KspSyntheticPropertyMethodElement.Getter(
-                    env = env,
-                    field = it
-                )
-            } else {
-                null
-            }
-            listOfNotNull(getterElm, setterElm)
         }
     }
 
