@@ -439,6 +439,10 @@ public final class ImageCapture extends UseCase {
             mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
             mImageReader = new SafeCloseImageReaderProxy(metadataImageReader);
         }
+        if (mImageCaptureRequestProcessor != null) {
+            mImageCaptureRequestProcessor.cancelRequests(
+                    new CancellationException("Request is canceled."));
+        }
         mImageCaptureRequestProcessor = new ImageCaptureRequestProcessor(MAX_IMAGES,
                 request -> takePictureInternal(request));
 
@@ -480,6 +484,11 @@ public final class ImageCapture extends UseCase {
     @SuppressWarnings("WeakerAccess")
     void clearPipeline() {
         Threads.checkMainThread();
+        if (mImageCaptureRequestProcessor != null) {
+            mImageCaptureRequestProcessor.cancelRequests(
+                    new CancellationException("Request is canceled."));
+            mImageCaptureRequestProcessor = null;
+        }
         DeferrableSurface deferrableSurface = mDeferrableSurface;
         mDeferrableSurface = null;
         mImageReader = null;
@@ -953,9 +962,12 @@ public final class ImageCapture extends UseCase {
         abortImageCaptureRequests();
     }
 
+    @UiThread
     private void abortImageCaptureRequests() {
-        Throwable throwable = new CameraClosedException("Camera is closed.");
-        mImageCaptureRequestProcessor.cancelRequests(throwable);
+        if (mImageCaptureRequestProcessor != null) {
+            Throwable throwable = new CameraClosedException("Camera is closed.");
+            mImageCaptureRequestProcessor.cancelRequests(throwable);
+        }
     }
 
     @UiThread
@@ -972,6 +984,13 @@ public final class ImageCapture extends UseCase {
             callbackExecutor.execute(
                     () -> callback.onError(new ImageCaptureException(ERROR_INVALID_CAMERA,
                             "Not bound to a valid Camera [" + ImageCapture.this + "]", null)));
+            return;
+        }
+
+        if (mImageCaptureRequestProcessor == null) {
+            callbackExecutor.execute(
+                    () -> callback.onError(
+                            new ImageCaptureException(ERROR_UNKNOWN, "Request is canceled", null)));
             return;
         }
 
