@@ -116,7 +116,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     /**
      * Update extension related configs to the builder.
      */
-    private void updateBuilderConfig(@NonNull Preview.Builder builder,
+    void updateBuilderConfig(@NonNull Preview.Builder builder,
             @ExtensionMode.Mode int effectMode, @NonNull PreviewExtenderImpl impl,
             @NonNull Context context) {
         PreviewEventAdapter previewEventAdapter;

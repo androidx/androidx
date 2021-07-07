@@ -122,7 +122,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
     /**
      * Update extension related configs to the builder.
      */
-    private void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
+    void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
             @ExtensionMode.Mode int effectMode, @NonNull ImageCaptureExtenderImpl impl,
             @NonNull Context context) {
         CaptureProcessorImpl captureProcessor = impl.getCaptureProcessor();
