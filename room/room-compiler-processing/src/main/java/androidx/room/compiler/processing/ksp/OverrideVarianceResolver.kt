@@ -169,8 +169,7 @@ internal class OverrideVarianceResolver(
             when (val decl = myType.declaration) {
                 is KSClassDeclaration -> {
                     decl.isOpen() ||
-                        decl.classKind == ClassKind.ENUM_CLASS ||
-                        decl.classKind == ClassKind.OBJECT
+                        decl.classKind == ClassKind.ENUM_CLASS
                 }
                 else -> true
             }
