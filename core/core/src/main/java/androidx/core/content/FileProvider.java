@@ -261,7 +261,7 @@ import java.util.Map;
  * <code>default_image.jpg</code> in the <code>images/</code> subdirectory of your internal storage
  * add the following code:
  * <pre class="prettyprint">
- *File imagePath = new File(Context.getFilesDir(), "images");
+ *File imagePath = new File(Context.getFilesDir(), "my_images");
  *File newFile = new File(imagePath, "default_image.jpg");
  *Uri contentUri = getUriForFile(getContext(), "com.mydomain.fileprovider", newFile);
  *</pre>
