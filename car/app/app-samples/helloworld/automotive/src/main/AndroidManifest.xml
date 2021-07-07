@@ -46,6 +46,7 @@
 
         <activity
             android:name="androidx.car.app.activity.CarAppActivity"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
             android:exported="true"
             android:label="Hello World">
 

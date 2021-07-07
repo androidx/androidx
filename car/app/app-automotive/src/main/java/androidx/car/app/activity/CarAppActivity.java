@@ -187,8 +187,6 @@ public final class CarAppActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        // Set before the onCreate() as this method sets windowing information based on the theme.
-        setTheme(android.R.style.Theme_DeviceDefault_NoActionBar);
         super.onCreate(savedInstanceState);
         setSoftInputHandling();
         setContentView(R.layout.activity_template);
