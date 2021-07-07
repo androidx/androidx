@@ -66,35 +66,34 @@ public class MultimapQueryTest {
     // TODO: (b/191265082) Handle duplicate column names in JOINs
     private MusicDao mMusicDao;
 
-    private final Song mSong1 = new Song(
+    private final Song mRhcpSong1 = new Song(
             1,
             "Dani California",
             "Red Hot Chili Peppers",
             "Stadium Arcadium",
             442,
             2006);
-    private final Song mSong2 = new Song(
+    private final Song mRhcpSong2 = new Song(
             2,
             "Snow (Hey Oh)",
             "Red Hot Chili Peppers",
             "Stadium Arcadium",
             514,
             2006);
-    private final Song mSong3 = new Song(
+    private final Song mAcdcSong1 = new Song(
             3,
             "Highway to Hell",
             "AC/DC",
             "Highway to Hell",
             328,
             1979);
-    private final Song mSong4 = new Song(
+    private final Song mPinkFloydSong1 = new Song(
             4,
             "The Great Gig in the Sky",
             "Pink Floyd",
             "The Dark Side of the Moon",
             443,
             1973);
-
 
     private final Artist mRhcp = new Artist(
             1,
@@ -168,41 +167,117 @@ public class MultimapQueryTest {
      * Tests a simple JOIN query between two tables.
      */
     @Test
-    public void testJoinByArtistName() {
-        mMusicDao.addSongs(mSong1, mSong2, mSong3, mSong4);
+    public void testGetFirstSongForArtist() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
 
-        Map<Artist, List<Song>> artistToSongsMap = mMusicDao.getAllArtistAndTheirSongs();
-        assertContentsOfResultMap(artistToSongsMap);
+        Map<Artist, Song> artistToSongsMap = mMusicDao.getArtistAndFirstSongMap();
+        assertThat(artistToSongsMap.get(mAcDc)).isEqualTo(mAcdcSong1);
+        assertThat(artistToSongsMap.get(mRhcp)).isEqualTo(mRhcpSong1);
+    }
+
+    @Test
+    public void testGetSongToArtistMapping() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Map<Song, Artist> songToArtistMap = mMusicDao.getSongAndArtist();
+        assertThat(songToArtistMap.get(mAcdcSong1)).isEqualTo(mAcDc);
+        assertThat(songToArtistMap.get(mPinkFloydSong1)).isEqualTo(mPinkFloyd);
+        assertThat(songToArtistMap.get(mRhcpSong1)).isEqualTo(mRhcp);
+        assertThat(songToArtistMap.get(mRhcpSong2)).isEqualTo(mRhcp);
+    }
+
+    @Test
+    public void testJoinByArtistNameList() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Map<Artist, List<Song>> artistToSongsMap = mMusicDao.getAllArtistAndTheirSongsList();
+        assertContentsOfResultMapWithList(artistToSongsMap);
+    }
+
+    @Test
+    public void testJoinByArtistNameSet() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Map<Artist, Set<Song>> artistToSongsSet = mMusicDao.getAllArtistAndTheirSongsSet();
+        assertContentsOfResultMapWithSet(artistToSongsSet);
     }
 
     /**
-     * Tests a JOIN {@link androidx.room.RawQuery} between two tables.
+     * Tests a JOIN using {@link androidx.room.RawQuery} between two tables.
      */
     @Test
     public void testJoinByArtistNameRawQuery() {
-        mMusicDao.addSongs(mSong1, mSong2, mSong3, mSong4);
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
 
-        Map<Artist, List<Song>> artistToSongsMap = mMusicDao.getAllArtistAndTheirSongsRawQuery(
+        Map<Artist, Song> artistToSongsMap = mMusicDao.getAllArtistAndTheirSongsRawQuery(
                 new SimpleSQLiteQuery(
                         "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist"
                 )
         );
-        assertContentsOfResultMap(artistToSongsMap);
+        assertThat(artistToSongsMap.get(mAcDc)).isEqualTo(mAcdcSong1);
+    }
+
+    @Test
+    public void testJoinByArtistNameRawQueryList() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Map<Artist, List<Song>> artistToSongsMap = mMusicDao.getAllArtistAndTheirSongsRawQueryList(
+                new SimpleSQLiteQuery(
+                        "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist"
+                )
+        );
+        assertContentsOfResultMapWithList(artistToSongsMap);
+    }
+
+    @Test
+    public void testJoinByArtistNameRawQuerySet() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Map<Artist, Set<Song>> artistToSongsMap = mMusicDao.getAllArtistAndTheirSongsRawQuerySet(
+                new SimpleSQLiteQuery(
+                        "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist"
+                )
+        );
+        assertContentsOfResultMapWithSet(artistToSongsMap);
     }
 
     /**
-     * Tests a simple JOIN query between two tables with a {@link LiveData} return type.
+     * Tests a simple JOIN query between two tables with a {@link LiveData} map return type.
      */
     @Test
     public void testJoinByArtistNameLiveData()
             throws ExecutionException, InterruptedException, TimeoutException {
-        mMusicDao.addSongs(mSong1, mSong2, mSong3, mSong4);
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        LiveData<Map<Artist, Song>> artistToSongsMapLiveData =
+                mMusicDao.getAllArtistAndTheirSongsAsLiveData();
+        final TestLifecycleOwner testOwner = new TestLifecycleOwner(Lifecycle.State.CREATED);
+        final TestObserver<Map<Artist, Song>> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(artistToSongsMapLiveData, testOwner, observer);
+        MatcherAssert.assertThat(observer.hasValue(), is(false));
+        observer.reset();
+        testOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
+
+        assertThat(observer.get()).isNotNull();
+        assertThat(observer.get().get(mAcDc)).isEqualTo(mAcdcSong1);
+    }
+
+    @Test
+    public void testJoinByArtistNameLiveDataList()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
 
         LiveData<Map<Artist, List<Song>>> artistToSongsMapLiveData =
-                mMusicDao.getAllArtistAndTheirSongsAsLiveData();
+                mMusicDao.getAllArtistAndTheirSongsAsLiveDataList();
         final TestLifecycleOwner testOwner = new TestLifecycleOwner(Lifecycle.State.CREATED);
         final TestObserver<Map<Artist, List<Song>>> observer = new MyTestObserver<>();
         TestUtil.observeOnMainThread(artistToSongsMapLiveData, testOwner, observer);
@@ -211,20 +286,89 @@ public class MultimapQueryTest {
         testOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
 
         assertThat(observer.get()).isNotNull();
-        assertContentsOfResultMap(observer.get());
+        assertContentsOfResultMapWithList(observer.get());
+    }
+
+    @Test
+    public void testJoinByArtistNameLiveDataSet()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        LiveData<Map<Artist, Set<Song>>> artistToSongsMapLiveData =
+                mMusicDao.getAllArtistAndTheirSongsAsLiveDataSet();
+        final TestLifecycleOwner testOwner = new TestLifecycleOwner(Lifecycle.State.CREATED);
+        final TestObserver<Map<Artist, Set<Song>>> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(artistToSongsMapLiveData, testOwner, observer);
+        MatcherAssert.assertThat(observer.hasValue(), is(false));
+        observer.reset();
+        testOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
+
+        assertThat(observer.get()).isNotNull();
+        assertContentsOfResultMapWithSet(observer.get());
     }
 
     /**
-     * Tests a simple JOIN query between two tables with a {@link Flowable} return type.
+     * Tests a simple JOIN query between two tables with a {@link Flowable} map return type.
      */
     @Test
-    public void testJoinByArtistNameFlowable() {
-        mMusicDao.addSongs(mSong1, mSong2, mSong3, mSong4);
+    public void testJoinByArtistNameFlowableList() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
 
         Flowable<Map<Artist, List<Song>>> artistToSongsMapFlowable =
-                mMusicDao.getAllArtistAndTheirSongsAsFlowable();
-        assertContentsOfResultMap(artistToSongsMapFlowable.blockingFirst());
+                mMusicDao.getAllArtistAndTheirSongsAsFlowableList();
+        assertContentsOfResultMapWithList(artistToSongsMapFlowable.blockingFirst());
+    }
+
+    @Test
+    public void testJoinByArtistNameFlowableSet() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Flowable<Map<Artist, Set<Song>>> artistToSongsMapFlowable =
+                mMusicDao.getAllArtistAndTheirSongsAsFlowableSet();
+        assertContentsOfResultMapWithSet(artistToSongsMapFlowable.blockingFirst());
+    }
+
+    /**
+     * Tests a simple JOIN query between two tables with a return type of a map with a key that
+     * is an entity {@link Artist} and a POJO {@link AlbumWithSongs} that use
+     * {@link androidx.room.Embedded} and {@link androidx.room.Relation}.
+     */
+    @Test
+    public void testPojoWithEmbeddedAndRelation() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        Map<Artist, AlbumWithSongs> artistToAlbumsWithSongsMap =
+                mMusicDao.getAllArtistAndTheirAlbumsWithSongs();
+        AlbumWithSongs rhcpAlbum = artistToAlbumsWithSongsMap.get(mRhcp);
+
+        assertThat(artistToAlbumsWithSongsMap.keySet()).containsExactlyElementsIn(
+                Arrays.asList(mRhcp, mAcDc, mPinkFloyd));
+        assertThat(artistToAlbumsWithSongsMap.containsKey(mTheClash)).isFalse();
+        assertThat(artistToAlbumsWithSongsMap.get(mPinkFloyd).getAlbum())
+                .isEqualTo(mTheDarkSideOfTheMoon);
+        assertThat(artistToAlbumsWithSongsMap.get(mAcDc).getAlbum())
+                .isEqualTo(mHighwayToHell);
+        assertThat(artistToAlbumsWithSongsMap.get(mAcDc).getSongs().get(0)).isEqualTo(mAcdcSong1);
+
+        if (rhcpAlbum.getAlbum().equals(mStadiumArcadium)) {
+            assertThat(rhcpAlbum.getSongs()).containsExactlyElementsIn(
+                    Arrays.asList(mRhcpSong1, mRhcpSong2)
+            );
+        } else if (rhcpAlbum.getAlbum().equals(mCalifornication)) {
+            assertThat(rhcpAlbum.getSongs()).isEmpty();
+        } else {
+            fail();
+        }
     }
 
     /**
@@ -233,8 +377,8 @@ public class MultimapQueryTest {
      * {@link androidx.room.Embedded} and {@link androidx.room.Relation}.
      */
     @Test
-    public void testPojoWithEmbeddedAndRelation() {
-        mMusicDao.addSongs(mSong1, mSong2, mSong3, mSong4);
+    public void testPojoWithEmbeddedAndRelationList() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
         mMusicDao.addAlbums(
                 mStadiumArcadium,
@@ -244,7 +388,8 @@ public class MultimapQueryTest {
         );
 
         Map<Artist, List<AlbumWithSongs>> artistToAlbumsWithSongsMap =
-                mMusicDao.getAllArtistAndTheirAlbumsWithSongs();
+                mMusicDao.getAllArtistAndTheirAlbumsWithSongsList();
+        mMusicDao.getAllArtistAndTheirAlbumsWithSongs();
         List<AlbumWithSongs> rhcpList = artistToAlbumsWithSongsMap.get(mRhcp);
 
         assertThat(artistToAlbumsWithSongsMap.keySet()).containsExactlyElementsIn(
@@ -255,12 +400,12 @@ public class MultimapQueryTest {
         assertThat(artistToAlbumsWithSongsMap.get(mAcDc).get(0).getAlbum())
                 .isEqualTo(mHighwayToHell);
         assertThat(artistToAlbumsWithSongsMap.get(mAcDc).get(0).getSongs().get(0))
-                .isEqualTo(mSong3);
+                .isEqualTo(mAcdcSong1);
 
         for (AlbumWithSongs albumAndSong : rhcpList) {
             if (albumAndSong.getAlbum().equals(mStadiumArcadium)) {
                 assertThat(albumAndSong.getSongs()).containsExactlyElementsIn(
-                        Arrays.asList(mSong1, mSong2)
+                        Arrays.asList(mRhcpSong1, mRhcpSong2)
                 );
             } else if (albumAndSong.getAlbum().equals(mCalifornication)) {
                 assertThat(albumAndSong.getSongs()).isEmpty();
@@ -276,8 +421,8 @@ public class MultimapQueryTest {
      * POJOs.
      */
     @Test
-    public void testNonEntityPojos() {
-        mMusicDao.addSongs(mSong1, mSong2, mSong3, mSong4);
+    public void testNonEntityPojosList() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
         mMusicDao.addAlbums(
                 mStadiumArcadium,
@@ -287,14 +432,15 @@ public class MultimapQueryTest {
         );
 
         Map<ReleasedAlbum, List<AlbumNameAndBandName>> map =
-                mMusicDao.getReleaseYearToAlbumsAndBands();
+                mMusicDao.getReleaseYearToAlbumsAndBandsList();
         Set<ReleasedAlbum> allReleasedAlbums = map.keySet();
 
         assertThat(allReleasedAlbums.size()).isEqualTo(3);
 
         for (ReleasedAlbum album : allReleasedAlbums) {
             if (album.getAlbumName().equals(mStadiumArcadium.mAlbumName)) {
-                assertThat(album.getReleaseYear()).isEqualTo(mStadiumArcadium.mAlbumReleaseYear);
+                assertThat(album.getReleaseYear()).isEqualTo(
+                        mStadiumArcadium.mAlbumReleaseYear);
                 assertThat(map.get(album).size()).isEqualTo(2);
                 assertThat(map.get(album).get(0).getBandName()).isEqualTo(mRhcp.mArtistName);
                 assertThat(map.get(album).get(0).getAlbumName())
@@ -329,16 +475,32 @@ public class MultimapQueryTest {
     /**
      * Checks that the contents of the map are as expected.
      *
-     * @param artistToSongsMap Map of Artists to Songs joined by the artist name
+     * @param artistToSongsMap Map of Artists to list of Songs joined by the artist name
      */
-    private void assertContentsOfResultMap(Map<Artist, List<Song>> artistToSongsMap) {
+    private void assertContentsOfResultMapWithList(Map<Artist, List<Song>> artistToSongsMap) {
         assertThat(artistToSongsMap.keySet()).containsExactlyElementsIn(
                 Arrays.asList(mRhcp, mAcDc, mPinkFloyd));
         assertThat(artistToSongsMap.containsKey(mTheClash)).isFalse();
-        assertThat(artistToSongsMap.get(mPinkFloyd)).containsExactly(mSong4);
+        assertThat(artistToSongsMap.get(mPinkFloyd)).containsExactly(mPinkFloydSong1);
         assertThat(artistToSongsMap.get(mRhcp)).containsExactlyElementsIn(
-                Arrays.asList(mSong1, mSong2)
+                Arrays.asList(mRhcpSong1, mRhcpSong2)
         );
-        assertThat(artistToSongsMap.get(mAcDc)).containsExactly(mSong3);
+        assertThat(artistToSongsMap.get(mAcDc)).containsExactly(mAcdcSong1);
+    }
+
+    /**
+     * Checks that the contents of the map are as expected.
+     *
+     * @param artistToSongsMap Map of Artists to set of Songs joined by the artist name
+     */
+    private void assertContentsOfResultMapWithSet(Map<Artist, Set<Song>> artistToSongsMap) {
+        assertThat(artistToSongsMap.keySet()).containsExactlyElementsIn(
+                Arrays.asList(mRhcp, mAcDc, mPinkFloyd));
+        assertThat(artistToSongsMap.containsKey(mTheClash)).isFalse();
+        assertThat(artistToSongsMap.get(mPinkFloyd)).containsExactly(mPinkFloydSong1);
+        assertThat(artistToSongsMap.get(mRhcp)).containsExactlyElementsIn(
+                Arrays.asList(mRhcpSong1, mRhcpSong2)
+        );
+        assertThat(artistToSongsMap.get(mAcDc)).containsExactly(mAcdcSong1);
     }
 }

@@ -330,8 +330,8 @@ class TypeAdapterStore private constructor(
             val targetTypes = targetTypeMirrorsFor(affinity)
             val intoStatement = findTypeConverter(out, targetTypes) ?: return null
             // ok found a converter, try the reverse now
-            val fromCursor = reverse(intoStatement) ?: findTypeConverter(intoStatement.to, out)
-                ?: return null
+            val fromCursor = reverse(intoStatement)
+                ?: findTypeConverter(intoStatement.to, out) ?: return null
             return CompositeAdapter(
                 out, getAllColumnAdapters(intoStatement.to).first(), intoStatement, fromCursor
             )
@@ -419,6 +419,7 @@ class TypeAdapterStore private constructor(
         if (typeMirror.isError()) {
             return null
         }
+        // TODO: (b/192068912) Refactor the following since this if-else cascade has gotten large
         if (typeMirror.isArray() && typeMirror.componentType.isNotByte()) {
             val rowAdapter =
                 findRowAdapter(typeMirror.componentType, query) ?: return null
@@ -462,25 +463,53 @@ class TypeAdapterStore private constructor(
                 rowAdapter = rowAdapter
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class)) {
-            val keyArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
-            val secondTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
+            // TODO: Handle nested collection values in the map
+            // TODO: Verify that hashCode() and equals() are declared by the keyTypeArg
 
-            // TODO: Support Set::class here as well.
-            if (!secondTypeArg.isTypeOf(java.util.List::class)) {
-                context.logger.e("Only supporting Map<Key, List<Value>> for now.")
+            val keyTypeArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
+            val mapValueTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
+
+            if (mapValueTypeArg.typeElement == null) {
+                context.logger.e(
+                    "Multimap 'value' collection type argument does not represent a class. " +
+                        "Found $mapValueTypeArg."
+                )
                 return null
             }
-            val valueArg = secondTypeArg.typeArguments.first().extendsBoundOrSelf()
 
-            val keyRowAdapter = findRowAdapter(keyArg, query) ?: return null
-            val valueRowAdapter = findRowAdapter(valueArg, query) ?: return null
+            val collectionTypeRaw = context.COMMON_TYPES.READONLY_COLLECTION.rawType
 
-            return MapQueryResultAdapter(
-                keyTypeArg = keyArg,
-                valueTypeArg = valueArg,
-                keyRowAdapter = keyRowAdapter,
-                valueRowAdapter = valueRowAdapter
-            )
+            if (collectionTypeRaw.isAssignableFrom(mapValueTypeArg.rawType)) {
+                // The Map's value type argument is assignable to a Collection, we need to make
+                // sure it is either a list or a set.
+                if (
+                    mapValueTypeArg.isTypeOf(java.util.List::class) ||
+                    mapValueTypeArg.isTypeOf(java.util.Set::class)
+                ) {
+                    val valueTypeArg =
+                        mapValueTypeArg.typeArguments.single().extendsBoundOrSelf()
+                    return MapQueryResultAdapter(
+                        keyTypeArg = keyTypeArg,
+                        valueTypeArg = valueTypeArg,
+                        keyRowAdapter = findRowAdapter(keyTypeArg, query) ?: return null,
+                        valueRowAdapter = findRowAdapter(valueTypeArg, query) ?: return null,
+                        valueCollectionType = mapValueTypeArg
+                    )
+                } else {
+                    context.logger.e(
+                        "Multimap 'value' collection type must be a List or Set. Found " +
+                            "${mapValueTypeArg.typeName}."
+                    )
+                }
+            } else {
+                return MapQueryResultAdapter(
+                    keyTypeArg = keyTypeArg,
+                    valueTypeArg = mapValueTypeArg,
+                    keyRowAdapter = findRowAdapter(keyTypeArg, query) ?: return null,
+                    valueRowAdapter = findRowAdapter(mapValueTypeArg, query) ?: return null,
+                    valueCollectionType = null
+                )
+            }
         }
         return null
     }
@@ -697,20 +726,19 @@ class TypeAdapterStore private constructor(
      * The returned list is ordered by priority such that if we have an exact match, it is
      * prioritized.
      */
-    private fun getAllTypeConverters(input: XType, excludes: List<XType>):
-        List<TypeConverter> {
-            // for input, check assignability because it defines whether we can use the method or not.
-            // for excludes, use exact match
-            return typeConverters.filter { converter ->
-                converter.from.isAssignableFrom(input) &&
-                    !excludes.any { it.isSameType(converter.to) }
-            }.sortedByDescending {
-                // if it is the same, prioritize
-                if (it.from.isSameType(input)) {
-                    2
-                } else {
-                    1
-                }
+    private fun getAllTypeConverters(input: XType, excludes: List<XType>): List<TypeConverter> {
+        // for input, check assignability because it defines whether we can use the method or not.
+        // for excludes, use exact match
+        return typeConverters.filter { converter ->
+            converter.from.isAssignableFrom(input) &&
+                !excludes.any { it.isSameType(converter.to) }
+        }.sortedByDescending {
+            // if it is the same, prioritize
+            if (it.from.isSameType(input)) {
+                2
+            } else {
+                1
             }
         }
+    }
 }
