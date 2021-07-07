@@ -56,6 +56,9 @@ android {
     buildFeatures {
         aidl = true
     }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
     useLibrary 'android.car'
     testOptions.unitTests.includeAndroidResources = true
 }

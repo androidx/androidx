@@ -9,4 +9,5 @@
 -keep class androidx.car.app.** extends android.os.IInterface { *; }
 
 # Don't obfuscate classes instantiated from outside the library via reflection
--keep public class androidx.car.app.hardware.ProjectedCarHardwareManager { *; }
+-keep public class androidx.car.app.activity.** extends androidx.car.app.managers.Manager { *; }
+-keep public class androidx.car.app.hardware.AutomotiveCarHardwareManager { *; }
