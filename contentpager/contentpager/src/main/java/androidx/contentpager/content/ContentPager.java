@@ -75,6 +75,7 @@ import java.util.Set;
  * <p>Data will be loaded from a content uri in one of two ways, depending on the runtime
  * environment and if the provider supports paging.
  *
+ * <ul>
  * <li>If the system is Android O and greater and the provider supports paging, the Cursor
  * will be returned, effectively unmodified, to a {@link ContentCallback} supplied by
  * your application.
@@ -83,6 +84,7 @@ import java.util.Set;
  * loader will fetch an unpaged Cursor from the provider. The unpaged Cursor will be held
  * by the ContentPager, and data will be copied into a new cursor in a background thread.
  * The new cursor will be returned to a {@link ContentCallback} supplied by your application.
+ *</ul>
  *
  * <p>In either cases, when an application employs this library it can generally assume
  * that there will be no CursorWindow swap. But picking the right limit for records can
@@ -96,10 +98,12 @@ import java.util.Set;
  * projection they'll use in their app. The total number of records that will fit into shared
  * memory varies depending on multiple factors.
  *
+ * <ul>
  * <li>The number of columns being requested in the cursor projection. Limit the number
  * of columns, to reduce the size of each row.
  * <li>The size of the data in each column.
  * <li>the Cursor type.
+ * </ul>
  *
  * <p>If the cursor is running in-process, there may be no need for paging. Depending on
  * the Cursor implementation chosen there may be no shared memory/CursorWindow in use.
