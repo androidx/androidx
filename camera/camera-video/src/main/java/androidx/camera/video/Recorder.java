@@ -398,8 +398,13 @@ public final class Recorder implements VideoOutput {
 
     /**
      * Gets the audio source of this Recorder.
+     *
+     * @return the value provided to {@link Builder#setAudioSource(int)} on the builder used to
+     * create this recorder, or the default value of {@link AudioSpec#SOURCE_AUTO} if no source was
+     * set.
      */
-    public int getAudioSource() {
+    @AudioSpec.Source
+    int getAudioSource() {
         return getObservableData(mMediaSpec).getAudioSpec().getSource();
     }
 
@@ -1416,6 +1421,22 @@ public final class Recorder implements VideoOutput {
         @NonNull
         Builder setAspectRatio(@AspectRatio.Ratio int aspectRatio) {
             mMediaSpecBuilder.configureVideo(builder -> builder.setAspectRatio(aspectRatio));
+            return this;
+        }
+
+        /**
+         * Sets the audio source for recordings with audio enabled.
+         *
+         * <p>This will only set the source of audio for recordings, but audio must still be
+         * enabled on a per-recording basis with {@link PendingRecording#withAudioEnabled()}
+         * before starting the recording.
+         *
+         * @param source The audio source to use. One of {@link AudioSpec#SOURCE_AUTO} or
+         * {@link AudioSpec#SOURCE_CAMCORDER}. Default is {@link AudioSpec#SOURCE_AUTO}.
+         */
+        @NonNull
+        Builder setAudioSource(@AudioSpec.Source int source) {
+            mMediaSpecBuilder.configureAudio(builder -> builder.setSource(source));
             return this;
         }
 
