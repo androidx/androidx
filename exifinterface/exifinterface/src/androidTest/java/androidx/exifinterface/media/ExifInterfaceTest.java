@@ -428,6 +428,7 @@ public class ExifInterfaceTest {
     @LargeTest
     public void testDngFiles() throws Throwable {
         readFromFilesWithExif(DNG_WITH_EXIF_WITH_XMP, R.array.dng_with_exif_with_xmp);
+        writeToFilesWithExif(DNG_WITH_EXIF_WITH_XMP, R.array.dng_with_exif_with_xmp);
     }
 
     @Test
