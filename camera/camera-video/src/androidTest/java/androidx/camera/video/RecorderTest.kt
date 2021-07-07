@@ -526,6 +526,11 @@ class RecorderTest {
 
     @Test
     fun pause_beforeSurfaceRequested() {
+        // Skip for b/192995523
+        assumeFalse(
+            "MediaMuxer fails to stop if there's no data provided.",
+            Build.DEVICE.equals("sailfish", true)
+        )
         clearInvocations(videoRecordEventListener)
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val outputOptions = FileOutputOptions.builder().setFile(file).build()
