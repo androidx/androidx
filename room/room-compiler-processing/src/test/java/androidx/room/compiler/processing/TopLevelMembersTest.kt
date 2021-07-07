@@ -23,7 +23,7 @@ import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.kspProcessingEnv
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
@@ -61,34 +61,37 @@ class TopLevelMembersTest {
             sources = listOf(appSrc),
             classpath = classpath
         ) { invocation ->
-            // b/188822146
-            // TODO add lib package here once Room updates to a version that includes the
-            //  https://github.com/google/ksp/issues/396 fix (1.5.0-1.0.0-alpha09)
-            val declarations = invocation.kspResolver.getDeclarationsFromPackage("app")
-            declarations.filterIsInstance<KSFunctionDeclaration>()
-                .toList().let { methods ->
-                    assertThat(methods).hasSize(1)
-                    methods.forEach { method ->
-                        val element = KspExecutableElement.create(
-                            env = invocation.kspProcessingEnv,
-                            declaration = method
-                        )
-                        assertThat(element.containing.isTypeElement()).isFalse()
-                        assertThat(element.isStatic()).isTrue()
+            listOf("lib", "app").forEach { pkg ->
+                val declarations = invocation.kspResolver.getDeclarationsFromPackage(pkg)
+                declarations.filterIsInstance<KSFunctionDeclaration>()
+                    .toList().let { methods ->
+                        assertWithMessage(pkg).that(methods).hasSize(1)
+                        methods.forEach { method ->
+                            val element = KspExecutableElement.create(
+                                env = invocation.kspProcessingEnv,
+                                declaration = method
+                            )
+                            assertWithMessage(pkg).that(
+                                element.containing.isTypeElement()
+                            ).isFalse()
+                            assertWithMessage(pkg).that(element.isStatic()).isTrue()
+                        }
                     }
-                }
-            declarations.filterIsInstance<KSPropertyDeclaration>()
-                .toList().let { properties ->
-                    assertThat(properties).hasSize(2)
-                    properties.forEach {
-                        val element = KspFieldElement.create(
-                            env = invocation.kspProcessingEnv,
-                            declaration = it
-                        )
-                        assertThat(element.containing.isTypeElement()).isFalse()
-                        assertThat(element.isStatic()).isTrue()
+                declarations.filterIsInstance<KSPropertyDeclaration>()
+                    .toList().let { properties ->
+                        assertWithMessage(pkg).that(properties).hasSize(2)
+                        properties.forEach {
+                            val element = KspFieldElement.create(
+                                env = invocation.kspProcessingEnv,
+                                declaration = it
+                            )
+                            assertWithMessage(pkg).that(
+                                element.containing.isTypeElement()
+                            ).isFalse()
+                            assertWithMessage(pkg).that(element.isStatic()).isTrue()
+                        }
                     }
-                }
+            }
         }
     }
 }

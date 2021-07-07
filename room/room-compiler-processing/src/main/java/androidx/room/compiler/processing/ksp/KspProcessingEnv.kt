@@ -79,7 +79,7 @@ internal class KspProcessingEnv(
         )
     }
 
-    override fun findTypeElement(qName: String): XTypeElement? {
+    override fun findTypeElement(qName: String): KspTypeElement? {
         return typeElementStore[qName]
     }
 
