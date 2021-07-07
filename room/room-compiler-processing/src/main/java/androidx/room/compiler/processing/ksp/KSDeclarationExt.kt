@@ -62,6 +62,9 @@ private fun KSDeclaration.findEnclosingAncestorClassDeclaration(): KSClassDeclar
 
 internal fun KSDeclaration.isStatic(): Boolean {
     return modifiers.contains(Modifier.JAVA_STATIC) || hasJvmStaticAnnotation() ||
+        // declarations in the companion object move into the enclosing class as statics.
+        // https://kotlinlang.org/docs/java-to-kotlin-interop.html#static-fields
+        this.findEnclosingAncestorClassDeclaration()?.isCompanionObject == true ||
         when (this) {
             is KSPropertyAccessor -> this.receiver.findEnclosingAncestorClassDeclaration() == null
             is KSPropertyDeclaration -> this.findEnclosingAncestorClassDeclaration() == null
