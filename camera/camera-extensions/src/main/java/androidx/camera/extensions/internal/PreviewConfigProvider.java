@@ -41,12 +41,7 @@ import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.extensions.ExtensionMode;
-import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
-import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
-import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
-import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
-import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 
@@ -65,39 +60,13 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     private int mEffectMode;
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
-    public PreviewConfigProvider(@ExtensionMode.Mode int mode,
-            @NonNull CameraInfo cameraInfo, @NonNull Context context) {
-        try {
-            switch (mode) {
-                case ExtensionMode.BOKEH:
-                    mImpl = new BokehPreviewExtenderImpl();
-                    break;
-                case ExtensionMode.HDR:
-                    mImpl = new HdrPreviewExtenderImpl();
-                    break;
-                case ExtensionMode.NIGHT:
-                    mImpl = new NightPreviewExtenderImpl();
-                    break;
-                case ExtensionMode.BEAUTY:
-                    mImpl = new BeautyPreviewExtenderImpl();
-                    break;
-                case ExtensionMode.AUTO:
-                    mImpl = new AutoPreviewExtenderImpl();
-                    break;
-                case ExtensionMode.NONE:
-                default:
-                    return;
-            }
-        } catch (NoClassDefFoundError e) {
-            throw new IllegalArgumentException("Extension mode does not exist: " + mode);
-        }
+    public PreviewConfigProvider(
+            @ExtensionMode.Mode int mode,
+            @NonNull PreviewExtenderImpl previewExtenderImpl,
+            @NonNull Context context) {
+        mImpl = previewExtenderImpl;
         mEffectMode = mode;
         mContext = context;
-
-        String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
-        CameraCharacteristics cameraCharacteristics =
-                Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
-        mImpl.init(cameraId, cameraCharacteristics);
     }
 
     @NonNull

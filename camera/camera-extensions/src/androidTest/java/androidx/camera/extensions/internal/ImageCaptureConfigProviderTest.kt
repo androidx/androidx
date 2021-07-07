@@ -241,7 +241,7 @@ class ImageCaptureConfigProviderTest {
     private fun createImageCaptureWithExtenderImpl(impl: ImageCaptureExtenderImpl) =
         ImageCapture.Builder().also {
             val cameraInfo = cameraSelector.filter(cameraProvider.availableCameraInfos)[0]
-            ImageCaptureConfigProvider(extensionMode, cameraInfo, context).apply {
+            ImageCaptureConfigProvider(extensionMode, impl, context).apply {
                 updateBuilderConfig(it, extensionMode, impl, context)
             }
         }.build()

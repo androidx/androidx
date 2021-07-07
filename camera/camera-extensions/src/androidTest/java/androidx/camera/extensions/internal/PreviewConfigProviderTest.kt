@@ -298,7 +298,7 @@ class PreviewConfigProviderTest {
     private fun createPreviewWithExtenderImpl(impl: PreviewExtenderImpl) =
         Preview.Builder().also {
             val cameraInfo = cameraSelector.filter(cameraProvider.availableCameraInfos)[0]
-            PreviewConfigProvider(extensionMode, cameraInfo, context).apply {
+            PreviewConfigProvider(extensionMode, impl, context).apply {
                 updateBuilderConfig(it, extensionMode, impl, context)
             }
         }.build()
