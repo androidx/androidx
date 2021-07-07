@@ -46,7 +46,7 @@ export LINT_PRINT_STACKTRACE=true
 
 function buildAndroidx() {
   LOG_PROCESSOR="$SCRIPT_DIR/../development/build_log_processor.sh"
-  properties="-Pandroidx.summarizeStderr --no-daemon -Pandroidx.allWarningsAsErrors -Pandroid.experimental.runLintInProcess=false"
+  properties="-Pandroidx.summarizeStderr --no-daemon -Pandroidx.allWarningsAsErrors"
   "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    listTaskOutputs bOS -x verifyDependencyVersions --stacktrace -PverifyUpToDate --profile
   $SCRIPT_DIR/impl/parse_profile_htmls.sh
 }
