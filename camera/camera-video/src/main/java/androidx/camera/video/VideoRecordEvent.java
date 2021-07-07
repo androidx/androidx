@@ -256,14 +256,18 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the stop of recording.
      *
-     * <p>The stop event will be triggered regardless of whether the recording succeeds or
+     * <p>The finalize event will be triggered regardless of whether the recording succeeds or
      * fails. Use {@link Finalize#getError()} to obtain the error type and
      * {@link Finalize#getCause()} to get the error cause. If there is no error,
-     * {@link #ERROR_NONE} will be returned. Other error code indicate the recording is failed or
-     * stopped due to a certain reason. Please note that a failed result does not mean that the
-     * video file has not been generated. In some cases, the file can still be successfully
-     * generated. For example, the result {@link #ERROR_INSUFFICIENT_DISK} will still have video
-     * file.
+     * {@link #ERROR_NONE} will be returned. Other error types indicate the recording is failed or
+     * stopped due to a certain reasons. Please note that receiving a finalize event with error
+     * does not necessarily mean that the video file has not been generated. In some cases, the
+     * file can still be successfully generated depending on the error type. For example, a file
+     * will still be generated when the recording is finalized with
+     * {@link #ERROR_INSUFFICIENT_DISK}.
+     *
+     * <p>If there's no error that prevents the file to be generated, the file can be accessed
+     * safely after receiving the finalize event.
      */
     public static final class Finalize extends VideoRecordEvent {
         private final OutputResults mOutputResults;
