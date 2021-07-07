@@ -31,7 +31,7 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly(libs.androidLintApi)
+    compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
 
     testImplementation(libs.kotlinStdlib)

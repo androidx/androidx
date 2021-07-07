@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage")
-
 package androidx.activity.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
-import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
 /**
@@ -31,9 +28,5 @@ class ActivityIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         ActivityResultFragmentVersionDetector.ISSUE
-    )
-    override val vendor = Vendor(
-        vendorName = "Android Open Source Project",
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=527362"
     )
 }
