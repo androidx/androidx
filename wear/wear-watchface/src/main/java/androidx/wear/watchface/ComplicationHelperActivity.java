@@ -125,8 +125,6 @@ public final class ComplicationHelperActivity extends Activity
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        setTheme(android.R.style.Theme_Translucent_NoTitleBar);
-
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
