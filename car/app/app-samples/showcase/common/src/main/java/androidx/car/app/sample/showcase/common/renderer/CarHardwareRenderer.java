@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.car.app.sample.showcase.common.navigation;
+package androidx.car.app.sample.showcase.common.renderer;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Paint.Align;
-import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.util.Log;
-import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
-import androidx.car.app.SurfaceCallback;
-import androidx.car.app.SurfaceContainer;
 import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
@@ -47,33 +41,20 @@ import androidx.car.app.hardware.info.Model;
 import androidx.car.app.hardware.info.Speed;
 import androidx.car.app.hardware.info.TollCard;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 
-/** A very simple implementation of a renderer for the app's background surface. */
-public final class SurfaceRenderer implements DefaultLifecycleObserver {
+/** Renderer which aggregates information about the car hardware to be drawn on a surface. */
+public final class CarHardwareRenderer implements Renderer {
     private static final String TAG = "showcase";
 
-    private static final int HORIZONTAL_TEXT_MARGIN = 10;
     private static final int VERTICAL_TEXT_MARGIN_FROM_TOP = 20;
-    private static final int VERTICAL_TEXT_MARGIN_FROM_BOTTOM = 10;
 
-    private final CarContext mCarContext;
     private final Executor mCarHardwareExecutor;
-    private final Paint mLeftInsetPaint = new Paint();
-    private final Paint mRightInsetPaint = new Paint();
-    private final Paint mCenterPaint = new Paint();
     private final Paint mCarInfoPaint = new Paint();
-    @Nullable
-    Surface mSurface;
-    @Nullable
-    Rect mVisibleArea;
-    @Nullable
-    Rect mStableArea;
+    private final CarContext mCarContext;
+
     @Nullable
     Model mModel;
     @Nullable
@@ -94,7 +75,8 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
     Compass mCompass;
     @Nullable
     CarHardwareLocation mCarHardwareLocation;
-    private boolean mShowCarHardwareSurfaceInfo;
+    @Nullable
+    private Runnable mRequestRenderRunnable;
     private boolean mHasModelPermission;
     private boolean mHasEnergyProfilePermission;
     private boolean mHasTollCardPermission;
@@ -105,341 +87,265 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
     private boolean mHasGyroscopePermission;
     private boolean mHasCompassPermission;
     private boolean mHasCarHardwareLocationPermission;
-    private final SurfaceCallback mSurfaceCallback =
-            new SurfaceCallback() {
-                @Override
-                public void onSurfaceAvailable(@NonNull SurfaceContainer surfaceContainer) {
-                    Log.i(TAG, "Surface available " + surfaceContainer);
-                    mSurface = surfaceContainer.getSurface();
-                    renderFrame();
-                }
 
-                @Override
-                public void onVisibleAreaChanged(@NonNull Rect visibleArea) {
-                    synchronized (SurfaceRenderer.this) {
-                        Log.i(TAG, "Visible area changed " + mSurface + ". stableArea: "
-                                + mStableArea + " visibleArea:" + visibleArea);
-                        mVisibleArea = visibleArea;
-                        renderFrame();
-                    }
-                }
-
-                @Override
-                public void onStableAreaChanged(@NonNull Rect stableArea) {
-                    synchronized (SurfaceRenderer.this) {
-                        Log.i(TAG, "Stable area changed " + mSurface + ". stableArea: "
-                                + mStableArea + " visibleArea:" + mVisibleArea);
-                        mStableArea = stableArea;
-                        renderFrame();
-                    }
-                }
-
-                @Override
-                public void onSurfaceDestroyed(@NonNull SurfaceContainer surfaceContainer) {
-                    synchronized (SurfaceRenderer.this) {
-                        mSurface = null;
-                    }
-                }
-            };
     private OnCarDataAvailableListener<Model> mModelListener = data -> {
-        synchronized (SurfaceRenderer.this) {
+        synchronized (this) {
             Log.i(TAG, "Received model information: " + data);
             mModel = data;
-            renderFrame();
+            requestRenderFrame();
         }
     };
     private OnCarDataAvailableListener<EnergyProfile> mEnergyProfileListener = data -> {
-        synchronized (SurfaceRenderer.this) {
+        synchronized (this) {
             Log.i(TAG, "Received energy profile information: " + data);
             mEnergyProfile = data;
-            renderFrame();
+            requestRenderFrame();
         }
     };
     private OnCarDataAvailableListener<TollCard> mTollListener = data -> {
-        synchronized (SurfaceRenderer.this) {
+        synchronized (this) {
             Log.i(TAG, "Received toll information:" + data);
             mTollCard = data;
-            renderFrame();
+            requestRenderFrame();
         }
     };
     private OnCarDataAvailableListener<EnergyLevel> mEnergyLevelListener = data -> {
-        synchronized (SurfaceRenderer.this) {
+        synchronized (this) {
             Log.i(TAG, "Received energy level information: " + data);
             mEnergyLevel = data;
-            renderFrame();
+            requestRenderFrame();
         }
     };
     private OnCarDataAvailableListener<Speed> mSpeedListener = data -> {
-        synchronized (SurfaceRenderer.this) {
+        synchronized (this) {
             Log.i(TAG, "Received speed information: " + data);
             mSpeed = data;
-            renderFrame();
+            requestRenderFrame();
         }
     };
     private OnCarDataAvailableListener<Mileage> mMileageListener = data -> {
-        synchronized (SurfaceRenderer.this) {
+        synchronized (this) {
             Log.i(TAG, "Received mileage: " + data);
             mMileage = data;
-            renderFrame();
+            requestRenderFrame();
         }
     };
     private OnCarDataAvailableListener<Accelerometer> mAccelerometerListener = data -> {
-        synchronized (SurfaceRenderer.this) {
+        synchronized (this) {
             Log.i(TAG, "Received accelerometer: " + data);
             mAccelerometer = data;
-            renderFrame();
+            requestRenderFrame();
         }
     };
     private OnCarDataAvailableListener<Gyroscope> mGyroscopeListener = data -> {
-        synchronized (SurfaceRenderer.this) {
+        synchronized (this) {
             Log.i(TAG, "Received gyroscope: " + data);
             mGyroscope = data;
-            renderFrame();
+            requestRenderFrame();
         }
     };
     private OnCarDataAvailableListener<Compass> mCompassListener = data -> {
-        synchronized (SurfaceRenderer.this) {
+        synchronized (this) {
             Log.i(TAG, "Received compass: " + data);
             mCompass = data;
-            renderFrame();
+            requestRenderFrame();
         }
     };
     private OnCarDataAvailableListener<CarHardwareLocation> mCarLocationListener = data -> {
-        synchronized (SurfaceRenderer.this) {
+        synchronized (this) {
             Log.i(TAG, "Received car location: " + data);
             mCarHardwareLocation = data;
-            renderFrame();
+            requestRenderFrame();
         }
     };
 
-    public SurfaceRenderer(@NonNull CarContext carContext, @NonNull Lifecycle lifecycle) {
+    public CarHardwareRenderer(@NonNull CarContext carContext) {
         mCarContext = carContext;
-
-        mLeftInsetPaint.setColor(Color.RED);
-        mLeftInsetPaint.setAntiAlias(true);
-        mLeftInsetPaint.setStyle(Style.STROKE);
-
-        mRightInsetPaint.setColor(Color.RED);
-        mRightInsetPaint.setAntiAlias(true);
-        mRightInsetPaint.setStyle(Style.STROKE);
-        mRightInsetPaint.setTextAlign(Align.RIGHT);
-
-        mCenterPaint.setColor(Color.BLUE);
-        mCenterPaint.setAntiAlias(true);
-        mCenterPaint.setStyle(Style.STROKE);
-
         mCarInfoPaint.setColor(Color.BLACK);
         mCarInfoPaint.setAntiAlias(true);
-        mCarInfoPaint.setStyle(Style.STROKE);
-        mCarInfoPaint.setTextAlign(Align.CENTER);
+        mCarInfoPaint.setStyle(Paint.Style.STROKE);
+        mCarInfoPaint.setTextAlign(Paint.Align.CENTER);
         mCarHardwareExecutor = ContextCompat.getMainExecutor(mCarContext);
-
-        lifecycle.addObserver(this);
     }
 
-    /** Callback called when the car configuration changes. */
-    public void onCarConfigurationChanged() {
-        renderFrame();
-    }
-
-    /** Tells the renderer whether to subscribe and show car hardware information. */
-    public void setCarHardwareSurfaceRendererEnabledState(boolean isEnabled) {
-        if (isEnabled == mShowCarHardwareSurfaceInfo) {
-            return;
-        }
+    @Override
+    public void enable(@NonNull Runnable onChangeListener) {
+        mRequestRenderRunnable = onChangeListener;
         CarHardwareManager carHardwareManager =
                 mCarContext.getCarService(CarHardwareManager.class);
         CarInfo carInfo = carHardwareManager.getCarInfo();
         CarSensors carSensors = carHardwareManager.getCarSensors();
-        if (isEnabled) {
-            // Request any single shot values.
-            mModel = null;
-            try {
-                carInfo.fetchModel(mCarHardwareExecutor, mModelListener);
-                mHasModelPermission = true;
-            } catch (SecurityException e) {
-                mHasModelPermission = false;
-            }
 
-            mEnergyProfile = null;
-            try {
-                carInfo.fetchModel(mCarHardwareExecutor, mModelListener);
-                mHasEnergyProfilePermission = true;
-            } catch (SecurityException e) {
-                mHasEnergyProfilePermission = false;
-            }
-            carInfo.fetchEnergyProfile(mCarHardwareExecutor, mEnergyProfileListener);
-
-            // Request car info subscription items.
-            mTollCard = null;
-            try {
-                carInfo.fetchModel(mCarHardwareExecutor, mModelListener);
-                mHasTollCardPermission = true;
-            } catch (SecurityException e) {
-                mHasTollCardPermission = false;
-            }
-            carInfo.addTollListener(mCarHardwareExecutor, mTollListener);
-
-            mEnergyLevel = null;
-            try {
-                carInfo.addEnergyLevelListener(mCarHardwareExecutor, mEnergyLevelListener);
-                mHasEnergyLevelPermission = true;
-            } catch (SecurityException e) {
-                mHasEnergyLevelPermission = false;
-            }
-
-            mSpeed = null;
-            try {
-                carInfo.addSpeedListener(mCarHardwareExecutor, mSpeedListener);
-                mHasSpeedPermission = true;
-            } catch (SecurityException e) {
-                mHasSpeedPermission = false;
-            }
-
-            mMileage = null;
-            try {
-                carInfo.addMileageListener(mCarHardwareExecutor, mMileageListener);
-                mHasMileagePermission = true;
-            } catch (SecurityException e) {
-                mHasMileagePermission = false;
-            }
-
-            // Request sensors
-            mCompass = null;
-            try {
-                carSensors.addCompassListener(CarSensors.UPDATE_RATE_NORMAL, mCarHardwareExecutor,
-                        mCompassListener);
-                mHasCompassPermission = true;
-            } catch (SecurityException e) {
-                mHasCompassPermission = false;
-            }
-
-            mGyroscope = null;
-            try {
-                carSensors.addGyroscopeListener(CarSensors.UPDATE_RATE_NORMAL, mCarHardwareExecutor,
-                        mGyroscopeListener);
-                mHasGyroscopePermission = true;
-            } catch (SecurityException e) {
-                mHasGyroscopePermission = false;
-            }
-
-            mAccelerometer = null;
-            try {
-                carSensors.addAccelerometerListener(CarSensors.UPDATE_RATE_NORMAL,
-                        mCarHardwareExecutor,
-                        mAccelerometerListener);
-                mHasAccelerometerPermission = true;
-            } catch (SecurityException e) {
-                mHasAccelerometerPermission = false;
-            }
-
-            mCarHardwareLocation = null;
-            try {
-                carSensors.addCarHardwareLocationListener(CarSensors.UPDATE_RATE_NORMAL,
-                        mCarHardwareExecutor, mCarLocationListener);
-                mHasCarHardwareLocationPermission = true;
-            } catch (SecurityException e) {
-                mHasCarHardwareLocationPermission = false;
-            }
-        } else {
-            try {
-                // Unsubscribe carinfo
-                carInfo.removeTollListener(mTollListener);
-                mHasTollCardPermission = true;
-            } catch (SecurityException e) {
-                mHasTollCardPermission = false;
-            }
-
-            mTollCard = null;
-            try {
-                carInfo.removeEnergyLevelListener(mEnergyLevelListener);
-                mHasEnergyLevelPermission = true;
-            } catch (SecurityException e) {
-                mHasEnergyLevelPermission = false;
-            }
-
-            mEnergyLevel = null;
-            try {
-                carInfo.removeSpeedListener(mSpeedListener);
-                mHasSpeedPermission = true;
-            } catch (SecurityException e) {
-                mHasSpeedPermission = false;
-            }
-
-            mSpeed = null;
-            try {
-                carInfo.removeMileageListener(mMileageListener);
-                mHasMileagePermission = true;
-            } catch (SecurityException e) {
-                mHasMileagePermission = false;
-            }
-
-            mMileage = null;
-            try {
-                // Unsubscribe sensors
-                carSensors.removeCompassListener(mCompassListener);
-                mHasCompassPermission = true;
-            } catch (SecurityException e) {
-                mHasCompassPermission = false;
-            }
-
-            mCompass = null;
-            try {
-                carSensors.removeGyroscopeListener(mGyroscopeListener);
-                mHasGyroscopePermission = true;
-            } catch (SecurityException e) {
-                mHasGyroscopePermission = false;
-            }
-
-            mGyroscope = null;
-            try {
-                carSensors.removeAccelerometerListener(mAccelerometerListener);
-                mHasAccelerometerPermission = true;
-            } catch (SecurityException e) {
-                mHasAccelerometerPermission = false;
-            }
-
-            mAccelerometer = null;
-            try {
-                carSensors.removeCarHardwareLocationListener(mCarLocationListener);
-                mHasCarHardwareLocationPermission = true;
-            } catch (SecurityException e) {
-                mHasCarHardwareLocationPermission = false;
-            }
-
-            mCarHardwareLocation = null;
+        // Request any single shot values.
+        mModel = null;
+        try {
+            carInfo.fetchModel(mCarHardwareExecutor, mModelListener);
+            mHasModelPermission = true;
+        } catch (SecurityException e) {
+            mHasModelPermission = false;
         }
-        mShowCarHardwareSurfaceInfo = isEnabled;
-        renderFrame();
+
+        mEnergyProfile = null;
+        try {
+            carInfo.fetchModel(mCarHardwareExecutor, mModelListener);
+            mHasEnergyProfilePermission = true;
+        } catch (SecurityException e) {
+            mHasEnergyProfilePermission = false;
+        }
+        carInfo.fetchEnergyProfile(mCarHardwareExecutor, mEnergyProfileListener);
+
+        // Request car info subscription items.
+        mTollCard = null;
+        try {
+            carInfo.fetchModel(mCarHardwareExecutor, mModelListener);
+            mHasTollCardPermission = true;
+        } catch (SecurityException e) {
+            mHasTollCardPermission = false;
+        }
+        carInfo.addTollListener(mCarHardwareExecutor, mTollListener);
+
+        mEnergyLevel = null;
+        try {
+            carInfo.addEnergyLevelListener(mCarHardwareExecutor, mEnergyLevelListener);
+            mHasEnergyLevelPermission = true;
+        } catch (SecurityException e) {
+            mHasEnergyLevelPermission = false;
+        }
+
+        mSpeed = null;
+        try {
+            carInfo.addSpeedListener(mCarHardwareExecutor, mSpeedListener);
+            mHasSpeedPermission = true;
+        } catch (SecurityException e) {
+            mHasSpeedPermission = false;
+        }
+
+        mMileage = null;
+        try {
+            carInfo.addMileageListener(mCarHardwareExecutor, mMileageListener);
+            mHasMileagePermission = true;
+        } catch (SecurityException e) {
+            mHasMileagePermission = false;
+        }
+
+        // Request sensors
+        mCompass = null;
+        try {
+            carSensors.addCompassListener(CarSensors.UPDATE_RATE_NORMAL, mCarHardwareExecutor,
+                    mCompassListener);
+            mHasCompassPermission = true;
+        } catch (SecurityException e) {
+            mHasCompassPermission = false;
+        }
+
+        mGyroscope = null;
+        try {
+            carSensors.addGyroscopeListener(CarSensors.UPDATE_RATE_NORMAL, mCarHardwareExecutor,
+                    mGyroscopeListener);
+            mHasGyroscopePermission = true;
+        } catch (SecurityException e) {
+            mHasGyroscopePermission = false;
+        }
+
+        mAccelerometer = null;
+        try {
+            carSensors.addAccelerometerListener(CarSensors.UPDATE_RATE_NORMAL,
+                    mCarHardwareExecutor,
+                    mAccelerometerListener);
+            mHasAccelerometerPermission = true;
+        } catch (SecurityException e) {
+            mHasAccelerometerPermission = false;
+        }
+
+        mCarHardwareLocation = null;
+        try {
+            carSensors.addCarHardwareLocationListener(CarSensors.UPDATE_RATE_NORMAL,
+                    mCarHardwareExecutor, mCarLocationListener);
+            mHasCarHardwareLocationPermission = true;
+        } catch (SecurityException e) {
+            mHasCarHardwareLocationPermission = false;
+        }
     }
 
     @Override
-    public void onCreate(@NonNull LifecycleOwner owner) {
-        Log.i(TAG, "SurfaceRenderer created");
-        mCarContext.getCarService(AppManager.class).setSurfaceCallback(mSurfaceCallback);
+    public void disable() {
+        mRequestRenderRunnable = null;
+        CarHardwareManager carHardwareManager =
+                mCarContext.getCarService(CarHardwareManager.class);
+        CarInfo carInfo = carHardwareManager.getCarInfo();
+        CarSensors carSensors = carHardwareManager.getCarSensors();
+
+        try {
+            // Unsubscribe carinfo
+            carInfo.removeTollListener(mTollListener);
+            mHasTollCardPermission = true;
+        } catch (SecurityException e) {
+            mHasTollCardPermission = false;
+        }
+
+        mTollCard = null;
+        try {
+            carInfo.removeEnergyLevelListener(mEnergyLevelListener);
+            mHasEnergyLevelPermission = true;
+        } catch (SecurityException e) {
+            mHasEnergyLevelPermission = false;
+        }
+
+        mEnergyLevel = null;
+        try {
+            carInfo.removeSpeedListener(mSpeedListener);
+            mHasSpeedPermission = true;
+        } catch (SecurityException e) {
+            mHasSpeedPermission = false;
+        }
+
+        mSpeed = null;
+        try {
+            carInfo.removeMileageListener(mMileageListener);
+            mHasMileagePermission = true;
+        } catch (SecurityException e) {
+            mHasMileagePermission = false;
+        }
+
+        mMileage = null;
+        try {
+            // Unsubscribe sensors
+            carSensors.removeCompassListener(mCompassListener);
+            mHasCompassPermission = true;
+        } catch (SecurityException e) {
+            mHasCompassPermission = false;
+        }
+
+        mCompass = null;
+        try {
+            carSensors.removeGyroscopeListener(mGyroscopeListener);
+            mHasGyroscopePermission = true;
+        } catch (SecurityException e) {
+            mHasGyroscopePermission = false;
+        }
+
+        mGyroscope = null;
+        try {
+            carSensors.removeAccelerometerListener(mAccelerometerListener);
+            mHasAccelerometerPermission = true;
+        } catch (SecurityException e) {
+            mHasAccelerometerPermission = false;
+        }
+
+        mAccelerometer = null;
+        try {
+            carSensors.removeCarHardwareLocationListener(mCarLocationListener);
+            mHasCarHardwareLocationPermission = true;
+        } catch (SecurityException e) {
+            mHasCarHardwareLocationPermission = false;
+        }
+
+        mCarHardwareLocation = null;
     }
 
-    void renderFrame() {
-        if (mSurface == null || !mSurface.isValid()) {
-            // Surface is not available, or has been destroyed, skip this frame.
-            return;
-        }
-        Canvas canvas = mSurface.lockCanvas(null);
-
-        // Clear the background.
-        canvas.drawColor(mCarContext.isDarkMode() ? Color.DKGRAY : Color.LTGRAY);
-
-        if (mShowCarHardwareSurfaceInfo) {
-            renderCarInfoFrame(canvas);
-        } else {
-            renderStandardFrame(canvas);
-        }
-        mSurface.unlockCanvasAndPost(canvas);
-
-    }
-
-    private void renderCarInfoFrame(Canvas canvas) {
-        Rect visibleArea = mVisibleArea;
+    @Override
+    public void renderFrame(@NonNull Canvas canvas, @Nullable Rect visibleArea,
+            @Nullable Rect stableArea) {
         if (visibleArea != null) {
             if (visibleArea.isEmpty()) {
                 // No inset set. The entire area is considered safe to draw.
@@ -692,6 +598,12 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         }
     }
 
+    private void requestRenderFrame() {
+        if (mRequestRenderRunnable != null) {
+            mRequestRenderRunnable.run();
+        }
+    }
+
     private void appendFloatList(StringBuilder builder, List<Float> values) {
         builder.append("[ ");
         for (Float value : values) {
@@ -699,59 +611,5 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
             builder.append(" ");
         }
         builder.append("]");
-    }
-
-    private void renderStandardFrame(Canvas canvas) {
-
-        // Draw a rectangle showing the inset.
-        Rect visibleArea = mVisibleArea;
-        if (visibleArea != null) {
-            if (visibleArea.isEmpty()) {
-                // No inset set. The entire area is considered safe to draw.
-                visibleArea.set(0, 0, canvas.getWidth() - 1, canvas.getHeight() - 1);
-            }
-
-            canvas.drawRect(visibleArea, mLeftInsetPaint);
-            canvas.drawLine(
-                    visibleArea.left,
-                    visibleArea.top,
-                    visibleArea.right,
-                    visibleArea.bottom,
-                    mLeftInsetPaint);
-            canvas.drawLine(
-                    visibleArea.right,
-                    visibleArea.top,
-                    visibleArea.left,
-                    visibleArea.bottom,
-                    mLeftInsetPaint);
-            canvas.drawText(
-                    "(" + visibleArea.left + " , " + visibleArea.top + ")",
-                    visibleArea.left + HORIZONTAL_TEXT_MARGIN,
-                    visibleArea.top + VERTICAL_TEXT_MARGIN_FROM_TOP,
-                    mLeftInsetPaint);
-            canvas.drawText(
-                    "(" + visibleArea.right + " , " + visibleArea.bottom + ")",
-                    visibleArea.right - HORIZONTAL_TEXT_MARGIN,
-                    visibleArea.bottom - VERTICAL_TEXT_MARGIN_FROM_BOTTOM,
-                    mRightInsetPaint);
-        } else {
-            Log.d(TAG, "Visible area not available.");
-        }
-
-        if (mStableArea != null) {
-            // Draw a cross-hairs at the stable center.
-            final int lengthPx = 15;
-            int centerX = mStableArea.centerX();
-            int centerY = mStableArea.centerY();
-            canvas.drawLine(centerX - lengthPx, centerY, centerX + lengthPx, centerY, mCenterPaint);
-            canvas.drawLine(centerX, centerY - lengthPx, centerX, centerY + lengthPx, mCenterPaint);
-            canvas.drawText(
-                    "(" + centerX + ", " + centerY + ")",
-                    centerX + HORIZONTAL_TEXT_MARGIN,
-                    centerY,
-                    mCenterPaint);
-        } else {
-            Log.d(TAG, "Stable area not available.");
-        }
     }
 }
