@@ -16,15 +16,14 @@
 
 package androidx.wear.compose.integration.demos
 
+import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.foundation.samples.SimpleCurvedRow
 
-/**
- * [DemoCategory] containing all the top level demo categories.
- */
-val WearComposeDemos = DemoCategory(
-    "Wear Compose Demos",
+val WearFoundationDemos = DemoCategory(
+    "Foundation",
     listOf(
-        WearFoundationDemos,
-        WearMaterialDemos,
-    )
+        ComposableDemo("CurvedRow") { CurvedRowDemo() },
+        ComposableDemo("Simple CurvedRow") { SimpleCurvedRow() },
+    ),
 )
