@@ -28,55 +28,99 @@ class MapQueryResultAdapter(
     private val valueTypeArg: XType,
     private val keyRowAdapter: RowAdapter,
     private val valueRowAdapter: RowAdapter,
+    private val valueCollectionType: XType?
 ) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)) {
-    private val listType = ParameterizedTypeName.get(
-        ClassName.get(List::class.java),
-        valueTypeArg.typeName
+    private val declaredToConcreteCollection = mapOf<ClassName, ClassName>(
+        ClassName.get(List::class.java) to ClassName.get(ArrayList::class.java),
+        ClassName.get(Set::class.java) to ClassName.get(HashSet::class.java)
     )
 
-    private val arrayListType = ParameterizedTypeName
-        .get(ClassName.get(ArrayList::class.java), valueTypeArg.typeName)
+    private val declaredValueType = if (valueCollectionType != null) {
+        ParameterizedTypeName.get(
+            valueCollectionType.typeElement?.className,
+            valueTypeArg.typeName
+        )
+    } else {
+        valueTypeArg.typeName
+    }
+
+    private val concreteValueType = if (valueCollectionType != null) {
+        ParameterizedTypeName.get(
+            declaredToConcreteCollection[valueCollectionType.typeElement?.className],
+            valueTypeArg.typeName
+        )
+    } else {
+        valueTypeArg.typeName
+    }
 
     private val mapType = ParameterizedTypeName.get(
         ClassName.get(Map::class.java),
         keyTypeArg.typeName,
-        listType
+        declaredValueType
     )
 
     private val hashMapType = ParameterizedTypeName.get(
         ClassName.get(HashMap::class.java),
         keyTypeArg.typeName,
-        listType
+        declaredValueType
     )
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
             keyRowAdapter.onCursorReady(cursorVarName, scope)
             valueRowAdapter.onCursorReady(cursorVarName, scope)
-            addStatement(
-                "final $T $L = new $T()",
-                mapType, outVarName, hashMapType
-            )
+
+            val mapVarName = outVarName
+            addStatement("final $T $L = new $T()", mapType, mapVarName, hashMapType)
+
             val tmpKeyVarName = scope.getTmpVar("_key")
             val tmpValueVarName = scope.getTmpVar("_value")
             beginControlFlow("while ($L.moveToNext())", cursorVarName).apply {
                 addStatement("final $T $L", keyTypeArg.typeName, tmpKeyVarName)
                 keyRowAdapter.convert(tmpKeyVarName, cursorVarName, scope)
 
-                addStatement("final $T $L", valueTypeArg.typeName, tmpValueVarName)
-                valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
+                // If valueCollectionType is null, this means that we have a 1-to-1 mapping, as
+                // opposed to a 1-to-many mapping.
+                if (valueCollectionType != null) {
+                    addStatement("final $T $L", valueTypeArg.typeName, tmpValueVarName)
+                    valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
+                    val tmpCollectionVarName = scope.getTmpVar("_values")
+                    addStatement("$T $L", declaredValueType, tmpCollectionVarName)
+                    beginControlFlow("if ($L.containsKey($L))", mapVarName, tmpKeyVarName).apply {
+                        addStatement(
+                            "$L = $L.get($L)",
+                            tmpCollectionVarName,
+                            mapVarName,
+                            tmpKeyVarName
+                        )
+                    }
+                    nextControlFlow("else").apply {
+                        addStatement("$L = new $T()", tmpCollectionVarName, concreteValueType)
+                        addStatement(
+                            "$L.put($L, $L)",
+                            mapVarName,
+                            tmpKeyVarName,
+                            tmpCollectionVarName
+                        )
+                    }
+                    endControlFlow()
+                    addStatement("$L.add($L)", tmpCollectionVarName, tmpValueVarName)
+                } else {
+                    addStatement(
+                        "final $T $L",
+                        valueTypeArg.typeElement?.className,
+                        tmpValueVarName
+                    )
+                    valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
 
-                val tmpListVarName = scope.getTmpVar("_values")
-                addStatement("$T $L", listType, tmpListVarName)
-                beginControlFlow("if ($L.containsKey($L))", outVarName, tmpKeyVarName).apply {
-                    addStatement("$L = $L.get($L)", tmpListVarName, outVarName, tmpKeyVarName)
+                    // For consistency purposes, in the one-to-one object mapping case, if
+                    // multiple values are encountered for the same key, we will only consider
+                    // the first ever encountered mapping.
+                    beginControlFlow("if (!$L.containsKey($L))", mapVarName, tmpKeyVarName).apply {
+                        addStatement("$L.put($L, $L)", mapVarName, tmpKeyVarName, tmpValueVarName)
+                    }
+                    endControlFlow()
                 }
-                nextControlFlow("else").apply {
-                    addStatement("$L = new $T()", tmpListVarName, arrayListType)
-                    addStatement("$L.put($L, $L)", outVarName, tmpKeyVarName, tmpListVarName)
-                }
-                endControlFlow()
-                addStatement("$L.add($L)", tmpListVarName, tmpValueVarName)
             }
             endControlFlow()
             keyRowAdapter.onCursorFinished()?.invoke(scope)

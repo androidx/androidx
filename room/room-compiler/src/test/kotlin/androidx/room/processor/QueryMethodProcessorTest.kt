@@ -73,8 +73,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 package foo.bar;
                 import androidx.annotation.NonNull;
                 import androidx.room.*;
-                import java.util.Map;
-                import java.util.List;
+                import java.util.*;
                 @Dao
                 abstract class MyClass {
                 """
@@ -1324,6 +1323,22 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             val parsedQuery = parser.process()
             @Suppress("UNCHECKED_CAST")
             handler(parsedQuery as T, invocation)
+        }
+    }
+
+    @Test
+    fun testInvalidLinkedListCollectionInMultimapJoin() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("select * from User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<User, LinkedList<Book>> getInvalidCollectionMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(2)
+                hasErrorContaining("Multimap 'value' collection type must be a List or Set.")
+                hasErrorContaining("Not sure how to convert a Cursor to this method's return type")
+            }
         }
     }
 }
