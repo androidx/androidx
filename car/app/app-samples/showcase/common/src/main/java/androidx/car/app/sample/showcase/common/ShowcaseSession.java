@@ -33,8 +33,9 @@ import androidx.car.app.Session;
 import androidx.car.app.sample.showcase.common.misc.RequestPermissionScreen;
 import androidx.car.app.sample.showcase.common.misc.ResultDemoScreen;
 import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationsDemoScreen;
-import androidx.car.app.sample.showcase.common.navigation.SurfaceRenderer;
 import androidx.car.app.sample.showcase.common.navigation.routing.NavigatingDemoScreen;
+import androidx.car.app.sample.showcase.common.renderer.Renderer;
+import androidx.car.app.sample.showcase.common.renderer.SurfaceController;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -45,14 +46,14 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
     static final String URI_HOST = "showcase";
 
     @Nullable
-    private SurfaceRenderer mRenderer;
+    private SurfaceController mSurfaceController;
 
     @NonNull
     @Override
     public Screen onCreateScreen(@NonNull Intent intent) {
         Lifecycle lifecycle = getLifecycle();
         lifecycle.addObserver(this);
-        mRenderer = new SurfaceRenderer(getCarContext(), lifecycle);
+        mSurfaceController = new SurfaceController(getCarContext(), lifecycle);
 
         if (CarContext.ACTION_NAVIGATE.equals(intent.getAction())) {
             // Handle the navigation Intent by pushing first the "home" screen onto the stack, then
@@ -144,13 +145,13 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
 
     @Override
     public void onCarConfigurationChanged(@NonNull Configuration configuration) {
-        if (mRenderer != null) {
-            mRenderer.onCarConfigurationChanged();
+        if (mSurfaceController != null) {
+            mSurfaceController.onCarConfigurationChanged();
         }
     }
 
-    /** Tells the session whether to update the renderer to show car hardware information. */
-    public void setCarHardwareSurfaceRendererEnabledState(boolean isEnabled) {
-        mRenderer.setCarHardwareSurfaceRendererEnabledState(isEnabled);
+    /** Tells the session whether to override the default renderer. */
+    public void overrideRenderer(@Nullable Renderer renderer) {
+        mSurfaceController.overrideRenderer(renderer);
     }
 }
