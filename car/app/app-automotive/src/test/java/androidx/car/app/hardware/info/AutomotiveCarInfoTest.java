@@ -52,6 +52,7 @@ import android.car.hardware.property.CarPropertyManager;
 
 import androidx.car.app.hardware.common.CarPropertyResponse;
 import androidx.car.app.hardware.common.CarUnit;
+import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 import androidx.car.app.hardware.common.OnCarPropertyResponseListener;
 import androidx.car.app.hardware.common.PropertyManager;
@@ -197,8 +198,9 @@ public class AutomotiveCarInfoTest {
         assertThat(mileage.getDistanceDisplayUnit().getValue()).isEqualTo(2);
     }
 
+    @Config(minSdk = 31)
     @Test
-    public void getTollCard_verifyResponse() throws InterruptedException {
+    public void getTollCard_verifyResponseApi31() throws InterruptedException {
         AtomicReference<TollCard> loadedResult = new AtomicReference<>();
         OnCarDataAvailableListener<TollCard> listener = (data) -> {
             loadedResult.set(data);
@@ -220,6 +222,20 @@ public class AutomotiveCarInfoTest {
 
         TollCard tollCard = loadedResult.get();
         assertThat(tollCard.getCardState().getValue()).isEqualTo(TollCard.TOLLCARD_STATE_VALID);
+    }
+
+    @Config(minSdk = 30)
+    @Test
+    public void getTollCard_verifyResponseApi30() {
+        AtomicReference<TollCard> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<TollCard> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+        mAutomotiveCarInfo.addTollListener(mExecutor, listener);
+
+        TollCard tollCard = loadedResult.get();
+        assertThat(tollCard.getCardState().getStatus()).isEqualTo(CarValue.STATUS_UNIMPLEMENTED);
     }
 
     @Test

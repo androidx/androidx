@@ -34,10 +34,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import android.car.VehiclePropertyIds;
+import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.hardware.common.CarPropertyResponse;
@@ -83,13 +86,12 @@ public class AutomotiveCarInfo implements CarInfo {
     public static final int TOLL_CARD_STATUS_ID = 289410874;
 
     // VEHICLE_SPEED_DISPLAY_UNIT in VehiclePropertyIds. The property is added after Android Q.
-    // TODO(192383417) check the compile SDK
     public static final int SPEED_DISPLAY_UNIT_ID = 289408516;
 
     private static final float UNKNOWN_CAPACITY = Float.NEGATIVE_INFINITY;
     private static final List<Integer> MILEAGE_REQUEST =
             Arrays.asList(PERF_ODOMETER, DISTANCE_DISPLAY_UNITS);
-    private static final List<Integer> TOLL_REQUEST =
+    static final List<Integer> TOLL_REQUEST =
             Collections.singletonList(TOLL_CARD_STATUS_ID);
     private static final List<Integer> SPEED_REQUEST =
             Arrays.asList(VehiclePropertyIds.PERF_VEHICLE_SPEED,
@@ -140,15 +142,25 @@ public class AutomotiveCarInfo implements CarInfo {
     @Override
     public void addTollListener(@NonNull Executor executor,
             @NonNull OnCarDataAvailableListener<TollCard> listener) {
-        TollListener tollListener = new TollListener(listener, executor);
-        mPropertyManager.submitRegisterListenerRequest(TOLL_REQUEST, DEFAULT_SAMPLE_RATE,
-                tollListener, executor);
-        mListenerMap.put(listener, tollListener);
+        if (Build.VERSION.SDK_INT > 30) {
+            Api31Impl.addTollListener(executor, listener, mPropertyManager, mListenerMap);
+        } else {
+            TollCard unimplementedTollCard = new TollCard.Builder()
+                    .setCardState(CarValue.UNIMPLEMENTED_INTEGER).build();
+            executor.execute(() -> listener.onCarDataAvailable(unimplementedTollCard));
+        }
     }
 
     @Override
     public void removeTollListener(@NonNull OnCarDataAvailableListener<TollCard> listener) {
-        removeListenerImpl(listener);
+        OnCarPropertyResponseListener responseListener = mListenerMap.remove(listener);
+        if (responseListener == null) {
+            Log.d(LogTags.TAG_CAR_HARDWARE, "Listener is not registered yet");
+            return;
+        }
+        if (Build.VERSION.SDK_INT > 30) {
+            Api31Impl.removeTollListener(responseListener, mPropertyManager);
+        }
     }
 
     @Override
@@ -330,6 +342,25 @@ public class AutomotiveCarInfo implements CarInfo {
                 Thread.currentThread().interrupt();
             }
         }, executor);
+    }
+
+    @RequiresApi(31)
+    private static class Api31Impl {
+        @DoNotInline
+        static void addTollListener(Executor executor,
+                OnCarDataAvailableListener<TollCard> listener, PropertyManager propertyManager,
+                Map<OnCarDataAvailableListener<?>, OnCarPropertyResponseListener> listenerMap) {
+            TollListener tollListener = new TollListener(listener, executor);
+            propertyManager.submitRegisterListenerRequest(TOLL_REQUEST, DEFAULT_SAMPLE_RATE,
+                    tollListener, executor);
+            listenerMap.put(listener, tollListener);
+        }
+
+        @DoNotInline
+        static void removeTollListener(OnCarPropertyResponseListener listener,
+                PropertyManager propertyManager) {
+            propertyManager.submitUnregisterListenerRequest(listener);
+        }
     }
 
     private void removeListenerImpl(OnCarDataAvailableListener<?> listener) {
