@@ -24,7 +24,7 @@ else
 fi
 
 TOOLS_DIR=$STUDIO_DIR/tools
-gw=$TOOLS_DIR/gradlew
+gw="$TOOLS_DIR/gradlew -Dorg.gradle.jvmargs=-Xmx24g"
 
 function buildStudio() {
   STUDIO_BUILD_LOG="$OUT_DIR/studio.log"
