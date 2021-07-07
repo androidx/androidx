@@ -18,6 +18,7 @@ package androidx.benchmark.junit4
 
 import androidx.annotation.CallSuper
 import androidx.benchmark.IsolationActivity
+import androidx.benchmark.Shell
 import androidx.test.runner.AndroidJUnitRunner
 
 /**
@@ -63,9 +64,14 @@ import androidx.test.runner.AndroidJUnitRunner
  */
 @Suppress("unused") // Note: not referenced by code
 public open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
-
     @CallSuper
     override fun waitForActivitiesToComplete() {
+        // IsolationActivity may lazily use UiAutomation to access [CpuInfo.locked] on the UI
+        // thread, which on some platform versions (observed locally and in CI on API 26) can cause
+        // UiAutomation to fail to connect if that's the first use. To prevent that, initialize
+        // here, before the main thread. See also b/193064052
+        Shell.connectUiAutomation()
+
         // We don't call the super method here, since we have
         // an activity we intend to persist between tests
         // TODO: somehow wait for every activity but IsolationActivity
