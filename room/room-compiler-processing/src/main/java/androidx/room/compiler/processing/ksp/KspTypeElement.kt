@@ -110,8 +110,12 @@ internal sealed class KspTypeElement(
                     containing = this
                 )
             }.let {
-                // only order instance fields, we don't care about the order of companion fields.
-                KspClassFileUtility.orderFields(declaration, it.toList())
+                // only order instance properties with backing fields, we don't care about the order
+                // of companion properties or properties without backing fields.
+                val (withBackingField, withoutBackingField) = it.partition {
+                    it.declaration.hasBackingField
+                }
+                KspClassFileUtility.orderFields(declaration, withBackingField) + withoutBackingField
             }
 
         val companionProperties = declaration
@@ -128,6 +132,12 @@ internal sealed class KspTypeElement(
                 )
             }
         declaredProperties + companionProperties
+    }
+
+    private val _declaredFields by lazy {
+        _declaredProperties.filter {
+            it.declaration.hasBackingField
+        }
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
@@ -152,6 +162,17 @@ internal sealed class KspTypeElement(
                             // KAPT does not generate methods for privates, KSP does so we filter
                             // them out.
                             it.modifiers.contains(Modifier.PRIVATE)
+                        }
+                        .filter {
+                            if (field.isStatic()) {
+                                // static fields are the properties that are coming from the
+                                // companion. Whether we'll generate method for it or not depends on
+                                // the JVMStatic annotation
+                                it.hasJvmStaticAnnotation() ||
+                                    field.declaration.hasJvmStaticAnnotation()
+                            } else {
+                                true
+                            }
                         }
                         .map { accessor ->
                             KspSyntheticPropertyMethodElement.create(
@@ -205,14 +226,6 @@ internal sealed class KspTypeElement(
         return !isInterface() && !declaration.isOpen()
     }
 
-    private val _declaredFields by lazy {
-        if (declaration.classKind == ClassKind.INTERFACE) {
-            _declaredProperties.filter { it.isStatic() }
-        } else {
-            _declaredProperties.filter { !it.isAbstract() }
-        }
-    }
-
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
     }
@@ -232,9 +245,11 @@ internal sealed class KspTypeElement(
             .filterNot { it.isConstructor() }
         val companionMethods = declaration.findCompanionObject()
             ?.getDeclaredFunctions()
-            ?.asSequence()
+            ?.filterNot {
+                it.isConstructor()
+            }
             ?.filter {
-                it.isStatic()
+                it.hasJvmStaticAnnotation()
             } ?: emptySequence()
         val declaredMethods = (instanceMethods + companionMethods)
             .filterNot {
