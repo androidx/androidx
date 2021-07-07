@@ -815,6 +815,9 @@ encourages them -- through Lint warnings -- to migrate elsewhere. This is
 accomplished by adding a `@Deprecated` and `@deprecated` (with migration
 comment) annotation pair to *every* class and interface in the artifact.
 
+Entire packages (including Kotlin) can be deprecated by using a
+`package-info.java` file and applying the `@Deprecated` annotation there.
+
 The fully-deprecated artifact will be released as a deprecation release -- it
 will ship normally with accompanying release notes indicating the reason for
 deprecation and migration strategy, and it will be the last version of the
