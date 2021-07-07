@@ -151,18 +151,19 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
         /**
          * Creates a new instance which wraps the given image.
          *
-         * @param image               to wrap
-         * @param nonBlockingAnalyzer instance of the nonblocking analyzer
+         * @param image  image proxy to wrap.
+         * @param nonBlockingAnalyzer instance of the nonblocking analyzer.
          */
-        CacheAnalyzingImageProxy(ImageProxy image,
-                ImageAnalysisNonBlockingAnalyzer nonBlockingAnalyzer) {
+        CacheAnalyzingImageProxy(@NonNull ImageProxy image,
+                @NonNull ImageAnalysisNonBlockingAnalyzer nonBlockingAnalyzer) {
             super(image);
             mNonBlockingAnalyzerWeakReference = new WeakReference<>(nonBlockingAnalyzer);
 
             addOnImageCloseListener((imageProxy) -> {
                 ImageAnalysisNonBlockingAnalyzer analyzer = mNonBlockingAnalyzerWeakReference.get();
                 if (analyzer != null) {
-                    analyzer.mBackgroundExecutor.execute(analyzer::analyzeCachedImage);
+                    analyzer.mBackgroundExecutor.execute(
+                            () -> analyzer.analyzeCachedImage());
                 }
             });
         }

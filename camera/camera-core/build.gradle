@@ -35,6 +35,7 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.lifecycle:lifecycle-common:2.1.0")
     implementation(libs.autoValueAnnotations)
+    compileOnly(project(":external:libyuv"))
 
     annotationProcessor(libs.autoValue)
 
@@ -64,9 +65,39 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-truth"))
 }
 
+// Needed for the above compileOnly(project(':external:libyuv')) dep to work around b/194735614
+afterEvaluate {
+    tasks.named("configureCMakeDebug").configure {
+        dependsOn(":external:libyuv:prefabDebugPackage")
+    }
+
+    tasks.named("configureCMakeRelWithDebInfo").configure {
+        dependsOn(":external:libyuv:prefabReleasePackage")
+    }
+}
+
 android {
     defaultConfig {
         minSdkVersion 21
+        externalNativeBuild {
+            def versionScript = file("src/main/cpp/jni.lds").getAbsolutePath()
+            cmake {
+                cppFlags "-std=c++17", "-O3", "-flto", "-fPIC", "-fno-exceptions", "-fno-rtti",
+                        "-fomit-frame-pointer", "-fdata-sections", "-ffunction-sections"
+                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON",
+                        "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--gc-sections " +
+                                "-Wl,--version-script=${versionScript}"
+            }
+        }
+    }
+
+    buildFeatures.prefab = true
+
+    externalNativeBuild {
+        cmake {
+            version "3.10.2"
+            path "src/main/cpp/CMakeLists.txt"
+        }
     }
 
     // Use Robolectric 4.+
