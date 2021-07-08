@@ -83,12 +83,14 @@ class ProcessingImageReaderDeviceTest {
 
     @Test
     fun processesImage_whenImageInBundleEnqueued() = runBlocking {
-        val processingImageReader = ProcessingImageReader(
-            640, 480,
-            ImageFormat.YUV_420_888, 2,
-            CameraXExecutors.mainThreadExecutor(), mCaptureBundle,
+        val processingImageReader = ProcessingImageReader.Builder(
+            640,
+            480,
+            ImageFormat.YUV_420_888,
+            2,
+            mCaptureBundle,
             mProcessor
-        )
+        ).build()
 
         val job = async {
             suspendCoroutine<ImageProxy?> { cont ->
