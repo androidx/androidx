@@ -686,6 +686,82 @@ class XTypeElementTest {
     }
 
     @Test
+    fun diamondOverride() {
+        fun buildSrc(pkg: String) = Source.kotlin(
+            "Foo.kt",
+            """
+            package $pkg;
+            interface Parent<T> {
+                fun parent(t: T)
+            }
+
+            interface Child1<T> : Parent<T> {
+                fun child1(t: T)
+            }
+
+            interface Child2<T> : Parent<T> {
+                fun child2(t: T)
+            }
+
+            abstract class Subject1 : Child1<String>, Child2<String>, Parent<String>
+            abstract class Subject2 : Child1<String>, Parent<String>
+            abstract class Subject3 : Child1<String>, Parent<String> {
+                abstract override fun parent(t: String)
+            }
+            """.trimIndent()
+        )
+
+        runProcessorTest(
+            sources = listOf(buildSrc("app")),
+            classpath = compileFiles(listOf(buildSrc("lib")))
+        ) { invocation ->
+            listOf("lib", "app").forEach { pkg ->
+                val objectMethodNames = invocation.processingEnv.requireTypeElement(Any::class)
+                    .getAllMethods().names()
+
+                fun XMethodElement.signature(
+                    owner: XType
+                ): String {
+                    val methodType = this.asMemberOf(owner)
+                    val params = methodType.parameterTypes.joinToString(",") {
+                        it.typeName.toString()
+                    }
+                    return "$name($params):${returnType.typeName}"
+                }
+
+                fun XTypeElement.allMethodSignatures(): List<String> = getAllMethods().filterNot {
+                    it.name in objectMethodNames
+                }.map { it.signature(this.type) }.toList()
+                invocation.processingEnv.requireTypeElement("$pkg.Subject1").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        subject.allMethodSignatures()
+                    ).containsExactly(
+                        "child1(java.lang.String):void",
+                        "child2(java.lang.String):void",
+                        "parent(java.lang.String):void",
+                    )
+                }
+                invocation.processingEnv.requireTypeElement("$pkg.Subject2").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        subject.allMethodSignatures()
+                    ).containsExactly(
+                        "child1(java.lang.String):void",
+                        "parent(java.lang.String):void",
+                    )
+                }
+                invocation.processingEnv.requireTypeElement("$pkg.Subject3").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        subject.allMethodSignatures()
+                    ).containsExactly(
+                        "child1(java.lang.String):void",
+                        "parent(java.lang.String):void",
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
     fun allMethods() {
         val src = Source.kotlin(
             "Foo.kt",

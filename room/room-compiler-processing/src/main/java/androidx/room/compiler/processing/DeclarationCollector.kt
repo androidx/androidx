@@ -158,7 +158,13 @@ internal fun collectAllMethods(
                     (candidate.enclosingElement as? XTypeElement)?.isInterface() == true ->
                     false
                 // accept if not overridden
-                else -> existing.none { it.overrides(candidate, xTypeElement) }
+                else -> existing.none {
+                    // we might see the same method twice due to diamond inheritance so we need
+                    // check for equals in addition to overrides
+                    // note that this is OK to check because you cannot implement the same interface
+                    // twice with different type parameters (due to erasure).
+                    it == candidate || it.overrides(candidate, xTypeElement)
+                }
             }
         },
         getCandidateDeclarations = XTypeElement::getAllMethods,
