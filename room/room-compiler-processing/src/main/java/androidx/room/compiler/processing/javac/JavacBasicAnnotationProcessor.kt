@@ -38,21 +38,7 @@ abstract class JavacBasicAnnotationProcessor :
     private var cachedXEnv: JavacProcessingEnv? = null
 
     final override fun steps(): Iterable<Step> {
-        val delegatingSteps = processingSteps().map { DelegatingStep(it) }
-        val initializingStep = InitializingStep(delegatingSteps)
-        return mutableListOf<Step>(initializingStep) + delegatingSteps
-    }
-
-    /** A step that initializes the state before every processing round.  */
-    private inner class InitializingStep(val delegatingSteps: Iterable<DelegatingStep>) : Step {
-        override fun annotations() = delegatingSteps.flatMap { it.annotations() }.toSet()
-
-        override fun process(
-            elementsByAnnotation: ImmutableSetMultimap<String, Element>
-        ): Set<Element> {
-            cachedXEnv = JavacProcessingEnv(processingEnv)
-            return emptySet()
-        }
+        return processingSteps().map { DelegatingStep(it) }
     }
 
     /** A [Step] that delegates to an [XProcessingStep]. */
@@ -62,7 +48,10 @@ abstract class JavacBasicAnnotationProcessor :
         override fun process(
             elementsByAnnotation: ImmutableSetMultimap<String, Element>
         ): Set<Element> {
-            val xEnv = checkNotNull(cachedXEnv)
+            // The first step in a round initializes the cachedXEnv. Note: the "first" step can
+            // change each round depending on which annotations are present in the current round and
+            // which elements were deferred in the previous round.
+            val xEnv = cachedXEnv ?: JavacProcessingEnv(processingEnv)
             val xElementsByAnnotation = mutableMapOf<String, Set<XElement>>()
             xStep.annotations().forEach { annotation ->
                 xElementsByAnnotation[annotation] =
