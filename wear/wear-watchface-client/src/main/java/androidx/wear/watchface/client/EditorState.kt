@@ -16,7 +16,9 @@
 
 package androidx.wear.watchface.client
 
+import android.graphics.Bitmap
 import android.os.Build
+import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.data.ComplicationData
@@ -63,6 +65,11 @@ public class WatchFaceId(public val id: String) {
  * the session). If it's not committed then any changes (E.g. complication data source changes)
  * should  be abandoned. There's no need to resend the style to the watchface because the library
  * will have restored the previous style.
+ * @param previewImage If `non-null` this [Bitmap] contains a preview image of the watch face
+ * rendered with the final style and complications and the
+ * [androidx.wear.watchface.editor.PreviewScreenshotParams] specified in the
+ * [androidx.wear.watchface.editor.EditorRequest]. If [shouldCommitChanges] is `false` then this
+ * will also be `null` (see implementation of [androidx.wear.watchface.editor.EditorSession.close]).
  */
 public class EditorState internal constructor(
     @RequiresApi(Build.VERSION_CODES.R)
@@ -70,13 +77,14 @@ public class EditorState internal constructor(
     public val userStyle: UserStyleData,
     public val previewComplicationsData: Map<Int, ComplicationData>,
     @get:JvmName("shouldCommitChanges")
-    public val shouldCommitChanges: Boolean
+    public val shouldCommitChanges: Boolean,
+    public val previewImage: Bitmap?
 ) {
     override fun toString(): String =
         "{watchFaceId: ${watchFaceId.id}, userStyle: $userStyle" +
             ", previewComplicationsData: [" +
             previewComplicationsData.map { "${it.key} -> ${it.value}" }.joinToString() +
-            "], shouldCommitChanges: $shouldCommitChanges}"
+            "], shouldCommitChanges: $shouldCommitChanges, previewImage: ${previewImage != null}"
 }
 
 /** @hide */
@@ -89,6 +97,13 @@ public fun EditorStateWireFormat.asApiEditorState(): EditorState {
             { it.id },
             { it.complicationData.toApiComplicationData() }
         ),
-        commitChanges
+        commitChanges,
+        previewImageBundle?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                SharedMemoryImage.ashmemReadImageBundle(it)
+            } else {
+                null
+            }
+        }
     )
 }

@@ -332,10 +332,11 @@ package androidx.wear.watchface.data {
 package androidx.wear.watchface.editor.data {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public final class EditorStateWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public EditorStateWireFormat(String?, androidx.wear.watchface.style.data.UserStyleWireFormat, java.util.List<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!>, boolean);
+    ctor public EditorStateWireFormat(String?, androidx.wear.watchface.style.data.UserStyleWireFormat, java.util.List<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!>, boolean, android.os.Bundle?);
     method public int describeContents();
     method public boolean getCommitChanges();
     method public java.util.List<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!> getPreviewComplicationData();
+    method public android.os.Bundle? getPreviewImageBundle();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat getUserStyle();
     method public String? getWatchFaceInstanceId();
     method public void writeToParcel(android.os.Parcel, int);

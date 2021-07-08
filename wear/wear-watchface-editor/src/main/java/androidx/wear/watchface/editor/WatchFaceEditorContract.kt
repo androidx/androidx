@@ -24,12 +24,14 @@ import android.content.Intent
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RequiresApi
+import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.EditorServiceClient
 import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.client.asApiDeviceConfig
+import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import kotlinx.coroutines.TimeoutCancellationException
@@ -37,10 +39,24 @@ import kotlinx.coroutines.TimeoutCancellationException
 internal const val INSTANCE_ID_KEY: String = "INSTANCE_ID_KEY"
 internal const val COMPONENT_NAME_KEY: String = "COMPONENT_NAME_KEY"
 internal const val HEADLESS_DEVICE_CONFIG_KEY: String = "HEADLESS_DEVICE_CONFIG_KEY"
+internal const val RENDER_PARAMETERS_KEY: String = "RENDER_PARAMETERS_KEY"
+internal const val RENDER_TIME_MILLIS_KEY: String = "RENDER_TIME_MILLIS_KEY"
 internal const val USER_STYLE_KEY: String = "USER_STYLE_KEY"
 internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
 
 typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
+
+/**
+ * Parameters for an optional final screenshot taken by [EditorSession] upon exit and reported via
+ * [EditorState].
+ *
+ * @param renderParameters The [RenderParameters] to use when rendering the screen shot
+ * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
+ */
+public class PreviewScreenshotParams(
+    public val renderParameters: RenderParameters,
+    public val calendarTimeMillis: Long
+)
 
 /**
  * The request sent by [WatchFaceEditorContract.createIntent].
@@ -55,6 +71,9 @@ typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
  * @param headlessDeviceConfig If `non-null` then this is the [DeviceConfig] to use when creating
  * a headless instance to back the [EditorSession]. If `null` then the current interactive instance
  * will be used. If there isn't one then the [EditorSession] won't launch until it's been created.
+ * @param previewScreenshotParams If `non-null` then [EditorSession] upon
+ * closing will render a screenshot with [PreviewScreenshotParams] using the existing interactive
+ * or headless instance which will be sent in [EditorState] to any registered clients.
  */
 public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
     public val watchFaceComponentName: ComponentName,
@@ -64,7 +83,8 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
     @get:RequiresApi(Build.VERSION_CODES.R)
     @RequiresApi(Build.VERSION_CODES.R)
     public val watchFaceId: WatchFaceId,
-    public val headlessDeviceConfig: DeviceConfig?
+    public val headlessDeviceConfig: DeviceConfig?,
+    public val previewScreenshotParams: PreviewScreenshotParams?
 ) {
     /**
      * Constructs an [EditorRequest] without a [WatchFaceId]. This is for use pre-android R.
@@ -85,6 +105,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
         editorPackageName,
         initialUserStyle,
         WatchFaceId(""),
+        null,
         null
     )
 
@@ -97,37 +118,33 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
         @SuppressLint("NewApi")
         @JvmStatic
         @Throws(TimeoutCancellationException::class)
-        public fun createFromIntent(intent: Intent): EditorRequest {
-            val componentName =
-                intent.getParcelableExtra<ComponentName>(COMPONENT_NAME_KEY)!!
-            val editorPackageName = intent.getPackage() ?: ""
-            val instanceId = WatchFaceId(intent.getStringExtra(INSTANCE_ID_KEY) ?: "")
-            val userStyleKey = intent.getStringArrayExtra(USER_STYLE_KEY)
-            val deviceConfig = intent.getParcelableExtra<WireDeviceConfig>(
+        public fun createFromIntent(intent: Intent): EditorRequest = EditorRequest(
+            watchFaceComponentName = intent.getParcelableExtra<ComponentName>(COMPONENT_NAME_KEY)!!,
+            editorPackageName = intent.getPackage() ?: "",
+            initialUserStyle = intent.getStringArrayExtra(USER_STYLE_KEY)?.let {
+                UserStyleData(
+                    HashMap<String, ByteArray>().apply {
+                        for (i in it.indices) {
+                            val userStyleValue =
+                                intent.getByteArrayExtra(USER_STYLE_VALUES + i)!!
+                            put(it[i], userStyleValue)
+                        }
+                    }
+                )
+            },
+            watchFaceId = WatchFaceId(intent.getStringExtra(INSTANCE_ID_KEY) ?: ""),
+            headlessDeviceConfig = intent.getParcelableExtra<WireDeviceConfig>(
                 HEADLESS_DEVICE_CONFIG_KEY
-            )?.asApiDeviceConfig()
-            return componentName.let {
-                if (userStyleKey != null) {
-                    EditorRequest(
-                        componentName,
-                        editorPackageName,
-                        UserStyleData(
-                            HashMap<String, ByteArray>().apply {
-                                for (i in userStyleKey.indices) {
-                                    val userStyleValue =
-                                        intent.getByteArrayExtra(USER_STYLE_VALUES + i)!!
-                                    put(userStyleKey[i], userStyleValue)
-                                }
-                            }
-                        ),
-                        instanceId,
-                        deviceConfig
-                    )
-                } else {
-                    EditorRequest(componentName, editorPackageName, null, instanceId, deviceConfig)
-                }
+            )?.asApiDeviceConfig(),
+            previewScreenshotParams = intent.getParcelableExtra<RenderParametersWireFormat>(
+                RENDER_PARAMETERS_KEY
+            )?.let {
+                PreviewScreenshotParams(
+                    RenderParameters(it),
+                    intent.getLongExtra(RENDER_TIME_MILLIS_KEY, 0)
+                )
             }
-        }
+        )
     }
 }
 
@@ -160,6 +177,10 @@ public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest
                 }
             }
             putExtra(HEADLESS_DEVICE_CONFIG_KEY, input.headlessDeviceConfig?.asWireDeviceConfig())
+            input.previewScreenshotParams?.let {
+                putExtra(RENDER_PARAMETERS_KEY, it.renderParameters.toWireFormat())
+                putExtra(RENDER_TIME_MILLIS_KEY, it.calendarTimeMillis)
+            }
         }
     }
 

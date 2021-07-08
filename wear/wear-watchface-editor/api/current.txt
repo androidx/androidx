@@ -12,17 +12,19 @@ package androidx.wear.watchface.editor {
   }
 
   public final class EditorRequest {
-    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle, @RequiresApi androidx.wear.watchface.client.WatchFaceId watchFaceId, androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle, @RequiresApi androidx.wear.watchface.client.WatchFaceId watchFaceId, androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig, androidx.wear.watchface.editor.PreviewScreenshotParams? previewScreenshotParams);
     ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle);
     method @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public static androidx.wear.watchface.editor.EditorRequest createFromIntent(android.content.Intent intent) throws kotlinx.coroutines.TimeoutCancellationException;
     method public String getEditorPackageName();
     method public androidx.wear.watchface.client.DeviceConfig? getHeadlessDeviceConfig();
     method public androidx.wear.watchface.style.UserStyleData? getInitialUserStyle();
+    method public androidx.wear.watchface.editor.PreviewScreenshotParams? getPreviewScreenshotParams();
     method public android.content.ComponentName getWatchFaceComponentName();
     method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     property public final String editorPackageName;
     property public final androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig;
     property public final androidx.wear.watchface.style.UserStyleData? initialUserStyle;
+    property public final androidx.wear.watchface.editor.PreviewScreenshotParams? previewScreenshotParams;
     property public final android.content.ComponentName watchFaceComponentName;
     property @RequiresApi(android.os.Build.VERSION_CODES.R) public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
     field public static final androidx.wear.watchface.editor.EditorRequest.Companion Companion;
@@ -69,6 +71,14 @@ package androidx.wear.watchface.editor {
   }
 
   public final class EditorSessionKt {
+  }
+
+  public final class PreviewScreenshotParams {
+    ctor public PreviewScreenshotParams(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis);
+    method public long getCalendarTimeMillis();
+    method public androidx.wear.watchface.RenderParameters getRenderParameters();
+    property public final long calendarTimeMillis;
+    property public final androidx.wear.watchface.RenderParameters renderParameters;
   }
 
   public class WatchFaceEditorContract extends androidx.activity.result.contract.ActivityResultContract<androidx.wear.watchface.editor.EditorRequest,kotlin.Unit> {
