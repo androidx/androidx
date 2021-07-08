@@ -6,13 +6,10 @@ package androidx.wear.watchface.complications.rendering {
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, android.icu.util.Calendar calendar, @ColorInt int color);
     method public androidx.wear.complications.data.ComplicationData? getData();
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
-    method public boolean isHighlighted();
     method @CallSuper public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
-    method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
+    method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int slotId);
     method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable value);
-    method public void setHighlighted(boolean value);
     property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
-    property public boolean isHighlighted;
   }
 
   public final class ComplicationDrawable extends android.graphics.drawable.Drawable {
@@ -145,11 +142,11 @@ package androidx.wear.watchface.complications.rendering {
   }
 
   public final class GlesTextureComplication {
-    ctor public GlesTextureComplication(androidx.wear.watchface.CanvasComplication canvasComplication, @Px int textureWidth, @Px int textureHeight, int textureType);
+    ctor public GlesTextureComplication(androidx.wear.watchface.ComplicationSlot complicationSlot, @Px int textureWidth, @Px int textureHeight, int textureType);
     method public void bind();
-    method public androidx.wear.watchface.CanvasComplication getCanvasComplication();
+    method public androidx.wear.watchface.ComplicationSlot getComplicationSlot();
     method public void renderToTexture(android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    property public final androidx.wear.watchface.CanvasComplication canvasComplication;
+    property public final androidx.wear.watchface.ComplicationSlot complicationSlot;
   }
 
 }

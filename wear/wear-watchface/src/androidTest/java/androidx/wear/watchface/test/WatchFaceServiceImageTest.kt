@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.test
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
@@ -533,6 +534,7 @@ public class WatchFaceServiceImageTest {
         bitmap.assertAgainstGolden(screenshotRule, "ambient_screenshot2")
     }
 
+    @SuppressLint("NewApi")
     @Test
     public fun testCommandTakeScreenShot() {
         val latch = CountDownLatch(1)
@@ -562,10 +564,11 @@ public class WatchFaceServiceImageTest {
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
         bitmap!!.assertAgainstGolden(
             screenshotRule,
-            "ambient_screenshot"
+            "testCommandTakeScreenShot"
         )
     }
 
+    @SuppressLint("NewApi")
     @Test
     public fun testCommandTakeOpenGLScreenShot() {
         val latch = CountDownLatch(1)
@@ -619,6 +622,7 @@ public class WatchFaceServiceImageTest {
         bitmap.assertAgainstGolden(screenshotRule, "green_screenshot")
     }
 
+    @SuppressLint("NewApi")
     @Test
     public fun testHighlightAllComplicationsInScreenshot() {
         val latch = CountDownLatch(1)
@@ -657,6 +661,43 @@ public class WatchFaceServiceImageTest {
         )
     }
 
+    @SuppressLint("NewApi")
+    @Test
+    public fun testRenderLeftComplicationPressed() {
+        val latch = CountDownLatch(1)
+
+        handler.post(this::initCanvasWatchFace)
+        assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        sendComplications()
+
+        var bitmap: Bitmap? = null
+        handler.post {
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
+                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
+                        RenderParameters(
+                            DrawMode.INTERACTIVE,
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null,
+                            setOf(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+                        ).toWireFormat(),
+                        123456789,
+                        null,
+                        null
+                    )
+                )
+            )
+            latch.countDown()
+        }
+
+        assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        bitmap!!.assertAgainstGolden(
+            screenshotRule,
+            "left_complication_pressed"
+        )
+    }
+
+    @SuppressLint("NewApi")
     @Test
     public fun testHighlightRightComplicationInScreenshot() {
         val latch = CountDownLatch(1)
@@ -697,6 +738,7 @@ public class WatchFaceServiceImageTest {
         )
     }
 
+    @SuppressLint("NewApi")
     @Test
     public fun testScreenshotWithPreviewComplicationData() {
         val latch = CountDownLatch(1)
@@ -812,6 +854,7 @@ public class WatchFaceServiceImageTest {
         }
     }
 
+    @SuppressLint("NewApi")
     @Test
     public fun complicationTapLaunchesActivity() {
         handler.post(this::initCanvasWatchFace)
