@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.5.0-alpha04")
+    api("androidx.core:core:1.6.0")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
 
     testImplementation(libs.kotlinStdlib)
@@ -18,7 +18,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.robolectric)
 
-    implementation "androidx.core:core-ktx:1.5.0-alpha04"
+    implementation "androidx.core:core-ktx:1.6.0"
 
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 }
