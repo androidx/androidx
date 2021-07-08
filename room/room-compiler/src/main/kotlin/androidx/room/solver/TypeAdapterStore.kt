@@ -56,6 +56,7 @@ import androidx.room.solver.query.result.ArrayQueryResultAdapter
 import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.GuavaOptionalQueryResultAdapter
 import androidx.room.solver.query.result.ImmutableListQueryResultAdapter
+import androidx.room.solver.query.result.ImmutableMapQueryResultAdapter
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.MapQueryResultAdapter
 import androidx.room.solver.query.result.OptionalQueryResultAdapter
@@ -95,6 +96,7 @@ import androidx.room.solver.types.TypeConverter
 import androidx.room.vo.ShortcutQueryParameter
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import java.util.LinkedList
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -461,6 +463,24 @@ class TypeAdapterStore private constructor(
             return ListQueryResultAdapter(
                 typeArg = typeArg,
                 rowAdapter = rowAdapter
+            )
+        } else if (typeMirror.isTypeOf(ImmutableMap::class)) {
+            val keyTypeArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
+            val valueTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
+
+            // Create a type mirror for a regular Map in order to use MapQueryResultAdapter. This
+            // avoids code duplication as Immutable Map can be initialized by creating an immutable
+            // copy of a regular map.
+            val mapType = context.processingEnv.getDeclaredType(
+                context.processingEnv.requireTypeElement(Map::class),
+                keyTypeArg,
+                valueTypeArg
+            )
+            val resultAdapter = findQueryResultAdapter(mapType, query = query) ?: return null
+            return ImmutableMapQueryResultAdapter(
+                keyTypeArg = keyTypeArg,
+                valueTypeArg = valueTypeArg,
+                resultAdapter = resultAdapter
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class)) {
             // TODO: Handle nested collection values in the map

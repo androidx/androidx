@@ -35,6 +35,8 @@ import androidx.room.integration.testapp.vo.ReleasedAlbum;
 import androidx.room.integration.testapp.vo.Song;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -128,4 +130,16 @@ public interface MusicDao {
 
     @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
     Flowable<Map<Artist, Set<Song>>> getAllArtistAndTheirSongsAsFlowableSet();
+
+    /* Guava ImmutableMap */
+    @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
+    ImmutableMap<Artist, List<Song>> getAllArtistAndTheirSongsImmutableMap();
+
+    @RawQuery
+    ImmutableMap<Artist, List<Song>> getAllArtistAndTheirSongsRawQueryImmutableMap(
+            SupportSQLiteQuery query
+    );
+
+    @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
+    LiveData<ImmutableMap<Artist, Set<Song>>> getAllArtistAndTheirSongsAsLiveDataImmutableMap();
 }
