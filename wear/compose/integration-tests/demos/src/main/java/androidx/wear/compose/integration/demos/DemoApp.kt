@@ -20,8 +20,8 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.integration.demos.common.ActivityDemo
@@ -90,7 +90,11 @@ private fun DisplayDemoList(category: DemoCategory, onNavigate: (Demo) -> Unit) 
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 },
-                modifier = Modifier.width(100.dp)
+                modifier = Modifier.fillMaxWidth().padding(
+                    start = 10.dp,
+                    end = 10.dp,
+                    bottom = 4.dp
+                )
             )
         }
     }

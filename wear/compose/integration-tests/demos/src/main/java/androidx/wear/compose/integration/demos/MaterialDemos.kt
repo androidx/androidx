@@ -22,6 +22,13 @@ import androidx.compose.integration.demos.common.DemoCategory
 val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
-        ComposableDemo("Button") { ButtonDemo() },
+        DemoCategory(
+            "Button",
+            listOf(
+                ComposableDemo("Button Sizes") { ButtonSizes() },
+                ComposableDemo("Button Styles") { ButtonStyles() },
+            )
+        ),
+        ComposableDemo("Toggle Button") { ToggleButtons() },
     ),
 )
