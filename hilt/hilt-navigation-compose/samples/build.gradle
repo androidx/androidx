@@ -17,6 +17,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -35,6 +36,7 @@ dependencies {
 
 androidx {
     name = "Navigation Compose Hilt Extension Samples"
+    publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.SAMPLES
     mavenGroup = LibraryGroups.HILT
     mavenVersion = LibraryVersions.HILT_NAVIGATION_COMPOSE

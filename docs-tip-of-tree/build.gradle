@@ -134,6 +134,7 @@ dependencies {
     docs(project(":hilt:hilt-common"))
     docs(project(":hilt:hilt-navigation"))
     docs(project(":hilt:hilt-navigation-compose"))
+    samples(project(":hilt:hilt-navigation-compose-samples"))
     docs(project(":hilt:hilt-navigation-fragment"))
     docs(project(":hilt:hilt-work"))
     docs(project(":interpolator:interpolator"))
