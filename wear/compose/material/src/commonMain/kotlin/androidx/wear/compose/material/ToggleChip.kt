@@ -36,6 +36,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material.icons.materialIcon
+import androidx.compose.material.icons.materialPath
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -51,8 +53,10 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
@@ -80,11 +84,12 @@ import androidx.compose.ui.unit.dp
  * @param onCheckedChange Callback to be invoked when this buttons checked/selected status is
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned.
- * @param toggleIcon A slot for providing the chip's toggle icon(s). The
- * contents are expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize].
- * changed.
  * @param modifier Modifier to be applied to the chip
+ * @param toggleIcon A slot for providing the chip's toggle icon(s). The contents are expected to be
+ * a horizontally and vertically centre aligned icon of size [ToggleChipDefaults.IconSize]. Three
+ * types of toggle icon are supported and can be obtained from
+ * [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
+ * [ToggleChipDefaults.CheckboxIcon]
  * @param appIcon An optional slot for providing an icon to indicate the purpose of the chip. The
  * contents are expected to be a horizontally and vertically centre aligned icon of size
  * [ToggleChipDefaults.IconSize].
@@ -110,8 +115,8 @@ public fun ToggleChip(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     label: @Composable () -> Unit,
-    toggleIcon: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    toggleIcon: @Composable () -> Unit = { ToggleChipDefaults.CheckboxIcon(checked = checked) },
     appIcon: @Composable (() -> Unit)? = null,
     secondaryLabel: @Composable (() -> Unit)? = null,
     colors: ToggleChipColors = ToggleChipDefaults.toggleChipColors(),
@@ -244,12 +249,14 @@ public fun ToggleChip(
  * changed.
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned.
- * @param toggleIcon A slot for providing the chip's toggle icon(s). The
- * contents are expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize].
  * @param onClick Click listener called when the user clicks the main body of the chip, the area
  * behind the labels.
  * @param modifier Modifier to be applied to the chip
+ * @param toggleIcon A slot for providing the chip's toggle icon(s). The contents are expected to be
+ * a horizontally and vertically centre aligned icon of size [ToggleChipDefaults.IconSize]. Three
+ * types of toggle icon are supported and can be obtained from
+ * [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
+ * [ToggleChipDefaults.CheckboxIcon]
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
  * to be "start" or "center" aligned. label and secondaryLabel contents should be consistently
  * aligned.
@@ -276,9 +283,9 @@ public fun SplitToggleChip(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     label: @Composable () -> Unit,
-    toggleIcon: @Composable () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    toggleIcon: @Composable () -> Unit = { ToggleChipDefaults.CheckboxIcon(checked = checked) },
     secondaryLabel: @Composable (() -> Unit)? = null,
     colors: ToggleChipColors = ToggleChipDefaults.toggleChipColors(),
     enabled: Boolean = true,
@@ -496,14 +503,14 @@ public interface ToggleChipColors {
 }
 
 /**
- * Contains the default values used by [Chip]
+ * Contains the default values used by [ToggleChip]s
  */
 public object ToggleChipDefaults {
 
     /**
      * Creates a [ToggleChipColors] for use in a ToggleChip or SplitToggleChip.
      * [ToggleChip]s are expected to have a linear gradient background when
-     * checked/selected, similar to a [ChipDefaults.gradientBackgroundChipColors()] and a solid
+     * checked/selected, similar to a [ChipDefaults.gradientBackgroundChipColors] and a solid
      * neutral background when not checked/selected (similar to a
      * [ChipDefaults.secondaryChipColors])
      *
@@ -652,13 +659,63 @@ public object ToggleChipDefaults {
     )
 
     /**
-     * The default height applied for the [Chip].
-     * Note that you can override it by applying Modifier.heightIn directly on [Chip].
+     * Creates switch style toggle [Icon]s for use in the toggleIcon slot of a [ToggleChip].
+     * Depending on [checked] will return either an 'on' (checked) or 'off' (unchecked) switch icon.
+     *
+     * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
+     * or 'off' (unchecked/false)
+     */
+    @Composable
+    public fun SwitchIcon(checked: Boolean) {
+        Icon(
+            imageVector = if (checked) SwitchOn else SwitchOff,
+            contentDescription = "Switch selector",
+            modifier = Modifier.size(24.dp)
+        )
+    }
+
+    /**
+     * Creates a radio button style toggle [Icon]s for use in the toggleIcon slot of a [ToggleChip].
+     * Depending on [checked] will return either an 'on' (checked) or 'off' (unchecked) radio button
+     * icon.
+     *
+     * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
+     * or 'off' (unchecked/false)
+     */
+    @Composable
+    public fun RadioIcon(checked: Boolean) {
+        Icon(
+            imageVector = if (checked) RadioOn else RadioOff,
+            contentDescription = "Radio selector",
+            modifier = Modifier.size(24.dp)
+        )
+    }
+
+    /**
+     * Creates a checkbox style toggle [Icon]s for use in the toggleIcon slot of a [ToggleChip].
+     * Depending on [checked] will return either an 'on' (ticked/checked) or 'off'
+     * (unticked/unchecked) checkbox icon.
+     *
+     * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
+     * or 'off' (unchecked/false)
+     */
+    @Composable
+    public fun CheckboxIcon(checked: Boolean) {
+        Icon(
+            imageVector = if (checked) CheckboxOn else CheckboxOff,
+            contentDescription = "Checkbox selector",
+            modifier = Modifier.size(24.dp)
+        )
+    }
+
+    /**
+     * The default height applied for the [ToggleChip].
+     * Note that you can override it by applying Modifier.heightIn directly on [ToggleChip].
      */
     internal val Height = 52.dp
 
     /**
-     * The default size of the icon when used inside a [Chip].
+     * The default size of app or toggle icons when used inside a [ToggleChip].
      */
     public val IconSize: Dp = 24.dp
 
@@ -673,6 +730,197 @@ public object ToggleChipDefaults {
      * inside a [ToggleChip].
      */
     internal val ToggleIconSpacing = 4.dp
+
+    private val SwitchOn: ImageVector
+        get() {
+            if (_switchOn != null) {
+                return _switchOn!!
+            }
+            _switchOn = materialIcon(name = "SwitchOn") {
+                materialPath(fillAlpha = 0.38f, strokeAlpha = 0.38f) {
+                    moveTo(5.0f, 7.0f)
+                    lineTo(19.0f, 7.0f)
+                    arcTo(5.0f, 5.0f, 0.0f, false, true, 24.0f, 12.0f)
+                    lineTo(24.0f, 12.0f)
+                    arcTo(5.0f, 5.0f, 0.0f, false, true, 19.0f, 17.0f)
+                    lineTo(5.0f, 17.0f)
+                    arcTo(5.0f, 5.0f, 0.0f, false, true, 0.0f, 12.0f)
+                    lineTo(0.0f, 12.0f)
+                    arcTo(5.0f, 5.0f, 0.0f, false, true, 5.0f, 7.0f)
+                    close()
+                }
+                materialPath(pathFillType = PathFillType.EvenOdd) {
+                    moveTo(17.0f, 19.0f)
+                    curveTo(20.866f, 19.0f, 24.0f, 15.866f, 24.0f, 12.0f)
+                    curveTo(24.0f, 8.134f, 20.866f, 5.0f, 17.0f, 5.0f)
+                    curveTo(13.134f, 5.0f, 10.0f, 8.134f, 10.0f, 12.0f)
+                    curveTo(10.0f, 15.866f, 13.134f, 19.0f, 17.0f, 19.0f)
+                    close()
+                }
+            }
+            return _switchOn!!
+        }
+
+    private var _switchOn: ImageVector? = null
+
+    private val SwitchOff: ImageVector
+        get() {
+            if (_switchOff != null) {
+                return _switchOff!!
+            }
+            _switchOff = materialIcon(name = "SwitchOff") {
+                materialPath(fillAlpha = 0.38f, strokeAlpha = 0.38f) {
+                    moveTo(5.0f, 7.0f)
+                    lineTo(19.0f, 7.0f)
+                    arcTo(5.0f, 5.0f, 0.0f, false, true, 24.0f, 12.0f)
+                    lineTo(24.0f, 12.0f)
+                    arcTo(5.0f, 5.0f, 0.0f, false, true, 19.0f, 17.0f)
+                    lineTo(5.0f, 17.0f)
+                    arcTo(5.0f, 5.0f, 0.0f, false, true, 0.0f, 12.0f)
+                    lineTo(0.0f, 12.0f)
+                    arcTo(5.0f, 5.0f, 0.0f, false, true, 5.0f, 7.0f)
+                    close()
+                }
+                materialPath(pathFillType = PathFillType.EvenOdd) {
+                    moveTo(7.0f, 19.0f)
+                    curveTo(10.866f, 19.0f, 14.0f, 15.866f, 14.0f, 12.0f)
+                    curveTo(14.0f, 8.134f, 10.866f, 5.0f, 7.0f, 5.0f)
+                    curveTo(3.134f, 5.0f, 0.0f, 8.134f, 0.0f, 12.0f)
+                    curveTo(0.0f, 15.866f, 3.134f, 19.0f, 7.0f, 19.0f)
+                    close()
+                }
+            }
+            return _switchOff!!
+        }
+
+    private var _switchOff: ImageVector? = null
+
+    public val RadioOn: ImageVector
+        get() {
+            if (_radioOn != null) {
+                return _radioOn!!
+            }
+            _radioOn = materialIcon(name = "RadioOn") {
+                materialPath {
+                    moveTo(12.0f, 2.0f)
+                    curveTo(6.48f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
+                    curveTo(2.0f, 17.52f, 6.48f, 22.0f, 12.0f, 22.0f)
+                    curveTo(17.52f, 22.0f, 22.0f, 17.52f, 22.0f, 12.0f)
+                    curveTo(22.0f, 6.48f, 17.52f, 2.0f, 12.0f, 2.0f)
+                    close()
+                    moveTo(12.0f, 20.0f)
+                    curveTo(7.58f, 20.0f, 4.0f, 16.42f, 4.0f, 12.0f)
+                    curveTo(4.0f, 7.58f, 7.58f, 4.0f, 12.0f, 4.0f)
+                    curveTo(16.42f, 4.0f, 20.0f, 7.58f, 20.0f, 12.0f)
+                    curveTo(20.0f, 16.42f, 16.42f, 20.0f, 12.0f, 20.0f)
+                    close()
+                }
+                materialPath {
+                    moveTo(12.0f, 12.0f)
+                    moveToRelative(-5.0f, 0.0f)
+                    arcToRelative(5.0f, 5.0f, 0.0f, true, true, 10.0f, 0.0f)
+                    arcToRelative(5.0f, 5.0f, 0.0f, true, true, -10.0f, 0.0f)
+                }
+            }
+            return _radioOn!!
+        }
+
+    private var _radioOn: ImageVector? = null
+
+    public val RadioOff: ImageVector
+        get() {
+            if (_radioOff != null) {
+                return _radioOff!!
+            }
+            _radioOff = materialIcon(name = "RadioOff") {
+                materialPath {
+                    moveTo(12.0f, 2.0f)
+                    curveTo(6.48f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
+                    curveTo(2.0f, 17.52f, 6.48f, 22.0f, 12.0f, 22.0f)
+                    curveTo(17.52f, 22.0f, 22.0f, 17.52f, 22.0f, 12.0f)
+                    curveTo(22.0f, 6.48f, 17.52f, 2.0f, 12.0f, 2.0f)
+                    close()
+                    moveTo(12.0f, 20.0f)
+                    curveTo(7.58f, 20.0f, 4.0f, 16.42f, 4.0f, 12.0f)
+                    curveTo(4.0f, 7.58f, 7.58f, 4.0f, 12.0f, 4.0f)
+                    curveTo(16.42f, 4.0f, 20.0f, 7.58f, 20.0f, 12.0f)
+                    curveTo(20.0f, 16.42f, 16.42f, 20.0f, 12.0f, 20.0f)
+                    close()
+                }
+            }
+            return _radioOff!!
+        }
+
+    private var _radioOff: ImageVector? = null
+
+    public val CheckboxOn: ImageVector
+        get() {
+            if (_checkboxOn != null) {
+                return _checkboxOn!!
+            }
+            _checkboxOn = materialIcon(name = "CheckboxOn") {
+                materialPath {
+                    moveTo(19.0f, 3.0f)
+                    horizontalLineTo(5.0f)
+                    curveTo(3.9f, 3.0f, 3.0f, 3.9f, 3.0f, 5.0f)
+                    verticalLineTo(19.0f)
+                    curveTo(3.0f, 20.1f, 3.9f, 21.0f, 5.0f, 21.0f)
+                    horizontalLineTo(19.0f)
+                    curveTo(20.1f, 21.0f, 21.0f, 20.1f, 21.0f, 19.0f)
+                    verticalLineTo(5.0f)
+                    curveTo(21.0f, 3.9f, 20.1f, 3.0f, 19.0f, 3.0f)
+                    close()
+                    moveTo(19.0f, 19.0f)
+                    horizontalLineTo(5.0f)
+                    verticalLineTo(5.0f)
+                    horizontalLineTo(19.0f)
+                    verticalLineTo(19.0f)
+                    close()
+                    moveTo(18.0f, 9.0f)
+                    lineTo(16.6f, 7.6f)
+                    lineTo(13.3f, 10.9f)
+                    lineTo(10.0f, 14.2f)
+                    lineTo(7.4f, 11.6f)
+                    lineTo(6.0f, 13.0f)
+                    lineTo(10.0f, 17.0f)
+                    lineTo(18.0f, 9.0f)
+                    close()
+                }
+            }
+            return _checkboxOn!!
+        }
+
+    private var _checkboxOn: ImageVector? = null
+
+    private val CheckboxOff: ImageVector
+        get() {
+            if (_checkboxOff != null) {
+                return _checkboxOff!!
+            }
+            _checkboxOff = materialIcon(name = "CheckboxOff") {
+                materialPath {
+                    moveTo(19.0f, 5.0f)
+                    verticalLineTo(19.0f)
+                    horizontalLineTo(5.0f)
+                    verticalLineTo(5.0f)
+                    horizontalLineTo(19.0f)
+                    close()
+                    moveTo(19.0f, 3.0f)
+                    horizontalLineTo(5.0f)
+                    curveTo(3.9f, 3.0f, 3.0f, 3.9f, 3.0f, 5.0f)
+                    verticalLineTo(19.0f)
+                    curveTo(3.0f, 20.1f, 3.9f, 21.0f, 5.0f, 21.0f)
+                    horizontalLineTo(19.0f)
+                    curveTo(20.1f, 21.0f, 21.0f, 20.1f, 21.0f, 19.0f)
+                    verticalLineTo(5.0f)
+                    curveTo(21.0f, 3.9f, 20.1f, 3.0f, 19.0f, 3.0f)
+                    close()
+                }
+            }
+            return _checkboxOff!!
+        }
+
+    private var _checkboxOff: ImageVector? = null
 }
 
 /**
