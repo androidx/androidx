@@ -93,6 +93,7 @@ class MethodSpecHelperTest(
             package foo.bar;
             import androidx.room.compiler.processing.testcode.OtherAnnotation;
 
+            object MyObject
             abstract class Baz {
                 open fun method1() {
                 }
@@ -124,6 +125,18 @@ class MethodSpecHelperTest(
                 protected open fun listArg(r:List<String>) {
                 }
 
+                protected open fun listOfUnitArg(r:List<Unit>) {
+                }
+
+                protected open fun listOfCustomObjectArg(r:List<MyObject>) {
+                }
+
+                protected open fun listOfAnyArg(r:List<Any>) {
+                }
+
+                protected open fun listOfVoidArg(r:List<Void>) {
+                }
+
                 open suspend fun suspendUnitFun() {
                 }
 
@@ -148,6 +161,35 @@ class MethodSpecHelperTest(
 
                 // keep these at the end to match the order w/ KAPT because we fake them in KSP
                 internal abstract val abstractVal: String
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source)
+    }
+
+    @Test
+    fun kotlinParametersAsFunction() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo.bar;
+            interface MyInterface
+            interface Baz {
+                fun noArg_returnsUnit(operation: () -> Unit) {
+                }
+                fun singleArg_returnsUnit(operation: (Int) -> Unit) {
+                }
+                fun singleInterfaceArg_returnsUnit(operation: (MyInterface) -> Unit) {
+                }
+                fun singleReceiverArg_returnsUnit(operation: Int.() -> Unit) {
+                }
+                fun singleInterfaceReceiverArg_returnsUnit(operation: MyInterface.() -> Unit) {
+                }
+
+                fun noArg_returnsInt(operation: () -> Int) {
+                }
+                fun singleArg_returnsInterface(operation: (Int) -> MyInterface) {
+                }
             }
             """.trimIndent()
         )
