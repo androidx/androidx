@@ -19,7 +19,6 @@
 package androidx.startup.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
-import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 import com.android.tools.lint.detector.api.Issue
 
@@ -34,8 +33,4 @@ class StartupRuntimeIssueRegistry : IssueRegistry() {
             InitializerConstructorDetector.ISSUE,
             EnsureInitializerMetadataDetector.ISSUE
         )
-    override val vendor = Vendor(
-        vendorName = "Android Open Source Project",
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=823348"
-    )
 }

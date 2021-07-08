@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage")
-
 package androidx.lifecycle.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
-import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
 class LiveDataCoreIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val api = 10
     override val issues get() = listOf(NonNullableMutableLiveDataDetector.ISSUE)
-    override val vendor = Vendor(
-        vendorName = "Android Open Source Project",
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=413132"
-    )
 }
