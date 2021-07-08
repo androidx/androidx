@@ -988,6 +988,18 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             """
                 public static class Username {
                     public String name;
+                    @Override
+                    public boolean equals(Object o) {
+                        if (this == o) return true;
+                        if (o == null || getClass() != o.getClass()) return false;
+                        Username username = (Username) o;
+                        if (name != username.name) return false;
+                        return true;
+                    }
+                    @Override
+                    public int hashCode() {
+                        return name.hashCode();
+                    }
                 }
                 @RewriteQueriesToDropUnusedColumns
                 @Query("SELECT * FROM User JOIN Relation ON (User.uid = Relation.userId)")

@@ -35,6 +35,7 @@ import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
+import androidx.room.ext.implementsEqualsAndHashcode
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
 import androidx.room.processor.CustomConverterProcessor
@@ -1136,6 +1137,152 @@ class TypeAdapterStoreTest {
                     "myClassNullableAlias_nullable" to nullableClassAdapter,
                 )
             )
+        }
+    }
+
+    @Test
+    fun testEqualsAndHashcodeImplemented() {
+        val classExtendsClassWithEqualsAndHashcodeFunctions = Source.java(
+            "foo.bar.Human",
+            """
+            package foo.bar;
+            public class Human extends Username {
+                public String relationId;
+            }
+            """.trimIndent()
+        )
+        val classWithFncs = Source.java(
+            "foo.bar.Username",
+            """
+            package foo.bar;
+            public class Username extends Person {
+                public String name;
+                @Override
+                public boolean equals(Object o) {
+                    return false;
+                }
+                @Override
+                public int hashCode() {
+                    return 0;
+                }
+            }
+            """.trimIndent()
+        )
+        val classWithoutFncs = Source.java(
+            "foo.bar.Person",
+            """
+            package foo.bar;
+            public class Person {
+                public String userId;
+            }
+            """.trimIndent()
+        )
+        val enumClass = Source.java(
+            "foo.bar.Names",
+            """
+            package foo.bar;
+            public enum Names {
+                ELLA,
+                BOB,
+                JAMES
+            }
+            """.trimIndent()
+        )
+        val classWithWrongFncs = Source.java(
+            "foo.bar.UsernameWithWrongFncs",
+            """
+            package foo.bar;
+            public class UsernameWithWrongFncs {
+                public String name;
+                public boolean equals() {
+                    return true;
+                }
+                public int hashCode(int num) {
+                    return num;
+                }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(
+                classExtendsClassWithEqualsAndHashcodeFunctions,
+                classWithFncs,
+                classWithoutFncs,
+                enumClass,
+                classWithWrongFncs
+            )
+        ) { invocation ->
+            val enumCase = invocation.processingEnv.requireTypeElement("foo.bar.Names")
+            val inheritedCase = invocation.processingEnv.requireTypeElement("foo.bar.Human")
+            val wrongFunctionsCase = invocation.processingEnv.requireTypeElement(
+                "foo.bar.UsernameWithWrongFncs"
+            )
+            val noEqualsOrHashcodeCase = invocation.processingEnv.requireTypeElement(
+                "foo.bar.Person"
+            )
+            assertThat(enumCase.type.implementsEqualsAndHashcode()).isTrue()
+            assertThat(inheritedCase.type.implementsEqualsAndHashcode()).isTrue()
+            assertThat(wrongFunctionsCase.type.implementsEqualsAndHashcode()).isFalse()
+            assertThat(noEqualsOrHashcodeCase.type.implementsEqualsAndHashcode()).isFalse()
+        }
+    }
+
+    @Test
+    fun testEqualsAndHashcodeCheckWithJavaPrimitive() {
+        val inputSource = Source.java(
+            "foo.bar.Subject",
+            """
+            package foo.bar;
+            public class Subject {
+                public int primitiveInt = 0;
+                public Integer boxedInt = 1;
+                public boolean primitiveBool = true;
+                public Boolean boxedBool = false;
+                public double primitiveDouble = 2.2;
+                public Double boxedDouble = 3.3;
+                public long primitiveLong = 4L;
+                public Long boxedLong = 5L;
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(
+                inputSource,
+                COMMON.USER,
+                COMMON.PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_PAGING_SOURCE,
+            ),
+        ) { invocation ->
+            val subjectTypeElement =
+                invocation.processingEnv.requireTypeElement("foo.bar.Subject")
+            subjectTypeElement.getAllFieldsIncludingPrivateSupers().forEach { field ->
+                assertThat(field.type.implementsEqualsAndHashcode()).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun testEqualsAndHashcodeCheckWithKotlinPrimitive() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            import androidx.room.*
+            class Subject {
+               val anInteger = 0
+               val aBoolean = true
+               val aDouble = 2.2
+               val aLong = 5L
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(source)
+        ) { invocation ->
+            val subjectTypeElement = invocation.processingEnv.requireTypeElement("Subject")
+
+            subjectTypeElement.getDeclaredFields().forEach {
+                assertThat(it.type.implementsEqualsAndHashcode()).isTrue()
+            }
         }
     }
 

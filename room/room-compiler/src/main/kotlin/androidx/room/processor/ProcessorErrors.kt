@@ -132,6 +132,10 @@ object ProcessorErrors {
     fun cannotFindQueryResultAdapter(returnTypeName: TypeName) = "Not sure how to convert a " +
         "Cursor to this method's return type ($returnTypeName)."
 
+    fun classMustImplementEqualsAndHashCode(mapType: TypeName, keyType: TypeName) = "The key" +
+        " of the provided method's multimap return type ($mapType) must implement equals() and " +
+        "hashCode(). Key type is: $keyType."
+
     val INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
         " @Insert but does not have any parameters to insert."
 
