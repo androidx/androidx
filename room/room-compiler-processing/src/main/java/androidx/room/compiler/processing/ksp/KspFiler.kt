@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
+import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSFile
@@ -87,8 +88,8 @@ internal class KspFiler(
                 Diagnostic.Kind.WARNING,
                 """
                     No dependencies are reported for $fileName which will prevent
-                    incremental compilation. Please file a bug at:
-                    https://issuetracker.google.com/issues/new?component=413107
+                    incremental compilation.
+                    Please file a bug at $ISSUE_TRACKER_LINK.
                 """.trimIndent()
             )
             Dependencies.ALL_FILES
