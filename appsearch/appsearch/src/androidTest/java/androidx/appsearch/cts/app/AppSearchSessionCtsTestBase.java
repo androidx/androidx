@@ -61,6 +61,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -445,6 +446,60 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
+    }
+
+    @Test
+    public void testPutLargeDocument() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        char[] chars = new char[16_000_000];
+        Arrays.fill(chars, ' ');
+        String body = new StringBuilder().append(chars).append("the end.").toString();
+
+        // Index a document
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace", "id1")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody(body)
+                .build();
+        AppSearchBatchResult<String, Void> result = mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(email).build()).get();
+        assertThat(result.isSuccess()).isTrue();
+
+        SearchResults searchResults = mDb1.search("end", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(1);
+        AppSearchEmail outEmail = new AppSearchEmail(outDocuments.get(0));
+        assertThat(outEmail).isEqualTo(email);
+    }
+
+    @Test
+    public void testPutLargeDocument_exceedLimit() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Create a String property that make the document exceed the total size limit.
+        char[] chars = new char[17_000_000];
+        String body = new StringBuilder().append(chars).toString();
+
+        // Index a document
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace", "id1")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody(body)
+                .build();
+        AppSearchBatchResult<String, Void> result = mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(email).build()).get();
+        assertThat(result.getFailures()).containsKey("id1");
+        assertThat(result.getFailures().get("id1").getErrorMessage())
+                .contains("was too large to write. Max is 16777215");
     }
 
 // @exportToFramework:startStrip()
