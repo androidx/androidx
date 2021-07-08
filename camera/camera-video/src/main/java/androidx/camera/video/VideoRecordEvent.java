@@ -20,13 +20,19 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.Executor;
 
 /**
  * VideoRecordEvent is used to report the video recording events and status.
+ *
+ * <p>Upon starting a recording by {@link PendingRecording#start()}, recording events will start to
+ * be sent to the listener set in {@link PendingRecording#withEventListener(Executor, Consumer)}.
  *
  * <p>There are {@link Start}, {@link Finalize}, {@link Status}, {@link Pause} and {@link Resume}
  * events. The {@link #getEventType()} can be used to check what type of event is.
@@ -37,19 +43,19 @@ import java.lang.annotation.RetentionPolicy;
  *
  * VideoRecordEvent videoRecordEvent = obtainVideoRecordEvent();
  * switch (videoRecordEvent.getEventType()) {
- * case START:
+ * case VideoRecordEvent.EVENT_TYPE_START:
  *     VideoRecordEvent.Start start = (VideoRecordEvent.Start) videoRecordEvent;
  *     break;
- * case FINALIZE:
+ * case VideoRecordEvent.EVENT_TYPE_FINALIZE:
  *     VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) videoRecordEvent;
  *     break;
- * case STATUS:
+ * case VideoRecordEvent.EVENT_TYPE_STATUS:
  *     VideoRecordEvent.Status status = (VideoRecordEvent.Status) videoRecordEvent;
  *     break;
- * case PAUSE:
+ * case VideoRecordEvent.EVENT_TYPE_PAUSE:
  *     VideoRecordEvent.Pause pause = (VideoRecordEvent.Pause) videoRecordEvent;
  *     break;
- * case RESUME:
+ * case VideoRecordEvent.EVENT_TYPE_RESUME:
  *     VideoRecordEvent.Resume resume = (VideoRecordEvent.Resume) videoRecordEvent;
  *     break;
  * }
@@ -70,42 +76,47 @@ import java.lang.annotation.RetentionPolicy;
  */
 public abstract class VideoRecordEvent {
 
-    /** The event types. */
-    public enum EventType {
-        /**
-         * Indicates the start of recording.
-         *
-         * @see Start
-         */
-        START,
+    /**
+     * Indicates the start of recording.
+     *
+     * @see Start
+     */
+    public static final int EVENT_TYPE_START = 0;
 
-        /**
-         * Indicates the finalization of recording.
-         *
-         * @see Finalize
-         */
-        FINALIZE,
+    /**
+     * Indicates the finalization of recording.
+     *
+     * @see Finalize
+     */
+    public static final int EVENT_TYPE_FINALIZE = 1;
 
-        /**
-         * The status report of the recording in progress.
-         *
-         * @see Status
-         */
-        STATUS,
+    /**
+     * The status report of the recording in progress.
+     *
+     * @see Status
+     */
+    public static final int EVENT_TYPE_STATUS = 2;
 
-        /**
-         * Indicates the pause event of recording.
-         *
-         * @see Pause
-         */
-        PAUSE,
+    /**
+     * Indicates the pause event of recording.
+     *
+     * @see Pause
+     */
+    public static final int EVENT_TYPE_PAUSE = 3;
 
-        /**
-         * Indicates the resume event of recording.
-         *
-         * @see Resume
-         */
-        RESUME
+    /**
+     * Indicates the resume event of recording.
+     *
+     * @see Resume
+     */
+    public static final int EVENT_TYPE_RESUME = 4;
+
+    /** @hide */
+    @IntDef({EVENT_TYPE_START, EVENT_TYPE_FINALIZE, EVENT_TYPE_STATUS, EVENT_TYPE_PAUSE,
+            EVENT_TYPE_RESUME})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(Scope.LIBRARY)
+    public @interface EventType {
     }
 
     /**
@@ -120,6 +131,8 @@ public abstract class VideoRecordEvent {
 
     /**
      * The recording failed due to file size limitation.
+     *
+     * <p>The file size limitation will refer to {@link OutputOptions#getFileSizeLimit()}.
      */
     // TODO(b/167481981): add more descriptions about the restrictions after getting into more
     //  details.
@@ -190,9 +203,12 @@ public abstract class VideoRecordEvent {
 
     /**
      * Gets the event type.
+     *
+     * <p>Possible values are {@link #EVENT_TYPE_START}, {@link #EVENT_TYPE_FINALIZE},
+     * {@link #EVENT_TYPE_PAUSE}, {@link #EVENT_TYPE_RESUME} and {@link #EVENT_TYPE_STATUS}.
      */
-    @NonNull
-    public abstract EventType getEventType();
+    @EventType
+    public abstract int getEventType();
 
     /**
      * Gets the recording status of current event.
@@ -219,7 +235,8 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the start of recording.
      *
-     * <p>When a video recording is requested, start event will be reported at first.
+     * <p>When a video recording is successfully requested by {@link PendingRecording#start()},
+     * a {@code Start} event will be the first event.
      */
     public static final class Start extends VideoRecordEvent {
 
@@ -229,10 +246,10 @@ public abstract class VideoRecordEvent {
         }
 
         /** {@inheritDoc} */
-        @NonNull
+        @EventType
         @Override
-        public EventType getEventType() {
-            return EventType.START;
+        public int getEventType() {
+            return EVENT_TYPE_START;
         }
     }
 
@@ -254,7 +271,7 @@ public abstract class VideoRecordEvent {
     }
 
     /**
-     * Indicates the stop of recording.
+     * Indicates the finalization of recording.
      *
      * <p>The finalize event will be triggered regardless of whether the recording succeeds or
      * fails. Use {@link Finalize#getError()} to obtain the error type and
@@ -288,10 +305,10 @@ public abstract class VideoRecordEvent {
         }
 
         /** {@inheritDoc} */
-        @NonNull
+        @EventType
         @Override
-        public EventType getEventType() {
-            return EventType.FINALIZE;
+        public int getEventType() {
+            return EVENT_TYPE_FINALIZE;
         }
 
         /**
@@ -315,7 +332,11 @@ public abstract class VideoRecordEvent {
         /**
          * Gets the error type for a video recording.
          *
-         * <p>Returns {@link #ERROR_NONE} if the recording did not stop due to an error.
+         * <p>Possible values are {@link #ERROR_NONE}, {@link #ERROR_UNKNOWN},
+         * {@link #ERROR_FILE_SIZE_LIMIT_REACHED}, {@link #ERROR_INSUFFICIENT_DISK},
+         * {@link #ERROR_CAMERA_CLOSED}, {@link #ERROR_INVALID_OUTPUT_OPTIONS},
+         * {@link #ERROR_ENCODING_FAILED}, {@link #ERROR_RECORDER_ERROR} and
+         * {@link #ERROR_RECORDER_UNINITIALIZED}.
          */
         @VideoRecordError
         public int getError() {
@@ -350,10 +371,10 @@ public abstract class VideoRecordEvent {
         }
 
         /** {@inheritDoc} */
-        @NonNull
+        @EventType
         @Override
-        public EventType getEventType() {
-            return EventType.STATUS;
+        public int getEventType() {
+            return EVENT_TYPE_STATUS;
         }
     }
 
@@ -365,6 +386,8 @@ public abstract class VideoRecordEvent {
 
     /**
      * Indicates the pause event of recording.
+     *
+     * <p>A {@code Pause} event will be triggered after calling {@link ActiveRecording#pause()}.
      */
     public static final class Pause extends VideoRecordEvent {
 
@@ -374,10 +397,10 @@ public abstract class VideoRecordEvent {
         }
 
         /** {@inheritDoc} */
-        @NonNull
+        @EventType
         @Override
-        public EventType getEventType() {
-            return EventType.PAUSE;
+        public int getEventType() {
+            return EVENT_TYPE_PAUSE;
         }
     }
 
@@ -389,6 +412,8 @@ public abstract class VideoRecordEvent {
 
     /**
      * Indicates the resume event of recording.
+     *
+     * <p>A {@code Resume} event will be triggered after calling {@link ActiveRecording#resume()}.
      */
     public static final class Resume extends VideoRecordEvent {
 
@@ -398,10 +423,10 @@ public abstract class VideoRecordEvent {
         }
 
         /** {@inheritDoc} */
-        @NonNull
+        @EventType
         @Override
-        public EventType getEventType() {
-            return EventType.RESUME;
+        public int getEventType() {
+            return EVENT_TYPE_RESUME;
         }
     }
 }
