@@ -159,6 +159,92 @@ public @interface ChecksSdkIntAtLeast {
             """
         )
 
+        val RequiresApi = TestFiles.java(
+            """
+package androidx.annotation;
+
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PACKAGE;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+@Documented
+@Retention(CLASS)
+@Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
+public @interface RequiresApi {
+    @IntRange(from = 1)
+    int value() default 1;
+    @IntRange(from = 1)
+    int api() default 1;
+}
+            """
+        )
+
+        val IntRange = TestFiles.java(
+            """
+package androidx.annotation;
+
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+@Documented
+@Retention(CLASS)
+@Target({METHOD, PARAMETER, FIELD, LOCAL_VARIABLE, ANNOTATION_TYPE})
+public @interface IntRange {
+    long from() default Long.MIN_VALUE;
+    long to() default Long.MAX_VALUE;
+}
+            """
+        )
+
+        val RestrictTo = TestFiles.java(
+            """
+package androidx.annotation;
+
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PACKAGE;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+@Documented
+@Retention(CLASS)
+@Target({ANNOTATION_TYPE, TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
+public @interface RestrictTo {
+    Scope[] value();
+    enum Scope {
+        LIBRARY,
+        LIBRARY_GROUP,
+        LIBRARY_GROUP_PREFIX,
+        @Deprecated
+        GROUP_ID,
+        TESTS,
+        SUBCLASSES,
+    }
+}
+            """
+        )
+
         /* ktlint-enable max-line-length */
     }
 }

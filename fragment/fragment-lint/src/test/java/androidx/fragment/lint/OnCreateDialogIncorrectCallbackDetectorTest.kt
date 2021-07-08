@@ -26,7 +26,6 @@ import org.junit.runners.JUnit4
 /* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
-
     override fun getDetector(): Detector = OnCreateDialogIncorrectCallbackDetector()
 
     override fun getIssues(): MutableList<Issue> {
@@ -180,6 +179,7 @@ class OnCreateDialogIncorrectCallbackDetectorTest : LintDetectorTest() {
     @Test
     fun `java expect fail dialog fragment with cancel listener`() {
         lint().files(dialogFragmentStubJavaWithCancelListener)
+            .allowCompilationErrors(true) // b/193540422
             .run()
             .expect(
                 """
@@ -195,6 +195,7 @@ src/foo/TestFragment.java:11: Warning: Use onCancel() instead of calling setOnCa
     @Test
     fun `java expect fail dialog fragment with dismiss listener`() {
         lint().files(dialogFragmentStubJavaWithDismissListener)
+            .allowCompilationErrors(true) // b/193540422
             .run()
             .expect(
                 """
@@ -210,6 +211,7 @@ src/foo/TestFragment.java:11: Warning: Use onDismiss() instead of calling setOnD
     @Test
     fun `java expect clean dialog fragment`() {
         lint().files(dialogFragmentCorrectImplementationStubJava)
+            .allowCompilationErrors(true) // b/193540422
             .run()
             .expectClean()
     }
@@ -217,6 +219,7 @@ src/foo/TestFragment.java:11: Warning: Use onDismiss() instead of calling setOnD
     @Test
     fun `kotlin expect fail dialog fragment with cancel listener`() {
         lint().files(dialogFragmentStubKotlinWithCancelListener)
+            .allowCompilationErrors(true) // b/193540422
             .run()
             .expect(
                 """
@@ -232,6 +235,7 @@ src/foo/TestDialog.kt:10: Warning: Use onCancel() instead of calling setOnCancel
     @Test
     fun `kotlin expect fail dialog fragment with dismiss listener`() {
         lint().files(dialogFragmentStubKotlinWithDismissListener)
+            .allowCompilationErrors(true) // b/193540422
             .run()
             .expect(
                 """
@@ -247,6 +251,7 @@ src/foo/TestDialog.kt:10: Warning: Use onDismiss() instead of calling setOnDismi
     @Test
     fun `kotlin expect fail dialog fragment with dismiss and cancel listeners`() {
         lint().files(dialogFragmentStubKotlinWithDismissAndCancelListeners)
+            .allowCompilationErrors(true) // b/193540422
             .run()
             .expect(
                 """
@@ -265,6 +270,7 @@ src/foo/TestDialog.kt:11: Warning: Use onCancel() instead of calling setOnCancel
     @Test
     fun `kotlin expect clean dialog fragment`() {
         lint().files(dialogFragmentCorrectImplementationStubKotlin)
+            .allowCompilationErrors(true) // b/193540422
             .run()
             .expectClean()
     }

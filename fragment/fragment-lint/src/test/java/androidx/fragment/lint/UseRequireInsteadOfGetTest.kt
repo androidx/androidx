@@ -139,7 +139,7 @@ class UseRequireInsteadOfGetTest {
                 """
                 ).indented()
             )
-            .allowCompilationErrors(false)
+            .allowCompilationErrors(true) // b/193540422
             .run()
             .expect(
                 """
@@ -255,7 +255,7 @@ class UseRequireInsteadOfGetTest {
                 """
                 ).indented()
             )
-            .allowCompilationErrors(false)
+            .allowCompilationErrors(true) // b/193540422
             .run()
             .expect(
                 """
