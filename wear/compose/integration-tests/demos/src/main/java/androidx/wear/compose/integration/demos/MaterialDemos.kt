@@ -30,5 +30,6 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Toggle Button") { ToggleButtons() },
+        ComposableDemo("Card") { CardDemo() },
     ),
 )

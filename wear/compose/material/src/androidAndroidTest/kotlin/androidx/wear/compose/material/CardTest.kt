@@ -226,14 +226,82 @@ public class CardColorTest {
         ) { MaterialTheme.colors.onSurfaceVariant2 }
 
     @Test
-    public fun app_chip_gives_default_colors(): Unit =
-        verifyAppCardColors(
-            { MaterialTheme.colors.primary },
-            { MaterialTheme.colors.primary },
-            { MaterialTheme.colors.onSurfaceVariant },
-            { MaterialTheme.colors.onSurface },
-            { MaterialTheme.colors.onSurfaceVariant2 },
-        )
+    public fun app_card_gives_default_colors() {
+        var expectedAppImageColor = Color.Transparent
+        var expectedAppColor = Color.Transparent
+        var expectedTimeColor = Color.Transparent
+        var expectedTitleColor = Color.Transparent
+        var expectedBodyColor = Color.Transparent
+        var actualBodyColor = Color.Transparent
+        var actualTitleColor = Color.Transparent
+        var actualTimeColor = Color.Transparent
+        var actualAppColor = Color.Transparent
+        var actualAppImageColor = Color.Transparent
+        val testBackground = Color.White
+
+        rule.setContentWithTheme {
+            expectedAppImageColor = MaterialTheme.colors.primary
+            expectedAppColor = MaterialTheme.colors.primary
+            expectedTimeColor = MaterialTheme.colors.onSurfaceVariant
+            expectedTitleColor = MaterialTheme.colors.onSurface
+            expectedBodyColor = MaterialTheme.colors.onSurfaceVariant2
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(testBackground)
+            ) {
+                AppCard(
+                    onClick = {},
+                    appName = { actualAppColor = LocalContentColor.current },
+                    appImage = { actualAppImageColor = LocalContentColor.current },
+                    time = { actualTimeColor = LocalContentColor.current },
+                    body = { actualBodyColor = LocalContentColor.current },
+                    title = { actualTitleColor = LocalContentColor.current },
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        assertEquals(expectedAppImageColor, actualAppImageColor)
+        assertEquals(expectedAppColor, actualAppColor)
+        assertEquals(expectedTimeColor, actualTimeColor)
+        assertEquals(expectedTitleColor, actualTitleColor)
+        assertEquals(expectedBodyColor, actualBodyColor)
+    }
+
+    @Test
+    public fun title_card_gives_default_colors() {
+        var expectedTimeColor = Color.Transparent
+        var expectedTitleColor = Color.Transparent
+        var expectedBodyColor = Color.Transparent
+        var actualBodyColor = Color.Transparent
+        var actualTitleColor = Color.Transparent
+        var actualTimeColor = Color.Transparent
+        val testBackground = Color.White
+
+        rule.setContentWithTheme {
+            expectedTimeColor = MaterialTheme.colors.onSurfaceVariant
+            expectedTitleColor = MaterialTheme.colors.onSurface
+            expectedBodyColor = MaterialTheme.colors.onSurfaceVariant2
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(testBackground)
+            ) {
+                TitleCard(
+                    onClick = {},
+                    time = { actualTimeColor = LocalContentColor.current },
+                    body = { actualBodyColor = LocalContentColor.current },
+                    title = { actualTitleColor = LocalContentColor.current },
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        assertEquals(expectedTimeColor, actualTimeColor)
+        assertEquals(expectedTitleColor, actualTitleColor)
+        assertEquals(expectedBodyColor, actualBodyColor)
+    }
 
     private fun verifyColors(
         status: CardStatus,
@@ -260,55 +328,6 @@ public class CardColorTest {
         }
 
         assertEquals(expectedContent, actualContent)
-    }
-
-    private fun verifyAppCardColors(
-        appImageColor: @Composable () -> Color,
-        appColor: @Composable () -> Color,
-        timeColor: @Composable () -> Color,
-        titleColor: @Composable () -> Color,
-        bodyColor: @Composable () -> Color,
-    ) {
-        var expectedAppImageColor = Color.Transparent
-        var expectedAppColor = Color.Transparent
-        var expectedTimeColor = Color.Transparent
-        var expectedTitleColor = Color.Transparent
-        var expectedBodyColor = Color.Transparent
-        var actualBodyColor = Color.Transparent
-        var actualTitleColor = Color.Transparent
-        var actualTimeColor = Color.Transparent
-        var actualAppColor = Color.Transparent
-        var actualAppImageColor = Color.Transparent
-        val testBackground = Color.White
-
-        rule.setContentWithTheme {
-            expectedAppImageColor = appImageColor()
-            expectedAppColor = appColor()
-            expectedTimeColor = timeColor()
-            expectedTitleColor = titleColor()
-            expectedBodyColor = bodyColor()
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(testBackground)
-            ) {
-                AppCard(
-                    onClick = {},
-                    appName = { actualAppColor = LocalContentColor.current },
-                    appImage = { actualAppImageColor = LocalContentColor.current },
-                    time = { actualTimeColor = LocalContentColor.current },
-                    body = { actualBodyColor = LocalContentColor.current },
-                    title = { actualTitleColor = LocalContentColor.current },
-                    modifier = Modifier.testTag(TEST_TAG)
-                )
-            }
-        }
-
-        assertEquals(expectedAppImageColor, actualAppImageColor)
-        assertEquals(expectedAppColor, actualAppColor)
-        assertEquals(expectedTimeColor, actualTimeColor)
-        assertEquals(expectedTitleColor, actualTitleColor)
-        assertEquals(expectedBodyColor, actualBodyColor)
     }
 }
 
@@ -369,6 +388,39 @@ public class CardFontTest {
             )
         }
         assertEquals(expectedAppTextStyle, actualAppTextStyle)
+        assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
+        assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
+        assertEquals(expectedBodyTextStyle, actualBodyTextStyle)
+    }
+
+    @Test
+    public fun title_card_gives_correct_text_style_base() {
+        var actualTimeTextStyle = TextStyle.Default
+        var actualTitleTextStyle = TextStyle.Default
+        var actualBodyTextStyle = TextStyle.Default
+        var expectedTimeTextStyle = TextStyle.Default
+        var expectedTitleTextStyle = TextStyle.Default
+        var expectedBodyTextStyle = TextStyle.Default
+
+        rule.setContentWithTheme {
+            expectedTimeTextStyle = MaterialTheme.typography.caption1
+            expectedTitleTextStyle = MaterialTheme.typography.button
+            expectedBodyTextStyle = MaterialTheme.typography.body1
+
+            TitleCard(
+                onClick = {},
+                time = {
+                    actualTimeTextStyle = LocalTextStyle.current
+                },
+                title = {
+                    actualTitleTextStyle = LocalTextStyle.current
+                },
+                body = {
+                    actualBodyTextStyle = LocalTextStyle.current
+                },
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
         assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
         assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
         assertEquals(expectedBodyTextStyle, actualBodyTextStyle)

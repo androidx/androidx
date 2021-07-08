@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.LinearGradientShader
 import androidx.compose.ui.graphics.Shader
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
@@ -110,6 +112,7 @@ public fun Card(
                 .matchParentSize()
                 .paint(
                     painter = backgroundPainter,
+                    contentScale = ContentScale.FillBounds
                 )
 
         val contentBoxModifier = Modifier
@@ -140,7 +143,10 @@ public fun Card(
 
 /**
  * Opinionated Wear Material [Card] that offers a specific 5 slot layout to show information about
- * an application, e.g. a notification.
+ * an application, e.g. a notification. AppCards are designed to show interactive elements from
+ * multiple applications. They will typically be used by the system UI, e.g. for showing a list of
+ * notifications from different applications. However it could also be adapted by individual
+ * application developers to show information about different parts of their application.
  *
  * The first row of the layout has three slots, 1) a small optional application [Image] or [Icon] of
  * size [CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] dp, 2) an application name
@@ -154,13 +160,13 @@ public fun Card(
  * The rest of the [Card] contains the body content which can be either [Text] or an [Image].
  *
  * @param onClick Will be called when the user clicks the card
- * @param modifier Modifier to be applied to the card
  * @param appName A slot for displaying the application name, expected to be a single line of text
  * of [Typography.title3]
  * @param time A slot for displaying the time relevant to the contents of the card, expected to be a
- * short piece of right aligned text.
+ * short piece of end aligned text.
  * @param body A slot for displaying the details of the [Card], expected to be either [Text]
  * (single or multiple-line) or an [Image]
+ * @param modifier Modifier to be applied to the card
  * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
  * [Image] or [Icon] associated with the application.
  * @param backgroundPainter A painter used to paint the background of the card. A card will
@@ -175,11 +181,11 @@ public fun Card(
 @Composable
 public fun AppCard(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
     appName: @Composable () -> Unit,
     time: @Composable () -> Unit,
     title: @Composable () -> Unit,
     body: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
     appImage: @Composable (() -> Unit)? = null,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
     appColor: Color = MaterialTheme.colors.primary,
@@ -233,6 +239,88 @@ public fun AppCard(
 }
 
 /**
+ * Opinionated Wear Material [Card] that offers a specific 3 slot layout to show interactive
+ * information about an application, e.g. a message. TitleCards are designed for use within an
+ * application.
+ *
+ * The first row of the layout has two slots. 1. a start aligned title (emphasised with the
+ * [titleColor] and expected to be start aligned text). The title text is expected to be a maximum
+ * of 2 lines of text. 2. An optional time that the application activity has occurred shown at the
+ * end of the row, expected to be an end aligned [Text] composable showing a time relevant to the
+ * contents of the [Card].
+ *
+ * The rest of the [Card] contains the body content which is expected to be [Text] or a contained
+ * [Image].
+ *
+ * Overall the [title] and [body] text should be no more than 5 rows of text combined.
+ *
+ * @param onClick Will be called when the user clicks the card
+ * @param title A slot for displaying the title of the card, expected to be one or two lines of text
+ * of [Typography.button]
+ * @param body A slot for displaying the details of the [Card], expected to be either [Text]
+ * (single or multiple-line) or an [Image]. If [Text] then it is expected to be a maximum of 4 lines
+ * of text of [Typography.body1]
+ * @param modifier Modifier to be applied to the card
+ * @param time An optional slot for displaying the time relevant to the contents of the card,
+ * expected to be a short piece of end aligned text.
+ * @param backgroundPainter A painter used to paint the background of the card. A title card can
+ * have either a gradient background or an image background, use
+ * [CardDefaults.cardBackgroundPainter()] or [CardDefaults.imageBackgroundPainter()] to obtain an
+ * appropriate painter
+ * @param titleColor The default color to use for title() slot unless explicitly set.
+ * @param timeColor The default color to use for time() slot unless explicitly set.
+ * @param bodyColor The default color to use for body() slot unless explicitly set.
+ */
+@Composable
+public fun TitleCard(
+    onClick: () -> Unit,
+    title: @Composable () -> Unit,
+    body: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    time: @Composable (() -> Unit)? = null,
+    backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
+    titleColor: Color = MaterialTheme.colors.onSurface,
+    timeColor: Color = MaterialTheme.colors.onSurfaceVariant,
+    bodyColor: Color = MaterialTheme.colors.onSurfaceVariant2,
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        backgroundPainter = backgroundPainter,
+        enabled = true,
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CompositionLocalProvider(
+                    LocalContentColor provides titleColor,
+                    LocalTextStyle provides MaterialTheme.typography.button,
+                    content = title
+                )
+                if (time != null) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Box(modifier = Modifier.weight(1.0f), contentAlignment = Alignment.CenterEnd) {
+                        CompositionLocalProvider(
+                            LocalContentColor provides timeColor,
+                            LocalTextStyle provides MaterialTheme.typography.caption1,
+                            content = time
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            CompositionLocalProvider(
+                LocalContentColor provides bodyColor,
+                LocalTextStyle provides MaterialTheme.typography.body1,
+                content = body
+            )
+        }
+    }
+}
+
+/**
  * Contains the default values used by [Card]
  */
 public object CardDefaults {
@@ -272,6 +360,35 @@ public object CardDefaults {
             )
         }
         return BrushPainter(FortyFiveDegreeLinearGradient(backgroundColors))
+    }
+
+    /**
+     * Creates a [Painter] for the background of a [Card] that displays an Image with a scrim over
+     * the image to make sure that any content above the background will be legible.
+     *
+     * An Image background is a means to reinforce the meaning of information in a Card, e.g. To
+     * help to contextualize the information in a TitleCard
+     *
+     * Cards should have a content color that contrasts with the background image and scrim
+     *
+     * @param backgroundImagePainter The [Painter] to use to draw the background of the [Card]
+     * @param backgroundImageScrimBrush The [Brush] to use to paint a scrim over the background
+     * image to ensure that any text drawn over the image is legible
+     */
+    @Composable
+    public fun imageBackgroundPainter(
+        backgroundImagePainter: Painter,
+        backgroundImageScrimBrush: Brush = Brush.linearGradient(
+            colors = listOf(
+                MaterialTheme.colors.surface.copy(alpha = 1.0f),
+                MaterialTheme.colors.surface.copy(alpha = 0f)
+            )
+        )
+    ): Painter {
+        return ImageWithScrimPainter(
+            imagePainter = backgroundImagePainter,
+            brush = backgroundImageScrimBrush
+        )
     }
 
     private val CardHorizontalPadding = 12.dp
