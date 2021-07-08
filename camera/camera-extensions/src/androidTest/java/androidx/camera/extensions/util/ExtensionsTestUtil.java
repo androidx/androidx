@@ -16,11 +16,14 @@
 
 package androidx.camera.extensions.util;
 
+import static androidx.camera.extensions.ExtensionMode.AUTO;
+import static androidx.camera.extensions.ExtensionMode.BEAUTY;
+import static androidx.camera.extensions.ExtensionMode.BOKEH;
+import static androidx.camera.extensions.ExtensionMode.HDR;
+import static androidx.camera.extensions.ExtensionMode.NIGHT;
+
 import static junit.framework.TestCase.assertNotNull;
 
-import static org.junit.Assert.assertTrue;
-
-import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 
@@ -28,13 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.Preview;
-import androidx.camera.core.impl.ImageCaptureConfig;
-import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.extensions.ExtensionMode;
-import androidx.camera.extensions.ExtensionsManager;
-import androidx.camera.extensions.ExtensionsManager.ExtensionsAvailability;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
@@ -49,278 +46,44 @@ import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.testing.CameraUtil;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Extension test util functions.
  */
-@SuppressWarnings("deprecation")
 public class ExtensionsTestUtil {
-    @NonNull
-    public static Collection<Object[]> getAllEffectLensFacingCombinations() {
-        return Arrays.asList(new Object[][]{
-                {ExtensionsManager.EffectMode.BOKEH, CameraSelector.LENS_FACING_FRONT},
-                {ExtensionsManager.EffectMode.BOKEH, CameraSelector.LENS_FACING_BACK},
-                {ExtensionsManager.EffectMode.HDR, CameraSelector.LENS_FACING_FRONT},
-                {ExtensionsManager.EffectMode.HDR, CameraSelector.LENS_FACING_BACK},
-                {ExtensionsManager.EffectMode.BEAUTY, CameraSelector.LENS_FACING_FRONT},
-                {ExtensionsManager.EffectMode.BEAUTY, CameraSelector.LENS_FACING_BACK},
-                {ExtensionsManager.EffectMode.NIGHT, CameraSelector.LENS_FACING_FRONT},
-                {ExtensionsManager.EffectMode.NIGHT, CameraSelector.LENS_FACING_BACK},
-                {ExtensionsManager.EffectMode.AUTO, CameraSelector.LENS_FACING_FRONT},
-                {ExtensionsManager.EffectMode.AUTO, CameraSelector.LENS_FACING_BACK}
-        });
-    }
-
     @NonNull
     public static Collection<Object[]> getAllExtensionsLensFacingCombinations() {
         return Arrays.asList(new Object[][]{
-                {ExtensionMode.BOKEH, CameraSelector.LENS_FACING_FRONT},
-                {ExtensionMode.BOKEH, CameraSelector.LENS_FACING_BACK},
-                {ExtensionMode.HDR, CameraSelector.LENS_FACING_FRONT},
-                {ExtensionMode.HDR, CameraSelector.LENS_FACING_BACK},
-                {ExtensionMode.BEAUTY, CameraSelector.LENS_FACING_FRONT},
-                {ExtensionMode.BEAUTY, CameraSelector.LENS_FACING_BACK},
-                {ExtensionMode.NIGHT, CameraSelector.LENS_FACING_FRONT},
-                {ExtensionMode.NIGHT, CameraSelector.LENS_FACING_BACK},
-                {ExtensionMode.AUTO, CameraSelector.LENS_FACING_FRONT},
-                {ExtensionMode.AUTO, CameraSelector.LENS_FACING_BACK}
+                {BOKEH, CameraSelector.LENS_FACING_FRONT},
+                {BOKEH, CameraSelector.LENS_FACING_BACK},
+                {HDR, CameraSelector.LENS_FACING_FRONT},
+                {HDR, CameraSelector.LENS_FACING_BACK},
+                {BEAUTY, CameraSelector.LENS_FACING_FRONT},
+                {BEAUTY, CameraSelector.LENS_FACING_BACK},
+                {NIGHT, CameraSelector.LENS_FACING_FRONT},
+                {NIGHT, CameraSelector.LENS_FACING_BACK},
+                {AUTO, CameraSelector.LENS_FACING_FRONT},
+                {AUTO, CameraSelector.LENS_FACING_BACK}
         });
     }
 
     /**
-     * Initializes the extensions for running the following tests.
-     *
-     * @return True if initializing successfully.
-     */
-    public static boolean initExtensions(@NonNull Context context)
-            throws InterruptedException, ExecutionException, TimeoutException {
-        ListenableFuture<ExtensionsAvailability> availability = ExtensionsManager.init(context);
-        ExtensionsAvailability extensionsAvailability = availability.get(1, TimeUnit.SECONDS);
-
-        // Checks that there is vendor library on device for test.
-        if (extensionsAvailability == ExtensionsAvailability.NONE) {
-            return false;
-        }
-
-        // Checks that vendor library is loaded successfully.
-        assertTrue(extensionsAvailability == ExtensionsAvailability.LIBRARY_AVAILABLE);
-
-        return true;
-    }
-
-    @ExtensionMode.Mode
-    public static int effectModeToExtensionMode(@NonNull ExtensionsManager.EffectMode effectMode) {
-        switch (effectMode) {
-            case NORMAL:
-                return ExtensionMode.NONE;
-            case BOKEH:
-                return ExtensionMode.BOKEH;
-            case HDR:
-                return ExtensionMode.HDR;
-            case NIGHT:
-                return ExtensionMode.NIGHT;
-            case BEAUTY:
-                return ExtensionMode.BEAUTY;
-            case AUTO:
-                return ExtensionMode.AUTO;
-        }
-        throw new IllegalArgumentException("Effect mode not found: " + effectMode);
-    }
-
-    public static ExtensionsManager.EffectMode extensionModeToEffectMode(
-            @ExtensionMode.Mode int mode) {
-        switch (mode) {
-            case ExtensionMode.NONE:
-                return ExtensionsManager.EffectMode.NORMAL;
-            case ExtensionMode.BOKEH:
-                return ExtensionsManager.EffectMode.BOKEH;
-            case ExtensionMode.HDR:
-                return ExtensionsManager.EffectMode.HDR;
-            case ExtensionMode.NIGHT:
-                return ExtensionsManager.EffectMode.NIGHT;
-            case ExtensionMode.BEAUTY:
-                return ExtensionsManager.EffectMode.BEAUTY;
-            case ExtensionMode.AUTO:
-                return ExtensionsManager.EffectMode.AUTO;
-        }
-        throw new IllegalArgumentException("Extension mode not found: " + mode);
-    }
-
-    /**
-     * Creates an {@link ImageCapture.Builder} object for specific
-     * {@link ExtensionsManager.EffectMode} and {@link CameraSelector.LensFacing}.
-     *
-     * @param effectMode The effect mode for the created object.
-     * @param lensFacing The lens facing for the created object.
-     * @return An {@link ImageCapture.Builder} object.
-     */
-    @NonNull
-    public static ImageCapture.Builder createImageCaptureConfigBuilderWithEffect(
-            @NonNull ExtensionsManager.EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) {
-        ImageCapture.Builder builder = new ImageCapture.Builder();
-        CameraSelector selector =
-                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-        androidx.camera.extensions.ImageCaptureExtender extender = null;
-
-        switch (effectMode) {
-            case HDR:
-                extender = androidx.camera.extensions.HdrImageCaptureExtender.create(builder);
-                break;
-            case BOKEH:
-                extender = androidx.camera.extensions.BokehImageCaptureExtender.create(builder);
-                break;
-            case BEAUTY:
-                extender = androidx.camera.extensions.BeautyImageCaptureExtender.create(builder);
-                break;
-            case NIGHT:
-                extender = androidx.camera.extensions.NightImageCaptureExtender.create(builder);
-                break;
-            case AUTO:
-                extender = androidx.camera.extensions.AutoImageCaptureExtender.create(builder);
-                break;
-        }
-
-        // Applies effect configs if it is not normal mode.
-        if (effectMode != ExtensionsManager.EffectMode.NORMAL) {
-            assertNotNull(extender);
-            assertTrue(extender.isExtensionAvailable(selector));
-            extender.enableExtension(selector);
-        }
-
-        return builder;
-    }
-
-    /**
-     * Creates a {@link Preview.Builder} object for specific {@link ExtensionsManager.EffectMode}
-     * and {@link CameraSelector.LensFacing}.
-     *
-     * @param effectMode The effect mode for the created object.
-     * @param lensFacing The lens facing for the created object.
-     * @return A {@link Preview.Builder} object.
-     */
-    @NonNull
-    public static Preview.Builder createPreviewBuilderWithEffect(
-            @NonNull ExtensionsManager.EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) {
-        Preview.Builder builder = new Preview.Builder();
-        CameraSelector selector =
-                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-        androidx.camera.extensions.PreviewExtender extender = null;
-
-        switch (effectMode) {
-            case HDR:
-                extender = androidx.camera.extensions.HdrPreviewExtender.create(builder);
-                break;
-            case BOKEH:
-                extender = androidx.camera.extensions.BokehPreviewExtender.create(builder);
-                break;
-            case BEAUTY:
-                extender = androidx.camera.extensions.BeautyPreviewExtender.create(builder);
-                break;
-            case NIGHT:
-                extender = androidx.camera.extensions.NightPreviewExtender.create(builder);
-                break;
-            case AUTO:
-                extender = androidx.camera.extensions.AutoPreviewExtender.create(builder);
-                break;
-        }
-
-        // Applies effect configs if it is not normal mode.
-        if (effectMode != ExtensionsManager.EffectMode.NORMAL) {
-            assertNotNull(extender);
-            assertTrue(extender.isExtensionAvailable(selector));
-            extender.enableExtension(selector);
-        }
-
-        return builder;
-    }
-
-    /**
-     * Creates an {@link ImageCaptureConfig} object for specific
-     * {@link ExtensionsManager.EffectMode} and {@link CameraSelector.LensFacing}.
-     *
-     * @param effectMode The effect mode for the created object.
-     * @param lensFacing The lens facing for the created object.
-     * @return An {@link ImageCaptureConfig} object.
-     */
-    @NonNull
-    public static ImageCaptureConfig createImageCaptureConfigWithEffect(
-            @NonNull ExtensionsManager.EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) {
-        ImageCapture.Builder imageCaptureConfigBuilder =
-                createImageCaptureConfigBuilderWithEffect(effectMode, lensFacing);
-        return imageCaptureConfigBuilder.getUseCaseConfig();
-    }
-
-    /**
-     * Creates a {@link PreviewConfig} object for specific {@link ExtensionsManager.EffectMode} and
+     * Creates an {@link ImageCaptureExtenderImpl} object for specific {@link ExtensionMode} and
      * {@link CameraSelector.LensFacing}.
      *
-     * @param effectMode The effect mode for the created object.
-     * @param lensFacing The lens facing for the created object.
-     * @return A {@link PreviewConfig} object.
-     */
-    @NonNull
-    public static PreviewConfig createPreviewConfigWithEffect(
-            @NonNull ExtensionsManager.EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) {
-        Preview.Builder previewBuilder =
-                createPreviewBuilderWithEffect(effectMode, lensFacing);
-        return previewBuilder.getUseCaseConfig();
-    }
-
-    /**
-     * Creates an {@link ImageCapture} object for specific {@link ExtensionsManager.EffectMode} and
-     * {@link CameraSelector.LensFacing}.
-     *
-     * @param effectMode The effect mode for the created object.
-     * @param lensFacing The lens facing for the created object.
-     * @return An {@link ImageCapture} object.
-     */
-    @NonNull
-    public static ImageCapture createImageCaptureWithEffect(
-            @NonNull ExtensionsManager.EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) {
-        return createImageCaptureConfigBuilderWithEffect(effectMode, lensFacing).build();
-    }
-
-    /**
-     * Creates a {@link Preview} object for specific {@link ExtensionsManager.EffectMode} and
-     * {@link CameraSelector.LensFacing}.
-     *
-     * @param effectMode The effect mode for the created object.
-     * @param lensFacing The lens facing for the created object.
-     * @return A {@link Preview} object.
-     */
-    @NonNull
-    public static Preview createPreviewWithEffect(@NonNull ExtensionsManager.EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) {
-        return createPreviewBuilderWithEffect(effectMode, lensFacing).build();
-    }
-
-    /**
-     * Creates an {@link ImageCaptureExtenderImpl} object for specific
-     * {@link ExtensionsManager.EffectMode} and {@link CameraSelector.LensFacing}.
-     *
-     * @param effectMode The effect mode for the created object.
+     * @param extensionMode The extension mode for the created object.
      * @param lensFacing The lens facing for the created object.
      * @return An {@link ImageCaptureExtenderImpl} object.
      */
     @NonNull
     public static ImageCaptureExtenderImpl createImageCaptureExtenderImpl(
-            @NonNull ExtensionsManager.EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) throws CameraAccessException {
+            @ExtensionMode.Mode int extensionMode, @CameraSelector.LensFacing int lensFacing)
+            throws CameraAccessException {
         ImageCaptureExtenderImpl impl = null;
 
-        switch (effectMode) {
+        switch (extensionMode) {
             case HDR:
                 impl = new HdrImageCaptureExtenderImpl();
                 break;
@@ -352,20 +115,20 @@ public class ExtensionsTestUtil {
     }
 
     /**
-     * Creates a {@link PreviewExtenderImpl} object for specific
-     * {@link ExtensionsManager.EffectMode} and {@link CameraSelector.LensFacing}.
+     * Creates a {@link PreviewExtenderImpl} object for specific {@link ExtensionMode} and
+     * {@link CameraSelector.LensFacing}.
      *
-     * @param effectMode The effect mode for the created object.
+     * @param extensionMode The extension mode for the created object.
      * @param lensFacing The lens facing for the created object.
      * @return A {@link PreviewExtenderImpl} object.
      */
     @NonNull
     public static PreviewExtenderImpl createPreviewExtenderImpl(
-            @NonNull ExtensionsManager.EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) throws CameraAccessException {
+            @ExtensionMode.Mode int extensionMode, @CameraSelector.LensFacing int lensFacing)
+            throws CameraAccessException {
         PreviewExtenderImpl impl = null;
 
-        switch (effectMode) {
+        switch (extensionMode) {
             case HDR:
                 impl = new HdrPreviewExtenderImpl();
                 break;
@@ -394,77 +157,6 @@ public class ExtensionsTestUtil {
         impl.init(cameraId, cameraCharacteristics);
 
         return impl;
-    }
-
-    /**
-     * Creates an {@link androidx.camera.extensions.ImageCaptureExtender} object for specific
-     * {@link ExtensionsManager.EffectMode} and {@link ImageCapture.Builder}.
-     *
-     * @param effectMode The effect mode for the created object.
-     * @param builder    The {@link ImageCapture.Builder} for the created object.
-     * @return An {@link androidx.camera.extensions.ImageCaptureExtender} object.
-     */
-    @NonNull
-    public static androidx.camera.extensions.ImageCaptureExtender createImageCaptureExtender(
-            @NonNull ExtensionsManager.EffectMode effectMode,
-            @NonNull ImageCapture.Builder builder) {
-        androidx.camera.extensions.ImageCaptureExtender extender = null;
-
-        switch (effectMode) {
-            case HDR:
-                extender = androidx.camera.extensions.HdrImageCaptureExtender.create(builder);
-                break;
-            case BOKEH:
-                extender = androidx.camera.extensions.BokehImageCaptureExtender.create(builder);
-                break;
-            case BEAUTY:
-                extender = androidx.camera.extensions.BeautyImageCaptureExtender.create(builder);
-                break;
-            case NIGHT:
-                extender = androidx.camera.extensions.NightImageCaptureExtender.create(builder);
-                break;
-            case AUTO:
-                extender = androidx.camera.extensions.AutoImageCaptureExtender.create(builder);
-                break;
-        }
-        assertNotNull(extender);
-
-        return extender;
-    }
-
-    /**
-     * Creates a {@link androidx.camera.extensions.PreviewExtender} object for specific
-     * {@link ExtensionsManager.EffectMode} and {@link Preview.Builder}.
-     *
-     * @param effectMode The effect mode for the created object.
-     * @param builder    The {@link Preview.Builder} for the created object.
-     * @return A {@link androidx.camera.extensions.PreviewExtender} object.
-     */
-    @NonNull
-    public static androidx.camera.extensions.PreviewExtender createPreviewExtender(
-            @NonNull ExtensionsManager.EffectMode effectMode, @NonNull Preview.Builder builder) {
-        androidx.camera.extensions.PreviewExtender extender = null;
-
-        switch (effectMode) {
-            case HDR:
-                extender = androidx.camera.extensions.HdrPreviewExtender.create(builder);
-                break;
-            case BOKEH:
-                extender = androidx.camera.extensions.BokehPreviewExtender.create(builder);
-                break;
-            case BEAUTY:
-                extender = androidx.camera.extensions.BeautyPreviewExtender.create(builder);
-                break;
-            case NIGHT:
-                extender = androidx.camera.extensions.NightPreviewExtender.create(builder);
-                break;
-            case AUTO:
-                extender = androidx.camera.extensions.AutoPreviewExtender.create(builder);
-                break;
-        }
-        assertNotNull(extender);
-
-        return extender;
     }
 
     @Nullable

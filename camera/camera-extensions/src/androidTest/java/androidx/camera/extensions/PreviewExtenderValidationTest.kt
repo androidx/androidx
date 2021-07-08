@@ -43,16 +43,11 @@ import java.util.concurrent.TimeoutException
 
 @SmallTest
 @RunWith(Parameterized::class)
-@Suppress("DEPRECATION")
 class PreviewExtenderValidationTest(
     @field:Mode @param:Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
 ) {
-    private val context =
-        ApplicationProvider.getApplicationContext<Context>()
-
-    private val effectMode: ExtensionsManager.EffectMode =
-        ExtensionsTestUtil.extensionModeToEffectMode(extensionMode)
+    private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraProvider: ProcessCameraProvider
 
@@ -114,7 +109,7 @@ class PreviewExtenderValidationTest(
 
         // Creates the ImageCaptureExtenderImpl to retrieve the target format/resolutions pair list
         // from vendor library for the target effect mode.
-        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(effectMode, lensFacing)
+        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(extensionMode, lensFacing)
 
         // NoSuchMethodError will be thrown if getSupportedResolutions is not implemented in
         // vendor library, and then the test will fail.
@@ -130,7 +125,7 @@ class PreviewExtenderValidationTest(
     fun returnsNullFromOnPresetSession_whenAPILevelOlderThan28() {
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.
-        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(effectMode, lensFacing)
+        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(extensionMode, lensFacing)
         Truth.assertThat(impl.onPresetSession()).isNull()
     }
 }
