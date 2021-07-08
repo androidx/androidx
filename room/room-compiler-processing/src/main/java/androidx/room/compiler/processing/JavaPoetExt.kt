@@ -15,7 +15,6 @@
  */
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.javac.JavacExecutableElement
 import androidx.room.compiler.processing.ksp.KspMethodElement
 import androidx.room.compiler.processing.ksp.KspMethodType
 import com.squareup.javapoet.ClassName
@@ -139,11 +138,8 @@ object MethodSpecHelper {
             }
             addAnnotation(Override::class.java)
             varargs(executableElement.isVarArgs())
-            if (executableElement is JavacExecutableElement) {
-                // copy throws for java
-                executableElement.element.thrownTypes.forEach {
-                    addException(TypeName.get(it))
-                }
+            executableElement.thrownTypes.forEach {
+                addException(it.typeName)
             }
             returns(resolvedType.returnType.typeName)
         }
