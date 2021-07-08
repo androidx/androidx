@@ -187,9 +187,8 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
             new Parcelable.Creator<RenderParametersWireFormat>() {
                 @Override
                 public RenderParametersWireFormat createFromParcel(Parcel source) {
-                    return RenderParametersWireFormatParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override

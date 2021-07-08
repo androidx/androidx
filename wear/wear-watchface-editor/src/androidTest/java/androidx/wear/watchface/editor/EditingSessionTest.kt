@@ -23,10 +23,12 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.icu.util.Calendar
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -98,6 +100,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -228,10 +232,7 @@ public class TestHeadlessWatchFaceService : WatchFaceService() {
 
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = ComplicationSlotsManager(
-        listOf(leftComplication, rightComplication),
-        currentUserStyleRepository
-    )
+    ) = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
@@ -248,7 +249,11 @@ public class TestHeadlessWatchFaceService : WatchFaceService() {
             100
         ) {
             override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
-                // NOP
+                when (currentUserStyleRepository.userStyle[colorStyleSetting]!!) {
+                    redStyleOption -> canvas.drawColor(Color.RED)
+                    greenStyleOption -> canvas.drawColor(Color.GREEN)
+                    blueStyleOption -> canvas.drawColor(Color.BLUE)
+                }
             }
 
             override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
@@ -455,7 +460,8 @@ public class EditorSessionTest {
         preRFlow: Boolean = false,
         headlessDeviceConfig: DeviceConfig? = null,
         initialUserStyle: UserStyleData? = null,
-        watchComponentName: ComponentName = ComponentName("test.package", "test.class")
+        watchComponentName: ComponentName = ComponentName("test.package", "test.class"),
+        previewScreenshotParams: PreviewScreenshotParams? = null
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
         val complicationSlotsManager =
@@ -521,7 +527,8 @@ public class EditorSessionTest {
                     testEditorPackageName,
                     initialUserStyle,
                     watchFaceId,
-                    headlessDeviceConfig
+                    headlessDeviceConfig,
+                    previewScreenshotParams
                 )
             ).apply {
                 component = ComponentName(
@@ -1469,6 +1476,50 @@ public class EditorSessionTest {
         assertThat(result.userStyle.userStyleMap[watchHandStyleSetting.id.value])
             .isEqualTo(gothicStyleOption.id.value)
         assertTrue(result.shouldCommitChanges)
+        assertNull(result.previewImage)
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    public fun commitWithPreviewImage() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            emptyList(),
+            headlessDeviceConfig = DeviceConfig(false, false, 0, 0),
+            watchComponentName = headlessWatchFaceComponentName,
+            previewScreenshotParams =
+                PreviewScreenshotParams(RenderParameters.DEFAULT_INTERACTIVE, 0)
+        )
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+        scenario.onActivity { activity ->
+            runBlocking {
+                activity.deferredDone.await()
+            }
+            // Select [blueStyleOption] and [gothicStyleOption].
+            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+                styleMap[userStyleSetting] = userStyleSetting.options.last()
+            }
+            activity.editorSession.userStyle = UserStyle(styleMap)
+            activity.editorSession.close()
+            activity.finish()
+        }
+
+        val result = editorObserver.awaitEditorStateChange(
+            TIMEOUT_MILLIS,
+            TimeUnit.MILLISECONDS
+        ).asApiEditorState()
+
+        // previewImage is only supported from API 27 onwards.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            assertNotNull(result.previewImage)
+            assertThat(result.previewImage!!.getPixel(0, 0)).isEqualTo(Color.BLUE)
+        } else {
+            assertNull(result.previewImage)
+        }
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
@@ -1477,7 +1528,9 @@ public class EditorSessionTest {
     public fun doNotCommit() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
-            emptyList()
+            emptyList(),
+            previewScreenshotParams =
+                PreviewScreenshotParams(RenderParameters.DEFAULT_INTERACTIVE, 0)
         )
         val editorObserver = TestEditorObserver()
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
@@ -1511,6 +1564,7 @@ public class EditorSessionTest {
         assertThat(result.userStyle.userStyleMap[watchHandStyleSetting.id.value])
             .isEqualTo(gothicStyleOption.id.value)
         assertFalse(result.shouldCommitChanges)
+        assertNull(result.previewImage)
 
         // The original style should be applied to the watch face however because
         // commitChangesOnClose is false.
@@ -1575,7 +1629,14 @@ public class EditorSessionTest {
         runBlocking {
             val intent = WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorPackageName, null, testInstanceId, null)
+                EditorRequest(
+                    testComponentName,
+                    testEditorPackageName,
+                    null,
+                    testInstanceId,
+                    null,
+                    null
+                )
             )
             assertThat(intent.getPackage()).isEqualTo(testEditorPackageName)
 
@@ -1635,6 +1696,7 @@ public class EditorSessionTest {
                     testEditorPackageName,
                     null,
                     WatchFaceId("instanceId"),
+                    null,
                     null
                 )
             ).apply {
@@ -1807,7 +1869,14 @@ public class EditorSessionTest {
         val scenario: ActivityScenario<OnWatchFaceEditingTestActivity> = ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId, null)
+                EditorRequest(
+                    testComponentName,
+                    testEditorPackageName,
+                    null,
+                    watchFaceId,
+                    null,
+                    null
+                )
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),

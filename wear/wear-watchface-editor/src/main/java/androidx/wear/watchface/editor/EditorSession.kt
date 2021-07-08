@@ -26,6 +26,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.wearable.watchface.Constants
+import android.support.wearable.watchface.SharedMemoryImage
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.Px
@@ -259,7 +260,8 @@ public abstract class EditorSession : AutoCloseable {
                 editorRequest.initialUserStyle,
                 complicationDataSourceInfoRetrieverProvider,
                 coroutineScope,
-                isRFlow
+                isRFlow,
+                editorRequest.previewScreenshotParams
             )
             // But full initialization has to be deferred because
             // [WatchFace.getOrCreateEditorDelegate] is async.
@@ -321,7 +323,8 @@ public abstract class EditorSession : AutoCloseable {
                     },
                     CoroutineScope(
                         Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate
-                    )
+                    ),
+                    it.previewScreenshotParams
                 )
             }
         }
@@ -363,7 +366,8 @@ public abstract class BaseEditorSession internal constructor(
     private val activity: ComponentActivity,
     private val complicationDataSourceInfoRetrieverProvider:
         ComplicationDataSourceInfoRetrieverProvider,
-    public val coroutineScope: CoroutineScope
+    public val coroutineScope: CoroutineScope,
+    private val previewScreenshotParams: PreviewScreenshotParams?
 ) : EditorSession() {
     protected var closed: Boolean = false
     protected var forceClosed: Boolean = false
@@ -607,6 +611,20 @@ public abstract class BaseEditorSession internal constructor(
         coroutineScope.launchWithTracing("BaseEditorSession.close") {
             try {
                 withTimeout(CLOSE_BROADCAST_TIMEOUT_MILLIS) {
+                    val previewImage =
+                        if (commitChangesOnClose && previewScreenshotParams != null &&
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1
+                        ) {
+                            SharedMemoryImage.ashmemWriteImageBundle(
+                                renderWatchFaceToBitmap(
+                                    previewScreenshotParams.renderParameters,
+                                    previewScreenshotParams.calendarTimeMillis,
+                                    getComplicationsPreviewData()
+                                )
+                            )
+                        } else {
+                            null
+                        }
                     EditorService.globalEditorService.broadcastEditorState(
                         EditorStateWireFormat(
                             watchFaceId.id,
@@ -617,7 +635,8 @@ public abstract class BaseEditorSession internal constructor(
                                     it.value.asWireComplicationData()
                                 )
                             },
-                            commitChangesOnClose
+                            commitChangesOnClose,
+                            previewImage
                         )
                     )
                 }
@@ -638,10 +657,10 @@ public abstract class BaseEditorSession internal constructor(
         closed = true
         forceClosed = true
         releaseResources()
-        activity.finish()
         EditorService.globalEditorService.removeCloseCallback(closeCallback)
         editorSessionTraceEvent.close()
         coroutineScope.cancel()
+        activity.finish()
     }
 
     protected fun requireNotClosed() {
@@ -661,8 +680,14 @@ internal class OnWatchFaceEditorSessionImpl(
     private val initialEditorUserStyle: UserStyleData?,
     complicationDataSourceInfoRetrieverProvider: ComplicationDataSourceInfoRetrieverProvider,
     coroutineScope: CoroutineScope,
-    private val isRFlow: Boolean
-) : BaseEditorSession(activity, complicationDataSourceInfoRetrieverProvider, coroutineScope) {
+    private val isRFlow: Boolean,
+    previewScreenshotParams: PreviewScreenshotParams?
+) : BaseEditorSession(
+    activity,
+    complicationDataSourceInfoRetrieverProvider,
+    coroutineScope,
+    previewScreenshotParams
+) {
     private lateinit var editorDelegate: WatchFace.EditorDelegate
 
     override val userStyleSchema by lazy {
@@ -773,8 +798,14 @@ internal class HeadlessEditorSession(
     override val watchFaceId: WatchFaceId,
     initialUserStyle: UserStyleData,
     complicationDataSourceInfoRetrieverProvider: ComplicationDataSourceInfoRetrieverProvider,
-    coroutineScope: CoroutineScope
-) : BaseEditorSession(activity, complicationDataSourceInfoRetrieverProvider, coroutineScope) {
+    coroutineScope: CoroutineScope,
+    previewScreenshotParams: PreviewScreenshotParams?
+) : BaseEditorSession(
+    activity,
+    complicationDataSourceInfoRetrieverProvider,
+    coroutineScope,
+    previewScreenshotParams
+) {
     override val userStyleSchema = headlessWatchFaceClient.userStyleSchema
 
     override var userStyle = UserStyle(initialUserStyle, userStyleSchema)
