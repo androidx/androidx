@@ -35,6 +35,6 @@ class ApiLintVersionsTest {
         Assert.assertEquals(CURRENT_API, registry.api)
         // Intentionally fails in IDE, because we use different API version in
         // studio and command line
-        Assert.assertEquals(8, registry.minApi)
+        Assert.assertEquals(3, registry.minApi)
     }
 }
