@@ -16,6 +16,10 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+def isIdeBuild() {
+    return project.properties['android.injected.invoked.from.ide'] == 'true'
+}
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -31,5 +35,10 @@ dependencies {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [ "-Xuse-experimental=kotlin.Experimental" ]
+
+        // Ensure that compilation passes in CLI despite opt-in violations in integration tests.
+        if (!isIdeBuild()) {
+            freeCompilerArgs += [ "-Xopt-in=sample.optin.ExperimentalKotlinAnnotation" ]
+        }
     }
 }
