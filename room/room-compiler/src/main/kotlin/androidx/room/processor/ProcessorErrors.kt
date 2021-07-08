@@ -67,6 +67,10 @@ object ProcessorErrors {
     val AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS = "When @PrimaryKey annotation is used on a" +
         " field annotated with @Embedded, the embedded class should have only 1 field."
 
+    val DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP = "Do not use ImmutableMultimap as a type (as with" +
+        " Multimap itself). Instead use the subtypes such as ImmutableSetMultimap or " +
+        "ImmutableListMultimap."
+
     fun multiplePrimaryKeyAnnotations(primaryKeys: List<String>): String {
         return """
                 You cannot have multiple primary keys defined in an Entity. If you

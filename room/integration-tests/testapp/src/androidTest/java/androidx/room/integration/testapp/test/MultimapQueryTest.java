@@ -41,7 +41,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
 
 import org.hamcrest.MatcherAssert;
 import org.junit.Before;
@@ -475,6 +480,172 @@ public class MultimapQueryTest {
     }
 
     @Test
+    public void testJoinByArtistNameGuavaImmutableListMultimap() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        ImmutableListMultimap<Artist, Song> artistToSongs =
+                mMusicDao.getAllArtistAndTheirSongsGuavaImmutableListMultimap();
+        assertContentsOfResultMultimap(artistToSongs);
+    }
+
+    @Test
+    public void testJoinByArtistNameGuavaImmutableSetMultimap() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        ImmutableSetMultimap<Artist, Song> artistToSongs =
+                mMusicDao.getAllArtistAndTheirSongsGuavaImmutableSetMultimap();
+        assertContentsOfResultMultimap(artistToSongs);
+    }
+
+    @Test
+    public void testJoinByArtistNameRawQueryGuavaImmutableListMultimap() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        ImmutableListMultimap<Artist, Song> artistToSongsMap =
+                mMusicDao.getAllArtistAndTheirSongsRawQueryGuavaImmutableListMultimap(
+                        new SimpleSQLiteQuery(
+                                "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song"
+                                        + ".mArtist"
+                        )
+                );
+        assertThat(artistToSongsMap.get(mAcDc)).containsExactly(mAcdcSong1);
+    }
+
+    @Test
+    public void testJoinByArtistNameRawQueryGuavaImmutableSetMultimap() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        ImmutableSetMultimap<Artist, Song> artistToSongsMap =
+                mMusicDao.getAllArtistAndTheirSongsRawQueryGuavaImmutableSetMultimap(
+                        new SimpleSQLiteQuery(
+                                "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song"
+                                        + ".mArtist"
+                        )
+                );
+        assertThat(artistToSongsMap.get(mAcDc)).containsExactly(mAcdcSong1);
+    }
+
+    @Test
+    public void testJoinByArtistNameLiveDataGuavaImmutableListMultimap()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        LiveData<ImmutableListMultimap<Artist, Song>> artistToSongsMapLiveData =
+                mMusicDao.getAllArtistAndTheirSongsAsLiveDataGuavaImmutableListMultimap();
+        final TestLifecycleOwner testOwner = new TestLifecycleOwner(Lifecycle.State.CREATED);
+        final TestObserver<ImmutableListMultimap<Artist, Song>> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(artistToSongsMapLiveData, testOwner, observer);
+        MatcherAssert.assertThat(observer.hasValue(), is(false));
+        observer.reset();
+        testOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
+
+        assertThat(observer.get()).isNotNull();
+        assertContentsOfResultMultimap(observer.get());
+    }
+
+    @Test
+    public void testJoinByArtistNameLiveDataGuavaImmutableSetMultimap()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        LiveData<ImmutableSetMultimap<Artist, Song>> artistToSongsMapLiveData =
+                mMusicDao.getAllArtistAndTheirSongsAsLiveDataGuavaImmutableSetMultimap();
+        final TestLifecycleOwner testOwner = new TestLifecycleOwner(Lifecycle.State.CREATED);
+        final TestObserver<ImmutableSetMultimap<Artist, Song>> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(artistToSongsMapLiveData, testOwner, observer);
+        MatcherAssert.assertThat(observer.hasValue(), is(false));
+        observer.reset();
+        testOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
+
+        assertThat(observer.get()).isNotNull();
+        assertContentsOfResultMultimap(observer.get());
+    }
+
+    @Test
+    public void testPojoWithEmbeddedAndRelationGuavaImmutableListMultimap() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        ImmutableListMultimap<Artist, AlbumWithSongs> artistToAlbumsWithSongsMap =
+                mMusicDao.getAllArtistAndTheirAlbumsWithSongsGuavaImmutableListMultimap();
+        ImmutableList<AlbumWithSongs> rhcpList = artistToAlbumsWithSongsMap.get(mRhcp);
+
+        assertThat(artistToAlbumsWithSongsMap.keySet()).containsExactlyElementsIn(
+                Arrays.asList(mRhcp, mAcDc, mPinkFloyd));
+        assertThat(artistToAlbumsWithSongsMap.containsKey(mTheClash)).isFalse();
+        assertThat(artistToAlbumsWithSongsMap.get(
+                mPinkFloyd).get(0).getAlbum())
+                .isEqualTo(mTheDarkSideOfTheMoon);
+        assertThat(artistToAlbumsWithSongsMap.get(mAcDc).get(0).getAlbum())
+                .isEqualTo(mHighwayToHell);
+        assertThat(artistToAlbumsWithSongsMap.get(mAcDc).get(0).getSongs()
+                .get(0)).isEqualTo(mAcdcSong1);
+
+        for (AlbumWithSongs albumAndSong : rhcpList) {
+            if (albumAndSong.getAlbum().equals(mStadiumArcadium)) {
+                assertThat(albumAndSong.getSongs()).containsExactlyElementsIn(
+                        Arrays.asList(mRhcpSong1, mRhcpSong2)
+                );
+            } else if (albumAndSong.getAlbum().equals(mCalifornication)) {
+                assertThat(albumAndSong.getSongs()).isEmpty();
+            } else {
+                fail();
+            }
+        }
+    }
+
+    @Test
+    public void testPojoWithEmbeddedAndRelationGuavaImmutableSetMultimap() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        ImmutableSetMultimap<Artist, AlbumWithSongs> artistToAlbumsWithSongsMap =
+                mMusicDao.getAllArtistAndTheirAlbumsWithSongsGuavaImmutableSetMultimap();
+        ImmutableSet<AlbumWithSongs> rhcpList = artistToAlbumsWithSongsMap.get(mRhcp);
+
+        assertThat(artistToAlbumsWithSongsMap.keySet()).containsExactlyElementsIn(
+                Arrays.asList(mRhcp, mAcDc, mPinkFloyd));
+        assertThat(artistToAlbumsWithSongsMap.containsKey(mTheClash)).isFalse();
+        assertThat(artistToAlbumsWithSongsMap.get(
+                mPinkFloyd).asList().get(0).getAlbum())
+                .isEqualTo(mTheDarkSideOfTheMoon);
+        assertThat(artistToAlbumsWithSongsMap.get(mAcDc).asList().get(0).getAlbum())
+                .isEqualTo(mHighwayToHell);
+        assertThat(artistToAlbumsWithSongsMap.get(mAcDc).asList().get(0).getSongs()
+                .get(0)).isEqualTo(mAcdcSong1);
+
+        for (AlbumWithSongs albumAndSong : rhcpList) {
+            if (albumAndSong.getAlbum().equals(mStadiumArcadium)) {
+                assertThat(albumAndSong.getSongs()).containsExactlyElementsIn(
+                        Arrays.asList(mRhcpSong1, mRhcpSong2)
+                );
+            } else if (albumAndSong.getAlbum().equals(mCalifornication)) {
+                assertThat(albumAndSong.getSongs()).isEmpty();
+            } else {
+                fail();
+            }
+        }
+    }
+
+    @Test
     public void testJoinByArtistNameImmutableMap() {
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
@@ -539,6 +710,22 @@ public class MultimapQueryTest {
      * @param artistToSongsMap Map of Artists to set of Songs joined by the artist name
      */
     private void assertContentsOfResultMapWithSet(Map<Artist, Set<Song>> artistToSongsMap) {
+        assertThat(artistToSongsMap.keySet()).containsExactlyElementsIn(
+                Arrays.asList(mRhcp, mAcDc, mPinkFloyd));
+        assertThat(artistToSongsMap.containsKey(mTheClash)).isFalse();
+        assertThat(artistToSongsMap.get(mPinkFloyd)).containsExactly(mPinkFloydSong1);
+        assertThat(artistToSongsMap.get(mRhcp)).containsExactlyElementsIn(
+                Arrays.asList(mRhcpSong1, mRhcpSong2)
+        );
+        assertThat(artistToSongsMap.get(mAcDc)).containsExactly(mAcdcSong1);
+    }
+
+    /**
+     * Checks that the contents of the map are as expected.
+     *
+     * @param artistToSongsMap Map of Artists to Collection of Songs joined by the artist name
+     */
+    private void assertContentsOfResultMultimap(ImmutableMultimap<Artist, Song> artistToSongsMap) {
         assertThat(artistToSongsMap.keySet()).containsExactlyElementsIn(
                 Arrays.asList(mRhcp, mAcDc, mPinkFloyd));
         assertThat(artistToSongsMap.containsKey(mTheClash)).isFalse();
