@@ -31,6 +31,7 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
+import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
@@ -1337,6 +1338,23 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasErrorCount(2)
                 hasErrorContaining("Multimap 'value' collection type must be a List or Set.")
+                hasErrorContaining("Not sure how to convert a Cursor to this method's return type")
+            }
+        }
+    }
+
+    @Test
+    fun testInvalidGenericMultimapJoin() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("select * from User u JOIN Book b ON u.uid == b.uid")
+                abstract com.google.common.collect.ImmutableMultimap<User, Book>
+                getInvalidCollectionMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(2)
+                hasError(DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP)
                 hasErrorContaining("Not sure how to convert a Cursor to this method's return type")
             }
         }
