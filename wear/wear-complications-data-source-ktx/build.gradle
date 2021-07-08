@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -26,24 +24,18 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    api(project(":wear:wear-complications-data"))
-
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.preference:preference:1.1.0")
+    api(project(":wear:wear-complications-data-source"))
+    api(libs.kotlinStdlib)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
     testImplementation("junit:junit:4.13")
 }
 
 android {
-    buildFeatures {
-        aidl = true
-    }
     defaultConfig {
         minSdkVersion 25
     }
@@ -53,10 +45,11 @@ android {
 }
 
 androidx {
-    name = "Android Wear Complications"
+    name = "Android Wear Complications Data Source Ktx"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR
-    mavenVersion = LibraryVersions.WEAR_COMPLICATIONS_PROVIDER
-    inceptionYear = "2020"
-    description = "Android Wear Complications"
+    mavenVersion = LibraryVersions.WEAR_COMPLICATIONS_DATA_SOURCE_KTX
+    inceptionYear = "2021"
+    description = "Kotlin suspend wrapper for Android Wear Complications Data Source"
 }
+

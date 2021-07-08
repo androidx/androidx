@@ -22,7 +22,7 @@ plugins {
 
 dependencies {
     implementation("androidx.core:core:1.1.0")
-    api(project(":wear:wear-complications-provider"))
+    api(project(":wear:wear-complications-data-source"))
     api(libs.guavaAndroid)
     api(libs.kotlinStdlib)
 }
