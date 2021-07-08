@@ -656,7 +656,7 @@ includeProject(":webkit:integration-tests:testapp", "webkit/integration-tests/te
 includeProject(":webkit:webkit", "webkit/webkit", [BuildType.MAIN])
 includeProject(":window:window", "window/window", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":window:window-extensions", "window/window-extensions", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":window:window-java", "window/window-java", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":window:window-java", "window/window-java", [BuildType.MAIN])
 includeProject(":window:window-rxjava2", "window/window-rxjava2", [BuildType.MAIN])
 includeProject(":window:window-rxjava3", "window/window-rxjava3", [BuildType.MAIN])
 includeProject(":window:window-samples", "window/window-samples", [BuildType.MAIN])
