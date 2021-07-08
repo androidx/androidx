@@ -41,6 +41,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import com.google.common.collect.ImmutableMap;
+
 import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -470,6 +472,49 @@ public class MultimapQueryTest {
                 fail();
             }
         }
+    }
+
+    @Test
+    public void testJoinByArtistNameImmutableMap() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        ImmutableMap<Artist, List<Song>> artistToSongsMap =
+                mMusicDao.getAllArtistAndTheirSongsImmutableMap();
+        assertContentsOfResultMapWithList(artistToSongsMap);
+    }
+
+    @Test
+    public void testJoinByArtistNameRawQueryImmutableMap() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        ImmutableMap<Artist, List<Song>> artistToSongsMap =
+                mMusicDao.getAllArtistAndTheirSongsRawQueryImmutableMap(
+                        new SimpleSQLiteQuery(
+                                "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song"
+                                        + ".mArtist"
+                        )
+                );
+        assertContentsOfResultMapWithList(artistToSongsMap);
+    }
+
+    @Test
+    public void testJoinByArtistNameImmutableMapWithSet()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        LiveData<ImmutableMap<Artist, Set<Song>>> artistToSongsMapLiveData =
+                mMusicDao.getAllArtistAndTheirSongsAsLiveDataImmutableMap();
+        final TestLifecycleOwner testOwner = new TestLifecycleOwner(Lifecycle.State.CREATED);
+        final TestObserver<Map<Artist, Set<Song>>> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(artistToSongsMapLiveData, testOwner, observer);
+        MatcherAssert.assertThat(observer.hasValue(), is(false));
+        observer.reset();
+        testOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
+
+        assertThat(observer.get()).isNotNull();
+        assertContentsOfResultMapWithSet(observer.get());
     }
 
     /**
