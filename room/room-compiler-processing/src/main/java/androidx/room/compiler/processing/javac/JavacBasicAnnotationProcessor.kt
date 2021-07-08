@@ -51,7 +51,7 @@ abstract class JavacBasicAnnotationProcessor :
             // The first step in a round initializes the cachedXEnv. Note: the "first" step can
             // change each round depending on which annotations are present in the current round and
             // which elements were deferred in the previous round.
-            val xEnv = cachedXEnv ?: JavacProcessingEnv(processingEnv)
+            val xEnv = cachedXEnv ?: JavacProcessingEnv(processingEnv).also { cachedXEnv = it }
             val xElementsByAnnotation = mutableMapOf<String, Set<XElement>>()
             xStep.annotations().forEach { annotation ->
                 xElementsByAnnotation[annotation] =

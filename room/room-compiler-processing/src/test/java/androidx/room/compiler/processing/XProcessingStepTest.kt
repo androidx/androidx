@@ -268,6 +268,68 @@ class XProcessingStepTest {
     }
 
     @Test
+    fun cachingBetweenSteps() {
+        val main = JavaFileObjects.forSourceString(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @MainAnnotation(
+                typeList = {},
+                singleType = Object.class,
+                intMethod = 3,
+                singleOtherAnnotation = @OtherAnnotation("y")
+            )
+            class Main {}
+            """.trimIndent()
+        )
+        val other = JavaFileObjects.forSourceString(
+            "foo.bar.Other",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @OtherAnnotation("x")
+            class Other {
+            }
+            """.trimIndent()
+        )
+        val elementsByStep = mutableMapOf<XProcessingStep, XTypeElement>()
+        // create a scenario where we can test caching between steps
+        val mainStep = object : XProcessingStep {
+            override fun annotations(): Set<String> = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XTypeElement> {
+                elementsByStep[this] = env.requireTypeElement("foo.bar.Main")
+                return emptySet()
+            }
+        }
+        val otherStep = object : XProcessingStep {
+            override fun annotations(): Set<String> = setOf(OtherAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XTypeElement> {
+                elementsByStep[this] = env.requireTypeElement("foo.bar.Main")
+                return emptySet()
+            }
+        }
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main, other)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(mainStep, otherStep)
+            }
+        ).compilesWithoutError()
+        assertThat(elementsByStep.keys).containsExactly(mainStep, otherStep)
+        // make sure elements between steps are the same instances
+        assertThat(elementsByStep[mainStep]).isSameInstanceAs(elementsByStep[otherStep])
+    }
+
+    @Test
     fun kspReturnsUnprocessed() {
         CompilationTestCapabilities.assumeKspIsEnabled()
         var returned: Set<XElement>? = null
