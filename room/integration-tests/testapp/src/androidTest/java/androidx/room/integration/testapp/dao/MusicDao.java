@@ -35,7 +35,9 @@ import androidx.room.integration.testapp.vo.ReleasedAlbum;
 import androidx.room.integration.testapp.vo.Song;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSetMultimap;
 
 import java.util.List;
 import java.util.Map;
@@ -142,4 +144,39 @@ public interface MusicDao {
 
     @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
     LiveData<ImmutableMap<Artist, Set<Song>>> getAllArtistAndTheirSongsAsLiveDataImmutableMap();
+
+    /* Guava Multimap */
+    @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
+    ImmutableSetMultimap<Artist, Song> getAllArtistAndTheirSongsGuavaImmutableSetMultimap();
+
+    @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
+    ImmutableListMultimap<Artist, Song> getAllArtistAndTheirSongsGuavaImmutableListMultimap();
+
+    @Transaction
+    @Query("SELECT * FROM Artist JOIN Album ON Artist.mArtistName = Album.mAlbumArtist")
+    ImmutableSetMultimap<Artist, AlbumWithSongs>
+            getAllArtistAndTheirAlbumsWithSongsGuavaImmutableSetMultimap();
+
+    @Transaction
+    @Query("SELECT * FROM Artist JOIN Album ON Artist.mArtistName = Album.mAlbumArtist")
+    ImmutableListMultimap<Artist, AlbumWithSongs>
+            getAllArtistAndTheirAlbumsWithSongsGuavaImmutableListMultimap();
+
+    @RawQuery
+    ImmutableSetMultimap<Artist, Song> getAllArtistAndTheirSongsRawQueryGuavaImmutableSetMultimap(
+            SupportSQLiteQuery query
+    );
+
+    @RawQuery
+    ImmutableListMultimap<Artist, Song> getAllArtistAndTheirSongsRawQueryGuavaImmutableListMultimap(
+            SupportSQLiteQuery query
+    );
+
+    @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
+    LiveData<ImmutableSetMultimap<Artist, Song>>
+            getAllArtistAndTheirSongsAsLiveDataGuavaImmutableSetMultimap();
+
+    @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
+    LiveData<ImmutableListMultimap<Artist, Song>>
+            getAllArtistAndTheirSongsAsLiveDataGuavaImmutableListMultimap();
 }

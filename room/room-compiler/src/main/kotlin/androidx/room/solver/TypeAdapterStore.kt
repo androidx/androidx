@@ -32,6 +32,7 @@ import androidx.room.processor.Context
 import androidx.room.processor.EntityProcessor
 import androidx.room.processor.FieldProcessor
 import androidx.room.processor.PojoProcessor
+import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
 import androidx.room.solver.binderprovider.CoroutineFlowResultBinderProvider
 import androidx.room.solver.binderprovider.CursorQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
@@ -54,6 +55,7 @@ import androidx.room.solver.query.parameter.CollectionQueryParameterAdapter
 import androidx.room.solver.query.parameter.QueryParameterAdapter
 import androidx.room.solver.query.result.ArrayQueryResultAdapter
 import androidx.room.solver.query.result.EntityRowAdapter
+import androidx.room.solver.query.result.GuavaImmutableMultimapQueryResultAdapter
 import androidx.room.solver.query.result.GuavaOptionalQueryResultAdapter
 import androidx.room.solver.query.result.ImmutableListQueryResultAdapter
 import androidx.room.solver.query.result.ImmutableMapQueryResultAdapter
@@ -96,6 +98,10 @@ import androidx.room.solver.types.TypeConverter
 import androidx.room.vo.ShortcutQueryParameter
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableListMultimap
+import com.google.common.collect.ImmutableMultimap
+import com.google.common.collect.ImmutableSetMultimap
+import com.squareup.javapoet.ClassName
 import com.google.common.collect.ImmutableMap
 import java.util.LinkedList
 
@@ -481,6 +487,38 @@ class TypeAdapterStore private constructor(
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
                 resultAdapter = resultAdapter
+            )
+        } else if (typeMirror.isTypeOf(ImmutableSetMultimap::class) ||
+            typeMirror.isTypeOf(ImmutableListMultimap::class) ||
+            typeMirror.isTypeOf(ImmutableMultimap::class)
+        ) {
+            val keyTypeArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
+            val valueTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
+
+            if (valueTypeArg.typeElement == null) {
+                context.logger.e(
+                    "Guava multimap 'value' type argument does not represent a class. " +
+                        "Found $valueTypeArg."
+                )
+                return null
+            }
+
+            val immutableClassName = if (typeMirror.isTypeOf(ImmutableListMultimap::class)) {
+                ClassName.get(ImmutableListMultimap::class.java)
+            } else if (typeMirror.isTypeOf(ImmutableSetMultimap::class)) {
+                ClassName.get(ImmutableSetMultimap::class.java)
+            } else {
+                // Return type is base class ImmutableMultimap which is not recommended.
+                context.logger.e(DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP)
+                return null
+            }
+
+            return GuavaImmutableMultimapQueryResultAdapter(
+                keyTypeArg = keyTypeArg,
+                valueTypeArg = valueTypeArg,
+                keyRowAdapter = findRowAdapter(keyTypeArg, query) ?: return null,
+                valueRowAdapter = findRowAdapter(valueTypeArg, query) ?: return null,
+                immutableClassName = immutableClassName
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class)) {
             // TODO: Handle nested collection values in the map
