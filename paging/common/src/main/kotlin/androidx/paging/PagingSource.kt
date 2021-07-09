@@ -204,6 +204,24 @@ public abstract class PagingSource<Key : Any, Value : Any> {
         ) : LoadResult<Key, Value>()
 
         /**
+         * Invalid result object for [PagingSource.load]
+         *
+         * This return type can be used to terminate future load requests on this [PagingSource]
+         * when the [PagingSource] is not longer valid due to changes in the underlying dataset.
+         *
+         * For example, if the underlying database gets written into but the [PagingSource] does
+         * not invalidate in time, it may return inconsistent results if its implementation depends
+         * on the immutability of the backing dataset it loads from (e.g., LIMIT OFFSET style db
+         * implementations). In this scenario, it is recommended to check for invalidation after
+         * loading and to return LoadResult.Invalid, which causes Paging to discard any
+         * pending or future load requests to this PagingSource and invalidate it.
+         *
+         * Returning [Invalid] will trigger Paging to [invalidate] this [PagingSource] and
+         * terminate any future attempts to [load] from this [PagingSource]
+         */
+        public class Invalid<Key : Any, Value : Any> : LoadResult<Key, Value>()
+
+        /**
          * Success result object for [PagingSource.load].
          *
          * @sample androidx.paging.samples.pageKeyedPage

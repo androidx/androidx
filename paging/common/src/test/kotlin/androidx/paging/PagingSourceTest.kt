@@ -58,12 +58,15 @@ class PagingSourceTest {
             assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
             assertEquals(45, result.itemsAfter)
 
+            val errorParams = LoadParams.Refresh(key, 10, false)
             // Verify error is propagated correctly.
             pagingSource.enqueueError()
-            val errorParams = LoadParams.Refresh(key, 10, false)
             assertFailsWith<CustomException> {
                 pagingSource.load(errorParams)
             }
+            // Verify LoadResult.Invalid is returned
+            pagingSource.invalidateLoad()
+            assertTrue(pagingSource.load(errorParams) is LoadResult.Invalid)
         }
     }
 
@@ -197,12 +200,15 @@ class PagingSourceTest {
 
             assertEquals(ITEMS_BY_NAME_ID.subList(0, 5), observed)
 
+            val errorParams = LoadParams.Prepend(key, 5, false)
             // Verify error is propagated correctly.
             dataSource.enqueueError()
             assertFailsWith<CustomException> {
-                val errorParams = LoadParams.Prepend(key, 5, false)
                 dataSource.load(errorParams)
             }
+            // Verify LoadResult.Invalid is returned
+            dataSource.invalidateLoad()
+            assertTrue(dataSource.load(errorParams) is LoadResult.Invalid)
         }
     }
 
@@ -217,12 +223,15 @@ class PagingSourceTest {
 
             assertEquals(ITEMS_BY_NAME_ID.subList(6, 11), observed)
 
+            val errorParams = LoadParams.Append(key, 5, false)
             // Verify error is propagated correctly.
             dataSource.enqueueError()
             assertFailsWith<CustomException> {
-                val errorParams = LoadParams.Append(key, 5, false)
                 dataSource.load(errorParams)
             }
+            // Verify LoadResult.Invalid is returned
+            dataSource.invalidateLoad()
+            assertTrue(dataSource.load(errorParams) is LoadResult.Invalid)
         }
     }
 
@@ -256,6 +265,8 @@ class PagingSourceTest {
 
         private var error = false
 
+        private var invalidLoadResult = false
+
         override fun getRefreshKey(state: PagingState<Key, Item>): Key? {
             return state.anchorPosition
                 ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition) }
@@ -274,6 +285,9 @@ class PagingSourceTest {
             if (error) {
                 error = false
                 throw EXCEPTION
+            } else if (invalidLoadResult) {
+                invalidLoadResult = false
+                return LoadResult.Invalid()
             }
 
             val key = params.key ?: Key("", Int.MAX_VALUE)
@@ -292,6 +306,9 @@ class PagingSourceTest {
             if (error) {
                 error = false
                 throw EXCEPTION
+            } else if (invalidLoadResult) {
+                invalidLoadResult = false
+                return LoadResult.Invalid()
             }
 
             val start = findFirstIndexAfter(params.key!!)
@@ -304,6 +321,9 @@ class PagingSourceTest {
             if (error) {
                 error = false
                 throw EXCEPTION
+            } else if (invalidLoadResult) {
+                invalidLoadResult = false
+                return LoadResult.Invalid()
             }
 
             val firstIndexBefore = findFirstIndexBefore(params.key!!)
@@ -326,6 +346,10 @@ class PagingSourceTest {
 
         fun enqueueError() {
             error = true
+        }
+
+        fun invalidateLoad() {
+            invalidLoadResult = true
         }
     }
 
