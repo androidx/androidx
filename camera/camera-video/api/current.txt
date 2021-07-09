@@ -1,0 +1,39 @@
+// Signature format: 4.0
+package androidx.camera.video {
+
+  public final class ActiveRecording implements java.lang.AutoCloseable {
+    method public void close();
+    method public void pause();
+    method public void resume();
+    method public void stop();
+  }
+
+  public final class PendingRecording {
+    method @CheckResult public androidx.camera.video.ActiveRecording start();
+    method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled();
+    method public androidx.camera.video.PendingRecording withEventListener(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
+  }
+
+  public final class Recorder implements androidx.camera.video.VideoOutput {
+    method public java.util.concurrent.Executor? getExecutor();
+    method public androidx.camera.video.QualitySelector getQualitySelector();
+    method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
+    method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileOutputOptions);
+    method @RequiresApi(26) public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileDescriptorOutputOptions);
+    method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.MediaStoreOutputOptions);
+    field public static final androidx.camera.video.QualitySelector DEFAULT_QUALITY_SELECTOR;
+  }
+
+  public static final class Recorder.Builder {
+    ctor public Recorder.Builder();
+    method public androidx.camera.video.Recorder build();
+    method public androidx.camera.video.Recorder.Builder setExecutor(java.util.concurrent.Executor);
+    method public androidx.camera.video.Recorder.Builder setQualitySelector(androidx.camera.video.QualitySelector);
+  }
+
+  public interface VideoOutput {
+    method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
+  }
+
+}
+

@@ -35,11 +35,10 @@ import java.util.concurrent.Executor;
  * {@link SurfaceRequest} sent to {@link #onSurfaceRequested(SurfaceRequest)}.
  *
  * <p>The type of video data produced by a video output and API for saving or communicating that
- * data is left to the implementation.
- *
- * @hide
+ * data is left to the implementation. An implementation commonly used for local video saving is
+ * {@link Recorder}. This interface is usually only needs to be implemented by applications for
+ * advanced use cases.
  */
-@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public interface VideoOutput {
     /**
      * A state which represents whether the video frame producer is producing frames to the
@@ -78,12 +77,14 @@ public interface VideoOutput {
     /**
      * Called when a new {@link Surface} has been requested by a video frame producer.
      *
-     * <p>This is called when a video frame producer is ready to receive a surface that it can
-     * use to send video frames to the video output.
-     * The video frame producer may repeatedly request a surface more than once, but only the
-     * latest {@link SurfaceRequest} should be considered active. All previous surface requests
-     * will complete by sending a {@link androidx.camera.core.SurfaceRequest.Result} to the
-     * consumer passed to {@link SurfaceRequest#provideSurface(Surface, Executor, Consumer)}.
+     * <p>Users of this class should not call this method directly. It will be called by the
+     * video frame producer. Implementors of this class should be aware that this method is
+     * called when a video frame producer is ready to receive a surface that it can use to send
+     * video frames to the video output. The video frame producer may repeatedly request a
+     * surface more than once, but only the latest {@link SurfaceRequest} should be considered
+     * active. All previous surface requests will complete by sending a
+     * {@link androidx.camera.core.SurfaceRequest.Result} to the consumer passed to
+     * {@link SurfaceRequest#provideSurface(Surface, Executor, Consumer)}.
      *
      * <p>A request is considered active until it is
      * {@linkplain SurfaceRequest#provideSurface(Surface, Executor, androidx.core.util.Consumer)
@@ -95,7 +96,8 @@ public interface VideoOutput {
      *
      * <p>Once a request is successfully completed, it is guaranteed that if a new request is
      * made, the {@link Surface} used to fulfill the previous request will be detached from the
-     * video frame producer and {@link SurfaceRequest#provideSurface(Surface, Executor, Consumer)}
+     * video frame producer and the {@code resultListener} provided in
+     * {@link SurfaceRequest#provideSurface(Surface, Executor, Consumer)}
      * will be invoked with a {@link androidx.camera.core.SurfaceRequest.Result} containing
      * {@link androidx.camera.core.SurfaceRequest.Result#RESULT_SURFACE_USED_SUCCESSFULLY}.
      *
