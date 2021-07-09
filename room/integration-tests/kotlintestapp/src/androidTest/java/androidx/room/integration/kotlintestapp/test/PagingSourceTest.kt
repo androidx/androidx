@@ -69,6 +69,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 /**
  * This test intentionally uses real dispatchers to mimic the real use case.
@@ -82,6 +84,7 @@ class PagingSourceTest {
     private lateinit var itemStore: ItemStore
     private val queryExecutor = FilteringExecutor()
     private val mainThreadQueries = mutableListOf<Pair<String, String>>()
+    private val pagingSources = mutableListOf<PagingSource<Int, PagingEntity>>()
 
     @Before
     fun init() {
@@ -115,6 +118,7 @@ class PagingSourceTest {
         // Check no mainThread queries happened.
         assertThat(mainThreadQueries).isEmpty()
         coroutineScope.cancel()
+        pagingSources.clear()
     }
 
     @Test
@@ -220,25 +224,16 @@ class PagingSourceTest {
             )
             // make sure invalidation requests a refresh
             db.invalidationTracker.awaitPendingRefresh()
-            // make sure we blocked the refresh runnable to ensure test makes sense
+            // make sure we blocked the refresh runnable until after the exception generates a
+            // new paging source
             queryExecutor.awaitDeferredSizeAtLeast(1)
 
-            /** TODO(b/191806126): This .get() call triggers a page fetch on the first generation
-             * although we wrote to DB because invalidation tracker hasn't invalidate the
-             * PagingSource yet. Currently we return a best-effort page, but this could
-             * lead to UI inconsistencies. In this particular scenario,
-             * LimitOffsetPagingSource returns item 89 but presenter doesn't update.
-             */
+            // Now get more items. The pagingSource's load() will check for invalidation and then
+            // return LoadResult.Invalid, causing a second generation paging source to be generated.
             itemStore.get(70)
 
-            /**
-             * Unlike old room-paging implementation through LimitOffsetDataSource, new
-             * implementation relies on InvalidationTracker to invalidate paging sources, so we
-             * need to execute the deferred refresh runnable to invalidate the paging source.
-             */
-            queryExecutor.executeAll()
-
             itemStore.awaitGeneration(2)
+            assertTrue(pagingSources[0].invalid)
             itemStore.awaitInitialLoad()
             // it might be reloaded in any range so just make sure everything is there
             assertThat(itemStore.peekItems()).hasSize(10)
@@ -255,6 +250,28 @@ class PagingSourceTest {
                     items[80 + it]
                 )
             }
+            // Runs deferred invalidationTracker.refreshRunnable. Note that the step in
+            // itemStore.get(70) includes checking the invalidation tables & resetting the tracker's
+            // pendingRefresh flag to false.
+            // Therefore, the mRefreshRunnable executed by executeAll() will not detect changes
+            // in the table anymore.
+            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            queryExecutor.executeAll()
+
+            itemStore.awaitInitialLoad()
+
+            // make sure only two generations of paging sources have been created
+            assertTrue(!pagingSources[1].invalid)
+
+            // if a third generation is created, awaitGeneration(3) will return instead of timing
+            // out.
+            val expectError = assertFailsWith<AssertionError> {
+                itemStore.awaitGeneration(3)
+            }
+            assertThat(expectError.message).isEqualTo("didn't complete in expected time")
+
+            assertThat(itemStore.currentGenerationId).isEqualTo(2)
+            assertThat(pagingSources.size).isEqualTo(2)
         }
     }
 
@@ -283,7 +300,7 @@ class PagingSourceTest {
         pager: Pager<Int, PagingEntity> =
             Pager(
                 config = CONFIG,
-                pagingSourceFactory = db.dao::loadItems
+                pagingSourceFactory = { db.dao.loadItems().also { pagingSources.add(it) } }
             ),
         block: suspend () -> Unit
     ) {
@@ -559,7 +576,7 @@ class PagingSourceTest {
 private suspend fun <T> withTestTimeout(block: suspend () -> T): T {
     try {
         return withTimeout(
-            timeMillis = TimeUnit.SECONDS.toMillis(10)
+            timeMillis = TimeUnit.SECONDS.toMillis(3)
         ) {
             block()
         }

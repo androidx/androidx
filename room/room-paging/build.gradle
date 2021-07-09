@@ -29,7 +29,7 @@ plugins {
 // Note that the CI does not run tests with KSP yet so this is only for local usage.
 // Once variants are properly supported by both ksp and AndroidX, we'll add support for this.
 // (b/153917176)
-def useKsp = project.properties.getOrDefault("useKsp", "true").toBoolean()
+def useKsp = project.properties.getOrDefault("useKsp", "false").toBoolean()
 if (useKsp) {
     apply plugin: "com.google.devtools.ksp"
 } else {
@@ -45,9 +45,9 @@ android {
 dependencies {
     api(libs.kotlinStdlib)
 
-    implementation("androidx.paging:paging-common:3.0.0")
-    implementation project(":room:room-runtime")
+    implementation(project(":room:room-runtime"))
     implementation(project(":room:room-ktx"))
+    implementation(projectOrArtifact(":paging:paging-common"))
 
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.multidex)
