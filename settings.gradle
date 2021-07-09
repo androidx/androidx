@@ -221,7 +221,6 @@ includeProject(":benchmark:benchmark-gradle-plugin", "benchmark/gradle-plugin", 
 includeProject(":benchmark:benchmark-junit4", "benchmark/junit4")
 includeProject(":benchmark:benchmark-macro", "benchmark/macro", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":benchmark:benchmark-macro-junit4", "benchmark/macro-junit4", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":benchmark:integration-tests:crystalball-experiment", "benchmark/integration-tests/crystalball-experiment", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:dry-run-benchmark", "benchmark/integration-tests/dry-run-benchmark", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:macrobenchmark", "benchmark/integration-tests/macrobenchmark", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":benchmark:integration-tests:macrobenchmark-target", "benchmark/integration-tests/macrobenchmark-target", [BuildType.MAIN, BuildType.COMPOSE])
