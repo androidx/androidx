@@ -131,7 +131,7 @@ public class CarAppViewModelTest {
         mMainLooper.idle();
 
         assertThat(mCarAppViewModel.getState().getValue())
-                .isEqualTo(CarAppViewModel.State.CONNECTING);
+                .isEqualTo(CarAppViewModel.State.IDLE);
         assertThat(mCarAppViewModel.getError().getValue()).isNull();
     }
 }

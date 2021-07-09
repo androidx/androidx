@@ -205,6 +205,7 @@ public final class CarAppActivity extends FragmentActivity {
                 serviceComponentName);
         mViewModel = new ViewModelProvider(this, factory).get(CarAppViewModel.class);
         mViewModel.setActivity(this);
+        mViewModel.resetState();
         mViewModel.getError().observe(this, this::onErrorChanged);
         mViewModel.getState().observe(this, this::onStateChanged);
 
@@ -239,43 +240,50 @@ public final class CarAppActivity extends FragmentActivity {
     }
 
     private void onErrorChanged(@Nullable ErrorHandler.ErrorType errorType) {
-        mErrorMessageView.setError(errorType);
+        ThreadUtils.runOnMain(() -> {
+            mErrorMessageView.setError(errorType);
+        });
     }
 
     private void onStateChanged(@NonNull CarAppViewModel.State state) {
-        requireNonNull(mSurfaceView);
-        requireNonNull(mSurfaceHolderListener);
+        ThreadUtils.runOnMain(() -> {
+            requireNonNull(mSurfaceView);
+            requireNonNull(mSurfaceHolderListener);
 
-        switch (state) {
-            case IDLE:
-                mSurfaceView.setVisibility(View.GONE);
-                mSurfaceHolderListener.setSurfaceListener(null);
-                mErrorMessageView.setVisibility(View.GONE);
-                mLoadingView.setVisibility(View.GONE);
-                break;
-            case ERROR:
-                mSurfaceView.setVisibility(View.GONE);
-                mSurfaceHolderListener.setSurfaceListener(null);
-                mErrorMessageView.setVisibility(View.VISIBLE);
-                mLoadingView.setVisibility(View.GONE);
-                break;
-            case CONNECTING:
-                mSurfaceView.setVisibility(View.GONE);
-                mSurfaceHolderListener.setSurfaceListener(null);
-                mErrorMessageView.setVisibility(View.GONE);
-                mLoadingView.setVisibility(View.VISIBLE);
-                break;
-            case CONNECTED:
-                mSurfaceView.setVisibility(View.VISIBLE);
-                mErrorMessageView.setVisibility(View.GONE);
-                mLoadingView.setVisibility(View.GONE);
-                break;
-        }
+            switch (state) {
+                case IDLE:
+                    mSurfaceView.setVisibility(View.GONE);
+                    mSurfaceHolderListener.setSurfaceListener(null);
+                    mErrorMessageView.setVisibility(View.GONE);
+                    mLoadingView.setVisibility(View.GONE);
+                    break;
+                case ERROR:
+                    mSurfaceView.setVisibility(View.GONE);
+                    mSurfaceHolderListener.setSurfaceListener(null);
+                    mErrorMessageView.setVisibility(View.VISIBLE);
+                    mLoadingView.setVisibility(View.GONE);
+                    break;
+                case CONNECTING:
+                    mSurfaceView.setVisibility(View.GONE);
+                    mErrorMessageView.setVisibility(View.GONE);
+                    mLoadingView.setVisibility(View.VISIBLE);
+                    break;
+                case CONNECTED:
+                    mSurfaceView.setVisibility(View.VISIBLE);
+                    mErrorMessageView.setVisibility(View.GONE);
+                    mLoadingView.setVisibility(View.GONE);
+                    break;
+            }
+        });
     }
 
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
+
+        requireNonNull(mSurfaceHolderListener).setSurfaceListener(null);
+        requireNonNull(mActivityLifecycleDelegate).registerRendererCallback(null);
+
         requireNonNull(mViewModel).bind(intent, mCarActivity, getDisplayId());
     }
 

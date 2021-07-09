@@ -93,9 +93,16 @@ public class CarAppViewModel extends AndroidViewModel implements
         mIRendererCallback = rendererCallback;
     }
 
-    /** Updates the activity hosting this view model */
+    /** Updates the activity hosting this view model. */
     void setActivity(@Nullable Activity activity) {
         sActivity = new WeakReference<>(activity);
+    }
+
+    /** Resets the internal state of this view model. */
+    @SuppressWarnings("NullAway")
+    void resetState() {
+        mState.setValue(State.IDLE);
+        mError.setValue(null);
     }
 
     /**
@@ -107,8 +114,8 @@ public class CarAppViewModel extends AndroidViewModel implements
     @SuppressWarnings("NullAway")
     void bind(@NonNull Intent intent, @NonNull ICarAppActivity iCarAppActivity,
             int displayId) {
-        mState.postValue(State.CONNECTING);
-        mError.postValue(null);
+        mState.setValue(State.CONNECTING);
+        mError.setValue(null);
         mServiceConnectionManager.bind(intent, iCarAppActivity, displayId);
     }
 
@@ -123,7 +130,7 @@ public class CarAppViewModel extends AndroidViewModel implements
         if (mIRendererCallback != null) {
             getServiceDispatcher().dispatch("onDestroyed", mIRendererCallback::onDestroyed);
         }
-        mState.postValue(State.IDLE);
+        mState.setValue(State.IDLE);
         unbind();
     }
 
@@ -158,9 +165,9 @@ public class CarAppViewModel extends AndroidViewModel implements
                 // displayed to the user.
                 return;
             }
-            mError.postValue(errorCode);
+            mState.setValue(State.ERROR);
+            mError.setValue(errorCode);
         });
-        mState.postValue(State.ERROR);
         unbind();
     }
 
@@ -170,16 +177,15 @@ public class CarAppViewModel extends AndroidViewModel implements
     @SuppressWarnings("NullAway")
     @Override
     public void onConnect() {
-        mState.postValue(State.CONNECTED);
-        mError.postValue(null);
+        mState.setValue(State.CONNECTED);
+        mError.setValue(null);
     }
 
     /** Attempts to rebind to the host service */
     @SuppressWarnings("NullAway")
     public void retryBinding() {
         Activity activity = requireNonNull(sActivity.get());
-        mState.postValue(State.CONNECTING);
-        mError.postValue(null);
+        mError.setValue(null);
         activity.recreate();
     }
 
