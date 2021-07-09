@@ -19,9 +19,12 @@
 package androidx.window.layout
 
 import android.content.Context
+import android.content.pm.ActivityInfo
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.window.TestConfigChangeHandlingActivity
 import androidx.window.WindowTestBase
 import androidx.window.core.Version
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
@@ -34,6 +37,9 @@ import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -47,6 +53,7 @@ import org.mockito.ArgumentMatcher
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterface {
 
     private lateinit var sidecarCompat: SidecarCompat
@@ -70,6 +77,49 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
                 any(),
                 argThat(SidecarMatcher(sidecarWindowLayoutInfo))
             )
+        }
+    }
+
+    @Test
+    fun testWindowLayoutCallbackOnConfigChange() {
+        val testScope = TestCoroutineScope()
+        testScope.runBlockingTest {
+            val scenario = ActivityScenario.launch(TestConfigChangeHandlingActivity::class.java)
+            val callbackInterface = mock<ExtensionCallbackInterface>()
+            scenario.onActivity { activity ->
+                val windowToken = getActivityWindowToken(activity)
+                assertNotNull(windowToken)
+                sidecarCompat.setExtensionCallback(callbackInterface)
+                sidecarCompat.onWindowLayoutChangeListenerAdded(activity)
+                activity.resetLayoutCounter()
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                activity.waitForLayout()
+            }
+            scenario.onActivity { activity ->
+                val windowToken = getActivityWindowToken(activity)
+                assertNotNull(windowToken)
+                val sidecarWindowLayoutInfo =
+                    sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
+                verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
+                    any(),
+                    argThat(SidecarMatcher(sidecarWindowLayoutInfo))
+                )
+            }
+            scenario.onActivity { activity ->
+                activity.resetLayoutCounter()
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                activity.waitForLayout()
+            }
+            scenario.onActivity { activity ->
+                val windowToken = getActivityWindowToken(activity)
+                assertNotNull(windowToken)
+                val updatedSidecarWindowLayoutInfo =
+                    sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
+                verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
+                    any(),
+                    argThat(SidecarMatcher(updatedSidecarWindowLayoutInfo))
+                )
+            }
         }
     }
 
