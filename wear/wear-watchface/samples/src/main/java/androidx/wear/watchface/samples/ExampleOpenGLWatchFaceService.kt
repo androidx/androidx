@@ -337,7 +337,7 @@ class ExampleOpenGLRenderer(
         ) // up vector
 
         complicationTexture = GlesTextureComplication(
-            complicationSlot.renderer,
+            complicationSlot,
             128,
             128,
             GLES20.GL_TEXTURE_2D

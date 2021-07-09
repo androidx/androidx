@@ -28,6 +28,7 @@ import androidx.annotation.ColorInt
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.CanvasComplication
+import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.data.ComplicationSlotBoundsType
@@ -93,31 +94,25 @@ constructor(
             // update.
             value.setComplicationData(field.complicationData, false)
             field = value
-            value.isInAmbientMode = watchState.isAmbient.value
             value.isLowBitAmbient = watchState.hasLowBitAmbient
             value.isBurnInProtectionOn = watchState.hasBurnInProtection
         }
-
-    init {
-        // This observer needs to use the property drawable defined above, not the constructor
-        // argument with the same name.
-        watchState.isAmbient.addObserver {
-            this.drawable.isInAmbientMode = it
-        }
-    }
 
     override fun render(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar,
-        renderParameters: RenderParameters
+        renderParameters: RenderParameters,
+        slotId: Int
     ) {
         if (!renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
             return
         }
 
+        drawable.isInAmbientMode = renderParameters.drawMode == DrawMode.AMBIENT
         drawable.bounds = bounds
         drawable.currentTimeMillis = calendar.timeInMillis
+        drawable.isHighlighted = renderParameters.pressedComplicationSlotIds.contains(slotId)
         drawable.draw(canvas)
     }
 
@@ -136,12 +131,6 @@ constructor(
             )
         }
     }
-
-    public override var isHighlighted: Boolean
-        get() = drawable.isHighlighted
-        set(value) {
-            drawable.isHighlighted = value
-        }
 
     private var _data: ComplicationData? = null
 

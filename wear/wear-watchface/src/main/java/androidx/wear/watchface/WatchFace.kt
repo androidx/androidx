@@ -435,28 +435,39 @@ public class WatchFaceImpl @UiThread constructor(
         // available programmatically. The value below is the default but it could be overridden
         // by OEMs.
         internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15.0f
-
-        internal val defaultRenderParametersForDrawMode: HashMap<DrawMode, RenderParameters> =
-            hashMapOf(
-                DrawMode.AMBIENT to
-                    RenderParameters(
-                        DrawMode.AMBIENT, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
-                    ),
-                DrawMode.INTERACTIVE to
-                    RenderParameters(
-                        DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
-                    ),
-                DrawMode.LOW_BATTERY_INTERACTIVE to
-                    RenderParameters(
-                        DrawMode.LOW_BATTERY_INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                        null
-                    ),
-                DrawMode.MUTE to
-                    RenderParameters(
-                        DrawMode.MUTE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
-                    ),
-            )
     }
+
+    private val defaultRenderParametersForDrawMode: HashMap<DrawMode, RenderParameters> =
+        hashMapOf(
+            DrawMode.AMBIENT to
+                RenderParameters(
+                    DrawMode.AMBIENT,
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    null,
+                    complicationSlotsManager.pressedSlotIds
+                ),
+            DrawMode.INTERACTIVE to
+                RenderParameters(
+                    DrawMode.INTERACTIVE,
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    null,
+                    complicationSlotsManager.pressedSlotIds
+                ),
+            DrawMode.LOW_BATTERY_INTERACTIVE to
+                RenderParameters(
+                    DrawMode.LOW_BATTERY_INTERACTIVE,
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    null,
+                    complicationSlotsManager.pressedSlotIds
+                ),
+            DrawMode.MUTE to
+                RenderParameters(
+                    DrawMode.MUTE,
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    null,
+                    complicationSlotsManager.pressedSlotIds
+                ),
+        )
 
     private val systemTimeProvider = watchface.systemTimeProvider
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
@@ -1019,7 +1030,8 @@ public class WatchFaceImpl @UiThread constructor(
                 Canvas(complicationBitmap),
                 Rect(0, 0, bounds.width(), bounds.height()),
                 calendar,
-                RenderParameters(params.renderParametersWireFormat)
+                RenderParameters(params.renderParametersWireFormat),
+                params.complicationSlotId
             )
 
             // Restore previous ComplicationData & style if required.

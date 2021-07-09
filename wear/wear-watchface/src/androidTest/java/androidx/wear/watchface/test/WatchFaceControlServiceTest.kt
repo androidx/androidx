@@ -244,7 +244,7 @@ public class WatchFaceControlServiceTest {
                 ComplicationRenderParams(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                     RenderParameters(
-                        DrawMode.AMBIENT,
+                        DrawMode.INTERACTIVE,
                         WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                         null,
                     ).toWireFormat(),

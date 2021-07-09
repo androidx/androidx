@@ -69,13 +69,15 @@ public interface CanvasComplication {
      * @param bounds A [Rect] describing the bounds of the complication
      * @param calendar The current [Calendar]
      * @param renderParameters The current [RenderParameters]
+     * @param slotId The Id of the [ComplicationSlot] being rendered
      */
     @UiThread
     public fun render(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar,
-        renderParameters: RenderParameters
+        renderParameters: RenderParameters,
+        slotId: Int
     )
 
     /**
@@ -96,15 +98,6 @@ public interface CanvasComplication {
         calendar: Calendar,
         @ColorInt color: Int
     )
-
-    /**
-     * Whether the complication should be drawn highlighted. This is to provide visual feedback when
-     * the user taps on a complication.
-     */
-    @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
-    @get:JvmName("isHighlighted")
-    @set:JvmName("setIsHighlighted")
-    public var isHighlighted: Boolean
 
     /** Returns the [ComplicationData] to render with. */
     public fun getData(): ComplicationData?
@@ -612,7 +605,7 @@ public class ComplicationSlot internal constructor(
         renderParameters: RenderParameters
     ) {
         val bounds = computeBounds(Rect(0, 0, canvas.width, canvas.height))
-        renderer.render(canvas, bounds, calendar, renderParameters)
+        renderer.render(canvas, bounds, calendar, renderParameters, id)
     }
 
     /**
@@ -661,16 +654,6 @@ public class ComplicationSlot internal constructor(
         }
     }
 
-    /**
-     * Sets whether the complication should be drawn highlighted or not. This is to provide visual
-     * feedback when the user taps on a complication.
-     *
-     * @param highlight Whether or not the complication should be drawn highlighted.
-     */
-    internal fun setIsHighlighted(highlight: Boolean) {
-        renderer.isHighlighted = highlight
-    }
-
     internal fun init(invalidateListener: InvalidateListener) {
         this.invalidateListener = invalidateListener
     }
@@ -699,7 +682,6 @@ public class ComplicationSlot internal constructor(
         writer.increaseIndent()
         writer.println("fixedComplicationDataSource=$fixedComplicationDataSource")
         writer.println("enabled=$enabled")
-        writer.println("renderer.isHighlighted=${renderer.isHighlighted}")
         writer.println("boundsType=$boundsType")
         writer.println("configExtras=$configExtras")
         writer.println("supportedTypes=${supportedTypes.joinToString { it.toString() }}")
