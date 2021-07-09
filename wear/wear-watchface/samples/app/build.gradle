@@ -42,11 +42,19 @@ android {
     }
 
     buildTypes {
-	release {
-	    minifyEnabled true
-	    shrinkResources true
-	    proguardFiles getDefaultProguardFile('proguard-android.txt')
-	}
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
+        }
+
+        /*
+         Release and debug targets will have different package names. Package name for debug version
+         will have suffix .debug, so this should be appended to package name when i.e. uninstalling.
+         */
+        debug {
+            applicationIdSuffix ".debug"
+        }
     }
 
     compileOptions {
