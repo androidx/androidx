@@ -21,6 +21,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -351,6 +352,7 @@ public class CameraXActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("MissingPermission")
     private void setUpRecordButton() {
         mRecordUi.getButtonRecord().setOnClickListener((view) -> {
             RecordUi.State state = mRecordUi.getState();
@@ -359,6 +361,7 @@ public class CameraXActivity extends AppCompatActivity {
                     createDefaultVideoFolderIfNotExist();
                     mActiveRecording = getVideoCapture().getOutput()
                             .prepareRecording(getNewVideoOutputFileOptions())
+                            .withAudioEnabled()
                             .withEventListener(ContextCompat.getMainExecutor(CameraXActivity.this),
                                     mVideoRecordEventListener)
                             .start();
