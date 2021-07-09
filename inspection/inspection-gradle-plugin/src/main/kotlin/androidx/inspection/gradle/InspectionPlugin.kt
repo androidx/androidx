@@ -53,6 +53,12 @@ class InspectionPlugin : Plugin<Project> {
             it.setupInspectorAttribute()
         }
 
+        val publishNonDexedInspector = project.configurations.create("publishNonDexedInspector") {
+            it.isCanBeConsumed = true
+            it.isCanBeResolved = false
+            it.setupNonDexedInspectorAttribute()
+        }
+
         project.pluginManager.withPlugin("com.android.library") {
             foundLibraryPlugin = true
             val libExtension = project.extensions.getByType(LibraryExtension::class.java)
@@ -61,10 +67,17 @@ class InspectionPlugin : Plugin<Project> {
                 if (variant.name == "release") {
                     foundReleaseVariant = true
                     val unzip = project.registerUnzipTask(variant)
-                    val shadowJar = project.registerShadowDependenciesTask(variant, unzip)
+                    val shadowJar = project.registerShadowDependenciesTask(
+                        variant, extension.name, unzip
+                    )
                     val bundleTask = project.registerBundleInspectorTask(
                         variant, libExtension, extension.name, shadowJar
                     )
+
+                    publishNonDexedInspector.outgoing.variants {
+                        val configVariant = it.create("inspectorNonDexedJar")
+                        configVariant.artifact(shadowJar)
+                    }
 
                     publishInspector.outgoing.variants {
                         val configVariant = it.create("inspectorJar")
@@ -166,6 +179,17 @@ fun Project.createConsumeInspectionConfiguration(): Configuration =
 private fun Configuration.setupInspectorAttribute() {
     attributes {
         it.attribute(Attribute.of("inspector", String::class.java), "inspectorJar")
+    }
+}
+
+fun Project.createConsumeNonDexedInspectionConfiguration(): Configuration =
+    configurations.create("consumeNonDexedInspector") {
+        it.setupNonDexedInspectorAttribute()
+    }
+
+private fun Configuration.setupNonDexedInspectorAttribute() {
+    attributes {
+        it.attribute(Attribute.of("inspector-undexed", String::class.java), "inspectorUndexedJar")
     }
 }
 

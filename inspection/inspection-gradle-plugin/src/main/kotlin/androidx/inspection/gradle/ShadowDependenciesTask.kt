@@ -37,6 +37,7 @@ import java.util.jar.JarFile
 @Suppress("DEPRECATION") // BaseVariant
 fun Project.registerShadowDependenciesTask(
     variant: com.android.build.gradle.api.BaseVariant,
+    jarName: String?,
     zipTask: TaskProvider<Copy>
 ): TaskProvider<ShadowJar> {
     val uberJar = registerUberJarTask(variant)
@@ -60,7 +61,8 @@ fun Project.registerShadowDependenciesTask(
         it.transform(RenameServicesTransformer::class.java)
         it.from(versionTask.get().outputDir)
         it.destinationDirectory.set(taskWorkingDir(variant, "shadowedJar"))
-        it.archiveBaseName.set("${project.name}-shadowed")
+        it.archiveBaseName.set("${jarName ?: project.name}-nondexed")
+        it.archiveVersion.set("")
         it.dependsOn(zipTask)
         val prefix = "deps.${project.name.replace('-', '.')}"
         it.doFirst {
