@@ -43,13 +43,11 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
@@ -195,7 +193,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     public void setTargetRotation(@RotationValue int rotation) {
         if (setTargetRotationInternal(rotation)) {
             sendTransformationInfoIfReady(getAttachedSurfaceResolution());
@@ -242,7 +239,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * @hide
      */
     @Override
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         super.setViewPortCropRect(viewPortCropRect);
@@ -315,7 +311,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return Builder.fromConfig(config);
     }
 
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     private void sendTransformationInfoIfReady(@Nullable Size resolution) {
         CameraInternal cameraInternal = getCamera();
         SurfaceRequest surfaceRequest = mSurfaceRequest;

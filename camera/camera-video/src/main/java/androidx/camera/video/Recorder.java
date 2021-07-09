@@ -32,12 +32,10 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.MutableStateObservable;
@@ -1109,7 +1107,6 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     private void setupMediaMuxer(@NonNull OutputOptions options) throws IOException {
         int outputFormat = getObservableData(mMediaSpec).getOutputFormat();
         switch (options.getType()) {

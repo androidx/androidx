@@ -50,7 +50,6 @@ import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
-import androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
@@ -329,10 +328,8 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @SuppressWarnings("WeakerAccess")
-    // ExperimentalUseCaseGroupLifecycle is removed and has to be replaced with
-    // ExperimentalUseCaseGroup when the dependency to camera-lifecycle is updated to alpha
-    // versions.
-    @OptIn(markerClass = {ExperimentalUseCaseGroup.class, ExperimentalUseCaseGroupLifecycle.class})
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+    @SuppressLint("UnsafeOptInUsageError")
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
         if (mPreview == null) {
             return;

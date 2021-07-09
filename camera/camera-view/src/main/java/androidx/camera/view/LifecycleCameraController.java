@@ -26,14 +26,12 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.Camera;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.impl.utils.Threads;
-import androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -110,10 +108,8 @@ public final class LifecycleCameraController extends CameraController {
      *
      * @return null if failed to start camera.
      */
-    // ExperimentalUseCaseGroupLifecycle is removed and has to be replaced with
-    // ExperimentalUseCaseGroup when the dependency to camera-lifecycle is updated to alpha
-    // versions.
-    @OptIn(markerClass = ExperimentalUseCaseGroupLifecycle.class)
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+    @SuppressLint("UnsafeOptInUsageError")
     @RequiresPermission(Manifest.permission.CAMERA)
     @Override
     @Nullable

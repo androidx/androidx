@@ -44,13 +44,11 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
@@ -156,7 +154,8 @@ public final class PreviewView extends FrameLayout {
     @SuppressWarnings("WeakerAccess")
     final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
 
-        @OptIn(markerClass = ExperimentalUseCaseGroup.class)
+        // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+        @SuppressLint("UnsafeOptInUsageError")
         @Override
         @AnyThread
         public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
@@ -362,7 +361,6 @@ public final class PreviewView extends FrameLayout {
      */
     @UiThread
     @NonNull
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     public Preview.SurfaceProvider getSurfaceProvider() {
         Threads.checkMainThread();
         return mSurfaceProvider;
@@ -544,10 +542,10 @@ public final class PreviewView extends FrameLayout {
      * @return null if the view's width/height is zero.
      * @see ImplementationMode
      */
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
     @UiThread
-    @SuppressLint("WrongConstant")
+    @SuppressLint({"WrongConstant", "UnsafeOptInUsageError"})
     @Nullable
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     public ViewPort getViewPort(@ImageOutputConfig.RotationValue int targetRotation) {
         Threads.checkMainThread();
         if (getWidth() == 0 || getHeight() == 0) {
@@ -882,7 +880,6 @@ public final class PreviewView extends FrameLayout {
                 surfaceCropRect.height()));
     }
 
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     private void attachToControllerIfReady(boolean shouldFailSilently) {
         Display display = getDisplay();
         ViewPort viewPort = getViewPort();
