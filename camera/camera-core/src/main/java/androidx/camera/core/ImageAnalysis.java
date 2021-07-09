@@ -36,6 +36,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
+import android.media.CamcorderProfile;
 import android.media.ImageReader;
 import android.util.Pair;
 import android.util.Size;
@@ -604,7 +605,6 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
-        private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 1;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
 
@@ -613,7 +613,6 @@ public final class ImageAnalysis extends UseCase {
         static {
             Builder builder = new Builder()
                     .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
-                    .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
 
@@ -895,12 +894,30 @@ public final class ImageAnalysis extends UseCase {
          * may specify 480x640, and the same device, rotated 90 degrees and targeting landscape
          * orientation may specify 640x480.
          *
-         * <p>The maximum available resolution that could be selected for an {@link ImageAnalysis}
-         * is limited to be under 1080p. The limitation of 1080p for {@link ImageAnalysis} has
-         * considered both performance and quality factors so that users can obtain reasonable
-         * quality and smooth output stream under 1080p.
-         *
          * <p>If not set, resolution of 640x480 will be selected to use in priority.
+         *
+         * <p>When using the <code>camera-camera2</code> CameraX implementation, which resolution
+         * will be finally selected will depend on the camera device's hardware level and the
+         * bound use cases combination. The device hardware level information can be retrieved by
+         * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL}
+         * from the interop class
+         * {@link androidx.camera.camera2.interop.Camera2CameraInfo#getCameraCharacteristic(CameraCharacteristics.Key)}.
+         * A <code>LIMITED-level</code> above device can support a <code>RECORD</code> size
+         * resolution for {@link ImageAnalysis} when it is bound together with {@link Preview}
+         * and {@link ImageCapture}. The trade-off is the selected resolution for the
+         * {@link ImageCapture} will also be restricted by the <code>RECORD</code> size. To
+         * successfully select a <code>RECORD</code> size resolution for {@link ImageAnalysis}, a
+         * <code>RECORD</code> size target resolution should be set on both {@link ImageCapture}
+         * and {@link ImageAnalysis}. This indicates that the application clearly understand the
+         * trade-off and prefer the {@link ImageAnalysis} to have a larger resolution rather than
+         * the {@link ImageCapture} to have a <code>MAXIMUM</code> size resolution. For the
+         * definitions of <code>RECORD</code>, <code>MAXIMUM</code> sizes and more details see the
+         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
+         * section in {@link android.hardware.camera2.CameraDevice}'s. The <code>RECORD</code>
+         * size refers to the camera device's maximum supported recording resolution, as
+         * determined by {@link CamcorderProfile}. The <code>MAXIMUM</code> size refers to the
+         * camera device's maximum output resolution for that format or target from
+         * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes}.
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
