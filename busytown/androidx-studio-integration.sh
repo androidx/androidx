@@ -47,7 +47,8 @@ export LINT_PRINT_STACKTRACE=true
 function buildAndroidx() {
   LOG_PROCESSOR="$SCRIPT_DIR/../development/build_log_processor.sh"
   properties="-Pandroidx.summarizeStderr --no-daemon -Pandroidx.allWarningsAsErrors"
-  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    listTaskOutputs bOS -x verifyDependencyVersions --stacktrace -PverifyUpToDate --profile
+  # runErrorProne is disabled due to I77d9800990e2a46648f7ed2713c54398cd798a0d in AGP
+  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    listTaskOutputs bOS -x verifyDependencyVersions -x runErrorProne --stacktrace -PverifyUpToDate --profile
   $SCRIPT_DIR/impl/parse_profile_htmls.sh
 }
 
