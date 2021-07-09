@@ -121,7 +121,10 @@ package androidx.camera.video {
   }
 
   public final class VideoCapture<T extends androidx.camera.video.VideoOutput> extends androidx.camera.core.UseCase {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.UseCaseConfig<?>? getDefaultConfig(boolean, androidx.camera.core.impl.UseCaseConfigFactory);
     method public T getOutput();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.camera.core.impl.UseCaseConfig.Builder<?,?,?> getUseCaseConfigBuilder(androidx.camera.core.impl.Config);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected android.util.Size onSuggestedResolutionUpdated(android.util.Size);
     method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T!> withOutput(T);
   }
 

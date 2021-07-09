@@ -34,10 +34,7 @@ import java.util.Set;
  * The audio information about an {@link ActiveRecording} at a point in time.
  *
  * <p>The audio information will be contained in every {@link RecordingStats}.
- *
- * @hide
  */
-@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 @AutoValue
 public abstract class AudioStats {
 
@@ -58,7 +55,7 @@ public abstract class AudioStats {
      */
     public static final int AUDIO_STATE_ACTIVE = 0;
     /**
-     * The recording is disabled.
+     * The recording of audio is disabled.
      *
      * <p>This audio state results from a {@link PendingRecording} that was
      * {@linkplain PendingRecording#start() started} without calling
@@ -68,13 +65,17 @@ public abstract class AudioStats {
     /**
      * The recording is muted because the audio source is silenced by the system.
      *
-     * <p>If the audio source is occupied by privilege application, depending on the system
-     * version, the system may silence the application that are using the audio source. Use
-     * {@link #getErrorCause()} to get the error cause.
+     * <p>If the audio source is occupied by a privilege application, such as the dialer,
+     * depending on the system version, the system may silence the application that are using the
+     * audio source. Use {@link #getErrorCause()} to get the error cause.
      */
     public static final int AUDIO_STATE_SOURCE_SILENCED = 2;
     /**
      * The recording is muted because the audio encoder encountered errors.
+     *
+     * <p>When the audio encoder encountered errors, the recording will keep being recorded
+     * without audio for the rest of the recording. The audio stats generated after the audio
+     * encoder failed will contain this audio state.
      *
      * <p>Use {@link #getErrorCause()} to get the error cause.
      */

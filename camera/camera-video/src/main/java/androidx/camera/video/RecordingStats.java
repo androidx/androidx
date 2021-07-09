@@ -33,10 +33,7 @@ import java.util.concurrent.Executor;
  * <p>Recording stats are generated for every {@link VideoRecordEvent} and can be retrieved via
  * {@link VideoRecordEvent#getRecordingStats()}.
  * @see PendingRecording#withEventListener(Executor, Consumer)
- *
- * @hide
  */
-@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 @AutoValue
 public abstract class RecordingStats {
 
