@@ -89,54 +89,59 @@ public class ForceStopRunnable implements Runnable {
 
     @Override
     public void run() {
-        if (!multiProcessChecks()) {
-            return;
-        }
-
-        while (true) {
-            // Migrate the database to the no-backup directory if necessary.
-            WorkDatabasePathHelper.migrateDatabase(mContext);
-            // Clean invalid jobs attributed to WorkManager, and Workers that might have been
-            // interrupted because the application crashed (RUNNING state).
-            Logger.get().debug(TAG, "Performing cleanup operations.");
-            try {
-                forceStopRunnable();
-                break;
-            } catch (SQLiteCantOpenDatabaseException
-                    | SQLiteDatabaseCorruptException
-                    | SQLiteDatabaseLockedException
-                    | SQLiteTableLockedException
-                    | SQLiteConstraintException
-                    | SQLiteAccessPermException exception) {
-                mRetryCount++;
-                if (mRetryCount >= MAX_ATTEMPTS) {
-                    // ForceStopRunnable is usually the first thing that accesses a database
-                    // (or an app's internal data directory). This means that weird
-                    // PackageManager bugs are attributed to ForceStopRunnable, which is
-                    // unfortunate. This gives the developer a better error
-                    // message.
-                    String message = "The file system on the device is in a bad state. "
-                            + "WorkManager cannot access the app's internal data store.";
-                    Logger.get().error(TAG, message, exception);
-                    IllegalStateException throwable = new IllegalStateException(message, exception);
-                    InitializationExceptionHandler exceptionHandler =
-                            mWorkManager.getConfiguration().getExceptionHandler();
-                    if (exceptionHandler != null) {
-                        Logger.get().debug(TAG,
-                                "Routing exception to the specified exception handler",
-                                throwable);
-                        exceptionHandler.handleException(throwable);
-                        break;
+        try {
+            if (!multiProcessChecks()) {
+                return;
+            }
+            while (true) {
+                // Migrate the database to the no-backup directory if necessary.
+                WorkDatabasePathHelper.migrateDatabase(mContext);
+                // Clean invalid jobs attributed to WorkManager, and Workers that might have been
+                // interrupted because the application crashed (RUNNING state).
+                Logger.get().debug(TAG, "Performing cleanup operations.");
+                try {
+                    forceStopRunnable();
+                    break;
+                } catch (SQLiteCantOpenDatabaseException
+                        | SQLiteDatabaseCorruptException
+                        | SQLiteDatabaseLockedException
+                        | SQLiteTableLockedException
+                        | SQLiteConstraintException
+                        | SQLiteAccessPermException exception) {
+                    mRetryCount++;
+                    if (mRetryCount >= MAX_ATTEMPTS) {
+                        // ForceStopRunnable is usually the first thing that accesses a database
+                        // (or an app's internal data directory). This means that weird
+                        // PackageManager bugs are attributed to ForceStopRunnable, which is
+                        // unfortunate. This gives the developer a better error
+                        // message.
+                        String message = "The file system on the device is in a bad state. "
+                                + "WorkManager cannot access the app's internal data store.";
+                        Logger.get().error(TAG, message, exception);
+                        IllegalStateException throwable = new IllegalStateException(message,
+                                exception);
+                        InitializationExceptionHandler exceptionHandler =
+                                mWorkManager.getConfiguration().getExceptionHandler();
+                        if (exceptionHandler != null) {
+                            Logger.get().debug(TAG,
+                                    "Routing exception to the specified exception handler",
+                                    throwable);
+                            exceptionHandler.handleException(throwable);
+                            break;
+                        } else {
+                            throw throwable;
+                        }
                     } else {
-                        throw throwable;
+                        long duration = mRetryCount * BACKOFF_DURATION_MS;
+                        Logger.get()
+                                .debug(TAG, String.format("Retrying after %s", duration),
+                                        exception);
+                        sleep(mRetryCount * BACKOFF_DURATION_MS);
                     }
-                } else {
-                    long duration = mRetryCount * BACKOFF_DURATION_MS;
-                    Logger.get()
-                            .debug(TAG, String.format("Retrying after %s", duration), exception);
-                    sleep(mRetryCount * BACKOFF_DURATION_MS);
                 }
             }
+        } finally {
+            mWorkManager.onForceStopRunnableCompleted();
         }
     }
 
@@ -187,7 +192,6 @@ public class ForceStopRunnable implements Runnable {
                     mWorkManager.getWorkDatabase(),
                     mWorkManager.getSchedulers());
         }
-        mWorkManager.onForceStopRunnableCompleted();
     }
 
     /**
