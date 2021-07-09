@@ -90,19 +90,32 @@ import java.util.concurrent.Executor;
 /**
  * A use case that provides camera stream suitable for video application.
  *
- * <p>VideoCapture is used to create a camera stream suitable for video application. This stream
- * is used by the implementation of {@link VideoOutput}. Calling {@link #withOutput(VideoOutput)}
- * can generate a VideoCapture use case binding to the given VideoOutput.
+ * <p>VideoCapture is used to create a camera stream suitable for video application. The camera
+ * stream is used by the extended classes of {@link VideoOutput}.
+ * {@link #withOutput(VideoOutput)} can be used to create a VideoCapture instance associated with
+ * the given VideoOutput.
  *
- * <p>When binding VideoCapture, VideoCapture will initialize the camera stream according to the
- * resolution found by the {@link QualitySelector} in VideoOutput. Then VideoCapture will invoke
- * {@link VideoOutput#onSurfaceRequested(SurfaceRequest)} to request VideoOutput to provide a
- * {@link Surface} via {@link SurfaceRequest#provideSurface} to complete the initialization
- * process. After VideoCapture is bound, updating the QualitySelector in VideoOutput will have no
- * effect. If it needs to change the resolution of the camera stream after VideoCapture is bound,
- * it has to unbind the original VideoCapture, update the QualitySelector in VideoOutput and then
- * re-bind the VideoCapture. If the implementation of VideoOutput does not support modifying the
- * QualitySelector afterwards, it has to create a new VideoOutput and VideoCapture for re-bind.
+ * <p>When {@linkplain androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle binding}
+ * VideoCapture to lifecycle, VideoCapture will create a camera stream with the resolution
+ * selected by the {@link QualitySelector} in VideoOutput. Example:
+ * <pre>
+ *     <code>
+ *         Recorder recorder = new Recorder.Builder()
+ *                 .setQualitySelector(QualitySelector.of(QualitySelector.QUALITY_FHD))
+ *                 .build();
+ *         VideoCapture<Recorder> videoCapture = VideoCapture.withOutput(recorder);
+ *     </code>
+ * </pre>
+ *
+ * <p>Then VideoCapture will {@link VideoOutput#onSurfaceRequested(SurfaceRequest) ask}
+ * VideoOutput to {@link SurfaceRequest#provideSurface provide} a {@link Surface} for setting up
+ * the camera stream. After VideoCapture is bound, update QualitySelector in VideoOutput will not
+ * have any effect. If it needs to change the resolution of the camera stream after VideoCapture
+ * is bound, it has to update QualitySelector of VideoOutput and rebind
+ * ({@linkplain androidx.camera.lifecycle.ProcessCameraProvider#unbind unbind} and
+ * {@linkplain androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle bind}) the
+ * VideoCapture. If the extended class of VideoOutput does not have API to modify the
+ * QualitySelector, it has to create new VideoOutput and VideoCapture for rebinding.
  *
  * @param <T> the type of VideoOutput
  */
@@ -118,14 +131,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private SurfaceRequest mSurfaceRequest;
 
     /**
-     * Create a VideoCapture builder with a {@link VideoOutput}.
+     * Create a VideoCapture associated with the given {@link VideoOutput}.
      *
-     * @param videoOutput the associated VideoOutput.
-     * @return the new Builder
+     * @throws NullPointerException if {@code videoOutput} is null.
      */
     @NonNull
     public static <T extends VideoOutput> VideoCapture<T> withOutput(@NonNull T videoOutput) {
-        return new VideoCapture.Builder<T>(videoOutput).build();
+        return new VideoCapture.Builder<T>(Preconditions.checkNotNull(videoOutput)).build();
     }
 
     /**
@@ -138,7 +150,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
-     * Gets the {@link VideoOutput} associated to this VideoCapture.
+     * Gets the {@link VideoOutput} associated with this VideoCapture.
+     *
+     * @return the value provided to {@link #withOutput(VideoOutput)} used to create this
+     * VideoCapture.
      */
     @SuppressWarnings("unchecked")
     @NonNull
@@ -155,7 +170,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * has been attached to a camera.
      *
      * @return The rotation of the intended target.
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @RotationValue
     public int getTargetRotation() {
         return getTargetRotationInternal();
@@ -173,7 +191,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * created. The use case is fully created once it has been attached to a camera.
      *
      * @param rotation Desired rotation of the output video.
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     public void setTargetRotation(@RotationValue int rotation) {
         if (setTargetRotationInternal(rotation)) {
@@ -181,6 +202,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onAttached() {
         getOutput().getStreamState().addObserver(CameraXExecutors.mainThreadExecutor(),
