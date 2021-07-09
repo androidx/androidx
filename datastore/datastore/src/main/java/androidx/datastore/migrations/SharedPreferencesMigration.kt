@@ -66,7 +66,8 @@ private constructor(
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The lambda accepts a SharedPreferencesView which is the view of the
      * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
-     * the current data. The function must return the migrated data.
+     * the current data. The function must return the migrated data. If SharedPreferences is
+     * empty or does not contain any keys which you specified, this callback will not run.
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public constructor(
@@ -111,7 +112,8 @@ private constructor(
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The lambda accepts a SharedPreferencesView which is the view of the
      * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
-     * the current data. The function must return the migrated data.
+     * the current data. The function must return the migrated data. If SharedPreferences is
+     * empty or does not contain any keys which you specified, this callback will not run.
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public constructor(
