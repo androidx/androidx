@@ -160,7 +160,7 @@ library in this situation to skip versions, e.g. move directly from
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 
 The recommended minimum SDK version for new Jetpack libraries is currently
-**17** (Android 4.2, Jelly Bean). This SDK was chosen to represent 99% of active
+**19** (Android 4.4, KitKat). This SDK was chosen to represent 99% of active
 devices based on Play Store check-ins (see Android Studio
 [distribution metadata](https://dl.google.com/android/studio/metadata/distributions.json)
 for current statistics). This maximizes potential users for external developers
