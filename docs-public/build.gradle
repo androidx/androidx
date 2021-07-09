@@ -125,6 +125,7 @@ dependencies {
     docs("androidx.hilt:hilt-common:1.0.0-beta01")
     docs("androidx.hilt:hilt-navigation:1.0.0-beta01")
     docs("androidx.hilt:hilt-navigation-compose:1.0.0-alpha03")
+    samples("androidx.hilt:hilt-navigation-compose-samples:1.0.0-alpha04")
     docs("androidx.hilt:hilt-navigation-fragment:1.0.0-beta01")
     docs("androidx.hilt:hilt-work:1.0.0-beta01")
     docs("androidx.interpolator:interpolator:1.0.0")
