@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -193,5 +194,13 @@ public class ForceStopRunnableTest {
         verify(runnable, times(MAX_ATTEMPTS - 1)).sleep(anyLong());
         verify(runnable, times(MAX_ATTEMPTS)).forceStopRunnable();
         verify(handler, times(1)).handleException(any(Throwable.class));
+    }
+
+    @Test
+    public void test_completeOnMultiProcessChecks() {
+        ForceStopRunnable runnable = spy(mRunnable);
+        doReturn(false).when(runnable).multiProcessChecks();
+        runnable.run();
+        verify(mWorkManager).onForceStopRunnableCompleted();
     }
 }
