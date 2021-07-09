@@ -8,10 +8,77 @@ package androidx.camera.video {
     method public void stop();
   }
 
+  public final class FileDescriptorOutputOptions extends androidx.camera.video.OutputOptions {
+    method public long getFileSizeLimit();
+    method public android.os.ParcelFileDescriptor getParcelFileDescriptor();
+  }
+
+  public static final class FileDescriptorOutputOptions.Builder {
+    ctor public FileDescriptorOutputOptions.Builder(android.os.ParcelFileDescriptor);
+    method public androidx.camera.video.FileDescriptorOutputOptions build();
+    method public androidx.camera.video.FileDescriptorOutputOptions.Builder setFileSizeLimit(long);
+  }
+
+  public final class FileOutputOptions extends androidx.camera.video.OutputOptions {
+    method public java.io.File getFile();
+    method public long getFileSizeLimit();
+  }
+
+  public static final class FileOutputOptions.Builder {
+    ctor public FileOutputOptions.Builder(java.io.File);
+    method public androidx.camera.video.FileOutputOptions build();
+    method public androidx.camera.video.FileOutputOptions.Builder setFileSizeLimit(long);
+  }
+
+  public final class MediaStoreOutputOptions extends androidx.camera.video.OutputOptions {
+    method public android.net.Uri getCollection();
+    method public android.content.ContentResolver getContentResolver();
+    method public android.content.ContentValues getContentValues();
+    method public long getFileSizeLimit();
+    field public static final android.content.ContentValues EMPTY_CONTENT_VALUES;
+  }
+
+  public static final class MediaStoreOutputOptions.Builder {
+    ctor public MediaStoreOutputOptions.Builder(android.content.ContentResolver, android.net.Uri);
+    method public androidx.camera.video.MediaStoreOutputOptions build();
+    method public androidx.camera.video.MediaStoreOutputOptions.Builder setContentValues(android.content.ContentValues);
+    method public androidx.camera.video.MediaStoreOutputOptions.Builder setFileSizeLimit(long);
+  }
+
+  public abstract class OutputOptions {
+    method public abstract long getFileSizeLimit();
+    field public static final int FILE_SIZE_UNLIMITED = 0; // 0x0
+  }
+
   public final class PendingRecording {
     method @CheckResult public androidx.camera.video.ActiveRecording start();
     method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled();
     method public androidx.camera.video.PendingRecording withEventListener(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
+  }
+
+  public class QualitySelector {
+    method public static androidx.camera.video.QualitySelector.Procedure firstTry(int);
+    method public static android.util.Size? getResolution(androidx.camera.core.CameraInfo, int);
+    method public static java.util.List<java.lang.Integer!> getSupportedQualities(androidx.camera.core.CameraInfo);
+    method public static boolean isQualitySupported(androidx.camera.core.CameraInfo, int);
+    method public static androidx.camera.video.QualitySelector of(int);
+    method public static androidx.camera.video.QualitySelector of(int, int);
+    field public static final int FALLBACK_STRATEGY_HIGHER = 1; // 0x1
+    field public static final int FALLBACK_STRATEGY_LOWER = 3; // 0x3
+    field public static final int FALLBACK_STRATEGY_STRICTLY_HIGHER = 2; // 0x2
+    field public static final int FALLBACK_STRATEGY_STRICTLY_LOWER = 4; // 0x4
+    field public static final int QUALITY_FHD = 6; // 0x6
+    field public static final int QUALITY_HD = 5; // 0x5
+    field public static final int QUALITY_HIGHEST = 1; // 0x1
+    field public static final int QUALITY_LOWEST = 0; // 0x0
+    field public static final int QUALITY_SD = 4; // 0x4
+    field public static final int QUALITY_UHD = 8; // 0x8
+  }
+
+  public static class QualitySelector.Procedure {
+    method public androidx.camera.video.QualitySelector finallyTry(int);
+    method public androidx.camera.video.QualitySelector finallyTry(int, int);
+    method public androidx.camera.video.QualitySelector.Procedure thenTry(int);
   }
 
   public final class Recorder implements androidx.camera.video.VideoOutput {
@@ -31,8 +98,46 @@ package androidx.camera.video {
     method public androidx.camera.video.Recorder.Builder setQualitySelector(androidx.camera.video.QualitySelector);
   }
 
+  public final class VideoCapture<T extends androidx.camera.video.VideoOutput> extends androidx.camera.core.UseCase {
+    method public T getOutput();
+    method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T!> withOutput(T);
+  }
+
   public interface VideoOutput {
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
+  }
+
+  public abstract class VideoRecordEvent {
+    method public androidx.camera.video.OutputOptions getOutputOptions();
+    method public androidx.camera.video.RecordingStats getRecordingStats();
+  }
+
+  public static final class VideoRecordEvent.Finalize extends androidx.camera.video.VideoRecordEvent {
+    method public Throwable? getCause();
+    method public int getError();
+    method public androidx.camera.video.OutputResults getOutputResults();
+    method public boolean hasError();
+    field public static final int ERROR_ENCODING_FAILED = 6; // 0x6
+    field public static final int ERROR_FILE_SIZE_LIMIT_REACHED = 2; // 0x2
+    field public static final int ERROR_INSUFFICIENT_STORAGE = 3; // 0x3
+    field public static final int ERROR_INVALID_OUTPUT_OPTIONS = 5; // 0x5
+    field public static final int ERROR_NONE = 0; // 0x0
+    field public static final int ERROR_NO_VALID_DATA = 8; // 0x8
+    field public static final int ERROR_RECORDER_ERROR = 7; // 0x7
+    field public static final int ERROR_SOURCE_INACTIVE = 4; // 0x4
+    field public static final int ERROR_UNKNOWN = 1; // 0x1
+  }
+
+  public static final class VideoRecordEvent.Pause extends androidx.camera.video.VideoRecordEvent {
+  }
+
+  public static final class VideoRecordEvent.Resume extends androidx.camera.video.VideoRecordEvent {
+  }
+
+  public static final class VideoRecordEvent.Start extends androidx.camera.video.VideoRecordEvent {
+  }
+
+  public static final class VideoRecordEvent.Status extends androidx.camera.video.VideoRecordEvent {
   }
 
 }

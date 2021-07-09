@@ -18,7 +18,9 @@ package androidx.camera.video;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
+import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,12 +29,9 @@ import androidx.core.util.Preconditions;
 import com.google.auto.value.AutoValue;
 
 /**
- * A class provides a option for storing output to MediaStore.
+ * A class providing options for storing output to MediaStore.
  *
- * <p> The result could be saved to a shared storage. The results will remain on the device after
- * the app is uninstalled.
- *
- * Example:
+ * <p>Example:
  *
  * <pre>{@code
  *
@@ -48,14 +47,21 @@ import com.google.auto.value.AutoValue;
  *
  * }</pre>
  *
- * @hide
+ * <p>The output {@link Uri} can be obtained via {@link OutputResults#getOutputUri()} from
+ * {@link VideoRecordEvent.Finalize#getOutputResults()}.
+ *
+ * <p>For more information about setting collections {@link Uri} and {@link ContentValues}, read
+ * the <a href="https://developer.android.com/training/data-storage/shared/media">
+ *     Access media files from shared storage</a> and
+ * <a href="https://developer.android.com/reference/android/provider/MediaStore">MediaStore</a>
+ * developer guide.
  */
-@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class MediaStoreOutputOptions extends OutputOptions {
 
     /**
      * An empty {@link ContentValues}.
      */
+    @NonNull
     public static final ContentValues EMPTY_CONTENT_VALUES = new ContentValues();
 
     private final MediaStoreOutputOptionsInternal mMediaStoreOutputOptionsInternal;
@@ -68,7 +74,9 @@ public final class MediaStoreOutputOptions extends OutputOptions {
     }
 
     /**
-     * Gets the ContentResolver instance in order to convert URI to a file path.
+     * Gets the ContentResolver instance.
+     *
+     * @see Builder#Builder(ContentResolver, Uri)
      */
     @NonNull
     public ContentResolver getContentResolver() {
@@ -76,7 +84,9 @@ public final class MediaStoreOutputOptions extends OutputOptions {
     }
 
     /**
-     * Gets the URL of the table to insert into.
+     * Gets the URI of the collection to insert into.
+     *
+     * @see Builder#Builder(ContentResolver, Uri)
      */
     @NonNull
     public Uri getCollection() {
@@ -84,7 +94,9 @@ public final class MediaStoreOutputOptions extends OutputOptions {
     }
 
     /**
-     * Gets the content values to be included in the created file.
+     * Gets the content values to be included in the created video row.
+     *
+     * @see Builder#setContentValues(ContentValues)
      */
     @NonNull
     public ContentValues getContentValues() {
@@ -93,6 +105,8 @@ public final class MediaStoreOutputOptions extends OutputOptions {
 
     /**
      * Gets the limit for the file length in bytes.
+     *
+     * @see Builder#setFileSizeLimit(long)
      */
     @Override
     public long getFileSizeLimit() {
@@ -124,7 +138,7 @@ public final class MediaStoreOutputOptions extends OutputOptions {
         return mMediaStoreOutputOptionsInternal.hashCode();
     }
 
-    /** The builder of the {@link MediaStoreOutputOptions}. */
+    /** The builder of the {@link MediaStoreOutputOptions} object. */
     public static final class Builder implements
             OutputOptions.Builder<MediaStoreOutputOptions, Builder> {
         private final MediaStoreOutputOptionsInternal.Builder mInternalBuilder =
@@ -135,8 +149,24 @@ public final class MediaStoreOutputOptions extends OutputOptions {
         /**
          * Creates a builder of the {@link MediaStoreOutputOptions} with media store options.
          *
-         * @param contentResolver the content resolver instance.
-         * @param collectionUri the URI of the table to insert into.
+         * <p>The ContentResolver can be obtained by app {@link Context#getContentResolver()
+         * context} and is used to access to MediaStore.
+         *
+         * <p>{@link MediaStore} class provides APIs to obtain the collection URI. A collection
+         * URI corresponds to a storage volume on the device shared storage. A common collection
+         * URI used to access the primary external storage is
+         * {@link MediaStore.Video.Media#EXTERNAL_CONTENT_URI}.
+         * {@link MediaStore.Video.Media#getContentUri} can also be used to query different
+         * storage volumes. For more information, read
+         * <a href="https://developer.android.com/training/data-storage/shared/media">
+         *     Access media files from shared storage</a> developer guide.
+         *
+         * <p>When recording a video, a corresponding video row will be created in the input
+         * collection, and the content values set by {@link #setContentValues} will also be
+         * written to this row.
+         *
+         * @param contentResolver the ContentResolver instance.
+         * @param collectionUri the URI of the collection to insert into.
          */
         public Builder(@NonNull ContentResolver contentResolver, @NonNull Uri collectionUri) {
             Preconditions.checkNotNull(contentResolver, "Content resolver can't be null.");
@@ -145,7 +175,14 @@ public final class MediaStoreOutputOptions extends OutputOptions {
         }
 
         /**
-         * Sets the content values to be included in the created file.
+         * Sets the content values to be included in the created video row.
+         *
+         * <p>The content values is a set of key/value paris used to store the metadata of a
+         * video item. The keys are defined in {@link MediaStore.MediaColumns} and
+         * {@link MediaStore.Video.VideoColumns}.
+         * When recording a video, a corresponding video row will be created in the input
+         * collection, and this content values will also be written to this row. If a key is not
+         * defined in the MediaStore, the corresponding value will be ignored.
          *
          * <p>If not set, defaults to {@link #EMPTY_CONTENT_VALUES}.
          *
@@ -159,8 +196,7 @@ public final class MediaStoreOutputOptions extends OutputOptions {
         }
 
         /**
-         * Sets the limit for the file length in bytes. Zero or negative values are considered
-         * unlimited.
+         * Sets the limit for the file length in bytes.
          *
          * <p>When used to
          * {@link Recorder#prepareRecording(android.content.Context, MediaStoreOutputOptions)

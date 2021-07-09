@@ -88,8 +88,9 @@ import java.util.concurrent.Executor;
 /**
  * A use case that provides camera stream suitable for video application.
  *
- * <p>VideoCapture is used to create a camera stream suitable for video application. The camera
- * stream is used by the extended classes of {@link VideoOutput}.
+ * <p>VideoCapture is used to create a camera stream suitable for a video application such as
+ * recording a high-quality video to a file. The camera stream is used by the extended classes of
+ * {@link VideoOutput}.
  * {@link #withOutput(VideoOutput)} can be used to create a VideoCapture instance associated with
  * the given VideoOutput. Take {@link Recorder} as an example,
  * <pre>{@code
@@ -99,10 +100,7 @@ import java.util.concurrent.Executor;
  * Then {@link #getOutput()} can retrieve the Recorder instance.
  *
  * @param <T> the type of VideoOutput
- *
- * @hide
  */
-@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String TAG = "VideoCapture";
     private static final Defaults DEFAULT_CONFIG = new Defaults();

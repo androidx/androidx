@@ -25,17 +25,16 @@ import androidx.core.util.Preconditions;
 import com.google.auto.value.AutoValue;
 
 /**
- * A class to store the result to a given file descriptor.
+ * A class providing options for storing the result to a given file descriptor.
  *
- * <p>The file descriptor must be seekable and writable. And the caller should be responsible for
- * closing the file descriptor.
+ * <p>The file descriptor must be seekable and writable. The caller is responsible for closing
+ * the file descriptor, which can be safely closed after the recording starts. That is, after
+ * {@link PendingRecording#start()} returns. Application should not use the file referenced by
+ * this file descriptor until the recording is complete.
  *
  * <p>To use a {@link java.io.File} as an output destination instead of a file descriptor, use
  * {@link FileOutputOptions}.
- *
- * @hide
  */
-@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class FileDescriptorOutputOptions extends OutputOptions {
 
     private final FileDescriptorOutputOptionsInternal mFileDescriptorOutputOptionsInternal;
@@ -90,7 +89,7 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
         return mFileDescriptorOutputOptionsInternal.hashCode();
     }
 
-    /** The builder of the {@link FileDescriptorOutputOptions}. */
+    /** The builder of the {@link FileDescriptorOutputOptions} object. */
     public static final class Builder implements
             OutputOptions.Builder<FileDescriptorOutputOptions, Builder> {
         private final FileDescriptorOutputOptionsInternal.Builder mInternalBuilder =
@@ -109,8 +108,7 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
         }
 
         /**
-         * Sets the limit for the file length in bytes. Zero or negative values are considered
-         * unlimited.
+         * Sets the limit for the file length in bytes.
          *
          * <p>When used to
          * {@link Recorder#prepareRecording(android.content.Context, FileDescriptorOutputOptions)

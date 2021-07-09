@@ -19,11 +19,16 @@ package androidx.camera.video;
 import androidx.annotation.NonNull;
 
 /**
- * Options for configuring output destination.
+ * Options for configuring output destination for generating a recording.
  *
- * @hide
+ * <p>A {@link PendingRecording} can be generated with {@link Recorder#prepareRecording} for
+ * different types of output destination, such as {@link FileOutputOptions},
+ * {@link FileDescriptorOutputOptions} and {@link MediaStoreOutputOptions}.
+ *
+ * @see FileOutputOptions
+ * @see FileDescriptorOutputOptions
+ * @see MediaStoreOutputOptions
  */
-@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class OutputOptions {
 
     /** Represents an unbound file size. */
@@ -45,8 +50,7 @@ public abstract class OutputOptions {
     interface Builder<T extends OutputOptions, B> {
 
         /**
-         * Sets the limit for the file length in bytes. Zero or negative values are considered
-         * unlimited.
+         * Sets the limit for the file length in bytes.
          *
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
          */

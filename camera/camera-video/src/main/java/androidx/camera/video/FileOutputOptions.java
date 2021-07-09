@@ -25,16 +25,13 @@ import com.google.auto.value.AutoValue;
 import java.io.File;
 
 /**
- * A class to store the result to a given file.
+ * A class providing options for storing the result to a given file.
  *
- * <p>The file must be in a path where the application has permission to write in.
+ * <p>The file must be in a path where the application has the write permission.
  *
- * <p>To use a {@link android.os.ParcelFileDescriptor} as an output desination instead of a
+ * <p>To use a {@link android.os.ParcelFileDescriptor} as an output destination instead of a
  * {@link File}, use {@link FileDescriptorOutputOptions}.
- *
- * @hide
  */
-@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class FileOutputOptions extends OutputOptions {
 
     private final FileOutputOptionsInternal mFileOutputOptionsInternal;
@@ -84,7 +81,7 @@ public final class FileOutputOptions extends OutputOptions {
         return mFileOutputOptionsInternal.hashCode();
     }
 
-    /** The builder of the {@link FileOutputOptions}. */
+    /** The builder of the {@link FileOutputOptions} object. */
     public static final class Builder implements OutputOptions.Builder<FileOutputOptions, Builder> {
         private final FileOutputOptionsInternal.Builder mInternalBuilder =
                 new AutoValue_FileOutputOptions_FileOutputOptionsInternal.Builder()
@@ -99,14 +96,14 @@ public final class FileOutputOptions extends OutputOptions {
          * @param file the file object.
          * @see File
          */
+        @SuppressWarnings("StreamFiles") // FileDescriptor API is in FileDescriptorOutputOptions
         public Builder(@NonNull File file) {
             Preconditions.checkNotNull(file, "File can't be null.");
             mInternalBuilder.setFile(file);
         }
 
         /**
-         * Sets the limit for the file length in bytes. Zero or negative values are considered
-         * unlimited.
+         * Sets the limit for the file length in bytes.
          *
          * <p>When used to
          * {@link Recorder#prepareRecording(android.content.Context, FileOutputOptions) generate}

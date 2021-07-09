@@ -39,7 +39,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * QualitySelector defines the desired quality setting.
+ * QualitySelector defines a desired quality setting that can be used to configure components
+ * with quality setting requirements such as creating a
+ * {@link Recorder.Builder#setQualitySelector(QualitySelector) Recorder}.
  *
  * <p>There are pre-defined quality constants that are universally used for video, such as
  * {@link #QUALITY_SD}, {@link #QUALITY_HD}, {@link #QUALITY_FHD} and {@link #QUALITY_UHD}, but
@@ -49,49 +51,43 @@ import java.util.Set;
  * the actual resolution defined in the device. Aside from checking the qualities one by one,
  * QualitySelector provides a more convenient way to select a quality. The typical usage of
  * selecting a single desired quality is:
- * <pre>
- *     <code>
- * QualitySelector qualitySelector = QualitySelector.of(QualitySelector.QUALITY_FHD)
- *     </code>
- * </pre>
+ * <pre>{@code
+ *   QualitySelector qualitySelector = QualitySelector.of(QualitySelector.QUALITY_FHD)
+ * }</pre>
  * Or the usage of selecting a series of qualities by desired order:
- * <pre>
- *     <code>
- * QualitySelector qualitySelector = QualitySelector
- *         .firstTry(QualitySelector.QUALITY_FHD)
- *         .thenTry(QualitySelector.QUALITY_HD)
- *         .finallyTry(QualitySelector.QUALITY_SHD)
- *     </code>
- * </pre>
+ * <pre>{@code
+ *   QualitySelector qualitySelector = QualitySelector
+ *           .firstTry(QualitySelector.QUALITY_FHD)
+ *           .thenTry(QualitySelector.QUALITY_HD)
+ *           .finallyTry(QualitySelector.QUALITY_HIGHEST)
+ * }</pre>
  * The recommended way to set the {@link Procedure#finallyTry(int)} is giving guaranteed supported
- * qualities such as {@link #QUALITY_LOWEST} and {@link #QUALITY_HIGHEST}, which ensures the
+ * qualities such as {@link #QUALITY_LOWEST} or {@link #QUALITY_HIGHEST}, which ensures the
  * QualitySelector can always choose a supported quality. Another way to ensure a quality will be
  * selected when none of the desired qualities are supported is to use
  * {@link Procedure#finallyTry(int, int)} with an open-ended fallback strategy such as
  * {@link #FALLBACK_STRATEGY_LOWER}:
- * <pre>
- *     <code>
- * QualitySelector qualitySelector = QualitySelector
- *         .firstTry(QualitySelector.QUALITY_UHD)
- *         .finallyTry(QualitySelector.QUALITY_FHD, FALLBACK_STRATEGY_LOWER)
- *     </code>
- * </pre>
+ * <pre>{@code
+ *   QualitySelector qualitySelector = QualitySelector
+ *           .firstTry(QualitySelector.QUALITY_UHD)
+ *           .finallyTry(QualitySelector.QUALITY_FHD, QualitySelector.FALLBACK_STRATEGY_LOWER)
+ * }</pre>
  * If QUALITY_UHD and QUALITY_FHD are not supported on the device, QualitySelector will select
  * the quality that is closest to and lower than QUALITY_FHD. If no lower quality is supported,
  * the quality that is closest to and higher than QUALITY_FHD will be selected.
- *
- * @hide
  */
-@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public class QualitySelector {
     private static final String TAG = "QualitySelector";
 
     /**
      * A non-applicable quality.
      *
-     * <p>Check QUALITY_NONE via {@link #isQualitySupported(CameraInfo, int)} will return
+     * <p>Checking QUALITY_NONE via {@link #isQualitySupported(CameraInfo, int)} will return
      * {@code false}.
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY)
     public static final int QUALITY_NONE = -1;
     /**
      * The lowest video quality supported by the video frame producer.
@@ -145,7 +141,10 @@ public class QualitySelector {
 
     /**
      * The strategy that no fallback strategy will be applied.
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY)
     public static final int FALLBACK_STRATEGY_NONE = 0;
 
     /**
@@ -240,13 +239,11 @@ public class QualitySelector {
      * {@link #getSupportedQualities} will return {@code true}.
      *
      * <p>Possible values for {@code quality} include {@link #QUALITY_LOWEST},
-     * {@link #QUALITY_HIGHEST}, {@link #QUALITY_SD}, {@link #QUALITY_HD}, {@link #QUALITY_FHD},
-     * {@link #QUALITY_UHD} and {@link #QUALITY_NONE}.
+     * {@link #QUALITY_HIGHEST}, {@link #QUALITY_SD}, {@link #QUALITY_HD}, {@link #QUALITY_FHD}
+     * and {@link #QUALITY_UHD}.
      *
      * <p>If this method is called with {@link #QUALITY_LOWEST} or {@link #QUALITY_HIGHEST}, it
      * will return {@code true} except the case that none of the qualities can be supported.
-     *
-     * <p>If this method is called with {@link #QUALITY_NONE}, it will always return {@code false}.
      *
      * @param cameraInfo the cameraInfo for checking the quality.
      * @param quality one of the quality constants.
@@ -262,10 +259,8 @@ public class QualitySelector {
      * Gets the corresponding resolution from the input quality.
      *
      * <p>Possible values for {@code quality} include {@link #QUALITY_LOWEST},
-     * {@link #QUALITY_HIGHEST}, {@link #QUALITY_SD}, {@link #QUALITY_HD}, {@link #QUALITY_FHD},
-     * {@link #QUALITY_UHD} and {@link #QUALITY_NONE}.
-     *
-     * <p>If this method is called with {@link #QUALITY_NONE}, it will always return {@code null}.
+     * {@link #QUALITY_HIGHEST}, {@link #QUALITY_SD}, {@link #QUALITY_HD}, {@link #QUALITY_FHD}
+     * and {@link #QUALITY_UHD}.
      *
      * @param cameraInfo the cameraInfo for checking the quality.
      * @param quality one of the quality constants.
@@ -319,7 +314,7 @@ public class QualitySelector {
     /**
      * Gets an instance of QualitySelector with only one desired quality.
      *
-     * <p>The returned QualitySelector will adopt {@link #FALLBACK_STRATEGY_NONE}.
+     * <p>If there are more than one desired qualities, use {@link #firstTry} for further settings.
      *
      * @param quality the quality constant. Possible values include {@link #QUALITY_LOWEST},
      * {@link #QUALITY_HIGHEST}, {@link #QUALITY_SD}, {@link #QUALITY_HD}, {@link #QUALITY_FHD},
@@ -333,18 +328,16 @@ public class QualitySelector {
     }
 
     /**
-     * Gets an instance of QualitySelector with only one desired quality.
+     * Gets an instance of QualitySelector with only one desired quality and a fallback strategy.
      *
-     * <p>If the desired quality is not supported, the fallback strategy will be applied on
-     * this quality.
+     * <p>If there are more than one desired qualities, use {@link #firstTry} for further settings.
      *
      * @param quality the quality constant. Possible values include {@link #QUALITY_LOWEST},
      * {@link #QUALITY_HIGHEST}, {@link #QUALITY_SD}, {@link #QUALITY_HD}, {@link #QUALITY_FHD},
      * or {@link #QUALITY_UHD}.
      * @param fallbackStrategy the fallback strategy. Possible values include
-     * {@link #FALLBACK_STRATEGY_NONE}, {@link #FALLBACK_STRATEGY_HIGHER},
-     * {@link #FALLBACK_STRATEGY_STRICTLY_HIGHER}, {@link #FALLBACK_STRATEGY_LOWER} and
-     * {@link #FALLBACK_STRATEGY_STRICTLY_LOWER}.
+     * {@link #FALLBACK_STRATEGY_HIGHER}, {@link #FALLBACK_STRATEGY_STRICTLY_HIGHER},
+     * {@link #FALLBACK_STRATEGY_LOWER} and {@link #FALLBACK_STRATEGY_STRICTLY_LOWER}.
      * @return the QualitySelector instance.
      * @throws IllegalArgumentException if {@code quality} is not a quality constant or
      * {@code fallbackStrategy} is not a fallback strategy constant.
@@ -511,7 +504,27 @@ public class QualitySelector {
     }
 
     /**
-     * The procedure can be used to set desired qualities and fallback strategy.
+     * Procedure can be used to build {@link QualitySelector} with further settings.
+     *
+     * <p>A QualitySelector can be simply created by {@link QualitySelector#of QualitySelector.of}
+     * with a single desired quality. When more quality settings are needed, use
+     * {@link QualitySelector#firstTry} to get a Procedure, chain the desired qualities by
+     * {@link #thenTry} and generate the QualitySelector by {@link #finallyTry} with or without
+     * fallback strategy. For example:
+     *
+     * <pre>{@code
+     *   QualitySelector qualitySelector = QualitySelector
+     *           .firstTry(QualitySelector.QUALITY_UHD)
+     *           .thenTry(QualitySelector.QUALITY_HD)
+     *           .finallyTry(QualitySelector.QUALITY_SD)
+     * }</pre>
+     * or
+     <pre>{@code
+     *   QualitySelector qualitySelector = QualitySelector
+     *           .firstTry(QualitySelector.QUALITY_UHD)
+     *           .finallyTry(QualitySelector.QUALITY_HD,
+     *                   QualitySelector.FALLBACK_STRATEGY_STRICTLY_LOWER)
+     * }</pre>
      */
     public static class Procedure {
         private final List<Integer> mPreferredQualityList = new ArrayList<>();
@@ -537,8 +550,6 @@ public class QualitySelector {
 
         /**
          * Sets the final desired quality.
-         *
-         * <p>The returned QualitySelector will adopt {@link #FALLBACK_STRATEGY_NONE}.
          *
          * <p>This method finishes the setting procedure and generates a {@link QualitySelector}
          * with the requirements set to the procedure.
@@ -567,9 +578,8 @@ public class QualitySelector {
          * {@link #QUALITY_HIGHEST}, {@link #QUALITY_SD}, {@link #QUALITY_HD},
          * {@link #QUALITY_FHD} or {@link #QUALITY_UHD}.
          * @param fallbackStrategy the fallback strategy. Possible values include
-         * {@link #FALLBACK_STRATEGY_NONE}, {@link #FALLBACK_STRATEGY_HIGHER},
-         * {@link #FALLBACK_STRATEGY_STRICTLY_HIGHER}, {@link #FALLBACK_STRATEGY_LOWER} and
-         * {@link #FALLBACK_STRATEGY_STRICTLY_LOWER}.
+         * {@link #FALLBACK_STRATEGY_HIGHER}, {@link #FALLBACK_STRATEGY_STRICTLY_HIGHER},
+         * {@link #FALLBACK_STRATEGY_LOWER} and {@link #FALLBACK_STRATEGY_STRICTLY_LOWER}.
          * @return the {@link QualitySelector}.
          * @throws IllegalArgumentException if {@code quality} is not a quality constant or
          * {@code fallbackStrategy} is not a fallback strategy constant.
