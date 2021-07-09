@@ -81,11 +81,13 @@ public enum class DrawMode {
  * @param highlightLayer Optional [HighlightLayer] used by editors to visually highlight an
  * aspect of the watch face. Rendered last on top of [watchFaceLayers]. If highlighting isn't needed
  * this will be `null`.
+ * @param pressedComplicationSlotIds A set of [ComplicationSlot.id]s to render as pressed.
  */
 public class RenderParameters @JvmOverloads constructor(
     public val drawMode: DrawMode,
     public val watchFaceLayers: Set<WatchFaceLayer>,
-    public val highlightLayer: HighlightLayer? = null
+    public val highlightLayer: HighlightLayer? = null,
+    public val pressedComplicationSlotIds: Set<Int> = emptySet()
 ) {
     init {
         require(watchFaceLayers.isNotEmpty() || highlightLayer != null) {
@@ -240,7 +242,8 @@ public class RenderParameters @JvmOverloads constructor(
             }
 
             else -> null
-        }
+        },
+        wireFormat.pressedComplicationSlotIds.toSet()
     )
 
     /** @hide */
@@ -254,7 +257,8 @@ public class RenderParameters @JvmOverloads constructor(
                 0,
                 null,
                 highlightLayer!!.highlightTint,
-                highlightLayer.backgroundTint
+                highlightLayer.backgroundTint,
+                pressedComplicationSlotIds.toIntArray()
             )
 
             is HighlightedElement.ComplicationSlot -> RenderParametersWireFormat(
@@ -264,7 +268,8 @@ public class RenderParameters @JvmOverloads constructor(
                 thingHighlighted.id,
                 null,
                 highlightLayer!!.highlightTint,
-                highlightLayer.backgroundTint
+                highlightLayer.backgroundTint,
+                pressedComplicationSlotIds.toIntArray()
             )
 
             is HighlightedElement.UserStyle -> RenderParametersWireFormat(
@@ -274,7 +279,8 @@ public class RenderParameters @JvmOverloads constructor(
                 0,
                 thingHighlighted.id.value,
                 highlightLayer!!.highlightTint,
-                highlightLayer.backgroundTint
+                highlightLayer.backgroundTint,
+                pressedComplicationSlotIds.toIntArray()
             )
 
             else -> RenderParametersWireFormat(
@@ -284,7 +290,8 @@ public class RenderParameters @JvmOverloads constructor(
                 0,
                 null,
                 Color.BLACK,
-                Color.BLACK
+                Color.BLACK,
+                pressedComplicationSlotIds.toIntArray()
             )
         }
 
@@ -342,6 +349,7 @@ public class RenderParameters @JvmOverloads constructor(
         if (drawMode != other.drawMode) return false
         if (watchFaceLayers != other.watchFaceLayers) return false
         if (highlightLayer != other.highlightLayer) return false
+        if (pressedComplicationSlotIds != other.pressedComplicationSlotIds) return false
 
         return true
     }
@@ -350,6 +358,7 @@ public class RenderParameters @JvmOverloads constructor(
         var result = drawMode.hashCode()
         result = 31 * result + watchFaceLayers.hashCode()
         result = 31 * result + (highlightLayer?.hashCode() ?: 0)
+        result = 31 * result + pressedComplicationSlotIds.hashCode()
         return result
     }
 }

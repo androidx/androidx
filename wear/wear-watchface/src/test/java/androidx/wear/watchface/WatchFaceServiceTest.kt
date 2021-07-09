@@ -720,27 +720,27 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
-        assertThat(complicationDrawableRight.isHighlighted).isFalse()
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(RIGHT_COMPLICATION_ID)
 
         // Tap left complication.
         tapAt(30, 50)
-        assertThat(complicationDrawableLeft.isHighlighted).isTrue()
+        assertThat(complicationSlotsManager.pressedSlotIds).contains(LEFT_COMPLICATION_ID)
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(LEFT_COMPLICATION_ID))
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
 
         // Tap right complication.
         testWatchFaceService.reset()
         tapAt(70, 50)
-        assertThat(complicationDrawableRight.isHighlighted).isTrue()
+        assertThat(complicationSlotsManager.pressedSlotIds).contains(RIGHT_COMPLICATION_ID)
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(RIGHT_COMPLICATION_ID))
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
 
         // Tap on blank space.
         testWatchFaceService.reset()
@@ -748,7 +748,7 @@ public class WatchFaceServiceTest {
         assertThat(testWatchFaceService.tappedComplicationSlotIds).isEmpty()
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
         assertThat(testWatchFaceService.tappedComplicationSlotIds).isEmpty()
     }
 
@@ -760,21 +760,21 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
-        assertThat(complicationDrawableRight.isHighlighted).isFalse()
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(RIGHT_COMPLICATION_ID)
 
         // Rapidly tap left then right complication.
         tapAt(30, 50)
         tapAt(70, 50)
 
         // Both complicationSlots get temporarily highlighted.
-        assertThat(complicationDrawableLeft.isHighlighted).isTrue()
-        assertThat(complicationDrawableRight.isHighlighted).isTrue()
+        assertThat(complicationSlotsManager.pressedSlotIds).contains(LEFT_COMPLICATION_ID)
+        assertThat(complicationSlotsManager.pressedSlotIds).contains(RIGHT_COMPLICATION_ID)
 
         // And the highlight goes away after a delay.
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
-        assertThat(complicationDrawableRight.isHighlighted).isFalse()
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(RIGHT_COMPLICATION_ID)
 
         // Taps are registered on both complicationSlots.
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
@@ -804,7 +804,7 @@ public class WatchFaceServiceTest {
             tapListener = tapListener
         )
 
-        assertThat(complicationDrawableEdge.isHighlighted).isFalse()
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(EDGE_COMPLICATION_ID)
 
         `when`(
             edgeComplicationHitTester.hitTest(
@@ -817,12 +817,12 @@ public class WatchFaceServiceTest {
 
         // Tap the edge complication.
         tapAt(0, 50)
-        assertThat(complicationDrawableEdge.isHighlighted).isTrue()
+        assertThat(complicationSlotsManager.pressedSlotIds).contains(EDGE_COMPLICATION_ID)
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(EDGE_COMPLICATION_ID))
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableEdge.isHighlighted).isFalse()
+        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(EDGE_COMPLICATION_ID)
     }
 
     @Test

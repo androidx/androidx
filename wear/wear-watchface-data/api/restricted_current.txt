@@ -301,7 +301,7 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class RenderParametersWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public RenderParametersWireFormat(int, int, int, int, String?, @ColorInt int, @ColorInt int);
+    ctor public RenderParametersWireFormat(int, int, int, int, String?, @ColorInt int, @ColorInt int, int[]);
     method public int describeContents();
     method @ColorInt public int getBackgroundTint();
     method public int getDrawMode();
@@ -309,6 +309,7 @@ package androidx.wear.watchface.data {
     method public int getElementType();
     method public String? getElementUserStyleSettingId();
     method @ColorInt public int getHighlightTint();
+    method public int[] getPressedComplicationSlotIds();
     method public int getWatchFaceLayerSetBitfield();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.RenderParametersWireFormat!>! CREATOR;

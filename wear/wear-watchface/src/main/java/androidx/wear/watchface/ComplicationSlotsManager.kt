@@ -91,6 +91,9 @@ public class ComplicationSlotsManager(
     public val complicationSlots: Map<Int, ComplicationSlot> =
         complicationSlotCollection.associateBy(ComplicationSlot::id)
 
+    /** The set of slot ids that are rendered as pressed. */
+    public val pressedSlotIds: Set<Int> = HashSet()
+
     private class InitialComplicationConfig(
         val complicationSlotBounds: ComplicationSlotBounds,
         val enabled: Boolean,
@@ -283,17 +286,17 @@ public class ComplicationSlotsManager(
      */
     @UiThread
     public fun displayPressedAnimation(complicationSlotId: Int) {
-        val complication = requireNotNull(complicationSlots[complicationSlotId]) {
+        requireNotNull(complicationSlots[complicationSlotId]) {
             "No complication found with ID $complicationSlotId"
         }
-        complication.setIsHighlighted(true)
+        (pressedSlotIds as HashSet<Int>).add(complicationSlotId)
 
         val weakRef = WeakReference(this)
         watchFaceHostApi.getUiThreadHandler().postDelayed(
             {
                 // The watch face might go away before this can run.
                 if (weakRef.get() != null) {
-                    complication.setIsHighlighted(false)
+                    pressedSlotIds.remove(complicationSlotId)
                 }
             },
             WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS
@@ -379,6 +382,7 @@ public class ComplicationSlotsManager(
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("ComplicationSlotsManager:")
+        writer.println("renderer.pressedSlotIds=${pressedSlotIds.joinToString()}")
         writer.increaseIndent()
         for ((_, complication) in complicationSlots) {
             complication.dump(writer)

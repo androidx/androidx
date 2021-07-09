@@ -9,12 +9,9 @@ package androidx.wear.watchface {
   public interface CanvasComplication {
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, android.icu.util.Calendar calendar, @ColorInt int color);
     method public androidx.wear.complications.data.ComplicationData? getData();
-    method public boolean isHighlighted();
     method public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
     method @WorkerThread public default void onRendererCreated(androidx.wear.watchface.Renderer renderer);
-    method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method public void setIsHighlighted(boolean isHighlighted);
-    property public abstract boolean isHighlighted;
+    method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int slotId);
   }
 
   public static interface CanvasComplication.InvalidateCallback {
@@ -89,8 +86,10 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.ComplicationSlot? getBackgroundComplicationSlot();
     method public androidx.wear.watchface.ComplicationSlot? getComplicationSlotAt(@Px int x, @Px int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> getComplicationSlots();
+    method public java.util.Set<java.lang.Integer> getPressedSlotIds();
     method @UiThread public void removeTapListener(androidx.wear.watchface.ComplicationSlotsManager.TapCallback tapCallback);
     property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> complicationSlots;
+    property public final java.util.Set<java.lang.Integer> pressedSlotIds;
   }
 
   public static interface ComplicationSlotsManager.TapCallback {
@@ -147,13 +146,16 @@ package androidx.wear.watchface {
   }
 
   public final class RenderParameters {
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer, optional java.util.Set<java.lang.Integer> pressedComplicationSlotIds);
     ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer);
     ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers);
     method public androidx.wear.watchface.DrawMode getDrawMode();
     method public androidx.wear.watchface.RenderParameters.HighlightLayer? getHighlightLayer();
+    method public java.util.Set<java.lang.Integer> getPressedComplicationSlotIds();
     method public java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> getWatchFaceLayers();
     property public final androidx.wear.watchface.DrawMode drawMode;
     property public final androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer;
+    property public final java.util.Set<java.lang.Integer> pressedComplicationSlotIds;
     property public final java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers;
     field public static final androidx.wear.watchface.RenderParameters.Companion Companion;
     field public static final androidx.wear.watchface.RenderParameters DEFAULT_INTERACTIVE;

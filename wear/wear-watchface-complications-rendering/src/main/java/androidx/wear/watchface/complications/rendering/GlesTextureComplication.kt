@@ -24,20 +24,20 @@ import android.icu.util.Calendar
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import androidx.annotation.Px
-import androidx.wear.watchface.CanvasComplication
+import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.RenderParameters
 
 /**
- * Helper for rendering a [CanvasComplication] to a GLES20 texture. To use call [renderToTexture]
+ * Helper for rendering a [ComplicationSlot] to a GLES20 texture. To use call [renderToTexture]
  * and then [bind] before drawing.
  *
- * @param canvasComplication The [CanvasComplication] to render to texture.
+ * @param complicationSlot The [ComplicationSlot] to render to texture.
  * @param textureWidth The width of the texture in pixels to create.
  * @param textureHeight The height of the texture in pixels to create.
  * @param textureType The texture type, e.g. [GLES20.GL_TEXTURE_2D].
  */
 public class GlesTextureComplication(
-    public val canvasComplication: CanvasComplication,
+    public val complicationSlot: ComplicationSlot,
     @Px textureWidth: Int,
     @Px textureHeight: Int,
     private val textureType: Int
@@ -51,10 +51,16 @@ public class GlesTextureComplication(
     private val canvas = Canvas(bitmap)
     private val bounds = Rect(0, 0, textureWidth, textureHeight)
 
-    /** Renders [canvasComplication] to an OpenGL texture. */
+    /** Renders [complicationSlot] to an OpenGL texture. */
     public fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
         canvas.drawColor(Color.BLACK)
-        canvasComplication.render(canvas, bounds, calendar, renderParameters)
+        complicationSlot.renderer.render(
+            canvas,
+            bounds,
+            calendar,
+            renderParameters,
+            complicationSlot.id
+        )
         bind()
         GLUtils.texImage2D(textureType, 0, bitmap, 0)
     }
