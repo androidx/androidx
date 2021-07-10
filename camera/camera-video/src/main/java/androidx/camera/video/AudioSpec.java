@@ -23,6 +23,7 @@ import android.util.Range;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
 
@@ -31,7 +32,9 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Audio specification that is options to config audio source and encoding.
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class AudioSpec {
 
@@ -158,7 +161,11 @@ public abstract class AudioSpec {
     @NonNull
     public abstract Builder toBuilder();
 
-    /** The builder of the {@link AudioSpec}. */
+    /**
+     * The builder of the {@link AudioSpec}.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
     @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
