@@ -25,6 +25,8 @@ import android.util.Range;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
 
@@ -33,7 +35,9 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Video specification that is options to config video encoding.
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class VideoSpec {
 
@@ -124,7 +128,11 @@ public abstract class VideoSpec {
     @NonNull
     public abstract Builder toBuilder();
 
-    /** The builder of the {@link VideoSpec}. */
+    /**
+     * The builder of the {@link VideoSpec}.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
     @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {

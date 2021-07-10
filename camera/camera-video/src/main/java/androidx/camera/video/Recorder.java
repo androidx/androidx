@@ -16,6 +16,11 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.video.QualitySelector.FALLBACK_STRATEGY_HIGHER;
+import static androidx.camera.video.QualitySelector.QUALITY_FHD;
+import static androidx.camera.video.QualitySelector.QUALITY_HD;
+import static androidx.camera.video.QualitySelector.QUALITY_SD;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -185,6 +190,24 @@ public final class Recorder implements VideoOutput {
         ENCODER_ERROR
     }
 
+    /**
+     * Default quality selector for recordings.
+     *
+     * <p>The default quality selector chooses a video quality suitable for recordings based on
+     * device and compatibility constraints. It is equivalent to:
+     * <pre>{@code
+     * QualitySelector.firstTry(QUALITY_FHD)
+     *         .thenTry(QUALITY_HD)
+     *         .thenTry(QUALITY_SD)
+     *         .finallyTry(QUALITY_FHD, FALLBACK_STRATEGY_HIGHER);
+     * }</pre>
+     */
+    public static final QualitySelector DEFAULT_QUALITY_SELECTOR =
+            QualitySelector.firstTry(QUALITY_FHD)
+                    .thenTry(QUALITY_HD)
+                    .thenTry(QUALITY_SD)
+                    .finallyTry(QUALITY_FHD, FALLBACK_STRATEGY_HIGHER);
+
     private static final AudioSpec AUDIO_SPEC_DEFAULT =
             AudioSpec.builder()
                     .setSourceFormat(
@@ -196,6 +219,7 @@ public final class Recorder implements VideoOutput {
                     .build();
     private static final VideoSpec VIDEO_SPEC_DEFAULT =
             VideoSpec.builder()
+                    .setQualitySelector(DEFAULT_QUALITY_SELECTOR)
                     .setAspectRatio(VideoSpec.ASPECT_RATIO_16_9)
                     .build();
     private static final MediaSpec MEDIA_SPEC_DEFAULT =
@@ -434,7 +458,7 @@ public final class Recorder implements VideoOutput {
      *
      * @return the {@link QualitySelector} provided to
      * {@link Builder#setQualitySelector(QualitySelector)} on the builder used to create this
-     * recorder, or the default value of {@link VideoSpec#QUALITY_SELECTOR_AUTO} if no quality
+     * recorder, or the default value of {@link Recorder#DEFAULT_QUALITY_SELECTOR} if no quality
      * selector was provided.
      */
     @NonNull
@@ -1462,7 +1486,7 @@ public final class Recorder implements VideoOutput {
          * depending on the resolutions supported by the camera and codec capabilities.
          *
          * <p>If no quality selector is provided, the default is
-         * {@link VideoSpec#QUALITY_SELECTOR_AUTO}.
+         * {@link #DEFAULT_QUALITY_SELECTOR}.
          * @see QualitySelector
          */
         @NonNull
