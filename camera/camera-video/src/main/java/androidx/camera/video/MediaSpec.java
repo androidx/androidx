@@ -22,6 +22,7 @@ import android.media.MediaFormat;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.core.util.Consumer;
 
 import com.google.auto.value.AutoValue;
@@ -32,7 +33,9 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * MediaSpec communicates the encoding type and encoder-specific options for both the
  * video and audio inputs to the VideoOutput.
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class MediaSpec {
 
@@ -120,7 +123,9 @@ public abstract class MediaSpec {
 
     /**
      * The builder for {@link MediaSpec}.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY)
     @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
