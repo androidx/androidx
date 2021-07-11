@@ -113,9 +113,8 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.YuvToJpegProcessor;
-import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.core.internal.compat.quirk.ImageCaptureWashedOutImageQuirk;
 import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
+import androidx.camera.core.internal.compat.quirk.UseTorchAsFlashQuirk;
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -312,7 +311,7 @@ public final class ImageCapture extends UseCase {
      * <p>When the flag is set, torch will be opened and closed to replace the flash fired by flash
      * mode.
      */
-    private final boolean mUseTorchFlash;
+    private boolean mUseTorchFlash = false;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
@@ -361,11 +360,6 @@ public final class ImageCapture extends UseCase {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
         } else {
             mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
-        }
-
-        mUseTorchFlash = DeviceQuirks.get(ImageCaptureWashedOutImageQuirk.class) != null;
-        if (mUseTorchFlash) {
-            Logger.d(TAG, "Open and close torch to replace the flash fired by flash mode.");
         }
     }
 
@@ -1347,6 +1341,14 @@ public final class ImageCapture extends UseCase {
         // This will only be set to true if software JPEG was requested and
         // enforceSoftwareJpegConstraints() hasn't removed the request.
         mUseSoftwareJpeg = useCaseConfig.isSoftwareJpegEncoderRequested();
+
+        CameraInternal camera = getCamera();
+        Preconditions.checkNotNull(camera, "Attached camera cannot be null");
+        mUseTorchFlash = camera.getCameraInfoInternal().getCameraQuirks()
+                .contains(UseTorchAsFlashQuirk.class);
+        if (mUseTorchFlash) {
+            Logger.d(TAG, "Open and close torch to replace the flash fired by flash mode.");
+        }
 
         mExecutor =
                 Executors.newFixedThreadPool(
