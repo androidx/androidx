@@ -47,6 +47,33 @@ class LivePagedListTest {
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
+    fun invalidPagingSourceOnInitialLoadTriggersInvalidation() {
+        var pagingSourcesCreated = 0
+        val pagingSourceFactory = {
+            when (pagingSourcesCreated++) {
+                0 -> TestPagingSource().apply {
+                    invalidate()
+                }
+                else -> TestPagingSource()
+            }
+        }
+
+        val livePagedList = LivePagedList(
+            coroutineScope = GlobalScope,
+            initialKey = null,
+            config = PagedList.Config.Builder().setPageSize(10).build(),
+            boundaryCallback = null,
+            pagingSourceFactory = pagingSourceFactory,
+            notifyDispatcher = ArchTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher(),
+            fetchDispatcher = ArchTaskExecutor.getIOThreadExecutor().asCoroutineDispatcher(),
+        )
+
+        livePagedList.observeForever { }
+        assertThat(pagingSourcesCreated).isEqualTo(2)
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    @Test
     fun instantiatesPagingSourceOnFetchDispatcher() {
         var pagingSourcesCreated = 0
         val pagingSourceFactory = {

@@ -23,8 +23,6 @@ import androidx.arch.core.util.Function
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Base class for loading pages of snapshot data into a [PagedList].
@@ -101,17 +99,20 @@ public abstract class DataSource<Key : Any, Value : Any>
 // subclassing, except through exposed subclasses.
 internal constructor(internal val type: KeyType) {
 
-    @VisibleForTesting
-    internal val onInvalidatedCallbacks = CopyOnWriteArrayList<InvalidatedCallback>()
+    private val invalidateCallbackTracker = InvalidateCallbackTracker<InvalidatedCallback> {
+        it.onInvalidated()
+    }
 
-    private val _invalid = AtomicBoolean(false)
+    internal val invalidateCallbackCount: Int
+        @VisibleForTesting
+        get() = invalidateCallbackTracker.callbackCount()
 
     /**
      * @return `true` if the data source is invalid, and can no longer be queried for data.
      */
     public open val isInvalid: Boolean
         @WorkerThread
-        get() = _invalid.get()
+        get() = invalidateCallbackTracker.invalid
 
     /**
      * Factory for DataSources.
@@ -360,13 +361,16 @@ internal constructor(internal val type: KeyType) {
      * A data source will only invoke its callbacks once - the first time [invalidate] is called, on
      * that thread.
      *
+     * If this [DataSource] is already invalid, the provided [onInvalidatedCallback] will be
+     * triggered immediately.
+     *
      * @param onInvalidatedCallback The callback, will be invoked on thread that invalidates the
      * [DataSource].
      */
     @AnyThread
     @Suppress("RegistrationName")
     public open fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
-        onInvalidatedCallbacks.add(onInvalidatedCallback)
+        invalidateCallbackTracker.registerInvalidatedCallback(onInvalidatedCallback)
     }
 
     /**
@@ -377,7 +381,7 @@ internal constructor(internal val type: KeyType) {
     @AnyThread
     @Suppress("RegistrationName")
     public open fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
-        onInvalidatedCallbacks.remove(onInvalidatedCallback)
+        invalidateCallbackTracker.unregisterInvalidatedCallback(onInvalidatedCallback)
     }
 
     /**
@@ -387,9 +391,7 @@ internal constructor(internal val type: KeyType) {
      */
     @AnyThread
     public open fun invalidate() {
-        if (_invalid.compareAndSet(false, true)) {
-            onInvalidatedCallbacks.forEach { it.onInvalidated() }
-        }
+        invalidateCallbackTracker.invalidate()
     }
 
     /**

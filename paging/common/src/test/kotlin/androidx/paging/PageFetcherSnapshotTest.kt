@@ -28,8 +28,8 @@ import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.LoadStateUpdate
-import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.RemoteMediatorMock.LoadEvent
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import com.google.common.truth.Truth.assertThat
