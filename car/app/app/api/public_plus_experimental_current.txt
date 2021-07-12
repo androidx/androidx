@@ -297,7 +297,6 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getDistanceDisplayUnit();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Boolean!> getEnergyIsLow();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getFuelPercent();
-    method @Deprecated public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getRangeRemaining();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getRangeRemainingMeters();
   }
 
@@ -308,7 +307,6 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setDistanceDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setEnergyIsLow(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setFuelPercent(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
-    method @Deprecated public androidx.car.app.hardware.info.EnergyLevel.Builder setRangeRemaining(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setRangeRemainingMeters(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
   }
 
@@ -357,7 +355,6 @@ package androidx.car.app.hardware.info {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Mileage {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getDistanceDisplayUnit();
-    method @Deprecated public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getOdometer();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getOdometerMeters();
   }
 
@@ -365,7 +362,6 @@ package androidx.car.app.hardware.info {
     ctor public Mileage.Builder();
     method public androidx.car.app.hardware.info.Mileage build();
     method public androidx.car.app.hardware.info.Mileage.Builder setDistanceDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
-    method @Deprecated public androidx.car.app.hardware.info.Mileage.Builder setOdometer(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
     method public androidx.car.app.hardware.info.Mileage.Builder setOdometerMeters(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
   }
 
@@ -384,9 +380,7 @@ package androidx.car.app.hardware.info {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Speed {
-    method @Deprecated public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getDisplaySpeed();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getDisplaySpeedMetersPerSecond();
-    method @Deprecated public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getRawSpeed();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getRawSpeedMetersPerSecond();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getSpeedDisplayUnit();
   }
@@ -394,9 +388,7 @@ package androidx.car.app.hardware.info {
   public static final class Speed.Builder {
     ctor public Speed.Builder();
     method public androidx.car.app.hardware.info.Speed build();
-    method @Deprecated public androidx.car.app.hardware.info.Speed.Builder setDisplaySpeed(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
     method public androidx.car.app.hardware.info.Speed.Builder setDisplaySpeedMetersPerSecond(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
-    method @Deprecated public androidx.car.app.hardware.info.Speed.Builder setRawSpeed(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
     method public androidx.car.app.hardware.info.Speed.Builder setRawSpeedMetersPerSecond(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
     method public androidx.car.app.hardware.info.Speed.Builder setSpeedDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
   }
