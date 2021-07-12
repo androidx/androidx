@@ -37,6 +37,7 @@ import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -245,8 +246,8 @@ private abstract class MeasuredChild(
     ) {
         with(scope) {
             placeable.placeRelativeWithLayer(
-                x = positionX.toInt(),
-                y = positionY.toInt(),
+                x = positionX.roundToInt(),
+                y = positionY.roundToInt(),
                 layerBlock = {
                     rotationZ = rotation.toDegrees() - 270f
                     transformOrigin = TransformOrigin(0.5f, 0.5f)
@@ -288,7 +289,7 @@ private class NormalMeasuredChild(measurable: Measurable) : MeasuredChild(measur
         )
         componentRadialPosition = radius - outerRadius
 
-        sweep = 2 * asin(width / 2 / innerRadius)
+        sweep = 2f * asin(width / 2f / innerRadius)
     }
 
     override fun place(
@@ -306,7 +307,7 @@ private class NormalMeasuredChild(measurable: Measurable) : MeasuredChild(measur
         // To position this child, we move its center rotating it around the CurvedRow's center.
         val radiusToCenter = radiusToTopCenter - height / 2f
         val childCenterX = radius + radiusToCenter * cos(centerAngle)
-        val childCenterY = radius / 2f + radiusToCenter * sin(centerAngle)
+        val childCenterY = radius + radiusToCenter * sin(centerAngle)
 
         // Then compute the position of the top left corner given that center.
         val positionX = childCenterX - width / 2f
