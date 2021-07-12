@@ -46,14 +46,24 @@ abstract class KspBasicAnnotationProcessor(
         val round = XRoundEnv.create(processingEnv)
         val deferredElements = processingSteps().flatMap { step ->
             val invalidElements = mutableSetOf<XElement>()
-            val elementsByAnnotation = step.annotations().associateWith { annotation ->
+            val elementsByAnnotation = step.annotations().mapNotNull { annotation ->
                 val annotatedElements = round.getElementsAnnotatedWith(annotation)
-                annotatedElements
+                val validElements = annotatedElements
                     .filter { (it as KspElement).declaration.validateExceptLocals() }
-                    .also { invalidElements.addAll(annotatedElements - it) }
                     .toSet()
+                invalidElements.addAll(annotatedElements - validElements)
+                if (validElements.isNotEmpty()) {
+                    annotation to validElements
+                } else {
+                    null
+                }
+            }.toMap()
+            // Only process the step if there are annotated elements found for this step.
+            if (elementsByAnnotation.isNotEmpty()) {
+                invalidElements + step.process(processingEnv, elementsByAnnotation)
+            } else {
+                invalidElements
             }
-            invalidElements + step.process(processingEnv, elementsByAnnotation)
         }
         postRound(processingEnv, round)
         return deferredElements.map { (it as KspElement).declaration }

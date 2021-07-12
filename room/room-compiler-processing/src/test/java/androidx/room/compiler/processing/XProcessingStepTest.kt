@@ -268,6 +268,68 @@ class XProcessingStepTest {
     }
 
     @Test
+    fun cachingBetweenSteps() {
+        val main = JavaFileObjects.forSourceString(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @MainAnnotation(
+                typeList = {},
+                singleType = Object.class,
+                intMethod = 3,
+                singleOtherAnnotation = @OtherAnnotation("y")
+            )
+            class Main {}
+            """.trimIndent()
+        )
+        val other = JavaFileObjects.forSourceString(
+            "foo.bar.Other",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @OtherAnnotation("x")
+            class Other {
+            }
+            """.trimIndent()
+        )
+        val elementsByStep = mutableMapOf<XProcessingStep, XTypeElement>()
+        // create a scenario where we can test caching between steps
+        val mainStep = object : XProcessingStep {
+            override fun annotations(): Set<String> = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XTypeElement> {
+                elementsByStep[this] = env.requireTypeElement("foo.bar.Main")
+                return emptySet()
+            }
+        }
+        val otherStep = object : XProcessingStep {
+            override fun annotations(): Set<String> = setOf(OtherAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XTypeElement> {
+                elementsByStep[this] = env.requireTypeElement("foo.bar.Main")
+                return emptySet()
+            }
+        }
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main, other)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(mainStep, otherStep)
+            }
+        ).compilesWithoutError()
+        assertThat(elementsByStep.keys).containsExactly(mainStep, otherStep)
+        // make sure elements between steps are the same instances
+        assertThat(elementsByStep[mainStep]).isSameInstanceAs(elementsByStep[otherStep])
+    }
+
+    @Test
     fun kspReturnsUnprocessed() {
         CompilationTestCapabilities.assumeKspIsEnabled()
         var returned: Set<XElement>? = null
@@ -388,6 +450,112 @@ class XProcessingStepTest {
     }
 
     @Test
+    fun javacDeferredStep() {
+        // create a scenario where we defer the first round of processing
+        val main = JavaFileObjects.forSourceString(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @MainAnnotation(
+                typeList = {},
+                singleType = Object.class,
+                intMethod = 3,
+                singleOtherAnnotation = @OtherAnnotation("y")
+            )
+            class Main {}
+            """.trimIndent()
+        )
+        val stepsProcessed = mutableListOf<XProcessingStep>()
+        val mainStep = object : XProcessingStep {
+            var round = 0
+            override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                stepsProcessed.add(this)
+                val deferredElements = if (round++ == 0) {
+                    // Generate a random class to trigger another processing round
+                    val className = ClassName.get("foo.bar", "Main_Impl")
+                    val spec = TypeSpec.classBuilder(className).build()
+                    JavaFile.builder(className.packageName(), spec)
+                        .build()
+                        .writeTo(env.filer)
+
+                    // Defer all processing to the next round
+                    elementsByAnnotation.values.flatten().toSet()
+                } else {
+                    emptySet()
+                }
+                return deferredElements
+            }
+        }
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(mainStep)
+            }
+        ).compilesWithoutError()
+
+        // Assert that mainStep was processed twice due to deferring
+        assertThat(stepsProcessed).containsExactly(mainStep, mainStep)
+    }
+
+    @Test
+    fun javacStepOnlyCalledIfElementsToProcess() {
+        val main = JavaFileObjects.forSourceString(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @MainAnnotation(
+                typeList = {},
+                singleType = Object.class,
+                intMethod = 3,
+                singleOtherAnnotation = @OtherAnnotation("y")
+            )
+            class Main {
+            }
+            """.trimIndent()
+        )
+        val stepsProcessed = mutableListOf<XProcessingStep>()
+        val mainStep = object : XProcessingStep {
+            override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                stepsProcessed.add(this)
+                return emptySet()
+            }
+        }
+        val otherStep = object : XProcessingStep {
+            override fun annotations() = setOf(OtherAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                stepsProcessed.add(this)
+                return emptySet()
+            }
+        }
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(mainStep, otherStep)
+            }
+        ).compilesWithoutError()
+        assertThat(stepsProcessed).containsExactly(mainStep)
+    }
+
+    @Test
     fun kspAnnotatedElementsByStep() {
         val main = SourceFile.kotlin(
             "Classes.kt",
@@ -448,5 +616,122 @@ class XProcessingStepTest {
             .containsExactly("foo.bar.Main")
         assertThat(elementsByStep[otherStep])
             .containsExactly("foo.bar.Other")
+    }
+
+    @Test
+    fun kspDeferredStep() {
+        // create a scenario where we defer the first round of processing
+        val main = SourceFile.kotlin(
+            "Classes.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            @MainAnnotation(
+                typeList = [],
+                singleType = Any::class,
+                intMethod = 3,
+                singleOtherAnnotation = OtherAnnotation("y")
+            )
+            class Main {}
+            """.trimIndent()
+        )
+        val stepsProcessed = mutableListOf<XProcessingStep>()
+        val mainStep = object : XProcessingStep {
+            var round = 0
+            override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                stepsProcessed.add(this)
+                val deferredElements = if (round++ == 0) {
+                    // Generate a random class to trigger another processing round
+                    val className = ClassName.get("foo.bar", "Main_Impl")
+                    val spec = TypeSpec.classBuilder(className).build()
+                    JavaFile.builder(className.packageName(), spec)
+                        .build()
+                        .writeTo(env.filer)
+
+                    // Defer all processing to the next round
+                    elementsByAnnotation.values.flatten().toSet()
+                } else {
+                    emptySet()
+                }
+                return deferredElements
+            }
+        }
+
+        val processorProvider = object : SymbolProcessorProvider {
+            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+                return object : KspBasicAnnotationProcessor(environment) {
+                    override fun processingSteps() = listOf(mainStep)
+                }
+            }
+        }
+        KotlinCompilation().apply {
+            workingDir = temporaryFolder.root
+            inheritClassPath = true
+            symbolProcessorProviders = listOf(processorProvider)
+            sources = listOf(main)
+            verbose = false
+        }.compile()
+
+        // Assert that mainStep was processed twice due to deferring
+        assertThat(stepsProcessed).containsExactly(mainStep, mainStep)
+    }
+
+    @Test
+    fun kspStepOnlyCalledIfElementsToProcess() {
+        val main = SourceFile.kotlin(
+            "Classes.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            @MainAnnotation(
+                typeList = [],
+                singleType = Any::class,
+                intMethod = 3,
+                singleOtherAnnotation = OtherAnnotation("y")
+            )
+            class Main {
+            }
+            """.trimIndent()
+        )
+        val stepsProcessed = mutableListOf<XProcessingStep>()
+        val mainStep = object : XProcessingStep {
+            override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                stepsProcessed.add(this)
+                return emptySet()
+            }
+        }
+        val otherStep = object : XProcessingStep {
+            override fun annotations() = setOf(OtherAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                stepsProcessed.add(this)
+                return emptySet()
+            }
+        }
+        val processorProvider = object : SymbolProcessorProvider {
+            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+                return object : KspBasicAnnotationProcessor(environment) {
+                    override fun processingSteps() = listOf(mainStep, otherStep)
+                }
+            }
+        }
+        KotlinCompilation().apply {
+            workingDir = temporaryFolder.root
+            inheritClassPath = true
+            symbolProcessorProviders = listOf(processorProvider)
+            sources = listOf(main)
+            verbose = false
+        }.compile()
+        assertThat(stepsProcessed).containsExactly(mainStep)
     }
 }

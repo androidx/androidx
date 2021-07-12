@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XBasicAnnotationProcessor
 import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XRoundEnv
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.collect.ImmutableSetMultimap
@@ -31,43 +32,45 @@ import javax.lang.model.element.Element
 abstract class JavacBasicAnnotationProcessor :
     BasicAnnotationProcessor(), XBasicAnnotationProcessor {
 
-    final override fun steps(): Iterable<Step> {
-        // Execute all processing steps in a single auto-common Step. This is done to share the
-        // XProcessingEnv and its cached across steps in the same round.
-        val steps = processingSteps()
-        val parentStep = object : Step {
-            override fun annotations() = steps.flatMap { it.annotations() }.toSet()
+    // This state is cached here so that it can be shared by all steps in a given processing round.
+    // The state is initialized at beginning of each round using the InitializingStep, and
+    // the state is cleared at the end of each round in BasicAnnotationProcessor#postRound()
+    private var cachedXEnv: JavacProcessingEnv? = null
 
-            override fun process(
-                elementsByAnnotation: ImmutableSetMultimap<String, Element>
-            ): Set<Element> {
-                val xEnv = JavacProcessingEnv(processingEnv)
-                val convertedElementsByAnnotation = mutableMapOf<String, Set<XElement>>()
-                annotations().forEach { annotation ->
-                    convertedElementsByAnnotation[annotation] =
-                        elementsByAnnotation[annotation].mapNotNull { element ->
-                            xEnv.wrapAnnotatedElement(element, annotation)
-                        }.toSet()
-                }
-                val results = steps.flatMap { step ->
-                    step.process(
-                        env = xEnv,
-                        elementsByAnnotation = step.annotations().associateWith {
-                            convertedElementsByAnnotation[it] ?: emptySet()
-                        }
-                    )
-                }
-                return results.map { (it as JavacElement).element }.toSet()
+    final override fun steps(): Iterable<Step> {
+        return processingSteps().map { DelegatingStep(it) }
+    }
+
+    /** A [Step] that delegates to an [XProcessingStep]. */
+    private inner class DelegatingStep(val xStep: XProcessingStep) : Step {
+        override fun annotations() = xStep.annotations()
+
+        override fun process(
+            elementsByAnnotation: ImmutableSetMultimap<String, Element>
+        ): Set<Element> {
+            // The first step in a round initializes the cachedXEnv. Note: the "first" step can
+            // change each round depending on which annotations are present in the current round and
+            // which elements were deferred in the previous round.
+            val xEnv = cachedXEnv ?: JavacProcessingEnv(processingEnv).also { cachedXEnv = it }
+            val xElementsByAnnotation = mutableMapOf<String, Set<XElement>>()
+            xStep.annotations().forEach { annotation ->
+                xElementsByAnnotation[annotation] =
+                    elementsByAnnotation[annotation].mapNotNull { element ->
+                        xEnv.wrapAnnotatedElement(element, annotation)
+                    }.toSet()
             }
+            return xStep.process(xEnv, xElementsByAnnotation).map {
+                (it as JavacElement).element
+            }.toSet()
         }
-        return listOf(parentStep)
     }
 
     final override fun postRound(roundEnv: RoundEnvironment) {
-        // Due to BasicAnnotationProcessor taking over AbstractProcessor#process() we can't
-        // share the same XProcessingEnv from the steps, but that might be ok...
-        val xEnv = JavacProcessingEnv(processingEnv)
+        // The cachedXEnv can be null if none of the steps were processed in the round.
+        // In this case, we just create a new one since there is no cached one to share.
+        val xEnv = cachedXEnv ?: JavacProcessingEnv(processingEnv)
         val xRound = XRoundEnv.create(xEnv, roundEnv)
         postRound(xEnv, xRound)
+        cachedXEnv = null // Reset after every round to allow GC
     }
 }
