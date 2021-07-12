@@ -39,7 +39,7 @@ internal abstract class JavacExecutableElement(
         element.descriptor()
     }
 
-    override val parameters: List<JavacVariableElement> by lazy {
+    override val parameters: List<JavacMethodParameter> by lazy {
         element.parameters.mapIndexed { index, variable ->
             JavacMethodParameter(
                 env = env,
