@@ -147,14 +147,9 @@ public final class Recorder implements VideoOutput {
          */
         PAUSED,
         /**
-         * There's a running recording and the Recorder is being released.
+         * There's a running recording and the Recorder is being reset.
          */
-        RELEASING,
-        /**
-         * The Recorder has been released and any operation attempt will throw an
-         * {@link IllegalStateException}.
-         */
-        RELEASED,
+        RESETING,
         /**
          * The Recorder encountered errors and any operation will attempt will throw an
          * {@link IllegalStateException}. Users can handle the error by monitoring
@@ -312,6 +307,8 @@ public final class Recorder implements VideoOutput {
     public void onSurfaceRequested(@NonNull SurfaceRequest request) {
         synchronized (mLock) {
             switch (getObservableData(mState)) {
+                case RESETING:
+                    // Fall-through
                 case PENDING_RECORDING:
                     // Fall-through
                 case PENDING_PAUSED:
@@ -330,12 +327,6 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case ERROR:
                     throw new IllegalStateException("The Recorder has been initialized.");
-                case RELEASING:
-                    // Fall-through
-                case RELEASED:
-                    request.willNotProvideSurface();
-                    Logger.w(TAG, "A surface is requested while the Recorder is released.");
-                    break;
             }
         }
     }
@@ -427,30 +418,7 @@ public final class Recorder implements VideoOutput {
     @NonNull
     private PendingRecording prepareRecordingInternal(@NonNull OutputOptions options) {
         Preconditions.checkNotNull(options, "The OutputOptions cannot be null.");
-        synchronized (mLock) {
-            switch (getObservableData(mState)) {
-                case INITIALIZING:
-                    // Fall-through
-                case PENDING_RECORDING:
-                    // Fall-through
-                case PENDING_PAUSED:
-                    // Fall-through
-                case ERROR:
-                    // Fall-through, create PendingRecording as usual, but it will be instantly
-                    // finalized at start().
-                case IDLING:
-                    // Fall-through
-                case PAUSED:
-                    // Fall-through
-                case RECORDING:
-                    break;
-                case RELEASING:
-                    // Fall-through
-                case RELEASED:
-                    throw new IllegalStateException("The Recorder has been released.");
-            }
-            return new PendingRecording(this, options);
-        }
+        return new PendingRecording(this, options);
     }
 
     /**
@@ -518,6 +486,8 @@ public final class Recorder implements VideoOutput {
             ActiveRecording activeRecording = ActiveRecording.from(pendingRecording);
             mRunningRecording = activeRecording;
             switch (getObservableData(mState)) {
+                case RESETING:
+                    // Fall-through
                 case INITIALIZING:
                     // The recording will automatically start once the initialization completes.
                     setState(State.PENDING_RECORDING);
@@ -534,10 +504,6 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case RECORDING:
                     throw new IllegalStateException("There's an active recording.");
-                case RELEASING:
-                    // Fall-through
-                case RELEASED:
-                    throw new IllegalStateException("The Recorder has been released.");
                 case ERROR:
                     finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
@@ -551,6 +517,8 @@ public final class Recorder implements VideoOutput {
         synchronized (mLock) {
             switch (getObservableData(mState)) {
                 case PENDING_RECORDING:
+                    // Fall-through
+                case RESETING:
                     // Fall-through
                 case INITIALIZING:
                     // The recording will automatically pause once the initialization completes.
@@ -567,10 +535,6 @@ public final class Recorder implements VideoOutput {
                 case PAUSED:
                     // No-op when the recording is already paused.
                     break;
-                case RELEASING:
-                    // Fall-through
-                case RELEASED:
-                    throw new IllegalStateException("The Recorder has been released.");
                 case ERROR:
                     finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
@@ -582,6 +546,8 @@ public final class Recorder implements VideoOutput {
         synchronized (mLock) {
             switch (getObservableData(mState)) {
                 case PENDING_PAUSED:
+                    // Fall-through
+                case RESETING:
                     // Fall-through
                 case INITIALIZING:
                     // The recording will automatically start once the initialization completes.
@@ -598,10 +564,6 @@ public final class Recorder implements VideoOutput {
                     mSequentialExecutor.execute(this::resumeInternal);
                     setState(State.RECORDING);
                     break;
-                case RELEASING:
-                    // Fall-through
-                case RELEASED:
-                    throw new IllegalStateException("The Recorder has been released.");
                 case ERROR:
                     finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
@@ -616,6 +578,8 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case PENDING_PAUSED:
                     // Fall-through
+                case RESETING:
+                    // Fall-through
                 case INITIALIZING:
                     finalizeRecording(VideoRecordEvent.ERROR_RECORDER_UNINITIALIZED,
                             new IllegalStateException("The Recorder hasn't been initialized."));
@@ -628,10 +592,6 @@ public final class Recorder implements VideoOutput {
                 case RECORDING:
                     mSequentialExecutor.execute(() -> stopInternal(VideoRecordEvent.ERROR_NONE));
                     break;
-                case RELEASING:
-                    // Fall-through
-                case RELEASED:
-                    throw new IllegalStateException("The Recorder has been released.");
                 case ERROR:
                     finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
@@ -647,7 +607,7 @@ public final class Recorder implements VideoOutput {
      * is released will get {@link IllegalStateException}.
      */
     @ExecutedBy("mSequentialExecutor")
-    void release() {
+    void reset() {
         synchronized (mLock) {
             switch (getObservableData(mState)) {
                 case PENDING_RECORDING:
@@ -659,20 +619,18 @@ public final class Recorder implements VideoOutput {
                 case ERROR:
                     // Fall-through
                 case IDLING:
-                    releaseInternal();
+                    resetInternal();
                     break;
                 case PAUSED:
                     // Fall-through
                 case RECORDING:
-                    setState(State.RELEASING);
+                    setState(State.RESETING);
                     // If there's an active recording, stop it first then release the resources
                     // at finalizeRecording().
                     mSequentialExecutor.execute(() -> stopInternal(VideoRecordEvent.ERROR_NONE));
                     break;
-                case RELEASING:
-                    // Fall-through
-                case RELEASED:
-                    // No-Op, the Recorder is already released.
+                case RESETING:
+                    // No-Op, the Recorder is being reset.
                     break;
             }
         }
@@ -695,8 +653,7 @@ public final class Recorder implements VideoOutput {
                     resultSurface.release();
                 }
                 mSurface = null;
-                release();
-                setState(State.INITIALIZING);
+                reset();
             });
             onInitialized();
         } else {
@@ -718,9 +675,7 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case PAUSED:
                     // Fall-through
-                case RELEASING:
-                    // Fall-through
-                case RELEASED:
+                case RESETING:
                     throw new IllegalStateException(
                             "Incorrectly invoke onInitialized() in state " + state);
                 case INITIALIZING:
@@ -1016,8 +971,7 @@ public final class Recorder implements VideoOutput {
                             resultSurface.release();
                         }
                         mSurface = null;
-                        release();
-                        setState(State.INITIALIZING);
+                        reset();
                     });
                     onInitialized();
                 });
@@ -1279,7 +1233,7 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void releaseInternal() {
+    private void resetInternal() {
         if (mAudioEncoder != null) {
             mAudioEncoder.release();
             mAudioSource = null;
@@ -1294,7 +1248,7 @@ public final class Recorder implements VideoOutput {
         }
 
         mSurfaceRequested.set(false);
-        setState(State.RELEASED);
+        setState(State.INITIALIZING);
     }
 
     private int internalAudioStateToEventAudioState(AudioState audioState) {
@@ -1375,8 +1329,8 @@ public final class Recorder implements VideoOutput {
             setAudioState(AudioState.INITIALIZING);
         }
         synchronized (mLock) {
-            if (getObservableData(mState) == State.RELEASING) {
-                releaseInternal();
+            if (getObservableData(mState) == State.RESETING) {
+                resetInternal();
             } else {
                 setState(State.IDLING);
             }
