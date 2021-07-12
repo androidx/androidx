@@ -84,23 +84,26 @@ public class FrameTimingMetric : Metric() {
      * via [androidx.benchmark.Stats.putInBundle].
      */
     private val keyRenameMap = mapOf(
-        "jank_percentile_50" to "frameTime50thPercentileMs",
-        "jank_percentile_90" to "frameTime90thPercentileMs",
-        "jank_percentile_95" to "frameTime95thPercentileMs",
-        "jank_percentile_99" to "frameTime99thPercentileMs",
-        "gpu_jank_percentile_50" to "gpuFrameTime50thPercentileMs",
-        "gpu_jank_percentile_90" to "gpuFrameTime90thPercentileMs",
-        "gpu_jank_percentile_95" to "gpuFrameTime95thPercentileMs",
-        "gpu_jank_percentile_99" to "gpuFrameTime99thPercentileMs",
+        "frame_render_time_percentile_50" to "frameTime50thPercentileMs",
+        "frame_render_time_percentile_90" to "frameTime90thPercentileMs",
+        "frame_render_time_percentile_95" to "frameTime95thPercentileMs",
+        "frame_render_time_percentile_99" to "frameTime99thPercentileMs",
+        "gpu_frame_render_time_percentile_50" to "gpuFrameTime50thPercentileMs",
+        "gpu_frame_render_time_percentile_90" to "gpuFrameTime90thPercentileMs",
+        "gpu_frame_render_time_percentile_95" to "gpuFrameTime95thPercentileMs",
+        "gpu_frame_render_time_percentile_99" to "gpuFrameTime99thPercentileMs",
         "missed_vsync" to "vsyncMissedFrameCount",
         "deadline_missed" to "deadlineMissedFrameCount",
+        "deadline_missed_legacy" to "deadlineMissedFrameCountLegacy",
         "janky_frames_count" to "jankyFrameCount",
+        "janky_frames_legacy_count" to "jankyFrameCountLegacy",
         "high_input_latency" to "highInputLatencyFrameCount",
         "slow_ui_thread" to "slowUiThreadFrameCount",
         "slow_bmp_upload" to "slowBitmapUploadFrameCount",
         "slow_issue_draw_cmds" to "slowIssueDrawCommandsFrameCount",
         "total_frames" to "totalFrameCount",
-        "janky_frames_percent" to "jankyFramePercent"
+        "janky_frames_percent" to "jankyFramePercent",
+        "janky_frames_legacy_percent" to "jankyFramePercentLegacy"
     )
 
     /**
