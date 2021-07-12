@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.camera.core.internal.compat.quirk;
+package androidx.camera.camera2.internal.compat.quirk;
 
+import static androidx.camera.core.CameraSelector.LENS_FACING_BACK;
+
+import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
-import androidx.camera.core.impl.Quirk;
+import androidx.annotation.NonNull;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.core.internal.compat.quirk.UseTorchAsFlashQuirk;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +34,7 @@ import java.util.Locale;
  *
  * <p>See b/176399765 and b/181966663.
  */
-public class ImageCaptureWashedOutImageQuirk implements Quirk {
+public class ImageCaptureWashedOutImageQuirk implements UseTorchAsFlashQuirk {
 
     // List of devices with the issue. See b/181966663.
     private static final List<String> DEVICE_MODELS = Arrays.asList(
@@ -54,8 +59,9 @@ public class ImageCaptureWashedOutImageQuirk implements Quirk {
             "SM-G935P"
     );
 
-    static boolean load() {
+    static boolean load(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
         return "SAMSUNG".equals(Build.BRAND.toUpperCase(Locale.US))
-                && DEVICE_MODELS.contains(Build.MODEL.toUpperCase(Locale.US));
+                && DEVICE_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
+                && cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
     }
 }
