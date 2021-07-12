@@ -57,7 +57,13 @@ class AffectedModuleDetectorImplTest {
     private lateinit var p9: Project
     private lateinit var p10: Project
     private lateinit var p11: Project
-    private val cobuiltTestPaths = setOf(setOf("cobuilt1", "cobuilt2"))
+    private val projectGraph by lazy {
+        ProjectGraph(root)
+    }
+    private val dependencyTracker by lazy {
+        DependencyTracker(root, logger)
+    }
+    private val cobuiltTestPaths = setOf(setOf(":cobuilt1", ":cobuilt2"))
     private val ignoredPaths = setOf("ignored/")
 
     @Before
@@ -161,7 +167,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun noChangeCLs() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -172,13 +179,13 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
         MatcherAssert.assertThat(
             detector.dependentProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
         MatcherAssert.assertThat(
@@ -192,7 +199,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun changeInOne() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -203,13 +211,13 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p1, p11)
+                setOf(p1.path, p11.path)
             )
         )
         MatcherAssert.assertThat(
             detector.dependentProjects,
             CoreMatchers.`is`(
-                setOf(p3, p4, p5, p11)
+                setOf(p3.path, p4.path, p5.path, p11.path)
             )
         )
     }
@@ -217,7 +225,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun changeInTwo() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -231,13 +240,13 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p1, p2, p11)
+                setOf(p1.path, p2.path, p11.path)
             )
         )
         MatcherAssert.assertThat(
             detector.dependentProjects,
             CoreMatchers.`is`(
-                setOf(p3, p4, p5, p6, p11)
+                setOf(p3.path, p4.path, p5.path, p6.path, p11.path)
             )
         )
     }
@@ -245,7 +254,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun changeInRoot() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -256,13 +266,13 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
         MatcherAssert.assertThat(
             detector.dependentProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
         MatcherAssert.assertThat(
@@ -276,7 +286,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun changeInRootAndSubproject() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -287,13 +298,13 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p7, p11)
+                setOf(p7.path, p11.path)
             )
         )
         MatcherAssert.assertThat(
             detector.dependentProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
         MatcherAssert.assertThat(
@@ -307,7 +318,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun changeInCobuilt() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -322,13 +334,13 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p8, p9, p11)
+                setOf(p8.path, p9.path, p11.path)
             )
         )
         MatcherAssert.assertThat(
             detector.dependentProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
     }
@@ -336,10 +348,11 @@ class AffectedModuleDetectorImplTest {
     @Test(expected = IllegalStateException::class)
     fun changeInCobuiltMissingCobuilt() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
-            cobuiltTestPaths = setOf(setOf("cobuilt1", "cobuilt2", "cobuilt3")),
+            cobuiltTestPaths = setOf(setOf(":cobuilt1", ":cobuilt2", ":cobuilt3")),
             changedFilesProvider = {
                 listOf(
                     convertToFilePath(
@@ -355,7 +368,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun changeInCobuiltAllCobuiltsMissing() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = setOf(setOf("cobuilt3", "cobuilt4", "cobuilt5")),
@@ -374,7 +388,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun projectSubset() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             changedFilesProvider = {
@@ -385,32 +400,32 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p1, p11)
+                setOf(p1.path, p11.path)
             )
         )
         MatcherAssert.assertThat(
             detector.dependentProjects,
             CoreMatchers.`is`(
-                setOf(p3, p4, p5, p11)
+                setOf(p3.path, p4.path, p5.path, p11.path)
             )
         )
         // Test changed
         MatcherAssert.assertThat(
-            detector.getSubset(p1),
+            detector.getSubset(p1.path),
             CoreMatchers.`is`(
                 ProjectSubset.CHANGED_PROJECTS
             )
         )
         // Test dependent
         MatcherAssert.assertThat(
-            detector.getSubset(p3),
+            detector.getSubset(p3.path),
             CoreMatchers.`is`(
                 ProjectSubset.DEPENDENT_PROJECTS
             )
         )
         // Random unrelated project should return none
         MatcherAssert.assertThat(
-            detector.getSubset(p7),
+            detector.getSubset(p7.path),
             CoreMatchers.`is`(
                 ProjectSubset.NONE
             )
@@ -420,7 +435,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun projectSubset_noChangedFiles() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             changedFilesProvider = {
@@ -431,25 +447,25 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.affectedProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
         // No changed files in postsubmit -> return all
         MatcherAssert.assertThat(
-            detector.getSubset(p1),
+            detector.getSubset(p1.path),
             CoreMatchers.`is`(
                 ProjectSubset.NONE
             )
         )
         MatcherAssert.assertThat(
-            detector.getSubset(p3),
+            detector.getSubset(p3.path),
             CoreMatchers.`is`(
                 ProjectSubset.NONE
             )
         )
         // Only the placeholder test should return CHANGED_PROJECTS
         MatcherAssert.assertThat(
-            detector.getSubset(p11),
+            detector.getSubset(p11.path),
             CoreMatchers.`is`(
                 ProjectSubset.CHANGED_PROJECTS
             )
@@ -465,7 +481,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun projectSubset_unknownChangedFiles() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             changedFilesProvider = {
@@ -476,31 +493,31 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
         MatcherAssert.assertThat(
             detector.dependentProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
         // Everything should return NONE in buildall case
         MatcherAssert.assertThat(
-            detector.getSubset(p1),
+            detector.getSubset(p1.path),
             CoreMatchers.`is`(
                 ProjectSubset.NONE
             )
         )
         MatcherAssert.assertThat(
-            detector.getSubset(p3),
+            detector.getSubset(p3.path),
             CoreMatchers.`is`(
                 ProjectSubset.NONE
             )
         )
         // Only the placeholder test should return CHANGED_PROJECTS
         MatcherAssert.assertThat(
-            detector.getSubset(p11),
+            detector.getSubset(p11.path),
             CoreMatchers.`is`(
                 ProjectSubset.CHANGED_PROJECTS
             )
@@ -510,7 +527,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun changeInPlaygroundCommon() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -521,7 +539,7 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
         MatcherAssert.assertThat(
@@ -535,7 +553,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun changeInGithubConfig() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -546,7 +565,7 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p11)
+                setOf(p11.path)
             )
         )
         MatcherAssert.assertThat(
@@ -560,7 +579,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun changeInPlaygroundCommonAndRoot() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -579,7 +599,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun `Only ignored file`() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -599,7 +620,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun `Ignored file and changed file`() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -614,7 +636,7 @@ class AffectedModuleDetectorImplTest {
         MatcherAssert.assertThat(
             detector.changedProjects,
             CoreMatchers.`is`(
-                setOf(p1, p11)
+                setOf(p1.path, p11.path)
             )
         )
         MatcherAssert.assertThat(
@@ -628,7 +650,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun `Ignored file and unknown file`() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,
@@ -651,7 +674,8 @@ class AffectedModuleDetectorImplTest {
     @Test
     fun `Ignored file, unknown file, and changed file`() {
         val detector = AffectedModuleDetectorImpl(
-            rootProject = root,
+            projectGraph = projectGraph,
+            dependencyTracker = dependencyTracker,
             logger = logger,
             ignoreUnknownProjects = false,
             cobuiltTestPaths = cobuiltTestPaths,

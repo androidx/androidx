@@ -63,19 +63,19 @@ class ProjectGraphTest {
             graph.findContainingProject("rootfile.java")
         )
         assertEquals(
-            p1,
+            p1.path,
             graph.findContainingProject("p1/px/x.java".toLocalPath())
         )
         assertEquals(
-            p1,
+            p1.path,
             graph.findContainingProject("p1/a.java".toLocalPath())
         )
         assertEquals(
-            p3,
+            p3.path,
             graph.findContainingProject("p1/p3/a.java".toLocalPath())
         )
         assertEquals(
-            p2,
+            p2.path,
             graph.findContainingProject("p2/a/b/c/d/e/f/a.java".toLocalPath())
         )
         assertNull(graph.findContainingProject("root/x.java"))
@@ -96,12 +96,12 @@ class ProjectGraphTest {
             .build()
         val graph = ProjectGraph(root)
         assertEquals(
-            p1,
+            p1.path,
             graph.findContainingProject("p1/px/x.java".toLocalPath())
         )
         assertEquals(
             "When root project is not support root, changes in it should be detected",
-            root,
+            root.path,
             graph.findContainingProject("subRoot/x.gradle".toLocalPath())
         )
     }
