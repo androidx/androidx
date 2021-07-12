@@ -44,6 +44,7 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.session.MediaController;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -327,6 +328,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         onView(allOf(withId(R.id.next), isCompletelyDisplayed())).check(matches(isEnabled()));
     }
 
+    @FlakyTest(bugId = 179623359)
     @Test
     public void setMetadataForNonMusicFile() throws Throwable {
         final String title = "BigBuckBunny";
