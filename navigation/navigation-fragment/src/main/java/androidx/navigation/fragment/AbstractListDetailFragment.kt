@@ -22,12 +22,15 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.CallSuper
 import androidx.core.content.res.use
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
 
@@ -42,7 +45,7 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout
  * be overridden by [AbstractListDetailFragment.onCreateDetailPaneNavHostFragment] and provide
  * custom NavHostFragment.
  */
-abstract class AbstractListDetailFragment : Fragment(R.layout.abstract_list_detail_fragment) {
+abstract class AbstractListDetailFragment : Fragment() {
     private var onBackPressedCallback: OnBackPressedCallback? = null
     private var detailPaneNavHostFragment: NavHostFragment? = null
     private var graphId = 0
@@ -133,18 +136,42 @@ abstract class AbstractListDetailFragment : Fragment(R.layout.abstract_list_deta
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         if (savedInstanceState != null) {
             graphId = savedInstanceState.getInt(NavHostFragment.KEY_GRAPH_ID)
         }
-        val slidingPaneLayout = super.onCreateView(inflater, container, savedInstanceState) as
-            SlidingPaneLayout
-        val listContainer = slidingPaneLayout.findViewById<FrameLayout>(R.id.list_container)
+        val slidingPaneLayout = SlidingPaneLayout(inflater.context).apply {
+            id = R.id.sliding_pane_layout
+        }
+
+        // Set up the list container
+        val listContainer = FrameLayout(inflater.context).apply {
+            id = R.id.sliding_pane_list_container
+        }
+        val listLayoutParams = SlidingPaneLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+        slidingPaneLayout.addView(listContainer, listLayoutParams)
+
+        // Now create and add the list pane itself
         val listPaneView = onCreateListPaneView(inflater, listContainer, savedInstanceState)
         if (listPaneView.parent != listContainer) {
             listContainer.addView(listPaneView)
         }
-        val existingNavHostFragment = childFragmentManager.findFragmentById(R.id.detail_nav_host)
+
+        // Set up the detail container
+        val detailContainer = FragmentContainerView(inflater.context).apply {
+            id = R.id.sliding_pane_detail_container
+        }
+        val detailWidth = inflater.context.resources.getDimensionPixelSize(
+            R.dimen.sliding_pane_detail_pane_width
+        )
+        val detailLayoutParams = SlidingPaneLayout.LayoutParams(detailWidth, MATCH_PARENT).apply {
+            weight = 1F
+        }
+        slidingPaneLayout.addView(detailContainer, detailLayoutParams)
+
+        // Now create the NavHostFragment for the detail container
+        val existingNavHostFragment =
+            childFragmentManager.findFragmentById(R.id.sliding_pane_detail_container)
         detailPaneNavHostFragment = if (existingNavHostFragment != null) {
             existingNavHostFragment as NavHostFragment
         } else {
@@ -152,7 +179,7 @@ abstract class AbstractListDetailFragment : Fragment(R.layout.abstract_list_deta
                 childFragmentManager
                     .commit {
                         setReorderingAllowed(true)
-                        add(R.id.detail_nav_host, newNavHostFragment)
+                        add(R.id.sliding_pane_detail_container, newNavHostFragment)
                     }
             }
         }
@@ -207,8 +234,7 @@ abstract class AbstractListDetailFragment : Fragment(R.layout.abstract_list_deta
     @CallSuper
     final override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val listContainer =
-            requireSlidingPaneLayout().findViewById<FrameLayout>(R.id.list_container)
+        val listContainer = view.findViewById<FrameLayout>(R.id.sliding_pane_list_container)
         val listPaneView = listContainer.getChildAt(0)
         onListPaneViewCreated(listPaneView, savedInstanceState)
     }

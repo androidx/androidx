@@ -13,7 +13,7 @@ package androidx.navigation.fragment {
     ctor public AbstractListDetailFragment();
     method public androidx.navigation.fragment.NavHostFragment onCreateDetailPaneNavHostFragment();
     method public abstract android.view.View onCreateListPaneView(android.view.LayoutInflater inflater, android.view.ViewGroup? container, android.os.Bundle? savedInstanceState);
-    method @CallSuper public final android.view.View? onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup? container, android.os.Bundle? savedInstanceState);
+    method @CallSuper public final android.view.View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup? container, android.os.Bundle? savedInstanceState);
     method public void onListPaneViewCreated(android.view.View view, android.os.Bundle? savedInstanceState);
     method @CallSuper public final void onViewCreated(android.view.View view, android.os.Bundle? savedInstanceState);
     method public final androidx.navigation.fragment.NavHostFragment requireDetailPaneNavHostFragment();
