@@ -20,15 +20,33 @@ import static androidx.core.location.LocationRequestCompat.PASSIVE_INTERVAL;
 import static androidx.core.location.LocationRequestCompat.QUALITY_BALANCED_POWER_ACCURACY;
 import static androidx.core.location.LocationRequestCompat.QUALITY_HIGH_ACCURACY;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 
+import android.location.LocationRequest;
+import android.os.SystemClock;
+
+import androidx.core.util.Preconditions;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
+import com.google.common.collect.Range;
+
 import org.junit.Test;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 @SmallTest
 public class LocationRequestCompatTest {
+
+    private static Method sGetProviderMethod;
+    private static Method sGetIntervalMethod;
+    private static Method sGetFastestIntervalMethod;
+    private static Method sGetExpireAtMethod;
+    private static Method sGetNumUpdatesMethod;
+    private static Method sGetSmallestDisplacementMethod;
 
     @Test
     public void testBuilder() {
@@ -79,37 +97,40 @@ public class LocationRequestCompatTest {
     public void testConversion_19Plus() throws Exception {
         LocationRequestCompat.Builder builder = new LocationRequestCompat.Builder(0);
 
+        assertEquals("test", getProvider(builder.build().toLocationRequest("test")));
         assertEquals(QUALITY_BALANCED_POWER_ACCURACY,
                 builder.build().toLocationRequest("test").getQuality());
-        assertEquals(0, builder.build().toLocationRequest("test").getIntervalMillis());
-        assertEquals(0, builder.build().toLocationRequest("test").getMinUpdateIntervalMillis());
-        assertEquals(Long.MAX_VALUE, builder.build().toLocationRequest("test").getDurationMillis());
-        assertEquals(Integer.MAX_VALUE, builder.build().toLocationRequest("test").getMaxUpdates());
-        assertEquals(0, builder.build().toLocationRequest("test").getMinUpdateDistanceMeters(), 0);
+        assertEquals(0, getInterval(builder.build().toLocationRequest("test")));
+        assertEquals(0, getFastestInterval(builder.build().toLocationRequest("test")));
+        assertEquals(Long.MAX_VALUE, getExpireAt(builder.build().toLocationRequest()));
+        assertEquals(Integer.MAX_VALUE, getNumUpdates(builder.build().toLocationRequest("test")));
+        assertEquals(0, getSmallestDisplacement(builder.build().toLocationRequest("test")), 0);
 
         builder.setQuality(QUALITY_HIGH_ACCURACY);
         assertEquals(QUALITY_HIGH_ACCURACY, builder.build().toLocationRequest("test").getQuality());
 
         builder.setIntervalMillis(1000);
-        assertEquals(1000, builder.build().toLocationRequest("test").getIntervalMillis());
+        assertEquals(1000, getInterval(builder.build().toLocationRequest("test")));
 
         builder.setMinUpdateIntervalMillis(1500);
-        assertEquals(1000, builder.build().toLocationRequest("test").getMinUpdateIntervalMillis());
+        assertEquals(1000, getFastestInterval(builder.build().toLocationRequest("test")));
 
         builder.setMinUpdateIntervalMillis(500);
-        assertEquals(500, builder.build().toLocationRequest("test").getMinUpdateIntervalMillis());
+        assertEquals(500, getFastestInterval(builder.build().toLocationRequest("test")));
 
         builder.clearMinUpdateIntervalMillis();
-        assertEquals(1000, builder.build().toLocationRequest("test").getMinUpdateIntervalMillis());
+        assertEquals(1000, getFastestInterval(builder.build().toLocationRequest("test")));
 
         builder.setDurationMillis(1);
-        assertEquals(1, builder.build().toLocationRequest("test").getDurationMillis());
+        long time = SystemClock.elapsedRealtime();
+        assertThat(getExpireAt(builder.build().toLocationRequest())).isIn(
+                Range.closed(time - 1000, time));
 
         builder.setMaxUpdates(1);
-        assertEquals(1, builder.build().toLocationRequest("test").getMaxUpdates());
+        assertEquals(1, getNumUpdates(builder.build().toLocationRequest("test")));
 
         builder.setMinUpdateDistanceMeters(10);
-        assertEquals(10, builder.build().toLocationRequest("test").getMinUpdateDistanceMeters(), 0);
+        assertEquals(10, getSmallestDisplacement(builder.build().toLocationRequest("test")), 0);
     }
 
     @SdkSuppress(minSdkVersion = 31)
@@ -157,5 +178,67 @@ public class LocationRequestCompatTest {
         builder.setIntervalMillis(PASSIVE_INTERVAL);
         assertEquals(PASSIVE_INTERVAL,
                 builder.build().toLocationRequest().getIntervalMillis());
+    }
+
+    private static String getProvider(LocationRequest request)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        if (sGetProviderMethod == null) {
+            sGetProviderMethod = LocationRequest.class.getDeclaredMethod("getProvider");
+            sGetProviderMethod.setAccessible(true);
+        }
+
+        return (String) sGetProviderMethod.invoke(request);
+    }
+
+    private static long getInterval(LocationRequest request)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        if (sGetIntervalMethod == null) {
+            sGetIntervalMethod = LocationRequest.class.getDeclaredMethod("getInterval");
+            sGetIntervalMethod.setAccessible(true);
+        }
+
+        return (Long) Preconditions.checkNotNull(sGetIntervalMethod.invoke(request));
+    }
+
+    private static long getFastestInterval(LocationRequest request)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        if (sGetFastestIntervalMethod == null) {
+            sGetFastestIntervalMethod = LocationRequest.class.getDeclaredMethod(
+                    "getFastestInterval");
+            sGetFastestIntervalMethod.setAccessible(true);
+        }
+
+        return (Long) Preconditions.checkNotNull(sGetFastestIntervalMethod.invoke(request));
+    }
+
+    private static long getExpireAt(LocationRequest request)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        if (sGetExpireAtMethod == null) {
+            sGetExpireAtMethod = LocationRequest.class.getDeclaredMethod("getExpireAt");
+            sGetExpireAtMethod.setAccessible(true);
+        }
+
+        return (Long) Preconditions.checkNotNull(sGetExpireAtMethod.invoke(request));
+    }
+
+    private static int getNumUpdates(LocationRequest request)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        if (sGetNumUpdatesMethod == null) {
+            sGetNumUpdatesMethod = LocationRequest.class.getDeclaredMethod("getNumUpdates");
+            sGetNumUpdatesMethod.setAccessible(true);
+        }
+
+        return (Integer) Preconditions.checkNotNull(sGetNumUpdatesMethod.invoke(request));
+    }
+
+    private static float getSmallestDisplacement(LocationRequest request)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        if (sGetSmallestDisplacementMethod == null) {
+            sGetSmallestDisplacementMethod = LocationRequest.class.getDeclaredMethod(
+                    "getSmallestDisplacement");
+            sGetSmallestDisplacementMethod.setAccessible(true);
+        }
+
+        return (Float) Preconditions.checkNotNull(sGetSmallestDisplacementMethod.invoke(request));
     }
 }
