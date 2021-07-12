@@ -60,6 +60,14 @@ internal object ThrottleDetector {
     }
 
     /**
+     * Called to reset throttle baseline, if throttle detection is firing too regularly, and
+     * inaccurate initial measurement is suspected.
+     */
+    fun resetThrottleBaseline() {
+        initNs = 0L
+    }
+
+    /**
      * Makes a guess as to whether the device is currently thermal throttled based on performance
      * of single-threaded CPU work.
      */
