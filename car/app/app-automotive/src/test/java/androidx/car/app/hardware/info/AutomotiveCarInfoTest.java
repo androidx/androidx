@@ -263,12 +263,15 @@ public class AutomotiveCarInfoTest {
     public void getEnergyLevel_verifyResponse() throws InterruptedException {
         ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
                 OnCarPropertyResponseListener.class);
-
+        float evBatteryCapacity = 100f;
+        float evBatteryLevelValue = 50f;
+        float fuelCapacity = 120f;
+        float fuelLevelValue = 50f;
         List<CarPropertyResponse<?>> capacities = new ArrayList<>();
         capacities.add(CarPropertyResponse.create(INFO_EV_BATTERY_CAPACITY,
-                STATUS_SUCCESS, 1, 2f));
+                STATUS_SUCCESS, 1, evBatteryCapacity));
         capacities.add(CarPropertyResponse.create(INFO_FUEL_CAPACITY,
-                STATUS_SUCCESS, 1, 3f));
+                STATUS_SUCCESS, 1, fuelCapacity));
         ListenableFuture<List<CarPropertyResponse<?>>> future =
                 Futures.immediateFuture(capacities);
         when(mPropertyManager.submitGetPropertyRequest(any(), any())).thenReturn(future);
@@ -286,9 +289,9 @@ public class AutomotiveCarInfoTest {
                 eq(DEFAULT_SAMPLE_RATE), captor.capture(), any());
 
         mResponse.add(CarPropertyResponse.create(EV_BATTERY_LEVEL,
-                STATUS_SUCCESS, 1, 4f));
+                STATUS_SUCCESS, 1, evBatteryLevelValue));
         mResponse.add(CarPropertyResponse.create(FUEL_LEVEL,
-                STATUS_SUCCESS, 1, 6f));
+                STATUS_SUCCESS, 1, fuelLevelValue));
         mResponse.add(CarPropertyResponse.create(FUEL_LEVEL_LOW,
                 STATUS_SUCCESS, 1, true));
         mResponse.add(CarPropertyResponse.create(RANGE_REMAINING,
@@ -300,9 +303,9 @@ public class AutomotiveCarInfoTest {
 
         EnergyLevel energyLevel = loadedResult.get();
         assertThat(energyLevel.getBatteryPercent().getValue()).isEqualTo(
-                2f);
+                evBatteryLevelValue / evBatteryCapacity * 100);
         assertThat(energyLevel.getFuelPercent().getValue()).isEqualTo(
-                2f);
+                fuelLevelValue / fuelCapacity * 100);
         assertThat(energyLevel.getEnergyIsLow().getValue()).isEqualTo(
                 true);
         assertThat(energyLevel.getRangeRemainingMeters().getValue()).isEqualTo(
