@@ -64,7 +64,7 @@ public class ScreenControllerTest {
         MockitoAnnotations.initMocks(this);
 
         mCarContext = TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
-        mScreenController = ScreenController.of(mCarContext, mTestScreen);
+        mScreenController = new ScreenController(mCarContext, mTestScreen);
 
         mTestScreen.getLifecycle().addObserver(mMockObserver);
     }
@@ -160,7 +160,7 @@ public class ScreenControllerTest {
 
     @Test
     public void getScreenResult() {
-        Screen screen = mScreenController.get();
+        Screen screen = mScreenController.getScreen();
         String result = "this is the result";
 
         screen.setResult(result);

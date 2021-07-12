@@ -83,7 +83,7 @@ public final class ScreenTest {
             }
         };
 
-        ScreenController.of(mCarContext, mScreen).create().start().resume();
+        new ScreenController(mCarContext, mScreen).create().start().resume();
     }
 
     @Test
