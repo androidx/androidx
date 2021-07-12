@@ -14,18 +14,6 @@
   limitations under the License.
   -->
 
-<androidx.slidingpanelayout.widget.SlidingPaneLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <FrameLayout
-        android:id="@+id/list_container"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"/>
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/detail_nav_host"
-        android:layout_width="300dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"/>
-
-</androidx.slidingpanelayout.widget.SlidingPaneLayout>
+<resources>
+    <dimen name="sliding_pane_detail_pane_width">300dp</dimen>
+</resources>
