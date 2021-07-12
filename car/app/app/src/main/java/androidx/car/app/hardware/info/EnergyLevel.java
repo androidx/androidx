@@ -46,11 +46,6 @@ public final class EnergyLevel {
     @NonNull
     private final CarValue<Boolean> mEnergyIsLow;
 
-    // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
-    @Keep
-    @Nullable
-    private final CarValue<Float> mRangeRemaining;
-
     @Keep
     @Nullable
     private final CarValue<Float> mRangeRemainingMeters;
@@ -80,23 +75,7 @@ public final class EnergyLevel {
     /** Returns the range remaining from the car hardware in meters. */
     @NonNull
     public CarValue<Float> getRangeRemainingMeters() {
-        if (mRangeRemainingMeters != null) {
-            return requireNonNull(mRangeRemainingMeters);
-        }
-        return requireNonNull(mRangeRemaining);
-    }
-
-    // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
-
-    /**
-     * Returns the range remaining from the car hardware in meters.
-     *
-     * @deprecated use {@link #getRangeRemainingMeters()}
-     */
-    @NonNull
-    @Deprecated
-    public CarValue<Float> getRangeRemaining() {
-        return getRangeRemainingMeters();
+        return requireNonNull(mRangeRemainingMeters);
     }
 
     /**
@@ -153,7 +132,6 @@ public final class EnergyLevel {
         mBatteryPercent = requireNonNull(builder.mBatteryPercent);
         mFuelPercent = requireNonNull(builder.mFuelPercent);
         mEnergyIsLow = requireNonNull(builder.mEnergyIsLow);
-        mRangeRemaining = null;
         mRangeRemainingMeters = requireNonNull(builder.mRangeRemainingMeters);
         mDistanceDisplayUnit = requireNonNull(builder.mDistanceDisplayUnit);
     }
@@ -163,7 +141,6 @@ public final class EnergyLevel {
         mBatteryPercent = CarValue.UNIMPLEMENTED_FLOAT;
         mFuelPercent = CarValue.UNIMPLEMENTED_FLOAT;
         mEnergyIsLow = CarValue.UNIMPLEMENTED_BOOLEAN;
-        mRangeRemaining = null;
         mRangeRemainingMeters = CarValue.UNIMPLEMENTED_FLOAT;
         mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
     }
@@ -203,21 +180,6 @@ public final class EnergyLevel {
         @NonNull
         public Builder setEnergyIsLow(@NonNull CarValue<Boolean> energyIsLow) {
             mEnergyIsLow = requireNonNull(energyIsLow);
-            return this;
-        }
-
-        // TODO(b/192106888): Remove when new values fully supported by Android Auto Host.
-
-        /**
-         * Sets the range of the remaining fuel in meters.
-         *
-         * @throws NullPointerException if {@code rangeRemaining} is {@code null}
-         * @deprecated use {@link #setRangeRemainingMeters}
-         */
-        @NonNull
-        @Deprecated
-        public Builder setRangeRemaining(@NonNull CarValue<Float> rangeRemainingMeters) {
-            mRangeRemainingMeters = requireNonNull(rangeRemainingMeters);
             return this;
         }
 
