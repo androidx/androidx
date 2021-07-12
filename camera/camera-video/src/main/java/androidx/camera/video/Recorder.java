@@ -309,7 +309,7 @@ public final class Recorder implements VideoOutput {
 
     @SuppressLint("MissingPermission")
     @Override
-    public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
+    public void onSurfaceRequested(@NonNull SurfaceRequest request) {
         synchronized (mLock) {
             switch (getObservableData(mState)) {
                 case PENDING_RECORDING:
@@ -319,7 +319,7 @@ public final class Recorder implements VideoOutput {
                 case INITIALIZING:
                     // The recorder should be initialized only once until it is released.
                     if (mSurfaceRequested.compareAndSet(false, true)) {
-                        mSequentialExecutor.execute(() -> initializeInternal(surfaceRequest));
+                        mSequentialExecutor.execute(() -> initializeInternal(request));
                     }
                     break;
                 case IDLING:
@@ -333,7 +333,7 @@ public final class Recorder implements VideoOutput {
                 case RELEASING:
                     // Fall-through
                 case RELEASED:
-                    surfaceRequest.willNotProvideSurface();
+                    request.willNotProvideSurface();
                     Logger.w(TAG, "A surface is requested while the Recorder is released.");
                     break;
             }
