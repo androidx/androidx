@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.util.CONTINUATION_CLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_CLASS_NAME
 import androidx.room.compiler.processing.util.className
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getDeclaredMethod
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
@@ -27,12 +28,16 @@ import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.io.IOException
+import java.lang.IllegalStateException
 
 @RunWith(JUnit4::class)
 class XExecutableElementTest {
@@ -602,6 +607,122 @@ class XExecutableElementTest {
     @Test
     fun genericToPrimitiveOverrides_asMemberOf() {
         genericToPrimitiveOverrides(asMemberOf = true)
+    }
+
+    @Test
+    fun thrownTypes() {
+        fun buildSources(pkg: String) = listOf(
+            Source.java(
+                "$pkg.JavaSubject",
+                """
+                package $pkg;
+                import java.io.*;
+                public class JavaSubject {
+                    public JavaSubject() throws IllegalArgumentException {}
+
+                    public void multipleThrows() throws IOException, IllegalStateException {
+                    }
+                }
+                """.trimIndent()
+            ),
+            Source.kotlin(
+                "KotlinSubject.kt",
+                """
+                package $pkg
+                import java.io.*
+                public class KotlinSubject {
+                    @Throws(IllegalArgumentException::class)
+                    constructor() {
+                    }
+
+                    @Throws(IOException::class, IllegalStateException::class)
+                    fun multipleThrows() {
+                    }
+                }
+                """.trimIndent()
+            ),
+            Source.kotlin(
+                "AccessorThrows.kt",
+                """
+                package $pkg
+                import java.io.*
+                public class KotlinAccessors {
+                    @get:Throws(IllegalArgumentException::class)
+                    val getterThrows: Int = 3
+                    @set:Throws(IllegalStateException::class)
+                    var setterThrows: Int = 3
+                    @get:Throws(IOException::class)
+                    @set:Throws(IllegalStateException::class, IllegalArgumentException::class)
+                    var bothThrows: Int = 3
+                }
+                """.trimIndent()
+            )
+        )
+        runProcessorTest(
+            sources = buildSources("app"),
+            classpath = compileFiles(sources = buildSources("lib"))
+        ) { invocation ->
+            fun collectExceptions(subject: XTypeElement): List<Pair<String, Set<TypeName>>> {
+                return (subject.getConstructors() + subject.getDeclaredMethods()).mapNotNull {
+                    val throwTypes = it.thrownTypes
+                    val name = if (it is XMethodElement) {
+                        it.name
+                    } else {
+                        "<init>"
+                    }
+                    if (throwTypes.isEmpty()) {
+                        null
+                    } else {
+                        name to throwTypes.map { it.typeName }.toSet()
+                    }
+                }
+            }
+            // TODO
+            // add lib here once https://github.com/google/ksp/issues/507 is fixed
+            listOf("app").forEach { pkg ->
+                invocation.processingEnv.requireTypeElement("$pkg.KotlinSubject").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        collectExceptions(subject)
+                    ).containsExactly(
+                        "<init>" to setOf(ClassName.get(IllegalArgumentException::class.java)),
+                        "multipleThrows" to setOf(
+                            ClassName.get(IOException::class.java),
+                            ClassName.get(IllegalStateException::class.java)
+                        )
+                    )
+                }
+                invocation.processingEnv.requireTypeElement("$pkg.JavaSubject").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        collectExceptions(subject)
+                    ).containsExactly(
+                        "<init>" to setOf(ClassName.get(IllegalArgumentException::class.java)),
+                        "multipleThrows" to setOf(
+                            ClassName.get(IOException::class.java),
+                            ClassName.get(IllegalStateException::class.java)
+                        )
+                    )
+                }
+                invocation.processingEnv.requireTypeElement("$pkg.KotlinAccessors").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        collectExceptions(subject)
+                    ).containsExactly(
+                        "getGetterThrows" to setOf(
+                            ClassName.get(IllegalArgumentException::class.java)
+                        ),
+                        "setSetterThrows" to setOf(
+                            ClassName.get(IllegalStateException::class.java)
+                        ),
+                        "getBothThrows" to setOf(
+                            ClassName.get(IOException::class.java)
+                        ),
+                        "setBothThrows" to setOf(
+                            ClassName.get(IllegalStateException::class.java),
+                            ClassName.get(IllegalArgumentException::class.java)
+                        ),
+                    )
+                }
+            }
+        }
     }
 
     // see b/160258066

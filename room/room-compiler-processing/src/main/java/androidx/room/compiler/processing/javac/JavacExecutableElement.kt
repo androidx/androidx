@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XHasModifiers
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.javac.kotlin.KmExecutable
 import androidx.room.compiler.processing.javac.kotlin.descriptor
 import javax.lang.model.element.ExecutableElement
@@ -57,6 +58,16 @@ internal abstract class JavacExecutableElement(
 
     override fun isVarArgs(): Boolean {
         return element.isVarArgs
+    }
+
+    override val thrownTypes by lazy {
+        element.thrownTypes.map {
+            env.wrap<JavacType>(
+                typeMirror = it,
+                kotlinType = null,
+                elementNullability = XNullability.UNKNOWN
+            )
+        }
     }
 
     companion object {
