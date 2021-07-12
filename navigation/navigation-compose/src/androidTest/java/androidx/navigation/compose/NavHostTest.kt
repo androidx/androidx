@@ -19,8 +19,10 @@ package androidx.navigation.compose
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.MutableState
@@ -35,6 +37,7 @@ import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -382,6 +385,89 @@ class NavHostTest {
         }
     }
 
+    @Test
+    fun testNavHostCrossFade() {
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = first) {
+                composable(first) { BasicText(first) }
+                composable(second) { BasicText(second) }
+            }
+        }
+
+        val firstEntry = navController.currentBackStackEntry
+
+        composeTestRule.runOnIdle {
+            assertThat(firstEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        assertThat(firstEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        // advance half way between the crossfade
+        composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
+
+        assertThat(firstEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        composeTestRule.onNodeWithText(first).assertExists()
+        composeTestRule.onNodeWithText(second).assertExists()
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.runOnIdle {
+            assertThat(firstEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.CREATED)
+            assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        val secondEntry = navController.currentBackStackEntry
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+        }
+
+        assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(secondEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+
+        // advance half way between the crossfade
+        composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
+
+        assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(secondEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+
+        composeTestRule.onNodeWithText(first).assertExists()
+        composeTestRule.onNodeWithText(second).assertExists()
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+            assertThat(secondEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.DESTROYED)
+        }
+    }
+
     private fun createNavController(context: Context): TestNavHostController {
         val navController = TestNavHostController(context)
         val navigator = TestNavigator()
@@ -389,6 +475,9 @@ class NavHostTest {
         return navController
     }
 }
+
+private const val first = "first"
+private const val second = "second"
 
 class TestViewModel : ViewModel() {
     var value: String = "nothing"
