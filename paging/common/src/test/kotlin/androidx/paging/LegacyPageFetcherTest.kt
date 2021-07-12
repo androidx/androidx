@@ -27,6 +27,7 @@ import androidx.paging.PagingSource.LoadParams.Refresh
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.testutils.TestDispatcher
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
@@ -42,6 +43,8 @@ class LegacyPageFetcherTest {
     private val data = List(9) { "$it" }
 
     inner class ImmediateListDataSource(val data: List<String>) : PagingSource<Int, String>() {
+        var invalidData = false
+
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
             val key = params.key ?: 0
 
@@ -51,6 +54,11 @@ class LegacyPageFetcherTest {
                 is LoadParams.Append -> key to key + params.loadSize
             }.let { (start, end) ->
                 start.coerceAtLeast(0) to end.coerceAtMost(data.size)
+            }
+
+            if (invalidData) {
+                invalidData = false
+                return LoadResult.Invalid()
             }
             return Page(
                 data = data.subList(start, end),
@@ -344,5 +352,77 @@ class LegacyPageFetcherTest {
             ),
             consumer.takeStateChanges()
         )
+    }
+
+    @Test
+    fun append_invalidData() {
+        val consumer = MockConsumer()
+        val pager = createPager(consumer, 0, 3)
+
+        // try a normal append first
+        pager.tryScheduleAppend()
+        testDispatcher.executeAll()
+
+        assertThat(consumer.takeResults()).containsExactly(
+            Result(APPEND, rangeResult(3, 5))
+        )
+        assertThat(consumer.takeStateChanges()).containsExactly(
+            StateChange(APPEND, Loading),
+            StateChange(APPEND, NotLoading.Incomplete)
+        )
+
+        // now make next append return LoadResult.Invalid
+        val pagingSource = pager.source as ImmediateListDataSource
+        pagingSource.invalidData = true
+
+        pager.tryScheduleAppend()
+        testDispatcher.executeAll()
+
+        // the load should return before returning any data
+        assertThat(consumer.takeResults()).isEmpty()
+        assertThat(consumer.takeStateChanges()).containsExactly(
+            StateChange(APPEND, Loading),
+        )
+
+        // exception handler should invalidate the paging source and result in fetcher to be
+        // detached
+        assertTrue(pagingSource.invalid)
+        assertTrue(pager.isDetached)
+    }
+
+    @Test
+    fun prepend_invalidData() {
+        val consumer = MockConsumer()
+        val pager = createPager(consumer, 6, 9)
+
+        // try a normal prepend first
+        pager.trySchedulePrepend()
+        testDispatcher.executeAll()
+
+        assertThat(consumer.takeResults()).containsExactly(
+            Result(PREPEND, rangeResult(4, 6))
+        )
+        assertThat(consumer.takeStateChanges()).containsExactly(
+            StateChange(PREPEND, Loading),
+            StateChange(PREPEND, NotLoading.Incomplete)
+        )
+
+        // now make next prepend throw error
+        val pagingSource = pager.source as ImmediateListDataSource
+        pagingSource.invalidData = true
+
+        pager.trySchedulePrepend()
+        testDispatcher.executeAll()
+
+        // the load should return before returning any data
+        assertThat(consumer.takeResults()).isEmpty()
+        assertThat(consumer.takeStateChanges()).containsExactly(
+            StateChange(PREPEND, Loading),
+        )
+
+        // exception handler should invalidate the paging source and result in fetcher to be
+        // detached
+        assertTrue(pagingSource.invalid)
+        assertTrue(pager.isDetached)
     }
 }

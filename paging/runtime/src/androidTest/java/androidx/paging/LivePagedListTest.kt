@@ -26,10 +26,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
@@ -40,10 +44,13 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 @Suppress("DEPRECATION")
+@OptIn(ExperimentalCoroutinesApi::class)
 class LivePagedListTest {
     @JvmField
     @Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    private val testScope = TestCoroutineScope()
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
@@ -165,6 +172,47 @@ class LivePagedListTest {
             // getting that item will trigger load around which should load the item immediately
             assertThat(adapter.getItem(it)).isEqualTo("$it/$it")
         }
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    @Test
+    fun initialLoad_loadResultInvalid() = testScope.runBlockingTest {
+        val dispatcher = coroutineContext[CoroutineDispatcher.Key]!!
+        val pagingSources = mutableListOf<TestPagingSource>()
+        val factory = {
+            TestPagingSource().also {
+                if (pagingSources.size == 0) it.nextLoadResult = PagingSource.LoadResult.Invalid()
+                pagingSources.add(it)
+            }
+        }
+        val config = PagedList.Config.Builder()
+            .setEnablePlaceholders(false)
+            .setPageSize(3)
+            .build()
+
+        val livePagedList = LivePagedList(
+            coroutineScope = testScope,
+            initialKey = null,
+            config = config,
+            boundaryCallback = null,
+            pagingSourceFactory = factory,
+            notifyDispatcher = dispatcher,
+            fetchDispatcher = dispatcher,
+        )
+
+        val pagedLists = mutableListOf<PagedList<Int>>()
+        livePagedList.observeForever {
+            pagedLists.add(it)
+        }
+
+        advanceUntilIdle()
+
+        assertThat(pagedLists.size).isEqualTo(2)
+        assertThat(pagingSources.size).isEqualTo(2)
+        assertThat(pagedLists.size).isEqualTo(2)
+        assertThat(pagedLists[1]).containsExactly(
+            0, 1, 2, 3, 4, 5, 6, 7, 8
+        )
     }
 
     companion object {

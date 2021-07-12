@@ -404,6 +404,13 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 val lastKey = currentData.lastKey as Key?
                 val params = config.toRefreshLoadParams(lastKey)
                 when (val initialResult = pagingSource.load(params)) {
+                    is PagingSource.LoadResult.Invalid -> {
+                        currentData.setInitialLoadState(
+                            LoadType.REFRESH,
+                            LoadState.NotLoading(endOfPaginationReached = false)
+                        )
+                        pagingSource.invalidate()
+                    }
                     is PagingSource.LoadResult.Error -> {
                         currentData.setInitialLoadState(
                             LoadType.REFRESH,
