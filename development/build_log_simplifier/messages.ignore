@@ -733,6 +733,7 @@ PROGRESS: Dokka is performing: documentation for
 PROGRESS: Validity check
 PROGRESS: Creating documentation models
 ERROR: An attempt to write .*
+WARN: Unable to find what is referred to by
 Generation completed with.*
 # > Task :docs-tip-of-tree:dackkaDocs
 Conflicting documentation for .*
