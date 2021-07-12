@@ -42,7 +42,7 @@ class DialogNavigatorTest {
         navigator.onAttach(navigatorState)
 
         rule.setContent {
-            navigator.Dialogs()
+            DialogHost(navigator)
         }
 
         rule.onNodeWithText(defaultText).assertDoesNotExist()
@@ -68,7 +68,7 @@ class DialogNavigatorTest {
         navigator.navigate(listOf(entry), null, null)
 
         rule.setContent {
-            navigator.Dialogs()
+            DialogHost(navigator)
         }
 
         rule.onNodeWithText(defaultText).assertIsDisplayed()
