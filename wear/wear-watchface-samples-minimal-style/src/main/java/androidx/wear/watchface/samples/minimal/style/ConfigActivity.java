@@ -17,12 +17,13 @@
 package androidx.wear.watchface.samples.minimal.style;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.wear.watchface.editor.ListenableEditorSession;
 import androidx.wear.watchface.style.UserStyle;
 
@@ -39,27 +40,24 @@ public class ConfigActivity extends ComponentActivity {
     private static final EnumMap<TimeStyle.Value, TimeStyle.Value> NEXT_VALUE_MAP =
             createNextValueMap();
 
-    private Executor mMainExecutor;
-    private TimeStyle mTimeStyle;
+    private Executor mMainExecutor = new Executor() {
+        private final Handler mHandler = new Handler(Looper.getMainLooper());
 
+        @Override
+        public void execute(Runnable runnable) {
+            mHandler.post(runnable);
+        }
+    };
+
+    private TimeStyle mTimeStyle;
     private TextView mStyleValue;
 
     @Nullable
     private ListenableEditorSession mEditorSession;
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.config_activity_layout);
-        mMainExecutor = ContextCompat.getMainExecutor(getApplicationContext());
-        mTimeStyle = new TimeStyle(this);
-
-        mStyleValue = findViewById(R.id.style_value);
-
-        findViewById(R.id.style_change).setOnClickListener((view) -> changeStyle());
-
+    public ConfigActivity() {
         addCallback(
-                ListenableEditorSession.listenableCreateOnWatchEditorSession(this, getIntent()),
+                ListenableEditorSession.listenableCreateOnWatchEditorSession(this),
                 new BaseFutureCallback<ListenableEditorSession>(
                         this, TAG, "listenableCreateOnWatchEditingSession") {
                     @Override
@@ -72,6 +70,17 @@ public class ConfigActivity extends ComponentActivity {
     }
 
     @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.config_activity_layout);
+        mTimeStyle = new TimeStyle(this);
+
+        mStyleValue = findViewById(R.id.style_value);
+
+        findViewById(R.id.style_change).setOnClickListener((view) -> changeStyle());
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         updateStyleValue();
@@ -79,10 +88,6 @@ public class ConfigActivity extends ComponentActivity {
 
     @Override
     protected void onDestroy() {
-        if (mEditorSession != null) {
-            mEditorSession.setCommitChangesOnClose(true);
-            mEditorSession.close();
-        }
         finish();
         super.onDestroy();
     }

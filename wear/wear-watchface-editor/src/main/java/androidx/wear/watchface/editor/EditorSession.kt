@@ -33,15 +33,17 @@ import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.wear.complications.ComplicationDataSourceInfo
 import androidx.wear.complications.ComplicationDataSourceInfoRetriever
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.toApiComplicationDataSourceInfo
-import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.utility.launchWithTracing
+import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
@@ -72,6 +74,8 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.time.Duration
 import java.time.Instant
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Interface for manipulating watch face state during a watch face editing session. The editor
@@ -216,30 +220,45 @@ public interface EditorSession : AutoCloseable {
         /**
          * Constructs an [EditorSession] for an on watch face editor. This registers an activity
          * result handler and so it must be called during an Activity or Fragment initialization
-         * path.
+         * path. The EditorSession is lifecycle aware and will automatically close when onDestroy is
+         * received.
          *
          * @param activity The [ComponentActivity] associated with the [EditorSession].
-         * @param editIntent The [Intent] sent by SysUI to launch the editing session.
          * @return Deferred<EditorSession?> which is resolved with either the [EditorSession] or
          * `null` if it can't be constructed.
          * @throws [TimeoutCancellationException] if it takes longer than
          * [EDITING_SESSION_TIMEOUT] to create a watch face editor.
          */
-        @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
         @UiThread
         @Throws(TimeoutCancellationException::class)
-        public suspend fun createOnWatchEditorSession(
-            activity: ComponentActivity,
-            editIntent: Intent
-        ): EditorSession = createOnWatchEditorSessionImpl(
-            activity,
-            editIntent,
-            object : ComplicationDataSourceInfoRetrieverProvider {
-                override fun getComplicationDataSourceInfoRetriever() =
-                    ComplicationDataSourceInfoRetriever(activity)
+        public suspend fun createOnWatchEditorSession(activity: ComponentActivity): EditorSession {
+            var editorSession: EditorSession? = null
+            // Wait until Lifecycle.Event.ON_CREATE.
+            suspendCoroutine<Unit> { continuation ->
+                activity.lifecycle.addObserver(
+                    object : DefaultLifecycleObserver {
+                        override fun onCreate(owner: LifecycleOwner) {
+                            continuation.resume(Unit)
+                        }
+
+                        override fun onDestroy(owner: LifecycleOwner) {
+                            editorSession?.close()
+                            editorSession = null
+                        }
+                    }
+                )
             }
-        )
+            editorSession = createOnWatchEditorSessionImpl(
+                activity,
+                activity.intent,
+                object : ComplicationDataSourceInfoRetrieverProvider {
+                    override fun getComplicationDataSourceInfoRetriever() =
+                        ComplicationDataSourceInfoRetriever(activity)
+                }
+            )
+            return editorSession!!
+        }
 
         // Used by tests.
         @Throws(TimeoutCancellationException::class)
