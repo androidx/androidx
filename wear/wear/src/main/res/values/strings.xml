@@ -19,4 +19,16 @@
 
     <!-- String describing the action drawer which is read aloud when focused using accessibility gestures [CHAR LIMIT=35] -->
     <string name="ws_action_drawer_content_description">Action drawer</string>
+
+    <!-- String describing successful animation which is read aloud when opened if accessibility is turned on [CHAR_LIMIT='NONE'] -->
+    <string name="confirmation_overlay_a11y_description_success">Success</string>
+
+    <!-- String describing failed animation which is read aloud when opened if accessibility is turned on [CHAR_LIMIT='NONE'] -->
+    <string name="confirmation_overlay_a11y_description_fail">Failure</string>
+
+    <!-- String describing opened on phone animation which is read aloud when opened if accessibility is turned on [CHAR_LIMIT='NONE'] -->
+    <string name="confirmation_overlay_a11y_description_phone">Opened on your phone</string>
+
+    <!-- String describing that image is read out on animation and will be followed by image description [CHAR_LIMIT='NONE'] -->
+    <string name="confirmation_overlay_a11y_type_image">Image</string>
 </resources>

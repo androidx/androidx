@@ -16,6 +16,8 @@
 
 package androidx.wear.widget;
 
+import static java.lang.Math.max;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Animatable;
@@ -29,6 +31,8 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -43,6 +47,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.wear.R;
+import androidx.wear.activity.ConfirmationActivity;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -51,7 +56,7 @@ import java.util.Locale;
 /**
  * Displays a full-screen confirmation animation with optional text and then hides it.
  *
- * <p>This is a lighter-weight version of {@link androidx.wear.activity.ConfirmationActivity}
+ * <p>This is a lighter-weight version of {@link ConfirmationActivity}
  * and should be preferred when constructed from an {@link Activity}.
  *
  * <p>Sample usage:
@@ -99,6 +104,9 @@ public class ConfirmationOverlay {
     /** Default animation duration in ms. **/
     public static final int DEFAULT_ANIMATION_DURATION_MS = 1000;
 
+    /** Default animation duration in ms. **/
+    private static final int A11Y_ANIMATION_DURATION_MS = 5000;
+
     /** Types of animations to display in the overlay. */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({SUCCESS_ANIMATION, FAILURE_ANIMATION, OPEN_ON_PHONE_ANIMATION})
@@ -122,7 +130,7 @@ public class ConfirmationOverlay {
     private int mDurationMillis = DEFAULT_ANIMATION_DURATION_MS;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
             OnAnimationFinishedListener mListener;
-    private CharSequence mMessage;
+    private CharSequence mMessage = "";
     @SuppressWarnings("WeakerAccess") /* synthetic access */
             View mOverlayView;
     private Drawable mOverlayDrawable;
@@ -227,6 +235,7 @@ public class ConfirmationOverlay {
 
         updateOverlayView(view.getContext());
         ((ViewGroup) view.getRootView()).addView(mOverlayView);
+        setUpForAccessibility();
         animateAndHideAfterDelay();
     }
 
@@ -243,7 +252,25 @@ public class ConfirmationOverlay {
 
         updateOverlayView(activity);
         activity.getWindow().addContentView(mOverlayView, mOverlayView.getLayoutParams());
+        setUpForAccessibility();
         animateAndHideAfterDelay();
+    }
+
+    private void setUpForAccessibility() {
+        mOverlayView.setContentDescription(getAccessibilityText());
+        mOverlayView.requestFocus();
+        mOverlayView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
+    }
+
+    /**
+     * Returns {@link #A11Y_ANIMATION_DURATION_MS} or {@link #mDurationMillis}, which ever is higher
+     * if accessibility is turned on or {@link #mDurationMillis} otherwise.
+     */
+    private int getDurationMillis() {
+        if (mOverlayView.getContext().getSystemService(AccessibilityManager.class).isEnabled()) {
+            return max(A11Y_ANIMATION_DURATION_MS, mDurationMillis);
+        }
+        return mDurationMillis;
     }
 
     @MainThread
@@ -252,7 +279,7 @@ public class ConfirmationOverlay {
             Animatable animatable = (Animatable) mOverlayDrawable;
             animatable.start();
         }
-        mMainThreadHandler.postDelayed(mHideRunnable, mDurationMillis);
+        mMainThreadHandler.postDelayed(mHideRunnable, getDurationMillis());
     }
 
     /**
@@ -281,6 +308,7 @@ public class ConfirmationOverlay {
                         if (mListener != null) {
                             mListener.onAnimationFinished();
                         }
+                        mOverlayView.clearFocus();
                     }
 
                     @Override
@@ -315,7 +343,7 @@ public class ConfirmationOverlay {
         TextView messageView =
                 overlayView.findViewById(R.id.wearable_support_confirmation_overlay_message);
 
-        if (mMessage != null) {
+        if (!mMessage.toString().isEmpty()) {
             int screenWidthPx = ResourcesUtil.getScreenWidthPx(context);
             int topMarginPx = ResourcesUtil.getFractionOfScreenPx(
                     context, screenWidthPx, R.fraction.confirmation_overlay_margin_above_text);
@@ -360,5 +388,35 @@ public class ConfirmationOverlay {
         ImageView imageView =
                 overlayView.findViewById(R.id.wearable_support_confirmation_overlay_image);
         imageView.setImageDrawable(mOverlayDrawable);
+    }
+
+    /**
+     * Returns text to be read out if accessibility is turned on.
+     * @return Text from the {@link #mMessage} followed by predefined string for given animation
+     * type.
+     */
+    private CharSequence getAccessibilityText() {
+        Context context = mOverlayView.getContext();
+        CharSequence imageDescription = "";
+        switch (mType) {
+            case SUCCESS_ANIMATION:
+                imageDescription =
+                        context.getString(R.string.confirmation_overlay_a11y_description_success);
+                break;
+            case FAILURE_ANIMATION:
+                imageDescription =
+                        context.getString(R.string.confirmation_overlay_a11y_description_fail);
+                break;
+            case OPEN_ON_PHONE_ANIMATION:
+                imageDescription =
+                        context.getString(R.string.confirmation_overlay_a11y_description_phone);
+                break;
+            default:
+                String errorMessage =
+                        String.format(Locale.US, "Invalid ConfirmationOverlay type [%d]", mType);
+                throw new IllegalStateException(errorMessage);
+        }
+        return mMessage + "\n" + context.getString(R.string.confirmation_overlay_a11y_type_image)
+                + " " + imageDescription;
     }
 }
