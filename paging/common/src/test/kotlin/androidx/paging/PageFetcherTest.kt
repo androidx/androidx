@@ -18,10 +18,11 @@ package androidx.paging
 
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
@@ -30,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.collectLatest
@@ -42,11 +44,11 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.ArrayList
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
-import java.util.ArrayList
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
@@ -442,17 +444,21 @@ class PageFetcherTest {
         // Wait for first generation to instantiate.
         advanceUntilIdle()
 
+        // Providing an invalid PagingSource should automatically trigger invalidation
+        // regardless of when the invalidation callback is registered.
+        assertThat(pagingSources).hasSize(2)
+
         // The first PagingSource is immediately invalid, so we shouldn't keep an invalidate
         // listener registered on it.
-        assertThat(pagingSources).hasSize(2)
-        assertThat(pagingSources[0].onInvalidatedCallbacks).isEmpty()
-        assertThat(pagingSources[1].onInvalidatedCallbacks).hasSize(1)
+        assertThat(pagingSources[0].invalidateCallbackCount).isEqualTo(0)
+        assertThat(pagingSources[1].invalidateCallbackCount).isEqualTo(1)
 
         // Trigger new generation, should unregister from older PagingSource.
         pageFetcher.refresh()
         advanceUntilIdle()
-        assertThat(pagingSources[1].onInvalidatedCallbacks).isEmpty()
-        assertThat(pagingSources[2].onInvalidatedCallbacks).hasSize(1)
+        assertThat(pagingSources).hasSize(3)
+        assertThat(pagingSources[1].invalidateCallbackCount).isEqualTo(0)
+        assertThat(pagingSources[2].invalidateCallbackCount).isEqualTo(1)
 
         state.job.cancel()
     }
@@ -684,7 +690,59 @@ class PageFetcherTest {
         pagingSource!!.invalidate()
         advanceUntilIdle()
 
-        assertEquals(1, invalidatesFromAdapter)
+        // InvalidatedCallbacks added after a PagingSource is already invalid should be
+        // immediately triggered, so both listeners we add should be triggered.
+        assertEquals(2, invalidatesFromAdapter)
+        job.cancel()
+    }
+
+    @Test
+    fun pagingSourceInvalidBeforeCallbackAddedCancelsInitialLoad() = testScope.runBlockingTest {
+        val pagingSources = mutableListOf<PagingSource<Int, Int>>()
+        val loadedPages = mutableListOf<Page<Int, Int>>()
+
+        var i = 0
+        val pager = Pager(PagingConfig(10)) {
+            object : PagingSource<Int, Int>() {
+                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
+                    // Suspend and await advanceUntilIdle() before allowing load to complete.
+                    delay(1000)
+                    return Page.empty<Int, Int>().also {
+                        loadedPages.add(it)
+                    }
+                }
+
+                override fun getRefreshKey(state: PagingState<Int, Int>) = null
+            }.also {
+                pagingSources.add(it)
+
+                if (i++ == 0) {
+                    it.invalidate()
+                }
+            }
+        }
+
+        @OptIn(ExperimentalStdlibApi::class)
+        val job = launch {
+            pager.flow.collectLatest { pagingData ->
+                TestPagingDataDiffer<Int>(testScope.coroutineContext[CoroutineDispatcher]!!)
+                    .collectFrom(pagingData)
+            }
+        }
+
+        // First PagingSource starts immediately invalid and creates a new PagingSource, but does
+        // not finish initial page load.
+        assertThat(pagingSources).hasSize(2)
+        assertThat(pagingSources[0].invalid).isTrue()
+        assertThat(loadedPages).hasSize(0)
+
+        advanceUntilIdle()
+
+        // After draining tasks, we should immediately get a second generation which triggers
+        // page load, skipping the initial load from first generation due to cancellation.
+        assertThat(pagingSources[1].invalid).isFalse()
+        assertThat(loadedPages).hasSize(1)
+
         job.cancel()
     }
 
@@ -744,7 +802,7 @@ class PageFetcherTest {
         // Verify remote refresh is called with PagingState from first generation.
         val pagingState = PagingState(
             pages = listOf(
-                PagingSource.LoadResult.Page(
+                Page(
                     data = listOf(50, 51, 52),
                     prevKey = 49,
                     nextKey = 53,
@@ -858,7 +916,7 @@ class PageFetcherTest {
         // Verify remote refresh is called with PagingState from first generation.
         val pagingState = PagingState(
             pages = listOf(
-                PagingSource.LoadResult.Page(
+                Page(
                     data = listOf(50, 51, 52),
                     prevKey = 49,
                     nextKey = 53,

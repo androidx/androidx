@@ -441,11 +441,11 @@ class PositionalDataSourceTest {
         val datasource = ListDataSource(listOf(0, 1, 2))
         val noopCallback = { }
         datasource.addInvalidatedCallback(noopCallback)
-        assert(datasource.onInvalidatedCallbacks.size == 1)
+        assert(datasource.invalidateCallbackCount == 1)
         datasource.removeInvalidatedCallback { }
-        assert(datasource.onInvalidatedCallbacks.size == 1)
+        assert(datasource.invalidateCallbackCount == 1)
         datasource.removeInvalidatedCallback(noopCallback)
-        assert(datasource.onInvalidatedCallbacks.size == 0)
+        assert(datasource.invalidateCallbackCount == 0)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

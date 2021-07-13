@@ -73,6 +73,6 @@ class InvalidatingPagingSourceFactoryTest {
 
         testFactory.invalidate()
 
-        assertEquals(3, invalidateCount)
+        assertEquals(4, invalidateCount)
     }
 }

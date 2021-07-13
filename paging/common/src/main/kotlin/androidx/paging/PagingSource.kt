@@ -20,8 +20,6 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.paging.LoadType.REFRESH
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.atomic.AtomicBoolean
 
 /** @suppress */
 @Suppress("DEPRECATION")
@@ -81,6 +79,14 @@ public fun <Key : Any> PagedList.Config.toRefreshLoadParams(
  * @see Pager
  */
 public abstract class PagingSource<Key : Any, Value : Any> {
+
+    private val invalidateCallbackTracker = InvalidateCallbackTracker<() -> Unit>() {
+        it()
+    }
+
+    internal val invalidateCallbackCount: Int
+        @VisibleForTesting
+        get() = invalidateCallbackTracker.callbackCount()
 
     /**
      * Params for a load request on a [PagingSource] from [PagingSource.load].
@@ -313,17 +319,12 @@ public abstract class PagingSource<Key : Any, Value : Any> {
     public open val keyReuseSupported: Boolean
         get() = false
 
-    @VisibleForTesting
-    internal val onInvalidatedCallbacks = CopyOnWriteArrayList<() -> Unit>()
-
-    private val _invalid = AtomicBoolean(false)
-
     /**
      * Whether this [PagingSource] has been invalidated, which should happen when the data this
      * [PagingSource] represents changes since it was first instantiated.
      */
     public val invalid: Boolean
-        get() = _invalid.get()
+        get() = invalidateCallbackTracker.invalid
 
     /**
      * Signal the [PagingSource] to stop loading.
@@ -332,9 +333,7 @@ public abstract class PagingSource<Key : Any, Value : Any> {
      * this method should have no effect.
      */
     public fun invalidate() {
-        if (_invalid.compareAndSet(false, true)) {
-            onInvalidatedCallbacks.forEach { it.invoke() }
-        }
+        invalidateCallbackTracker.invalidate()
     }
 
     /**
@@ -345,11 +344,14 @@ public abstract class PagingSource<Key : Any, Value : Any> {
      * A [PagingSource] will only invoke its callbacks once - the first time [invalidate] is called,
      * on that thread.
      *
+     * If this [PagingSource] is already invalid, the provided [onInvalidatedCallback] will be
+     * triggered immediately.
+     *
      * @param onInvalidatedCallback The callback that will be invoked on thread that invalidates the
      * [PagingSource].
      */
     public fun registerInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
-        onInvalidatedCallbacks.add(onInvalidatedCallback)
+        invalidateCallbackTracker.registerInvalidatedCallback(onInvalidatedCallback)
     }
 
     /**
@@ -358,7 +360,7 @@ public abstract class PagingSource<Key : Any, Value : Any> {
      * @param onInvalidatedCallback The previously added callback.
      */
     public fun unregisterInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
-        onInvalidatedCallbacks.remove(onInvalidatedCallback)
+        invalidateCallbackTracker.unregisterInvalidatedCallback(onInvalidatedCallback)
     }
 
     /**

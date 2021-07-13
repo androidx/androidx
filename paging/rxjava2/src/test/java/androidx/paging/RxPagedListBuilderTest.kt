@@ -24,6 +24,7 @@ import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.schedulers.TestScheduler
+import kotlinx.coroutines.DelicateCoroutinesApi
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -295,6 +296,33 @@ class RxPagedListBuilderTest {
 
         // Calling .dataSource should never throw from the initial paged list.
         rxPagedList.firstOrError().blockingGet().dataSource
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    @Test
+    fun invalidPagingSourceOnInitialLoadTriggersInvalidation() {
+        var pagingSourcesCreated = 0
+        val pagingSourceFactory = {
+            when (pagingSourcesCreated++) {
+                0 -> TestPagingSource().apply {
+                    invalidate()
+                }
+                else -> TestPagingSource()
+            }
+        }
+
+        val testScheduler = TestScheduler()
+        val rxPagedList = RxPagedListBuilder(
+            pageSize = 10,
+            pagingSourceFactory = pagingSourceFactory,
+        ).apply {
+            setNotifyScheduler(testScheduler)
+            setFetchScheduler(testScheduler)
+        }.buildObservable()
+
+        rxPagedList.subscribe()
+        testScheduler.triggerActions()
+        assertEquals(2, pagingSourcesCreated)
     }
 
     companion object {
