@@ -72,6 +72,8 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
+private const val FINALIZE_TIMEOUT = 5000L
+
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class RecorderTest {
@@ -187,7 +189,7 @@ class RecorderTest {
 
         activeRecording.stop()
 
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         checkFileHasAudioAndVideo(Uri.fromFile(file))
@@ -234,7 +236,7 @@ class RecorderTest {
         activeRecording.stop()
 
         // Wait for the recording to complete.
-        assertThat(finalizeSemaphore.tryAcquire(1000L, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(finalizeSemaphore.tryAcquire(FINALIZE_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
 
         assertThat(uri).isNotEqualTo(Uri.EMPTY)
 
@@ -273,7 +275,7 @@ class RecorderTest {
 
             activeRecording.stop()
 
-            inOrder.verify(videoRecordEventListener, timeout(1000L))
+            inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
                 .accept(any(VideoRecordEvent.Finalize::class.java))
 
             checkFileHasAudioAndVideo(Uri.fromFile(file))
@@ -336,7 +338,7 @@ class RecorderTest {
         activeRecording.stop()
 
         // Wait for the recording to be finalized.
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         checkFileHasAudioAndVideo(Uri.fromFile(file))
@@ -387,7 +389,7 @@ class RecorderTest {
         // Stop
         activeRecording.stop()
 
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
@@ -519,7 +521,7 @@ class RecorderTest {
 
         activeRecording.stop()
         // Wait for the recording to be finalized.
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
         file.delete()
     }
@@ -554,7 +556,7 @@ class RecorderTest {
 
         activeRecording.stop()
         // Wait for the recording to be finalized.
-        inOrder.verify(videoRecordEventListener, timeout(1000L))
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
         file.delete()
     }
@@ -577,7 +579,7 @@ class RecorderTest {
 
         invokeSurfaceRequest()
 
-        verify(videoRecordEventListener, timeout(1000L))
+        verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         file.delete()
@@ -605,7 +607,38 @@ class RecorderTest {
                 .accept(any(VideoRecordEvent.Status::class.java))
         }
 
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        file.delete()
+    }
+
+    @Test
+    fun stop_WhenUseCaseDetached() {
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.builder().setFile(file).build()
+
+        val pendingRecording = recorder.prepareRecording(outputOptions)
+        pendingRecording.withEventListener(
+            CameraXExecutors.directExecutor(),
+            videoRecordEventListener
+        ).withAudioEnabled()
+
+        pendingRecording.start()
+
+        val inOrder = inOrder(videoRecordEventListener)
         inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
+
+        instrumentation.runOnMainSync {
+            cameraUseCaseAdapter.removeUseCases(listOf(preview))
+        }
+
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         file.delete()
@@ -661,7 +694,7 @@ class RecorderTest {
 
         activeRecording.stop()
 
-        verify(videoRecordEventListener, timeout(1000L))
+        verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         checkFileAudio(Uri.fromFile(file), false)
