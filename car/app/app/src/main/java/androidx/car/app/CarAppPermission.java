@@ -58,7 +58,7 @@ public final class CarAppPermission {
      *
      * <p>This permission should only be declared by apps that belong to one of the categories that
      * allow using the navigation templates. See
-     * <a href="https://developer.android.com/training/cars/navigation#access-navigation-templates">the
+     * <a href="https://developer.android.com/training/cars/apps/navigation#access-navigation-templates">the
      * documentation</a> for the list of such categories. An app not in one of those categories
      * requesting this permission may be rejected upon submission to the Play Store. See
      * {@link CarAppService} for how to declare your app's category.
@@ -74,7 +74,7 @@ public final class CarAppPermission {
      *
      * <p>This permission should only be declared by apps that belong to one of the categories that
      * allow using the map templates. See
-     * <a href="https://developer.android.com/training/cars/navigation#access-map-template">the
+     * <a href="https://developer.android.com/training/cars/apps/poi#access-map-template">the
      * documentation</a> for the list of such categories. An app not in one of those categories
      * requesting this permission may be rejected upon submission to the Play Store. See
      * {@link CarAppService} for how to declare your app's category.
