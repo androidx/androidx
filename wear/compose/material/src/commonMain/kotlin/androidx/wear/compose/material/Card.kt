@@ -112,7 +112,7 @@ public fun Card(
                 .matchParentSize()
                 .paint(
                     painter = backgroundPainter,
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.Crop
                 )
 
         val contentBoxModifier = Modifier
