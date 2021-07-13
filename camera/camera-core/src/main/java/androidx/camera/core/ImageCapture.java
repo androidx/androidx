@@ -411,16 +411,12 @@ public final class ImageCapture extends UseCase {
             }
 
             // TODO: To allow user to use an Executor for the image processing.
-            mProcessingImageReader =
-                    new ProcessingImageReader(
-                            resolution.getWidth(),
-                            resolution.getHeight(),
-                            inputFormat,
-                            mMaxCaptureStages,
-                            /* postProcessExecutor */mExecutor,
-                            getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
-                            captureProcessor,
-                            outputFormat);
+            mProcessingImageReader = new ProcessingImageReader.Builder(resolution.getWidth(),
+                    resolution.getHeight(), inputFormat, mMaxCaptureStages,
+                    getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
+                    captureProcessor).setPostProcessExecutor(mExecutor).setOutputFormat(
+                    outputFormat).build();
+
             mMetadataMatchingCaptureCallback = mProcessingImageReader.getCameraCaptureCallback();
             mImageReader = new SafeCloseImageReaderProxy(mProcessingImageReader);
             if (softwareJpegProcessor != null) {
