@@ -21,10 +21,13 @@ import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
+import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.NavigationTemplate;
+import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.ShowcaseSession;
 import androidx.car.app.sample.showcase.common.renderer.CarHardwareRenderer;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -41,7 +44,8 @@ public final class CarHardwareDemoScreen extends Screen {
         Lifecycle lifecycle = getLifecycle();
         lifecycle.addObserver(new DefaultLifecycleObserver() {
 
-            @NonNull final ShowcaseSession mShowcaseSession = showcaseSession;
+            @NonNull
+            final ShowcaseSession mShowcaseSession = showcaseSession;
 
             @Override
             public void onResume(@NonNull LifecycleOwner owner) {
@@ -64,6 +68,17 @@ public final class CarHardwareDemoScreen extends Screen {
     public Template onGetTemplate() {
         ActionStrip actionStrip =
                 new ActionStrip.Builder()
+                        // Add a Button to show the CarHardware info screen
+                        .addAction(new Action.Builder()
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        getCarContext(),
+                                                        R.drawable.info_gm_grey_24dp))
+                                                .build())
+                                .setOnClickListener(() -> getScreenManager().push(
+                                        new CarHardwareInfoScreen(getCarContext())))
+                                .build())
                         .addAction(
                                 new Action.Builder()
                                         .setTitle("BACK")
