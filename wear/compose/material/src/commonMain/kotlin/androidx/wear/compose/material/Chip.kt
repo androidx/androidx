@@ -114,7 +114,7 @@ public fun Chip(
             Modifier
                 .paint(
                     painter = colors.background(enabled = enabled).value,
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.Crop
                 )
                 .fillMaxSize()
 
