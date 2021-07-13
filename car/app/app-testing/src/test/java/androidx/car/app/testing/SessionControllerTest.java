@@ -67,7 +67,7 @@ public class SessionControllerTest {
 
         };
 
-        mSessionController = SessionController.of(session, mCarContext);
+        mSessionController = new SessionController(session, mCarContext);
         session.getLifecycle().addObserver(mMockObserver);
     }
 

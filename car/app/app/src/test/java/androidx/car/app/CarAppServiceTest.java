@@ -103,7 +103,8 @@ public final class CarAppServiceTest {
                         mCarContext = TestCarContext.createCarContext(
                                 ApplicationProvider.getApplicationContext());
                         Session session = createTestSession();
-                        SessionController.of(session, mCarContext);
+                        // Injects the TestCarContext into the test session.
+                        new SessionController(session, mCarContext);
                         return session;
                     }
                 };
