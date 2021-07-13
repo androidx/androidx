@@ -5241,15 +5241,15 @@ public class NotificationCompat {
      * To create a notification with wearable extensions:
      * <ol>
      *   <li>Create a {@link NotificationCompat.Builder}, setting any desired
-     *   properties.
-     *   <li>Create a {@link NotificationCompat.WearableExtender}.
+     *   properties.</li>
+     *   <li>Create a {@link NotificationCompat.WearableExtender}.</li>
      *   <li>Set wearable-specific properties using the
-     *   {@code add} and {@code set} methods of {@link NotificationCompat.WearableExtender}.
+     *   {@code add} and {@code set} methods of {@link NotificationCompat.WearableExtender}.</li>
      *   <li>Call {@link NotificationCompat.Builder#extend} to apply the extensions to a
-     *   notification.
+     *   notification.</li>
      *   <li>Post the notification to the notification
      *   system with the {@code NotificationManagerCompat.notify(...)} methods
-     *   and not the {@code NotificationManager.notify(...)} methods.
+     *   and not the {@code NotificationManager.notify(...)} methods.</li>
      * </ol>
      *
      * <pre class="prettyprint">
@@ -6208,15 +6208,15 @@ public class NotificationCompat {
      *
      * <ol>
      *  <li>Create an {@link NotificationCompat.Builder}, setting any desired
-     *  properties.
-     *  <li>Create a {@link CarExtender}.
+     *  properties.</li>
+     *  <li>Create a {@link CarExtender}.</li>
      *  <li>Set car-specific properties using the {@code add} and {@code set} methods of
-     *  {@link CarExtender}.
+     *  {@link CarExtender}.</li>
      *  <li>Call {@link androidx.core.app.NotificationCompat.Builder#extend(NotificationCompat.Extender)}
-     *  to apply the extensions to a notification.
+     *  to apply the extensions to a notification.</li>
      *  <li>Post the notification to the notification system with the
      *  {@code NotificationManagerCompat.notify(...)} methods and not the
-     *  {@code NotificationManager.notify(...)} methods.
+     *  {@code NotificationManager.notify(...)} methods.</li>
      * </ol>
      *
      * <pre class="prettyprint">
