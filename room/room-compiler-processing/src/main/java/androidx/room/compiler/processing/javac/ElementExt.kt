@@ -21,19 +21,21 @@ import com.google.auto.common.MoreElements
 import javax.lang.model.element.Element
 
 private val NONNULL_ANNOTATIONS = arrayOf(
-    androidx.annotation.NonNull::class.java,
-    org.jetbrains.annotations.NotNull::class.java
+    "androidx.annotation.NonNull",
+    "org.jetbrains.annotations.NotNull"
 )
 
 private val NULLABLE_ANNOTATIONS = arrayOf(
-    androidx.annotation.Nullable::class.java,
-    org.jetbrains.annotations.Nullable::class.java
+    "androidx.annotation.Nullable",
+    "org.jetbrains.annotations.Nullable"
 )
 
 @Suppress("UnstableApiUsage")
-private fun Element.hasAnyOf(annotations: Array<Class<out Annotation>>) = annotations.any {
-    MoreElements.isAnnotationPresent(this, it)
-}
+private fun Element.hasAnyOf(annotations: Array<String>) =
+    annotationMirrors.any { annotationMirror ->
+        val annotationTypeElement = MoreElements.asType(annotationMirror.annotationType.asElement())
+        annotations.any { annotationTypeElement.qualifiedName.contentEquals(it) }
+    }
 
 internal val Element.nullability: XNullability
     get() = if (asType().kind.isPrimitive || hasAnyOf(NONNULL_ANNOTATIONS)) {

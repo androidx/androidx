@@ -27,7 +27,6 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.javapoet)
     api(libs.kotlinPoet)
-    implementation("androidx.annotation:annotation:1.1.0")
     implementation(libs.guava)
     implementation(libs.autoCommon)
     implementation(libs.autoValueAnnotations)
@@ -37,6 +36,7 @@ dependencies {
     implementation(libs.kspApi)
     implementation(libs.kotlinStdlibJdk8) // KSP defines older version as dependency, force update.
 
+    testImplementation("androidx.annotation:annotation:1.1.0")
     testImplementation(libs.googleCompileTesting)
     testImplementation(libs.junit)
     testImplementation(libs.jsr250)
