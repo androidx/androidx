@@ -124,7 +124,7 @@ public abstract class ActivityResultRegistry {
                     + "they are STARTED.");
         }
 
-        final int requestCode = registerKey(key);
+        registerKey(key);
         LifecycleContainer lifecycleContainer = mKeyToLifecycleContainers.get(key);
         if (lifecycleContainer == null) {
             lifecycleContainer = new LifecycleContainer(lifecycle);
@@ -162,9 +162,15 @@ public abstract class ActivityResultRegistry {
         return new ActivityResultLauncher<I>() {
             @Override
             public void launch(I input, @Nullable ActivityOptionsCompat options) {
-                mLaunchedKeys.add(key);
                 Integer innerCode = mKeyToRc.get(key);
-                onLaunch((innerCode != null) ? innerCode : requestCode, contract, input, options);
+                if (innerCode == null) {
+                    throw new IllegalStateException("Attempting to launch an unregistered "
+                            + "ActivityResultLauncher with contract " + contract + " and input "
+                            + input + ". You must ensure the ActivityResultLauncher is registered "
+                            + "before calling launch().");
+                }
+                mLaunchedKeys.add(key);
+                onLaunch(innerCode, contract, input, options);
             }
 
             @Override
@@ -201,7 +207,7 @@ public abstract class ActivityResultRegistry {
             @NonNull final String key,
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultCallback<O> callback) {
-        final int requestCode = registerKey(key);
+        registerKey(key);
         mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
 
         if (mParsedPendingResults.containsKey(key)) {
@@ -221,9 +227,15 @@ public abstract class ActivityResultRegistry {
         return new ActivityResultLauncher<I>() {
             @Override
             public void launch(I input, @Nullable ActivityOptionsCompat options) {
-                mLaunchedKeys.add(key);
                 Integer innerCode = mKeyToRc.get(key);
-                onLaunch((innerCode != null) ? innerCode : requestCode, contract, input, options);
+                if (innerCode == null) {
+                    throw new IllegalStateException("Attempting to launch an unregistered "
+                            + "ActivityResultLauncher with contract " + contract + " and input "
+                            + input + ". You must ensure the ActivityResultLauncher is registered "
+                            + "before calling launch().");
+                }
+                mLaunchedKeys.add(key);
+                onLaunch(innerCode, contract, input, options);
             }
 
             @Override
@@ -398,14 +410,13 @@ public abstract class ActivityResultRegistry {
         }
     }
 
-    private int registerKey(String key) {
+    private void registerKey(String key) {
         Integer existing = mKeyToRc.get(key);
         if (existing != null) {
-            return existing;
+            return;
         }
         int rc = generateRandomNumber();
         bindRcKey(rc, key);
-        return rc;
     }
 
     /**
