@@ -1,7 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
 
     <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            getUiAutomation().adoptShellPermissionIdentity(Manifest.permission.INSTALL_PACKAGES);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"
+            line="621"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="                getUiAutomation().dropShellPermissionIdentity();"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"
+            line="637"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: Checksum.TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, Checksum.TYPE_WHOLE_MD5, Checksum.TYPE_WHOLE_SHA1, Checksum.TYPE_WHOLE_SHA256, Checksum.TYPE_WHOLE_SHA512, Checksum.TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, Checksum.TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512"
+        errorLine1="                                            apkChecksum.getType(), apkChecksum.getValue(),"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/Checksums.java"
+            line="204"
+            column="45"/>
+    </issue>
+        <issue
         id="NewApi"
         message="Field requires API level S (current min is 14): `android.content.pm.PackageManager#TRUST_ALL`"
         errorLine1="                trustedInstallers = PackageManager.TRUST_ALL;"
