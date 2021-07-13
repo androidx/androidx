@@ -114,6 +114,10 @@ package androidx.wear.utils {
     field public static final String WATCH_FACE_PREVIEW_METADATA_NAME = "com.google.android.wearable.watchface.preview";
   }
 
+  public final class WearTypeHelper {
+    method public static boolean isChinaDevice(android.content.Context);
+  }
+
 }
 
 package androidx.wear.widget {
