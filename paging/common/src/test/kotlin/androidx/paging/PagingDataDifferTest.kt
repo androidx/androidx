@@ -26,11 +26,13 @@ import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -42,6 +44,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -757,6 +760,57 @@ class PagingDataDifferTest {
 
             job.cancel()
         }
+    }
+
+    @Test
+    fun uncaughtException() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val pager = Pager(
+            PagingConfig(1),
+        ) {
+            object : PagingSource<Int, Int>() {
+                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
+                    throw IllegalStateException()
+                }
+
+                override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
+            }
+        }
+
+        val pagingData = pager.flow.first()
+        val deferred = testScope.async {
+            differ.collectFrom(pagingData)
+        }
+
+        advanceUntilIdle()
+        assertFailsWith<IllegalStateException> { deferred.await() }
+    }
+
+    @Test
+    fun handledLoadResultInvalid() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        var generation = 0
+        val pager = Pager(
+            PagingConfig(1),
+        ) {
+            TestPagingSource().also {
+                if (generation == 0) {
+                    it.nextLoadResult = PagingSource.LoadResult.Invalid()
+                }
+                generation++
+            }
+        }
+
+        val pagingData = pager.flow.first()
+        val deferred = testScope.async {
+            // only returns if flow is closed, or work canclled, or exception thrown
+            // in this case it should cancel due LoadResult.Invalid causing collectFrom to return
+            differ.collectFrom(pagingData)
+        }
+
+        advanceUntilIdle()
+        // this will return only if differ.collectFrom returns
+        deferred.await()
     }
 }
 

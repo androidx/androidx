@@ -368,6 +368,10 @@ package androidx.paging {
     property public final Throwable throwable;
   }
 
+  public static final class PagingSource.LoadResult.Invalid<Key, Value> extends androidx.paging.PagingSource.LoadResult<Key,Value> {
+    ctor public PagingSource.LoadResult.Invalid();
+  }
+
   public static final class PagingSource.LoadResult.Page<Key, Value> extends androidx.paging.PagingSource.LoadResult<Key,Value> {
     ctor public PagingSource.LoadResult.Page(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey, optional @IntRange(from=COUNT_UNDEFINED.toLong()) int itemsBefore, optional @IntRange(from=COUNT_UNDEFINED.toLong()) int itemsAfter);
     ctor public PagingSource.LoadResult.Page(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey);

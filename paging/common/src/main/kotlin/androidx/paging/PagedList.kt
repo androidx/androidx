@@ -185,6 +185,15 @@ public abstract class PagedList<T : Any> internal constructor(
                         when (initialResult) {
                             is PagingSource.LoadResult.Page -> initialResult
                             is PagingSource.LoadResult.Error -> throw initialResult.throwable
+                            is PagingSource.LoadResult.Invalid ->
+                                throw IllegalStateException(
+                                    "Failed to create PagedList. The provided PagingSource " +
+                                        "returned LoadResult.Invalid, but a LoadResult.Page was " +
+                                        "expected. To use a PagingSource which supports " +
+                                        "invalidation, use a PagedList builder that accepts a " +
+                                        "factory method for PagingSource or DataSource.Factory, " +
+                                        "such as LivePagedList."
+                                )
                         }
                     }
                 }

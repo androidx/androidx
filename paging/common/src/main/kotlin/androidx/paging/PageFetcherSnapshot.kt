@@ -329,6 +329,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     pageEventCh.send(LoadStateUpdate(REFRESH, false, loadState))
                 }
             }
+            is LoadResult.Invalid -> onInvalidLoad()
         }
     }
 
@@ -443,6 +444,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     }
                     return
                 }
+                is LoadResult.Invalid -> {
+                    onInvalidLoad()
+                    return
+                }
             }
 
             val dropType = when (loadType) {
@@ -528,6 +533,12 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         } else {
             pages.last().nextKey
         }
+    }
+
+    // the handler for LoadResult.Invalid for both doInitialLoad and doLoad
+    private fun onInvalidLoad() {
+        close()
+        pagingSource.invalidate()
     }
 }
 

@@ -30,8 +30,17 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalPagingApi::class)
 internal class V3RemoteMediator(
     private val database: SampleDatabase,
-    private val networkSource: NetworkCustomerPagingSource
+    private val networkSourceFactory: () -> NetworkCustomerPagingSource
 ) : RemoteMediator<Int, Customer>() {
+
+    private var networkSource: NetworkCustomerPagingSource
+    private val callBack = { newNetworkSource() }
+
+    init {
+        networkSource = networkSourceFactory.invoke()
+        networkSource.registerInvalidatedCallback(callBack)
+    }
+
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, Customer>
@@ -73,6 +82,18 @@ internal class V3RemoteMediator(
             is PagingSource.LoadResult.Error -> {
                 MediatorResult.Error(result.throwable)
             }
+            is PagingSource.LoadResult.Invalid -> {
+                networkSource.invalidate()
+                load(loadType, state)
+            }
         }
+    }
+
+    private fun newNetworkSource() {
+        val newNetworkSource = networkSourceFactory.invoke()
+        newNetworkSource.registerInvalidatedCallback { callBack }
+        networkSource.unregisterInvalidatedCallback { callBack }
+
+        networkSource = newNetworkSource
     }
 }
