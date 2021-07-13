@@ -183,6 +183,17 @@ public final class NavigationScreen extends Screen {
                                         new CarIcon.Builder(
                                                 IconCompat.createWithResource(
                                                         getCarContext(),
+                                                        R.drawable.ic_recenter_24))
+                                                .build())
+                                .setOnClickListener(
+                                        () -> mSurfaceRenderer.handleRecenter())
+                                .build())
+                .addAction(
+                        new Action.Builder()
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        getCarContext(),
                                                         R.drawable.ic_zoom_out_24))
                                                 .build())
                                 .setOnClickListener(
