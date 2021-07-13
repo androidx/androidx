@@ -20,6 +20,7 @@ import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadType.REFRESH
 import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -32,6 +33,7 @@ import kotlin.concurrent.thread
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 @RunWith(JUnit4::class)
 class PagedListTest {
@@ -128,6 +130,42 @@ class PagedListTest {
                     0
                 )
             }
+        }
+    }
+
+    @Test
+    fun createNoInitialPageInvalidResult() {
+        runBlocking {
+            val pagingSource = object : PagingSource<Int, String>() {
+                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+                    return LoadResult.Invalid()
+                }
+
+                override fun getRefreshKey(state: PagingState<Int, String>): Int? {
+                    fail("should not reach here")
+                }
+            }
+
+            val expectedException = assertFailsWith<IllegalStateException> {
+                @Suppress("DEPRECATION")
+                PagedList.create(
+                    pagingSource,
+                    initialPage = null,
+                    testCoroutineScope,
+                    Dispatchers.Default,
+                    Dispatchers.IO,
+                    boundaryCallback = null,
+                    Config(10),
+                    key = 0
+                )
+            }
+            assertThat(expectedException.message).isEqualTo(
+                "Failed to create PagedList. The provided PagingSource returned " +
+                    "LoadResult.Invalid, but a LoadResult.Page was expected. To use a " +
+                    "PagingSource which supports invalidation, use a PagedList builder that " +
+                    "accepts a factory method for PagingSource or DataSource.Factory, such as " +
+                    "LivePagedList."
+            )
         }
     }
 

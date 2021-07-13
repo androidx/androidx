@@ -19,7 +19,9 @@ package androidx.paging
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.LoadStateUpdate
+import androidx.paging.PagingSource.LoadResult
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
@@ -44,6 +46,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import java.util.ArrayList
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
@@ -193,6 +196,153 @@ class PageFetcherTest {
         assertTrue { didCallInvalidate }
         fetcherState.job.cancel()
     }
+
+    @Test
+    fun refresh_invalidatePropagatesThroughLoadResultInvalid() =
+        testScope.runBlockingTest {
+            val pagingSources = mutableListOf<TestPagingSource>()
+            val pageFetcher = PageFetcher(
+                pagingSourceFactory = {
+                    TestPagingSource().also {
+                        // make this initial load return LoadResult.Invalid to see if new paging
+                        // source is generated
+                        if (pagingSources.size == 0) it.nextLoadResult = LoadResult.Invalid()
+                        pagingSources.add(it)
+                    }
+                },
+                initialKey = 50,
+                config = config,
+            )
+
+            val fetcherState = collectFetcherState(pageFetcher)
+            advanceUntilIdle()
+
+            // should have two PagingData returned, one for each paging source
+            assertThat(fetcherState.pagingDataList.size).isEqualTo(2)
+
+            // First PagingData only returns a loading state because invalidation prevents load
+            // completion
+            assertTrue(pagingSources[0].invalid)
+            assertThat(fetcherState.pageEventLists[0]).containsExactly(
+                LoadStateUpdate<Int>(REFRESH, false, Loading)
+            )
+            // previous load() returning LoadResult.Invalid should trigger a new paging source
+            // retrying with the same load params, this should return a refresh starting
+            // from key = 50
+            assertTrue(!pagingSources[1].invalid)
+            assertThat(fetcherState.pageEventLists[1]).containsExactly(
+                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                createRefresh(50..51)
+            )
+
+            assertThat(pagingSources[0]).isNotEqualTo(pagingSources[1])
+            fetcherState.job.cancel()
+        }
+
+    @Test
+    fun append_invalidatePropagatesThroughLoadResultInvalid() =
+        testScope.runBlockingTest {
+            val pagingSources = mutableListOf<TestPagingSource>()
+            val pageFetcher = PageFetcher(
+                pagingSourceFactory = { TestPagingSource().also { pagingSources.add(it) } },
+                initialKey = 50,
+                config = config,
+            )
+            val fetcherState = collectFetcherState(pageFetcher)
+            advanceUntilIdle()
+
+            assertThat(fetcherState.pageEventLists.size).isEqualTo(1)
+            assertThat(fetcherState.newEvents()).containsExactly(
+                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                createRefresh(50..51),
+            )
+
+            // append a page
+            fetcherState.pagingDataList[0].receiver.accessHint(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = 1,
+                    presentedItemsBefore = 1,
+                    presentedItemsAfter = 0,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0
+                )
+            )
+            // now return LoadResult.Invalid
+            pagingSources[0].nextLoadResult = LoadResult.Invalid()
+
+            advanceUntilIdle()
+
+            // make sure the append load never completes
+            assertThat(fetcherState.pageEventLists[0].last()).isEqualTo(
+                LoadStateUpdate<Int>(APPEND, false, Loading)
+            )
+
+            // the invalid result handler should exit the append load loop gracefully and allow
+            // fetcher to generate a new paging source
+            assertThat(pagingSources.size).isEqualTo(2)
+            assertTrue(pagingSources[0].invalid)
+
+            // second generation should load refresh with cached append load params
+            assertThat(fetcherState.newEvents()).containsExactly(
+                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                createRefresh(51..52)
+            )
+
+            fetcherState.job.cancel()
+        }
+
+    @Test
+    fun prepend_invalidatePropagatesThroughLoadResultInvalid() =
+        testScope.runBlockingTest {
+            val pagingSources = mutableListOf<TestPagingSource>()
+            val pageFetcher = PageFetcher(
+                pagingSourceFactory = { TestPagingSource().also { pagingSources.add(it) } },
+                initialKey = 50,
+                config = config,
+            )
+            val fetcherState = collectFetcherState(pageFetcher)
+            advanceUntilIdle()
+
+            assertThat(fetcherState.pageEventLists.size).isEqualTo(1)
+            assertThat(fetcherState.newEvents()).containsExactly(
+                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                createRefresh(50..51),
+            )
+            // prepend a page
+            fetcherState.pagingDataList[0].receiver.accessHint(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = -1,
+                    presentedItemsBefore = 0,
+                    presentedItemsAfter = 1,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0
+                )
+            )
+            // now return LoadResult.Invalid
+            pagingSources[0].nextLoadResult = LoadResult.Invalid()
+
+            advanceUntilIdle()
+
+            // make sure the prepend load never completes
+            assertThat(fetcherState.pageEventLists[0].last()).isEqualTo(
+                LoadStateUpdate<Int>(PREPEND, false, Loading)
+            )
+
+            // the invalid result should exit the prepend load loop gracefully and allow fetcher to
+            // generate a new paging source
+            assertThat(pagingSources.size).isEqualTo(2)
+            assertTrue(pagingSources[0].invalid)
+
+            // second generation should load refresh with cached prepend load params
+            assertThat(fetcherState.newEvents()).containsExactly(
+                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                createRefresh(49..50)
+            )
+
+            fetcherState.job.cancel()
+        }
 
     @Test
     fun refresh_closesCollection() = testScope.runBlockingTest {

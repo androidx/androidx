@@ -29,6 +29,7 @@ import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult
 import androidx.paging.RemoteMediatorMock.LoadEvent
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import com.google.common.truth.Truth.assertThat
@@ -3435,6 +3436,138 @@ class PageFetcherSnapshotTest {
         assertFalse { initialHint.shouldPrioritizeOver(accessHint, PREPEND) }
         assertTrue { accessHint.shouldPrioritizeOver(accessHint, APPEND) }
         assertFalse { initialHint.shouldPrioritizeOver(accessHint, APPEND) }
+    }
+
+    @Test
+    fun close_cancelsCollectionFromLoadResultInvalid() = testScope.runBlockingTest {
+        val pagingSource = object : PagingSource<Int, Int>() {
+            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
+                return LoadResult.Invalid()
+            }
+
+            override fun getRefreshKey(state: PagingState<Int, Int>): Int? {
+                fail("should not reach here")
+            }
+        }
+        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
+
+        collectSnapshotData(pager) { _, job ->
+
+            // Start initial load but this load should return LoadResult.Invalid
+            // wait some time for the invalid result handler to close the page event flow
+            advanceTimeBy(1000)
+
+            assertTrue { !job.isActive }
+        }
+    }
+
+    @Test
+    fun refresh_cancelsCollectionFromLoadResultInvalid() = testScope.runBlockingTest {
+        val pagingSource = TestPagingSource()
+        pagingSource.nextLoadResult = LoadResult.Invalid()
+
+        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
+
+        collectSnapshotData(pager) { state, job ->
+
+            // Start initial load but this load should return LoadResult.Invalid
+            // Wait some time for the result handler to close the page event flow
+            advanceUntilIdle()
+
+            // The flow's last page event should be the original Loading event before it
+            // was closed by the invalid result handler
+            assertThat(state.newEvents()).containsExactly(
+                LoadStateUpdate<Int>(
+                    loadType = REFRESH,
+                    fromMediator = false,
+                    loadState = Loading
+                ),
+            )
+            // make sure no more new events are sent to UI
+            assertThat(state.newEvents()).isEmpty()
+            assertTrue(pagingSource.invalid)
+            assertTrue { !job.isActive }
+        }
+    }
+
+    @Test
+    fun append_cancelsCollectionFromLoadResultInvalid() = testScope.runBlockingTest {
+        val pagingSource = TestPagingSource()
+        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
+
+        collectSnapshotData(pager) { state, job ->
+
+            advanceUntilIdle()
+
+            assertThat(state.newEvents()).containsExactly(
+                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                createRefresh(50..51)
+            )
+            // append a page
+            pager.accessHint(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = 1,
+                    presentedItemsBefore = 1,
+                    presentedItemsAfter = 0,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0
+                )
+            )
+            // now return LoadResult.Invalid
+            pagingSource.nextLoadResult = LoadResult.Invalid()
+
+            advanceUntilIdle()
+
+            // Only a LoadStateUpdate for Append with loading status should be sent and it should
+            // not complete
+            assertThat(state.newEvents()).containsExactly(
+                LoadStateUpdate<Int>(APPEND, false, Loading),
+            )
+            assertTrue(pagingSource.invalid)
+            assertThat(state.newEvents()).isEmpty()
+            assertThat(!job.isActive)
+        }
+    }
+
+    @Test
+    fun prepend_cancelsCollectionFromLoadResultInvalid() = testScope.runBlockingTest {
+        val pagingSource = TestPagingSource()
+        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
+
+        collectSnapshotData(pager) { state, job ->
+
+            advanceUntilIdle()
+
+            assertThat(state.newEvents()).containsExactly(
+                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                createRefresh(50..51)
+            )
+            // now prepend
+            pager.accessHint(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = -1,
+                    presentedItemsBefore = 0,
+                    presentedItemsAfter = 1,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0
+                )
+            )
+            // now return LoadResult.Invalid.
+            pagingSource.nextLoadResult = LoadResult.Invalid()
+
+            advanceUntilIdle()
+
+            // Only a LoadStateUpdate for Prepend with loading status should be sent and it should
+            // not complete
+            assertThat(state.newEvents()).containsExactly(
+                LoadStateUpdate<Int>(PREPEND, false, Loading),
+            )
+            assertTrue(pagingSource.invalid)
+            assertThat(state.newEvents()).isEmpty()
+            assertThat(!job.isActive)
+        }
     }
 
     internal class CollectedPageEvents<T : Any>(val pageEvents: ArrayList<PageEvent<T>>) {
