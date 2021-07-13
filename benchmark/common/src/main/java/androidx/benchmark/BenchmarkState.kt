@@ -431,6 +431,12 @@ public class BenchmarkState {
             ThreadPriority.resetBumpedThread()
         }
         warmupManager.logInfo()
+
+        if (throttleRemainingRetries == 0) {
+            // If we ran out of throttle detection retries, it's possible the throttle baseline
+            // is incorrect. Force next benchmark to recompute it.
+            ThrottleDetector.resetThrottleBaseline()
+        }
     }
 
     private fun computeMaxIterations(): Int {
@@ -557,7 +563,7 @@ public class BenchmarkState {
         internal const val MAX_TEST_ITERATIONS = 1_000_000
         internal const val MIN_TEST_ITERATIONS = 1
 
-        private const val THROTTLE_MAX_RETRIES = 3
+        private const val THROTTLE_MAX_RETRIES = 2
         private const val THROTTLE_BACKOFF_S = 90L
 
         private var firstBenchmark = true
