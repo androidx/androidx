@@ -24,7 +24,6 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.1.0")
     api(project(":room:room-compiler-processing"))
     implementation(libs.kotlinStdlib)
     implementation(libs.kspApi)

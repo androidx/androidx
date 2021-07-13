@@ -17,24 +17,35 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.util.XTestInvocation
+import javax.annotation.processing.AbstractProcessor
+import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
+import javax.lang.model.element.TypeElement
 
 @Suppress("VisibleForTests")
 @ExperimentalProcessingApi
 class SyntheticJavacProcessor private constructor(
     private val impl: SyntheticProcessorImpl
-) : JavacTestProcessor(), SyntheticProcessor by impl {
+) : AbstractProcessor(), SyntheticProcessor by impl {
     constructor(handlers: List<(XTestInvocation) -> Unit>) : this(
         SyntheticProcessorImpl(handlers)
     )
-    override fun doProcess(annotations: Set<XTypeElement>, roundEnv: XRoundEnv): Boolean {
+
+    override fun process(
+        annotations: MutableSet<out TypeElement>,
+        roundEnv: RoundEnvironment
+    ): Boolean {
+        if (roundEnv.processingOver()) {
+            return true
+        }
         if (!impl.canRunAnotherRound()) {
             return true
         }
         val xEnv = XProcessingEnv.create(processingEnv)
+        val xRoundEnv = XRoundEnv.create(xEnv, roundEnv)
         val testInvocation = XTestInvocation(
             processingEnv = xEnv,
-            roundEnv = roundEnv
+            roundEnv = xRoundEnv
         )
         impl.runNextRound(testInvocation)
         return impl.expectsAnotherRound()
