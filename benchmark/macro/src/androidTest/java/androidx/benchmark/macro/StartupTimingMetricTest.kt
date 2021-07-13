@@ -17,6 +17,7 @@
 package androidx.benchmark.macro
 
 import android.content.Intent
+import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.macro.perfetto.createTempFileFromAsset
@@ -85,6 +86,7 @@ public class StartupTimingMetricTest {
     }
 }
 
+@RequiresApi(29)
 internal fun measureStartup(packageName: String, measureBlock: () -> Unit): MetricsWithUiState {
     val wrapper = PerfettoCaptureWrapper()
     val metric = StartupTimingMetric()

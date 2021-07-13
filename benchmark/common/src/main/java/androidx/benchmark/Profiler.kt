@@ -95,7 +95,7 @@ internal fun startRuntimeMethodTracing(traceFileName: String, sampled: Boolean) 
     if (sampled &&
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
     ) {
-        Debug.startMethodTracingSampling(path, bufferSize, Arguments.profilerSampleFrequency)
+        startMethodTracingSampling(path, bufferSize, Arguments.profilerSampleFrequency)
     } else {
         Debug.startMethodTracing(path, bufferSize, 0)
     }

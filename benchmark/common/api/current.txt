@@ -1,6 +1,18 @@
 // Signature format: 4.0
 package androidx.benchmark {
 
+  @RequiresApi(21) public final class Api21Kt {
+  }
+
+  @RequiresApi(24) public final class Api24Kt {
+  }
+
+  @RequiresApi(27) public final class Api27Kt {
+  }
+
+  @RequiresApi(29) public final class Api29Kt {
+  }
+
   public final class ArgumentsKt {
   }
 

@@ -1,6 +1,9 @@
 // Signature format: 4.0
 package androidx.benchmark.macro {
 
+  @RequiresApi(29) public final class Api29Kt {
+  }
+
   public abstract sealed class CompilationMode {
   }
 
