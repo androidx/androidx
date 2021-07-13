@@ -17,7 +17,6 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
 /**
@@ -65,8 +64,7 @@ public final class ReportUsageRequest {
     /** Builder for {@link ReportUsageRequest} objects. */
     public static final class Builder {
         private final String mNamespace;
-        // TODO(b/181887768): Make this final
-        private String mDocumentId;
+        private final String mDocumentId;
         private Long mUsageTimestampMillis;
 
         /**
@@ -80,43 +78,6 @@ public final class ReportUsageRequest {
         public Builder(@NonNull String namespace, @NonNull String documentId) {
             mNamespace = Preconditions.checkNotNull(namespace);
             mDocumentId = Preconditions.checkNotNull(documentId);
-        }
-
-        /**
-         * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @Deprecated
-        /*@exportToFramework:UnsupportedAppUsage*/
-        public Builder(@NonNull String namespace) {
-            mNamespace = Preconditions.checkNotNull(namespace);
-        }
-
-        /**
-         * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @Deprecated
-        /*@exportToFramework:UnsupportedAppUsage*/
-        @NonNull
-        public Builder setUri(@NonNull String uri) {
-            mDocumentId = uri;
-            return this;
-        }
-
-        /**
-         * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @Deprecated
-        /*@exportToFramework:UnsupportedAppUsage*/
-        @NonNull
-        public ReportUsageRequest.Builder setUsageTimeMillis(
-                /*@exportToFramework:CurrentTimeMillisLong*/ long usageTimestampMillis) {
-            return setUsageTimestampMillis(usageTimestampMillis);
         }
 
         /**

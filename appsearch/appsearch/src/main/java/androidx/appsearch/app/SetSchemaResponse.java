@@ -339,18 +339,6 @@ public class SetSchemaResponse {
             return mBundle.getString(NAMESPACE_FIELD, /*defaultValue=*/"");
         }
 
-        /**
-         * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @Deprecated
-        /*@exportToFramework:UnsupportedAppUsage*/
-        @NonNull
-        public String getUri() {
-            return getDocumentId();
-        }
-
         /** Returns the id of the {@link GenericDocument} that failed to be migrated. */
         @NonNull
         public String getDocumentId() {
