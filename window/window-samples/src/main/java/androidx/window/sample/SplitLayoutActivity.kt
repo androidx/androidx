@@ -17,40 +17,40 @@
 package androidx.window.sample
 
 import android.os.Bundle
-import androidx.core.util.Consumer
-import androidx.window.WindowLayoutInfo
-import androidx.window.WindowManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.WindowInfoRepo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /** Demo of [SplitLayout]. */
-class SplitLayoutActivity : BaseSampleActivity() {
+class SplitLayoutActivity : AppCompatActivity() {
 
-    private lateinit var windowManager: WindowManager
-    private val layoutStateChangeCallback = LayoutStateChangeCallback()
+    private lateinit var windowInfoRepo: WindowInfoRepo
+    private lateinit var splitLayout: SplitLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_split_layout)
-        windowManager = getTestBackend()?.let { backend ->
-            @Suppress("DEPRECATION") // TODO(b/173739071) remove when updating WindowManager
-            WindowManager(this, backend)
-        }
-            ?: WindowManager(this)
-    }
+        windowInfoRepo = WindowInfoRepo.create(this)
+        splitLayout = findViewById(R.id.split_layout)
 
-    override fun onStart() {
-        super.onStart()
-        windowManager.registerLayoutChangeCallback(mainThreadExecutor, layoutStateChangeCallback)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        windowManager.unregisterLayoutChangeCallback(layoutStateChangeCallback)
-    }
-
-    inner class LayoutStateChangeCallback : Consumer<WindowLayoutInfo> {
-        override fun accept(newLayoutInfo: WindowLayoutInfo) {
-            val splitLayout = findViewById<SplitLayout>(R.id.split_layout)
-            splitLayout.updateWindowLayout(newLayoutInfo)
+        // Create a new coroutine since repeatOnLifecycle is a suspend function
+        lifecycleScope.launch(Dispatchers.Main) {
+            // The block passed to repeatOnLifecycle is executed when the lifecycle
+            // is at least STARTED and is cancelled when the lifecycle is STOPPED.
+            // It automatically restarts the block when the lifecycle is STARTED again.
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Safely collect from windowInfoRepo when the lifecycle is STARTED
+                // and stops collection when the lifecycle is STOPPED
+                windowInfoRepo.windowLayoutInfo
+                    .collect { newLayoutInfo ->
+                        splitLayout.updateWindowLayout(newLayoutInfo)
+                    }
+            }
         }
     }
 }

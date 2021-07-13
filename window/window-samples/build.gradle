@@ -37,6 +37,7 @@ dependencies {
     api(libs.constraintLayout)
     // TODO(b/152245564) Conflicting dependencies cause IDE errors.
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha02")
 
     implementation(project(":window:window"))
 }
