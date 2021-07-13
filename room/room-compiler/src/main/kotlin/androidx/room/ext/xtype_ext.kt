@@ -21,6 +21,8 @@ import androidx.room.compiler.processing.isByte
 import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 
 /**
  * Returns `true` if this type is not the `void` type.
@@ -51,3 +53,36 @@ fun XType.isNotNone() = !isNone()
  * Returns `true` if this is not `byte` type.
  */
 fun XType.isNotByte() = !isByte()
+
+/**
+ * Checks if the class of the provided type has the equals() and hashCode() methods declared.
+ * If they are not found at the current class level, the method recursively moves on to the
+ * super class level and continues to look for these declared methods.
+ */
+fun XType.implementsEqualsAndHashcode(): Boolean {
+    if (this.typeName.isPrimitive || this.typeName.isBoxedPrimitive) {
+        return true
+    }
+    val typeElement = this.typeElement ?: return false
+
+    if (typeElement.className == ClassName.OBJECT) {
+        return false
+    }
+
+    val hasEquals = typeElement.getDeclaredMethods().any {
+        it.name == "equals" &&
+            it.returnType.typeName == TypeName.BOOLEAN &&
+            it.parameters.count() == 1 &&
+            it.parameters[0].type.typeName == TypeName.OBJECT
+    }
+    val hasHashCode = typeElement.getDeclaredMethods().any {
+        it.name == "hashCode" &&
+            it.returnType.typeName == TypeName.INT &&
+            it.parameters.count() == 0
+    }
+
+    if (hasEquals && hasHashCode) {
+        return true
+    }
+    return typeElement.superType?.let { it.implementsEqualsAndHashcode() } ?: false
+}

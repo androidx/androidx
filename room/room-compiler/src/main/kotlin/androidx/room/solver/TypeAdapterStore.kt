@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isEnum
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
+import androidx.room.ext.implementsEqualsAndHashcode
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.isNotByte
 import androidx.room.ext.isNotKotlinUnit
@@ -33,6 +34,7 @@ import androidx.room.processor.EntityProcessor
 import androidx.room.processor.FieldProcessor
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
+import androidx.room.processor.ProcessorErrors.classMustImplementEqualsAndHashCode
 import androidx.room.solver.binderprovider.CoroutineFlowResultBinderProvider
 import androidx.room.solver.binderprovider.CursorQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
@@ -96,13 +98,14 @@ import androidx.room.solver.types.StatementValueBinder
 import androidx.room.solver.types.StringColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.vo.ShortcutQueryParameter
+import androidx.room.vo.Warning
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.ImmutableSetMultimap
-import com.squareup.javapoet.ClassName
 import com.google.common.collect.ImmutableMap
+import com.squareup.javapoet.ClassName
 import java.util.LinkedList
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -521,9 +524,6 @@ class TypeAdapterStore private constructor(
                 immutableClassName = immutableClassName
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class)) {
-            // TODO: Handle nested collection values in the map
-            // TODO: Verify that hashCode() and equals() are declared by the keyTypeArg
-
             val keyTypeArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
             val mapValueTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
 
@@ -534,9 +534,19 @@ class TypeAdapterStore private constructor(
                 )
                 return null
             }
+            // TODO: Handle nested collection values in the map
+            if (!keyTypeArg.implementsEqualsAndHashcode()) {
+                context.logger.w(
+                    Warning.DOES_NOT_IMPLEMENT_EQUALS_HASHCODE,
+                    keyTypeArg.typeElement,
+                    classMustImplementEqualsAndHashCode(
+                        typeMirror.typeName,
+                        keyTypeArg.typeName
+                    )
+                )
+            }
 
             val collectionTypeRaw = context.COMMON_TYPES.READONLY_COLLECTION.rawType
-
             if (collectionTypeRaw.isAssignableFrom(mapValueTypeArg.rawType)) {
                 // The Map's value type argument is assignable to a Collection, we need to make
                 // sure it is either a list or a set.
@@ -544,8 +554,7 @@ class TypeAdapterStore private constructor(
                     mapValueTypeArg.isTypeOf(java.util.List::class) ||
                     mapValueTypeArg.isTypeOf(java.util.Set::class)
                 ) {
-                    val valueTypeArg =
-                        mapValueTypeArg.typeArguments.single().extendsBoundOrSelf()
+                    val valueTypeArg = mapValueTypeArg.typeArguments.single().extendsBoundOrSelf()
                     return MapQueryResultAdapter(
                         keyTypeArg = keyTypeArg,
                         valueTypeArg = valueTypeArg,
