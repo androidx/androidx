@@ -54,15 +54,30 @@ public class ScreenController {
      *
      * @throws NullPointerException if either {@code testCarContext} or {@code screen} are null
      */
+    public ScreenController(@NonNull TestCarContext testCarContext, @NonNull Screen screen) {
+        mScreen = requireNonNull(screen);
+        mTestCarContext = requireNonNull(testCarContext);
+
+        // Use reflection to inject the TestCarContext into the Screen.
+        try {
+            Field field = Screen.class.getDeclaredField("mCarContext");
+            field.setAccessible(true);
+            field.set(screen, testCarContext);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Failed to set a test car context for testing", e);
+        }
+    }
+
+    /** Returns the {@link Screen} being controlled. */
     @NonNull
-    public static ScreenController of(
-            @NonNull TestCarContext testCarContext, @NonNull Screen screen) {
-        return new ScreenController(requireNonNull(screen), requireNonNull(testCarContext));
+    public Screen getScreen() {
+        return mScreen;
     }
 
     /** Resets values tracked by this {@link ScreenController}. */
     public void reset() {
-        mTestCarContext.getCarService(TestAppManager.class).resetTemplatesStoredForScreen(get());
+        mTestCarContext.getCarService(TestAppManager.class).resetTemplatesStoredForScreen(
+                getScreen());
     }
 
     /**
@@ -80,7 +95,7 @@ public class ScreenController {
         List<Template> templates = new ArrayList<>();
         for (Pair<Screen, Template> pair :
                 mTestCarContext.getCarService(TestAppManager.class).getTemplatesReturned()) {
-            if (pair.first == get()) {
+            if (pair.first == getScreen()) {
                 templates.add(pair.second);
             }
         }
@@ -182,31 +197,11 @@ public class ScreenController {
         return this;
     }
 
-    /** Returns the {@link Screen} being controlled. */
-    @NonNull
-    public Screen get() {
-        return mScreen;
-    }
-
     private void putScreenOnStackIfNotTop() {
         TestScreenManager testScreenManager = mTestCarContext.getCarService(
                 TestScreenManager.class);
         if (!testScreenManager.hasScreens() || !mScreen.equals(testScreenManager.getTop())) {
             testScreenManager.push(mScreen);
-        }
-    }
-
-    private ScreenController(Screen screen, TestCarContext testCarContext) {
-        this.mScreen = screen;
-        this.mTestCarContext = testCarContext;
-
-        // Use reflection to inject the TestCarContext into the Screen.
-        try {
-            Field field = Screen.class.getDeclaredField("mCarContext");
-            field.setAccessible(true);
-            field.set(screen, testCarContext);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to set a test car context for testing", e);
         }
     }
 

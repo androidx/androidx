@@ -50,9 +50,29 @@ public class SessionController {
      * @param context the {@link TestCarContext} that the {@code session} should use.
      * @throws NullPointerException if {@code session} or {@code context} is {@code null}
      */
+    public SessionController(@NonNull Session session, @NonNull TestCarContext context) {
+        mSession = requireNonNull(session);
+        mTestCarContext = requireNonNull(context);
+
+        // Use reflection to inject the TestCarContext into the Session.
+        try {
+            Field registry = Session.class.getDeclaredField("mRegistry");
+            registry.setAccessible(true);
+            registry.set(session, mTestCarContext.getLifecycleOwner().mRegistry);
+
+            Field carContext = Session.class.getDeclaredField("mCarContext");
+            carContext.setAccessible(true);
+            carContext.set(session, mTestCarContext);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(
+                    "Failed to set internal Session values for testing", e);
+        }
+    }
+
+    /** Returns the {@link Session} that is being controlled. */
     @NonNull
-    public static SessionController of(@NonNull Session session, @NonNull TestCarContext context) {
-        return new SessionController(requireNonNull(session), requireNonNull(context));
+    public Session getSession() {
+        return mSession;
     }
 
     /**
@@ -146,30 +166,5 @@ public class SessionController {
         registry.handleLifecycleEvent(Event.ON_DESTROY);
 
         return this;
-    }
-
-    /** Returns the {@link Session} that is being controlled. */
-    @NonNull
-    public Session get() {
-        return mSession;
-    }
-
-    private SessionController(Session session, TestCarContext context) {
-        mSession = session;
-        mTestCarContext = context;
-
-        // Use reflection to inject the TestCarContext into the Session.
-        try {
-            Field registry = Session.class.getDeclaredField("mRegistry");
-            registry.setAccessible(true);
-            registry.set(session, mTestCarContext.getLifecycleOwner().mRegistry);
-
-            Field carContext = Session.class.getDeclaredField("mCarContext");
-            carContext.setAccessible(true);
-            carContext.set(session, mTestCarContext);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(
-                    "Failed to set internal Session values for testing", e);
-        }
     }
 }
