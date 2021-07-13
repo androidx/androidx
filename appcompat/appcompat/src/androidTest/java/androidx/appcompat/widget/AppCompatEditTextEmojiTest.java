@@ -18,6 +18,9 @@ package androidx.appcompat.widget;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.text.method.KeyListener;
+import android.view.KeyEvent;
+
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -47,5 +50,34 @@ public class AppCompatEditTextEmojiTest
 
         assertThat(notFocusable.isEnabled()).isFalse();
         assertThat(notFocusable.isFocusable()).isFalse();
+    }
+
+    @Test
+    @UiThreadTest
+    public void respectsDigits() {
+        AppCompatEditText textWithDigits = mActivityTestRule.getActivity()
+                        .findViewById(androidx.appcompat.test.R.id.text_with_digits);
+
+        int[] acceptedKeyCodes = {KeyEvent.KEYCODE_0, KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2,
+                KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_4};
+        int[] disallowedKeyCodes = {KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_7,
+                KeyEvent.KEYCODE_8, KeyEvent.KEYCODE_9};
+        int[] actions = {KeyEvent.ACTION_DOWN, KeyEvent.ACTION_UP};
+
+        for (int action : actions) {
+            for (int keycode : acceptedKeyCodes) {
+                assertThat(listenerHandlesKeyEvent(textWithDigits, action, keycode)).isTrue();
+            }
+            for (int keycode : disallowedKeyCodes) {
+                assertThat(listenerHandlesKeyEvent(textWithDigits, action, keycode)).isFalse();
+            }
+        }
+    }
+
+    private boolean listenerHandlesKeyEvent(AppCompatEditText textWithDigits, int action,
+            int keycode) {
+        KeyListener listener = textWithDigits.getKeyListener();
+        return listener.onKeyDown(textWithDigits, textWithDigits.getText(),
+                keycode, new KeyEvent(action, keycode));
     }
 }
