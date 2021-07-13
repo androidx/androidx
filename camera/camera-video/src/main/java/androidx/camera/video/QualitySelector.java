@@ -77,9 +77,6 @@ import java.util.List;
  * If QUALITY_UHD and QUALITY_FHD are not supported on the device, QualitySelector will select
  * the quality that is closest to and lower than QUALITY_FHD. If no lower quality is supported,
  * the quality that is closest to and higher than QUALITY_FHD will be selected.
- * {@link #select(CameraInfo)} can be used to obtain the final result quality based on the desired
- * qualities and fallback strategy, {@link #QUALITY_NONE} will be returned if all desired
- * qualities are not supported and fallback strategy also cannot result in a supported quality.
  */
 public class QualitySelector {
     private static final String TAG = "QualitySelector";
@@ -88,8 +85,7 @@ public class QualitySelector {
      * A non-applicable quality.
      *
      * <p>Check QUALITY_NONE via {@link #isQualitySupported(CameraInfo, int)} will return
-     * {@code false}. {@link #select(CameraInfo)} will return QUALITY_NONE if all desired
-     * qualities are not supported and fallback strategy is not able to find a supported one.
+     * {@code false}.
      */
     public static final int QUALITY_NONE = -1;
     /**
@@ -144,9 +140,6 @@ public class QualitySelector {
 
     /**
      * The strategy that no fallback strategy will be applied.
-     *
-     * <p>When using this fallback strategy, if {@link #select(CameraInfo)} fails to find a
-     * supported quality, it will return {@link #QUALITY_NONE}.
      */
     public static final int FALLBACK_STRATEGY_NONE = 0;
 
@@ -159,9 +152,6 @@ public class QualitySelector {
 
     /**
      * Choose the quality that is closest to and higher than the desired quality.
-     *
-     * <p>When a higher quality can't be found, {@link #select(CameraInfo)} will return
-     * {@link #QUALITY_NONE}.
      */
     public static final int FALLBACK_STRATEGY_STRICTLY_HIGHER = 2;
 
@@ -174,9 +164,6 @@ public class QualitySelector {
 
     /**
      * Choose the quality that is closest to and lower than the desired quality.
-     *
-     * <p>When a lower quality can't be found, {@link #select(CameraInfo)} will return
-     * {@link #QUALITY_NONE}.
      */
     public static final int FALLBACK_STRATEGY_STRICTLY_LOWER = 4;
 
@@ -382,7 +369,10 @@ public class QualitySelector {
      * @return the first supported quality of the desired qualities, or a supported quality
      * searched by fallback strategy, or {@link #QUALITY_NONE} when no quality is found.
      * @see Procedure
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY)
     @VideoQuality
     public int select(@NonNull CameraInfo cameraInfo) {
         VideoCapabilities videoCapabilities = VideoCapabilities.from(cameraInfo);
