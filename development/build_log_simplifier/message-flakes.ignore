@@ -20,6 +20,7 @@ java.io.IOException: Stream closed
 # > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest
 # If a test fails, we don't want the build to fail, we want to pass the test output to the tests server and for the tests server to report the failure
 [0-9]+ test.*failed.*
+There were failing tests\. See the report at: .*.html
 # Some status messages
 Starting a Gradle Daemon, [0-9]+ busy and [0-9]+ incompatible Daemons could not be reused, use \-\-status for details
 Starting a Gradle Daemon, [0-9]+ busy and [0-9]+ incompatible and [0-9]+ stopped Daemons could not be reused, use \-\-status for details
