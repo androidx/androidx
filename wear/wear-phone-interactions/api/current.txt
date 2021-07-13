@@ -130,9 +130,9 @@ package androidx.wear.phone.interactions.notifications {
     method public androidx.wear.phone.interactions.notifications.BridgingManager fromContext(android.content.Context context);
   }
 
-  public final class BridgingManagerServiceBinder {
-    ctor public BridgingManagerServiceBinder(android.content.Context context, androidx.wear.phone.interactions.notifications.BridgingConfigurationHandler bridgingConfigurationHandler);
-    method public android.os.IBinder? getBinder();
+  public final class BridgingManagerService extends android.app.Service {
+    ctor public BridgingManagerService(android.content.Context context, androidx.wear.phone.interactions.notifications.BridgingConfigurationHandler bridgingConfigurationHandler);
+    method public android.os.IBinder? onBind(android.content.Intent? intent);
   }
 
 }

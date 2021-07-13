@@ -18,6 +18,7 @@ package androidx.wear.phone.interactions.notifications
 
 import android.app.Service
 import android.content.Context
+import android.content.Intent
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
@@ -35,19 +36,21 @@ public interface BridgingConfigurationHandler {
 }
 
 /**
- * Class for providing the binder that clients used to communicate with the service regarding
- * notification bridging configurations.
+ * Service class receiving notification bridging configurations.
+ *
+ * @param context  The [Context] of the application.
+ * @param bridgingConfigurationHandler The handler for applying the notification bridging
+ * configuration.
  */
-public class BridgingManagerServiceBinder(
+public class BridgingManagerService(
     private val context: Context,
     private val bridgingConfigurationHandler: BridgingConfigurationHandler
-) {
-    /**
-     * Call this method in [Service.onBind] to provide the interface that clients
-     * use to communicate with the service by returning an IBinder.
-     */
-    public fun getBinder(): IBinder? =
-        BridgingManagerServiceImpl(context, bridgingConfigurationHandler)
+) : Service() {
+    override fun onBind(intent: Intent?): IBinder? =
+        if (intent?.action == BridgingManager.ACTION_BIND_BRIDGING_MANAGER)
+            BridgingManagerServiceImpl(context, bridgingConfigurationHandler)
+        else
+            null
 }
 
 internal class BridgingManagerServiceImpl(
