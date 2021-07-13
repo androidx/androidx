@@ -546,14 +546,14 @@ public class AutomotiveCarInfo implements CarInfo {
                             case EV_BATTERY_LEVEL:
                                 if (mEvBatteryCapacity != Float.NEGATIVE_INFINITY) {
                                     batteryPercentValue = new CarValue<>(
-                                            (Float) response.getValue() / mEvBatteryCapacity,
+                                            (Float) response.getValue() / mEvBatteryCapacity * 100,
                                             response.getTimestampMillis(), response.getStatus());
                                 }
                                 break;
                             case FUEL_LEVEL:
                                 if (mFuelCapacity != Float.NEGATIVE_INFINITY) {
                                     fuelPercentValue = new CarValue<>(
-                                            (Float) response.getValue() / mFuelCapacity,
+                                            (Float) response.getValue() / mFuelCapacity * 100,
                                             response.getTimestampMillis(), response.getStatus());
                                 }
                                 break;
