@@ -209,11 +209,13 @@ public class BaseSupportFragment extends BrandedSupportFragment {
      * <p>
      * It is similar to android:windowsEnterTransition and can be considered a late-executed
      * android:windowsEnterTransition controlled by app.  There are two reasons that app needs it:
+     * <ul>
      * <li> Workaround the problem that activity transition is not available between launcher and
      * app.  Browse activity must programmatically start the slide-in transition.</li>
      * <li> Separates DetailsOverviewRow transition from other rows transition.  So that
      * the DetailsOverviewRow transition can be executed earlier without waiting for all rows
      * to be loaded.</li>
+     * </ul>
      * <p>
      * Transition object is returned by createEntranceTransition().  Typically the app does not need
      * override the default transition that browse and details provides.
@@ -264,8 +266,10 @@ public class BaseSupportFragment extends BrandedSupportFragment {
      * to execute the entrance transition.
      * startEntranceTransition() will start transition only if both two conditions
      * are satisfied:
+     * <ul>
      * <li> prepareEntranceTransition() was called.</li>
      * <li> has not executed entrance transition yet.</li>
+     * </ul>
      * <p>
      * If startEntranceTransition() is called before onViewCreated(), it will be pending
      * and executed when view is created.

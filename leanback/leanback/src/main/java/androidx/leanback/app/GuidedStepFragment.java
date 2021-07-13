@@ -80,10 +80,10 @@ import java.util.List;
  * GuidedStepFragment, int)}, to add GuidedStepFragment on top of existing Fragments or
  * replacing existing GuidedStepFragment when moving forward to next step.</li>
  * <li>{@link #finishGuidedStepFragments()} can either finish the activity or pop all
- * GuidedStepFragment from stack.
+ * GuidedStepFragment from stack.</li>
  * <li>If app chooses not to use the helper function, it is the app's responsibility to call
  * {@link #setUiStyle(int)} to select fragment transition and remember the stack entry where it
- * need pops to.
+ * need pops to.</li>
  * </ul>
  * <h3>Theming and Stylists</h3>
  * <p>
@@ -468,8 +468,11 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * GuidedStepFragments in the stack, and configuring the fragment-to-fragment custom
      * transitions.  A backstack entry is added, so the fragment will be dismissed when BACK key
      * is pressed.
-     * <li>If current fragment on stack is GuidedStepFragment: assign {@link #UI_STYLE_REPLACE}
-     * <li>If current fragment on stack is not GuidedStepFragment: assign {@link #UI_STYLE_ENTRANCE}
+     * <ul>
+     * <li>If current fragment on stack is GuidedStepFragment: assign {@link #UI_STYLE_REPLACE}</li>
+     * <li>If current fragment on stack is not GuidedStepFragment: assign
+     * {@link #UI_STYLE_ENTRANCE}</li>
+     * </ul>
      * <p>
      * Note: currently fragments added using this method must be created programmatically rather
      * than via XML.
@@ -486,10 +489,13 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * GuidedStepFragments in the stack, and configuring the fragment-to-fragment custom
      * transitions.  A backstack entry is added, so the fragment will be dismissed when BACK key
      * is pressed.
+     * <ul>
      * <li>If current fragment on stack is GuidedStepFragment: assign {@link #UI_STYLE_REPLACE} and
      * {@link #onAddSharedElementTransition(FragmentTransaction, GuidedStepFragment)} will be called
-     * to perform shared element transition between GuidedStepFragments.
-     * <li>If current fragment on stack is not GuidedStepFragment: assign {@link #UI_STYLE_ENTRANCE}
+     * to perform shared element transition between GuidedStepFragments.</li>
+     * <li>If current fragment on stack is not GuidedStepFragment: assign
+     * {@link #UI_STYLE_ENTRANCE}</li>
+     * </ul>
      * <p>
      * Note: currently fragments added using this method must be created programmatically rather
      * than via XML.
@@ -875,12 +881,12 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * transitions based on {@link #getUiStyle()}:
      * <ul>
      * <li> {@link #UI_STYLE_REPLACE} Slide from/to end(right) for enter transition, slide from/to
-     * start(left) for exit transition, shared element enter transition is set to ChangeBounds.
+     * start(left) for exit transition, shared element enter transition is set to ChangeBounds.</li>
      * <li> {@link #UI_STYLE_ENTRANCE} Enter transition is set to slide from both sides, exit
-     * transition is same as {@link #UI_STYLE_REPLACE}, no shared element enter transition.
+     * transition is same as {@link #UI_STYLE_REPLACE}, no shared element enter transition.</li>
      * <li> {@link #UI_STYLE_ACTIVITY_ROOT} Enter transition is set to null and app should rely on
      * activity transition, exit transition is same as {@link #UI_STYLE_REPLACE}, no shared element
-     * enter transition.
+     * enter transition.</li>
      * </ul>
      * <p>
      * The default implementation heavily relies on {@link GuidedActionsStylist} and
