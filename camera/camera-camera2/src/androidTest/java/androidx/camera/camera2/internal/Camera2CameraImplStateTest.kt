@@ -333,7 +333,7 @@ internal class Camera2CameraImplStateTest {
         // Build camera info
         val camera2CameraInfo = Camera2CameraInfoImpl(
             cameraId,
-            cameraManagerCompat.getCameraCharacteristicsCompat(cameraId)
+            cameraManagerCompat
         )
 
         // Initialize camera state registry and only allow 1 open camera at most inside CameraX

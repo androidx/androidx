@@ -25,7 +25,9 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -48,7 +50,10 @@ import androidx.lifecycle.Observer;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -90,19 +95,23 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     private final Quirks mCameraQuirks;
     @NonNull
     private final CamcorderProfileProvider mCamera2CamcorderProfileProvider;
+    @NonNull
+    private final CameraManagerCompat mCameraManager;
 
     /**
      * Constructs an instance. Before {@link #linkWithCameraControl(Camera2CameraControlImpl)} is
      * called, camera control related API (torch/exposure/zoom) will return default values.
      */
     Camera2CameraInfoImpl(@NonNull String cameraId,
-            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+            @NonNull CameraManagerCompat cameraManager) throws CameraAccessExceptionCompat {
         mCameraId = Preconditions.checkNotNull(cameraId);
-        mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
+        mCameraManager = cameraManager;
+
+        mCameraCharacteristicsCompat = cameraManager.getCameraCharacteristicsCompat(mCameraId);
         mCamera2CameraInfo = new Camera2CameraInfo(this);
-        mCameraQuirks = CameraQuirks.get(cameraId, cameraCharacteristicsCompat);
+        mCameraQuirks = CameraQuirks.get(cameraId, mCameraCharacteristicsCompat);
         mCamera2CamcorderProfileProvider = new Camera2CamcorderProfileProvider(cameraId,
-                cameraCharacteristicsCompat);
+                mCameraCharacteristicsCompat);
         mCameraStateLiveData = new RedirectableLiveData<>(
                 CameraState.create(CameraState.Type.CLOSED));
     }
@@ -396,6 +405,36 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @NonNull
     public Camera2CameraInfo getCamera2CameraInfo() {
         return mCamera2CameraInfo;
+    }
+
+    /**
+     * Returns a map consisting of the camera ids and the {@link CameraCharacteristics}s.
+     *
+     * <p>For every camera, the map contains at least the CameraCharacteristics for the camera id.
+     * If the camera is logical camera, it will also contain associated physical camera ids and
+     * their CameraCharacteristics.
+     *
+     */
+    @NonNull
+    public Map<String, CameraCharacteristics> getCameraCharacteristicsMap() {
+        LinkedHashMap<String, CameraCharacteristics> map = new LinkedHashMap<>();
+
+        map.put(mCameraId, mCameraCharacteristicsCompat.toCameraCharacteristics());
+
+        for (String physicalCameraId : mCameraCharacteristicsCompat.getPhysicalCameraIds()) {
+            if (Objects.equals(physicalCameraId, mCameraId)) {
+                continue;
+            }
+            try {
+                map.put(physicalCameraId,
+                        mCameraManager.getCameraCharacteristicsCompat(physicalCameraId)
+                                .toCameraCharacteristics());
+            } catch (CameraAccessExceptionCompat e) {
+                Logger.e(TAG,
+                        "Failed to get CameraCharacteristics for cameraId " + physicalCameraId, e);
+            }
+        }
+        return map;
     }
 
     /**
