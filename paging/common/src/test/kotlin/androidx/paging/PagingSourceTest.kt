@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -233,6 +234,31 @@ class PagingSourceTest {
             dataSource.invalidateLoad()
             assertTrue(dataSource.load(errorParams) is LoadResult.Invalid)
         }
+    }
+
+    @Test
+    fun registerInvalidatedCallback_triggersImmediatelyIfAlreadyInvalid() {
+        val pagingSource = TestPagingSource()
+        var invalidateCalls = 0
+
+        pagingSource.invalidate()
+        pagingSource.registerInvalidatedCallback { invalidateCalls++ }
+        assertThat(invalidateCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun registerInvalidatedCallback_avoidsRetriggeringWhenCalledRecursively() {
+        val pagingSource = TestPagingSource()
+        var invalidateCalls = 0
+
+        pagingSource.registerInvalidatedCallback {
+            pagingSource.registerInvalidatedCallback { invalidateCalls++ }
+            pagingSource.invalidate()
+            pagingSource.registerInvalidatedCallback { invalidateCalls++ }
+            invalidateCalls++
+        }
+        pagingSource.invalidate()
+        assertThat(invalidateCalls).isEqualTo(3)
     }
 
     data class Key(val name: String, val id: Int)
