@@ -1854,10 +1854,23 @@ package androidx.core.location {
 package androidx.core.math {
 
   public class MathUtils {
+    method public static int addExact(int, int);
+    method public static long addExact(long, long);
     method public static float clamp(float, float, float);
     method public static double clamp(double, double, double);
     method public static int clamp(int, int, int);
     method public static long clamp(long, long, long);
+    method public static int decrementExact(int);
+    method public static long decrementExact(long);
+    method public static int incrementExact(int);
+    method public static long incrementExact(long);
+    method public static int multiplyExact(int, int);
+    method public static long multiplyExact(long, long);
+    method public static int negateExact(int);
+    method public static long negateExact(long);
+    method public static int subtractExact(int, int);
+    method public static long subtractExact(long, long);
+    method public static int toIntExact(long);
   }
 
 }
