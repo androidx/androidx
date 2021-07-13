@@ -26,6 +26,7 @@ import androidx.car.app.Session;
 import androidx.car.app.testing.SessionController;
 import androidx.car.app.testing.TestCarContext;
 import androidx.car.app.testing.TestScreenManager;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
@@ -50,10 +51,12 @@ public class HelloWorldSessionTest {
     public void onCreateScreen_returnsExpectedScreen() {
         HelloWorldService service = Robolectric.setupService(HelloWorldService.class);
         Session session = service.onCreateSession();
-        SessionController controller = new SessionController(session, mTestCarContext);
+        SessionController controller =
+                new SessionController(session, mTestCarContext,
+                        new Intent().setComponent(
+                                new ComponentName(mTestCarContext, HelloWorldService.class)));
+        controller.moveToState(Lifecycle.State.CREATED);
 
-        controller.create(new Intent().setComponent(
-                new ComponentName(mTestCarContext, HelloWorldService.class)));
         Screen screenCreated =
                 mTestCarContext.getCarService(TestScreenManager.class).getScreensPushed().get(0);
         assertThat(screenCreated).isInstanceOf(HelloWorldScreen.class);
