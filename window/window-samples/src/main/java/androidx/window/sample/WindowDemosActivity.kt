@@ -19,71 +19,30 @@ package androidx.window.sample
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.window.sample.BaseSampleActivity.Companion.BACKEND_TYPE_DEVICE_DEFAULT
-import androidx.window.sample.BaseSampleActivity.Companion.BACKEND_TYPE_EXTRA
-import androidx.window.sample.BaseSampleActivity.Companion.BACKEND_TYPE_LONG_DIMENSION_FOLD
-import androidx.window.sample.BaseSampleActivity.Companion.BACKEND_TYPE_SHORT_DIMENSION_FOLD
 
 /**
- * Main activity that launches WindowManager demos. Allows the user to choose the backend to use
- * with the [androidx.window.WindowManager] library interface, which can be helpful if the test
- * device does not report any display features.
- */
+ * Main activity that launches WindowManager demos.
+*/
 class WindowDemosActivity : AppCompatActivity() {
-    private var selectedBackend = BACKEND_TYPE_DEVICE_DEFAULT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_window_demos)
-
-        val radioGroup = findViewById<RadioGroup>(R.id.backendRadioGroup)
-        radioGroup.setOnCheckedChangeListener { _, checkedId ->
-            selectedBackend = when (checkedId) {
-                R.id.deviceDefaultRadioButton -> BACKEND_TYPE_DEVICE_DEFAULT
-                R.id.shortDimensionFoldRadioButton -> BACKEND_TYPE_SHORT_DIMENSION_FOLD
-                R.id.longDimensionFoldRadioButton -> BACKEND_TYPE_LONG_DIMENSION_FOLD
-                else -> BACKEND_TYPE_DEVICE_DEFAULT
-            }
-        }
-
-        if (savedInstanceState != null) {
-            selectedBackend = savedInstanceState.getInt(
-                BACKEND_TYPE_EXTRA,
-                BACKEND_TYPE_DEVICE_DEFAULT
-            )
-        }
-        when (selectedBackend) {
-            BACKEND_TYPE_DEVICE_DEFAULT ->
-                radioGroup.check(R.id.deviceDefaultRadioButton)
-            BACKEND_TYPE_SHORT_DIMENSION_FOLD ->
-                radioGroup.check(R.id.shortDimensionFoldRadioButton)
-            BACKEND_TYPE_LONG_DIMENSION_FOLD ->
-                radioGroup.check(R.id.longDimensionFoldRadioButton)
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt(BACKEND_TYPE_EXTRA, selectedBackend)
     }
 
     fun showDisplayFeatures(@Suppress("UNUSED_PARAMETER")view: View) {
         val intent = Intent(this, DisplayFeaturesActivity::class.java)
-        intent.putExtra(BACKEND_TYPE_EXTRA, selectedBackend)
         startActivity(intent)
     }
 
     fun showSplitLayout(@Suppress("UNUSED_PARAMETER")view: View) {
         val intent = Intent(this, SplitLayoutActivity::class.java)
-        intent.putExtra(BACKEND_TYPE_EXTRA, selectedBackend)
         startActivity(intent)
     }
 
     fun showPresentation(@Suppress("UNUSED_PARAMETER")view: View) {
         val intent = Intent(this, PresentationActivity::class.java)
-        intent.putExtra(BACKEND_TYPE_EXTRA, selectedBackend)
         startActivity(intent)
     }
 }
