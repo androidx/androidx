@@ -61,7 +61,10 @@ public final class CarPendingIntent {
 
     /**
      * Creates a {@link PendingIntent} that can be sent in a notification action which will allow
-     * your car app to be started when the user clicks on the action.
+     * the targeted car app to be started when the user clicks on the action.
+     *
+     * <p>See {@link CarContext#startCarApp} for the supported intents that can be passed to this
+     * method.
      *
      * <p>Here is an example of usage of this method when setting a notification's intent:
      *
@@ -86,11 +89,11 @@ public final class CarPendingIntent {
      * @throws InvalidParameterException if the {@code intent} is not for starting a navigation
      *                                   or a phone call and does not have the target car app's
      *                                   component name
-     * @throws SecurityException         if the {@code intent} does not follow the allowed values
-     *                                   as is defined in {@link CarContext#startCarApp(Intent)}
+     * @throws SecurityException         if the {@code intent} is for a different component than the
+     *                                   one associated with the input {@code context}
      *
-     * @return an existing or new PendingIntent matching the given parameters.  May return null
-     * only if {@link PendingIntent#FLAG_NO_CREATE} has been supplied.
+     * @return an existing or new PendingIntent matching the given parameters. May return {@code
+     * null} only if {@link PendingIntent#FLAG_NO_CREATE} has been supplied.
      */
     @NonNull
     public static PendingIntent getCarApp(@NonNull Context context, int requestCode,
