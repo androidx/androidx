@@ -65,11 +65,11 @@ fun Project.registerShadowDependenciesTask(
         it.archiveVersion.set("")
         it.dependsOn(zipTask)
         val prefix = "deps.${project.name.replace('-', '.')}"
+        val inputProvider = uberJar.get().archiveFile
+        it.from(inputProvider)
         it.doFirst {
             val task = it as ShadowJar
-            val input = uberJar.get().outputs.files
-            task.from(input)
-            input.extractPackageNames().forEach { packageName ->
+            inputProvider.get().asFile.extractPackageNames().forEach { packageName ->
                 task.relocate(packageName, "$prefix.$packageName")
             }
         }
@@ -100,8 +100,8 @@ private fun Project.registerUberJarTask(
     }
 }
 
-private fun Iterable<File>.extractPackageNames(): Set<String> = map(::JarFile)
-    .map { jar -> jar.use { it.entries().toList() } }.flatten()
+private fun File.extractPackageNames(): Set<String> = JarFile(this)
+    .use { it.entries().toList() }
     .filter { jarEntry -> jarEntry.name.endsWith(".class") }
     .map { jarEntry -> jarEntry.name.substringBeforeLast("/").replace('/', '.') }
     .toSet()
