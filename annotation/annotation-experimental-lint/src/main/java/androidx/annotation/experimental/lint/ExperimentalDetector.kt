@@ -18,6 +18,8 @@
 
 package androidx.annotation.experimental.lint
 
+import com.android.tools.lint.client.api.AnnotationLookup
+import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.detector.api.AnnotationUsageType
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -28,10 +30,16 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
+import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiAnnotation
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiModifierListOwner
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTypesUtil
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
@@ -51,8 +59,10 @@ import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.UVariable
 import org.jetbrains.uast.getParentOfType
+import org.jetbrains.uast.java.JavaUAnnotation
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
+import java.util.ArrayList
 import java.util.Locale
 
 class ExperimentalDetector : Detector(), SourceCodeScanner {
@@ -64,6 +74,335 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         JAVA_REQUIRES_OPT_IN_ANNOTATION,
         KOTLIN_REQUIRES_OPT_IN_ANNOTATION
     )
+
+    override fun applicableSuperClasses(): List<String> = listOf(
+        "java.lang.Object"
+    )
+
+    override fun visitClass(
+        context: JavaContext,
+        declaration: UClass,
+    ) {
+        declaration.methods.forEach { method ->
+            val eval = context.evaluator
+            if (eval.isOverride(method, true)) {
+                checkMethodOverride(context, method)
+            }
+        }
+    }
+
+    /**
+     * Extract the relevant annotations from the method override and run the checks
+     * on the annotations.
+     *
+     * Based on Lint's `AnnotationHandler.checkCall)()`.
+     */
+    private fun checkMethodOverride(
+        context: JavaContext,
+        methodDeclaration: UMethod,
+    ) {
+        methodDeclaration.findSuperMethods().forEach { superMethod ->
+            val evaluator = context.evaluator
+            val allAnnotations = evaluator.getAllAnnotations(superMethod, inHierarchy = true)
+            val methodAnnotations = filterRelevantAnnotations(
+                evaluator, allAnnotations, methodDeclaration,
+            )
+
+            // Look for annotations on the class as well: these trickle
+            // down to all the methods in the class
+            val containingClass: PsiClass? = superMethod.containingClass
+            val (classAnnotations, pkgAnnotations) = getClassAndPkgAnnotations(
+                containingClass, evaluator, methodDeclaration
+            )
+
+            doCheckMethodOverride(
+                context,
+                superMethod,
+                methodAnnotations,
+                classAnnotations,
+                pkgAnnotations,
+                methodDeclaration,
+                containingClass,
+            )
+        }
+    }
+
+    /**
+     * Do the checks of a method override based on the method, class, and package
+     * annotations given.
+     *
+     * Based on Lint's `AnnotationHandler.doCheckCall()`.
+     */
+    private fun doCheckMethodOverride(
+        context: JavaContext,
+        superMethod: PsiMethod?,
+        methodAnnotations: List<UAnnotation>,
+        classAnnotations: List<UAnnotation>,
+        pkgAnnotations: List<UAnnotation>,
+        method: UMethod,
+        containingClass: PsiClass?,
+    ) {
+        if (methodAnnotations.isNotEmpty()) {
+            checkAnnotations(
+                context,
+                argument = method,
+                type = AnnotationUsageType.METHOD_CALL,
+                method = superMethod,
+                referenced = superMethod,
+                annotations = methodAnnotations,
+                allMethodAnnotations = methodAnnotations,
+                allClassAnnotations = classAnnotations,
+                packageAnnotations = pkgAnnotations,
+                annotated = superMethod,
+            )
+        }
+
+        if (containingClass != null && classAnnotations.isNotEmpty()) {
+            checkAnnotations(
+                context,
+                argument = method,
+                type = AnnotationUsageType.METHOD_CALL_CLASS,
+                method = superMethod,
+                referenced = superMethod,
+                annotations = classAnnotations,
+                allMethodAnnotations = methodAnnotations,
+                allClassAnnotations = classAnnotations,
+                packageAnnotations = pkgAnnotations,
+                annotated = containingClass,
+            )
+        }
+
+        if (pkgAnnotations.isNotEmpty()) {
+            checkAnnotations(
+                context,
+                argument = method,
+                type = AnnotationUsageType.METHOD_CALL_PACKAGE,
+                method = superMethod,
+                referenced = superMethod,
+                annotations = pkgAnnotations,
+                allMethodAnnotations = methodAnnotations,
+                allClassAnnotations = classAnnotations,
+                packageAnnotations = pkgAnnotations,
+                annotated = null,
+            )
+        }
+    }
+
+    /**
+     * Copied from Lint's `AnnotationHandler.checkAnnotations()` with modifications to operate on
+     * this detector only, rather than a list of scanners.
+     */
+    private fun checkAnnotations(
+        context: JavaContext,
+        argument: UElement,
+        type: AnnotationUsageType,
+        method: PsiMethod?,
+        referenced: PsiElement?,
+        annotations: List<UAnnotation>,
+        allMethodAnnotations: List<UAnnotation> = emptyList(),
+        allClassAnnotations: List<UAnnotation> = emptyList(),
+        packageAnnotations: List<UAnnotation> = emptyList(),
+        annotated: PsiElement?
+    ) {
+        for (annotation in annotations) {
+            val signature = annotation.qualifiedName ?: continue
+            var uAnnotations: List<UAnnotation>? = null
+            var psiAnnotations: Array<out PsiAnnotation>? = null
+
+            // Modification: Removed loop over uastScanners list.
+            if (isApplicableAnnotationUsage(type)) {
+
+                // Some annotations should not be treated as inherited though
+                // the hierarchy: if that's the case for this annotation in
+                // this scanner, check whether it's inherited and if so, skip it
+                if (annotated != null && !inheritAnnotation(signature)) {
+                    // First try to look by directly checking the owner element of
+                    // the annotation.
+                    val annotationOwner = (annotation.sourcePsi as? PsiAnnotation)?.owner
+                    val owner =
+                        if (annotationOwner is PsiElement) {
+                            PsiTreeUtil.getParentOfType(
+                                annotationOwner,
+                                PsiModifierListOwner::class.java
+                            )
+                        } else {
+                            null
+                        }
+                    if (owner != null) {
+                        val annotatedPsi = (annotated as? UElement)?.sourcePsi ?: annotated
+                        if (owner != annotatedPsi) {
+                            continue
+                        }
+                    } else {
+                        // Figure out if this is an inherited annotation: it would be
+                        // if it's not annotated on the element
+                        if (annotated is UAnnotated) {
+                            var found = false
+                            for (
+                                uAnnotation in uAnnotations ?: run {
+                                    val list = context.evaluator.getAllAnnotations(
+                                        annotated,
+                                        inHierarchy = false
+                                    )
+                                    uAnnotations = list
+                                    list
+                                }
+                            ) {
+                                val qualifiedName = uAnnotation.qualifiedName
+                                if (qualifiedName == signature) {
+                                    found = true
+                                    break
+                                }
+                            }
+                            if (!found) {
+                                continue
+                            }
+                        }
+                        if (annotated is PsiModifierListOwner) {
+                            var found = false
+
+                            for (
+                                psiAnnotation in psiAnnotations ?: run {
+                                    val array =
+                                        context.evaluator.getAllAnnotations(annotated, false)
+                                    psiAnnotations = array
+                                    array
+                                }
+                            ) {
+                                val qualifiedName = psiAnnotation.qualifiedName
+                                if (qualifiedName == signature) {
+                                    found = true
+                                    break
+                                }
+                            }
+                            if (!found) {
+                                continue
+                            }
+                        }
+                    }
+                }
+
+                visitAnnotationUsage(
+                    context, argument, type, annotation,
+                    signature, method, referenced, annotations, allMethodAnnotations,
+                    allClassAnnotations, packageAnnotations
+                )
+            }
+        }
+    }
+
+    /**
+     * Copied from Lint's `AnnotationHandler`.
+     */
+    private fun getClassAndPkgAnnotations(
+        containingClass: PsiClass?,
+        evaluator: JavaEvaluator,
+        context: UElement,
+    ): Pair<List<UAnnotation>, List<UAnnotation>> {
+
+        // Yes, returning a pair is ugly. But we are initializing two lists, and splitting this
+        // into two methods takes more lines of code then it saves over copying this block into
+        // two methods.
+        // Plus, destructuring assignment makes using the results less verbose.
+        val classAnnotations: List<UAnnotation>
+        val pkgAnnotations: List<UAnnotation>
+
+        if (containingClass != null) {
+            val annotations = evaluator.getAllAnnotations(containingClass, inHierarchy = true)
+            classAnnotations = filterRelevantAnnotations(evaluator, annotations, context)
+
+            val pkg = evaluator.getPackage(containingClass)
+            pkgAnnotations = if (pkg != null) {
+                val annotations2 = evaluator.getAllAnnotations(pkg, inHierarchy = false)
+                filterRelevantAnnotations(evaluator, annotations2)
+            } else {
+                emptyList()
+            }
+        } else {
+            classAnnotations = emptyList()
+            pkgAnnotations = emptyList()
+        }
+
+        return Pair(classAnnotations, pkgAnnotations)
+    }
+
+    /**
+     * Copied from Lint's `AnnotationHandler`.
+     */
+    private fun filterRelevantAnnotations(
+        evaluator: JavaEvaluator,
+        annotations: Array<PsiAnnotation>,
+        context: UElement? = null
+    ): List<UAnnotation> {
+        var result: MutableList<UAnnotation>? = null
+        val length = annotations.size
+        if (length == 0) {
+            return emptyList()
+        }
+        for (annotation in annotations) {
+            val signature = annotation.qualifiedName
+            if (signature == null ||
+                (
+                    signature.startsWith("kotlin.") ||
+                        signature.startsWith("java.")
+                    ) && !relevantAnnotations.contains(signature)
+            ) {
+                // @Override, @SuppressWarnings etc. Ignore
+                continue
+            }
+
+            if (relevantAnnotations.contains(signature)) {
+                val uAnnotation = JavaUAnnotation.wrap(annotation)
+
+                // Common case: there's just one annotation; no need to create a list copy
+                if (length == 1) {
+                    return listOf(uAnnotation)
+                }
+                if (result == null) {
+                    result = ArrayList(2)
+                }
+                result.add(uAnnotation)
+                continue
+            }
+
+            // Special case @IntDef and @StringDef: These are used on annotations
+            // themselves. For example, you create a new annotation named @foo.bar.Baz,
+            // annotate it with @IntDef, and then use @foo.bar.Baz in your signatures.
+            // Here we want to map from @foo.bar.Baz to the corresponding int def.
+            // Don't need to compute this if performing @IntDef or @StringDef lookup
+
+            val cls = annotation.nameReferenceElement?.resolve() ?: run {
+                val project = annotation.project
+                JavaPsiFacade.getInstance(project).findClass(
+                    signature,
+                    GlobalSearchScope.projectScope(project)
+                )
+            } ?: continue
+            if (cls !is PsiClass || !cls.isAnnotationType) {
+                continue
+            }
+            val innerAnnotations = evaluator.getAllAnnotations(cls, inHierarchy = false)
+            for (j in innerAnnotations.indices) {
+                val inner = innerAnnotations[j]
+                val a = inner.qualifiedName
+                if (a != null && relevantAnnotations.contains(a)) {
+                    if (result == null) {
+                        result = ArrayList(2)
+                    }
+                    val innerU = annotationLookup.findRealAnnotation(inner, cls, context)
+                    result.add(innerU)
+                }
+            }
+        }
+
+        return result ?: emptyList()
+    }
+
+    // Used for drop-in compatibility with code from Lint's `AnnotationHandler`.
+    private val relevantAnnotations: List<String>
+        get() = applicableAnnotations()
+
+    private val annotationLookup = AnnotationLookup()
 
     override fun visitAnnotationUsage(
         context: JavaContext,
