@@ -29,8 +29,9 @@ dependencies {
     api("androidx.core:core:1.5.0-beta01")
     api(libs.kotlinStdlib)
 
+    // Needed for Assert.assertThrows
+    testImplementation("junit:junit:4.13")
     testImplementation(libs.testCore)
-    testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)

@@ -27,7 +27,7 @@ import android.support.wearable.notifications.IBridgingManagerService
 /**
  * Handler for applying the notification bridging configuration when received by the service.
  */
-public interface BridgingConfigurationHandler {
+public fun interface BridgingConfigurationHandler {
     /**
      * Apply the notification bridging configurations.
      * @param bridgingConfig The received bridging configuration

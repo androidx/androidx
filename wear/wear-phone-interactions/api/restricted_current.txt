@@ -116,7 +116,7 @@ package androidx.wear.phone.interactions.notifications {
     method public androidx.wear.phone.interactions.notifications.BridgingConfig build();
   }
 
-  public interface BridgingConfigurationHandler {
+  public fun interface BridgingConfigurationHandler {
     method public void applyBridgingConfiguration(androidx.wear.phone.interactions.notifications.BridgingConfig bridgingConfig);
   }
 
