@@ -17,14 +17,12 @@
 package androidx.camera.extensions;
 
 
-import android.hardware.camera2.CameraCharacteristics;
 import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
@@ -35,12 +33,10 @@ import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigProvider;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
 import androidx.camera.core.impl.Identifier;
-import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.internal.AdvancedVendorExtender;
 import androidx.camera.extensions.internal.BasicVendorExtender;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
-import androidx.camera.extensions.internal.ExtensionsUtil;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 
@@ -57,8 +53,6 @@ import java.util.List;
  * extension mode on the camera.
  */
 final class ExtensionsInfo {
-    private static final String TAG = "ExtensionsInfo";
-
     private static final String EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX = ":camera:camera"
             + "-extensions-";
 
@@ -166,7 +160,7 @@ final class ExtensionsInfo {
         CameraSelector newCameraSelector = CameraSelector.Builder.fromSelector(
                 cameraSelector).addCameraFilter(getFilter(mode)).build();
 
-        CameraInfo extensionsCameraInfo = null;
+        CameraInfo extensionsCameraInfo;
         try {
             List<CameraInfo> cameraInfos =
                     newCameraSelector.filter(cameraProvider.getAvailableCameraInfos());
@@ -189,15 +183,11 @@ final class ExtensionsInfo {
             return null;
         }
 
-        String cameraId = Camera2CameraInfo.from(extensionsCameraInfo).getCameraId();
-        CameraCharacteristics cameraCharacteristics =
-                Camera2CameraInfo.extractCameraCharacteristics(extensionsCameraInfo);
-
         try {
-            ImageCaptureExtenderImpl impl = ExtensionsUtil.createImageCaptureExtenderImpl(cameraId,
-                    cameraCharacteristics, mode);
+            VendorExtender vendorExtender = getVendorExtender(mode);
+            vendorExtender.init(extensionsCameraInfo);
 
-            return impl == null ? null : impl.getEstimatedCaptureLatencyRange(surfaceResolution);
+            return vendorExtender.getEstimatedCaptureLatencyRange(surfaceResolution);
         } catch (NoSuchMethodError e) {
             return null;
         }

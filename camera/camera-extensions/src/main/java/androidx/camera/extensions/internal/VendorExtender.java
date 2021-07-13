@@ -16,11 +16,17 @@
 
 package androidx.camera.extensions.internal;
 
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
+import android.util.Pair;
+import android.util.Range;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,6 +36,8 @@ import java.util.Map;
 public interface VendorExtender {
     /**
      * Indicates whether the extension is supported on the device.
+     *
+     * <p>isExtensionAvailable is the only method that can be called ahead of init().
      *
      * @param cameraId           The camera2 id string of the camera.
      * @param characteristicsMap A map consisting of the camera ids and the
@@ -47,4 +55,55 @@ public interface VendorExtender {
      * Initializes the extender to be used with the specified camera.
      */
     void init(@NonNull CameraInfo cameraInfo);
+
+    /**
+     * Gets the estimated latency range of image capture.
+     *
+     * <p>It must be called after init() is called.
+     */
+    @Nullable
+    Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size size);
+
+    /**
+     * Gets the supported output resolutions for preview.
+     *
+     * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
+     *
+     * <p>The returned resolutions should be subset of the supported sizes retrieved from
+     * {@link android.hardware.camera2.params.StreamConfigurationMap} for the camera device.
+     *
+     * <p>The returned size array must contain all supported resolutions. It cannot be null.
+     *
+     * <p>It must be called after init() is called.
+     */
+    @NonNull
+    List<Pair<Integer, Size[]>> getSupportedPreviewOutputResolutions();
+
+    /**
+     * Gets the supported output resolutions for image capture.
+     *
+     * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
+     *
+     * <p>The returned resolutions should be subset of the supported sizes retrieved from
+     * {@link android.hardware.camera2.params.StreamConfigurationMap} for the camera device.
+     *
+     * <p>The returned size array must contain all supported resolutions. It cannot be null.
+     *
+     * <p>It must be called after init() is called.
+     */
+    @NonNull
+    List<Pair<Integer, Size[]>> getSupportedCaptureOutputResolutions();
+
+    /**
+     * Gets the supported output resolutions for image analysis (YUV_420_888).
+     *
+     * <p>The returned resolutions should be subset of the supported sizes retrieved from
+     * {@link android.hardware.camera2.params.StreamConfigurationMap} for the camera device.
+     *
+     * <p>The returned size array must contain all supported resolutions. It cannot be null.
+     *
+     * <p>It must be called after init() is called.
+     */
+    @NonNull
+    Size[] getSupportedYuvAnalysisResolutions();
 }

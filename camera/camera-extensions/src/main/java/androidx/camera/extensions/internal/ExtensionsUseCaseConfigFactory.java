@@ -41,9 +41,9 @@ public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactor
         if (vendorExtender instanceof BasicVendorExtender) {
             BasicVendorExtender basicVendorExtender = (BasicVendorExtender) vendorExtender;
             mImageCaptureConfigProvider = new ImageCaptureConfigProvider(
-                    mode, basicVendorExtender.getImageCaptureExtenderImpl(), context);
+                    mode, basicVendorExtender, context);
             mPreviewConfigProvider = new PreviewConfigProvider(
-                    mode, basicVendorExtender.getPreviewExtenderImpl(), context);
+                    mode, basicVendorExtender, context);
         } else {
             throw new UnsupportedOperationException("Advanced extender implementation not ready");
         }

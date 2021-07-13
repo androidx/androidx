@@ -100,7 +100,11 @@ class ImageCaptureConfigProviderTest {
             mock(CaptureProcessorImpl::class.java)
         )
 
-        val imageCapture = createImageCaptureWithExtenderImpl(mockImageCaptureExtenderImpl)
+        val mockVendorExtender = mock(BasicVendorExtender::class.java)
+        Mockito.`when`(mockVendorExtender.imageCaptureExtenderImpl)
+            .thenReturn(mockImageCaptureExtenderImpl)
+
+        val imageCapture = createImageCaptureWithExtenderImpl(mockVendorExtender)
 
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageCapture)
@@ -112,11 +116,7 @@ class ImageCaptureConfigProviderTest {
         verify(mockImageCaptureExtenderImpl, timeout(3000)).captureProcessor
         verify(mockImageCaptureExtenderImpl, timeout(3000)).maxCaptureStage
 
-        // getSupportedResolutions supported since version 1.1
-        val version = ExtensionVersion.getRuntimeVersion()
-        if (version != null && version >= Version.VERSION_1_1) {
-            verify(mockImageCaptureExtenderImpl, timeout(3000)).supportedResolutions
-        }
+        verify(mockVendorExtender, timeout(3000)).supportedCaptureOutputResolutions
 
         val inOrder = Mockito.inOrder(mockImageCaptureExtenderImpl)
         inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onInit(
@@ -149,8 +149,11 @@ class ImageCaptureConfigProviderTest {
             Mockito.`when`(mockImageCaptureExtenderImpl.captureProcessor).thenReturn(
                 mock(CaptureProcessorImpl::class.java)
             )
+            val mockVendorExtender = mock(BasicVendorExtender::class.java)
+            Mockito.`when`(mockVendorExtender.imageCaptureExtenderImpl)
+                .thenReturn(mockImageCaptureExtenderImpl)
 
-            val imageCapture = createImageCaptureWithExtenderImpl(mockImageCaptureExtenderImpl)
+            val imageCapture = createImageCaptureWithExtenderImpl(mockVendorExtender)
 
             // Binds the use case to trigger the camera pipeline operations
             withContext(Dispatchers.Main) {
@@ -163,11 +166,7 @@ class ImageCaptureConfigProviderTest {
             verify(mockImageCaptureExtenderImpl, timeout(3000)).captureProcessor
             verify(mockImageCaptureExtenderImpl, timeout(3000)).maxCaptureStage
 
-            // getSupportedResolutions supported since version 1.1
-            val version = ExtensionVersion.getRuntimeVersion()
-            if (version != null && version >= Version.VERSION_1_1) {
-                verify(mockImageCaptureExtenderImpl, timeout(3000)).supportedResolutions
-            }
+            verify(mockVendorExtender, timeout(3000)).supportedCaptureOutputResolutions
 
             val inOrder = Mockito.inOrder(mockImageCaptureExtenderImpl)
             inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onInit(
@@ -217,7 +216,11 @@ class ImageCaptureConfigProviderTest {
             targetFormatResolutionsPairList
         )
 
-        val preview = createImageCaptureWithExtenderImpl(mockImageCaptureExtenderImpl)
+        val mockVendorExtender = mock(BasicVendorExtender::class.java)
+        Mockito.`when`(mockVendorExtender.imageCaptureExtenderImpl)
+            .thenReturn(mockImageCaptureExtenderImpl)
+
+        val preview = createImageCaptureWithExtenderImpl(mockVendorExtender)
 
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, preview)
@@ -238,11 +241,10 @@ class ImageCaptureConfigProviderTest {
         }
     }
 
-    private fun createImageCaptureWithExtenderImpl(impl: ImageCaptureExtenderImpl) =
+    private fun createImageCaptureWithExtenderImpl(basicVendorExtender: BasicVendorExtender) =
         ImageCapture.Builder().also {
-            val cameraInfo = cameraSelector.filter(cameraProvider.availableCameraInfos)[0]
-            ImageCaptureConfigProvider(extensionMode, impl, context).apply {
-                updateBuilderConfig(it, extensionMode, impl, context)
+            ImageCaptureConfigProvider(extensionMode, basicVendorExtender, context).apply {
+                updateBuilderConfig(it, extensionMode, basicVendorExtender, context)
             }
         }.build()
 
