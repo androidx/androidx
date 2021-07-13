@@ -21,11 +21,11 @@ import android.graphics.Rect
  * Metrics about a [android.view.Window], consisting of its bounds.
  *
  *
- * This is usually obtained from [WindowManager#getCurrentWindowMetrics] or
- * [WindowManager#getMaximumWindowMetrics].
+ * This is usually obtained from [WindowInfoRepo.currentWindowMetrics] or
+ * [WindowInfoRepo.maximumWindowMetrics].
  *
- * @see WindowManager#getCurrentWindowMetrics
- * @see WindowManager#getMaximumWindowMetrics
+ * @see WindowInfoRepo.currentWindowMetrics
+ * @see WindowInfoRepo.maximumWindowMetrics
  */
 public class WindowMetrics internal constructor(private val _bounds: Bounds) {
 

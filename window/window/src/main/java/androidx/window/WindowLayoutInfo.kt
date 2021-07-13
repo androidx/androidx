@@ -22,7 +22,7 @@ package androidx.window
  *
  * Only the features that are present within the current window bounds are reported. Their
  * positions and sizes can change if the window is moved or resized on screen.
- * @see WindowManager.registerLayoutChangeCallback
+ * @see WindowInfoRepo.windowLayoutInfo
  */
 public class WindowLayoutInfo internal constructor(
     /**

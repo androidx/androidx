@@ -20,15 +20,15 @@ import androidx.core.util.Consumer
 import java.util.concurrent.Executor
 
 /**
- * Backing interface for [WindowManager] instances that serve as the default
+ * Backing interface for [WindowInfoRepo] instances that serve as the default
  * information supplier.
  */
-public interface WindowBackend {
+internal interface WindowBackend {
     /**
      * Registers a callback for layout changes of the window for the supplied [Activity].
      * Must be called only after the it is attached to the window.
      */
-    public fun registerLayoutChangeCallback(
+    fun registerLayoutChangeCallback(
         activity: Activity,
         executor: Executor,
         callback: Consumer<WindowLayoutInfo>
@@ -37,5 +37,5 @@ public interface WindowBackend {
     /**
      * Unregisters a callback for window layout changes of the [Activity] window.
      */
-    public fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>)
+    fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>)
 }
