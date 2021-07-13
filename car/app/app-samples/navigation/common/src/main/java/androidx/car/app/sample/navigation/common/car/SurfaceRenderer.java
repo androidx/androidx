@@ -200,7 +200,7 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
         renderFrame();
     }
 
-    /** Handles a map zoom-in and zoom-out events. */
+    /** Handles the map zoom-in and zoom-out events. */
     public void handleScale(float focusX, float focusY, float scaleFactor) {
         synchronized (this) {
             float x = focusX;
@@ -226,6 +226,13 @@ public final class SurfaceRenderer implements DefaultLifecycleObserver {
                 renderFrame();
             }
         }
+    }
+
+    /** Handles the map re-centering events. */
+    public void handleRecenter() {
+        // Resetting the map matrix will trigger the initialization logic in renderFrame().
+        mBackgroundMapMatrix.reset();
+        renderFrame();
     }
 
     /** Updates the markers drawn on the surface. */
