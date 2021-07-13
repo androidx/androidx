@@ -2047,11 +2047,9 @@ public final class ImageCapture extends UseCase {
         /**
          * Returns the {@link Uri} of the saved file.
          *
-         * <p> This field is only returned if the {@link OutputFileOptions} is backed by
-         * {@link MediaStore} constructed with
-         *
+         * <p> Returns null if the {@link OutputFileOptions} is constructed with
          * {@link androidx.camera.core.ImageCapture.OutputFileOptions.Builder
-         * #Builder(ContentResolver, Uri, ContentValues)}.
+         * #Builder(OutputStream)}.
          */
         @Nullable
         public Uri getSavedUri() {

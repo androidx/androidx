@@ -61,12 +61,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 /**
- *  Instrument tests for {@link ImageSaver}.
+ * Instrument tests for {@link ImageSaver}.
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -354,6 +355,25 @@ public class ImageSaverTest {
         mSemaphore.acquire();
 
         verify(mMockCallback).onImageSaved(any());
+    }
+
+    @Test
+    public void saveToFile_uriIsSet() throws InterruptedException, IOException {
+        // Arrange.
+        File saveLocation = File.createTempFile("test", ".jpg");
+        saveLocation.deleteOnExit();
+
+        // Act.
+        getDefaultImageSaver(mMockJpegImage, saveLocation).run();
+        mSemaphore.acquire();
+
+        // Assert.
+        ArgumentCaptor<ImageCapture.OutputFileResults> argumentCaptor =
+                ArgumentCaptor.forClass(ImageCapture.OutputFileResults.class);
+        verify(mMockCallback).onImageSaved(argumentCaptor.capture());
+        String savedPath = Objects.requireNonNull(
+                argumentCaptor.getValue().getSavedUri()).getPath();
+        assertThat(savedPath).isEqualTo(saveLocation.getPath());
     }
 
     @Test
