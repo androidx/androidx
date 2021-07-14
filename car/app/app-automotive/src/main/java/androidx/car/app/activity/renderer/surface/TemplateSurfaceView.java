@@ -218,6 +218,11 @@ public final class TemplateSurfaceView extends SurfaceView {
         }
     }
 
+    /** Notifies that there has been a text selection update. */
+    public void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart, int newSelEnd) {
+        mInputMethodManager.updateSelection(this, oldSelStart, oldSelEnd, newSelStart, newSelEnd);
+    }
+
     @Override
     public boolean onCheckIsTextEditor() {
         return mIsInInputMode;
