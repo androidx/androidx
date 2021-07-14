@@ -24,6 +24,7 @@ val WearFoundationDemos = DemoCategory(
     "Foundation",
     listOf(
         ComposableDemo("CurvedRow") { CurvedRowDemo() },
-        ComposableDemo("Simple CurvedRow") { SimpleCurvedRow() },
+        ComposableDemo("Simple") { SimpleCurvedRow() },
+        ComposableDemo("Alignment") { CurvedRowAlignmentDemo() },
     ),
 )
