@@ -210,6 +210,9 @@ internal sealed class KspSyntheticPropertyMethodElement(
             override val fallbackLocationText: String
                 get() = "$name in ${origin.fallbackLocationText}"
 
+            override val hasDefaultValue: Boolean
+                get() = false
+
             override fun asMemberOf(other: XType): XType {
                 return origin.field.asMemberOf(other)
             }

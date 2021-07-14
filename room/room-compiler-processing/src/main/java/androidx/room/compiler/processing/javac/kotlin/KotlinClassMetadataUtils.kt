@@ -99,9 +99,11 @@ private data class KmTypeParameter(
  */
 internal data class KmValueParameter(
     val name: String,
-    val type: KmType
+    val type: KmType,
+    private val flags: Int
 ) {
     fun isNullable() = type.isNullable()
+    fun hasDefault() = Flag.ValueParameter.DECLARES_DEFAULT_VALUE(flags)
 }
 
 internal data class KmClassTypeInfo(
@@ -113,7 +115,7 @@ internal fun KotlinClassMetadata.Class.readFunctions(): List<KmFunction> =
     mutableListOf<KmFunction>().apply { accept(FunctionReader(this)) }
 
 private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisitor() {
-    override fun visitFunction(flags: Flags, name: String): KmFunctionVisitor? {
+    override fun visitFunction(flags: Flags, name: String): KmFunctionVisitor {
         return object : KmFunctionVisitor() {
 
             lateinit var descriptor: String
@@ -123,13 +125,13 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
             override fun visitValueParameter(
                 flags: Flags,
                 name: String
-            ): KmValueParameterVisitor? {
-                return ValueParameterReader(name) {
+            ): KmValueParameterVisitor {
+                return ValueParameterReader(name, flags) {
                     parameters.add(it)
                 }
             }
 
-            override fun visitExtensions(type: KmExtensionType): KmFunctionExtensionVisitor? {
+            override fun visitExtensions(type: KmExtensionType): KmFunctionExtensionVisitor {
                 if (type != JvmFunctionExtensionVisitor.TYPE) {
                     error("Unsupported extension type: $type")
                 }
@@ -140,7 +142,7 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
                 }
             }
 
-            override fun visitReturnType(flags: Flags): KmTypeVisitor? {
+            override fun visitReturnType(flags: Flags): KmTypeVisitor {
                 return TypeReader(flags) {
                     returnType = it
                 }
@@ -157,7 +159,7 @@ internal fun KotlinClassMetadata.Class.readConstructors(): List<KmConstructor> =
     mutableListOf<KmConstructor>().apply { accept(ConstructorReader(this)) }
 
 private class ConstructorReader(val result: MutableList<KmConstructor>) : KmClassVisitor() {
-    override fun visitConstructor(flags: Flags): KmConstructorVisitor? {
+    override fun visitConstructor(flags: Flags): KmConstructorVisitor {
         return object : KmConstructorVisitor() {
 
             lateinit var descriptor: String
@@ -166,13 +168,13 @@ private class ConstructorReader(val result: MutableList<KmConstructor>) : KmClas
             override fun visitValueParameter(
                 flags: Flags,
                 name: String
-            ): KmValueParameterVisitor? {
-                return ValueParameterReader(name) {
+            ): KmValueParameterVisitor {
+                return ValueParameterReader(name, flags) {
                     parameters.add(it)
                 }
             }
 
-            override fun visitExtensions(type: KmExtensionType): KmConstructorExtensionVisitor? {
+            override fun visitExtensions(type: KmExtensionType): KmConstructorExtensionVisitor {
                 if (type != JvmConstructorExtensionVisitor.TYPE) {
                     error("Unsupported extension type: $type")
                 }
@@ -236,7 +238,7 @@ private class PropertyReader(
         name: String,
         getterFlags: Flags,
         setterFlags: Flags
-    ): KmPropertyVisitor? {
+    ): KmPropertyVisitor {
         return object : KmPropertyVisitor() {
             lateinit var returnType: KmType
             override fun visitEnd() {
@@ -248,7 +250,7 @@ private class PropertyReader(
                 )
             }
 
-            override fun visitReturnType(flags: Flags): KmTypeVisitor? {
+            override fun visitReturnType(flags: Flags): KmTypeVisitor {
                 return TypeReader(flags) {
                     returnType = it
                 }
@@ -266,7 +268,7 @@ private class TypeReader(
 ) : KmTypeVisitor() {
     private val typeArguments = mutableListOf<KmType>()
     private var extendsBound: KmType? = null
-    override fun visitArgument(flags: Flags, variance: KmVariance): KmTypeVisitor? {
+    override fun visitArgument(flags: Flags, variance: KmVariance): KmTypeVisitor {
         return TypeReader(flags) {
             typeArguments.add(it)
         }
@@ -275,7 +277,7 @@ private class TypeReader(
     override fun visitFlexibleTypeUpperBound(
         flags: Flags,
         typeFlexibilityId: String?
-    ): KmTypeVisitor? {
+    ): KmTypeVisitor {
         return TypeReader(flags) {
             extendsBound = it
         }
@@ -297,10 +299,11 @@ private class TypeReader(
  */
 private class ValueParameterReader(
     val name: String,
+    val flags: Flags,
     val output: (KmValueParameter) -> Unit
 ) : KmValueParameterVisitor() {
     lateinit var type: KmType
-    override fun visitType(flags: Flags): KmTypeVisitor? {
+    override fun visitType(flags: Flags): KmTypeVisitor {
         return TypeReader(flags) {
             type = it
         }
@@ -310,7 +313,8 @@ private class ValueParameterReader(
         output(
             KmValueParameter(
                 name = name,
-                type = type
+                type = type,
+                flags = flags
             )
         )
     }
@@ -334,13 +338,13 @@ internal class ClassAsKmTypeReader(
         name: String,
         id: Int,
         variance: KmVariance
-    ): KmTypeParameterVisitor? {
+    ): KmTypeParameterVisitor {
         return TypeParameterReader(name, flags) {
             typeParameters.add(it)
         }
     }
 
-    override fun visitSupertype(flags: Flags): KmTypeVisitor? {
+    override fun visitSupertype(flags: Flags): KmTypeVisitor {
         return TypeReader(flags) {
             superType = it
         }
@@ -378,7 +382,7 @@ private class TypeParameterReader(
         )
     }
 
-    override fun visitUpperBound(flags: Flags): KmTypeVisitor? {
+    override fun visitUpperBound(flags: Flags): KmTypeVisitor {
         return TypeReader(flags) {
             upperBound = it
         }
