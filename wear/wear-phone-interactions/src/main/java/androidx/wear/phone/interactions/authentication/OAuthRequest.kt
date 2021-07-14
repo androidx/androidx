@@ -23,11 +23,26 @@ import android.os.Bundle
 import androidx.annotation.RequiresApi
 
 /**
- * The OAuth request to be sent to the server to start the OAuth 2 authentication flow
+ * The OAuth request to be sent to the server to start the OAuth 2 authentication flow.
  */
 public class OAuthRequest internal constructor(
-    private var packageName: String,
-    private val requestUrl: Uri
+    /** The package name of the app sending the auth request. */
+    public val packageName: String,
+
+    /**
+     * The Url of the auth request.
+     *
+     * The request is expected to create a URL with the following format:
+     *
+     * ```
+     *     https://authorization-server.com/auth?client_id=XXXXX
+     *     &redirect_uri=https://wear.googleapis.com/3p_auth/mypackagename
+     *     &response_type=code
+     *     &code_challenge=XXXXX...XXX
+     *     &code_challenge_method=S256
+     * ```
+     */
+    public val requestUrl: Uri
 ) {
     public companion object {
         /**
@@ -134,7 +149,7 @@ public class OAuthRequest internal constructor(
                 appendQueryParameter(
                     requestUriBuilder,
                     "code_challenge",
-                    codeChallenge!!.getValue()
+                    it.value
                 )
                 appendQueryParameter(requestUriBuilder, "code_challenge_method", "S256")
             }
@@ -199,20 +214,6 @@ public class OAuthRequest internal constructor(
             }
         }
     }
-
-    /** Get the package name of the app that send the auth request */
-    public fun getPackageName(): String = packageName
-
-    /**
-     * Get the Url of the auth request.
-     * The request is expected to craft a URL something like:
-     *     https://authorization-server.com/auth?client_id=XXXXX
-     *     &redirect_uri=https://wear.googleapis.com/3p_auth/mypackagename
-     *     &response_type=code
-     *     &code_challenge=XXXXX...XXX
-     *     &code_challenge_method=S256
-     */
-    public fun getRequestUrl(): Uri = requestUrl
 
     internal fun toBundle(): Bundle = Bundle().apply {
         putParcelable(RemoteAuthClient.KEY_REQUEST_URL, requestUrl)

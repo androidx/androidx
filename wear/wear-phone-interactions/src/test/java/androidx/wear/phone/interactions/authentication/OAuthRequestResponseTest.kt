@@ -53,7 +53,7 @@ public class OAuthRequestResponseTest {
             fail("The build shall succeed and this line will not be executed")
         }
 
-        val requestUrl = request!!.getRequestUrl()
+        val requestUrl = request!!.requestUrl
         assertEquals(requestUrl.toString().indexOf(expectedAuthProviderUrl), 0)
         assertEquals(requestUrl.getQueryParameter("redirect_uri"), expectedRedirectUri)
         assertEquals(requestUrl.getQueryParameter("client_id"), expectedClientId)
@@ -84,7 +84,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.getValue()
+            codeChallenge.value
         )
     }
 
@@ -102,7 +102,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             customRedirectUrlWithPackageName,
-            codeChallenge.getValue()
+            codeChallenge.value
         )
     }
 
@@ -115,7 +115,7 @@ public class OAuthRequestResponseTest {
                     "$authProviderUrl?client_id=$clientId" +
                         "&redirect_uri=$redirectUrlWithPackageName" +
                         "&response_type=code" +
-                        "&code_challenge=${codeChallenge.getValue()}" +
+                        "&code_challenge=${codeChallenge.value}" +
                         "&code_challenge_method=S256"
                 )
             )
@@ -125,7 +125,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.getValue()
+            codeChallenge.value
         )
     }
 
@@ -187,7 +187,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.getValue()
+            codeChallenge.value
         )
     }
 
@@ -217,7 +217,7 @@ public class OAuthRequestResponseTest {
         checkBuildFailure(
             builder,
             "The 'code_challenge' query param already exists in the authProviderUrl, " +
-                "expect to have the value of '${codeChallenge.getValue()}', but " +
+                "expect to have the value of '${codeChallenge.value}', but " +
                 "'XXX' is given. Please correct it,  or leave it out " +
                 "to allow the request builder to append it automatically."
         )
@@ -228,7 +228,7 @@ public class OAuthRequestResponseTest {
         val codeChallenge = CodeChallenge(CodeVerifier())
         val builder = OAuthRequest.Builder(appPackageName)
             .setAuthProviderUrl(
-                Uri.parse("$authProviderUrl?code_challenge=${codeChallenge.getValue()}")
+                Uri.parse("$authProviderUrl?code_challenge=${codeChallenge.value}")
             )
             .setClientId(clientId)
             .setCodeChallenge(codeChallenge)
@@ -238,7 +238,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.getValue()
+            codeChallenge.value
         )
     }
 
@@ -275,7 +275,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.getValue()
+            codeChallenge.value
         )
     }
 
@@ -312,7 +312,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.getValue()
+            codeChallenge.value
         )
     }
 
@@ -340,8 +340,8 @@ public class OAuthRequestResponseTest {
     public fun testNoErrorResponseBuild() {
         val response = OAuthResponse.Builder().setResponseUrl(responseUrl).build()
 
-        assertEquals(RemoteAuthClient.NO_ERROR, response.getErrorCode())
-        assertEquals(responseUrl, response.getResponseUrl())
+        assertEquals(RemoteAuthClient.NO_ERROR, response.errorCode)
+        assertEquals(responseUrl, response.responseUrl)
     }
 
     @Test
@@ -350,14 +350,14 @@ public class OAuthRequestResponseTest {
             .setErrorCode(RemoteAuthClient.ERROR_UNSUPPORTED)
             .build()
 
-        assertEquals(RemoteAuthClient.ERROR_UNSUPPORTED, response1.getErrorCode())
-        assertEquals(null, response1.getResponseUrl())
+        assertEquals(RemoteAuthClient.ERROR_UNSUPPORTED, response1.errorCode)
+        assertEquals(null, response1.responseUrl)
 
         val response2 = OAuthResponse.Builder()
             .setErrorCode(RemoteAuthClient.ERROR_PHONE_UNAVAILABLE)
             .build()
 
-        assertEquals(RemoteAuthClient.ERROR_PHONE_UNAVAILABLE, response2.getErrorCode())
-        assertEquals(null, response2.getResponseUrl())
+        assertEquals(RemoteAuthClient.ERROR_PHONE_UNAVAILABLE, response2.errorCode)
+        assertEquals(null, response2.responseUrl)
     }
 }

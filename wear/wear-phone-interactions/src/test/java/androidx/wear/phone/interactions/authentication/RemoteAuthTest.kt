@@ -54,8 +54,7 @@ public class RemoteAuthTest {
                 .setAuthProviderUrl(Uri.parse(authProviderUrlB))
                 .setCodeChallenge(CodeChallenge(CodeVerifier()))
                 .build()
-        private val response =
-            OAuthResponse.Builder().setResponseUrl(responseUrl).build()
+        private val response = OAuthResponse.Builder().setResponseUrl(responseUrl).build()
 
         // Note: This can't be static as Robolectric isn't set up at class init time.
         private val mServiceName = ComponentName(
@@ -104,11 +103,11 @@ public class RemoteAuthTest {
         val requestReceived = request.first
         // THEN the request url is set correctly
         Assert.assertEquals(
-            requestA.getRequestUrl(),
-            requestReceived.getRequestUrl()
+            requestA.requestUrl,
+            requestReceived.requestUrl
         )
         Assert.assertEquals(
-            requestReceived.getRequestUrl().toString().indexOf(authProviderUrlA),
+            requestReceived.requestUrl.toString().indexOf(authProviderUrlA),
             0
         )
     }
@@ -126,19 +125,19 @@ public class RemoteAuthTest {
         Assert.assertEquals(2, fakeService.requests.size.toLong())
         // THEN the request url is set correctly for both (A then B)
         Assert.assertEquals(
-            requestA.getRequestUrl(),
-            requestAReceived.getRequestUrl()
+            requestA.requestUrl,
+            requestAReceived.requestUrl
         )
         Assert.assertEquals(
-            requestB.getRequestUrl(),
-            requestBReceived.getRequestUrl()
+            requestB.requestUrl,
+            requestBReceived.requestUrl
         )
         Assert.assertEquals(
-            requestAReceived.getRequestUrl().toString().indexOf(authProviderUrlA),
+            requestAReceived.requestUrl.toString().indexOf(authProviderUrlA),
             0
         )
         Assert.assertEquals(
-            requestBReceived.getRequestUrl().toString().indexOf(authProviderUrlB),
+            requestBReceived.requestUrl.toString().indexOf(authProviderUrlB),
             0
         )
     }
