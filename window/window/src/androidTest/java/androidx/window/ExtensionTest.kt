@@ -257,7 +257,8 @@ public class ExtensionTest : WindowTestBase() {
                 return false
             }
             val featureRect: Rect = displayFeature.bounds
-            val windowMetrics = WindowManager(activity).getCurrentWindowMetrics()
+            val windowMetrics = WindowMetricsCalculator.create()
+                .computeCurrentWindowMetrics(activity)
             if (
                 featureRect.height() == 0 && featureRect.width() == 0 || featureRect.left < 0 ||
                 featureRect.top < 0

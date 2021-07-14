@@ -72,11 +72,6 @@ package androidx.window {
   public static final class FoldingFeature.Type.Companion {
   }
 
-  public interface WindowBackend {
-    method public void registerLayoutChangeCallback(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
-    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
-  }
-
   public interface WindowInfoRepo {
     method public default static androidx.window.WindowInfoRepo create(android.app.Activity activity);
     method public kotlinx.coroutines.flow.Flow<androidx.window.WindowMetrics> getCurrentWindowMetrics();
@@ -101,15 +96,6 @@ package androidx.window {
     ctor public WindowLayoutInfo.Builder();
     method public androidx.window.WindowLayoutInfo build();
     method public androidx.window.WindowLayoutInfo.Builder setDisplayFeatures(java.util.List<? extends androidx.window.DisplayFeature> displayFeatures);
-  }
-
-  public final class WindowManager {
-    ctor public WindowManager(android.content.Context context, optional androidx.window.WindowBackend windowBackend);
-    ctor public WindowManager(android.content.Context context);
-    method public androidx.window.WindowMetrics getCurrentWindowMetrics();
-    method public androidx.window.WindowMetrics getMaximumWindowMetrics();
-    method public void registerLayoutChangeCallback(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
-    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
   }
 
   public final class WindowMetrics {
