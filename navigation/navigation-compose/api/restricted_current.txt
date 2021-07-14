@@ -10,6 +10,10 @@ package androidx.navigation.compose {
     ctor public ComposeNavigator.Destination(androidx.navigation.compose.ComposeNavigator navigator, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
   }
 
+  public final class DialogHostKt {
+    method @androidx.compose.runtime.Composable public static void DialogHost(androidx.navigation.compose.DialogNavigator dialogNavigator);
+  }
+
   @androidx.navigation.Navigator.Name("dialog") public final class DialogNavigator extends androidx.navigation.Navigator<androidx.navigation.compose.DialogNavigator.Destination> {
     ctor public DialogNavigator();
     method public androidx.navigation.compose.DialogNavigator.Destination createDestination();
