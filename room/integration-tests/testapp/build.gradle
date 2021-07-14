@@ -44,32 +44,31 @@ android {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
         androidTest.assets.srcDirs += files("$projectDir/databases".toString())
     }
-// TODO re-enable flavors when b/153917176 is fixed
-//    flavorDimensions "processorConfiguration"
-//    productFlavors {
-//        withExpandProjection {
-//            dimension "processorConfiguration"
-//            javaCompileOptions {
-//                annotationProcessorOptions {
-//                    arguments = [
-//                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
-//                            "room.expandProjection"  : "true"
-//                    ]
-//                }
-//            }
-//        }
-//        withoutExpandProjection {
-//            dimension "processorConfiguration"
-//            javaCompileOptions {
-//                annotationProcessorOptions {
-//                    arguments = [
-//                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
-//                            "room.expandProjection"  : "false"
-//                    ]
-//                }
-//            }
-//        }
-//    }
+    flavorDimensions "processorConfiguration"
+    productFlavors {
+        withExpandProjection {
+            dimension "processorConfiguration"
+            javaCompileOptions {
+                annotationProcessorOptions {
+                    arguments = [
+                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                            "room.expandProjection"  : "true"
+                    ]
+                }
+            }
+        }
+        withoutExpandProjection {
+            dimension "processorConfiguration"
+            javaCompileOptions {
+                annotationProcessorOptions {
+                    arguments = [
+                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                            "room.expandProjection"  : "false"
+                    ]
+                }
+            }
+        }
+    }
 }
 
 dependencies {
