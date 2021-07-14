@@ -88,6 +88,7 @@ private fun Project.registerUberJarTask(
         it.dependsOn(variant.assembleProvider)
         it.archiveClassifier.set("uberRuntimeDepsJar")
         it.exclude("**/module-info.class")
+        it.exclude("**/*.proto")
         it.exclude("META-INF/versions/9/**/*.class")
         it.from({
             variant.runtimeConfiguration.incoming.artifactView {
