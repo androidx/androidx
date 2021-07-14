@@ -49,6 +49,7 @@ class WhenMethodsTest(val config: TestConfig) {
 
     private fun check(body: String): TestLintResult {
         return TestLintTask.lint()
+            .allowCompilationErrors(true) // b/193267317
             .files(VIEW_STUB, LIFECYCLE_STUB, COROUTINES_STUB, TestFiles.kt(template(body)))
             .issues(LifecycleWhenChecks.ISSUE)
             .run()

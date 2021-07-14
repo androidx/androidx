@@ -106,6 +106,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                 *REPEAT_ON_LIFECYCLE_STUBS,
                 TestFiles.kt(fileToAdd)
             )
+            .allowCompilationErrors(true) // b/193267317
             .issues(RepeatOnLifecycleDetector.ISSUE)
             .run()
     }
