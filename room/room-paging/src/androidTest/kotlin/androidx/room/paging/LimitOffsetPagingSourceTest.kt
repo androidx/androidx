@@ -29,6 +29,7 @@ import androidx.room.RoomSQLiteQuery
 import androidx.room.util.CursorUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -488,6 +489,7 @@ class LimitOffsetPagingSourceTest {
         }
     }
 
+    @FlakyTest(bugId = 193653151)
     @Test
     fun prepend_invalidResult() {
         val pagingSource = LimitOffsetPagingSourceImpl(database)
