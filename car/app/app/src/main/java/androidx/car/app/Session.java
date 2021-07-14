@@ -193,10 +193,13 @@ public abstract class Session implements LifecycleOwner {
      * <p>This should be invoked during onAppCreate to initialize the {@link Session} and its
      * underlying {@link Context} properly.
      */
-    void configure(@NonNull Context baseContext, @NonNull HandshakeInfo handshakeInfo,
+    void configure(@NonNull Context baseContext,
+            @NonNull HandshakeInfo handshakeInfo,
+            @NonNull HostInfo hostInfo,
             @NonNull ICarHost carHost,
             @NonNull Configuration configuration) {
         mCarContext.updateHandshakeInfo(handshakeInfo);
+        mCarContext.updateHostInfo(hostInfo);
         mCarContext.attachBaseContext(baseContext, configuration);
         mCarContext.setCarHost(carHost);
     }
