@@ -138,6 +138,7 @@ class UnsafeRepeatOnLifecycleDetectorTest(private val config: TestConfig) {
                 TestFiles.kt(TEMPLATE.format(config.fragmentExtensions, config.apiCall))
             )
             .issues(UnsafeRepeatOnLifecycleDetector.ISSUE)
+            .allowCompilationErrors(true) // b/193540422
             .run()
 
         if (config.shouldWarn) {

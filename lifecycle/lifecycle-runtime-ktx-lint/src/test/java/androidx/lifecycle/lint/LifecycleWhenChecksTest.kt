@@ -33,6 +33,7 @@ class LifecycleWhenChecksTest {
     private fun check(body: String): TestLintResult {
         return TestLintTask.lint()
             .files(VIEW_STUB, LIFECYCLE_STUB, COROUTINES_STUB, kt(template(body)))
+            .allowCompilationErrors(true) // b/193267317
             .issues(ISSUE)
             .run()
     }

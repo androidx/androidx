@@ -16,6 +16,7 @@
 
 package androidx.work.lint
 
+import androidx.work.lint.Stubs.LISTENABLE_WORKER
 import androidx.work.lint.Stubs.ONE_TIME_WORK_REQUEST
 import androidx.work.lint.Stubs.PERIODIC_WORK_REQUEST
 import androidx.work.lint.Stubs.WORK_MANAGER
@@ -52,6 +53,7 @@ class PeriodicEnqueueIssueDetectorTest {
             WORK_REQUEST,
             ONE_TIME_WORK_REQUEST,
             PERIODIC_WORK_REQUEST,
+            LISTENABLE_WORKER,
             snippet
         ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
@@ -92,6 +94,7 @@ class PeriodicEnqueueIssueDetectorTest {
             WORK_REQUEST,
             ONE_TIME_WORK_REQUEST,
             PERIODIC_WORK_REQUEST,
+            LISTENABLE_WORKER,
             snippet
         ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
@@ -134,6 +137,7 @@ class PeriodicEnqueueIssueDetectorTest {
             WORK_REQUEST,
             ONE_TIME_WORK_REQUEST,
             PERIODIC_WORK_REQUEST,
+            LISTENABLE_WORKER,
             snippet
         ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
@@ -155,6 +159,7 @@ class PeriodicEnqueueIssueDetectorTest {
             """
             package com.example
 
+            import androidx.work.OneTimeWorkRequest
             import androidx.work.PeriodicWorkRequest
             import androidx.work.WorkManager
 
@@ -173,6 +178,7 @@ class PeriodicEnqueueIssueDetectorTest {
             WORK_REQUEST,
             ONE_TIME_WORK_REQUEST,
             PERIODIC_WORK_REQUEST,
+            LISTENABLE_WORKER,
             snippet
         ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
@@ -186,6 +192,7 @@ class PeriodicEnqueueIssueDetectorTest {
             """
             package com.example
 
+            import androidx.work.OneTimeWorkRequest
             import androidx.work.PeriodicWorkRequest
             import androidx.work.WorkManager
 
@@ -204,6 +211,7 @@ class PeriodicEnqueueIssueDetectorTest {
             WORK_REQUEST,
             ONE_TIME_WORK_REQUEST,
             PERIODIC_WORK_REQUEST,
+            LISTENABLE_WORKER,
             snippet
         ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()

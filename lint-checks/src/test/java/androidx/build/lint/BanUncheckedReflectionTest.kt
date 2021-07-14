@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import androidx.build.lint.Stubs.Companion.RestrictTo
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -33,6 +34,7 @@ class BanUncheckedReflectionTest : AbstractLintDetectorTest(
     fun `Detection of unchecked reflection in real-world Java sources`() {
         val input = arrayOf(
             javaSample("androidx.sample.core.app.ActivityRecreator"),
+            RestrictTo
         )
 
         /* ktlint-disable max-line-length */
@@ -57,6 +59,7 @@ src/androidx/sample/core/app/ActivityRecreator.java:265: Error: Calling Method.i
     fun `Checked reflection in real-world Java sources`() {
         val input = arrayOf(
             javaSample("androidx.sample.core.app.ActivityRecreatorChecked"),
+            RestrictTo
         )
 
         /* ktlint-disable max-line-length */
