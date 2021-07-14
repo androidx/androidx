@@ -25,13 +25,13 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin("androidx.compose.compiler:compiler:1.0.0-rc01")
+    kotlinPlugin("androidx.compose.compiler:compiler:1.0.0-rc02")
     implementation(libs.kotlinStdlib)
 
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
-    implementation("androidx.compose.foundation:foundation:1.0.0-rc01")
+    implementation("androidx.compose.foundation:foundation:1.0.0-rc02")
     implementation(projectOrArtifact(":navigation:navigation-compose"))
-    implementation("androidx.compose.material:material:1.0.0-rc01")
+    implementation("androidx.compose.material:material:1.0.0-rc02")
 }
 
 androidx {

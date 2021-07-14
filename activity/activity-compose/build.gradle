@@ -26,13 +26,13 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin "androidx.compose.compiler:compiler:1.0.0-rc01"
+    kotlinPlugin "androidx.compose.compiler:compiler:1.0.0-rc02"
 
     implementation(libs.kotlinStdlib)
-    api "androidx.compose.runtime:runtime:1.0.0-rc01"
-    api "androidx.compose.runtime:runtime-saveable:1.0.0-rc01"
+    api "androidx.compose.runtime:runtime:1.0.0-rc02"
+    api "androidx.compose.runtime:runtime-saveable:1.0.0-rc02"
     api(projectOrArtifact(":activity:activity-ktx"))
-    api("androidx.compose.ui:ui:1.0.0-rc01")
+    api("androidx.compose.ui:ui:1.0.0-rc02")
 
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
     androidTestImplementation projectOrArtifact(":compose:material:material")
