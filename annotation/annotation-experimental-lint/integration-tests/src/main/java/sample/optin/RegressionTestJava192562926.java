@@ -23,6 +23,10 @@ package sample.optin;
 @SuppressWarnings("unused")
 public class RegressionTestJava192562926 {
     interface StableInterface {
+        // This method will show up first in the list provided by PsiClass.allMethods, but it's
+        // not the method that we want to inspect since it has a concrete implementation.
+        default void abstractMethodWithDefault() {}
+
         @ExperimentalJavaAnnotation
         void experimentalMethod();
     }
@@ -45,6 +49,6 @@ public class RegressionTestJava192562926 {
             public void experimentalMethod() {} // unsafe override
         };
 
-        StableInterface lambda = () -> {}; // safe (due to bug in Kotlin compiler)
+        StableInterface lambda = () -> {}; // unsafe override
     }
 }

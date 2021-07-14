@@ -37,7 +37,9 @@ import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiModifierListOwner
+import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTypesUtil
@@ -54,16 +56,15 @@ import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UEnumConstant
 import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.UVariable
-import org.jetbrains.uast.getParentOfType
 import org.jetbrains.uast.java.JavaUAnnotation
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
 import java.util.ArrayList
-import java.util.Locale
 
 class ExperimentalDetector : Detector(), SourceCodeScanner {
     private val visitedUsages: MutableMap<UElement, MutableSet<String>> = mutableMapOf()
@@ -81,12 +82,30 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
 
     override fun visitClass(
         context: JavaContext,
+        lambda: ULambdaExpression,
+    ) {
+        // Infer the overridden method by taking the first (and only) abstract method from the
+        // functional interface being implemented.
+        val superClass = (lambda.functionalInterfaceType as? PsiClassReferenceType)?.resolve()
+        val superMethod = superClass?.allMethods
+            ?.first { method -> method.isAbstract() }
+            ?.toUElement()
+
+        if (superMethod is UMethod) {
+            checkMethodOverride(context, lambda, superMethod)
+        }
+    }
+
+    override fun visitClass(
+        context: JavaContext,
         declaration: UClass,
     ) {
         declaration.methods.forEach { method ->
             val eval = context.evaluator
             if (eval.isOverride(method, true)) {
-                checkMethodOverride(context, method)
+                method.findSuperMethods().forEach { superMethod ->
+                    checkMethodOverride(context, method, superMethod)
+                }
             }
         }
     }
@@ -99,32 +118,31 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
      */
     private fun checkMethodOverride(
         context: JavaContext,
-        methodDeclaration: UMethod,
+        usage: UElement,
+        superMethod: PsiMethod,
     ) {
-        methodDeclaration.findSuperMethods().forEach { superMethod ->
-            val evaluator = context.evaluator
-            val allAnnotations = evaluator.getAllAnnotations(superMethod, inHierarchy = true)
-            val methodAnnotations = filterRelevantAnnotations(
-                evaluator, allAnnotations, methodDeclaration,
-            )
+        val evaluator = context.evaluator
+        val allAnnotations = evaluator.getAllAnnotations(superMethod, inHierarchy = true)
+        val methodAnnotations = filterRelevantAnnotations(
+            evaluator, allAnnotations, usage,
+        )
 
-            // Look for annotations on the class as well: these trickle
-            // down to all the methods in the class
-            val containingClass: PsiClass? = superMethod.containingClass
-            val (classAnnotations, pkgAnnotations) = getClassAndPkgAnnotations(
-                containingClass, evaluator, methodDeclaration
-            )
+        // Look for annotations on the class as well: these trickle
+        // down to all the methods in the class
+        val containingClass: PsiClass? = superMethod.containingClass
+        val (classAnnotations, pkgAnnotations) = getClassAndPkgAnnotations(
+            containingClass, evaluator, usage
+        )
 
-            doCheckMethodOverride(
-                context,
-                superMethod,
-                methodAnnotations,
-                classAnnotations,
-                pkgAnnotations,
-                methodDeclaration,
-                containingClass,
-            )
-        }
+        doCheckMethodOverride(
+            context,
+            superMethod,
+            methodAnnotations,
+            classAnnotations,
+            pkgAnnotations,
+            usage,
+            containingClass,
+        )
     }
 
     /**
@@ -139,13 +157,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         methodAnnotations: List<UAnnotation>,
         classAnnotations: List<UAnnotation>,
         pkgAnnotations: List<UAnnotation>,
-        method: UMethod,
+        usage: UElement,
         containingClass: PsiClass?,
     ) {
         if (methodAnnotations.isNotEmpty()) {
             checkAnnotations(
                 context,
-                argument = method,
+                argument = usage,
                 type = AnnotationUsageType.METHOD_CALL,
                 method = superMethod,
                 referenced = superMethod,
@@ -160,7 +178,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         if (containingClass != null && classAnnotations.isNotEmpty()) {
             checkAnnotations(
                 context,
-                argument = method,
+                argument = usage,
                 type = AnnotationUsageType.METHOD_CALL_CLASS,
                 method = superMethod,
                 referenced = superMethod,
@@ -175,7 +193,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         if (pkgAnnotations.isNotEmpty()) {
             checkAnnotations(
                 context,
-                argument = method,
+                argument = usage,
                 type = AnnotationUsageType.METHOD_CALL_PACKAGE,
                 method = superMethod,
                 referenced = superMethod,
@@ -771,3 +789,6 @@ private fun UElement.isDeclarationAnnotatedWithOptInOf(
         ) == true
     }
 } == true
+
+private fun PsiModifierListOwner.isAbstract(): Boolean =
+    modifierList?.hasModifierProperty(PsiModifier.ABSTRACT) == true

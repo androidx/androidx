@@ -23,6 +23,10 @@ package sample.optin
  */
 class RegressionTestKotlin192562926 {
     internal fun interface StableInterface {
+        // This method will show up first in the list provided by PsiClass.allMethods, but it's
+        // not the method that we want to inspect since it has a concrete implementation.
+        fun abstractMethodWithDefault() {}
+
         @ExperimentalKotlinAnnotation
         fun experimentalMethod()
     }
@@ -41,6 +45,6 @@ class RegressionTestKotlin192562926 {
         val anonymous: StableInterface = object : StableInterface {
             override fun experimentalMethod() {} // unsafe override
         }
-        val lambda = StableInterface {} // safe (due to bug in Kotlin compiler)
+        val lambda = StableInterface {} // unsafe override, but Kotlin compiler does not detect
     }
 }
