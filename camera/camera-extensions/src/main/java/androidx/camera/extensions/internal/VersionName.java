@@ -17,14 +17,14 @@
 package androidx.camera.extensions.internal;
 
 import androidx.annotation.NonNull;
-import androidx.camera.extensions.BuildConfig;
 
 /**
  * The version of CameraX extension releases.
  */
 public class VersionName {
-    /* The current version of the CameraX extension. */
-    private static final VersionName CURRENT = new VersionName(BuildConfig.CAMERA_VERSION);
+    // Current version of vendor library implementation that the CameraX extension supports. This
+    // needs to be increased along with the version of vendor library interface.
+    private static final VersionName CURRENT = new VersionName("1.1.0");
 
     @NonNull
     public static VersionName getCurrentVersion() {

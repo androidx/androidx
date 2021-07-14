@@ -64,12 +64,6 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 21
-
-        buildConfigField "String", "CAMERA_VERSION", "\"1.1.0\""
-    }
-    buildFeatures {
-        // Enable generating BuildConfig.java since support library default disable it.
-        buildConfig = true
     }
 
     // Use Robolectric 4.+
