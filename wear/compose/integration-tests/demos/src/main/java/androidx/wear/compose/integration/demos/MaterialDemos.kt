@@ -30,6 +30,12 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Toggle Button") { ToggleButtons() },
+        DemoCategory(
+            "Chips",
+            listOf(
+                ComposableDemo("Chip") { StandardChips() },
+            )
+        ),
         ComposableDemo("Card") { CardDemo() },
     ),
 )
