@@ -41,13 +41,8 @@ import java.util.concurrent.Executor
  * ```
  * // PKCE (Proof Key for Code Exchange) is required for the auth
  * private var codeVerifier: CodeVerifier
- * private var authClient: RemoteAuthClient
- *
- * override public fun onCreate(b: Bundle) {
- *   super.onCreate(b);
- *   authClient = RemoteAuthClient.create(this);
- *   ...
- * }
+ * // Late initialization in place where it's used, or to be initialized in onCreate()
+ * private var lateinit authClient: RemoteAuthClient
  *
  * override public fun onDestroy() {
  *   authClient.close();
@@ -60,6 +55,7 @@ import java.util.concurrent.Executor
  *    codeVerifier = CodeVerifier()
  *
  *   // Construct your auth request.
+ *   authClient = RemoteAuthClient.create(this);
  *   authClient.sendAuthorizationRequest(
  *      OAuthRequest.Builder(this.applicationContext.packageName)
  *          .setAuthProviderUrl(Uri.parse("https://...."))
@@ -228,7 +224,7 @@ public class RemoteAuthClient internal constructor(
         executor: Executor,
         clientCallback: Callback
     ) {
-        require(packageName == request.getPackageName()) {
+        require(packageName == request.packageName) {
             "The request's package name is different from the auth client's package name."
         }
 
@@ -345,7 +341,7 @@ public class RemoteAuthClient internal constructor(
 
         @SuppressLint("SyntheticAccessor")
         private fun onResult(response: OAuthResponse) {
-            @ErrorCode val error = response.getErrorCode()
+            @ErrorCode val error = response.errorCode
             uiThreadExecutor.execute(
                 Runnable {
                     removePendingCallback(this@RequestCallback)
@@ -355,7 +351,7 @@ public class RemoteAuthClient internal constructor(
                         }
                     } else {
                         executor.execute {
-                            clientCallback.onAuthorizationError(request, response.getErrorCode())
+                            clientCallback.onAuthorizationError(request, response.errorCode)
                         }
                     }
                 }

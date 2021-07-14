@@ -22,22 +22,22 @@ import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.util.Base64
 
+/* ktlint-disable max-line-length */
 /**
- * Authorization code challenge
+ * Authorization code challenge.
  *
- * * Related specifications:
- *      Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).
- *      https://tools.ietf.org/html/rfc7636
+ * Related specifications:
+ * [Proof Key for Code Exchange by OAuth Public Clients (RFC 7636)](https://tools.ietf.org/html/rfc7636)
  */
+/* ktlint-enable max-line-length */
 @RequiresApi(Build.VERSION_CODES.O)
 public class CodeChallenge constructor(
     codeVerifier: CodeVerifier
 ) {
-
     /**
      * The challenge value.
      */
-    private var value: String? = null
+    public val value: String
 
     /**
      * Computes the code challenge value using the specified verifier with SHA-256.
@@ -48,18 +48,14 @@ public class CodeChallenge constructor(
         value = Base64.getUrlEncoder().withoutPadding().encodeToString(hash)
     }
 
-    public fun getValue(): String {
-        return value!!
-    }
-
     override fun equals(other: Any?): Boolean {
         if (other is CodeChallenge) {
-            return other.getValue() == value
+            return other.value == value
         }
         return false
     }
 
     override fun hashCode(): Int {
-        return value!!.toByteArray(StandardCharsets.UTF_8).contentHashCode()
+        return value.toByteArray(StandardCharsets.UTF_8).contentHashCode()
     }
 }
