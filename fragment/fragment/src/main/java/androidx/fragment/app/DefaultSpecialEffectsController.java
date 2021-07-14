@@ -563,9 +563,11 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         awaitingContainerChanges.remove(operation);
                         // Then schedule the actual hide of the fragment's view,
                         // essentially doing what applyState() would do for us
+                        ArrayList<View> transitioningViewsToHide =
+                                new ArrayList<>(transitioningViews);
+                        transitioningViewsToHide.remove(operation.getFragment().mView);
                         transitionImpl.scheduleHideFragmentView(transition,
-                                operation.getFragment().mView,
-                                transitioningViews);
+                                operation.getFragment().mView, transitioningViewsToHide);
                         // This OneShotPreDrawListener gets fired before the delayed start of
                         // the Transition and changes the visibility of any exiting child views
                         // that *ARE NOT* shared element transitions. The TransitionManager then
