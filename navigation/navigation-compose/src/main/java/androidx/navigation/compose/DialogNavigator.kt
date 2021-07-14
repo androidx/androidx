@@ -17,14 +17,11 @@
 package androidx.navigation.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -50,36 +47,20 @@ public class DialogNavigator : Navigator<Destination>() {
      * the Navigator is attached, so we specifically return an empty flow if we
      * aren't attached yet.
      */
-    private val backStack: StateFlow<List<NavBackStackEntry>> get() = if (attached) {
+    internal val backStack: StateFlow<List<NavBackStackEntry>> get() = if (attached) {
         state.backStack
     } else {
         MutableStateFlow(emptyList())
     }
 
     /**
-     * Show each [Destination] on the back stack as a [Dialog].
-     *
-     * Note that [NavHost] will call this for you; you do not need to call it manually.
+     * Dismiss the dialog destination associated with the given [backStackEntry].
      */
-    internal val Dialogs: @Composable () -> Unit = @Composable {
-        val saveableStateHolder = rememberSaveableStateHolder()
-        val dialogBackStack by backStack.collectAsState()
-
-        dialogBackStack.filter { backStackEntry ->
-            backStackEntry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
-        }.forEach { backStackEntry ->
-            val destination = backStackEntry.destination as Destination
-            Dialog(
-                onDismissRequest = { state.pop(backStackEntry, false) },
-                properties = destination.dialogProperties
-            ) {
-                // while in the scope of the composable, we provide the navBackStackEntry as the
-                // ViewModelStoreOwner and LifecycleOwner
-                backStackEntry.LocalOwnersProvider(saveableStateHolder) {
-                    destination.content(backStackEntry)
-                }
-            }
+    internal fun dismiss(backStackEntry: NavBackStackEntry) {
+        check(attached) {
+            "The DialogNavigator must be attached to a NavController to call dismiss"
         }
+        state.pop(backStackEntry, false)
     }
 
     override fun onAttach(state: NavigatorState) {

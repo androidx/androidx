@@ -141,5 +141,5 @@ public fun NavHost(
     ) as? DialogNavigator ?: return
 
     // Show any dialog destinations
-    dialogNavigator.Dialogs()
+    DialogHost(dialogNavigator)
 }
