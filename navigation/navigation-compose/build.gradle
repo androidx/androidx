@@ -26,15 +26,15 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin("androidx.compose.compiler:compiler:1.0.0-rc01")
+    kotlinPlugin("androidx.compose.compiler:compiler:1.0.0-rc02")
 
     implementation(libs.kotlinStdlib)
-    implementation("androidx.compose.foundation:foundation-layout:1.0.0-rc01")
-    api("androidx.activity:activity-compose:1.3.0-rc01")
-    api("androidx.compose.animation:animation:1.0.0-rc01")
-    api("androidx.compose.runtime:runtime:1.0.0-rc01")
-    api("androidx.compose.runtime:runtime-saveable:1.0.0-rc01")
-    api("androidx.compose.ui:ui:1.0.0-rc01")
+    implementation("androidx.compose.foundation:foundation-layout:1.0.0-rc02")
+    api("androidx.activity:activity-compose:1.3.0-rc02")
+    api("androidx.compose.animation:animation:1.0.0-rc02")
+    api("androidx.compose.runtime:runtime:1.0.0-rc02")
+    api("androidx.compose.runtime:runtime-saveable:1.0.0-rc02")
+    api("androidx.compose.ui:ui:1.0.0-rc02")
     api("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
     api(projectOrArtifact(":navigation:navigation-runtime-ktx"))
 
