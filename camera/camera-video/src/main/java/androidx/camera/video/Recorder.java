@@ -1034,20 +1034,8 @@ public final class Recorder implements VideoOutput {
                     mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
                             encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
 
-                    updateVideoRecordEvent(
-                            VideoRecordEvent.status(
-                                    mRunningRecording.getOutputOptions(),
-                                    getCurrentRecordingStats()));
+                    updateStatusEvent();
                 }
-                mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
-                        encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
-                mRecordingBytes += encodedData.size();
-
-                Preconditions.checkNotNull(mMediaMuxer).writeSampleData(mVideoTrackIndex,
-                        encodedData.getByteBuffer(), encodedData.getBufferInfo());
-                encodedData.close();
-
-                updateStatusEvent();
             }
 
             @Override
