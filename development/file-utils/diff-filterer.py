@@ -16,7 +16,7 @@
 #
 
 
-import datetime, filecmp, math, multiprocessing, os, psutil, shutil, subprocess, stat, sys, time
+import datetime, filecmp, math, multiprocessing, os, shutil, subprocess, stat, sys, time
 from collections import OrderedDict
 
 def usage():
@@ -127,6 +127,16 @@ class FileIo(object):
     return result
 
 fileIo = FileIo()
+
+# Returns cpu usage
+class CpuStats(object):
+
+  def cpu_times_percent(self):
+    # We wait to attempt to import psutil in case we don't need it and it doesn't exist on this system
+    import psutil
+    return psutil.cpu_times_percent(interval=None)
+
+cpuStats = CpuStats()
 
 # Fast file copying
 class FileCopyCache(object):
@@ -844,7 +854,7 @@ class DiffRunner(object):
         else:
           # If N jobs are running then wait for all N to fail before increasing the number of running jobs
             # Recalibrate the number of processes based on the system load
-            systemUsageStats = psutil.cpu_times_percent(interval=None)
+            systemUsageStats = cpuStats.cpu_times_percent()
             systemIdleFraction = systemUsageStats.idle / 100
             if systemIdleFraction >= 0.5:
               if numCompletionsSinceLastPoolSizeChange <= len(activeTestStatesById):
