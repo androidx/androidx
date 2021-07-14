@@ -283,6 +283,8 @@ includeProject(":compose:animation:animation-core:animation-core-samples", "comp
 includeProject(":compose:animation:animation-tooling-internal", "compose/animation/animation-tooling-internal", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation:integration-tests:animation-demos", "compose/animation/animation/integration-tests/animation-demos", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation:animation-samples", "compose/animation/animation/samples", [BuildType.COMPOSE])
+includeProject(":compose:animation:animation-graphics", "compose/animation/animation-graphics", [BuildType.COMPOSE])
+includeProject(":compose:animation:animation-graphics-samples", "compose/animation/animation-graphics/samples", [BuildType.COMPOSE])
 includeProject(":compose:benchmark-utils", "compose/benchmark-utils", [BuildType.COMPOSE])
 includeProject(":compose:benchmark-utils:benchmark-utils-benchmark", "compose/benchmark-utils/benchmark", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler", "compose/compiler/compiler", [BuildType.COMPOSE])
