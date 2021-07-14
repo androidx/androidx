@@ -15,7 +15,25 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedRowKt {
-    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.compose.ui.Modifier modifier, optional float anchor, optional float anchorType, optional boolean clockwise, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.compose.ui.Modifier modifier, optional float anchor, optional float anchorType, optional float radialAlignment, optional boolean clockwise, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit> content);
+  }
+
+  @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface CurvedRowScope {
+    method public androidx.compose.ui.Modifier radialAlignment(androidx.compose.ui.Modifier, float alignment);
+  }
+
+  public final inline class RadialAlignment {
+    ctor public RadialAlignment();
+  }
+
+  public static final class RadialAlignment.Companion {
+    method public float Custom(float ratio);
+    method public float getCenter();
+    method public float getInner();
+    method public float getOuter();
+    property public final float Center;
+    property public final float Inner;
+    property public final float Outer;
   }
 
 }
