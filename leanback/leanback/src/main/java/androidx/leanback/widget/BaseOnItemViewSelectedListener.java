@@ -31,6 +31,7 @@ public interface BaseOnItemViewSelectedListener<T> {
      * <p>
      * In the case of a grid, the row parameter is always null.
      * </p>
+     * <ul>
      * <li>
      * Row has focus: event is fired when focus changes between children of the row.
      * </li>
@@ -38,6 +39,7 @@ public interface BaseOnItemViewSelectedListener<T> {
      * No row has focus: the event is fired with the currently selected row and last
      * focused item in the row.
      * </li>
+     * </ul>
      *
      * @param itemViewHolder The view holder of the item that is currently selected.
      * @param item The item that is currently selected.

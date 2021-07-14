@@ -55,7 +55,8 @@ import java.util.List;
  * a great example of Parallax implementation tracking child view positions on screen.
  * </p>
  * <p>
- * <ul>Restrictions of properties
+ * Restrictions of properties
+ * <ul>
  * <li>FloatProperty and IntProperty cannot be mixed in one Parallax</li>
  * <li>Values must be in ascending order.</li>
  * <li>If the UI element is unknown above screen, use UNKNOWN_BEFORE.</li>
