@@ -88,6 +88,13 @@ internal class LivePagedList<Key : Any, Value : Any>(
             val params = config.toRefreshLoadParams(lastKey)
 
             when (val initialResult = pagingSource.load(params)) {
+                is PagingSource.LoadResult.Invalid -> {
+                    currentData.setInitialLoadState(
+                        REFRESH,
+                        LoadState.NotLoading(false)
+                    )
+                    pagingSource.invalidate()
+                }
                 is PagingSource.LoadResult.Error -> {
                     currentData.setInitialLoadState(
                         REFRESH,

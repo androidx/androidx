@@ -24,6 +24,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
@@ -94,7 +95,10 @@ class LivePagedListBuilderTest {
             throwable = EXCEPTION
         }
 
-        private inner class MockPagingSource : PagingSource<Int, String>() {
+        inner class MockPagingSource : PagingSource<Int, String>() {
+
+            var invalidInitialLoadResult = false
+
             override suspend fun load(params: LoadParams<Int>) = when (params) {
                 is LoadParams.Refresh -> loadInitial(params)
                 else -> loadRange()
@@ -103,6 +107,10 @@ class LivePagedListBuilderTest {
             override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
 
             private fun loadInitial(params: LoadParams<Int>): LoadResult<Int, String> {
+                if (invalidInitialLoadResult) {
+                    invalidInitialLoadResult = false
+                    return LoadResult.Invalid()
+                }
                 if (params is LoadParams.Refresh) {
                     assertEquals(6, params.loadSize)
                 } else {
@@ -271,6 +279,153 @@ class LivePagedListBuilderTest {
                 )
             ),
             loadStates
+        )
+    }
+
+    @Test
+    fun initialPagedList_invalidInitialResult() {
+        val factory = MockPagingSourceFactory()
+        val pagingSources = mutableListOf<MockPagingSourceFactory.MockPagingSource>()
+        val pagedListHolder = mutableListOf<PagedList<String>>()
+
+        val livePagedList = LivePagedListBuilder(
+            {
+                factory.create().also { pagingSource ->
+                    pagingSource as MockPagingSourceFactory.MockPagingSource
+                    if (pagingSources.size == 0) {
+                        pagingSource.invalidInitialLoadResult = true
+                    }
+                    pagingSources.add(pagingSource)
+                }
+            },
+            pageSize = 2
+        )
+            .setFetchExecutor(backgroundExecutor)
+            .build()
+
+        val loadStates = mutableListOf<LoadStateEvent>()
+
+        val loadStateChangedCallback = { type: LoadType, state: LoadState ->
+            if (type == REFRESH) {
+                loadStates.add(LoadStateEvent(type, state))
+            }
+        }
+
+        livePagedList.observe(lifecycleOwner) { newList ->
+            newList.addWeakLoadStateListener(loadStateChangedCallback)
+            pagedListHolder.add(newList)
+        }
+
+        // the initial empty paged list
+        val initPagedList = pagedListHolder[0]
+        assertNotNull(initPagedList)
+        assertThat(initPagedList).isInstanceOf(InitialPagedList::class.java)
+
+        drain()
+
+        // the first pagingSource returns LoadResult.Invalid. This should invalidate the first
+        // pagingSource and generate a second source
+        assertThat(pagingSources.size).isEqualTo(2)
+        assertTrue(pagingSources[0].invalid)
+        // The second source should have the successful initial load required to create a
+        // ContiguousPagedList
+        assertThat(pagedListHolder.size).isEqualTo(2)
+        assertThat(pagedListHolder[1]).isInstanceOf(ContiguousPagedList::class.java)
+
+        assertThat(loadStates).containsExactly(
+            LoadStateEvent(
+                REFRESH,
+                NotLoading(endOfPaginationReached = false)
+            ),
+            LoadStateEvent(REFRESH, Loading),
+            // when LoadResult.Invalid is returned, REFRESH is reset back to NotLoading
+            LoadStateEvent(
+                REFRESH,
+                NotLoading(endOfPaginationReached = false)
+            ),
+            LoadStateEvent(REFRESH, Loading),
+            LoadStateEvent(
+                REFRESH,
+                NotLoading(endOfPaginationReached = false)
+            )
+        )
+    }
+
+    @Test
+    fun loadAround_invalidResult() {
+        val pagingSources = mutableListOf<TestPagingSource>()
+        val pagedLists = mutableListOf<PagedList<Int>>()
+        val factory = { TestPagingSource(loadDelay = 0).also { pagingSources.add(it) } }
+
+        val livePagedList = LivePagedListBuilder(
+            factory,
+            config = PagedList.Config.Builder()
+                .setPageSize(2)
+                .setInitialLoadSizeHint(6)
+                .setEnablePlaceholders(false)
+                .build()
+        )
+            .setFetchExecutor(backgroundExecutor)
+            .build()
+
+        val loadStates = mutableListOf<LoadStateEvent>()
+
+        val loadStateChangedCallback = { type: LoadType, state: LoadState ->
+            if (type == APPEND) {
+                loadStates.add(LoadStateEvent(type, state))
+            }
+        }
+
+        livePagedList.observeForever { newList ->
+            newList.addWeakLoadStateListener(loadStateChangedCallback)
+            pagedLists.add(newList)
+        }
+
+        drain()
+
+        // pagedLists[0] is the empty InitialPagedList, we don't care about it here
+        val pagedList1 = pagedLists[1]
+        // initial load 6 items
+        assertEquals(listOf(0, 1, 2, 3, 4, 5), pagedList1)
+        // append 2 items after initial load
+        pagedList1.loadAround(5)
+
+        drain()
+        // should load 6 + 2 = 8 items
+        assertEquals(listOf(0, 1, 2, 3, 4, 5, 6, 7), pagedList1)
+        // append 2 more items but this time, return LoadResult.Invalid
+        pagedList1.loadAround(7)
+        val source = pagedLists[1].pagingSource as TestPagingSource
+        source.nextLoadResult = PagingSource.LoadResult.Invalid()
+
+        drain()
+
+        // nothing more should be loaded from invalid paged list
+        assertEquals(listOf(0, 1, 2, 3, 4, 5, 6, 7), pagedList1)
+        // a new pagedList should be generated with a refresh load starting from index 7
+        assertEquals(listOf(7, 8, 9, 10, 11, 12), pagedLists[2])
+
+        assertThat(pagingSources.size).isEqualTo(2)
+        assertThat(pagedLists.size).isEqualTo(3)
+        assertThat(loadStates).containsExactly(
+            LoadStateEvent(
+                APPEND,
+                NotLoading(endOfPaginationReached = false)
+            ), // first empty paged list
+            LoadStateEvent(
+                APPEND,
+                NotLoading(endOfPaginationReached = false)
+            ), // second paged list
+            LoadStateEvent(APPEND, Loading), // second paged list append
+            LoadStateEvent(
+                APPEND,
+                NotLoading(endOfPaginationReached = false)
+            ), // append success
+            LoadStateEvent(APPEND, Loading), // second paged list append again but fails
+            LoadStateEvent(
+                APPEND,
+                NotLoading(endOfPaginationReached = false)
+            ) // third paged list
         )
     }
 

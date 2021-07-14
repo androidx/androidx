@@ -20,6 +20,8 @@ import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
+import androidx.testutils.DirectDispatcher
+import androidx.testutils.TestDispatcher
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.Schedulers
@@ -30,6 +32,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertTrue
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.withContext
 
 @Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
@@ -54,8 +60,10 @@ class RxPagedListBuilderTest {
     }
 
     class MockDataSourceFactory {
-        fun create(): PagingSource<Int, String> {
-            return MockPagingSource()
+        fun create(
+            loadDispatcher: CoroutineDispatcher = DirectDispatcher
+        ): PagingSource<Int, String> {
+            return MockPagingSource(loadDispatcher)
         }
 
         var throwable: Throwable? = null
@@ -64,10 +72,25 @@ class RxPagedListBuilderTest {
             throwable = EXCEPTION
         }
 
-        private inner class MockPagingSource : PagingSource<Int, String>() {
-            override suspend fun load(params: LoadParams<Int>) = when (params) {
-                is LoadParams.Refresh -> loadInitial(params)
-                else -> loadRange()
+        inner class MockPagingSource(
+            // Allow explicit control of load calls outside of fetch / notify. Note: This is
+            // different from simply setting fetchDispatcher because PagingObservableOnSubscribe
+            // init happens on fetchDispatcher which makes it difficult to differentiate
+            // InitialPagedList.
+            val loadDispatcher: CoroutineDispatcher
+        ) : PagingSource<Int, String>() {
+            var invalidInitialLoad = false
+
+            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+                return withContext(loadDispatcher) {
+                    if (invalidInitialLoad) {
+                        invalidInitialLoad = false
+                        LoadResult.Invalid()
+                    } else when (params) {
+                        is LoadParams.Refresh -> loadInitial(params)
+                        else -> loadRange()
+                    }
+                }
             }
 
             override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
@@ -253,6 +276,105 @@ class RxPagedListBuilderTest {
                 )
             ),
             loadStates
+        )
+    }
+
+    @Test
+    fun observablePagedList_invalidInitialResult() {
+        // this TestDispatcher is used to queue up pagingSource.load(). This allows us to control
+        // and assert against each load() attempt outside of fetch/notify dispatcher
+        val loadDispatcher = TestDispatcher()
+        val pagingSources = mutableListOf<MockDataSourceFactory.MockPagingSource>()
+        val factory = {
+            MockDataSourceFactory().create(loadDispatcher).also {
+                val source = it as MockDataSourceFactory.MockPagingSource
+                if (pagingSources.size == 0) source.invalidInitialLoad = true
+                pagingSources.add(source)
+            }
+        }
+        // this is essentially a direct scheduler so jobs are run immediately
+        val scheduler = Schedulers.from(DirectDispatcher.asExecutor())
+        val observable = RxPagedListBuilder(factory, 2)
+            .setFetchScheduler(scheduler)
+            .setNotifyScheduler(scheduler)
+            .buildObservable()
+
+        val observer = TestObserver<PagedList<String>>()
+        // subscribe triggers the PagingObservableOnSubscribe's invalidate() to create first
+        // pagingSource
+        observable.subscribe(observer)
+
+        // ensure the InitialPagedList with empty data is observed
+        observer.assertValueCount(1)
+        val initPagedList = observer.values()[0]!!
+        assertThat(initPagedList).isInstanceOf(InitialPagedList::class.java)
+        assertThat(initPagedList).isEmpty()
+        // ensure first pagingSource is also created at this point
+        assertThat(pagingSources.size).isEqualTo(1)
+
+        val loadStates = mutableListOf<LoadStateEvent>()
+        val loadStateChangedCallback = { type: LoadType, state: LoadState ->
+            if (type == REFRESH) {
+                loadStates.add(LoadStateEvent(type, state))
+            }
+        }
+
+        initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
+
+        assertThat(loadStates).containsExactly(
+            // before first load() is called, REFRESH is set to loading, represents load
+            // attempt on first pagingSource
+            LoadStateEvent(REFRESH, Loading)
+        )
+
+        // execute first load, represents load attempt on first paging source
+        //
+        // using poll().run() instead of executeAll(), because executeAll() + immediate schedulers
+        // result in first load + subsequent loads executing immediately and we won't be able to
+        // assert the pagedLists/loads incrementally
+        loadDispatcher.queue.poll()?.run()
+
+        // the load failed so there should still be only one PagedList, but the first
+        // pagingSource should invalidated, and the second pagingSource is created
+        observer.assertValueCount(1)
+        assertTrue(pagingSources[0].invalid)
+        assertThat(pagingSources.size).isEqualTo(2)
+
+        assertThat(loadStates).containsExactly(
+            // the first load attempt
+            LoadStateEvent(REFRESH, Loading),
+            // LoadResult.Invalid resets RERFRESH state
+            LoadStateEvent(
+                REFRESH,
+                NotLoading(endOfPaginationReached = false)
+            ),
+            // before second load() is called, REFRESH is set to loading, represents load
+            // attempt on second pagingSource
+            LoadStateEvent(REFRESH, Loading),
+        )
+
+        // execute the load attempt on second pagingSource which succeeds
+        loadDispatcher.queue.poll()?.run()
+
+        // ensure second pagedList created with the correct data loaded
+        observer.assertValueCount(2)
+        val secondPagedList = observer.values()[1]
+        assertThat(secondPagedList).containsExactly("a", "b", null, null)
+        assertThat(secondPagedList).isNotInstanceOf(InitialPagedList::class.java)
+        assertThat(secondPagedList).isInstanceOf(ContiguousPagedList::class.java)
+
+        secondPagedList.addWeakLoadStateListener(loadStateChangedCallback)
+        assertThat(loadStates).containsExactly(
+            LoadStateEvent(REFRESH, Loading), // first load
+            LoadStateEvent(
+                REFRESH,
+                NotLoading(endOfPaginationReached = false)
+            ), // first load reset
+            LoadStateEvent(REFRESH, Loading), // second load
+            LoadStateEvent(
+                REFRESH,
+                NotLoading(endOfPaginationReached = false)
+            ), // second load succeeds
         )
     }
 
