@@ -21,6 +21,7 @@ import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 import androidx.paging.LoadType
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
+import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingState
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -150,18 +151,32 @@ class LimitOffsetPagingSourceTest {
     @Test
     fun load_initialLoad() {
         val pagingSource = LimitOffsetPagingSourceImpl(database)
+        dao.addAllItems(itemsList)
         runBlocking {
-            // test empty load
-            val result = pagingSource.refresh()
+            val result = pagingSource.refresh() as LoadResult.Page
 
-            assertTrue(result.data.isEmpty())
-            // now add data
-            dao.addAllItems(itemsList)
-            val result2 = pagingSource.refresh()
-
-            assertThat(result2.data).containsExactlyElementsIn(
+            assertThat(result.data).containsExactlyElementsIn(
                 itemsList.subList(0, 15)
             )
+        }
+    }
+
+    @Test
+    fun load_initialEmptyLoad() {
+        val pagingSource = LimitOffsetPagingSourceImpl(database)
+        runBlocking {
+            val result = pagingSource.refresh() as LoadResult.Page
+
+            assertTrue(result.data.isEmpty())
+
+            // now add items
+            dao.addAllItems(itemsList)
+
+            // the db write should cause pagingSource to realize it is invalid
+            assertThat(pagingSource.refresh()).isInstanceOf(
+                LoadResult.Invalid::class.java
+            )
+            assertTrue(pagingSource.invalid)
         }
     }
 
@@ -171,7 +186,7 @@ class LimitOffsetPagingSourceTest {
         val pagingSource = LimitOffsetPagingSourceImpl(database)
         // refresh with initial key = 20
         runBlocking {
-            val result = pagingSource.refresh(key = 20)
+            val result = pagingSource.refresh(key = 20) as LoadResult.Page
 
             // item in pos 21-35 (TestItemId 20-34) loaded
             assertThat(result.data).containsExactlyElementsIn(
@@ -188,7 +203,7 @@ class LimitOffsetPagingSourceTest {
             queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT 10 OFFSET 30",
         )
         runBlocking {
-            val result = pagingSource.refresh()
+            val result = pagingSource.refresh() as LoadResult.Page
 
             // default initial loadSize = 15 starting from index 0.
             // user supplied limit offset should cause initial loadSize = 10, starting from index 30
@@ -213,7 +228,7 @@ class LimitOffsetPagingSourceTest {
         )
         // refresh with initial key = 40
         runBlocking {
-            val result = pagingSource.refresh(key = 40)
+            val result = pagingSource.refresh(key = 40) as LoadResult.Page
 
             // initial loadSize = 15, but limited by id < 50, should only load items 40 - 50
             assertThat(result.data).containsExactlyElementsIn(
@@ -236,7 +251,7 @@ class LimitOffsetPagingSourceTest {
                     "ORDER BY id ASC",
         )
         runBlocking {
-            val result = pagingSource.refresh()
+            val result = pagingSource.refresh() as LoadResult.Page
 
             assertThat(result.data).containsExactly(itemsList[90])
             assertThat(pagingSource.itemCount.get()).isEqualTo(1)
@@ -251,7 +266,7 @@ class LimitOffsetPagingSourceTest {
             queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT 10 OFFSET 500",
         )
         runBlocking {
-            val result = pagingSource.refresh()
+            val result = pagingSource.refresh() as LoadResult.Page
 
             // invalid OFFSET = 500 should return empty data
             assertThat(result.data).isEmpty()
@@ -273,7 +288,7 @@ class LimitOffsetPagingSourceTest {
             queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT -1",
         )
         runBlocking {
-            val result = pagingSource.refresh()
+            val result = pagingSource.refresh() as LoadResult.Page
 
             // ensure that it respects SQLite's default behavior for negative LIMIT
             assertThat(result.data).containsExactlyElementsIn(
@@ -292,18 +307,18 @@ class LimitOffsetPagingSourceTest {
     fun invalidInitialKey_dbEmpty_returnsEmpty() {
         val pagingSource = LimitOffsetPagingSourceImpl(database)
         runBlocking {
-            val result = pagingSource.refresh(key = 101)
+            val result = pagingSource.refresh(key = 101) as LoadResult.Page
 
             assertThat(result.data).isEmpty()
         }
     }
 
     @Test
-    fun invalidInitialKey_keyTooLarge_returnsEmpty() {
+    fun invalidInitialKey_keyTooLarge_returnsLastPage() {
         val pagingSource = LimitOffsetPagingSourceImpl(database)
         dao.addAllItems(itemsList)
         runBlocking {
-            val result = pagingSource.refresh(key = 101)
+            val result = pagingSource.refresh(key = 101) as LoadResult.Page
 
             // should load the last page
             assertThat(result.data).containsExactlyElementsIn(
@@ -335,7 +350,7 @@ class LimitOffsetPagingSourceTest {
         // to bypass check for initial load and run as non-initial load
         pagingSource.itemCount.set(100)
         runBlocking {
-            val result = pagingSource.append(key = 20)
+            val result = pagingSource.append(key = 20) as LoadResult.Page
 
             // item in pos 21-25 (TestItemId 20-24) loaded
             assertThat(result.data).containsExactlyElementsIn(
@@ -353,7 +368,7 @@ class LimitOffsetPagingSourceTest {
         // to bypass check for initial load and run as non-initial load
         pagingSource.itemCount.set(100)
         runBlocking {
-            val result = pagingSource.append(key = 97)
+            val result = pagingSource.append(key = 97) as LoadResult.Page
 
             // item in pos 98-100 (TestItemId 97-99) loaded
             assertThat(result.data).containsExactlyElementsIn(
@@ -371,20 +386,46 @@ class LimitOffsetPagingSourceTest {
         // to bypass check for initial load and run as non-initial load
         pagingSource.itemCount.set(100)
         runBlocking {
-            // first prepend
-            val result = pagingSource.append(key = 30)
+            // first append
+            val result = pagingSource.append(key = 30) as LoadResult.Page
 
             // TestItemId 30-34 loaded
             assertThat(result.data).containsExactlyElementsIn(
                 itemsList.subList(30, 35)
             )
-            // second prepend using nextKey from previous load
-            val result2 = pagingSource.append(key = result.nextKey)
+            // second append using nextKey from previous load
+            val result2 = pagingSource.append(key = result.nextKey) as LoadResult.Page
 
             // TestItemId 35 - 39 loaded
             assertThat(result2.data).containsExactlyElementsIn(
                 itemsList.subList(35, 40)
             )
+        }
+    }
+
+    @Test
+    fun append_invalidResult() {
+        val pagingSource = LimitOffsetPagingSourceImpl(database)
+        dao.addAllItems(itemsList)
+        // to bypass check for initial load and run as non-initial load
+        pagingSource.itemCount.set(100)
+        runBlocking {
+            // first append
+            val result = pagingSource.append(key = 30) as LoadResult.Page
+
+            // TestItemId 30-34 loaded
+            assertThat(result.data).containsExactlyElementsIn(
+                itemsList.subList(30, 35)
+            )
+
+            // make changes to database
+            dao.deleteTestItem(itemsList[42])
+
+            // this append should check invalidation tables, realize it has been updated,
+            // and return a LoadResult.Invalid
+            val result2 = pagingSource.append(key = result.nextKey)
+
+            assertThat(result2).isInstanceOf(LoadResult.Invalid::class.java)
         }
     }
 
@@ -395,7 +436,7 @@ class LimitOffsetPagingSourceTest {
         // to bypass check for initial load and run as non-initial load
         pagingSource.itemCount.set(100)
         runBlocking {
-            val result = pagingSource.prepend(key = 30)
+            val result = pagingSource.prepend(key = 30) as LoadResult.Page
 
             assertThat(result.data).containsExactlyElementsIn(
                 itemsList.subList(25, 30)
@@ -412,7 +453,7 @@ class LimitOffsetPagingSourceTest {
         // to bypass check for initial load and run as non-initial load
         pagingSource.itemCount.set(100)
         runBlocking {
-            val result = pagingSource.prepend(key = 3)
+            val result = pagingSource.prepend(key = 3) as LoadResult.Page
 
             // items in pos 0 - 2 (TestItemId 0 - 2) loaded
             assertThat(result.data).containsExactlyElementsIn(
@@ -431,14 +472,14 @@ class LimitOffsetPagingSourceTest {
         pagingSource.itemCount.set(100)
         runBlocking {
             // first prepend
-            val result = pagingSource.prepend(key = 20)
+            val result = pagingSource.prepend(key = 20) as LoadResult.Page
 
             // items pos 16-20 (TestItemId 15-19) loaded
             assertThat(result.data).containsExactlyElementsIn(
                 itemsList.subList(15, 20)
             )
             // second prepend using prevKey from previous load
-            val result2 = pagingSource.prepend(key = result.prevKey)
+            val result2 = pagingSource.prepend(key = result.prevKey) as LoadResult.Page
 
             // items pos 11-15 (TestItemId 10 - 14) loaded
             assertThat(result2.data).containsExactlyElementsIn(
@@ -448,24 +489,51 @@ class LimitOffsetPagingSourceTest {
     }
 
     @Test
+    fun prepend_invalidResult() {
+        val pagingSource = LimitOffsetPagingSourceImpl(database)
+        dao.addAllItems(itemsList)
+        // to bypass check for initial load and run as non-initial load
+        pagingSource.itemCount.set(100)
+        runBlocking {
+            // first prepend
+            val result = pagingSource.prepend(key = 20) as LoadResult.Page
+
+            // items pos 16-20 (TestItemId 15-19) loaded
+            assertThat(result.data).containsExactlyElementsIn(
+                itemsList.subList(15, 20)
+            )
+
+            // now write into database
+            dao.deleteTestItem(itemsList[30])
+
+            // second prepend using prevKey from previous load
+            val result2 = pagingSource.prepend(key = result.prevKey)
+
+            // this prepend should check invalidation tables, realize it has been updated,
+            // and return a LoadResult.Invalid
+            assertThat(result2).isInstanceOf(LoadResult.Invalid::class.java)
+        }
+    }
+
+    @Test
     fun test_itemsBefore() {
         val pagingSource = LimitOffsetPagingSourceImpl(database)
         dao.addAllItems(itemsList)
         runBlocking {
             // for initial load
-            val result = pagingSource.refresh(key = 50)
+            val result = pagingSource.refresh(key = 50) as LoadResult.Page
 
             // initial loads items in pos 51 - 65, should have 50 items before
             assertThat(result.itemsBefore).isEqualTo(50)
 
             // prepend from initial load
-            val result2 = pagingSource.prepend(key = result.prevKey)
+            val result2 = pagingSource.prepend(key = result.prevKey) as LoadResult.Page
 
             // prepend loads items in pos 46 - 50, should have 45 item before
             assertThat(result2.itemsBefore).isEqualTo(45)
 
             // append from initial load
-            val result3 = pagingSource.append(key = result.nextKey)
+            val result3 = pagingSource.append(key = result.nextKey) as LoadResult.Page
 
             // append loads items in position 66 - 70 , should have 65 item before
             assertThat(result3.itemsBefore).isEqualTo(65)
@@ -478,19 +546,19 @@ class LimitOffsetPagingSourceTest {
         dao.addAllItems(itemsList)
         runBlocking {
             // for initial load
-            val result = pagingSource.refresh(key = 30)
+            val result = pagingSource.refresh(key = 30) as LoadResult.Page
 
             // initial loads items in position 31 - 45, should have 55 items after
             assertThat(result.itemsAfter).isEqualTo(55)
 
             // prepend from initial load
-            val result2 = pagingSource.prepend(key = result.prevKey)
+            val result2 = pagingSource.prepend(key = result.prevKey) as LoadResult.Page
 
             // prepend loads items in position 26 - 30, should have 70 item after
             assertThat(result2.itemsAfter).isEqualTo(70)
 
             // append from initial load
-            val result3 = pagingSource.append(result.nextKey)
+            val result3 = pagingSource.append(result.nextKey) as LoadResult.Page
 
             // append loads items in position 46 - 50 , should have 50 item after
             assertThat(result3.itemsAfter).isEqualTo(50)
@@ -503,7 +571,7 @@ class LimitOffsetPagingSourceTest {
         dao.addAllItems(itemsList)
         runBlocking {
             // initial load
-            val result = pagingSource.refresh()
+            val result = pagingSource.refresh() as LoadResult.Page
             // 15 items loaded, assuming anchorPosition = 14 as the last item loaded
             var refreshKey = pagingSource.getRefreshKey(
                 PagingState(
@@ -519,7 +587,7 @@ class LimitOffsetPagingSourceTest {
             assertThat(refreshKey).isEqualTo(7)
 
             // append after refresh
-            val result2 = pagingSource.append(key = result.nextKey)
+            val result2 = pagingSource.append(key = result.nextKey) as LoadResult.Page
 
             assertThat(result2.data).isEqualTo(
                 itemsList.subList(15, 20)
@@ -555,7 +623,7 @@ class LimitOffsetPagingSourceTest {
             assertThat(refreshKey).isEqualTo(78)
 
             val pagingSource2 = LimitOffsetPagingSourceImpl(database)
-            val result2 = pagingSource2.refresh(key = refreshKey)
+            val result2 = pagingSource2.refresh(key = refreshKey) as LoadResult.Page
 
             // database should only have 40 items left. Refresh key is invalid at this point
             // (greater than item count after deletion)
@@ -604,7 +672,7 @@ class LimitOffsetPagingSourceTest {
             // clips to 0
             val refreshKey = 0
 
-            val result2 = pagingSource2.refresh(key = refreshKey)
+            val result2 = pagingSource2.refresh(key = refreshKey) as LoadResult.Page
 
             // database should only have 70 items left
             assertThat(pagingSource2.itemCount.get()).isEqualTo(70)
@@ -640,7 +708,7 @@ class LimitOffsetPagingSourceTest {
             // clips to 0
             val refreshKey = 0
 
-            val result2 = pagingSource2.refresh(key = refreshKey)
+            val result2 = pagingSource2.refresh(key = refreshKey) as LoadResult.Page
 
             // database should only have 5 items left
             assertThat(pagingSource2.itemCount.get()).isEqualTo(5)
@@ -705,35 +773,35 @@ class LimitOffsetPagingSourceTest {
 
     private suspend fun PagingSource<Int, TestItem>.refresh(
         key: Int? = null,
-    ): PagingSource.LoadResult.Page<Int, TestItem> {
+    ): LoadResult<Int, TestItem> {
         return this.load(
             createLoadParam(
                 loadType = LoadType.REFRESH,
                 key = key,
             )
-        ) as PagingSource.LoadResult.Page
+        )
     }
 
     private suspend fun PagingSource<Int, TestItem>.append(
         key: Int? = -1,
-    ): PagingSource.LoadResult.Page<Int, TestItem> {
+    ): LoadResult<Int, TestItem> {
         return this.load(
             createLoadParam(
                 loadType = LoadType.APPEND,
                 key = key,
             )
-        ) as PagingSource.LoadResult.Page
+        )
     }
 
     private suspend fun PagingSource<Int, TestItem>.prepend(
         key: Int? = -1,
-    ): PagingSource.LoadResult.Page<Int, TestItem> {
+    ): LoadResult<Int, TestItem> {
         return this.load(
             createLoadParam(
                 loadType = LoadType.PREPEND,
                 key = key,
             )
-        ) as PagingSource.LoadResult.Page
+        )
     }
 
     companion object {
