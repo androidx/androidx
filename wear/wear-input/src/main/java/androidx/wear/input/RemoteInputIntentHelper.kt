@@ -36,10 +36,20 @@ import androidx.annotation.RequiresApi
  * );
  * val intent: Intent = createActionRemoteInputIntent();
  * putRemoteInputsExtra(intent, remoteInputs)
- * startActivity(intent);
+ * startActivityForResult(intent);
  * ```
+ *
  * The intent returned via [android.app.Activity.onActivityResult] will contain the input results if
- * collected. More information about accessing these results can be found in [RemoteInput].
+ * collected, for example:
+ *
+ * ```
+ * override fun onActivityResult(requestCode: Int, resultCode: Int, intentResults: Intent?) {
+ *     val results: Bundle = RemoteInput.getResultsFromIntent(intentResults)
+ *     val quickReplyResult: CharSequence? = results.getCharSequence(KEY_QUICK_REPLY_TEXT)
+ * }
+ * ```
+ *
+ * More information about accessing these results can be found in [RemoteInput].
  */
 @RequiresApi(Build.VERSION_CODES.N)
 public class RemoteInputIntentHelper private constructor() {
