@@ -76,7 +76,7 @@ import java.util.Map;
  * <ol>
  *     <li><a href="#ProviderDefinition">Defining a FileProvider</a></li>
  *     <li><a href="#SpecifyFiles">Specifying Available Files</a></li>
- *     <li><a href="#GetUri">Retrieving the Content URI for a File</li>
+ *     <li><a href="#GetUri">Retrieving the Content URI for a File</a></li>
  *     <li><a href="#Permissions">Granting Temporary Permissions to a URI</a></li>
  *     <li><a href="#ServeUri">Serving a Content URI to Another App</a></li>
  * </ol>
