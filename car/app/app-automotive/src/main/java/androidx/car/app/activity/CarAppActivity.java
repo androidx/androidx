@@ -183,6 +183,14 @@ public final class CarAppActivity extends FragmentActivity {
                     Log.d(LogTags.TAG, "finishCarApp");
                     finish();
                 }
+
+                @Override
+                public void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart,
+                        int newSelEnd) {
+                    Log.d(LogTags.TAG, "onUpdateSelection");
+                    ThreadUtils.runOnMain(() -> mSurfaceView.onUpdateSelection(oldSelStart,
+                            oldSelEnd, newSelStart, newSelEnd));
+                }
             };
 
     @Override
