@@ -33,9 +33,11 @@ dependencies {
 
     testImplementation(project(":internal-testutils-common"))
     testImplementation(project(":internal-testutils-paging"))
+    testImplementation(project(":internal-testutils-ktx"))
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.truth)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

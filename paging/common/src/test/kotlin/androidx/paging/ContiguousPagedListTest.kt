@@ -64,6 +64,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     private inner class TestPagingSource(
         val listData: List<Item> = ITEMS
     ) : PagingSource<Int, Item>() {
+        var invalidData = false
+
         override fun getRefreshKey(state: PagingState<Int, Item>): Int? {
             return state.anchorPosition
                 ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition)?.pos }
@@ -89,6 +91,10 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             val start = maxOf(initPos - params.loadSize / 2, 0)
 
             val result = getClampedRange(start, start + params.loadSize)
+            if (invalidData) {
+                invalidData = false
+                return LoadResult.Invalid()
+            }
             return when {
                 result == null -> LoadResult.Error(EXCEPTION)
                 placeholdersEnabled -> Page(
@@ -109,6 +115,10 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         private fun loadAfter(params: LoadParams<Int>): LoadResult<Int, Item> {
             val result = getClampedRange(params.key!! + 1, params.key!! + 1 + params.loadSize)
                 ?: return LoadResult.Error(EXCEPTION)
+            if (invalidData) {
+                invalidData = false
+                return LoadResult.Invalid()
+            }
             return Page(
                 data = result,
                 prevKey = if (result.isNotEmpty()) result.first().pos else null,
@@ -119,6 +129,10 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         private fun loadBefore(params: LoadParams<Int>): LoadResult<Int, Item> {
             val result = getClampedRange(params.key!! - params.loadSize, params.key!!)
                 ?: return LoadResult.Error(EXCEPTION)
+            if (invalidData) {
+                invalidData = false
+                return LoadResult.Invalid()
+            }
             return Page(
                 data = result,
                 prevKey = result.firstOrNull()?.pos,
@@ -329,6 +343,30 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     }
 
     @Test
+    fun append_invalidData_detach() {
+        val pagedList = createCountedPagedList(0)
+        val callback = mock<Callback>()
+        pagedList.addWeakCallback(callback)
+        verifyRange(0, 40, pagedList)
+        verifyZeroInteractions(callback)
+
+        pagedList.loadAround(35)
+        // return a LoadResult.Invalid
+        val pagingSource = pagedList.pagingSource as TestPagingSource
+        pagingSource.invalidData = true
+        drain()
+
+        // nothing new should be loaded
+        verifyRange(0, 40, pagedList)
+        verifyNoMoreInteractions(callback)
+        assertTrue(pagingSource.invalid)
+        assertTrue(pagedList.isDetached)
+        // detached status should turn pagedList into immutable, and snapshot should return the
+        // pagedList itself
+        assertSame(pagedList.snapshot(), pagedList)
+    }
+
+    @Test
     fun prepend() {
         val pagedList = createCountedPagedList(80)
         val callback = mock<Callback>()
@@ -342,6 +380,30 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(40, 60, pagedList)
         verifyCallback(callback, 40, 0)
         verifyNoMoreInteractions(callback)
+    }
+
+    @Test
+    fun prepend_invalidData_detach() {
+        val pagedList = createCountedPagedList(80)
+        val callback = mock<Callback>()
+        pagedList.addWeakCallback(callback)
+        verifyRange(60, 40, pagedList)
+        verifyZeroInteractions(callback)
+
+        pagedList.loadAround(if (placeholdersEnabled) 65 else 5)
+        // return a LoadResult.Invalid
+        val pagingSource = pagedList.pagingSource as TestPagingSource
+        pagingSource.invalidData = true
+        drain()
+
+        // nothing new should be loaded
+        verifyRange(60, 40, pagedList)
+        verifyNoMoreInteractions(callback)
+        assertTrue(pagingSource.invalid)
+        assertTrue(pagedList.isDetached)
+        // detached status should turn pagedList into immutable, and snapshot should return the
+        // pagedList itself
+        assertSame(pagedList.snapshot(), pagedList)
     }
 
     @Test
