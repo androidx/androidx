@@ -42,7 +42,7 @@ dependencies {
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui-tooling"))
     implementation(project(":activity:activity-compose"))
-//    implementation() 'androidx.wear:wear:1.1.0'
+    implementation(project(":profileinstaller:profileinstaller"))
     implementation project(path: ':wear:compose:compose-material')
 }
 
