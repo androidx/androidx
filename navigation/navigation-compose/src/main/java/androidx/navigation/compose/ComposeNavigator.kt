@@ -25,6 +25,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorState
+import androidx.navigation.NavigatorState.OnTransitionCompleteListener
 import androidx.navigation.compose.ComposeNavigator.Destination
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,6 +38,13 @@ import kotlinx.coroutines.flow.StateFlow
 @Navigator.Name("composable")
 public class ComposeNavigator : Navigator<Destination>() {
     private var attached by mutableStateOf(false)
+
+    internal val transitionsInProgress:
+        StateFlow<Map<NavBackStackEntry, OnTransitionCompleteListener>> get() = if (attached) {
+            state.transitionsInProgress
+        } else {
+            MutableStateFlow(emptyMap())
+        }
 
     /**
      * Get the back stack from the [state]. NavHost will compose at least
@@ -61,7 +69,7 @@ public class ComposeNavigator : Navigator<Destination>() {
         navigatorExtras: Extras?
     ) {
         entries.forEach { entry ->
-            state.push(entry)
+            state.pushWithTransition(entry)
         }
     }
 
@@ -70,7 +78,7 @@ public class ComposeNavigator : Navigator<Destination>() {
     }
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
-        state.pop(popUpTo, savedState)
+        state.popWithTransition(popUpTo, savedState)
     }
 
     /**
