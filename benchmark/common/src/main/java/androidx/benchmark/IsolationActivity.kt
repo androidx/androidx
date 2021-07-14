@@ -16,15 +16,11 @@
 
 package androidx.benchmark
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
-import android.app.KeyguardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
 import android.os.Process
 import android.util.Log
 import android.view.WindowManager
@@ -159,28 +155,25 @@ public class IsolationActivity : android.app.Activity() {
         }
 
         internal fun isSustainedPerformanceModeSupported(): Boolean =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val context = InstrumentationRegistry.getInstrumentation().targetContext
-                val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-                powerManager.isSustainedPerformanceModeSupported
+            if (Build.VERSION.SDK_INT >= 24) {
+                InstrumentationRegistry
+                    .getInstrumentation()
+                    .isSustainedPerformanceModeSupported()
             } else {
                 false
             }
 
         private val activityLifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
-            @SuppressLint("NewApi") // window API guarded by [isSustainedPerformanceModeSupported]
             override fun onActivityCreated(activity: Activity, bundle: Bundle?) {
-                if (sustainedPerformanceModeInUse) {
-                    activity.window.setSustainedPerformanceMode(true)
+                if (sustainedPerformanceModeInUse && Build.VERSION.SDK_INT >= 24) {
+                    activity.setSustainedPerformanceMode(true)
                 }
 
                 // Forcibly wake the device, and keep the screen on to prevent benchmark failures.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                    val keyguardManager =
-                        activity.getSystemService(KEYGUARD_SERVICE) as KeyguardManager
-                    keyguardManager.requestDismissKeyguard(activity, null)
-                    activity.setShowWhenLocked(true)
-                    activity.setTurnScreenOn(true)
+                    activity.requestDismissKeyguard()
+                    activity.setShowWhenLocked()
+                    activity.setTurnScreenOn()
                     activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 } else {
                     @Suppress("DEPRECATION")
