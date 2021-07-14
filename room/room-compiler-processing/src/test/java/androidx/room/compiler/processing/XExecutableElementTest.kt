@@ -610,6 +610,97 @@ class XExecutableElementTest {
     }
 
     @Test
+    fun defaultMethodParameters() {
+        fun buildSource(pkg: String) = Source.kotlin(
+            "Foo.kt",
+            """
+            package $pkg
+            class Subject {
+                var prop:Int = 1
+                fun method1(arg:Int = 0, arg2:Int) {}
+                fun method2(arg:Int, arg2:Int = 0) {}
+                fun varargMethod1(x:Int = 3, vararg y:Int) {}
+                fun varargMethod2(x:Int, vararg y:Int = intArrayOf(1,2,3)) {}
+                suspend fun suspendMethod() {}
+                @JvmOverloads
+                fun jvmOverloadsMethod(
+                    x:Int,
+                    y:Int = 1,
+                    z:String = "foo"
+                ) {}
+            }
+            """.trimIndent()
+        )
+
+        fun XExecutableElement.defaults() = parameters.map { it.hasDefaultValue }
+        runProcessorTest(
+            sources = listOf(buildSource(pkg = "app")),
+            classpath = compileFiles(listOf(buildSource(pkg = "lib")))
+        ) { invocation ->
+            listOf("app", "lib").map {
+                invocation.processingEnv.requireTypeElement("$it.Subject")
+            }.forEach { subject ->
+                subject.getMethod("method1").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(true, false).inOrder()
+                }
+                subject.getMethod("method2").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(false, true).inOrder()
+                }
+                subject.getMethod("varargMethod1").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(true, false).inOrder()
+                }
+                subject.getMethod("varargMethod2").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(false, true).inOrder()
+                }
+                subject.getMethod("suspendMethod").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(false)
+                }
+                subject.getMethod("setProp").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(false)
+                }
+                val jvmOverloadedMethodCount = subject.getDeclaredMethods().count {
+                    it.name == "jvmOverloadsMethod"
+                }
+                if (invocation.isKsp) {
+                    assertWithMessage(subject.fallbackLocationText)
+                        .that(jvmOverloadedMethodCount).isEqualTo(1)
+                    subject.getMethod("jvmOverloadsMethod").let { method ->
+                        assertWithMessage(method.fallbackLocationText)
+                            .that(method.defaults())
+                            .containsExactly(false, true, true).inOrder()
+                    }
+                } else {
+                    assertWithMessage(subject.fallbackLocationText)
+                        .that(jvmOverloadedMethodCount).isEqualTo(3)
+                    val actuals = subject.getDeclaredMethods().filter {
+                        it.name == "jvmOverloadsMethod"
+                    }.associateBy(
+                        keySelector = { it.parameters.size },
+                        valueTransform = { it.defaults() }
+                    )
+                    // JVM overloads is not part of the java stub or metadata, hence we cannot
+                    // detect it
+                    assertWithMessage(subject.fallbackLocationText)
+                        .that(actuals)
+                        .containsExactlyEntriesIn(
+                            mapOf(
+                                1 to listOf(false),
+                                2 to listOf(false, false),
+                                3 to listOf(false, true, true)
+                            )
+                        )
+                }
+            }
+        }
+    }
+
+    @Test
     fun thrownTypes() {
         fun buildSources(pkg: String) = listOf(
             Source.java(

@@ -61,6 +61,9 @@ internal class KspSyntheticContinuationParameterElement(
         arrayOf("continuation", containing)
     }
 
+    override val hasDefaultValue: Boolean
+        get() = false
+
     override val type: XType by lazy {
         val continuation = env.resolver.requireContinuationClass()
         val contType = continuation.asType(
