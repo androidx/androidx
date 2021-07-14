@@ -26,7 +26,7 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin "androidx.compose.compiler:compiler:1.0.0-rc01"
+    kotlinPlugin "androidx.compose.compiler:compiler:1.0.0-rc02"
     implementation(libs.kotlinStdlib)
     implementation projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose")
 }

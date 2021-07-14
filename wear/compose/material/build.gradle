@@ -28,17 +28,17 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
-    kotlinPlugin("androidx.compose.compiler:compiler:1.0.0-rc01")
+    kotlinPlugin("androidx.compose.compiler:compiler:1.0.0-rc02")
 
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        api("androidx.compose.foundation:foundation:1.0.0-rc01")
-        api("androidx.compose.ui:ui:1.0.0-rc01")
-        api("androidx.compose.ui:ui-text:1.0.0-rc01")
-        api("androidx.compose.runtime:runtime:1.0.0-rc01")
+        api("androidx.compose.foundation:foundation:1.0.0-rc02")
+        api("androidx.compose.ui:ui:1.0.0-rc02")
+        api("androidx.compose.ui:ui-text:1.0.0-rc02")
+        api("androidx.compose.runtime:runtime:1.0.0-rc02")
 
         implementation(libs.kotlinStdlib)
-        implementation("androidx.compose.material:material:1.0.0-rc01")
-        implementation("androidx.compose.material:material-ripple:1.0.0-rc01")
+        implementation("androidx.compose.material:material:1.0.0-rc02")
+        implementation("androidx.compose.material:material-ripple:1.0.0-rc02")
 
         androidTestImplementation project(path: ':compose:ui:ui-test')
         androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
