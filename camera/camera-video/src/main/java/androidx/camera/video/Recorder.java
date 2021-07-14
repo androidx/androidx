@@ -581,7 +581,7 @@ public final class Recorder implements VideoOutput {
                 case RESETING:
                     // Fall-through
                 case INITIALIZING:
-                    finalizeRecording(VideoRecordEvent.ERROR_RECORDER_UNINITIALIZED,
+                    finalizeRecording(VideoRecordEvent.ERROR_NO_VALID_DATA,
                             new IllegalStateException("The Recorder hasn't been initialized."));
                     setState(State.INITIALIZING);
                     break;
