@@ -196,6 +196,26 @@ public class NavBackStackEntry private constructor(
         savedStateRegistryController.performSave(outBundle)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is NavBackStackEntry) return false
+        return context == other.context && id == other.id && destination == other.destination &&
+            (
+                arguments == other.arguments ||
+                    arguments?.keySet()
+                    ?.all { arguments!!.get(it) == other.arguments?.get(it) } == true
+                )
+    }
+
+    override fun hashCode(): Int {
+        var result = context.hashCode()
+        result = 31 * result + id.hashCode()
+        result = 31 * result + destination.hashCode()
+        arguments?.keySet()?.forEach {
+            result = 31 * result + arguments!!.get(it).hashCode()
+        }
+        return result
+    }
+
     /**
      * Used to create the {SavedStateViewModel}
      */

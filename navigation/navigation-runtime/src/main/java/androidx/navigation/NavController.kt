@@ -280,11 +280,21 @@ public open class NavController(
             popUpTo: NavBackStackEntry,
             saveState: Boolean
         ): OnTransitionCompleteListener {
+            // we need to mark the entry as transitioning before making the super call to pop so
+            // we don't move its lifecycle to DESTROYED.
+            addInProgressTransition(popUpTo) { }
             val innerListener = super.popWithTransition(popUpTo, saveState)
             val listener = OnTransitionCompleteListener {
                 innerListener.onTransitionComplete()
                 if (backQueue.contains(popUpTo)) {
                     updateBackStackLifecycle()
+                } else {
+                    // If the entry is no longer part of the backStack, we need to manually move
+                    // it to DESTROYED, and clear its view model
+                    popUpTo.maxLifecycle = Lifecycle.State.DESTROYED
+                    if (!saveState) {
+                        viewModel?.clear(popUpTo.id)
+                    }
                 }
             }
             addInProgressTransition(popUpTo, listener)
@@ -588,6 +598,16 @@ public open class NavController(
             .getNavigator<Navigator<NavDestination>>(entry.destination.navigatorName)
         val state = navigatorState[navigator]
         val transitioning = state?.transitionsInProgress?.value?.containsKey(entry)
+        // When popping, we need to mark the incoming entry as transitioning so we keep it
+        // STARTED until the transition completes at which point we can move it to RESUMED
+        if (backQueue.isNotEmpty() && transitioning == true) {
+            state.addInProgressTransition(backQueue.last()) {
+                state.removeInProgressTransition(backQueue.last())
+                if (!state.isNavigating) {
+                    updateBackStackLifecycle()
+                }
+            }
+        }
         if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
             if (saveState) {
                 // Move the state through STOPPED
