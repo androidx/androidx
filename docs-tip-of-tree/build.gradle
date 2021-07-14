@@ -205,6 +205,7 @@ dependencies {
     docs(project(":recyclerview:recyclerview"))
     docs(project(":recyclerview:recyclerview-selection"))
     docs(project(":remotecallback:remotecallback"))
+    docs(project(":resourceinspection:resourceinspection-annotation"))
     docs(project(":room:room-common"))
     docs(project(":room:room-guava"))
     docs(project(":room:room-ktx"))
