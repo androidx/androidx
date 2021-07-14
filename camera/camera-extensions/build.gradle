@@ -57,7 +57,7 @@ dependencies {
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation(project(":camera:integration-tests:camera-testlib-extensions"))
+    androidTestImplementation(project(":camera:camera-testlib-extensions"))
     // To use the testlib to have the implementation of the extensions-stub interface.
 }
 
