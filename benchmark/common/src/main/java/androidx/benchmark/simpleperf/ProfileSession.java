@@ -16,6 +16,7 @@
 
 package androidx.benchmark.simpleperf;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.system.OsConstants;
 
@@ -67,6 +68,7 @@ import java.util.stream.Collectors;
  */
 @RequiresApi(28)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressLint("BanSynchronizedMethods")
 public class ProfileSession {
     private static final String SIMPLEPERF_PATH_IN_IMAGE = "/system/bin/simpleperf";
 

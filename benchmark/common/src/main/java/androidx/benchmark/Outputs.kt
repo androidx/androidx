@@ -17,7 +17,6 @@
 package androidx.benchmark
 
 import android.os.Build
-import android.os.Environment
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
@@ -54,10 +53,7 @@ public object Outputs {
             Build.VERSION.SDK_INT == 30 -> {
                 // On Android R, we are using the media directory because that is the directory
                 // that the shell has access to. Context: b/181601156
-                InstrumentationRegistry.getInstrumentation().context.externalMediaDirs
-                    .firstOrNull {
-                        Environment.getExternalStorageState(it) == Environment.MEDIA_MOUNTED
-                    }
+                InstrumentationRegistry.getInstrumentation().context.getFirstMountedMediaDir()
             }
             Build.VERSION.SDK_INT <= 22 -> {
                 // prior to API 23, shell didn't have access to externalCacheDir
@@ -65,7 +61,7 @@ public object Outputs {
             }
             else -> InstrumentationRegistry.getInstrumentation().context.externalCacheDir
         } ?: throw IllegalStateException(
-            "Unable to read externalCacheDir for writing files, " +
+            "Unable to select a directory for writing files, " +
                 "additionalTestOutputDir argument required to declare output dir."
         )
 

@@ -44,7 +44,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
     }
 
     val errorNotProfileable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        !applicationInfo.isProfileableByShell
+        applicationInfo.isNotProfileableByShell()
     } else {
         false
     }
