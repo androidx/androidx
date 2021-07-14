@@ -303,16 +303,16 @@ public class DatePicker extends Picker {
     }
 
     @Override
-    public final void onColumnValueChanged(int column, int newVal) {
+    public final void onColumnValueChanged(int columnIndex, int newValue) {
         mTempDate.setTimeInMillis(mCurrentDate.getTimeInMillis());
         // take care of wrapping of days and months to update greater fields
-        int oldVal = getColumnAt(column).getCurrentValue();
-        if (column == mColDayIndex) {
-            mTempDate.add(Calendar.DAY_OF_MONTH, newVal - oldVal);
-        } else if (column == mColMonthIndex) {
-            mTempDate.add(Calendar.MONTH, newVal - oldVal);
-        } else if (column == mColYearIndex) {
-            mTempDate.add(Calendar.YEAR, newVal - oldVal);
+        int oldVal = getColumnAt(columnIndex).getCurrentValue();
+        if (columnIndex == mColDayIndex) {
+            mTempDate.add(Calendar.DAY_OF_MONTH, newValue - oldVal);
+        } else if (columnIndex == mColMonthIndex) {
+            mTempDate.add(Calendar.MONTH, newValue - oldVal);
+        } else if (columnIndex == mColYearIndex) {
+            mTempDate.add(Calendar.YEAR, newValue - oldVal);
         } else {
             throw new IllegalArgumentException();
         }

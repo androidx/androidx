@@ -2933,8 +2933,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public boolean requestChildRectangleOnScreen(@NonNull RecyclerView parent,
-            @NonNull View view, @NonNull Rect rect, boolean immediate) {
-        if (DEBUG) Log.v(getTag(), "requestChildRectangleOnScreen " + view + " " + rect);
+            @NonNull View child, @NonNull Rect rect, boolean immediate) {
+        if (DEBUG) Log.v(getTag(), "requestChildRectangleOnScreen " + child + " " + rect);
         return false;
     }
 
