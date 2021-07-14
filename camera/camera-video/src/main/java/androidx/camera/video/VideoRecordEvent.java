@@ -120,12 +120,12 @@ public abstract class VideoRecordEvent {
     }
 
     /**
-     * No error. The recording succeeds.
+     * The recording succeeded with no error.
      */
     public static final int ERROR_NONE = 0;
 
     /**
-     * Unknown error.
+     * An unknown error occurred.
      */
     public static final int ERROR_UNKNOWN = 1;
 
@@ -151,22 +151,34 @@ public abstract class VideoRecordEvent {
      * <p>One case is that camera has been closed due to lifecycle has stopped, so video
      * recording cannot be started.
      */
-    public static final int ERROR_CAMERA_CLOSED = 4;
+    // TODO(b/193575052): Make this public if/when it is used.
+    static final int ERROR_CAMERA_CLOSED = 4;
 
     /**
-     * The recording failed due to the output options are invalid.
+     * The recording failed due to invalid output options.
+     *
+     * <p>This error is generated when invalid output options have been used while preparing a
+     * recording, such as with the {@link Recorder#prepareRecording(MediaStoreOutputOptions)}
+     * method. The error will depend on the {@linkplain OutputOptions#getType() type} of options
+     * used, and more information about the error can be retrieved from {@link Finalize#getCause()}.
      */
     public static final int ERROR_INVALID_OUTPUT_OPTIONS = 5;
 
     /**
      * The recording failed while encoding.
+     *
+     * <p>This error may be generated when the video or audio codec encounters an error during
+     * encoding. See {@link Finalize#getCause()} for more information about the error encountered
+     * by the codec.
      */
     public static final int ERROR_ENCODING_FAILED = 6;
 
     /**
-     * The recording failed due to the recorder encountered errors.
+     * The recording failed because the {@link Recorder} is in an unrecoverable error state.
      *
-     * <p>Usually it can only be recovered by recreating a recorder and recordings with it.
+     * <p>More information about the error can be retrieved from {@link Finalize#getCause()}.
+     * Such an error will usually require creating a new {@link Recorder} object to start a
+     * new recording.
      */
     public static final int ERROR_RECORDER_ERROR = 7;
 
@@ -182,10 +194,11 @@ public abstract class VideoRecordEvent {
      *
      * @hide
      */
+    // TODO(b/193575052): Uncomment ERROR_CAMERA_CLOSED if/when it is used.
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {ERROR_NONE, ERROR_UNKNOWN, ERROR_FILE_SIZE_LIMIT_REACHED,
-            ERROR_INSUFFICIENT_DISK, ERROR_CAMERA_CLOSED, ERROR_INVALID_OUTPUT_OPTIONS,
+            ERROR_INSUFFICIENT_DISK, /*ERROR_CAMERA_CLOSED,*/ ERROR_INVALID_OUTPUT_OPTIONS,
             ERROR_ENCODING_FAILED, ERROR_RECORDER_ERROR, ERROR_RECORDER_UNINITIALIZED})
     public @interface VideoRecordError {
     }
@@ -334,10 +347,10 @@ public abstract class VideoRecordEvent {
          *
          * <p>Possible values are {@link #ERROR_NONE}, {@link #ERROR_UNKNOWN},
          * {@link #ERROR_FILE_SIZE_LIMIT_REACHED}, {@link #ERROR_INSUFFICIENT_DISK},
-         * {@link #ERROR_CAMERA_CLOSED}, {@link #ERROR_INVALID_OUTPUT_OPTIONS},
-         * {@link #ERROR_ENCODING_FAILED}, {@link #ERROR_RECORDER_ERROR} and
-         * {@link #ERROR_RECORDER_UNINITIALIZED}.
+         * {@link #ERROR_INVALID_OUTPUT_OPTIONS}, {@link #ERROR_ENCODING_FAILED},
+         * {@link #ERROR_RECORDER_ERROR} and {@link #ERROR_RECORDER_UNINITIALIZED}.
          */
+        // TODO(b/193575052): Add ERROR_CAMERA_CLOSED to the above list if/when it is used.
         @VideoRecordError
         public int getError() {
             return mError;
