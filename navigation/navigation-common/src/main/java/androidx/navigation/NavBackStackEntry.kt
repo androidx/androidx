@@ -48,7 +48,8 @@ public class NavBackStackEntry private constructor(
      * The destination associated with this entry
      * @return The destination that is currently visible to users
      */
-    public val destination: NavDestination,
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var destination: NavDestination,
     /**
      * The arguments used for this entry
      * @return The arguments used when this entry was created
