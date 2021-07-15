@@ -614,3 +614,5 @@ meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at An
 WARNING:The option setting 'android\.disableAutomaticComponentCreation=true' is experimental\.
 # > Task :compose:ui:ui-test-junit4:testDebugUnitTest
 System\.logW: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable: Explicit termination method 'dispose' not called
+# > Task :navigation:navigation-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/navigation/navigation\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
