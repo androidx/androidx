@@ -35,24 +35,26 @@ internal class KspMessager(
         annotation: XAnnotation?,
         annotationValue: XAnnotationValue?
     ) {
-        // In Javac, the Messager requires all preceding parameters to report an error.
-        // In KSP, the KspLogger only needs the last so ignore the preceding parameters.
-        val ksNode = if (annotationValue != null) {
-            (annotationValue as KspAnnotationValue).valueArgument
-        } else if (annotation != null) {
-            (annotation as KspAnnotation).ksAnnotated
-        } else if (element != null) {
-            (element as KspElement).declaration
-        } else {
-            null
-        }
-
         if (element == null) {
             internalPrintMessage(kind, msg)
-        } else if (ksNode == null || ksNode.location == NonExistLocation) {
-            internalPrintMessage(kind, "$msg - ${element.fallbackLocationText}")
         } else {
-            internalPrintMessage(kind, msg, ksNode)
+            // In Javac, the Messager requires all preceding parameters to report an error.
+            // In KSP, the KspLogger only needs the last so ignore the preceding parameters.
+            val ksNode = if (annotationValue != null) {
+                (annotationValue as KspAnnotationValue).valueArgument
+            } else if (annotation != null) {
+                (annotation as KspAnnotation).ksAnnotated
+            } else if (element != null) {
+                (element as KspElement).declaration
+            } else {
+                null
+            }
+
+            if (ksNode == null || ksNode.location == NonExistLocation) {
+                internalPrintMessage(kind, "$msg - ${element.fallbackLocationText}")
+            } else {
+                internalPrintMessage(kind, msg, ksNode)
+            }
         }
     }
 

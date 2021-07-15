@@ -46,8 +46,7 @@ abstract class XMessager {
             assert(annotation == null && annotationValue == null) {
                 "If element is null, annotation and annotationValue must also be null."
             }
-        }
-        if (annotation == null) {
+        } else if (annotation == null) {
             assert(annotationValue == null) {
                 "If annotation is null, annotationValue must also be null."
             }
