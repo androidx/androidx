@@ -25,3 +25,21 @@ LINT_VERSION=`echo $LINT_VERSIONS | sed "s/.*[,| ]\([0-9]\+\.$LINT_MINOR_VERSION
 sed -i "s/androidGradlePlugin = .*/androidGradlePlugin = \"$AGP_VERSION\"/g" gradle/libs.versions.toml
 sed -i "s/androidLint = .*/androidLint = \"$LINT_VERSION\"/g" gradle/libs.versions.toml
 sed -i "s/androidStudio = .*/androidStudio = \"$STUDIO_VERSION\"/g" gradle/libs.versions.toml
+
+# Pull all UTP artifacts for ADT version
+ADT_VERSION=${3:-$LINT_VERSION}
+curl -sL "https://dl.google.com/android/maven2/com/android/tools/utp/group-index.xml" \
+  | tail -n +3 \
+  | head -n -1 \
+  | while read line
+    do
+    ARTIFACT=`echo $line | sed 's/<\([[:lower:]-]\+\).*/\1/g'`
+    ./development/importMaven/import_maven_artifacts.py -n "com.android.tools.utp:$ARTIFACT:$ADT_VERSION"
+  done
+
+ATP_VERSION=${4:-0.0.8-alpha04}
+./development/importMaven/import_maven_artifacts.py -n "com.google.testing.platform:android-test-plugin:$ATP_VERSION"
+./development/importMaven/import_maven_artifacts.py -n "com.google.testing.platform:launcher:$ATP_VERSION"
+./development/importMaven/import_maven_artifacts.py -n "com.google.testing.platform:android-driver-instrumentation:$ATP_VERSION"
+./development/importMaven/import_maven_artifacts.py -n "com.google.testing.platform:core:$ATP_VERSION"
+
