@@ -317,8 +317,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
                     @Override
                     public void onSuccess(@Nullable ExtensionsManager extensionsManager) {
                         mExtensionsManager = extensionsManager;
-                        ExtensionsManager.setExtensionsErrorListener((errorCode) ->
-                                Log.d(TAG, "Extensions error in error code: " + errorCode));
                         bindUseCasesWithNextExtension();
                         setupButtons();
                     }
