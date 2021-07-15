@@ -22,13 +22,14 @@ import androidx.viewpager2.widget.AdapterDataSetChangeTest.Action.Insert
 import androidx.viewpager2.widget.AdapterDataSetChangeTest.Action.InsertRange
 import androidx.viewpager2.widget.AdapterDataSetChangeTest.Action.Move
 import androidx.viewpager2.widget.AdapterDataSetChangeTest.Action.Remove
-import androidx.viewpager2.widget.AdapterDataSetChangeTest.Action.RemoveRange
 import androidx.viewpager2.widget.AdapterDataSetChangeTest.Action.RemoveMultiple
+import androidx.viewpager2.widget.AdapterDataSetChangeTest.Action.RemoveRange
 import androidx.viewpager2.widget.AdapterDataSetChangeTest.Action.ReplaceWith
 import androidx.viewpager2.widget.AdapterDataSetChangeTest.TestConfig
 import androidx.viewpager2.widget.swipe.ViewAdapter
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -60,17 +61,37 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
     }
 
     @Test
-    fun test_modifyDataSet() {
+    @Ignore("b/193766569: batching operations can lead to showing the wrong page")
+    fun test_modifyDataSet_batchedChanges() {
+        test_modifyDataSet { actions ->
+            val layoutChangedLatch = test.viewPager.addWaitForLayoutChangeLatch()
+            test.runOnUiThreadSync {
+                actions.forEach { it.perform(adapter) }
+            }
+            layoutChangedLatch.await(1, SECONDS)
+        }
+    }
+
+    @Test
+    fun test_modifyDataSet_individualChanges() {
+        test_modifyDataSet { actions ->
+            actions.forEach {
+                val layoutChangedLatch = test.viewPager.addWaitForLayoutChangeLatch()
+                test.runOnUiThreadSync {
+                    it.perform(adapter)
+                }
+                layoutChangedLatch.await(1, SECONDS)
+            }
+        }
+    }
+
+    private fun test_modifyDataSet(applyChangesBlock: (List<Action>) -> Unit) {
         test.setAdapterSync { adapter }
         test.viewPager.setCurrentItemSync(config.startAt, false, 2, SECONDS)
         test.assertBasicState(config.startAt)
 
         // Dispatch and wait for data set changes
-        val layoutChangedLatch = test.viewPager.addWaitForLayoutChangeLatch()
-        test.runOnUiThreadSync {
-            config.actions.forEach { it.perform(adapter) }
-        }
-        layoutChangedLatch.await(1, SECONDS)
+        applyChangesBlock.invoke(config.actions)
 
         // Let animations run
         val animationLatch = CountDownLatch(1)
@@ -374,8 +395,8 @@ private fun createTestSet(): List<TestConfig> {
                 Move(from = 3, to = 8),
                 Remove(at = 2)
             ),
-            expectedFinalCurrentItem = 1,
-            expectedFinalPageText = "0"
+            expectedFinalCurrentItem = 2,
+            expectedFinalPageText = "4"
         )
     )
 }
