@@ -23,8 +23,8 @@ android {
         applicationId "androidx.car.app.sample.showcase"
         minSdkVersion 29
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        versionCode 100     // Increment this to generate signed builds for uploading to Playstore
+        versionName "100"
     }
 
     buildTypes {
@@ -46,6 +46,6 @@ android {
 }
 
 dependencies {
-    implementation "androidx.car.app:app-automotive:1.1.0-alpha01"
+    implementation "androidx.car.app:app-automotive:1.1.0-alpha02"
     implementation project(":showcase:common")
 }
