@@ -183,9 +183,13 @@ public abstract class VideoRecordEvent {
     public static final int ERROR_RECORDER_ERROR = 7;
 
     /**
-     * The recording failed due to the recorder has not been initialized.
+     * The recording failed because no valid data was produced to be recorded.
+     *
+     * <p>This error is generated when the essential data for a recording to be played correctly
+     * is missing, for example, a recording must contain at least one key frame. See
+     * {@link Finalize#getCause()} for more information.
      */
-    public static final int ERROR_RECORDER_UNINITIALIZED = 8;
+    public static final int ERROR_NO_VALID_DATA = 8;
 
     /**
      * Describes the error that occurred during a video recording.
@@ -199,7 +203,7 @@ public abstract class VideoRecordEvent {
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {ERROR_NONE, ERROR_UNKNOWN, ERROR_FILE_SIZE_LIMIT_REACHED,
             ERROR_INSUFFICIENT_DISK, /*ERROR_CAMERA_CLOSED,*/ ERROR_INVALID_OUTPUT_OPTIONS,
-            ERROR_ENCODING_FAILED, ERROR_RECORDER_ERROR, ERROR_RECORDER_UNINITIALIZED})
+            ERROR_ENCODING_FAILED, ERROR_RECORDER_ERROR, ERROR_NO_VALID_DATA})
     public @interface VideoRecordError {
     }
 
@@ -348,7 +352,7 @@ public abstract class VideoRecordEvent {
          * <p>Possible values are {@link #ERROR_NONE}, {@link #ERROR_UNKNOWN},
          * {@link #ERROR_FILE_SIZE_LIMIT_REACHED}, {@link #ERROR_INSUFFICIENT_DISK},
          * {@link #ERROR_INVALID_OUTPUT_OPTIONS}, {@link #ERROR_ENCODING_FAILED},
-         * {@link #ERROR_RECORDER_ERROR} and {@link #ERROR_RECORDER_UNINITIALIZED}.
+         * {@link #ERROR_RECORDER_ERROR} and {@link #ERROR_NO_VALID_DATA}.
          */
         // TODO(b/193575052): Add ERROR_CAMERA_CLOSED to the above list if/when it is used.
         @VideoRecordError
