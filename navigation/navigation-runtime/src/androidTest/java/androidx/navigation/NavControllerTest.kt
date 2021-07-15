@@ -313,6 +313,52 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testSetSameOnBackPressedDispatcher() {
+        val navController = createNavController()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        navController.setLifecycleOwner(lifecycleOwner)
+        // Set the graph and navigate to another destination to build up our back stack
+        navController.setGraph(R.navigation.nav_simple)
+        navController.navigate(R.id.second_test)
+
+        val dispatcher = OnBackPressedDispatcher()
+        navController.setOnBackPressedDispatcher(dispatcher)
+        assertThat(dispatcher.hasEnabledCallbacks()).isTrue()
+        // One observer is the NavController itself, the other is the OnBackPressedCallback
+        assertThat(lifecycleOwner.observerCount).isEqualTo(2)
+
+        navController.setOnBackPressedDispatcher(dispatcher)
+        assertThat(dispatcher.hasEnabledCallbacks()).isTrue()
+        // One observer is the NavController itself, the other is the OnBackPressedCallback
+        assertThat(lifecycleOwner.observerCount).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSetNewOnBackPressedDispatcher() {
+        val navController = createNavController()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        navController.setLifecycleOwner(lifecycleOwner)
+        // Set the graph and navigate to another destination to build up our back stack
+        navController.setGraph(R.navigation.nav_simple)
+        navController.navigate(R.id.second_test)
+
+        val dispatcher = OnBackPressedDispatcher()
+        navController.setOnBackPressedDispatcher(dispatcher)
+        assertThat(dispatcher.hasEnabledCallbacks()).isTrue()
+        // One observer is the NavController itself, the other is the OnBackPressedCallback
+        assertThat(lifecycleOwner.observerCount).isEqualTo(2)
+
+        val replacementDispatcher = OnBackPressedDispatcher()
+        navController.setOnBackPressedDispatcher(replacementDispatcher)
+        assertThat(replacementDispatcher.hasEnabledCallbacks()).isTrue()
+        assertThat(dispatcher.hasEnabledCallbacks()).isFalse()
+        // One observer is the NavController itself, the other is the new OnBackPressedCallback
+        assertThat(lifecycleOwner.observerCount).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigate() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
