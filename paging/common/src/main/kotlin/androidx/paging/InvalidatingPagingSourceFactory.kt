@@ -48,12 +48,12 @@ public class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
      * [InvalidatingPagingSourceFactory]
      */
     public fun invalidate() {
-        while (pagingSources.isNotEmpty()) {
-            pagingSources.removeFirst().also {
-                if (!it.invalid) {
-                    it.invalidate()
-                }
+        for (pagingSource in pagingSources.toList()) {
+            if (!pagingSource.invalid) {
+                pagingSource.invalidate()
             }
         }
+
+        pagingSources.removeAll { it.invalid }
     }
 }

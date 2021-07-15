@@ -75,4 +75,19 @@ class InvalidatingPagingSourceFactoryTest {
 
         assertEquals(4, invalidateCount)
     }
+
+    @Test
+    fun invalidate_preventsInfiniteLoopsWithSynchronousInvalidation() {
+        val factory = InvalidatingPagingSourceFactory { TestPagingSource() }
+
+        fun startNewGeneration() {
+            factory().registerInvalidatedCallback { startNewGeneration() }
+        }
+
+        startNewGeneration()
+
+        // Ensure that .invalidate() does not iterate over new PagingSources that get created
+        // after .invalidate() is called as it would result in an infinite loop.
+        factory.invalidate()
+    }
 }
