@@ -53,7 +53,7 @@ internal class KspMessager(
         }
 
         if (ksNode == null || ksNode.location == NonExistLocation) {
-            internalPrintMessage(kind, "$msg - ${element.fallbackLocationText}")
+            internalPrintMessage(kind, "$msg - ${element.fallbackLocationText}", ksNode)
         } else {
             internalPrintMessage(kind, msg, ksNode)
         }
