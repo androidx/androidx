@@ -28,6 +28,7 @@ import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
+import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.extensions.impl.InitializerImpl;
@@ -44,6 +45,42 @@ import java.util.concurrent.ExecutionException;
 /**
  * Provides interfaces for third party app developers to get capabilities info of extension
  * functions.
+ *
+ * <p>Only a single {@link ExtensionsManager} instance can exist within a process, and it can be
+ * retrieved with {@link #getInstance(Context)}. After retrieving the {@link ExtensionsManager}
+ * instance, the availability of a specific extension mode can be checked by
+ * {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)}. For an available extension
+ * mode, an extension enabled {@link CameraSelector} can be obtained by calling
+ * {@link #getExtensionEnabledCameraSelector(CameraProvider, CameraSelector, int)}. After binding
+ * use cases by the extension enabled {@link CameraSelector}, the extension mode will be applied
+ * to the bound {@link Preview} and {@link ImageCapture}. The following sample code describes how
+ * to enable an extension mode for use cases.
+ * </p>
+ * <pre>
+ * void onCreate() {
+ *     // Create a camera provider
+ *     ProcessCameraProvider cameraProvider = ... // Get the provider instance
+ *     // Create an extensions manager
+ *     ExtensionsManager extensionsManager = ... // Get the extensions manager instance
+ *
+ *     // Query if extension is available.
+ *     if (mExtensionsManager.isExtensionAvailable(cameraProvider, DEFAULT_BACK_CAMERA,
+ *                ExtensionMode.BOKEH)) {
+ *         // Needs to unbind all use cases before enabling different extension mode.
+ *         cameraProvider.unbindAll();
+ *
+ *         // Retrieve extension enabled camera selector
+ *         CameraSelector extensionCameraSelector;
+ *         extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+ *                 cameraProvider, DEFAULT_BACK_CAMERA, ExtensionMode.BOKEH);
+ *
+ *         // Bind image capture and preview use cases with the extension enabled camera selector.
+ *         ImageCapture imageCapture = new ImageCapture.Builder().build();
+ *         Preview preview = new Preview.Builder().build();
+ *         cameraProvider.bindToLifecycle(this, extensionCameraSelector, imageCapture, preview);
+ *     }
+ * }
+ * </pre>
  */
 public final class ExtensionsManager {
     private static final String TAG = "ExtensionsManager";
@@ -248,8 +285,8 @@ public final class ExtensionsManager {
      * desired {@link LifecycleOwner} and then the specified extension mode will be enabled on
      * the camera.
      *
-     * @param cameraProvider     A {@link CameraProvider} which will be used to bind use cases. The
-     *                           {@link CameraProvider} can be the
+     * @param cameraProvider     A {@link CameraProvider} will be used to query the information
+     *                           of cameras on the device. The {@link CameraProvider} can be the
      *                           {@link androidx.camera.lifecycle.ProcessCameraProvider}
      *                           which is obtained by
      *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
@@ -287,8 +324,8 @@ public final class ExtensionsManager {
      * Returns true if the particular extension mode is available for the specified
      * {@link CameraSelector}.
      *
-     * @param cameraProvider     A {@link CameraProvider} which will be used to bind use cases. The
-     *                           {@link CameraProvider} can be the
+     * @param cameraProvider     A {@link CameraProvider} will be used to query the information
+     *                           of cameras on the device. The {@link CameraProvider} can be the
      *                           {@link androidx.camera.lifecycle.ProcessCameraProvider}
      *                           which is obtained by
      *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
@@ -316,8 +353,8 @@ public final class ExtensionsManager {
      * <p>This includes the time spent processing the multi-frame capture request along with any
      * additional time for encoding of the processed buffer in the framework if necessary.
      *
-     * @param cameraProvider    A {@link CameraProvider} which will be used to bind use cases. The
-     *                          {@link CameraProvider} can be the
+     * @param cameraProvider    A {@link CameraProvider} will be used to query the information
+     *                          of cameras on the device. The {@link CameraProvider} can be the
      *                          {@link androidx.camera.lifecycle.ProcessCameraProvider}
      *                          which is obtained by
      *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
