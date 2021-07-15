@@ -16,6 +16,8 @@
 
 package androidx.car.app.testing;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -27,6 +29,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.Session;
 import androidx.car.app.model.Template;
 import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -49,6 +52,7 @@ public class SessionControllerTest {
     private SessionController mSessionController;
     private TestCarContext mCarContext;
     private Intent mIntent;
+    private Intent mScreenIntent;
 
     @Before
     public void setup() {
@@ -57,39 +61,43 @@ public class SessionControllerTest {
                 ApplicationProvider.getApplicationContext());
         mIntent = new Intent().setComponent(new ComponentName(mCarContext,
                 this.getClass()));
+        mScreenIntent = null;
 
         Session session = new Session() {
             @NonNull
             @Override
             public Screen onCreateScreen(@NonNull Intent intent) {
+                mScreenIntent = intent;
                 return mScreen;
             }
-
         };
 
-        mSessionController = new SessionController(session, mCarContext);
+        mSessionController = new SessionController(session, mCarContext, mIntent);
         session.getLifecycle().addObserver(mMockObserver);
     }
 
     @Test
     public void create() {
-        mSessionController.create(mIntent);
+        mSessionController.moveToState(Lifecycle.State.CREATED);
 
+        assertThat(mScreenIntent).isEqualTo(mIntent);
         verify(mMockObserver).onCreate(any());
     }
 
     @Test
     public void start() {
-        mSessionController.create(mIntent).start();
+        mSessionController.moveToState(Lifecycle.State.STARTED);
 
+        assertThat(mScreenIntent).isEqualTo(mIntent);
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
     }
 
     @Test
     public void resume() {
-        mSessionController.create(mIntent).resume();
+        mSessionController.moveToState(Lifecycle.State.RESUMED);
 
+        assertThat(mScreenIntent).isEqualTo(mIntent);
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
         verify(mMockObserver).onResume(any());
@@ -97,8 +105,10 @@ public class SessionControllerTest {
 
     @Test
     public void pause() {
-        mSessionController.create(mIntent).resume().pause();
+        mSessionController.moveToState(Lifecycle.State.RESUMED);
+        mSessionController.moveToState(Lifecycle.State.STARTED);
 
+        assertThat(mScreenIntent).isEqualTo(mIntent);
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
         verify(mMockObserver).onResume(any());
@@ -107,8 +117,10 @@ public class SessionControllerTest {
 
     @Test
     public void stop() {
-        mSessionController.create(mIntent).resume().stop();
+        mSessionController.moveToState(Lifecycle.State.RESUMED);
+        mSessionController.moveToState(Lifecycle.State.CREATED);
 
+        assertThat(mScreenIntent).isEqualTo(mIntent);
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
         verify(mMockObserver).onResume(any());
@@ -118,8 +130,10 @@ public class SessionControllerTest {
 
     @Test
     public void destroy() {
-        mSessionController.create(mIntent).resume().destroy();
+        mSessionController.moveToState(Lifecycle.State.RESUMED);
+        mSessionController.moveToState(Lifecycle.State.DESTROYED);
 
+        assertThat(mScreenIntent).isEqualTo(mIntent);
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
         verify(mMockObserver).onResume(any());
@@ -127,7 +141,6 @@ public class SessionControllerTest {
         verify(mMockObserver).onStop(any());
         verify(mMockObserver).onDestroy(any());
     }
-
 
     /** A no-op screen for testing. */
     private static class TestScreen extends Screen {
