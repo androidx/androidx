@@ -7,27 +7,17 @@ package androidx.car.app.testing {
 
   public class ScreenController {
     ctor public ScreenController(androidx.car.app.testing.TestCarContext, androidx.car.app.Screen);
-    method public androidx.car.app.testing.ScreenController create();
-    method public androidx.car.app.testing.ScreenController destroy();
     method public androidx.car.app.Screen getScreen();
     method public Object? getScreenResult();
     method public java.util.List<androidx.car.app.model.Template!> getTemplatesReturned();
-    method public androidx.car.app.testing.ScreenController pause();
+    method public androidx.car.app.testing.ScreenController moveToState(androidx.lifecycle.Lifecycle.State);
     method public void reset();
-    method public androidx.car.app.testing.ScreenController resume();
-    method public androidx.car.app.testing.ScreenController start();
-    method public androidx.car.app.testing.ScreenController stop();
   }
 
   public class SessionController {
-    ctor public SessionController(androidx.car.app.Session, androidx.car.app.testing.TestCarContext);
-    method public androidx.car.app.testing.SessionController create(android.content.Intent);
-    method public androidx.car.app.testing.SessionController destroy();
+    ctor public SessionController(androidx.car.app.Session, androidx.car.app.testing.TestCarContext, android.content.Intent);
     method public androidx.car.app.Session getSession();
-    method public androidx.car.app.testing.SessionController pause();
-    method public androidx.car.app.testing.SessionController resume();
-    method public androidx.car.app.testing.SessionController start();
-    method public androidx.car.app.testing.SessionController stop();
+    method public androidx.car.app.testing.SessionController moveToState(androidx.lifecycle.Lifecycle.State);
   }
 
   public class TestAppManager extends androidx.car.app.AppManager {

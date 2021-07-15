@@ -104,7 +104,7 @@ public final class CarAppServiceTest {
                                 ApplicationProvider.getApplicationContext());
                         Session session = createTestSession();
                         // Injects the TestCarContext into the test session.
-                        new SessionController(session, mCarContext);
+                        new SessionController(session, mCarContext, new Intent());
                         return session;
                     }
                 };
