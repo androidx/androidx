@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
@@ -36,6 +37,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.HandlerUtil
 import androidx.core.os.HandlerCompat
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Before
@@ -168,6 +170,19 @@ class Camera2CameraControlImplTest {
     }
 
     @Test
+    fun startFlashSequence_withTemplateRecord_enableTorchSent() {
+        // Arrange.
+        cameraControl.setTemplate(CameraDevice.TEMPLATE_RECORD)
+
+        // Act.
+        cameraControl.startFlashSequence()
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        assertTorchEnable()
+    }
+
+    @Test
     fun finishFlashSequence_withUseTorchAsFlashQuirk_disableTorch() {
         // Arrange.
         createCameraControl(quirks = Quirks(listOf(object : UseTorchAsFlashQuirk {})))
@@ -211,6 +226,52 @@ class Camera2CameraControlImplTest {
         // Assert.
         verify(controlUpdateCallback, never()).onCameraControlCaptureRequests(any())
         verify(controlUpdateCallback, never()).onCameraControlUpdateSessionConfig()
+    }
+
+    @Test
+    fun submitStillCaptureRequests_withTemplate_templateSent() {
+        // Arrange.
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.templateType = CameraDevice.TEMPLATE_MANUAL
+            it.build()
+        }
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(listOf(imageCaptureConfig))
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        val captureConfig = getIssuedCaptureConfig()
+        assertThat(captureConfig.templateType).isEqualTo(CameraDevice.TEMPLATE_MANUAL)
+    }
+
+    @Test
+    fun submitStillCaptureRequests_withNoTemplate_templateStillCaptureSent() {
+        // Arrange.
+        val imageCaptureConfig = CaptureConfig.Builder().build()
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(listOf(imageCaptureConfig))
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        val captureConfig = getIssuedCaptureConfig()
+        assertThat(captureConfig.templateType).isEqualTo(CameraDevice.TEMPLATE_STILL_CAPTURE)
+    }
+
+    @Test
+    fun submitStillCaptureRequests_withTemplateRecord_templateVideoSnapshotSent() {
+        // Arrange.
+        cameraControl.setTemplate(CameraDevice.TEMPLATE_RECORD)
+        val imageCaptureConfig = CaptureConfig.Builder().build()
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(listOf(imageCaptureConfig))
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        val captureConfig = getIssuedCaptureConfig()
+        assertThat(captureConfig.templateType).isEqualTo(CameraDevice.TEMPLATE_VIDEO_SNAPSHOT)
     }
 
     private fun assertAfTrigger() {

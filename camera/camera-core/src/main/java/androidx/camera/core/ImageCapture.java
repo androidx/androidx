@@ -1676,7 +1676,7 @@ public final class ImageCapture extends UseCase {
 
         }
 
-        getCameraControl().submitCaptureRequests(captureConfigs);
+        getCameraControl().submitStillCaptureRequests(captureConfigs);
         return Futures.transform(Futures.allAsList(futureList),
                 input -> null, CameraXExecutors.directExecutor());
     }

@@ -84,9 +84,9 @@ public interface CameraControlInternal extends CameraControl {
     ListenableFuture<Integer> setExposureCompensationIndex(int exposure);
 
     /**
-     * Performs capture requests.
+     * Performs still capture requests.
      */
-    void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
+    void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
 
     /**
      * Gets the current SessionConfig.
@@ -161,7 +161,7 @@ public interface CameraControlInternal extends CameraControl {
         }
 
         @Override
-        public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+        public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         }
 
         @NonNull

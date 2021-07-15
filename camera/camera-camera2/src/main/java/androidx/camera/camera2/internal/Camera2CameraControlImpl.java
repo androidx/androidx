@@ -408,7 +408,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mExecutor.execute(() -> {
-                        if (mUseTorchAsFlash.shouldUseTorchAsFlash()) {
+                        if (mUseTorchAsFlash.shouldUseTorchAsFlash()
+                                || mTemplate == CameraDevice.TEMPLATE_RECORD) {
                             Logger.d(TAG, "Use torch as flash");
                             if (mIsTorchOn) {
                                 completer.set(null);
@@ -475,12 +476,33 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     /** {@inheritDoc} */
     @Override
-    public void submitCaptureRequests(@NonNull final List<CaptureConfig> captureConfigs) {
+    public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         if (!isControlInUse()) {
             Logger.w(TAG, "Camera is not active.");
             return;
         }
-        mExecutor.execute(() -> submitCaptureRequestsInternal(captureConfigs));
+        mExecutor.execute(() -> {
+            List<CaptureConfig> configsToSubmit = new ArrayList<>(captureConfigs);
+            for (int i = 0; i < captureConfigs.size(); i++) {
+                CaptureConfig captureConfig = captureConfigs.get(i);
+                int templateToModify = CaptureConfig.TEMPLATE_TYPE_NONE;
+                if (mTemplate == CameraDevice.TEMPLATE_RECORD && !isLegacyDevice()) {
+                    // Always override template by TEMPLATE_VIDEO_SNAPSHOT when repeating
+                    // template is TEMPLATE_RECORD. Note: TEMPLATE_VIDEO_SNAPSHOT is not
+                    // supported on legacy device.
+                    templateToModify = CameraDevice.TEMPLATE_VIDEO_SNAPSHOT;
+                } else if (captureConfig.getTemplateType() == CaptureConfig.TEMPLATE_TYPE_NONE) {
+                    templateToModify = CameraDevice.TEMPLATE_STILL_CAPTURE;
+                }
+
+                if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE) {
+                    CaptureConfig.Builder configBuilder = CaptureConfig.Builder.from(captureConfig);
+                    configBuilder.setTemplateType(templateToModify);
+                    configsToSubmit.set(i, configBuilder.build());
+                }
+            }
+            submitCaptureRequestsInternal(configsToSubmit);
+        });
     }
 
     /** {@inheritDoc} */
@@ -780,6 +802,12 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @VisibleForTesting
     long getCurrentSessionUpdateId()  {
         return mCurrentSessionUpdateId;
+    }
+
+    private boolean isLegacyDevice() {
+        Integer level =
+                mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+        return level != null && level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     /** An interface to listen to camera capture results. */

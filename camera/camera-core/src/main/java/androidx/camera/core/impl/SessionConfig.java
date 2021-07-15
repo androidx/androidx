@@ -416,7 +416,7 @@ public final class SessionConfig {
             CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
 
             // Check template
-            if (captureConfig.getTemplateType() != -1) {
+            if (captureConfig.getTemplateType() != CaptureConfig.TEMPLATE_TYPE_NONE) {
                 mTemplateSet = true;
                 mCaptureConfigBuilder.setTemplateType(
                         selectTemplateType(captureConfig.getTemplateType(),

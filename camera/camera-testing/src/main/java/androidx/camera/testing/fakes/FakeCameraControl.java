@@ -140,7 +140,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+    public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         mSubmittedCaptureRequests.addAll(captureConfigs);
         mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs);
         if (mOnNewCaptureRequestListener != null) {
