@@ -1,8 +1,0 @@
-package android.arch.core.util {
-
-  public abstract interface Function<I, O> {
-    method public abstract O apply(I);
-  }
-
-}
-
