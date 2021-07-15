@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
 
     <issue
         id="ExperimentalAnnotationRetention"
@@ -21,6 +21,149 @@
             file="src/main/java/sample/optin/ExperimentalKotlinAnnotationWrongRetention.kt"
             line="21"
             column="18"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="    static class ConcreteExperimentalInterface implements ExperimentalInterface { // unsafe"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
+            line="34"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        public void experimentalMethod() {} // unsafe override"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
+            line="36"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        ExperimentalInterface anonymous = new ExperimentalInterface() { // unsafe"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
+            line="62"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="            public void experimentalMethod() {} // unsafe override"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
+            line="64"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        ExperimentalInterface lambda = () -> {}; // unsafe"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
+            line="67"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        public void experimentalMethod() {} // unsafe override"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava192562926.java"
+            line="39"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="            public void experimentalMethod() {} // unsafe override"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava192562926.java"
+            line="49"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        StableInterface lambda = () -> {}; // unsafe override"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava192562926.java"
+            line="52"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        foo.defaultExperimentalMethod(); // unsafe in Java but safe in Kotlin"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
+            line="92"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        foo.experimentalMethod(); // unsafe"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
+            line="93"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        Bar bar = new Bar(); // unsafe"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
+            line="95"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        bar.stableMethodLevelOptIn(); // unsafe due to experimental class scope"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
+            line="96"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        bar.experimentalMethod(); // unsafe"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
+            line="97"
+            column="13"/>
     </issue>
 
     <issue
