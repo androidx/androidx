@@ -43,16 +43,11 @@ import java.util.concurrent.TimeoutException
 
 @SmallTest
 @RunWith(Parameterized::class)
-@Suppress("DEPRECATION")
 class ImageCaptureExtenderValidationTest(
     @field:Mode @param:Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
 ) {
-    private val context =
-        ApplicationProvider.getApplicationContext<Context>()
-
-    private val effectMode: ExtensionsManager.EffectMode =
-        ExtensionsTestUtil.extensionModeToEffectMode(extensionMode)
+    private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraProvider: ProcessCameraProvider
 
@@ -114,7 +109,7 @@ class ImageCaptureExtenderValidationTest(
 
         // Creates the ImageCaptureExtenderImpl to retrieve the target format/resolutions pair list
         // from vendor library for the target effect mode.
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(effectMode, lensFacing)
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(extensionMode, lensFacing)
 
         // NoSuchMethodError will be thrown if getSupportedResolutions is not implemented in
         // vendor library, and then the test will fail.
@@ -130,7 +125,7 @@ class ImageCaptureExtenderValidationTest(
     fun returnsNullFromOnPresetSession_whenAPILevelOlderThan28() {
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(effectMode, lensFacing)
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(extensionMode, lensFacing)
         assertThat(impl.onPresetSession()).isNull()
     }
 
@@ -144,11 +139,10 @@ class ImageCaptureExtenderValidationTest(
         Assume.assumeTrue(
             ExtensionVersion.getRuntimeVersion()!!.compareTo(Version.VERSION_1_2) >= 0
         )
-        Assume.assumeTrue(ExtensionsManager.isExtensionAvailable(effectMode, lensFacing))
 
         // Creates the ImageCaptureExtenderImpl to retrieve the estimated capture latency range
         // from vendor library for the target effect mode.
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(effectMode, lensFacing)
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(extensionMode, lensFacing)
 
         // NoSuchMethodError will be thrown if getEstimatedCaptureLatencyRange is not implemented
         // in vendor library, and then the test will fail.
