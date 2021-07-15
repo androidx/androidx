@@ -24,6 +24,7 @@ import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -39,6 +40,7 @@ class RequiresOptInDetectorTest {
                 *testFiles
             )
             .issues(*ExperimentalDetector.ISSUES.toTypedArray())
+            .testModes(TestMode.PARTIAL)
             .run()
     }
 
@@ -252,6 +254,93 @@ src/sample/optin/UseJavaPackageFromKt.kt:31: Error: This declaration is opt-in a
 src/sample/optin/UseJavaPackageFromKt.kt:64: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
         callPackageExperimental()
         ~~~~~~~~~~~~~~~~~~~~~~~
+3 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun regressionTestJava193110413() {
+        val input = arrayOf(
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
+            javaSample("sample.optin.RegressionTestJava193110413"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/optin/RegressionTestJava193110413.java:92: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        foo.defaultExperimentalMethod(); // unsafe in Java but safe in Kotlin
+            ~~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/RegressionTestJava193110413.java:93: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        foo.experimentalMethod(); // unsafe
+            ~~~~~~~~~~~~~~~~~~
+src/sample/optin/RegressionTestJava193110413.java:95: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        Bar bar = new Bar(); // unsafe
+                  ~~~~~~~~~
+src/sample/optin/RegressionTestJava193110413.java:96: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        bar.stableMethodLevelOptIn(); // unsafe due to experimental class scope
+            ~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/RegressionTestJava193110413.java:97: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        bar.experimentalMethod(); // unsafe
+            ~~~~~~~~~~~~~~~~~~
+5 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun regressionTestJava192562469() {
+        val input = arrayOf(
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
+            javaSample("sample.optin.RegressionTestJava192562469"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/optin/RegressionTestJava192562469.java:34: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+    static class ConcreteExperimentalInterface implements ExperimentalInterface { // unsafe
+                                                          ~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/RegressionTestJava192562469.java:36: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        public void experimentalMethod() {} // unsafe override
+                    ~~~~~~~~~~~~~~~~~~
+src/sample/optin/RegressionTestJava192562469.java:62: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        ExperimentalInterface anonymous = new ExperimentalInterface() { // unsafe
+                                              ~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/RegressionTestJava192562469.java:64: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+            public void experimentalMethod() {} // unsafe override
+                        ~~~~~~~~~~~~~~~~~~
+src/sample/optin/RegressionTestJava192562469.java:67: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        ExperimentalInterface lambda = () -> {}; // unsafe
+                                       ~~~~~~~~
+5 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun regressionTestJava192562926() {
+        val input = arrayOf(
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
+            javaSample("sample.optin.RegressionTestJava192562926"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/optin/RegressionTestJava192562926.java:39: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        public void experimentalMethod() {} // unsafe override
+                    ~~~~~~~~~~~~~~~~~~
+src/sample/optin/RegressionTestJava192562926.java:49: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+            public void experimentalMethod() {} // unsafe override
+                        ~~~~~~~~~~~~~~~~~~
+src/sample/optin/RegressionTestJava192562926.java:52: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        StableInterface lambda = () -> {}; // unsafe override
+                                 ~~~~~~~~
 3 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
