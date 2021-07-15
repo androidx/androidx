@@ -96,7 +96,6 @@ public fun NavHost(
     }
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val onBackPressedDispatcher = onBackPressedDispatcherOwner?.onBackPressedDispatcher
-    val rememberedGraph = remember { graph }
 
     // on successful recompose we setup the navController with proper inputs
     // after the first time, this will only happen again if one of the inputs changes
@@ -110,10 +109,7 @@ public fun NavHost(
         onDispose { }
     }
 
-    DisposableEffect(rememberedGraph) {
-        navController.graph = rememberedGraph
-        onDispose { }
-    }
+    SideEffect { navController.graph = graph }
 
     val saveableStateHolder = rememberSaveableStateHolder()
 

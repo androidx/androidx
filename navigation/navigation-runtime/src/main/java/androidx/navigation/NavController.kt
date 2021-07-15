@@ -886,12 +886,24 @@ public open class NavController(
     @MainThread
     @CallSuper
     public open fun setGraph(graph: NavGraph, startDestinationArgs: Bundle?) {
-        _graph?.let { previousGraph ->
-            // Pop everything from the old graph off the back stack
-            popBackStackInternal(previousGraph.id, true)
+        if (_graph != graph) {
+            _graph?.let { previousGraph ->
+                // Pop everything from the old graph off the back stack
+                popBackStackInternal(previousGraph.id, true)
+            }
+            _graph = graph
+            onGraphCreated(startDestinationArgs)
+        } else {
+            for (i in 0..graph.nodes.size()) {
+                val newDestination = graph.nodes.valueAt(i)
+                _graph!!.nodes.replace(i, newDestination)
+                backQueue.filter { currentEntry ->
+                    currentEntry.destination.id == newDestination?.id
+                }.forEach { entry ->
+                    entry.destination = newDestination
+                }
+            }
         }
-        _graph = graph
-        onGraphCreated(startDestinationArgs)
     }
 
     @MainThread

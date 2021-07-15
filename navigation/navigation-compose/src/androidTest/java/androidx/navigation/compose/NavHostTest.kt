@@ -41,8 +41,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation.NavGraph
 import androidx.navigation.contains
 import androidx.navigation.NavHostController
+import androidx.navigation.createGraph
 import androidx.navigation.plusAssign
 import androidx.navigation.testing.TestNavHostController
 import androidx.savedstate.SavedStateRegistry
@@ -194,8 +196,8 @@ class NavHostTest {
         }
 
         composeTestRule.runOnIdle {
-            assertWithMessage("First destination should be current")
-                .that(navController.currentDestination?.route).isEqualTo("first")
+            assertWithMessage("Second destination should be current")
+                .that(navController.currentDestination?.route).isEqualTo("second")
         }
     }
 
@@ -382,6 +384,47 @@ class NavHostTest {
             assertWithMessage("Each entry should have its own SavedStateRegistry")
                 .that(registry1)
                 .isNotEqualTo(registry2)
+        }
+    }
+
+    @Test
+    fun setSameGraph() {
+        var currentGraph by mutableStateOf<NavGraph?>(null)
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            graph2 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            currentGraph = graph1
+            NavHost(navController, currentGraph!!)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate("Second")
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Current destination should be Second")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("Second")
+        }
+
+        composeTestRule.runOnIdle {
+            currentGraph = graph2
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Current destination should be Second")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("Second")
         }
     }
 
