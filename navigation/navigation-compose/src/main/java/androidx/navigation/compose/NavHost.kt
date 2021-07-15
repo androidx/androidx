@@ -97,19 +97,15 @@ public fun NavHost(
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val onBackPressedDispatcher = onBackPressedDispatcherOwner?.onBackPressedDispatcher
 
-    // on successful recompose we setup the navController with proper inputs
-    // after the first time, this will only happen again if one of the inputs changes
-    DisposableEffect(navController, lifecycleOwner, viewModelStoreOwner, onBackPressedDispatcher) {
-        navController.setLifecycleOwner(lifecycleOwner)
-        navController.setViewModelStore(viewModelStoreOwner.viewModelStore)
-        if (onBackPressedDispatcher != null) {
-            navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
-        }
-
-        onDispose { }
+    // Setup the navController with proper owners
+    navController.setLifecycleOwner(lifecycleOwner)
+    navController.setViewModelStore(viewModelStoreOwner.viewModelStore)
+    if (onBackPressedDispatcher != null) {
+        navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
     }
 
-    SideEffect { navController.graph = graph }
+    // Then set the graph
+    navController.graph = graph
 
     val saveableStateHolder = rememberSaveableStateHolder()
 
