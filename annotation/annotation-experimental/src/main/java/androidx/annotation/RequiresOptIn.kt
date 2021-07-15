@@ -37,28 +37,38 @@ import kotlin.annotation.Target
  *
  * &#64;ExperimentalDateTime
  * public class DateProvider {
- * // ...
+ *   // ...
  * }
 `</pre> *
  *
  * <pre>`
  * // Client code
  * int getYear() {
- * DateProvider provider; // Error: DateProvider is experimental
- * // ...
+ *   DateProvider provider; // Error: DateProvider is experimental
+ *   // ...
  * }
  *
  * &#64;ExperimentalDateTime
  * Date getDate() {
- * DateProvider provider; // OK: the function is marked as experimental
- * // ...
+ *   DateProvider provider; // OK: the function is marked as experimental
+ *   // ...
  * }
  *
  * void displayDate() {
- * System.out.println(getDate()); // Error: getDate() is experimental, acceptance is required
+ *   System.out.println(getDate()); // Error: getDate() is experimental, acceptance is required
  * }
 `</pre> *
  *
+ * To configure project-wide opt-in, specify the `opt-in` option value in `lint.xml` as a
+ * comma-delimited list of opted-in annotations:
+ *
+ * <pre>`
+ * &#64;lint>
+ *   &#64;issue id="$issueId">
+ *     &#64;option name="opt-in" value="com.foo.ExperimentalBarAnnotation" />
+ *   &#64;/issue>
+ * &#64;/lint>
+ `</pre> *
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.ANNOTATION_CLASS)
