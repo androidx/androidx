@@ -234,6 +234,7 @@ public final class ImageCapture extends UseCase {
     private static final String TAG = "ImageCapture";
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     private static final long CHECK_3A_TIMEOUT_IN_MS = 1000L;
+    private static final long CHECK_3A_WITH_FLASH_TIMEOUT_IN_MS = 5000L;
     private static final int MAX_IMAGES = 2;
     // TODO(b/149336664) Move the quality to a compatibility class when there is a per device case.
     private static final byte JPEG_QUALITY_MAXIMIZE_QUALITY_MODE = 100;
@@ -1493,6 +1494,11 @@ public final class ImageCapture extends UseCase {
             return Futures.immediateFuture(false);
         }
 
+        long waitTimeout = CHECK_3A_TIMEOUT_IN_MS;
+        if (state.mIsAePrecaptureTriggered || state.mIsTorchOpened) {
+            waitTimeout = CHECK_3A_WITH_FLASH_TIMEOUT_IN_MS;
+        }
+
         return mSessionCallbackChecker.checkCaptureResult(
                 new CaptureCallbackChecker.CaptureResultChecker<Boolean>() {
                     @Override
@@ -1510,7 +1516,7 @@ public final class ImageCapture extends UseCase {
                         return null;
                     }
                 },
-                CHECK_3A_TIMEOUT_IN_MS,
+                waitTimeout,
                 false);
     }
 
