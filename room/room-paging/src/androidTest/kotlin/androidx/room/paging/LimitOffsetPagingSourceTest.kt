@@ -419,11 +419,11 @@ class LimitOffsetPagingSourceTest {
                 itemsList.subList(30, 35)
             )
 
-            // make changes to database
-            dao.deleteTestItem(itemsList[42])
+            // invalidate pagingSource to imitate invalidation from running refreshVersionSync
+            pagingSource.invalidate()
 
-            // this append should check invalidation tables, realize it has been updated,
-            // and return a LoadResult.Invalid
+            // this append should check pagingSource's invalid status, realize it is invalid, and
+            // return a LoadResult.Invalid
             val result2 = pagingSource.append(key = result.nextKey)
 
             assertThat(result2).isInstanceOf(LoadResult.Invalid::class.java)
@@ -505,14 +505,13 @@ class LimitOffsetPagingSourceTest {
                 itemsList.subList(15, 20)
             )
 
-            // now write into database
-            dao.deleteTestItem(itemsList[30])
+            // invalidate pagingSource to imitate invalidation from running refreshVersionSync
+            pagingSource.invalidate()
 
-            // second prepend using prevKey from previous load
+            // this prepend should check pagingSource's invalid status, realize it is invalid, and
+            // return LoadResult.Invalid
             val result2 = pagingSource.prepend(key = result.prevKey)
 
-            // this prepend should check invalidation tables, realize it has been updated,
-            // and return a LoadResult.Invalid
             assertThat(result2).isInstanceOf(LoadResult.Invalid::class.java)
         }
     }
