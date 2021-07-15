@@ -256,8 +256,8 @@ public class PerfettoHelper(private val unbundled: Boolean = Build.VERSION.SDK_I
             Log.d(LOG_TAG, "Process ($pid) is running")
             // 60 secs timeout for perfetto shutdown.
             if (waitCount < PERFETTO_KILL_WAIT_COUNT) {
-                // Check every 5 secs if process stopped successfully.
-                SystemClock.sleep(PERFETTO_KILL_WAIT_TIME)
+                // Check every 100 millis if process stopped successfully.
+                SystemClock.sleep(PERFETTO_KILL_WAIT_TIME_MS)
                 waitCount++
                 continue
             }
@@ -346,10 +346,10 @@ public class PerfettoHelper(private val unbundled: Boolean = Build.VERSION.SDK_I
         private const val PERFETTO_TXT_PROTO_ARG = " --txt"
 
         // Max wait count for checking if perfetto is stopped successfully
-        private const val PERFETTO_KILL_WAIT_COUNT = 12
+        private const val PERFETTO_KILL_WAIT_COUNT = 30
 
-        // Check if perfetto is stopped every 5 secs.
-        private const val PERFETTO_KILL_WAIT_TIME: Long = 5000
+        // Check if perfetto is stopped every 100 millis.
+        private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 100
 
         // Path where perfetto, traced, and traced_probes are copied to if API >= 21 and < 29
         private const val UNBUNDLED_PERFETTO_ROOT_DIR = "/data/local/tmp"
