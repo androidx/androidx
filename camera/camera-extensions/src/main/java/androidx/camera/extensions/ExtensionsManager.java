@@ -16,6 +16,8 @@
 package androidx.camera.extensions;
 
 import android.content.Context;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.util.Range;
 
 import androidx.annotation.GuardedBy;
@@ -26,9 +28,11 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.extensions.impl.InitializerImpl;
@@ -46,8 +50,20 @@ import java.util.concurrent.ExecutionException;
  * Provides interfaces for third party app developers to get capabilities info of extension
  * functions.
  *
- * <p>Only a single {@link ExtensionsManager} instance can exist within a process, and it can be
- * retrieved with {@link #getInstanceAsync(Context, CameraProvider)}. After retrieving the
+ * <p>Many Android devices contain powerful cameras, with manufacturers devoting a lot of effort
+ * to build many cutting-edge features, or special effects, into these camera devices.
+ * <code>CameraX Extensions</code> allows third party apps to enable the available extension
+ * modes on the supported devices. The extension modes which might be supported via <code>CameraX
+ * Extensions</code> are {@link ExtensionMode#BOKEH}, {@link ExtensionMode#HDR},
+ * {@link ExtensionMode#NIGHT}, {@link ExtensionMode#FACE_RETOUCH} and {@link ExtensionMode#AUTO}
+ * . The known supported devices are listed in the
+ * <a href="https://developer.android.com/training/camerax/devices">CameraX devices</a>
+ * page.  Please see the ones that the <code>Extensions support</code> column is checked.
+ *
+ * <p><code>CameraX Extensions</code> are built on the top of <code>CameraX Core</code> libraries
+ * . To enable an extension mode, an {@link ExtensionsManager} instance needs to be retrieved
+ * first with {@link #getInstanceAsync(Context, CameraProvider)}. Only a single
+ * {@link ExtensionsManager} instance can exist within a process. After retrieving the
  * {@link ExtensionsManager} instance, the availability of a specific extension mode can be
  * checked by {@link #isExtensionAvailable(CameraSelector, int)}. For an available extension
  * mode, an extension enabled {@link CameraSelector} can be obtained by calling
@@ -57,30 +73,64 @@ import java.util.concurrent.ExecutionException;
  * extension mode for use cases.
  * </p>
  * <pre>
- * void onCreate() {
+ * void bindUseCasesWithBokehMode() {
  *     // Create a camera provider
  *     ProcessCameraProvider cameraProvider = ... // Get the provider instance
- *     // Create an extensions manager
- *     ExtensionsManager extensionsManager = ... // Get the extensions manager instance
+ *     // Call the getInstance function to retrieve a ListenableFuture object
+ *     ListenableFuture future = ExtensionsManager.getInstance(context, cameraProvider);
  *
- *     // Query if extension is available.
- *     if (mExtensionsManager.isExtensionAvailable(cameraProvider, DEFAULT_BACK_CAMERA,
- *                ExtensionMode.BOKEH)) {
- *         // Needs to unbind all use cases before enabling different extension mode.
- *         cameraProvider.unbindAll();
+ *     // Obtain the ExtensionsManager instance from the returned ListenableFuture object
+ *     future.addListener(() -> {
+ *         try {
+ *             ExtensionsManager extensionsManager = future.get()
  *
- *         // Retrieve extension enabled camera selector
- *         CameraSelector extensionCameraSelector;
- *         extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
- *                 cameraProvider, DEFAULT_BACK_CAMERA, ExtensionMode.BOKEH);
+ *             // Query if extension is available.
+ *             if (mExtensionsManager.isExtensionAvailable(DEFAULT_BACK_CAMERA,
+ *                        ExtensionMode.BOKEH)) {
+ *                 // Needs to unbind all use cases before enabling different extension mode.
+ *                 cameraProvider.unbindAll();
  *
- *         // Bind image capture and preview use cases with the extension enabled camera selector.
- *         ImageCapture imageCapture = new ImageCapture.Builder().build();
- *         Preview preview = new Preview.Builder().build();
- *         cameraProvider.bindToLifecycle(this, extensionCameraSelector, imageCapture, preview);
- *     }
+ *                 // Retrieve extension enabled camera selector
+ *                 CameraSelector extensionCameraSelector;
+ *                 extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+ *                         DEFAULT_BACK_CAMERA, ExtensionMode.BOKEH);
+ *
+ *                 // Bind image capture and preview use cases with the extension enabled camera
+ *                 // selector.
+ *                 ImageCapture imageCapture = new ImageCapture.Builder().build();
+ *                 Preview preview = new Preview.Builder().build();
+ *                 cameraProvider.bindToLifecycle(lifecycleOwner, extensionCameraSelector,
+ *                         imageCapture, preview);
+ *             }
+ *         } catch (ExecutionException | InterruptedException e) {
+ *             // This should not happen unless the future is cancelled or the thread is
+ *             // interrupted by applications.
+ *         }
+ *     }, ContextCompact.getMainExecutor(context));
  * }
  * </pre>
+ *
+ * <p>Without enabling <code>CameraX Extensions</code>, any device should be able to support the
+ * use cases combination of {@link ImageCapture}, {@link Preview} and {@link ImageAnalysis}. To
+ * support the <code>CameraX Extensions</code> functionality, the {@link ImageCapture} or
+ * {@link Preview} might need to occupy a different format of stream. This might restrict the app
+ * to not be able to bind {@link ImageCapture}, {@link Preview} and {@link ImageAnalysis} at the
+ * same time if the device's hardware level is not
+ * {@link CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_FULL} or above. If enabling an extension
+ * mode is more important and the {@link ImageAnalysis} could be optional to the app design, the
+ * extension mode can be enabled successfully when only binding {@link ImageCapture},
+ * {@link Preview} even if the device's hardware level is
+ * {@link CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED}.
+ *
+ * <p><code>CameraX Extensions</code> currently can only support {@link ImageCapture} and
+ * {@link Preview}. The {@linkplain androidx.camera.video.VideoCapture} can't be supported yet.
+ * If the app binds {@linkplain androidx.camera.video.VideoCapture} and
+ * enables any extension mode, an {@link IllegalArgumentException} will be thrown.
+ *
+ * <p>For some devices, the vendor library implementation might only support a subset of the all
+ * supported sizes retrieved by {@link StreamConfigurationMap#getOutputSizes(int)}. <code>CameraX
+ * </code> will select the supported sizes for the use cases according to the use cases'
+ * configuration and combination.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ExtensionsManager {
@@ -134,11 +184,8 @@ public final class ExtensionsManager {
      *                           {@link androidx.camera.lifecycle.ProcessCameraProvider}
      *                           which is obtained by
      *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
-     *
-     * @hide
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static ListenableFuture<ExtensionsManager> getInstanceAsync(@NonNull Context context,
             @NonNull CameraProvider cameraProvider) {
         return getInstanceAsync(context, cameraProvider, VersionName.getCurrentVersion());
@@ -170,7 +217,7 @@ public final class ExtensionsManager {
                 sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
                     try {
                         InitializerImpl.init(versionName.toVersionString(),
-                                context,
+                                ContextUtil.getApplicationContext(context),
                                 new InitializerImpl.OnExtensionsInitializedCallback() {
                                     @Override
                                     public void onSuccess() {
@@ -326,11 +373,8 @@ public final class ExtensionsManager {
      *                                  camera can be found to support the specified extension
      *                                  mode, or the base {@link CameraSelector} has contained
      *                                  extension related configuration in it.
-     *
-     * @hide
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public CameraSelector getExtensionEnabledCameraSelector(
             @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
         // Directly return the input baseCameraSelector if the target extension mode is NONE.
@@ -354,10 +398,7 @@ public final class ExtensionsManager {
      *
      * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
      * @param mode               The target extension mode to support.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isExtensionAvailable(@NonNull CameraSelector baseCameraSelector,
             @ExtensionMode.Mode int mode) {
         if (mode == ExtensionMode.NONE) {
@@ -386,11 +427,8 @@ public final class ExtensionsManager {
      * Returns null if no capture latency info can be provided.
      * @throws IllegalArgumentException If this device doesn't support extensions function, or no
      *                                  camera can be found to support the specified extension mode.
-     *
-     * @hide
      */
     @Nullable
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Range<Long> getEstimatedCaptureLatencyRange(@NonNull CameraSelector cameraSelector,
             @ExtensionMode.Mode int mode) {
         if (mode == ExtensionMode.NONE

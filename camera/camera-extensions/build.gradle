@@ -18,7 +18,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -78,7 +77,6 @@ android {
 androidx {
     name = "Jetpack Camera Library OEM Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    runApiTasks = new RunApiTasks.No("Temporary policy violation, see b/161377155")
     mavenVersion = LibraryVersions.CAMERA_EXTENSIONS
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"

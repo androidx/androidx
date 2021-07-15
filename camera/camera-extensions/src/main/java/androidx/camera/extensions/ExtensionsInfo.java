@@ -149,11 +149,10 @@ final class ExtensionsInfo {
      * @param cameraSelector    The {@link CameraSelector} to find a camera which supports the
      *                          specified extension mode.
      * @param mode              The extension mode to check.
-     * @param surfaceResolution the surface resolution of the {@link ImageCapture} which will be
-     *                          used to take a picture. If the input value of this parameter is
-     *                          null or it is not included in the supported output sizes, the
-     *                          maximum capture output size is used to get the estimated range
-     *                          information.
+     * @param resolution        The resolution of the {@link ImageCapture} which will be used to
+     *                          take a picture. If the input value of this parameter is null or
+     *                          it is not included in the supported output sizes, the maximum
+     *                          capture output size is used to get the estimated range information.
      * @return the range of estimated minimal and maximal capture latency in milliseconds.
      * Returns null if no capture latency info can be provided.
      * @throws IllegalArgumentException If no camera can be found to support the specified
@@ -163,7 +162,7 @@ final class ExtensionsInfo {
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     Range<Long> getEstimatedCaptureLatencyRange(
             @NonNull CameraSelector cameraSelector,
-            @ExtensionMode.Mode int mode, @Nullable Size surfaceResolution) {
+            @ExtensionMode.Mode int mode, @Nullable Size resolution) {
         // Adds the filter to find a CameraInfo of the Camera which supports the specified
         // extension mode. Checks this first so that the API behavior will be the same no matter
         // the vendor library is above version 1.2 or not.
@@ -197,7 +196,7 @@ final class ExtensionsInfo {
             VendorExtender vendorExtender = getVendorExtender(mode);
             vendorExtender.init(extensionsCameraInfo);
 
-            return vendorExtender.getEstimatedCaptureLatencyRange(surfaceResolution);
+            return vendorExtender.getEstimatedCaptureLatencyRange(resolution);
         } catch (NoSuchMethodError e) {
             return null;
         }
