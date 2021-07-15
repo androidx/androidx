@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.addOriginatingElement
@@ -97,11 +99,21 @@ class KspFilerTest {
     }
 
     class TestMessager : XMessager() {
-        override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
+        override fun onPrintMessage(
+            kind: Diagnostic.Kind,
+            msg: String,
+            element: XElement?,
+            annotation: XAnnotation?,
+            annotationValue: XAnnotationValue?
+        ) {
+            var errorMsg = "${kind.name} element: $element " +
+                "annotation: $annotation " +
+                "annotationValue: $annotationValue " +
+                "msg: $msg"
             if (kind == Diagnostic.Kind.ERROR) {
-                error("Error element: $element msg: $msg")
+                error(errorMsg)
             } else {
-                println("${kind.name} element: $element msg: $msg")
+                println(errorMsg)
             }
         }
     }

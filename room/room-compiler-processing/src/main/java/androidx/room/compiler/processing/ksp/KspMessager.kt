@@ -16,24 +16,47 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.NonExistLocation
 import javax.tools.Diagnostic
 
 internal class KspMessager(
     private val logger: KSPLogger
 ) : XMessager() {
-    override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
-        val ksNode = (element as? KspElement)?.declaration
-
-        @Suppress("NAME_SHADOWING") // intentional to avoid reporting without location
-        val msg = if ((ksNode == null || ksNode.location == NonExistLocation) && element != null) {
-            "$msg - ${element.fallbackLocationText}"
+    override fun onPrintMessage(
+        kind: Diagnostic.Kind,
+        msg: String,
+        element: XElement?,
+        annotation: XAnnotation?,
+        annotationValue: XAnnotationValue?
+    ) {
+        // In Javac, the Messager requires all preceding parameters to report an error.
+        // In KSP, the KspLogger only needs the last so ignore the preceding parameters.
+        val ksNode = if (annotationValue != null) {
+            (annotationValue as KspAnnotationValue).valueArgument
+        } else if (annotation != null) {
+            (annotation as KspAnnotation).ksAnnotated
+        } else if (element != null) {
+            (element as KspElement).declaration
         } else {
-            msg
+            null
         }
+
+        if (element == null) {
+            internalPrintMessage(kind, msg)
+        } else if (ksNode == null || ksNode.location == NonExistLocation) {
+            internalPrintMessage(kind, "$msg - ${element.fallbackLocationText}")
+        } else {
+            internalPrintMessage(kind, msg, ksNode)
+        }
+    }
+
+    private fun internalPrintMessage(kind: Diagnostic.Kind, msg: String, ksNode: KSNode? = null) {
         when (kind) {
             Diagnostic.Kind.ERROR -> logger.error(msg, ksNode)
             Diagnostic.Kind.WARNING -> logger.warn(msg, ksNode)

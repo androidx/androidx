@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
 import javax.annotation.processing.ProcessingEnvironment
@@ -25,16 +27,39 @@ import javax.tools.Diagnostic
 internal class JavacProcessingEnvMessager(
     private val processingEnv: ProcessingEnvironment
 ) : XMessager() {
-    override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
-        val javacElement = (element as? JavacElement)?.element
+    override fun onPrintMessage(
+        kind: Diagnostic.Kind,
+        msg: String,
+        element: XElement?,
+        annotation: XAnnotation?,
+        annotationValue: XAnnotationValue?
+    ) {
+        if (element == null) {
+            processingEnv.messager.printMessage(kind, msg)
+            return
+        }
+
+        val javacElement = (element as JavacElement).element
+        @Suppress("NAME_SHADOWING") // intentional to avoid reporting without location
+        val msg = if (javacElement.isFromCompiledClass()) {
+            "$msg - ${element.fallbackLocationText}"
+        } else {
+            msg
+        }
+        if (annotation == null) {
+            processingEnv.messager.printMessage(kind, msg, javacElement)
+            return
+        }
+
+        val javacAnnotation = (annotation as JavacAnnotation).mirror
+        if (annotationValue == null) {
+            processingEnv.messager.printMessage(kind, msg, javacElement, javacAnnotation)
+            return
+        }
+
+        val javacAnnotationValue = (annotationValue as JavacAnnotationValue).annotationValue
         processingEnv.messager.printMessage(
-            kind,
-            if (javacElement != null && javacElement.isFromCompiledClass()) {
-                "$msg - ${element.fallbackLocationText}"
-            } else {
-                msg
-            },
-            javacElement
+            kind, msg, javacElement, javacAnnotation, javacAnnotationValue
         )
     }
 
