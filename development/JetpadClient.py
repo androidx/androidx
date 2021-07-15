@@ -17,12 +17,19 @@
 
 import subprocess
 import datetime
+import sys
+
+
+def print_e(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 
 def getJetpadReleaseInfo(date):
 	try:
 		rawJetpadReleaseOutput = subprocess.check_output('span sql /span/global/androidx-jetpad:prod_instance \"SELECT GroupId, ArtifactId, ReleaseVersion, PreviousReleaseSHA, ReleaseSHA, Path, RequireSameVersionGroupBuild, ReleaseBuildId, ReleaseBranch FROM LibraryReleases WHERE ReleaseDate = %s\"' % date, shell=True)
 	except subprocess.CalledProcessError:
-		print_e('FAIL: Failed to get jetpad release info for  %s' %  date)
+		print_e("FAIL: Failed to get jetpad release info for  %s. "
+				"This likely means you need to run gcert." %  date)
 		return None
 	rawJetpadReleaseOutputLines = rawJetpadReleaseOutput.splitlines()
 	if len(rawJetpadReleaseOutputLines) <= 2:
