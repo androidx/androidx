@@ -16,14 +16,14 @@
 
 package androidx.camera.camera2.internal.compat.quirk;
 
-import static androidx.camera.core.CameraSelector.LENS_FACING_BACK;
+import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
-import androidx.camera.core.internal.compat.quirk.UseTorchAsFlashQuirk;
 
 import java.util.Locale;
 
@@ -32,11 +32,17 @@ import java.util.Locale;
  *
  * <p>See b/193336562 for details.
  */
-class CameraNoResponseWhenEnablingFlashQuirk implements UseTorchAsFlashQuirk {
+public class CameraNoResponseWhenEnablingFlashQuirk implements UseTorchAsFlashQuirk {
+    @VisibleForTesting
+    public static final String BUILD_BRAND = "SAMSUNG";
+
+    @VisibleForTesting
+    public static final String BUILD_MODEL = "SM-N920";
+
     static boolean load(@NonNull CameraCharacteristicsCompat characteristics) {
-        return "SAMSUNG".equals(Build.BRAND.toUpperCase(Locale.US))
+        return BUILD_BRAND.equals(Build.BRAND.toUpperCase(Locale.US))
                 // Enables on all Samsung Galaxy Note 5 devices.
-                && Build.MODEL.toUpperCase(Locale.US).startsWith("SM-N920")
+                && Build.MODEL.toUpperCase(Locale.US).startsWith(BUILD_MODEL)
                 && characteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
     }
 }

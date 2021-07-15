@@ -121,16 +121,16 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @Override
     @NonNull
-    public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
-        Logger.d(TAG, "triggerAePrecapture()");
-        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
+    public ListenableFuture<Void> startFlashSequence() {
+        Logger.d(TAG, "startFlashSequence()");
+        return Futures.immediateFuture(null);
     }
 
     @Override
-    public void cancelAfAeTrigger(final boolean cancelAfTrigger,
-            final boolean cancelAePrecaptureTrigger) {
-        Logger.d(TAG, "cancelAfAeTrigger(" + cancelAfTrigger + ", "
-                + cancelAePrecaptureTrigger + ")");
+    public void cancelAfAndFinishFlashSequence(final boolean cancelAfTrigger,
+            final boolean finishFlashSequence) {
+        Logger.d(TAG, "cancelAfAndFinishFlashSequence(" + cancelAfTrigger + ", "
+                + finishFlashSequence + ")");
     }
 
     @NonNull
