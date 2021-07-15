@@ -57,7 +57,7 @@ import java.util.concurrent.Executor
  *   // Construct your auth request.
  *   authClient = RemoteAuthClient.create(this);
  *   authClient.sendAuthorizationRequest(
- *      OAuthRequest.Builder(this.applicationContext.packageName)
+ *      OAuthRequest.Builder(this.applicationContext)
  *          .setAuthProviderUrl(Uri.parse("https://...."))
  *          .setCodeChallenge(CodeChallenge(codeVerifier))
  *          .build(),

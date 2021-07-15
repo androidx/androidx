@@ -38,10 +38,11 @@ package androidx.wear.phone.interactions.authentication {
     property public final android.net.Uri requestUrl;
     field public static final androidx.wear.phone.interactions.authentication.OAuthRequest.Companion Companion;
     field public static final String WEAR_REDIRECT_URL_PREFIX = "https://wear.googleapis.com/3p_auth/";
+    field public static final String WEAR_REDIRECT_URL_PREFIX_CN = "https://wear.googleapis-cn.com/3p_auth/";
   }
 
   public static final class OAuthRequest.Builder {
-    ctor public OAuthRequest.Builder(String packageName);
+    ctor public OAuthRequest.Builder(android.content.Context context);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.wear.phone.interactions.authentication.OAuthRequest build();
     method public androidx.wear.phone.interactions.authentication.OAuthRequest.Builder setAuthProviderUrl(android.net.Uri authProviderUrl);
     method public androidx.wear.phone.interactions.authentication.OAuthRequest.Builder setClientId(String clientId);

@@ -24,11 +24,13 @@ import android.net.Uri
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Pair
+import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.robolectric.Shadows
 import org.robolectric.annotation.internal.DoNotInstrument
 import java.util.ArrayList
 import java.util.concurrent.Executor
@@ -39,21 +41,32 @@ import java.util.concurrent.Executor
 public class RemoteAuthTest {
 
     internal companion object {
+        private val context: Context = ApplicationProvider.getApplicationContext()
+        private val shadowPackageManager = Shadows.shadowOf(context.packageManager)
         private val DIRECT_EXECUTOR = Executor { command -> command.run() }
         private const val authProviderUrlA = "http://myrequesturl/a?client_id=iamtheclient"
         private const val authProviderUrlB = "http://myrequesturl/b?client_id=iamtheclient"
         private val responseUrl = Uri.parse("http://myresponseurl")
-        private const val appPackageName = "com.friendlyapp"
-        private val requestA =
-            OAuthRequest.Builder(appPackageName)
-                .setAuthProviderUrl(Uri.parse(authProviderUrlA))
-                .setCodeChallenge(CodeChallenge(CodeVerifier()))
-                .build()
-        private val requestB =
-            OAuthRequest.Builder(appPackageName)
-                .setAuthProviderUrl(Uri.parse(authProviderUrlB))
-                .setCodeChallenge(CodeChallenge(CodeVerifier()))
-                .build()
+        private val appPackageName = context.packageName
+
+        private var requestA: OAuthRequest
+        private var requestB: OAuthRequest
+
+        init {
+            setSystemFeatureChina(false)
+
+            requestA =
+                OAuthRequest.Builder(context)
+                    .setAuthProviderUrl(Uri.parse(authProviderUrlA))
+                    .setCodeChallenge(CodeChallenge(CodeVerifier()))
+                    .build()
+
+            requestB =
+                OAuthRequest.Builder(context)
+                    .setAuthProviderUrl(Uri.parse(authProviderUrlB))
+                    .setCodeChallenge(CodeChallenge(CodeVerifier()))
+                    .build()
+        }
         private val response = OAuthResponse.Builder().setResponseUrl(responseUrl).build()
 
         // Note: This can't be static as Robolectric isn't set up at class init time.
@@ -62,6 +75,10 @@ public class RemoteAuthTest {
         )
         private val mockCallback: RemoteAuthClient.Callback =
             Mockito.mock(RemoteAuthClient.Callback::class.java)
+
+        private fun setSystemFeatureChina(value: Boolean) {
+            shadowPackageManager.setSystemFeature("cn.google", value)
+        }
     }
 
     private var fakeServiceBinder: FakeServiceBinder = FakeServiceBinder()
@@ -79,10 +96,11 @@ public class RemoteAuthTest {
 
     @Test
     public fun sendAuthorizationRequestShouldMakeConnectionToClockworkHome() {
+        setSystemFeatureChina(false)
         val requestUri = "http://myrequesturl?client_id=xxx"
         // WHEN an authorization request is sent
         clientUnderTest.sendAuthorizationRequest(
-            OAuthRequest.Builder(appPackageName)
+            OAuthRequest.Builder(context)
                 .setAuthProviderUrl(Uri.parse(requestUri))
                 .setCodeChallenge(CodeChallenge(CodeVerifier()))
                 .build(),
