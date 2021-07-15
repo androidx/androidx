@@ -105,6 +105,7 @@ public open class NavController(
     private val backStackMap = mutableMapOf<Int, String?>()
     private val backStackStates = mutableMapOf<String, ArrayDeque<NavBackStackEntryState>>()
     private var lifecycleOwner: LifecycleOwner? = null
+    private var onBackPressedDispatcher: OnBackPressedDispatcher? = null
     private var viewModel: NavControllerViewModel? = null
     private val onDestinationChangedListeners = CopyOnWriteArrayList<OnDestinationChangedListener>()
 
@@ -1883,17 +1884,21 @@ public open class NavController(
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun setOnBackPressedDispatcher(dispatcher: OnBackPressedDispatcher) {
-        checkNotNull(lifecycleOwner) {
+        if (dispatcher == onBackPressedDispatcher) {
+            return
+        }
+        val lifecycleOwner = checkNotNull(lifecycleOwner) {
             "You must call setLifecycleOwner() before calling setOnBackPressedDispatcher()"
         }
         // Remove the callback from any previous dispatcher
         onBackPressedCallback.remove()
         // Then add it to the new dispatcher
-        dispatcher.addCallback(lifecycleOwner!!, onBackPressedCallback)
+        onBackPressedDispatcher = dispatcher
+        dispatcher.addCallback(lifecycleOwner, onBackPressedCallback)
 
         // Make sure that listener for updating the NavBackStackEntry lifecycles comes after
         // the dispatcher
-        lifecycleOwner!!.lifecycle.apply {
+        lifecycleOwner.lifecycle.apply {
             removeObserver(lifecycleObserver)
             addObserver(lifecycleObserver)
         }
