@@ -18,6 +18,8 @@
 
 package androidx.room.log
 
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
 import androidx.room.processor.Context
@@ -75,15 +77,28 @@ class RLog(
         messager.printMessage(WARNING, msg.safeFormat(args), defaultElement)
     }
 
+    private data class DiagnosticMessage(
+        val msg: String,
+        val element: XElement?,
+        val annotation: XAnnotation?,
+        val annotationValue: XAnnotationValue?
+    )
+
     class CollectingMessager : XMessager() {
-        private val messages = mutableMapOf<Diagnostic.Kind, MutableList<Pair<String, XElement?>>>()
-        override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
+        private val messages = mutableMapOf<Diagnostic.Kind, MutableList<DiagnosticMessage>>()
+        override fun onPrintMessage(
+            kind: Diagnostic.Kind,
+            msg: String,
+            element: XElement?,
+            annotation: XAnnotation?,
+            annotationValue: XAnnotationValue?
+        ) {
             messages.getOrPut(
                 kind,
                 {
                     arrayListOf()
                 }
-            ).add(Pair(msg, element))
+            ).add(DiagnosticMessage(msg, element, annotation, annotationValue))
         }
 
         fun hasErrors() = messages.containsKey(ERROR)
@@ -92,8 +107,14 @@ class RLog(
             val printMessage = context.logger.messager::printMessage
             messages.forEach { pair ->
                 val kind = pair.key
-                pair.value.forEach { (msg, element) ->
-                    printMessage(kind, msg, element)
+                pair.value.forEach { diagnosticMessage ->
+                    printMessage(
+                        kind,
+                        diagnosticMessage.msg,
+                        diagnosticMessage.element,
+                        diagnosticMessage.annotation,
+                        diagnosticMessage.annotationValue
+                    )
                 }
             }
         }
