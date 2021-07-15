@@ -885,6 +885,12 @@ public final class Preview extends UseCase {
          * <p>If not set, the default selected resolution will be the best size match to the
          * device's screen resolution, or to 1080p (1920x1080), whichever is smaller.
          *
+         * <p>When using the <code>camera-camera2</code> CameraX implementation, which resolution
+         * will be finally selected will depend on the camera device's hardware level and the
+         * bound use cases combination. For more details see the guaranteed supported
+         * configurations tables in {@link android.hardware.camera2.CameraDevice}'s
+         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a> section.
+         *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
          */

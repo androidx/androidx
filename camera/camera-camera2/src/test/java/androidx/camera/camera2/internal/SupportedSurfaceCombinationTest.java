@@ -2158,6 +2158,103 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(480, 480));
     }
 
+    @Test
+    public void previewSizeIsSelectedForImageAnalysis_imageCaptureHasNoSetSizeInLimitedDevice()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        final Preview preview = new Preview.Builder().build();
+        preview.setSurfaceProvider(CameraXExecutors.directExecutor(),
+                SurfaceTextureProvider.createSurfaceTextureProvider(mock(
+                        SurfaceTextureProvider.SurfaceTextureCallback.class)));
+
+        // ImageCapture has no explicit target resolution setting
+        final ImageCapture imageCapture = new ImageCapture.Builder().build();
+
+        // A LEGACY-level above device supports the following configuration.
+        //     PRIV/PREVIEW + YUV/PREVIEW + JPEG/MAXIMUM
+        //
+        // A LIMITED-level above device supports the following configuration.
+        //     PRIV/PREVIEW + YUV/RECORD + JPEG/RECORD
+        //
+        // Even there is a RECORD size target resolution setting for ImageAnalysis, ImageCapture
+        // will still have higher priority to have a MAXIMUM size resolution if the app doesn't
+        // explicitly specify a RECORD size target resolution to ImageCapture.
+        final ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .setTargetRotation(Surface.ROTATION_90)
+                .setTargetResolution(mRecordSize)
+                .build();
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(preview);
+        useCases.add(imageCapture);
+        useCases.add(imageAnalysis);
+
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
+                        mUseCaseConfigFactory);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        new ArrayList<>(useCaseToConfigMap.values()));
+
+        assertThat(suggestedResolutionMap.get(useCaseToConfigMap.get(imageAnalysis))).isEqualTo(
+                mPreviewSize);
+    }
+
+    @Test
+    public void recordSizeIsSelectedForImageAnalysis_imageCaptureHasExplicitSizeInLimitedDevice()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        final Preview preview = new Preview.Builder().build();
+        preview.setSurfaceProvider(CameraXExecutors.directExecutor(),
+                SurfaceTextureProvider.createSurfaceTextureProvider(mock(
+                        SurfaceTextureProvider.SurfaceTextureCallback.class)));
+
+        // ImageCapture has no explicit RECORD size target resolution setting
+        final ImageCapture imageCapture = new ImageCapture.Builder()
+                .setTargetRotation(Surface.ROTATION_90)
+                .setTargetResolution(mRecordSize)
+                .build();
+
+        // A LEGACY-level above device supports the following configuration.
+        //     PRIV/PREVIEW + YUV/PREVIEW + JPEG/MAXIMUM
+        //
+        // A LIMITED-level above device supports the following configuration.
+        //     PRIV/PREVIEW + YUV/RECORD + JPEG/RECORD
+        //
+        // A RECORD can be selected for ImageAnalysis if the ImageCapture has a explicit RECORD
+        // size target resolution setting. It means that the application know the trade-off and
+        // the ImageAnalysis has higher priority to get a larger resolution than ImageCapture.
+        final ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .setTargetRotation(Surface.ROTATION_90)
+                .setTargetResolution(mRecordSize)
+                .build();
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(preview);
+        useCases.add(imageCapture);
+        useCases.add(imageAnalysis);
+
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
+                        mUseCaseConfigFactory);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        new ArrayList<>(useCaseToConfigMap.values()));
+
+        assertThat(suggestedResolutionMap.get(useCaseToConfigMap.get(imageAnalysis))).isEqualTo(
+                mRecordSize);
+    }
+
     private void setupCamera(int hardwareLevel) {
         setupCamera(hardwareLevel, SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE,
                 mSupportedSizes, null);
