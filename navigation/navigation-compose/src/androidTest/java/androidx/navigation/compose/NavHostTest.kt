@@ -431,6 +431,9 @@ class NavHostTest {
     @Test
     fun testNavHostCrossFade() {
         lateinit var navController: NavHostController
+
+        composeTestRule.mainClock.autoAdvance = false
+
         composeTestRule.setContent {
             navController = rememberNavController()
             NavHost(navController, startDestination = first) {
@@ -440,6 +443,8 @@ class NavHostTest {
         }
 
         val firstEntry = navController.currentBackStackEntry
+
+        composeTestRule.mainClock.autoAdvance = true
 
         composeTestRule.runOnIdle {
             assertThat(firstEntry?.lifecycle?.currentState)
