@@ -1007,14 +1007,16 @@ public open class NavController(
         if (deepLinkExtras != null) {
             globalArgs.putAll(deepLinkExtras)
         }
-        if ((deepLink == null || deepLink.isEmpty()) && intent.data != null) {
+        if (deepLink == null || deepLink.isEmpty()) {
             val matchingDeepLink = _graph!!.matchDeepLink(NavDeepLinkRequest(intent))
             if (matchingDeepLink != null) {
                 val destination = matchingDeepLink.destination
                 deepLink = destination.buildDeepLinkIds()
                 deepLinkArgs = null
                 val destinationArgs = destination.addInDefaultArgs(matchingDeepLink.matchingArgs)
-                globalArgs.putAll(destinationArgs)
+                if (destinationArgs != null) {
+                    globalArgs.putAll(destinationArgs)
+                }
             }
         }
         if (deepLink == null || deepLink.isEmpty()) {

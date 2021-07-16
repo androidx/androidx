@@ -150,7 +150,7 @@ public class NavDeepLink internal constructor(
         deepLink: Uri,
         arguments: Map<String, NavArgument?>
     ): Bundle? {
-        val matcher = pattern!!.matcher(deepLink.toString())
+        val matcher = pattern?.matcher(deepLink.toString()) ?: return null
         if (!matcher.matches()) {
             return null
         }
