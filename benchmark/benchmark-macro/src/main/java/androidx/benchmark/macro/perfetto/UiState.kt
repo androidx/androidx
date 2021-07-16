@@ -38,7 +38,6 @@ internal fun UiState(
 )
 
 internal fun File.appendUiState(state: UiState) {
-    val trace = Trace.ADAPTER.decode(inputStream())
-    val appendedTrace = Trace(packet = trace.packet + listOf(TracePacket(ui_state = state)))
-    Trace.ADAPTER.encode(outputStream(), appendedTrace)
+    val traceToAppend = Trace(packet = listOf(TracePacket(ui_state = state)))
+    appendBytes(traceToAppend.encode())
 }
