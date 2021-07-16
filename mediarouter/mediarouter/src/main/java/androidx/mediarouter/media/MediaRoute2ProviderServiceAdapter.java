@@ -180,7 +180,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         // Member route controllers for a dynamic group are created after the group route is
         // created. (DynamicGroupRouteController#notifyDynamicRoutesChanged is called)
         if ((sessionFlags & (SessionRecord.SESSION_FLAG_GROUP | SessionRecord.SESSION_FLAG_DYNAMIC))
-                == SessionRecord.SESSION_FLAG_GROUP) {
+                == (SessionRecord.SESSION_FLAG_GROUP | SessionRecord.SESSION_FLAG_DYNAMIC)) {
             sessionRecord.updateMemberRouteControllers(routeId, /*oldSession=*/null,
                     sessionInfo);
         }
@@ -297,7 +297,6 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         }
 
         updateStaticSessions(descriptorMap);
-        // Handle duplicated IDs
 
         List<MediaRoute2Info> routes = new ArrayList<>();
         for (MediaRouteDescriptor desc : descriptorMap.values()) {
@@ -675,7 +674,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
 
         void setSessionInfo(@NonNull RoutingSessionInfo sessionInfo) {
             if (mSessionInfo != null) {
-                Log.w(TAG, "setSessionInfo: This shouldn't be called after sesionInfo is set");
+                Log.w(TAG, "setSessionInfo: This shouldn't be called after sessionInfo is set");
                 return;
             }
             Messenger messenger = new Messenger(new IncomingHandler(

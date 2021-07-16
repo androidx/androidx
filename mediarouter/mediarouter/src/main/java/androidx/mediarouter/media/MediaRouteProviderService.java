@@ -1152,7 +1152,6 @@ public abstract class MediaRouteProviderService extends Service {
             mMR2ProviderServiceAdapter.setProviderDescriptor(descriptor);
         }
 
-
         @Override
         MediaRouteProviderServiceImplBase.ClientRecord createClientRecord(
                 Messenger messenger, int version, String packageName) {
