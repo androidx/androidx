@@ -18,13 +18,15 @@ package androidx.testutils
 
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
+import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 
 /**
  * A simple Navigator that doesn't actually navigate anywhere, but does dispatch correctly
  */
 @Navigator.Name("test")
-open class TestNavigator : Navigator<TestNavigator.Destination>() {
+open class TestNavigator(private val hasTransitions: Boolean = false) :
+    Navigator<TestNavigator.Destination>() {
 
     val backStack: List<NavBackStackEntry>
         get() = state.backStack.value
@@ -39,6 +41,32 @@ open class TestNavigator : Navigator<TestNavigator.Destination>() {
 
     override fun createDestination(): Destination {
         return Destination(this)
+    }
+
+    override fun navigate(
+        entries: List<NavBackStackEntry>,
+        navOptions: NavOptions?,
+        navigatorExtras: Extras?
+    ) {
+        entries.forEach { entry ->
+            if (hasTransitions) {
+                state.pushWithTransition(entry)
+            } else {
+                state.push(entry)
+            }
+        }
+    }
+
+    override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
+        if (hasTransitions) {
+            state.popWithTransition(popUpTo, savedState)
+        } else {
+            super.popBackStack(popUpTo, savedState)
+        }
+    }
+
+    public fun onTransitionComplete(entry: NavBackStackEntry) {
+        state.markTransitionComplete(entry)
     }
 
     /**

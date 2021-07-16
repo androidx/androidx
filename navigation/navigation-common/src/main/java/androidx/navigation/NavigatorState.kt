@@ -18,7 +18,6 @@ package androidx.navigation
 
 import android.os.Bundle
 import androidx.annotation.RestrictTo
-import androidx.navigation.NavigatorState.OnTransitionCompleteListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,9 +31,8 @@ import kotlin.concurrent.withLock
 public abstract class NavigatorState {
     private val backStackLock = ReentrantLock(true)
     private val _backStack: MutableStateFlow<List<NavBackStackEntry>> = MutableStateFlow(listOf())
-    private val _transitionsInProgress:
-        MutableStateFlow<Map<NavBackStackEntry, OnTransitionCompleteListener>> =
-            MutableStateFlow(mapOf())
+    private val _transitionsInProgress: MutableStateFlow<Set<NavBackStackEntry>> =
+        MutableStateFlow(setOf())
 
     /**
      * @hide
@@ -52,13 +50,11 @@ public abstract class NavigatorState {
     public val backStack: StateFlow<List<NavBackStackEntry>> = _backStack.asStateFlow()
 
     /**
-     * This is the map of currently running transitions to their individual
-     * [OnTransitionCompleteListener]s. Use this map to retrieve the listener and execute the
-     * callback once the transition is complete.
+     * This is the set of currently running transitions. Use this set to retrieve the entry and call
+     * [markTransitionComplete] once the transition is complete.
      */
-    public val transitionsInProgress:
-        StateFlow<Map<NavBackStackEntry, OnTransitionCompleteListener>> =
-            _transitionsInProgress.asStateFlow()
+    public val transitionsInProgress: StateFlow<Set<NavBackStackEntry>> =
+        _transitionsInProgress.asStateFlow()
 
     /**
      * Adds the given [backStackEntry] to the [backStack].
@@ -70,15 +66,25 @@ public abstract class NavigatorState {
     }
 
     /**
-     * Provides listener that once activated, adds the given [backStackEntry] to the [backStack].
+     * Adds the given [backStackEntry] to the [backStack]. This also adds the given and
+     * previous entry to the [set of in progress transitions][transitionsInProgress].
+     * Added entries have their [Lifecycle] capped at [Lifecycle.State.STARTED] until an entry is
+     * passed into the [markTransitionComplete] callback, when they are allowed to go to
+     * [Lifecycle.State.RESUMED].
+     *
+     * @see transitionsInProgress
+     * @see markTransitionComplete
+     * @see popWithTransition
      */
-    public open fun pushWithTransition(
-        backStackEntry: NavBackStackEntry
-    ): OnTransitionCompleteListener {
-        push(backStackEntry)
-        return OnTransitionCompleteListener {
-            removeInProgressTransition(backStackEntry)
+    public open fun pushWithTransition(backStackEntry: NavBackStackEntry) {
+        val previousEntry = backStack.value.lastOrNull()
+        // When navigating, we need to mark the outgoing entry as transitioning until it
+        // finishes its outgoing animation.
+        if (previousEntry != null) {
+            _transitionsInProgress.value = _transitionsInProgress.value + previousEntry
         }
+        _transitionsInProgress.value = _transitionsInProgress.value + backStackEntry
+        push(backStackEntry)
     }
 
     /**
@@ -100,50 +106,46 @@ public abstract class NavigatorState {
     }
 
     /**
-     * Provides listener that once activated, Pops all destinations up to and including [popUpTo].
+     * Pops all destinations up to and including [popUpTo]. This also adds the given and
+     * incoming entry to the [set of in progress transitions][transitionsInProgress]. Added
+     * entries have their [Lifecycle] held at [Lifecycle.State.CREATED] until an entry is
+     * passed into the [markTransitionComplete] callback, when they are allowed to go to
+     * [Lifecycle.State.DESTROYED] and have their state cleared.
      *
      * This will remove those destinations from the [backStack], saving their state if
      * [saveState] is `true`.
+     *
+     * @see transitionsInProgress
+     * @see markTransitionComplete
+     * @see pushWithTransition
      */
-    public open fun popWithTransition(
-        popUpTo: NavBackStackEntry,
-        saveState: Boolean
-    ): OnTransitionCompleteListener {
-        val listener = OnTransitionCompleteListener {
-            removeInProgressTransition(popUpTo)
+    public open fun popWithTransition(popUpTo: NavBackStackEntry, saveState: Boolean) {
+        _transitionsInProgress.value = _transitionsInProgress.value + popUpTo
+        val incomingEntry = backStack.value.lastOrNull { entry ->
+            entry != popUpTo &&
+                backStack.value.lastIndexOf(entry) < backStack.value.lastIndexOf(popUpTo)
+        }
+        // When popping, we need to mark the incoming entry as transitioning so we keep it
+        // STARTED until the transition completes at which point we can move it to RESUMED
+        if (incomingEntry != null) {
+            _transitionsInProgress.value = _transitionsInProgress.value + incomingEntry
         }
         pop(popUpTo, saveState)
-        return listener
     }
 
     /**
-     * Adds a transition listener to the group of in progress transitions.
+     * This removes the given [NavBackStackEntry] from the [set of the transitions in
+     * progress][transitionsInProgress]. This should be called in conjunction with
+     * [pushWithTransition] and [popWithTransition] as those call are responsible for adding
+     * entries to [transitionsInProgress].
      *
-     * @hide
+     * Failing to call this method could result in entries being prevented from reaching their
+     * final [Lifecycle.State]}.
+     *
+     * @see pushWithTransition
+     * @see popWithTransition
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun addInProgressTransition(
-        entry: NavBackStackEntry,
-        listener: OnTransitionCompleteListener
-    ) {
-        _transitionsInProgress.value = _transitionsInProgress.value + (entry to listener)
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun removeInProgressTransition(entry: NavBackStackEntry) {
+    public open fun markTransitionComplete(entry: NavBackStackEntry) {
         _transitionsInProgress.value = _transitionsInProgress.value - entry
-    }
-
-    /**
-     * OnTransitionCompleteListener receives a callback when a destination transition is complete.
-     */
-    public fun interface OnTransitionCompleteListener {
-        /**
-         * Callback for when the transition has completed.
-         */
-        public fun onTransitionComplete()
     }
 }

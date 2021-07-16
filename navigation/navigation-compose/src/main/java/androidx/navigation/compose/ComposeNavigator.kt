@@ -60,6 +60,18 @@ public class ComposeNavigator : Navigator<Destination>() {
     }
 
     /**
+     * Callback that removes the given [NavBackStackEntry] from the [map of the transitions in
+     * progress][transitionsInProgress]. This should be called in conjunction with [navigate] and
+     * [popBackStack] as those call are responsible for adding entries to [transitionsInProgress].
+     *
+     * Failing to call this method could result in entries being prevented from reaching their
+     * final [Lifecycle.State]}.
+     */
+    internal fun onTransitionComplete(entry: NavBackStackEntry) {
+        state.markTransitionComplete(entry)
+    }
+
+    /**
      * NavDestination specific to [ComposeNavigator]
      */
     @NavDestination.ClassType(Composable::class)
