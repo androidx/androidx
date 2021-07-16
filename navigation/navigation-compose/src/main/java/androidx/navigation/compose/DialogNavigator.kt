@@ -17,9 +17,6 @@
 package androidx.navigation.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.FloatingWindow
@@ -27,10 +24,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
-import androidx.navigation.NavigatorState
 import androidx.navigation.compose.DialogNavigator.Destination
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Navigator that navigates through [Composable]s that will be hosted within a
@@ -39,33 +33,17 @@ import kotlinx.coroutines.flow.StateFlow
  */
 @Navigator.Name("dialog")
 public class DialogNavigator : Navigator<Destination>() {
-    private var attached by mutableStateOf(false)
 
     /**
-     * Get the back stack from the [state]. NavHost will compose at least
-     * once (due to the use of [androidx.compose.runtime.DisposableEffect]) before
-     * the Navigator is attached, so we specifically return an empty flow if we
-     * aren't attached yet.
+     * Get the back stack from the [state].
      */
-    internal val backStack: StateFlow<List<NavBackStackEntry>> get() = if (attached) {
-        state.backStack
-    } else {
-        MutableStateFlow(emptyList())
-    }
+    internal val backStack get() = state.backStack
 
     /**
      * Dismiss the dialog destination associated with the given [backStackEntry].
      */
     internal fun dismiss(backStackEntry: NavBackStackEntry) {
-        check(attached) {
-            "The DialogNavigator must be attached to a NavController to call dismiss"
-        }
         state.pop(backStackEntry, false)
-    }
-
-    override fun onAttach(state: NavigatorState) {
-        super.onAttach(state)
-        attached = true
     }
 
     override fun navigate(

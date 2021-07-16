@@ -17,18 +17,11 @@
 package androidx.navigation.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
-import androidx.navigation.NavigatorState
-import androidx.navigation.NavigatorState.OnTransitionCompleteListener
 import androidx.navigation.compose.ComposeNavigator.Destination
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Navigator that navigates through [Composable]s. Every destination using this Navigator must
@@ -37,31 +30,16 @@ import kotlinx.coroutines.flow.StateFlow
  */
 @Navigator.Name("composable")
 public class ComposeNavigator : Navigator<Destination>() {
-    private var attached by mutableStateOf(false)
-
-    internal val transitionsInProgress:
-        StateFlow<Map<NavBackStackEntry, OnTransitionCompleteListener>> get() = if (attached) {
-            state.transitionsInProgress
-        } else {
-            MutableStateFlow(emptyMap())
-        }
 
     /**
-     * Get the back stack from the [state]. NavHost will compose at least
-     * once (due to the use of [androidx.compose.runtime.DisposableEffect]) before
-     * the Navigator is attached, so we specifically return an empty flow if we
-     * aren't attached yet.
+     * Get the map of transitions currently in progress from the [state].
      */
-    internal val backStack: StateFlow<List<NavBackStackEntry>> get() = if (attached) {
-        state.backStack
-    } else {
-        MutableStateFlow(emptyList())
-    }
+    internal val transitionsInProgress get() = state.transitionsInProgress
 
-    override fun onAttach(state: NavigatorState) {
-        super.onAttach(state)
-        attached = true
-    }
+    /**
+     * Get the back stack from the [state].
+     */
+    internal val backStack get() = state.backStack
 
     override fun navigate(
         entries: List<NavBackStackEntry>,
