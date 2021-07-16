@@ -47,12 +47,12 @@ import java.util.List;
  *
  * you would write the following:
  *
- * <pre>
- * {@code
+ * <pre class="prettyprint">
  *  WorkContinuation left = workManager.beginWith(A).then(B);
  *  WorkContinuation right = workManager.beginWith(C).then(D);
  *  WorkContinuation final = WorkContinuation.combine(Arrays.asList(left, right)).then(E);
- *  final.enqueue();}</pre>
+ *  final.enqueue();
+ *  </pre>
  *
  * Not that enqueuing a WorkContinuation enqueues all previously-unenqueued prerequisites.  You must
  * call {@link #enqueue()} to inform WorkManager to actually enqueue the work graph.  As usual,
