@@ -56,6 +56,7 @@ at org\.jetbrains\.kotlin\.compilerRunner\.GradleKotlinCompilerWork\.incremental
 at org\.jetbrains\.kotlin\.compilerRunner\.GradleKotlinCompilerWork\.compileWithDaemon\(GradleKotlinCompilerWork\.kt\:[0-9]+\)
 at org\.jetbrains\.kotlin\.compilerRunner\.GradleKotlinCompilerWork\.compileWithDaemonOrFallbackImpl\(GradleKotlinCompilerWork\.kt\:[0-9]+\)
 at org\.jetbrains\.kotlin\.compilerRunner\.GradleKotlinCompilerWork\.run\(GradleKotlinCompilerWork\.kt\:[0-9]+\)
+at org\.jetbrains\.kotlin\.compilerRunner\.GradleCompilerRunnerWithWorkers\$GradleKotlinCompilerWorkAction\.execute\(GradleCompilerRunnerWithWorkers\.kt\:[0-9]+\)
 Caused by\: java\.lang\.AssertionError\: Incremental compilation is not enabled
 at org\.jetbrains\.kotlin\.incremental\.IncrementalCompilerRunner\.compileImpl\(IncrementalCompilerRunner\.kt\:[0-9]+\)
 at org\.jetbrains\.kotlin\.incremental\.IncrementalCompilerRunner\.compile\(IncrementalCompilerRunner\.kt\:[0-9]+\)
