@@ -242,6 +242,7 @@ dependencies {
     docs("androidx.viewpager2:viewpager2:1.1.0-alpha01")
     docs("androidx.viewpager:viewpager:1.0.0")
     docs("androidx.wear.compose:compose-foundation:1.0.0-alpha02")
+    samples("androidx.wear.compose:compose-foundation-samples:1.0.0-alpha02")
     docs("androidx.wear.compose:compose-material:1.0.0-alpha02")
     docs("androidx.wear.tiles:tiles:1.0.0-alpha09")
     docs("androidx.wear.tiles:tiles-renderer:1.0.0-alpha09")
