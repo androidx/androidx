@@ -88,7 +88,7 @@ data_sources {
       atrace_categories: "sched"
       atrace_categories: "sync"
       atrace_categories: "view"
-      atrace_categories: "webview"
+      # atrace_categories: "webview" # disabled temporarily to workaround b/190743595
       atrace_categories: "wm"
 
       # Not included, as some Q devices requiring ftrace_event configuration directly to collect
