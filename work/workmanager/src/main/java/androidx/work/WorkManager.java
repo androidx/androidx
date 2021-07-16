@@ -52,37 +52,37 @@ import java.util.concurrent.TimeUnit;
  * There are two types of work supported by WorkManager: {@link OneTimeWorkRequest} and
  * {@link PeriodicWorkRequest}.  You can enqueue requests using WorkManager as follows:
  *
- * <pre>
- * {@code
+ * <pre class="prettyprint">
  * WorkManager workManager = WorkManager.getInstance(Context);
- * workManager.enqueue(new OneTimeWorkRequest.Builder(FooWorker.class).build());}</pre>
+ * workManager.enqueue(new OneTimeWorkRequest.Builder(FooWorker.class).build());
+ * </pre>
  *
  * A {@link WorkRequest} has an associated id that can be used for lookups and observation as
  * follows:
  *
- * <pre>
- * {@code
+ * <pre class="prettyprint">
  * WorkRequest request = new OneTimeWorkRequest.Builder(FooWorker.class).build();
  * workManager.enqueue(request);
  * LiveData<WorkInfo> status = workManager.getWorkInfoByIdLiveData(request.getId());
- * status.observe(...);}</pre>
+ * status.observe(...);
+ * </pre>
  *
  * You can also use the id for cancellation:
  *
- * <pre>
- * {@code
+ * <pre class="prettyprint">
  * WorkRequest request = new OneTimeWorkRequest.Builder(FooWorker.class).build();
  * workManager.enqueue(request);
- * workManager.cancelWorkById(request.getId());}</pre>
+ * workManager.cancelWorkById(request.getId());
+ * </pre>
  *
  * You can chain work as follows:
  *
- * <pre>
- * {@code
+ * <pre class="prettyprint">
  * WorkRequest request1 = new OneTimeWorkRequest.Builder(FooWorker.class).build();
  * WorkRequest request2 = new OneTimeWorkRequest.Builder(BarWorker.class).build();
  * WorkRequest request3 = new OneTimeWorkRequest.Builder(BazWorker.class).build();
- * workManager.beginWith(request1, request2).then(request3).enqueue();}</pre>
+ * workManager.beginWith(request1, request2).then(request3).enqueue();
+ * </pre>
  *
  * Each call to {@link #beginWith(OneTimeWorkRequest)} or {@link #beginWith(List)} returns a
  * {@link WorkContinuation} upon which you can call
@@ -103,11 +103,11 @@ import java.util.concurrent.TimeUnit;
  *
  * you would enqueue them as follows:
  *
- * <pre>
- * {@code
+ * <pre class="prettyprint">
  * WorkContinuation continuation = workManager.beginWith(A);
  * continuation.then(B).then(D, E).enqueue();  // A is implicitly enqueued here
- * continuation.then(C).enqueue();}</pre>
+ * continuation.then(C).enqueue();
+ * </pre>
  *
  * Work is eligible for execution when all of its prerequisites are complete.  If any of its
  * prerequisites fail or are cancelled, the work will never run.
