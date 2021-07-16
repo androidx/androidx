@@ -85,8 +85,9 @@ import java.security.InvalidParameterException;
  *
  * <p>To reliably get location for your car app, we recommended that you use a <a
  * href="https://developer.android.com/guide/components/services?#Types-of-services">foreground
- * service</a>. Also note that accessing location may become unreliable when the phone is in the
- * battery saver mode.
+ * service</a>. If you have a service other than your {@link CarAppService} that accesses
+ * location, run the service and your `CarAppService` in the same process. Also note that
+ * accessing location may become unreliable when the phone is in the battery saver mode.
  */
 public abstract class CarAppService extends Service {
     /**
