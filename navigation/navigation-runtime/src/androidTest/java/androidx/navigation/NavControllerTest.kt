@@ -27,6 +27,7 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -434,6 +435,24 @@ class NavControllerTest {
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         val action = "test.action"
         val deepLink = NavDeepLinkRequest(null, action, null)
+
+        navController.navigate(deepLink)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        val intent = navigator.current.arguments?.getParcelable<Intent>(
+            NavController.KEY_DEEP_LINK_INTENT
+        )
+        assertThat(intent?.action).isEqualTo(action)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkActionUnusedUri() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val action = "test.action"
+        val deepLink = NavDeepLinkRequest("http://www.example.com".toUri(), action, null)
 
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
@@ -1932,6 +1951,29 @@ class NavControllerTest {
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
+        assertThat(intent).isNotNull()
+        assertWithMessage("NavController should handle deep links to its own graph")
+            .that(navController.handleDeepLink(intent))
+            .isTrue()
+        // Verify that we navigated down to the deep link
+        assertThat(collectedDestinationIds)
+            .containsExactly(R.id.start_test, R.id.start_test, R.id.second_test)
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testHandleDeepLinkAction() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val collectedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            collectedDestinationIds.add(destination.id)
+        }
+
+        val intent = Intent("test.action").apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
         assertThat(intent).isNotNull()
         assertWithMessage("NavController should handle deep links to its own graph")
             .that(navController.handleDeepLink(intent))

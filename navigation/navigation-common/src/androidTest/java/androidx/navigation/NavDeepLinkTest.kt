@@ -36,6 +36,18 @@ class NavDeepLinkTest {
     }
 
     @Test
+    fun deepLinkNoUriNoMatch() {
+        val deepLink = NavDeepLink(null, "test.action", null)
+
+        assertWithMessage("NavDeepLink shouldn't match with null Uri")
+            .that(deepLink.matches(Uri.parse(DEEP_LINK_EXACT_HTTP)))
+            .isFalse()
+        assertWithMessage("NavDeepLink shouldn't find matching arguments with null Uri")
+            .that(deepLink.getMatchingArguments(Uri.parse(DEEP_LINK_EXACT_HTTP), mapOf()))
+            .isNull()
+    }
+
+    @Test
     fun deepLinkExactMatch() {
         val deepLink = NavDeepLink(DEEP_LINK_EXACT_HTTP)
 
