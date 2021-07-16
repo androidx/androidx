@@ -75,21 +75,6 @@ public class BottomSheetNavigator(
     val sheetState: ModalBottomSheetState
 ) : Navigator<BottomSheetNavigator.Destination>() {
 
-    private var attached by mutableStateOf(false)
-
-    /**
-     * Get the back stack from the [state]. NavHost will compose at least
-     * once (due to the use of [androidx.compose.runtime.DisposableEffect]) before
-     * the Navigator is attached, so we specifically return an empty flow if we
-     * aren't attached yet.
-     */
-    private val backStack: StateFlow<List<NavBackStackEntry>>
-        get() = if (attached) {
-            state.backStack
-        } else {
-            MutableStateFlow(emptyList())
-        }
-
     /**
      * A [Composable] function that hosts the current sheet content. This should be set as
      * sheetContent of your [ModalBottomSheetLayout].
@@ -97,7 +82,7 @@ public class BottomSheetNavigator(
     public val sheetContent: @Composable ColumnScope.() -> Unit = @Composable {
         val columnScope = this
         val saveableStateHolder = rememberSaveableStateHolder()
-        val backStackEntries by backStack.collectAsState()
+        val backStackEntries by state.backStack.collectAsState()
         // We always replace the sheet's content instead of overlaying and nesting floating
         // window destinations. That means that only *one* concurrent destination is supported by
         // this navigator.
@@ -113,11 +98,6 @@ public class BottomSheetNavigator(
             saveableStateHolder = saveableStateHolder,
             onSheetDismissed = { backStackEntry -> state.pop(backStackEntry, saveState = false) }
         )
-    }
-
-    override fun onAttach(state: NavigatorState) {
-        super.onAttach(state)
-        attached = true
     }
 
     override fun createDestination(): Destination = Destination(navigator = this, content = {})
