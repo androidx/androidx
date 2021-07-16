@@ -185,7 +185,7 @@ public class ServiceConnectionManager {
                         .queryIntentServices(rendererIntent, PackageManager.GET_META_DATA);
         if (resolveInfoList.size() == 1) {
             String packageName = resolveInfoList.get(0).serviceInfo.packageName;
-            Log.d(LogTags.TAG, "Initiate binding to: " + packageName);
+            Log.d(LogTags.TAG, "Initiating binding to: " + packageName);
             rendererIntent.setPackage(packageName);
             if (!mContext.bindService(
                     rendererIntent,
