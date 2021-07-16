@@ -27,10 +27,10 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin "androidx.compose.compiler:compiler:1.0.0-rc02"
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     api "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0"
-    api "androidx.compose.runtime:runtime:1.0.0-rc02"
+    api(projectOrArtifact(":compose:runtime:runtime"))
     api "androidx.compose.ui:ui:1.0.0-rc02"
 
     implementation(libs.kotlinStdlib)

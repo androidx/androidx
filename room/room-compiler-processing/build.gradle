@@ -40,7 +40,7 @@ dependencies {
     testImplementation(libs.googleCompileTesting)
     testImplementation(libs.junit)
     testImplementation(libs.jsr250)
-    testImplementation(libs.kotlinCompileTestingKsp)
+    testImplementation(libs.kotlinCompileTesting)
     testImplementation(libs.ksp)
     testImplementation(project(":room:room-compiler-processing-testing"))
 }
