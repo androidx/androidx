@@ -44,7 +44,7 @@ private object Destinations {
 @Composable
 fun BottomSheetNavDemo() {
     val navController = rememberNavController()
-    val bottomSheetNavigator = rememberBottomSheetNavigator(navController = navController)
+    val bottomSheetNavigator = rememberBottomSheetNavigator()
     SideEffect { navController.navigatorProvider += bottomSheetNavigator }
 
     ModalBottomSheetLayout(bottomSheetNavigator) {
