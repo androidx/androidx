@@ -16,20 +16,18 @@
 
 package androidx.navigation.compose.material
 
-import android.os.Bundle
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
-import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
@@ -50,7 +48,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 public fun rememberBottomSheetNavigator(
     sheetState: ModalBottomSheetState =
-        remember { ModalBottomSheetState(ModalBottomSheetValue.Hidden) }
+        rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 ): BottomSheetNavigator = remember(sheetState) {
     BottomSheetNavigator(sheetState = sheetState)
 }
@@ -78,7 +76,6 @@ public class BottomSheetNavigator(
 ) : Navigator<BottomSheetNavigator.Destination>() {
 
     private var attached by mutableStateOf(false)
-    private var stateToRestore by mutableStateOf<ModalBottomSheetValue?>(null)
 
     /**
      * Get the back stack from the [state]. NavHost will compose at least
@@ -109,12 +106,6 @@ public class BottomSheetNavigator(
             // these
             entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         }
-        LaunchedEffect(stateToRestore, latestEntry) {
-            if (stateToRestore != null && latestEntry != null) {
-                sheetState.snapTo(stateToRestore!!)
-                stateToRestore = null
-            }
-        }
         SheetContentHost(
             columnHost = columnScope,
             backStackEntry = latestEntry,
@@ -129,14 +120,6 @@ public class BottomSheetNavigator(
         attached = true
     }
 
-    override fun onSaveState(): Bundle = bundleOf(
-        KEY_SHEET_STATE to sheetState.currentValue
-    )
-
-    override fun onRestoreState(savedState: Bundle) {
-        stateToRestore = savedState.get(KEY_SHEET_STATE) as ModalBottomSheetValue?
-    }
-
     override fun createDestination(): Destination = Destination(navigator = this, content = {})
 
     /**
@@ -147,8 +130,4 @@ public class BottomSheetNavigator(
         navigator: BottomSheetNavigator,
         internal val content: @Composable ColumnScope.(NavBackStackEntry) -> Unit
     ) : NavDestination(navigator), FloatingWindow
-
-    private companion object {
-        private const val KEY_SHEET_STATE = "sheetState"
-    }
 }
