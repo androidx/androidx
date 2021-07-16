@@ -20,11 +20,12 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -123,17 +124,7 @@ public fun NavHost(
         entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
     }
 
-    SideEffect {
-        // When we place the first entry on the backstack we won't get a call on onDispose since
-        // the Crossfade will remain in the compose hierarchy. We need to move that entry to
-        // RESUMED separately.
-        if (backStack.size == 1 && transitionsInProgress.size == 1) {
-            transitionsInProgress.forEach { entry ->
-                entry.value.onTransitionComplete()
-            }
-        }
-    }
-
+    var initialCrossfade by remember { mutableStateOf(true) }
     if (backStackEntry != null) {
         // while in the scope of the composable, we provide the navBackStackEntry as the
         // ViewModelStoreOwner and LifecycleOwner
@@ -142,6 +133,14 @@ public fun NavHost(
                 (currentEntry.destination as ComposeNavigator.Destination).content(currentEntry)
             }
             DisposableEffect(currentEntry) {
+                if (initialCrossfade) {
+                    // There's no animation for the initial crossfade,
+                    // so we can instantly mark the transition as complete
+                    transitionsInProgress.forEach { entry ->
+                        entry.value.onTransitionComplete()
+                    }
+                    initialCrossfade = false
+                }
                 onDispose {
                     transitionsInProgress.forEach { entry ->
                         entry.value.onTransitionComplete()
