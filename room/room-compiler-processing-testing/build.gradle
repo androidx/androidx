@@ -30,7 +30,7 @@ dependencies {
     implementation(libs.kotlinStdlibJdk8) // KSP defines older version as dependency, force update.
     implementation(libs.ksp)
     implementation(libs.googleCompileTesting)
-    implementation(libs.kotlinCompileTestingKsp)
+    implementation(libs.kotlinCompileTesting)
     // specify these to match the kotlin compiler version in AndroidX rather than what KSP or KCT
     // uses
     implementation(libs.kotlinCompilerEmbeddable)

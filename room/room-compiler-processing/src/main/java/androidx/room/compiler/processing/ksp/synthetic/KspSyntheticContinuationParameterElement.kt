@@ -46,15 +46,16 @@ internal class KspSyntheticContinuationParameterElement(
     ) {
 
     override val name: String by lazy {
-        // kotlin names this as pN where N is the # of arguments
-        // seems like kapt doesn't handle conflicts with declared arguments but we should
-        val desiredName = "p${containing.declaration.parameters.size}"
-
-        if (containing.declaration.parameters.none { it.name?.asString() == desiredName }) {
-            desiredName
-        } else {
-            "_syntheticContinuation"
+        // KAPT uses `continuation` but it doesn't check for conflicts, we do.
+        var candidate = "continuation"
+        var suffix = 0
+        while (
+            containing.declaration.parameters.any { it.name?.asString() == candidate }
+        ) {
+            candidate = "continuation_$suffix"
+            suffix ++
         }
+        candidate
     }
 
     override val equalityItems: Array<out Any?> by lazy {

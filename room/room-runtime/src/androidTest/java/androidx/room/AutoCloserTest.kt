@@ -117,7 +117,7 @@ public class AutoCloserTest {
     @Test
     public fun executeRefCountingFunctionPropagatesFailure() {
         assertThrows<IOException> {
-            autoCloser.executeRefCountingFunction {
+            autoCloser.executeRefCountingFunction<Nothing> {
                 throw IOException()
             }
         }

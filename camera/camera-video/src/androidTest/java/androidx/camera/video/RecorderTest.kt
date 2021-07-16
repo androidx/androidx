@@ -396,12 +396,14 @@ class RecorderTest {
         verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
         captor.allValues.run {
             assertThat(size).isAtLeast(
-                1 /* Start */ +
-                    5 /* Status */ +
-                    1 /* Pause */ +
-                    1 /* Resume */ +
-                    5 /* Status */ +
-                    1 /* Stop */
+                (
+                    1 /* Start */ +
+                        5 /* Status */ +
+                        1 /* Pause */ +
+                        1 /* Resume */ +
+                        5 /* Status */ +
+                        1 /* Stop */
+                    )
             )
 
             // Ensure duration and bytes are increasing
