@@ -4,7 +4,7 @@ go/androidx/open_source
 
 <!--*
 # Document freshness: For more information, see go/fresh-source.
-freshness: { owner: 'alanv' reviewed: '2021-02-11' }
+freshness: { owner: 'alanv' reviewed: '2021-07-15' }
 *-->
 
 [TOC]
@@ -13,6 +13,33 @@ One of the core principles of Jetpack is "Developed as open-source and
 compatible with AOSP Android," but what does that mean in practice? This guide
 provides specific, technical guidance on developing an open-source library and
 interacting with proprietary or closed-source libraries and services.
+
+## What do we mean by "open-source"?
+
+Our definition of open-source includes products that provide publicly-available
+source code that can be compiled by an end-user to generate a functional version
+of the product, e.g. an `AAR`, that is equivalent to the one used by the
+library.
+
+### Exceptions
+
+The only exception to this definition is the Android platform SDK, which does
+not release sources until well after its API surface has been finalized.
+
+Libraries which are developed against the pre-release Android platform SDK _may_
+remain closed-source until the platform SDK's API surface is finalized, at which
+they **must** move to open-source.
+
+### Examples of products that are _not_ open-source
+
+*   A bundled `.so` file with no publicly-available source code
+*   A Maven dependency with no publicly-available source code, either in the
+    Maven distribution (ex. source `JAR`) or in a public repository
+*   A library that ships source code to GitHub, but the source does not compile
+*   A library that ships source code to AOSP, but binary compiled from that
+    source is not functionally equivalent to the library used by Jetpack
+*   A closed-source web service
+*   Google Play Services
 
 ## Why do we care?
 
@@ -39,7 +66,7 @@ the implementation details of a backing service.
     components **must** be written in way that makes it feasible for a developer
     to write and delegate to their own backing implementation
 
-## Developer choice
+### Developer choice
 
 Developers should be able to choose between proprietary components; however,
 libraries are also encouraged to provide a sensible default.
@@ -51,7 +78,7 @@ libraries are also encouraged to provide a sensible default.
     such as permissions, presence on the system image, or other properties of
     applications and packages
 
-## Open protocols
+### Open protocols
 
 Third-party developers should be able to provide their own backing services,
 which means service discovery mechanisms, communication protocols, and API
