@@ -40,7 +40,9 @@ import java.util.concurrent.Executor;
  *
  * <p>A pending recording can be created using one of the {@link Recorder} methods for starting a
  * recording such as {@link Recorder#prepareRecording(Context, MediaStoreOutputOptions)}.
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class PendingRecording {
 
     private final Context mContext;

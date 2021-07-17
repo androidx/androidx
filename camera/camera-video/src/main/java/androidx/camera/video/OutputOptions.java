@@ -20,7 +20,10 @@ import androidx.annotation.NonNull;
 
 /**
  * Options for configuring output destination.
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class OutputOptions {
 
     /** Represents an unbound file size. */

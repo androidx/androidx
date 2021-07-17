@@ -88,7 +88,10 @@ import java.util.concurrent.Executor;
  * <p>The {@link Status} event will be triggered continuously during the recording process,
  * {@link #getRecordingStats} can be used to get the recording state such as total recorded bytes
  * and total duration when the event is triggered.
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class VideoRecordEvent {
 
     private final OutputOptions mOutputOptions;

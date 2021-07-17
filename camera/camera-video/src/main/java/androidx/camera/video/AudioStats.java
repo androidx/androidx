@@ -34,7 +34,10 @@ import java.util.Set;
  * The audio information about an {@link ActiveRecording} at a point in time.
  *
  * <p>The audio information will be contained in every {@link RecordingStats}.
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 @AutoValue
 public abstract class AudioStats {
 

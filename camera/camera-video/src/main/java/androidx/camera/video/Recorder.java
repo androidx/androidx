@@ -132,7 +132,10 @@ import java.util.concurrent.TimeUnit;
  *
  * @see VideoCapture#withOutput(VideoOutput)
  * @see PendingRecording
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class Recorder implements VideoOutput {
 
     private static final String TAG = "Recorder";

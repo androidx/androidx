@@ -47,7 +47,10 @@ import com.google.auto.value.AutoValue;
  *         .build();
  *
  * }</pre>
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class MediaStoreOutputOptions extends OutputOptions {
 
     /**

@@ -39,7 +39,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>Either {@link #stop()} or {@link #close()} can be called when it is desired to
  * stop the recording, and must be called before this object and the
  * {@link Recorder} from which this object was created will no longer be referenced.
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class ActiveRecording implements AutoCloseable {
 
     // Indicates the recording has been explicitly stopped by users.

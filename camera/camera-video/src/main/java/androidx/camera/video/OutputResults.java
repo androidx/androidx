@@ -25,7 +25,10 @@ import com.google.auto.value.AutoValue;
 
 /**
  * Class to provide the information of the output.
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 @AutoValue
 public abstract class OutputResults {
 

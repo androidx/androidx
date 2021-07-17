@@ -32,7 +32,10 @@ import com.google.auto.value.AutoValue;
  *
  * <p>To use a {@link java.io.File} as an output destination instead of a file descriptor, use
  * {@link FileOutputOptions}.
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class FileDescriptorOutputOptions extends OutputOptions {
 
     private final FileDescriptorOutputOptionsInternal mFileDescriptorOutputOptionsInternal;

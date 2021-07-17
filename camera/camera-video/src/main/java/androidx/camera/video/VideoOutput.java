@@ -36,7 +36,10 @@ import java.util.concurrent.Executor;
  *
  * <p>The type of video data produced by a video output and API for saving or communicating that
  * data is left to the implementation.
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public interface VideoOutput {
     /**
      * A state which represents whether the video frame producer is producing frames to the

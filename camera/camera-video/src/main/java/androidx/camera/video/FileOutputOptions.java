@@ -31,7 +31,10 @@ import java.io.File;
  *
  * <p>To use a {@link android.os.ParcelFileDescriptor} as an output desination instead of a
  * {@link File}, use {@link FileDescriptorOutputOptions}.
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class FileOutputOptions extends OutputOptions {
 
     private final FileOutputOptionsInternal mFileOutputOptionsInternal;

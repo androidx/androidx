@@ -79,7 +79,10 @@ import java.util.Set;
  * If QUALITY_UHD and QUALITY_FHD are not supported on the device, QualitySelector will select
  * the quality that is closest to and lower than QUALITY_FHD. If no lower quality is supported,
  * the quality that is closest to and higher than QUALITY_FHD will be selected.
+ *
+ * @hide
  */
+@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public class QualitySelector {
     private static final String TAG = "QualitySelector";
 
