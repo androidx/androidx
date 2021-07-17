@@ -58,7 +58,6 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 25
-        testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
     }
 
     sourceSets.androidTest.assets.srcDirs +=
