@@ -27,7 +27,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.core:core:1.1.0")
     api("androidx.fragment:fragment:1.1.0")
-    api("androidx.recyclerview:recyclerview:1.2.0-alpha06")
+    api("androidx.recyclerview:recyclerview:1.2.0")
     implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(libs.testUiautomator)
