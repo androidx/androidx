@@ -1,11 +1,11 @@
 // Signature format: 4.0
-package androidx.window.rxjava2 {
+package androidx.window.rxjava2.layout {
 
   public final class WindowInfoRepoRx {
-    method public static io.reactivex.Flowable<androidx.window.WindowMetrics> currentWindowMetricsFlowable(androidx.window.WindowInfoRepo);
-    method public static io.reactivex.Observable<androidx.window.WindowMetrics> currentWindowMetricsObservable(androidx.window.WindowInfoRepo);
-    method public static io.reactivex.Flowable<androidx.window.WindowLayoutInfo> windowLayoutInfoFlowable(androidx.window.WindowInfoRepo);
-    method public static io.reactivex.Observable<androidx.window.WindowLayoutInfo> windowLayoutInfoObservable(androidx.window.WindowInfoRepo);
+    method public static io.reactivex.Flowable<androidx.window.layout.WindowMetrics> currentWindowMetricsFlowable(androidx.window.layout.WindowInfoRepo);
+    method public static io.reactivex.Observable<androidx.window.layout.WindowMetrics> currentWindowMetricsObservable(androidx.window.layout.WindowInfoRepo);
+    method public static io.reactivex.Flowable<androidx.window.layout.WindowLayoutInfo> windowLayoutInfoFlowable(androidx.window.layout.WindowInfoRepo);
+    method public static io.reactivex.Observable<androidx.window.layout.WindowLayoutInfo> windowLayoutInfoObservable(androidx.window.layout.WindowInfoRepo);
   }
 
 }
