@@ -121,7 +121,6 @@ public final class CarAppActivity extends FragmentActivity {
                     requireNonNull(bundleable);
                     try {
                         Object surfacePackage = bundleable.get();
-                        Log.d(LogTags.TAG, "setSurfacePackage");
                         ThreadUtils.runOnMain(() -> mSurfaceView.setSurfacePackage(surfacePackage));
                     } catch (BundlerException e) {
                         Log.e(LogTags.TAG, "Unable to set surface package", e);
@@ -132,7 +131,6 @@ public final class CarAppActivity extends FragmentActivity {
                 @Override
                 public void registerRendererCallback(@NonNull IRendererCallback callback) {
                     requireNonNull(callback);
-                    Log.d(LogTags.TAG, "registerRendererCallback");
                     ThreadUtils.runOnMain(
                             () -> {
                                 mSurfaceView.setOnCreateInputConnectionListener(editorInfo ->
@@ -154,7 +152,6 @@ public final class CarAppActivity extends FragmentActivity {
                 @Override
                 public void setSurfaceListener(@NonNull ISurfaceListener listener) {
                     requireNonNull(listener);
-                    Log.d(LogTags.TAG, "setSurfaceListener");
                     ThreadUtils.runOnMain(
                             () -> requireNonNull(mSurfaceHolderListener)
                                     .setSurfaceListener(listener));
@@ -162,32 +159,27 @@ public final class CarAppActivity extends FragmentActivity {
 
                 @Override
                 public void onStartInput() {
-                    Log.d(LogTags.TAG, "onStartInput");
                     ThreadUtils.runOnMain(() -> mSurfaceView.onStartInput());
                 }
 
                 @Override
                 public void onStopInput() {
-                    Log.d(LogTags.TAG, "onStopInput");
                     ThreadUtils.runOnMain(() -> mSurfaceView.onStopInput());
                 }
 
                 @Override
                 public void startCarApp(@NonNull Intent intent) {
-                    Log.d(LogTags.TAG, "startCarApp");
                     startActivity(intent);
                 }
 
                 @Override
                 public void finishCarApp() {
-                    Log.d(LogTags.TAG, "finishCarApp");
                     finish();
                 }
 
                 @Override
                 public void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart,
                         int newSelEnd) {
-                    Log.d(LogTags.TAG, "onUpdateSelection");
                     ThreadUtils.runOnMain(() -> mSurfaceView.onUpdateSelection(oldSelStart,
                             oldSelEnd, newSelStart, newSelEnd));
                 }
