@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface
+package androidx.wear.watchface.client.guava
 
-import android.app.Service
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.graphics.Rect
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
@@ -32,7 +27,6 @@ import androidx.test.filters.MediumTest
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.ListenableWatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
-import androidx.wear.watchface.control.WatchFaceControlServiceFactory
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertNull
@@ -347,14 +341,5 @@ public class ListenableWatchFaceControlClientTest {
         assertThat(interactiveInstance).isNotNull()
         interactiveInstance.close()
         client.close()
-    }
-}
-
-public class TestWatchFaceControlService : Service() {
-    override fun onBind(intent: Intent?): IBinder? {
-        return WatchFaceControlServiceFactory.createWatchFaceControlService(
-            ApplicationProvider.getApplicationContext(),
-            Handler(Looper.getMainLooper())
-        ).asBinder()
     }
 }

@@ -157,7 +157,7 @@ public final class TimeFormatText implements TimeDependentText {
 
     @NonNull
     private String getDateFormatWithoutText(String format) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         boolean isTextPart = false;
         int index = 0;
         while (index < format.length()) {
@@ -170,12 +170,12 @@ public final class TimeFormatText implements TimeDependentText {
                 }
             } else {
                 if (!isTextPart) {
-                    result += format.charAt(index);
+                    result.append(format.charAt(index));
                 }
                 index++;
             }
         }
-        return result;
+        return result.toString();
     }
 
     @Override
