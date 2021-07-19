@@ -24,6 +24,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaRecorder
 import android.os.Build
+import android.util.Log
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
@@ -33,6 +34,7 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.impl.CamcorderProfileProxy
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
@@ -48,6 +50,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
+import org.junit.AssumptionViolatedException
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -66,6 +69,8 @@ import org.mockito.invocation.InvocationOnMock
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 
+private const val TAG = "VideoEncoderTest"
+
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @Suppress("DEPRECATION")
@@ -74,12 +79,12 @@ class VideoEncoderTest {
     @get: Rule
     var cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
-    private var camera: CameraUseCaseAdapter? = null
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private var currentSurface: Surface? = null
 
+    private lateinit var camera: CameraUseCaseAdapter
     private lateinit var videoEncoderConfig: VideoEncoderConfig
     private lateinit var videoEncoder: EncoderImpl
     private lateinit var videoEncoderCallback: EncoderCallback
@@ -128,9 +133,11 @@ class VideoEncoderTest {
 
     @After
     fun tearDown() {
-        camera?.apply {
-            instrumentation.runOnMainSync {
-                removeUseCases(setOf(previewForVideoEncoder, preview))
+        if (::camera.isInitialized) {
+            camera.apply {
+                instrumentation.runOnMainSync {
+                    removeUseCases(setOf(previewForVideoEncoder, preview))
+                }
             }
         }
 
@@ -140,18 +147,28 @@ class VideoEncoderTest {
 
     @Test
     fun canRestartVideoEncoder() {
-        for (i in 0..3) {
-            clearInvocations(videoEncoderCallback)
+        // Arrange.
+        videoEncoder.start()
+        var inOrder = inOrder(videoEncoderCallback)
+        inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStart()
+        inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+        videoEncoder.stop()
+        inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
+        clearInvocations(videoEncoderCallback)
 
-            videoEncoder.start()
-            val inOrder = inOrder(videoEncoderCallback)
-            inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStart()
-            inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+        // Act.
+        videoEncoder.start()
 
-            videoEncoder.stop()
+        // Assert.
+        inOrder = inOrder(videoEncoderCallback)
+        inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStart()
+        inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
-            inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
-        }
+        // Act.
+        videoEncoder.stop()
+
+        // Assert.
+        inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
     }
 
     @Test
@@ -207,7 +224,7 @@ class VideoEncoderTest {
         verify(videoEncoderCallback, noInvocation(2000L, 10000L)).onEncodedData(any())
 
         // Save all values before clear invocations
-        var startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
+        val startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
         verify(videoEncoderCallback, atLeastOnce()).onEncodedData(startCaptor.capture())
         dataList.addAll(startCaptor.allValues)
         clearInvocations(videoEncoderCallback)
@@ -261,19 +278,21 @@ class VideoEncoderTest {
     }
 
     private fun initVideoEncoder() {
-        val cameraId: Int = (camera?.cameraInfo as CameraInfoInternal).cameraId.toInt()
+        val cameraInfo = camera.cameraInfo as CameraInfoInternal
+        val profileProvider = cameraInfo.camcorderProfileProvider
 
-        val profile: CamcorderProfile = when {
-            CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_720P) -> {
-                CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_720P)
+        val profile: CamcorderProfileProxy = when {
+            profileProvider.hasProfile(CamcorderProfile.QUALITY_480P) -> {
+                profileProvider.get(CamcorderProfile.QUALITY_480P)!!
             }
-            CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_480P) -> {
-                CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_480P)
+            profileProvider.hasProfile(CamcorderProfile.QUALITY_LOW) -> {
+                profileProvider.get(CamcorderProfile.QUALITY_LOW)!!
             }
             else -> {
-                CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_LOW)
+                throw AssumptionViolatedException("No available CamcorderProfile")
             }
         }
+        Log.d(TAG, "Selected profile = $profile")
 
         videoEncoderConfig = VideoEncoderConfig.builder()
             .setBitrate(profile.videoBitRate)
@@ -300,27 +319,25 @@ class VideoEncoderTest {
         videoEncoder.setEncoderCallback(videoEncoderCallback, CameraXExecutors.directExecutor())
 
         (videoEncoder.input as Encoder.SurfaceInput).setOnSurfaceUpdateListener(
-            mainExecutor,
-            { surface: Surface ->
-                currentSurface = surface
-                previewForVideoEncoder.setSurfaceProvider { request: SurfaceRequest ->
-                    request.provideSurface(
-                        surface,
-                        mainExecutor,
-                        {
-                            if (it.surface != currentSurface) {
-                                it.surface.release()
-                            } else {
-                                videoEncoder.release()
-                            }
-                        }
-                    )
+            mainExecutor
+        ) { surface: Surface ->
+            currentSurface = surface
+            previewForVideoEncoder.setSurfaceProvider { request: SurfaceRequest ->
+                request.provideSurface(
+                    surface,
+                    mainExecutor
+                ) {
+                    if (it.surface != currentSurface) {
+                        it.surface.release()
+                    } else {
+                        videoEncoder.release()
+                    }
                 }
             }
-        )
+        }
     }
 
-    private fun getSurfaceProvider(): SurfaceProvider? {
+    private fun getSurfaceProvider(): SurfaceProvider {
         return SurfaceTextureProvider.createSurfaceTextureProvider(object : SurfaceTextureCallback {
             override fun onSurfaceTextureReady(surfaceTexture: SurfaceTexture, resolution: Size) {
                 // No-op
