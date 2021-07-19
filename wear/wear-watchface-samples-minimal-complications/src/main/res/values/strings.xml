@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Minimalist Complications</string>
+  <string name="configuration_title">Configuration</string>
+  <string name="complication_header">Complication:</string>
+  <string name="complication_change">Change</string>
+  <string name="complication_none">None</string>
+</resources>
