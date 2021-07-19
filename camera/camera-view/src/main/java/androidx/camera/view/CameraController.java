@@ -489,7 +489,6 @@ public abstract class CameraController {
      */
     @SuppressLint({"MissingPermission", "WrongConstant"})
     @MainThread
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     void attachPreviewSurface(@NonNull Preview.SurfaceProvider surfaceProvider,
             @NonNull ViewPort viewPort, @NonNull Display display) {
         Threads.checkMainThread();
