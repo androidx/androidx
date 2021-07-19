@@ -38,8 +38,8 @@ import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FAILED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_STARTED
-import androidx.camera.view.CameraController.TAP_TO_FOCUS_SUCCESSFUL
-import androidx.camera.view.CameraController.TAP_TO_FOCUS_UNSUCCESSFUL
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_FOCUSED
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_FOCUSED
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
@@ -170,9 +170,9 @@ class CameraControllerFragmentTest {
         // Assert: got a LiveData update
         assertThat(focused.tryAcquire(6 /* focus time out is 5s */, TimeUnit.SECONDS)).isTrue()
         assertThat(finalState).isAnyOf(
-            TAP_TO_FOCUS_SUCCESSFUL,
+            TAP_TO_FOCUS_FOCUSED,
             TAP_TO_FOCUS_FAILED,
-            TAP_TO_FOCUS_UNSUCCESSFUL
+            TAP_TO_FOCUS_NOT_FOCUSED
         )
     }
 
