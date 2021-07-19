@@ -247,7 +247,7 @@ public class SignInTemplateDemoScreen extends Screen {
                 .addAction(mProviderSignInAction)
                 .addAction(mPinSignInAction)
                 .setTitle("Sign in with username and password")
-                .setInstructions("Enter your credentials")
+                .setInstructions("Username: " + mUsername)
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
                 .build();
