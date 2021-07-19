@@ -22,6 +22,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.ColorFilter
+import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
@@ -533,10 +534,8 @@ public class ComplicationDrawable : Drawable {
         )
     }
 
-    /** @throws [UnsupportedOperationException] when called. */
     @Deprecated("This method is no longer used in graphics optimizations")
-    override fun getOpacity(): Int =
-        throw UnsupportedOperationException("getOpacity is not supported in ComplicationDrawable.")
+    override fun getOpacity(): Int = PixelFormat.OPAQUE
 
     protected override fun onBoundsChange(bounds: Rect) {
         complicationRenderer?.let {
