@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions.internal;
 
+import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.util.Pair;
@@ -25,6 +26,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.impl.SessionProcessor;
 
 import java.util.List;
 import java.util.Map;
@@ -106,4 +108,12 @@ public interface VendorExtender {
      */
     @NonNull
     Size[] getSupportedYuvAnalysisResolutions();
+
+    /**
+     * Creates a {@link SessionProcessor} that is responsible for (1) determining the stream
+     * configuration based on given output surfaces (2) Requesting OEM implementation to start
+     * repeating request and performing a still image capture.
+     */
+    @Nullable
+    SessionProcessor createSessionProcessor(@NonNull Context context);
 }

@@ -41,7 +41,6 @@ import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.ImageCaptureConfig;
-import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
@@ -60,15 +59,15 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
             Config.Option.create("camerax.extensions.imageCaptureConfigProvider.mode",
                     Integer.class);
 
-    private final BasicVendorExtender mVendorExtender;
+    private final VendorExtender mVendorExtender;
     private final Context mContext;
     @ExtensionMode.Mode
-    private int mEffectMode;
+    private final int mEffectMode;
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public ImageCaptureConfigProvider(
             @ExtensionMode.Mode int mode,
-            @NonNull BasicVendorExtender vendorExtender,
+            @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
         mEffectMode = mode;
         mVendorExtender = vendorExtender;
@@ -78,12 +77,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
     @NonNull
     @Override
     public ImageCaptureConfig getConfig() {
-        if (mVendorExtender == null) {
-            return new ImageCaptureConfig(OptionsBundle.emptyBundle());
-        }
-
         ImageCapture.Builder builder = new ImageCapture.Builder();
-
         updateBuilderConfig(builder, mEffectMode, mVendorExtender, mContext);
 
         return builder.getUseCaseConfig();
@@ -93,29 +87,35 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
      * Update extension related configs to the builder.
      */
     void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
-            @ExtensionMode.Mode int effectMode, @NonNull BasicVendorExtender vendorExtender,
+            @ExtensionMode.Mode int effectMode, @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
-        CaptureProcessorImpl captureProcessor =
-                vendorExtender.getImageCaptureExtenderImpl().getCaptureProcessor();
-        if (captureProcessor != null) {
-            builder.setCaptureProcessor(new AdaptingCaptureProcessor(captureProcessor));
+        if (vendorExtender instanceof BasicVendorExtender) {
+            ImageCaptureExtenderImpl imageCaptureExtenderImpl =
+                    ((BasicVendorExtender) vendorExtender).getImageCaptureExtenderImpl();
+
+            CaptureProcessorImpl captureProcessor =
+                    imageCaptureExtenderImpl.getCaptureProcessor();
+            if (captureProcessor != null) {
+                builder.setCaptureProcessor(new AdaptingCaptureProcessor(captureProcessor));
+            }
+
+            if (imageCaptureExtenderImpl.getMaxCaptureStage() > 0) {
+                builder.setMaxCaptureStages(
+                        imageCaptureExtenderImpl.getMaxCaptureStage());
+            }
+
+            ImageCaptureEventAdapter imageCaptureEventAdapter =
+                    new ImageCaptureEventAdapter(imageCaptureExtenderImpl,
+                            context);
+            new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
+                    new CameraEventCallbacks(imageCaptureEventAdapter));
+            builder.setUseCaseEventCallback(imageCaptureEventAdapter);
+
+            builder.setCaptureBundle(imageCaptureEventAdapter);
         }
 
-        if (vendorExtender.getImageCaptureExtenderImpl().getMaxCaptureStage() > 0) {
-            builder.setMaxCaptureStages(
-                    vendorExtender.getImageCaptureExtenderImpl().getMaxCaptureStage());
-        }
-
-        ImageCaptureEventAdapter imageCaptureEventAdapter =
-                new ImageCaptureEventAdapter(vendorExtender.getImageCaptureExtenderImpl(), context);
-        new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
-                new CameraEventCallbacks(imageCaptureEventAdapter));
-        builder.setUseCaseEventCallback(imageCaptureEventAdapter);
-
-        builder.setCaptureBundle(imageCaptureEventAdapter);
         builder.getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE,
                 effectMode);
-
         List<Pair<Integer, Size[]>> supportedResolutions =
                 vendorExtender.getSupportedCaptureOutputResolutions();
         builder.setSupportedResolutions(supportedResolutions);

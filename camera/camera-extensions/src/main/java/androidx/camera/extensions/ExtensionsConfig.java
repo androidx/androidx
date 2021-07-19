@@ -21,16 +21,15 @@ import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Identifier;
 import androidx.camera.core.impl.MutableOptionsBundle;
-import androidx.camera.core.impl.ReadableConfig;
+import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 
 /**
  * Implementation of CameraConfig which provides the extensions capability.
  */
-class ExtensionsConfig implements ReadableConfig, CameraConfig {
+class ExtensionsConfig implements CameraConfig {
     // Option Declarations:
     // *********************************************************************************************
-
     public static final Option<Integer> OPTION_EXTENSION_MODE =
             Option.create(
                     "camerax.extensions.extensionMode", int.class);
@@ -52,21 +51,10 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
         return retrieveOption(OPTION_EXTENSION_MODE);
     }
 
-    @Override
-    @NonNull
-    public UseCaseConfigFactory getUseCaseConfigFactory() {
-        return retrieveOption(OPTION_USECASE_CONFIG_FACTORY);
-    }
-
     @NonNull
     @Override
     public Identifier getCompatibilityId() {
         return retrieveOption(OPTION_COMPATIBILITY_ID);
-    }
-
-    @Override
-    public int getUseCaseCombinationRequiredRule() {
-        return retrieveOption(OPTION_USE_CASE_COMBINATION_REQUIRED_RULE);
     }
 
     static final class Builder implements CameraConfig.Builder<Builder> {
@@ -100,6 +88,13 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
         public Builder setUseCaseCombinationRequiredRule(int useCaseCombinationRequiredRule) {
             mConfig.insertOption(OPTION_USE_CASE_COMBINATION_REQUIRED_RULE,
                     useCaseCombinationRequiredRule);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setSessionProcessor(@NonNull SessionProcessor sessionProcessor) {
+            mConfig.insertOption(OPTION_SESSION_PROCESSOR, sessionProcessor);
             return this;
         }
     }

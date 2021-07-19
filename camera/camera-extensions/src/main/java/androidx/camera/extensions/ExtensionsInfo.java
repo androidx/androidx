@@ -33,6 +33,7 @@ import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigProvider;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
 import androidx.camera.core.impl.Identifier;
+import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.internal.AdvancedVendorExtender;
 import androidx.camera.extensions.internal.BasicVendorExtender;
 import androidx.camera.extensions.internal.ExtensionVersion;
@@ -217,13 +218,19 @@ final class ExtensionsInfo {
                 ExtensionsUseCaseConfigFactory factory = new
                         ExtensionsUseCaseConfigFactory(mode, vendorExtender, context);
 
-                return new ExtensionsConfig.Builder()
+                ExtensionsConfig.Builder builder = new ExtensionsConfig.Builder()
                         .setExtensionMode(mode)
                         .setUseCaseConfigFactory(factory)
                         .setCompatibilityId(id)
                         .setUseCaseCombinationRequiredRule(
-                                CameraConfig.REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE)
-                        .build();
+                                CameraConfig.REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE);
+
+                SessionProcessor sessionProcessor = vendorExtender.createSessionProcessor(context);
+                if (sessionProcessor != null) {
+                    builder.setSessionProcessor(sessionProcessor);
+                }
+
+                return builder.build();
             });
         }
     }
