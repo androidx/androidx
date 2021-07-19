@@ -1994,7 +1994,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     boolean restoreBackStackState(@NonNull ArrayList<BackStackRecord> records,
             @NonNull ArrayList<Boolean> isRecordPop, @NonNull String name) {
-        BackStackState backStackState = mBackStackStates.get(name);
+        BackStackState backStackState = mBackStackStates.remove(name);
         if (backStackState == null) {
             return false;
         }
