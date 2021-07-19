@@ -28,8 +28,11 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * The available modes for the extensions.
+ *
+ * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ExtensionMode {
     /** Normal mode without any specific effect applied. */
     public static final int NONE = 0;

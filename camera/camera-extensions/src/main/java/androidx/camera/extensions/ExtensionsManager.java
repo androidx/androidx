@@ -126,8 +126,11 @@ public final class ExtensionsManager {
      * <p>An application must wait until the {@link ListenableFuture} completes to get an
      * {@link ExtensionsManager} instance. The {@link ExtensionsManager} instance can be used to
      * access the extensions related functions.
+     *
+     * @hide
      */
     @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context) {
         return getInstance(context, VersionName.getCurrentVersion());
     }
@@ -312,8 +315,11 @@ public final class ExtensionsManager {
      *                                  camera can be found to support the specified extension
      *                                  mode, or the base {@link CameraSelector} has contained
      *                                  extension related configuration in it.
+     *
+     * @hide
      */
     @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public CameraSelector getExtensionEnabledCameraSelector(@NonNull CameraProvider cameraProvider,
             @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
         // Directly return the input baseCameraSelector if the target extension mode is NONE.
@@ -342,7 +348,10 @@ public final class ExtensionsManager {
      *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
      * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
      * @param mode               The target extension mode to support.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isExtensionAvailable(@NonNull CameraProvider cameraProvider,
             @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
         if (mode == ExtensionMode.NONE) {
@@ -381,8 +390,11 @@ public final class ExtensionsManager {
      * Returns null if no capture latency info can be provided.
      * @throws IllegalArgumentException If this device doesn't support extensions function, or no
      *                                  camera can be found to support the specified extension mode.
+     *
+     * @hide
      */
     @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Range<Long> getEstimatedCaptureLatencyRange(@NonNull CameraProvider cameraProvider,
             @NonNull CameraSelector cameraSelector, @ExtensionMode.Mode int mode,
             @Nullable Size surfaceResolution) {
