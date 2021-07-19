@@ -57,6 +57,7 @@ import android.media.MediaMuxer;
 import android.media.MediaRecorder.AudioSource;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -77,6 +78,7 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -157,6 +159,11 @@ public final class VideoCapture extends UseCase {
      * An error indicating this VideoCapture is not bound to a camera.
      */
     public static final int ERROR_INVALID_CAMERA = 5;
+    /**
+     * An error indicating the video file is too short.
+     * <p> The output file will be deleted if the OutputFileOptions is backed by File or uri.
+     */
+    public static final int ERROR_RECORDING_TOO_SHORT = 6;
 
     /**
      * Provides a static configuration with implementation-agnostic options.
@@ -186,8 +193,10 @@ public final class VideoCapture extends UseCase {
     private final AtomicBoolean mEndOfAudioVideoSignal = new AtomicBoolean(true);
     private final BufferInfo mAudioBufferInfo = new BufferInfo();
     /** For record the first sample written time. */
-    private final AtomicBoolean mIsFirstVideoSampleWrite = new AtomicBoolean(false);
-    private final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public final AtomicBoolean mIsFirstVideoKeyFrameWrite = new AtomicBoolean(false);
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached constant] - Is only valid when the UseCase is attached to a camera.
@@ -361,7 +370,7 @@ public final class VideoCapture extends UseCase {
             return;
         }
         Logger.i(TAG, "startRecording");
-        mIsFirstVideoSampleWrite.set(false);
+        mIsFirstVideoKeyFrameWrite.set(false);
         mIsFirstAudioSampleWrite.set(false);
 
         OnVideoSavedCallback postListener = new VideoSavedListenerWrapper(executor, callback);
@@ -382,8 +391,8 @@ public final class VideoCapture extends UseCase {
                 == VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INITIALIZED_FAILED
                 || mVideoEncoderInitStatus
                 == VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_RESOURCE_RECLAIMED) {
-            postListener.onError(ERROR_ENCODER, "Video encoder initlization failed before start "
-                            + "recording ", mVideoEncoderErrorMessage);
+            postListener.onError(ERROR_ENCODER, "Video encoder initialization failed before start"
+                    + " recording ", mVideoEncoderErrorMessage);
             return;
         }
 
@@ -495,7 +504,8 @@ public final class VideoCapture extends UseCase {
         Size resolution = getAttachedSurfaceResolution();
         mVideoHandler.post(
                 () -> {
-                    boolean errorOccurred = videoEncode(postListener, cameraId, resolution);
+                    boolean errorOccurred = videoEncode(postListener, cameraId, resolution,
+                            outputFileOptions);
                     if (!errorOccurred) {
                         postListener.onVideoSaved(new OutputFileResults(mSavedVideoUri));
                         mSavedVideoUri = null;
@@ -782,9 +792,19 @@ public final class VideoCapture extends UseCase {
                 mVideoBufferInfo.presentationTimeUs = (System.nanoTime() / 1000);
 
                 synchronized (mMuxerLock) {
-                    if (!mIsFirstVideoSampleWrite.get()) {
-                        Logger.i(TAG, "First video sample written.");
-                        mIsFirstVideoSampleWrite.set(true);
+                    if (!mIsFirstVideoKeyFrameWrite.get()) {
+                        boolean isKeyFrame =
+                                (mVideoBufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0;
+                        if (isKeyFrame) {
+                            Logger.i(TAG,
+                                    "First video key frame written.");
+                            mIsFirstVideoKeyFrameWrite.set(true);
+                        } else {
+                            // Request a sync frame immediately
+                            final Bundle syncFrame = new Bundle();
+                            syncFrame.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
+                            mVideoEncoder.setParameters(syncFrame);
+                        }
                     }
                     mMuxer.writeSampleData(mVideoTrackIndex, outputBuffer, mVideoBufferInfo);
                 }
@@ -840,7 +860,8 @@ public final class VideoCapture extends UseCase {
      * @return returns {@code true} if an error condition occurred, otherwise returns {@code false}
      */
     boolean videoEncode(@NonNull OnVideoSavedCallback videoSavedCallback, @NonNull String cameraId,
-            @NonNull Size resolution) {
+            @NonNull Size resolution,
+            @NonNull OutputFileOptions outputFileOptions) {
         // Main encoding loop. Exits on end of stream.
         boolean errorOccurred = false;
         boolean videoEos = false;
@@ -870,10 +891,10 @@ public final class VideoCapture extends UseCase {
                         if ((mIsAudioEnabled.get() && mAudioTrackIndex >= 0
                                 && mVideoTrackIndex >= 0)
                                 || (!mIsAudioEnabled.get() && mVideoTrackIndex >= 0)) {
-                            mMuxerStarted.set(true);
                             Logger.i(TAG, "MediaMuxer started on video encode thread and audio "
                                     + "enabled: " + mIsAudioEnabled);
                             mMuxer.start();
+                            mMuxerStarted.set(true);
                         }
                     }
                     break;
@@ -899,14 +920,40 @@ public final class VideoCapture extends UseCase {
             synchronized (mMuxerLock) {
                 if (mMuxer != null) {
                     if (mMuxerStarted.get()) {
+                        Logger.i(TAG, "Muxer already started");
                         mMuxer.stop();
                     }
                     mMuxer.release();
                     mMuxer = null;
                 }
             }
+
+            // A final checking for recording result, if the recorded file has no key
+            // frame, then the video file is not playable, needs to call
+            // onError() and will be removed.
+
+            boolean checkResult = removeRecordingResultIfNoVideoKeyFrameArrived(outputFileOptions);
+
+            if (!checkResult) {
+                videoSavedCallback.onError(ERROR_RECORDING_TOO_SHORT,
+                        "The file has no video key frame.", null);
+                errorOccurred = true;
+            }
         } catch (IllegalStateException e) {
-            videoSavedCallback.onError(ERROR_MUXER, "Muxer stop failed!", e);
+            // The video encoder has not got the key frame yet.
+            Logger.i(TAG, "muxer stop IllegalStateException: " + System.currentTimeMillis());
+            Logger.i(TAG,
+                    "muxer stop exception, mIsFirstVideoKeyFrameWrite: "
+                            + mIsFirstVideoKeyFrameWrite.get());
+            if (mIsFirstVideoKeyFrameWrite.get()) {
+                // If muxer throws IllegalStateException at this moment and also the key frame
+                // has received, this will reported as a Muxer stop failed.
+                // Otherwise, this error will be ERROR_RECORDING_TOO_SHORT.
+                videoSavedCallback.onError(ERROR_MUXER, "Muxer stop failed!", e);
+            } else {
+                videoSavedCallback.onError(ERROR_RECORDING_TOO_SHORT,
+                        "The file has no video key frame.", null);
+            }
             errorOccurred = true;
         }
 
@@ -924,6 +971,7 @@ public final class VideoCapture extends UseCase {
 
         // notify the UI thread that the video recording has finished
         mEndOfAudioVideoSignal.set(true);
+        mIsFirstVideoKeyFrameWrite.set(false);
 
         Logger.i(TAG, "Video encode thread end.");
         return errorOccurred;
@@ -973,9 +1021,9 @@ public final class VideoCapture extends UseCase {
                             synchronized (mMuxerLock) {
                                 mAudioTrackIndex = mMuxer.addTrack(mAudioEncoder.getOutputFormat());
                                 if (mAudioTrackIndex >= 0 && mVideoTrackIndex >= 0) {
-                                    mMuxerStarted.set(true);
                                     Logger.i(TAG, "MediaMuxer start on audio encoder thread.");
                                     mMuxer.start();
+                                    mMuxerStarted.set(true);
                                 }
                             }
                             break;
@@ -1129,6 +1177,41 @@ public final class VideoCapture extends UseCase {
         }
     }
 
+    private boolean removeRecordingResultIfNoVideoKeyFrameArrived(
+            @NonNull OutputFileOptions outputFileOptions) {
+        boolean checkKeyFrame;
+
+        // 1. There should be one video key frame at least.
+        Logger.i(TAG,
+                "check Recording Result First Video Key Frame Write: "
+                        + mIsFirstVideoKeyFrameWrite.get());
+        if (!mIsFirstVideoKeyFrameWrite.get()) {
+            Logger.i(TAG, "The recording result has no key frame.");
+            checkKeyFrame = false;
+        } else {
+            checkKeyFrame = true;
+        }
+
+        // 2. If no key frame, remove file except the target is a file descriptor case.
+        if (outputFileOptions.isSavingToFile()) {
+            File outputFile = outputFileOptions.getFile();
+            if (!checkKeyFrame) {
+                Logger.i(TAG, "Delete file.");
+                outputFile.delete();
+            }
+        } else if (outputFileOptions.isSavingToMediaStore()) {
+            if (!checkKeyFrame) {
+                Logger.i(TAG, "Delete file.");
+                if (mSavedVideoUri != null) {
+                    ContentResolver contentResolver = outputFileOptions.getContentResolver();
+                    contentResolver.delete(mSavedVideoUri, null, null);
+                }
+            }
+        }
+
+        return checkKeyFrame;
+    }
+
     @NonNull
     private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions)
             throws IOException {
@@ -1200,7 +1283,7 @@ public final class VideoCapture extends UseCase {
      * @hide
      */
     @IntDef({ERROR_UNKNOWN, ERROR_ENCODER, ERROR_MUXER, ERROR_RECORDING_IN_PROGRESS,
-            ERROR_FILE_IO, ERROR_INVALID_CAMERA})
+            ERROR_FILE_IO, ERROR_INVALID_CAMERA, ERROR_RECORDING_TOO_SHORT})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface VideoCaptureError {
