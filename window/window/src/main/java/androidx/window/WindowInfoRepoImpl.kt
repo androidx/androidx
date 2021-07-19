@@ -89,7 +89,7 @@ internal class WindowInfoRepoImpl(
      * @see currentWindowMetrics
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
-    override val maximumWindowMetrics: WindowMetrics
+    val maximumWindowMetrics: WindowMetrics
         get() {
             return windowMetricsCalculator.computeMaximumWindowMetrics(activity)
         }
