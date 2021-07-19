@@ -36,7 +36,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.XmlRes;
 import androidx.core.R;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.math.MathUtils;
 import androidx.core.os.BuildCompat;
 
@@ -249,9 +248,8 @@ public final class ColorStateListInflaterCompat {
         final int alpha = MathUtils.clamp((int) (baseAlpha * alphaMod + 0.5f), 0, 255);
 
         if (validLStar) {
-            final double[] labColor = new double[3];
-            ColorUtils.colorToLAB(color, labColor);
-            color = ColorUtils.LABToColor(lStar, labColor[1], labColor[2]);
+            final CamColor baseCam = CamColor.fromColor(color);
+            color = CamColor.toColor(baseCam.getHue(), baseCam.getChroma(), lStar);
         }
 
         return (color & 0xFFFFFF) | (alpha << 24);
