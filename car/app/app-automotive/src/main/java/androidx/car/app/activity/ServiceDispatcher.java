@@ -102,9 +102,7 @@ public class ServiceDispatcher {
         }
         try {
             // TODO(b/184697267): Implement ANR (application not responding) checks
-            Log.d(LogTags.TAG, "Dispatching: " + description);
             T value = call.invoke();
-            Log.d(LogTags.TAG, "Dispatching: " + description + " finished");
             return value;
         } catch (DeadObjectException e) {
             Log.e(LogTags.TAG, "Connection lost", e);

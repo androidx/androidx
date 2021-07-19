@@ -155,7 +155,6 @@ public class AutomotiveCarInfo implements CarInfo {
     public void removeTollListener(@NonNull OnCarDataAvailableListener<TollCard> listener) {
         OnCarPropertyResponseListener responseListener = mListenerMap.remove(listener);
         if (responseListener == null) {
-            Log.d(LogTags.TAG_CAR_HARDWARE, "Listener is not registered yet");
             return;
         }
         if (Build.VERSION.SDK_INT > 30) {
@@ -367,8 +366,6 @@ public class AutomotiveCarInfo implements CarInfo {
         OnCarPropertyResponseListener responseListener = mListenerMap.remove(listener);
         if (responseListener != null) {
             mPropertyManager.submitUnregisterListenerRequest(responseListener);
-        } else {
-            Log.d(LogTags.TAG_CAR_HARDWARE, "Listener is not registered yet");
         }
     }
 
@@ -386,7 +383,7 @@ public class AutomotiveCarInfo implements CarInfo {
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
             if (carPropertyResponses.size() != 1
                     || carPropertyResponses.get(0).getPropertyId() != TOLL_CARD_STATUS_ID) {
-                Log.e(LogTags.TAG_CAR_HARDWARE, "Invalid response callback in TollListener.");
+                Log.e(LogTags.TAG_CAR_HARDWARE, "Invalid response callback in TollListener");
                 return;
             }
             mExecutor.execute(() -> {
