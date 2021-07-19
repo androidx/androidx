@@ -23,6 +23,7 @@ import android.content.ServiceConnection
 import android.graphics.RectF
 import android.os.Bundle
 import android.os.IBinder
+import android.os.RemoteException
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationDataSourcePolicy
@@ -60,6 +61,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
          * be bound or a [ServiceStartFailureException] if the watch face dies during startup.
          */
         @JvmStatic
+        @Throws(ServiceNotBoundException::class, ServiceStartFailureException::class)
         public suspend fun createWatchFaceMetadataClient(
             context: Context,
             watchFaceName: ComponentName
@@ -124,12 +126,14 @@ public interface WatchFaceMetadataClient : AutoCloseable {
     /**
      * Returns the watch face's [UserStyleSchema].
      */
+    @Throws(RemoteException::class)
     public fun getUserStyleSchema(): UserStyleSchema
 
     /**
      * Returns a map of [androidx.wear.watchface.ComplicationSlot] ID to [ComplicationSlotMetadata]
      * for each slot in the watch face's [androidx.wear.watchface.ComplicationSlotsManager].
      */
+    @Throws(RemoteException::class)
     public fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata>
 }
 

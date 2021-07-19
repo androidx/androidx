@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.client
 
+import android.os.RemoteException
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.editor.IEditorObserver
 import androidx.wear.watchface.editor.IEditorService
@@ -39,6 +40,7 @@ public interface EditorServiceClient {
     public fun removeListener(editorListener: EditorListener)
 
     /** Instructs any open editor to close. */
+    @Throws(RemoteException::class)
     public fun closeEditor()
 }
 

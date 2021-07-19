@@ -17,6 +17,7 @@
 package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
+import android.os.RemoteException
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.AnyThread
 import androidx.annotation.Px
@@ -55,6 +56,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * @param slotIdToComplicationData The [ComplicationData] for each
      * [androidx.wear.watchface.ComplicationSlot].
      */
+    @Throws(RemoteException::class)
     public fun updateComplicationData(slotIdToComplicationData: Map<Int, ComplicationData>)
 
     /**
@@ -69,6 +71,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * given settings.
      */
     @RequiresApi(27)
+    @Throws(RemoteException::class)
     public fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
@@ -77,6 +80,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     ): Bitmap
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
+    @get:Throws(RemoteException::class)
     public val previewReferenceTimeMillis: Long
 
     /**
@@ -87,6 +91,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      *
      * NB [setWatchUiState] and [updateWatchFaceInstance] can be called in any order.
      */
+    @Throws(RemoteException::class)
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle)
 
     /**
@@ -96,12 +101,15 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * side effect of enabling or disabling complicationSlots, which will be visible via
      * [ComplicationSlotState.isEnabled].
      */
+    @Throws(RemoteException::class)
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyleData)
 
     /** Returns the ID of this watch face instance. */
+    @get:Throws(RemoteException::class)
     public val instanceId: String
 
     /** The watch face's [UserStyleSchema]. */
+    @get:Throws(RemoteException::class)
     public val userStyleSchema: UserStyleSchema
 
     /**
@@ -112,6 +120,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * [ComplicationSlotsUserStyleSetting]. As a consequence ComplicationSlotState may update based
      * on style changes.
      */
+    @get:Throws(RemoteException::class)
     public val complicationSlotsState: Map<Int, ComplicationSlotState>
 
     /**
@@ -119,6 +128,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * `null` if there isn't one.
      */
     @SuppressWarnings("AutoBoxing")
+    @Throws(RemoteException::class)
     public fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? =
         complicationSlotsState.asSequence().firstOrNull {
             it.value.isEnabled && when (it.value.boundsType) {
@@ -133,6 +143,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * Requests that [ComplicationSlotsManager.displayPressedAnimation] is called for
      * [complicationSlotId].
      */
+    @Throws(RemoteException::class)
     public fun displayPressedAnimation(complicationSlotId: Int)
 
     public companion object {
@@ -156,21 +167,25 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Sends a tap event to the watch face for processing.
      */
+    @Throws(RemoteException::class)
     public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapType tapType: Int)
 
     /**
      * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
      * readers.
      */
+    @get:Throws(RemoteException::class)
     public val contentDescriptionLabels: List<ContentDescriptionLabel>
 
     /**
      * Updates the watch faces [WatchUiState]. NB [setWatchUiState] and [updateWatchFaceInstance]
      * can be called in any order.
      */
+    @Throws(RemoteException::class)
     public fun setWatchUiState(watchUiState: androidx.wear.watchface.client.WatchUiState)
 
     /** Triggers watch face rendering into the surface when in ambient mode. */
+    @Throws(RemoteException::class)
     public fun performAmbientTick()
 
     /** Callback that observes when the client disconnects. */
