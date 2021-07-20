@@ -95,10 +95,19 @@ tempDir="$checkoutRoot/diagnose-build-failure/"
 if [ "$OUT_DIR" != "" ]; then
   mkdir -p "$OUT_DIR"
   OUT_DIR="$(cd $OUT_DIR && pwd)"
+  EFFECTIVE_OUT_DIR="$OUT_DIR"
+else
+  EFFECTIVE_OUT_DIR="$checkoutRoot/out"
 fi
 if [ "$DIST_DIR" != "" ]; then
   mkdir -p "$DIST_DIR"
   DIST_DIR="$(cd $DIST_DIR && pwd)"
+  EFFECTIVE_DIST_DIR=$DIST_DIR
+else
+  # If $DIST_DIR was unset, we leave it unset just in case setting it could affect the build
+  # However, we still need to keep track of where the files are going to go, so
+  # we set EFFECTIVE_DIST_DIR
+  EFFECTIVE_DIST_DIR="$EFFECTIVE_OUT_DIR/dist"
 fi
 COLOR_WHITE="\e[97m"
 COLOR_GREEN="\e[32m"
@@ -198,7 +207,7 @@ function clearState() {
 
 echo
 echo "Making sure that we can reproduce the build failure"
-if runBuild ./gradlew $gradleArgs; then
+if runBuild ./gradlew -Pandroidx.summarizeStderr $gradleArgs; then
   echo
   echo "This script failed to reproduce the build failure."
   echo "If the build failure you were observing was in Android Studio, then:"
@@ -213,6 +222,26 @@ if runBuild ./gradlew $gradleArgs; then
 else
   echo
   echo "Reproduced build failure"
+fi
+
+if [ "$expectedMessage" == "" ]; then
+  summaryLog="$EFFECTIVE_DIST_DIR/logs/error_summary.log"
+  echo
+  echo "No failure message specified. Computing appropriate failure message from $summaryLog"
+  echo
+  longestLine="$(awk '{ if (length($0) > maxLength) {maxLength = length($0); longestLine = $0} } END { print longestLine }' $summaryLog)"
+  echo "Longest line:"
+  echo
+  echo "$longestLine"
+  echo
+  if grep "$longestLine" "$summaryLog" >/dev/null 2>/dev/null; then
+    echo "We will use this as the message to test for"
+    echo
+    expectedMessage="$longestLine"
+  else
+    echo "The identified line could not be found in the summary log via grep. Is it possible that diagnose-build-failure did not correctly escape the message?"
+    exit 1
+  fi
 fi
 
 echo
