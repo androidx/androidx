@@ -4905,9 +4905,9 @@ public class ExifInterface {
             }
 
             ExifAttribute imageLengthAttribute =
-                    (ExifAttribute) mAttributes[IFD_TYPE_THUMBNAIL].get(TAG_IMAGE_LENGTH);
+                    mAttributes[IFD_TYPE_THUMBNAIL].get(TAG_THUMBNAIL_IMAGE_LENGTH);
             ExifAttribute imageWidthAttribute =
-                    (ExifAttribute) mAttributes[IFD_TYPE_THUMBNAIL].get(TAG_IMAGE_WIDTH);
+                    mAttributes[IFD_TYPE_THUMBNAIL].get(TAG_THUMBNAIL_IMAGE_WIDTH);
             if (imageLengthAttribute != null && imageWidthAttribute != null) {
                 int imageLength = imageLengthAttribute.getIntValue(mExifByteOrder);
                 int imageWidth = imageWidthAttribute.getIntValue(mExifByteOrder);
@@ -5683,10 +5683,12 @@ public class ExifInterface {
                 case MARKER_SOF14:
                 case MARKER_SOF15: {
                     in.skipFully(1);
-                    mAttributes[imageType].put(TAG_IMAGE_LENGTH, ExifAttribute.createULong(
-                            in.readUnsignedShort(), mExifByteOrder));
-                    mAttributes[imageType].put(TAG_IMAGE_WIDTH, ExifAttribute.createULong(
-                            in.readUnsignedShort(), mExifByteOrder));
+                    mAttributes[imageType].put(imageType != IFD_TYPE_THUMBNAIL
+                                    ? TAG_IMAGE_LENGTH : TAG_THUMBNAIL_IMAGE_LENGTH,
+                            ExifAttribute.createULong(in.readUnsignedShort(), mExifByteOrder));
+                    mAttributes[imageType].put(imageType != IFD_TYPE_THUMBNAIL
+                                    ? TAG_IMAGE_WIDTH : TAG_THUMBNAIL_IMAGE_WIDTH,
+                            ExifAttribute.createULong(in.readUnsignedShort(), mExifByteOrder));
                     length -= 5;
                     break;
                 }
