@@ -1225,4 +1225,16 @@ public final class ScreenManagerTest {
         wrapper1 = mScreenManager.getTopTemplate();
         assertThat(wrapper1.getId()).isNotEqualTo(id1);
     }
+
+    @Test
+    public void getStackSize() {
+        assertThat(mScreenManager.getStackSize()).isEqualTo(0);
+
+        mScreenManager.push(mScreen1);
+        assertThat(mScreenManager.getStackSize()).isEqualTo(1);
+
+        mScreenManager.push(mScreen2);
+        mScreenManager.push(mScreen3);
+        assertThat(mScreenManager.getStackSize()).isEqualTo(3);
+    }
 }

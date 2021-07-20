@@ -197,6 +197,13 @@ public class ScreenManager implements Manager {
         // Not in stack;
     }
 
+    /**
+     * Returns the current stack size.
+     */
+    public int getStackSize() {
+        return mScreenStack.size();
+    }
+
     /** Creates an instance of {@link ScreenManager}. */
     static ScreenManager create(CarContext carContext, Lifecycle lifecycle) {
         return new ScreenManager(carContext, lifecycle);
