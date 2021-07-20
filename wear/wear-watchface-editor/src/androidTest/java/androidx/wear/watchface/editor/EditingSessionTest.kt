@@ -134,11 +134,11 @@ private const val PROVIDER_CHOOSER_RESULT_EXTRA_VALUE = "PROVIDER_CHOOSER_RESULT
 private typealias WireComplicationProviderInfo =
     android.support.wearable.complications.ComplicationProviderInfo
 
-private val redStyleOption = ListOption(Option.Id("red_style"), "Red", icon = null)
-private val greenStyleOption = ListOption(Option.Id("green_style"), "Green", icon = null)
-private val blueStyleOption = ListOption(Option.Id("bluestyle"), "Blue", icon = null)
-private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
-private val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
+internal val redStyleOption = ListOption(Option.Id("red_style"), "Red", icon = null)
+internal val greenStyleOption = ListOption(Option.Id("green_style"), "Green", icon = null)
+internal val blueStyleOption = ListOption(Option.Id("bluestyle"), "Blue", icon = null)
+internal val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
+internal val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
     UserStyleSetting.Id("color_style_setting"),
     "Colors",
     "Watchface colorization", /* icon = */
@@ -147,12 +147,12 @@ private val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
     listOf(WatchFaceLayer.BASE)
 )
 
-private val classicStyleOption = ListOption(Option.Id("classic_style"), "Classic", icon = null)
-private val modernStyleOption = ListOption(Option.Id("modern_style"), "Modern", icon = null)
-private val gothicStyleOption = ListOption(Option.Id("gothic_style"), "Gothic", icon = null)
-private val watchHandStyleList =
+internal val classicStyleOption = ListOption(Option.Id("classic_style"), "Classic", icon = null)
+internal val modernStyleOption = ListOption(Option.Id("modern_style"), "Modern", icon = null)
+internal val gothicStyleOption = ListOption(Option.Id("gothic_style"), "Gothic", icon = null)
+internal val watchHandStyleList =
     listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
-private val watchHandStyleSetting = UserStyleSetting.ListUserStyleSetting(
+internal val watchHandStyleSetting = UserStyleSetting.ListUserStyleSetting(
     UserStyleSetting.Id("hand_style_setting"),
     "Hand Style",
     "Hand visual look", /* icon = */
@@ -411,6 +411,25 @@ public class TestComplicationDataSourceChooserActivity : Activity() {
     }
 }
 
+public class TestEditorObserver : IEditorObserver.Stub() {
+    private lateinit var editorState: EditorStateWireFormat
+    private var latch = CountDownLatch(1)
+
+    override fun getApiVersion() = IEditorObserver.API_VERSION
+
+    override fun onEditorStateChange(editorState: EditorStateWireFormat) {
+        this.editorState = editorState
+        latch.countDown()
+    }
+
+    fun awaitEditorStateChange(timeout: Long, unit: TimeUnit): EditorStateWireFormat {
+        require(latch.await(timeout, unit))
+        return editorState
+    }
+
+    fun stateChangeObserved() = this::editorState.isInitialized
+}
+
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 public class EditorSessionTest {
@@ -428,25 +447,6 @@ public class EditorSessionTest {
     private val dataSourceIcon =
         Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
     private val dataSourceComponentName = ComponentName("test.package", "test.class")
-
-    private class TestEditorObserver : IEditorObserver.Stub() {
-        private lateinit var editorState: EditorStateWireFormat
-        private var latch = CountDownLatch(1)
-
-        override fun getApiVersion() = IEditorObserver.API_VERSION
-
-        override fun onEditorStateChange(editorState: EditorStateWireFormat) {
-            this.editorState = editorState
-            latch.countDown()
-        }
-
-        fun awaitEditorStateChange(timeout: Long, unit: TimeUnit): EditorStateWireFormat {
-            require(latch.await(timeout, unit))
-            return editorState
-        }
-
-        fun stateChangeObserved() = this::editorState.isInitialized
-    }
 
     @SuppressLint("NewApi")
     private fun createOnWatchFaceEditingTestActivity(
