@@ -16,8 +16,6 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.integration.demos.common.ComposableDemo
-import androidx.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
 import androidx.wear.compose.foundation.samples.SimpleCurvedRow
 

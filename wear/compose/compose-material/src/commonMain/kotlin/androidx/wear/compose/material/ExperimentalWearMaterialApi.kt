@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.integration.demos
+package androidx.wear.compose.material
 
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-
-/**
- * [DemoCategory] containing all the top level demo categories.
- */
-@ExperimentalWearMaterialApi
-val WearComposeDemos = DemoCategory(
-    "Wear Compose Demos",
-    listOf(
-        WearFoundationDemos,
-        WearMaterialDemos,
-    )
+@RequiresOptIn(
+    "This Wear Material API is experimental and is likely to change or to be removed in" +
+        " the future."
 )
+annotation class ExperimentalWearMaterialApi
