@@ -128,10 +128,6 @@ class WatchFaceConfigActivity : FragmentActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
     private fun focusCurrentFragment() {
         val curFragment = supportFragmentManager.findFragmentById(android.R.id.content)
         if (curFragment != null) {
@@ -217,11 +213,11 @@ class WatchFaceConfigActivity : FragmentActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
         editorSession.close()
         // Make sure the activity closes.
         finish()
+        super.onDestroy()
     }
 
     private fun updateUi(
