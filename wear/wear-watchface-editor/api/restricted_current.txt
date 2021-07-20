@@ -3,7 +3,7 @@ package androidx.wear.watchface.editor {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class BaseEditorSession implements androidx.wear.watchface.editor.EditorSession {
     method public void close();
-    method protected final void fetchComplicationsData(kotlinx.coroutines.CoroutineScope fetchCoroutineScope);
+    method protected final kotlinx.coroutines.Job fetchComplicationsData(kotlinx.coroutines.CoroutineScope fetchCoroutineScope);
     method public Integer? getBackgroundComplicationSlotId();
     method protected final boolean getClosed();
     method public boolean getCommitChangesOnClose();
