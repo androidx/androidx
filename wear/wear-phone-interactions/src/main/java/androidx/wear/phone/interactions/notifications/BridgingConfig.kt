@@ -55,7 +55,7 @@ public class BridgingConfig internal constructor(
             BridgingConfig(
                 bundle.getString(EXTRA_ORIGINAL_PACKAGE),
                 bundle.getBoolean(EXTRA_BRIDGING_ENABLED),
-                bundle.getStringArrayList(EXTRA_EXCLUDED_TAGS)?.toSet() as MutableSet<String>?
+                bundle.getStringArray(EXTRA_EXCLUDED_TAGS)?.toMutableSet()
             )
     }
 
@@ -63,7 +63,7 @@ public class BridgingConfig internal constructor(
         Bundle().apply {
             putString(EXTRA_ORIGINAL_PACKAGE, context.packageName)
             putBoolean(EXTRA_BRIDGING_ENABLED, isBridgingEnabled)
-            putStringArrayList(EXTRA_EXCLUDED_TAGS, excludedTags?.toList() as ArrayList<String>)
+            putStringArray(EXTRA_EXCLUDED_TAGS, excludedTags?.toTypedArray())
         }
 
     override fun equals(other: Any?): Boolean {
