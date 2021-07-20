@@ -16,7 +16,7 @@ androidLintMin = "27.2.1"
 # compile against as we don't need to maintain compatibility with older versions of Lint.
 # TODO: update to 30.0.0 stable when it is released
 androidLintMinCompose = "30.0.0-alpha15"
-androidxTest = "1.4.0-beta01"
+androidxTest = "1.4.0"
 androidxTestExt = "1.1.3-beta01"
 atomicFu = "0.14.4"
 autoService = "1.0-rc6"
