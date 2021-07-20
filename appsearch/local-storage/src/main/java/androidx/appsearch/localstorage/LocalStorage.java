@@ -63,6 +63,7 @@ public class LocalStorage {
         final Context mContext;
         final String mDatabaseName;
         final Executor mExecutor;
+        @Nullable
         final AppSearchLogger mLogger;
 
         SearchContext(@NonNull Context context, @NonNull String databaseName,
@@ -101,6 +102,7 @@ public class LocalStorage {
             private final Context mContext;
             private final String mDatabaseName;
             private Executor mExecutor;
+            @Nullable
             private AppSearchLogger mLogger;
 
             /**
@@ -174,10 +176,14 @@ public class LocalStorage {
     public static final class GlobalSearchContext {
         final Context mContext;
         final Executor mExecutor;
+        @Nullable
+        final AppSearchLogger mLogger;
 
-        GlobalSearchContext(@NonNull Context context, @NonNull Executor executor) {
+        GlobalSearchContext(@NonNull Context context, @NonNull Executor executor,
+                @Nullable AppSearchLogger logger) {
             mContext = Preconditions.checkNotNull(context);
             mExecutor = Preconditions.checkNotNull(executor);
+            mLogger = logger;
         }
 
         /**
@@ -199,6 +205,8 @@ public class LocalStorage {
         public static final class Builder {
             private final Context mContext;
             private Executor mExecutor;
+            @Nullable
+            private AppSearchLogger mLogger;
 
             public Builder(@NonNull Context context) {
                 mContext = Preconditions.checkNotNull(context);
@@ -218,13 +226,28 @@ public class LocalStorage {
                 return this;
             }
 
+            /**
+             * Sets the custom logger used to get the details stats from AppSearch.
+             *
+             * <p>If no logger is provided, nothing would be returned/logged. There is no default
+             * logger implementation in AppSearch.
+             *
+             * @hide
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @NonNull
+            public Builder setLogger(@NonNull AppSearchLogger logger) {
+                mLogger = Preconditions.checkNotNull(logger);
+                return this;
+            }
+
             /** Builds a {@link GlobalSearchContext} instance. */
             @NonNull
             public GlobalSearchContext build() {
                 if (mExecutor == null) {
                     mExecutor = EXECUTOR;
                 }
-                return new GlobalSearchContext(mContext, mExecutor);
+                return new GlobalSearchContext(mContext, mExecutor, mLogger);
             }
         }
     }
@@ -272,7 +295,7 @@ public class LocalStorage {
         Preconditions.checkNotNull(context);
         return FutureUtil.execute(context.mExecutor, () -> {
             LocalStorage instance = getOrCreateInstance(context.mContext, context.mExecutor,
-                    /*logger=*/ null);
+                    context.mLogger);
             return instance.doCreateGlobalSearchSession(context);
         });
     }
@@ -366,6 +389,7 @@ public class LocalStorage {
     @NonNull
     private GlobalSearchSession doCreateGlobalSearchSession(
             @NonNull GlobalSearchContext context) {
-        return new GlobalSearchSessionImpl(mAppSearchImpl, context.mExecutor, context.mContext);
+        return new GlobalSearchSessionImpl(mAppSearchImpl, context.mExecutor, context.mContext,
+                context.mLogger);
     }
 }

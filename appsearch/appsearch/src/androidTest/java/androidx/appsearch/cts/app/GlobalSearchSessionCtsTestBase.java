@@ -55,10 +55,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public abstract class GlobalSearchSessionCtsTestBase {
+    static final String DB_NAME_1 = "";
+    static final String DB_NAME_2 = "testDb2";
+
     private AppSearchSession mDb1;
-    private static final String DB_NAME_1 = "";
     private AppSearchSession mDb2;
-    private static final String DB_NAME_2 = "testDb2";
 
     private GlobalSearchSession mGlobalAppSearchManager;
 

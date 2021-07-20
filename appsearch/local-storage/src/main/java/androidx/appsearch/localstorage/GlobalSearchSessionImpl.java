@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
@@ -46,13 +47,18 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     private boolean mIsClosed = false;
 
+    @Nullable
+    private final AppSearchLogger mLogger;
+
     GlobalSearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull Executor executor,
-            @NonNull Context context) {
+            @NonNull Context context,
+            @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
         mContext = Preconditions.checkNotNull(context);
+        mLogger = logger;
     }
 
     @NonNull
@@ -68,7 +74,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                 mContext.getPackageName(),
                 /*databaseName=*/ null,
                 queryExpression,
-                searchSpec);
+                searchSpec,
+                mLogger);
     }
 
     /**

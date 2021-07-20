@@ -19,12 +19,22 @@ package androidx.appsearch.app.util;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.localstorage.AppSearchLogger;
+import androidx.appsearch.localstorage.stats.CallStats;
+import androidx.appsearch.localstorage.stats.InitializeStats;
+import androidx.appsearch.localstorage.stats.OptimizeStats;
+import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.RemoveStats;
+import androidx.appsearch.localstorage.stats.SearchStats;
+import androidx.appsearch.localstorage.stats.SetSchemaStats;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +42,58 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 public class AppSearchTestUtils {
+    // Non-thread-safe logger implementation for testing
+    public static class TestLogger implements AppSearchLogger {
+        @Nullable
+        public CallStats mCallStats;
+        @Nullable
+        public PutDocumentStats mPutDocumentStats;
+        @Nullable
+        public InitializeStats mInitializeStats;
+        @Nullable
+        public SearchStats mSearchStats;
+        @Nullable
+        public RemoveStats mRemoveStats;
+        @Nullable
+        public OptimizeStats mOptimizeStats;
+        @Nullable
+        public SetSchemaStats mSetSchemaStats;
+
+        @Override
+        public void logStats(@NonNull CallStats stats) {
+            mCallStats = stats;
+        }
+
+        @Override
+        public void logStats(@NonNull PutDocumentStats stats) {
+            mPutDocumentStats = stats;
+        }
+
+        @Override
+        public void logStats(@NonNull InitializeStats stats) {
+            mInitializeStats = stats;
+        }
+
+        @Override
+        public void logStats(@NonNull SearchStats stats) {
+            mSearchStats = stats;
+        }
+
+        @Override
+        public void logStats(@NonNull RemoveStats stats) {
+            mRemoveStats = stats;
+        }
+
+        @Override
+        public void logStats(@NonNull OptimizeStats stats) {
+            mOptimizeStats = stats;
+        }
+
+        @Override
+        public void logStats(@NonNull SetSchemaStats stats) {
+            mSetSchemaStats = stats;
+        }
+    }
 
     public static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
             Future<AppSearchBatchResult<K, V>> future) throws Exception {
