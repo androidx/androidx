@@ -44,14 +44,17 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.WatchFaceId
+import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.After
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -260,5 +263,58 @@ public class EditorSessionGuavaTest {
                 0
             )
         ).isEqualTo("DataSource3")
+    }
+
+    @Test
+    public fun doNotCommitChangesOnClose() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            emptyList()
+        )
+
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+
+        lateinit var listenableEditorSession: ListenableEditorSession
+        scenario.onActivity { activity ->
+            listenableEditorSession = activity.listenableEditorSession
+
+            assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+                .isEqualTo(redStyleOption.id.value)
+            assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+                .isEqualTo(classicStyleOption.id.value)
+
+            // Select [blueStyleOption] and [gothicStyleOption].
+            val styleMap = listenableEditorSession.userStyle.selectedOptions.toMutableMap()
+            for (userStyleSetting in listenableEditorSession.userStyleSchema.userStyleSettings) {
+                styleMap[userStyleSetting] = userStyleSetting.options.last()
+            }
+            listenableEditorSession.userStyle = UserStyle(styleMap)
+
+            // This should cause the style on the to be reverted back to the initial style.
+            listenableEditorSession.commitChangesOnClose = false
+            listenableEditorSession.close()
+            activity.finish()
+        }
+
+        val result = editorObserver.awaitEditorStateChange(
+            TIMEOUT_MS,
+            TimeUnit.MILLISECONDS
+        ).asApiEditorState()
+        assertThat(result.userStyle.userStyleMap[colorStyleSetting.id.value])
+            .isEqualTo(blueStyleOption.id.value)
+        assertThat(result.userStyle.userStyleMap[watchHandStyleSetting.id.value])
+            .isEqualTo(gothicStyleOption.id.value)
+        Assert.assertFalse(result.shouldCommitChanges)
+        Assert.assertNull(result.previewImage)
+
+        // The original style should be applied to the watch face however because
+        // commitChangesOnClose is false.
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+            .isEqualTo(redStyleOption.id.value)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+            .isEqualTo(classicStyleOption.id.value)
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
     }
 }

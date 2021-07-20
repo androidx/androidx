@@ -44,7 +44,7 @@ import kotlin.coroutines.CoroutineContext
  */
 public class ListenableEditorSession(
     private val wrappedEditorSession: EditorSession
-) : EditorSession() {
+) : EditorSession {
     public companion object {
         /**
          * Constructs a [ListenableFuture] for a [ListenableEditorSession] for an on watch face
@@ -74,7 +74,9 @@ public class ListenableEditorSession(
             coroutineScope.launch {
                 try {
                     result.set(
-                        ListenableEditorSession(createOnWatchEditingSession(activity, editIntent))
+                        ListenableEditorSession(
+                            EditorSession.createOnWatchEditingSession(activity, editIntent)
+                        )
                     )
                 } catch (e: Exception) {
                     result.setException(e)
@@ -95,13 +97,13 @@ public class ListenableEditorSession(
             editIntent: Intent,
 
             headlessWatchFaceClient: HeadlessWatchFaceClient
-        ): ListenableEditorSession? = EditorSession.createHeadlessEditingSession(
-            activity,
-            editIntent,
-            headlessWatchFaceClient
-        ).let {
-            ListenableEditorSession(it)
-        }
+        ): ListenableEditorSession = ListenableEditorSession(
+            EditorSession.createHeadlessEditingSession(
+                activity,
+                editIntent,
+                headlessWatchFaceClient
+            )
+        )
     }
 
     private fun getCoroutineScope(): CoroutineScope =
@@ -113,19 +115,18 @@ public class ListenableEditorSession(
     @RequiresApi(Build.VERSION_CODES.R)
     override val watchFaceId: WatchFaceId = wrappedEditorSession.watchFaceId
 
-    override var userStyle: UserStyle
-        get() = wrappedEditorSession.userStyle
-        set(value) {
-            wrappedEditorSession.userStyle = value
-        }
+    override var userStyle: UserStyle by wrappedEditorSession::userStyle
 
     override val previewReferenceTimeMillis: Long = wrappedEditorSession.previewReferenceTimeMillis
 
-    override val userStyleSchema: UserStyleSchema
-        get() = wrappedEditorSession.userStyleSchema
+    override val userStyleSchema: UserStyleSchema by wrappedEditorSession::userStyleSchema
 
-    override val complicationSlotsState: Map<Int, ComplicationSlotState>
-        get() = wrappedEditorSession.complicationSlotsState
+    override val complicationSlotsState: Map<Int, ComplicationSlotState> by
+    wrappedEditorSession::complicationSlotsState
+
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @get:JvmName("isCommitChangesOnClose")
+    override var commitChangesOnClose: Boolean by wrappedEditorSession::commitChangesOnClose
 
     /** [ListenableFuture] wrapper around [EditorSession.getComplicationsPreviewData]. */
     public fun getListenableComplicationPreviewData():
@@ -162,8 +163,8 @@ public class ListenableEditorSession(
         wrappedEditorSession.getComplicationsDataSourceInfo()
 
     @get:SuppressWarnings("AutoBoxing")
-    override val backgroundComplicationSlotId: Int?
-        get() = wrappedEditorSession.backgroundComplicationSlotId
+    override val backgroundComplicationSlotId: Int? by
+    wrappedEditorSession::backgroundComplicationSlotId
 
     @SuppressWarnings("AutoBoxing")
     override fun getComplicationSlotIdAt(x: Int, y: Int): Int? =
