@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
+import android.widget.ScrollView
 import androidx.slidingpanelayout.test.R
 import androidx.slidingpanelayout.widget.helpers.TestActivity
 import androidx.slidingpanelayout.widget.helpers.isTwoPane
@@ -29,6 +30,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import org.hamcrest.core.IsNot.not
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -91,6 +93,72 @@ class SlidingPaneLayoutTest {
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
             Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_fold_layout))
                 .check(ViewAssertions.matches(isTwoPane()))
+        }
+    }
+
+    @Test
+    fun testLayoutHeightSpecExact() {
+        TestActivity.onActivityCreated = { activity ->
+            val container = FrameLayout(activity)
+            val slidingPaneLayout = activity.layoutInflater.inflate(
+                R.layout.activity_test_layout, null, false
+            )
+            container.addView(
+                slidingPaneLayout,
+                ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            )
+            activity.setContentView(container)
+        }
+
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_layout))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_layout))
+                .check((ViewAssertions.matches(not(isTwoPane()))))
+        }
+    }
+
+    @Test
+    fun testLayoutHeightSpecAtMost() {
+        TestActivity.onActivityCreated = { activity ->
+            val container = FrameLayout(activity)
+            val slidingPaneLayout = activity.layoutInflater.inflate(
+                R.layout.activity_test_layout, null, false
+            )
+            container.addView(
+                slidingPaneLayout,
+                ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+            )
+            activity.setContentView(container)
+        }
+
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_layout))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_layout))
+                .check(ViewAssertions.matches(not(isTwoPane())))
+        }
+    }
+
+    @Test
+    fun testLayoutHeightSpecUnspecific() {
+        TestActivity.onActivityCreated = { activity ->
+            val container = ScrollView(activity)
+            val slidingPaneLayout = activity.layoutInflater.inflate(
+                R.layout.activity_test_layout, null, false
+            )
+            container.addView(
+                slidingPaneLayout,
+                ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            )
+            activity.setContentView(container)
+        }
+
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_layout))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_layout))
+                .check(ViewAssertions.matches(not(isTwoPane())))
         }
     }
 }

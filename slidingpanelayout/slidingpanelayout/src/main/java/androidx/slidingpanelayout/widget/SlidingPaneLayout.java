@@ -597,18 +597,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             } else {
                 throw new IllegalStateException("Width must not be UNSPECIFIED");
             }
-        } else if (heightMode == MeasureSpec.UNSPECIFIED) {
-            if (isInEditMode()) {
-                // Don't crash the layout editor. Pick a magic number from thin air instead.
-                // TODO Better communication with tools of this bogus state.
-                // It will crash on a real device.
-                if (heightMode == MeasureSpec.UNSPECIFIED) {
-                    heightMode = MeasureSpec.AT_MOST;
-                    heightSize = 300;
-                }
-            } else {
-                throw new IllegalStateException("Height must not be UNSPECIFIED");
-            }
         }
 
         int layoutHeight = 0;
@@ -667,21 +655,18 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
                 childWidthSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
             }
 
-            int childHeightSpec;
-            if (lp.height == LayoutParams.WRAP_CONTENT) {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight, MeasureSpec.AT_MOST);
-            } else if (lp.height == LayoutParams.MATCH_PARENT) {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight, MeasureSpec.EXACTLY);
-            } else {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
-            }
-
+            int childHeightSpec = getChildMeasureSpec(heightMeasureSpec,
+                    getPaddingTop() + getPaddingBottom(), lp.height);
             child.measure(childWidthSpec, childHeightSpec);
             final int childWidth = child.getMeasuredWidth();
             final int childHeight = child.getMeasuredHeight();
 
-            if (heightMode == MeasureSpec.AT_MOST && childHeight > layoutHeight) {
-                layoutHeight = Math.min(childHeight, maxLayoutHeight);
+            if (childHeight > layoutHeight) {
+                if (heightMode == MeasureSpec.AT_MOST) {
+                    layoutHeight = Math.min(childHeight, maxLayoutHeight);
+                } else if (heightMode == MeasureSpec.UNSPECIFIED) {
+                    layoutHeight = childHeight;
+                }
             }
 
             widthRemaining -= childWidth;
@@ -725,9 +710,18 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
                     newWidth = measuredWidth + addedWidth;
                     childWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
                 }
-                final int childHeightSpec = measureChildHeight(child, maxLayoutHeight);
+                final int childHeightSpec = measureChildHeight(child, heightMeasureSpec,
+                        getPaddingTop() + getPaddingBottom());
                 if (measuredWidth != newWidth) {
                     child.measure(childWidthSpec, childHeightSpec);
+                    final int childHeight = child.getMeasuredHeight();
+                    if (childHeight > layoutHeight) {
+                        if (heightMode == MeasureSpec.AT_MOST) {
+                            layoutHeight = Math.min(childHeight, maxLayoutHeight);
+                        } else if (heightMode == MeasureSpec.UNSPECIFIED) {
+                            layoutHeight = childHeight;
+                        }
+                    }
                 }
             }
         }
@@ -788,22 +782,14 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     private static int measureChildHeight(@NonNull View child,
-            int maxLayoutHeight) {
+            int spec, int padding) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         final int childHeightSpec;
         final boolean skippedFirstPass = lp.width == 0 && lp.weight > 0;
         if (skippedFirstPass) {
             // This was skipped the first time; figure out a real height spec.
-            if (lp.height == LayoutParams.WRAP_CONTENT) {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,
-                        MeasureSpec.AT_MOST);
-            } else if (lp.height == LayoutParams.MATCH_PARENT) {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,
-                        MeasureSpec.EXACTLY);
-            } else {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(lp.height,
-                        MeasureSpec.EXACTLY);
-            }
+            childHeightSpec = getChildMeasureSpec(spec, padding, lp.height);
+
         } else {
             childHeightSpec = MeasureSpec.makeMeasureSpec(
                     child.getMeasuredHeight(), MeasureSpec.EXACTLY);
