@@ -22,10 +22,9 @@ import android.graphics.Rect
  *
  *
  * This is usually obtained from [WindowInfoRepo.currentWindowMetrics] or
- * [WindowInfoRepo.maximumWindowMetrics].
+ * [WindowMetricsCalculator.computeMaximumWindowMetrics].
  *
  * @see WindowInfoRepo.currentWindowMetrics
- * @see WindowInfoRepo.maximumWindowMetrics
  */
 public class WindowMetrics internal constructor(private val _bounds: Bounds) {
 
