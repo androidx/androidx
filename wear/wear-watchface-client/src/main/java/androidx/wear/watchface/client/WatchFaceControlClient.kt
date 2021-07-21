@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.os.RemoteException
 import androidx.annotation.Px
 import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.data.ComplicationData
@@ -64,6 +65,7 @@ public interface WatchFaceControlClient : AutoCloseable {
          * a [ServiceStartFailureException] if the watch face dies during startup.
          */
         @JvmStatic
+        @Throws(ServiceNotBoundException::class, ServiceStartFailureException::class)
         public suspend fun createWatchFaceControlClient(
             context: Context,
             watchFacePackageName: String
@@ -128,6 +130,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @return The [InteractiveWatchFaceClient] or `null` if [instanceId] is unrecognized, or
      * [ServiceNotBoundException] if the WatchFaceControlService is not bound.
      */
+    @Throws(RemoteException::class)
     public fun getInteractiveWatchFaceClientInstance(
         instanceId: String
     ): InteractiveWatchFaceClient?
@@ -147,6 +150,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param surfaceHeight The height of screen shots taken by the [HeadlessWatchFaceClient]
      * @return The [HeadlessWatchFaceClient] or `null` if [watchFaceName] is unrecognized.
      */
+    @Throws(RemoteException::class)
     public fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
@@ -171,6 +175,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @return The [InteractiveWatchFaceClient], this should be closed when finished.
      * @throws [ServiceStartFailureException] if the watchface dies during startup.
      */
+    @Throws(RemoteException::class)
     public suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
@@ -179,6 +184,7 @@ public interface WatchFaceControlClient : AutoCloseable {
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient
 
+    @Throws(RemoteException::class)
     public fun getEditorServiceClient(): EditorServiceClient
 
     /**
@@ -192,6 +198,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      * [DefaultComplicationDataSourcePolicyAndType]s for. It must be in the same APK the
      * WatchFaceControlClient is connected to. NB a single apk can contain multiple watch faces.
      */
+    @Throws(RemoteException::class)
     public fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
     ): Map<Int, DefaultComplicationDataSourcePolicyAndType>

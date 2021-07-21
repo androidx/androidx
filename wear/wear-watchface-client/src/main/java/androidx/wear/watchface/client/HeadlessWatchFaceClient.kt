@@ -18,6 +18,7 @@ package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.RemoteException
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.AnyThread
 import androidx.annotation.RequiresApi
@@ -54,9 +55,11 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     }
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
+    @get:Throws(RemoteException::class)
     public val previewReferenceTimeMillis: Long
 
     /** The watch face's [UserStyleSchema]. */
+    @get:Throws(RemoteException::class)
     public val userStyleSchema: UserStyleSchema
 
     /**
@@ -67,6 +70,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * [ComplicationSlotsUserStyleSetting]. Because the style can't change, ComplicationSlotState is
      * immutable for a headless watch face.
      */
+    @get:Throws(RemoteException::class)
     public val complicationSlotsState: Map<Int, ComplicationSlotState>
 
     /**
@@ -82,6 +86,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * given settings.
      */
     @RequiresApi(27)
+    @Throws(RemoteException::class)
     public fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
@@ -89,7 +94,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
 
-    /**
+    /**c
      * Renders the [androidx.wear.watchface.ComplicationSlot] to a shared memory backed [Bitmap]
      * with the given settings.
      *
@@ -102,6 +107,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * given settings, or `null` if [complicationSlotId] is unrecognized.
      */
     @RequiresApi(27)
+    @Throws(RemoteException::class)
     public fun renderComplicationToBitmap(
         complicationSlotId: Int,
         renderParameters: RenderParameters,
