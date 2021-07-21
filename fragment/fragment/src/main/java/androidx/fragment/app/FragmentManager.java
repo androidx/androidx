@@ -1999,7 +1999,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
             return false;
         }
 
-        List<BackStackRecord> backStackRecords = backStackState.instantiate(this);
+        HashMap<String, Fragment> pendingSavedFragments = new HashMap<>();
+        for (BackStackRecord record : records) {
+            if (record.mBeingSaved) {
+                for (FragmentTransaction.Op op : record.mOps) {
+                    if (op.mFragment != null) {
+                        pendingSavedFragments.put(op.mFragment.mWho, op.mFragment);
+                    }
+                }
+            }
+        }
+        List<BackStackRecord> backStackRecords = backStackState.instantiate(this,
+                pendingSavedFragments);
         boolean added = false;
         for (BackStackRecord record : backStackRecords) {
             added = record.generateOps(records, isRecordPop) || added;
