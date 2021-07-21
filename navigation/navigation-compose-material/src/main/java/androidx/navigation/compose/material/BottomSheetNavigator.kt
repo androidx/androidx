@@ -22,21 +22,24 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
+import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorState
 import androidx.navigation.compose.material.BottomSheetNavigator.Destination
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 
 /**
  * Create and remember a [BottomSheetNavigator]
@@ -83,6 +86,8 @@ public class BottomSheetNavigator(
         val columnScope = this
         val saveableStateHolder = rememberSaveableStateHolder()
         val backStackEntries by state.backStack.collectAsState()
+        val transitionsInProgress by state.transitionsInProgress.collectAsState()
+
         // We always replace the sheet's content instead of overlaying and nesting floating
         // window destinations. That means that only *one* concurrent destination is supported by
         // this navigator.
@@ -91,16 +96,57 @@ public class BottomSheetNavigator(
             // these
             entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         }
+
+        if (latestEntry != null) {
+            LaunchedEffect(sheetState.currentValue, sheetState.targetValue) {
+                val visibilityFlow = snapshotFlow { sheetState.currentValue }
+                    .filter { it == ModalBottomSheetValue.Hidden }
+
+                snapshotFlow { sheetState.currentValue to sheetState.targetValue }
+                    .filter { (currentValue, targetValue) ->
+                        // When the sheet is currently visible but moving towards the hidden state
+                        currentValue != ModalBottomSheetValue.Hidden &&
+                            targetValue == ModalBottomSheetValue.Hidden
+                    }
+                    .map {
+                        state.popWithTransition(latestEntry, false)
+                    }
+                    .combine(visibilityFlow) { transitionListener, isVisible ->
+                        // This means that the currentValue went from not hidden to hidden
+                        // Now we'll let the transitionListener know that everything is settled and
+                        // the back stack entry can be moved to the DESTROYED state
+                        transitionListener.onTransitionComplete()
+                    }
+                    .launchIn(this)
+            }
+        }
+
         SheetContentHost(
             columnHost = columnScope,
             backStackEntry = latestEntry,
             sheetState = sheetState,
             saveableStateHolder = saveableStateHolder,
-            onSheetDismissed = { backStackEntry -> state.pop(backStackEntry, saveState = false) }
+            onSheetShown = { backStackEntry ->
+                val transitionForEntry = transitionsInProgress[backStackEntry]
+                transitionForEntry?.onTransitionComplete()
+            },
+            onSheetDismissed = { backStackEntry ->
+                //state.pop(backStackEntry, saveState = false)
+            }
         )
     }
 
     override fun createDestination(): Destination = Destination(navigator = this, content = {})
+
+    override fun navigate(
+        entries: List<NavBackStackEntry>,
+        navOptions: NavOptions?,
+        navigatorExtras: Extras?
+    ) {
+        entries.forEach { entry ->
+            state.pushWithTransition(entry)
+        }
+    }
 
     /**
      * [NavDestination] specific to [BottomSheetNavigator]

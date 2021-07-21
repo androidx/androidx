@@ -62,6 +62,7 @@ internal fun SheetContentHost(
     backStackEntry: NavBackStackEntry?,
     sheetState: ModalBottomSheetState,
     saveableStateHolder: SaveableStateHolder,
+    onSheetShown: (entry: NavBackStackEntry) -> Unit = {},
     onSheetDismissed: (entry: NavBackStackEntry) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -82,7 +83,10 @@ internal fun SheetContentHost(
         // Whenever the composable associated with the latestEntry enters the composition, we
         // want to show the sheet, and hide it when this composable leaves the composition
         DisposableEffect(Unit) {
-            scope.launch { sheetState.internalShow() }
+            scope.launch {
+                sheetState.internalShow()
+                onSheetShown(backStackEntry)
+            }
             onDispose { scope.launch { sheetState.internalHide() } }
         }
 
