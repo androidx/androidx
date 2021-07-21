@@ -57,7 +57,7 @@ public class ListenableEditorSession(
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
         @UiThread
-        public fun listenableCreateOnWatchEditingSession(
+        public fun listenableCreateOnWatchEditorSession(
             /** The [ComponentActivity] associated with the EditorSession. */
             activity: ComponentActivity,
 
@@ -75,7 +75,7 @@ public class ListenableEditorSession(
                 try {
                     result.set(
                         ListenableEditorSession(
-                            EditorSession.createOnWatchEditingSession(activity, editIntent)
+                            EditorSession.createOnWatchEditorSession(activity, editIntent)
                         )
                     )
                 } catch (e: Exception) {
@@ -89,7 +89,7 @@ public class ListenableEditorSession(
         @JvmStatic
         @RequiresApi(27)
         @UiThread
-        public fun createHeadlessEditingSession(
+        public fun createHeadlessEditorSession(
             /** The [ComponentActivity] associated with the EditorSession. */
             activity: ComponentActivity,
 
@@ -98,7 +98,7 @@ public class ListenableEditorSession(
 
             headlessWatchFaceClient: HeadlessWatchFaceClient
         ): ListenableEditorSession = ListenableEditorSession(
-            EditorSession.createHeadlessEditingSession(
+            EditorSession.createHeadlessEditorSession(
                 activity,
                 editIntent,
                 headlessWatchFaceClient

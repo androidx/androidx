@@ -89,7 +89,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
         coroutineScope = CoroutineScope(handler.asCoroutineDispatcher().immediate)
         coroutineScope.launch {
             init(
-                EditorSession.createOnWatchEditingSession(
+                EditorSession.createOnWatchEditorSession(
                     this@WatchFaceConfigActivity,
                     intent!!
                 ),

@@ -84,7 +84,7 @@ private typealias WireComplicationProviderInfo =
  * face and call [close] when done. This reports the updated [EditorState] to the [EditorListener]s
  * registered via [EditorServiceClient.addListener].
  *
- * For EditorSessions backed by a headless instance (see [createHeadlessEditingSession] and
+ * For EditorSessions backed by a headless instance (see [createHeadlessEditorSession] and
  * [EditorRequest.headlessDeviceConfig]), style changes are not applied to the interactive
  * instance and it's up to the system to apply them. For EditorSessions backed by an
  * interactive instance style changes are applied immediately. Its possible the system might fail to
@@ -225,10 +225,10 @@ public interface EditorSession : AutoCloseable {
         @JvmStatic
         @UiThread
         @Throws(TimeoutCancellationException::class)
-        public suspend fun createOnWatchEditingSession(
+        public suspend fun createOnWatchEditorSession(
             activity: ComponentActivity,
             editIntent: Intent
-        ): EditorSession = createOnWatchEditingSessionImpl(
+        ): EditorSession = createOnWatchEditorSessionImpl(
             activity,
             editIntent,
             object : ComplicationDataSourceInfoRetrieverProvider {
@@ -239,12 +239,12 @@ public interface EditorSession : AutoCloseable {
 
         // Used by tests.
         @Throws(TimeoutCancellationException::class)
-        internal suspend fun createOnWatchEditingSessionImpl(
+        internal suspend fun createOnWatchEditorSessionImpl(
             activity: ComponentActivity,
             editIntent: Intent,
             complicationDataSourceInfoRetrieverProvider: ComplicationDataSourceInfoRetrieverProvider
         ): EditorSession = TraceEvent(
-            "EditorSession.createOnWatchEditingSessionAsyncImpl"
+            "EditorSession.createOnWatchEditorSessionAsyncImpl"
         ).use {
             val coroutineScope =
                 CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate)
@@ -308,11 +308,11 @@ public interface EditorSession : AutoCloseable {
         @JvmStatic
         @RequiresApi(27)
         @UiThread
-        public fun createHeadlessEditingSession(
+        public fun createHeadlessEditorSession(
             activity: ComponentActivity,
             editIntent: Intent,
             headlessWatchFaceClient: HeadlessWatchFaceClient
-        ): EditorSession = TraceEvent("EditorSession.createHeadlessEditingSession").use {
+        ): EditorSession = TraceEvent("EditorSession.createHeadlessEditorSession").use {
             EditorRequest.createFromIntent(editIntent).let {
                 HeadlessEditorSession(
                     activity,
