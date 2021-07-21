@@ -249,14 +249,9 @@ Package name 'androidx\.vectordrawable' used in: androidx\.vectordrawable:vector
 # > Task :lifecycle:integration-tests:lifecycle-testapp:compileDebugJavaWithJavac
 # > Task :support-slices-demos:compileDebugJavaWithJavac
 Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/slice/demos/SliceBrowser\.java uses unchecked or unsafe operations\.
-# > Task :activity:activity:processDebugAndroidTestManifest
-# > Task :appcompat:appcompat:processDebugAndroidTestManifest
-Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime\.
 # > Task :emoji2:emoji2-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/emoji[0-9]+/emoji[0-9]+\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :gridlayout:gridlayout:compileDebugAndroidTestJavaWithJavac
-# > Task :leanback:leanback:processDebugAndroidTestManifest
-Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
 # > Task :leanback:leanback-tab:processDebugAndroidTestManifest
 # > Task :lifecycle:lifecycle-extensions:processDebugAndroidTestManifest
 # > Task :leanback:leanback:compileDebugAndroidTestJavaWithJavac
@@ -264,8 +259,6 @@ reason: class file for kotlin\.annotation\.AnnotationTarget not found
 reason: class file for kotlin\.annotation\.AnnotationRetention not found
 warning: unknown enum constant AnnotationTarget\.ANNOTATION_CLASS
 # > Task :navigation:navigation-dynamic-features-runtime:processDebugAndroidTestManifest
-# > Task :navigation:navigation-fragment:processDebugAndroidTestManifest
-Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-navigation\.
 # > Task :mediarouter:mediarouter:compileDebugAndroidTestJavaWithJavac
 # > Task :palette:palette:processDebugAndroidTestManifest
 # > Task :percentlayout:percentlayout:processDebugAndroidTestManifest
@@ -280,8 +273,6 @@ Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :inte
 # > Task :room:room-benchmark:kaptReleaseAndroidTestKotlin
 \$OUT_DIR/androidx/room/room\-benchmark/build/tmp/kapt[0-9]+/stubs/releaseAndroidTest/androidx/room/benchmark/RelationBenchmark\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
 public abstract java\.util\.List<androidx\.room\.benchmark\.RelationBenchmark\.UserWithItems> getUserWithItems\(\);
-# > Task :viewpager2:viewpager2:processDebugAndroidTestManifest
-Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
 # > Task :room:integration-tests:room-testapp-noappcompat:compileDebugAndroidTestJavaWithJavac
 \$SUPPORT/room/integration\-tests/noappcompattestapp/src/androidTest/java/androidx/room/integration/noappcompat/BareRelationDatabaseTest\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
 UserAndPets getUserWithPets\(long id\);
@@ -298,9 +289,6 @@ Note: \$SUPPORT/room/integration\-tests/testapp/src/androidTest/java/androidx/ro
 \$SUPPORT/work/workmanager\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$SUPPORT/benchmark/integration\-tests/dry\-run\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$SUPPORT/benchmark/integration\-tests/startup\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-\[:internal\-testutils\-espresso\] \$OUT_DIR/androidx/internal\-testutils\-espresso/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
-Package name 'androidx\.testutils' used in: :internal\-testutils\-espresso, :internal\-testutils\-runtime\.
-\[:internal\-testutils\-runtime\] \$OUT_DIR/androidx/internal\-testutils\-runtime/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
 # > Task :leanback:leanback-paging:generateApi
 w\: Runtime JAR files in the classpath have the version [0-9]+\.[0-9]+\, which is older than the API version [0-9]+\.[0-9]+\. Consider using the runtime of version [0-9]+\.[0-9]+\, or pass \'\-api\-version [0-9]+\.[0-9]+\' explicitly to restrict the available APIs to the runtime of version [0-9]+\.[0-9]+\. You can also pass \'\-language\-version [0-9]+\.[0-9]+\' instead\, which will restrict not only the APIs to the specified version\, but also the language features
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
@@ -340,8 +328,6 @@ compiler or generated code\. Use it at your own risk\!
 \-XXLanguage\:\+InlineClasses
 # > Task :docs-public:lintDebug
 Wrote HTML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.html
-# > Task :internal-testutils-appcompat:processDebugAndroidTestManifest
-\[:internal\-testutils\-appcompat\] \$OUT_DIR/androidx/internal\-testutils\-appcompat/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
 # > Task :camera:camera-core:compileDebugJavaWithJavac
 warning: unknown enum constant AnnotationRetention\.BINARY
 # > Task :compose:ui:ui:processDebugUnitTestManifest

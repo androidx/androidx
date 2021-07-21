@@ -19,7 +19,7 @@ package androidx.testutils
 import android.app.Activity
 import android.os.Bundle
 import android.util.Log
-import androidx.testutils.test.R
+import androidx.testutils.runtime.R
 
 class TestActivity : Activity(), Resettable {
     override fun setFinishEnabled(finishEnabled: Boolean) {
