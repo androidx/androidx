@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.Outputs
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -120,7 +121,7 @@ public class UiStateTest {
 
 @Suppress("SameParameterValue")
 internal fun createTempFileFromAsset(prefix: String, suffix: String): File {
-    val file = File.createTempFile(prefix, suffix)
+    val file = File.createTempFile(prefix, suffix, Outputs.dirUsableByAppAndShell)
     InstrumentationRegistry
         .getInstrumentation()
         .context
