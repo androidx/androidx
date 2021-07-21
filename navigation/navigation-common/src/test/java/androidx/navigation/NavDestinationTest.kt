@@ -175,6 +175,78 @@ class NavDestinationTest {
     }
 
     @Test
+    fun buildDeepLinkIdsDoubleNavGraph() {
+        val startDest = NoOpNavigator().createDestination()
+        startDest.id = DESTINATION_ID
+        val navGraphId = 2
+        val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
+
+        val navGraph = navGraphNavigator.createDestination().apply {
+            id = navGraphId
+        }
+
+        startDest.parent = navGraph
+        val deepLinkIds = navGraph.buildDeepLinkIds(navGraph)
+        // We can simply add ourselves on top of the previous navGraph.
+        assertThat(deepLinkIds).asList().containsExactly(navGraphId)
+    }
+
+    @Test
+    fun buildDeepLinkIdsFromParentDestination() {
+        val destination = NoOpNavigator().createDestination()
+        destination.id = DESTINATION_ID
+        val parentId = 2
+        val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
+        val parent = navGraphNavigator.createDestination().apply {
+            id = parentId
+        }
+
+        destination.parent = parent
+        val deepLinkIds = destination.buildDeepLinkIds(parent)
+        // Started at parent. Shouldn't include it again.
+        assertThat(deepLinkIds).asList().containsExactly(DESTINATION_ID)
+    }
+
+    @Test
+    fun buildDeepLinkIdsFromParentDestinationToStartDestination() {
+        val destination = NoOpNavigator().createDestination()
+        destination.id = DESTINATION_ID
+
+        val parentId = 2
+        val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
+        val parent = navGraphNavigator.createDestination().apply {
+            id = parentId
+            setStartDestination(DESTINATION_ID)
+        }
+
+        destination.parent = parent
+
+        val deepLinkIds = destination.buildDeepLinkIds(parent)
+        // The previous destination is already a navgraph pointing to this startDestination.
+        assertThat(deepLinkIds).isEmpty()
+    }
+
+    @Test
+    fun buildDeepLinkIdsFromDestinationToSelf() {
+        val destination = NoOpNavigator().createDestination()
+        destination.id = DESTINATION_ID
+
+        val parentId = 2
+        val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
+        val parent = navGraphNavigator.createDestination().apply {
+            id = parentId
+            setStartDestination(DESTINATION_ID)
+            addDestination(destination)
+        }
+
+        destination.parent = parent
+
+        val deepLinkIds = destination.buildDeepLinkIds(destination)
+        // Adding a destination onto itself nests it without touching the parent.
+        assertThat(deepLinkIds).asList().containsExactly(DESTINATION_ID)
+    }
+
+    @Test
     fun buildDeepLinkIdsToNestedStartDestination() {
         val destination = NoOpNavigator().createDestination()
         destination.id = DESTINATION_ID
