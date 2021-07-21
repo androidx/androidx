@@ -732,10 +732,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @param flags Either 0 or {@link #POP_BACK_STACK_INCLUSIVE}.
      */
     public void popBackStack(final int id, final int flags) {
+        popBackStack(id, flags, false);
+    }
+
+    void popBackStack(final int id, final int flags, boolean allowStateLoss) {
         if (id < 0) {
             throw new IllegalArgumentException("Bad id: " + id);
         }
-        enqueueAction(new PopBackStackState(null, id, flags), false);
+        enqueueAction(new PopBackStackState(null, id, flags), allowStateLoss);
     }
 
     /**
