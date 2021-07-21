@@ -15,6 +15,17 @@
   -->
 
 <resources>
-    <dimen name="splashscreen_icon_size">160dp</dimen>
+    <!-- The size of the splash screen icon. The size varies whether
+    the windowSplashScreenIconBackgroundColor attribute is set-->
+    <dimen name="splashscreen_icon_size">?splashScreenIconSize</dimen>
+
+    <dimen name="splashscreen_icon_size_no_background">288dp</dimen>
+    <dimen name="splashscreen_icon_mask_size_no_background">410dp</dimen>
+    <dimen name="splashscreen_icon_mask_stroke_no_background">109dp</dimen>
+
+    <dimen name="splashscreen_icon_size_with_background">240dp</dimen>
+    <dimen name="splashscreen_icon_mask_size_with_background">342dp</dimen>
+    <dimen name="splashscreen_icon_mask_stroke_with_background">92dp</dimen>
+
     <integer name="default_icon_animation_duration">10000</integer>
 </resources>

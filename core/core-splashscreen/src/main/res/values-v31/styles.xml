@@ -22,5 +22,12 @@
         <item name="android:windowSplashScreenAnimationDuration">
             ?windowSplashScreenAnimationDuration
         </item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+    </style>
+
+    <style name="Theme.SplashScreen.IconBackground" parent="Theme.SplashScreen">
+        <item name="android:windowSplashScreenIconBackgroundColor">
+            ?windowSplashScreenIconBackgroundColor
+        </item>
     </style>
 </resources>

@@ -19,6 +19,8 @@ package androidx.core.splashscreen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Resources
+import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Build.VERSION.PREVIEW_SDK_INT
 import android.os.Build.VERSION.SDK_INT
 import android.util.TypedValue
@@ -49,11 +51,12 @@ public class SplashScreen private constructor(activity: Activity) {
     private val impl = when {
         SDK_INT >= 31 -> Impl31(activity)
         SDK_INT == 30 && PREVIEW_SDK_INT > 0 -> Impl31(activity)
-        SDK_INT >= 23 -> Impl23(activity)
         else -> Impl(activity)
     }
 
     public companion object {
+
+        private const val MASK_FACTOR = 2 / 3f
 
         /**
          * Creates a [SplashScreen] instance associated with this [Activity] and handles
@@ -161,7 +164,8 @@ public class SplashScreen private constructor(activity: Activity) {
         var finalThemeId: Int = 0
         var backgroundResId: Int? = null
         var backgroundColor: Int? = null
-        var icon: Int = 0
+        var icon: Drawable? = null
+        var hasBackground: Boolean = false
 
         var splashScreenWaitPredicate = KeepOnScreenCondition { false }
         private var animationListener: OnExitAnimationListener? = null
@@ -185,7 +189,12 @@ public class SplashScreen private constructor(activity: Activity) {
                     true
                 )
             ) {
-                icon = typedValue.resourceId
+                icon = currentTheme.getDrawable(typedValue.resourceId)
+            }
+
+            if (currentTheme.resolveAttribute(R.attr.splashScreenIconSize, typedValue, true)) {
+                hasBackground =
+                    typedValue.resourceId == R.dimen.splashscreen_icon_size_with_background
             }
             setPostSplashScreenTheme(currentTheme, typedValue)
         }
@@ -229,18 +238,19 @@ public class SplashScreen private constructor(activity: Activity) {
             val splashScreenViewProvider = SplashScreenViewProvider(activity)
             val finalBackgroundResId = backgroundResId
             val finalBackgroundColor = backgroundColor
+            val splashScreenView = splashScreenViewProvider.view
+
             if (finalBackgroundResId != null && finalBackgroundResId != Resources.ID_NULL) {
-                splashScreenViewProvider.view.setBackgroundResource(finalBackgroundResId)
+                splashScreenView.setBackgroundResource(finalBackgroundResId)
             } else if (finalBackgroundColor != null) {
-                splashScreenViewProvider.view.setBackgroundColor(finalBackgroundColor)
+                splashScreenView.setBackgroundColor(finalBackgroundColor)
             } else {
-                splashScreenViewProvider.view.background = activity.window.decorView.background
+                splashScreenView.background = activity.window.decorView.background
             }
 
-            splashScreenViewProvider.view.findViewById<ImageView>(R.id.splashscreen_icon_view)
-                .setBackgroundResource(icon)
+            icon?.let { displaySplashScreenIcon(splashScreenView, it) }
 
-            splashScreenViewProvider.view.addOnLayoutChangeListener(
+            splashScreenView.addOnLayoutChangeListener(
                 object : OnLayoutChangeListener {
                     override fun onLayoutChange(
                         view: View,
@@ -253,7 +263,6 @@ public class SplashScreen private constructor(activity: Activity) {
                         oldRight: Int,
                         oldBottom: Int
                     ) {
-                        adjustInsets(view, splashScreenViewProvider)
                         if (!view.isAttachedToWindow) {
                             return
                         }
@@ -268,6 +277,31 @@ public class SplashScreen private constructor(activity: Activity) {
                 })
         }
 
+        private fun displaySplashScreenIcon(splashScreenView: View, icon: Drawable) {
+            val iconView = splashScreenView.findViewById<ImageView>(R.id.splashscreen_icon_view)
+            iconView.apply {
+                val maskSize: Float
+                if (hasBackground) {
+                    // If the splash screen has an icon background we need to mask both the
+                    // background and foreground.
+                    val iconBackgroundDrawable = context.getDrawable(R.drawable.icon_background)
+
+                    val iconSize =
+                        resources.getDimension(R.dimen.splashscreen_icon_size_with_background)
+                    maskSize = iconSize * MASK_FACTOR
+
+                    if (iconBackgroundDrawable != null) {
+                        background = MaskedDrawable(iconBackgroundDrawable, maskSize)
+                    }
+                } else {
+                    val iconSize =
+                        resources.getDimension(R.dimen.splashscreen_icon_size_no_background)
+                    maskSize = iconSize * MASK_FACTOR
+                }
+                setImageDrawable(MaskedDrawable(icon, maskSize))
+            }
+        }
+
         fun dispatchOnExitAnimation(splashScreenViewProvider: SplashScreenViewProvider) {
             val finalListener = animationListener ?: return
             animationListener = null
@@ -275,35 +309,9 @@ public class SplashScreen private constructor(activity: Activity) {
                 finalListener.onSplashScreenExit(splashScreenViewProvider)
             }
         }
-
-        /**
-         * Adjust the insets to avoid any jump between the actual splash screen and the
-         * SplashScreen View
-         */
-        open fun adjustInsets(
-            view: View,
-            splashScreenViewProvider: SplashScreenViewProvider
-        ) {
-            // No-op
-        }
     }
 
-    @Suppress("DEPRECATION")
-    @RequiresApi(23)
-    private class Impl23(activity: Activity) : Impl(activity) {
-        override fun adjustInsets(
-            view: View,
-            splashScreenViewProvider: SplashScreenViewProvider
-        ) {
-            // Offset the icon if the insets have changed
-            val rootWindowInsets = view.rootWindowInsets
-            val ty =
-                rootWindowInsets.systemWindowInsetTop - rootWindowInsets.systemWindowInsetBottom
-            splashScreenViewProvider.iconView.translationY = -ty.toFloat() / 2f
-        }
-    }
-
-    @RequiresApi(31) // TODO(188897399) Update to "S" once finalized
+    @RequiresApi(Build.VERSION_CODES.S)
     private class Impl31(activity: Activity) : Impl(activity) {
         var preDrawListener: OnPreDrawListener? = null
 

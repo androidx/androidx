@@ -16,23 +16,17 @@
 
 package androidx.core.splashscreen.test
 
-import android.app.Instrumentation
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.matchers.MSSIMMatcher
-import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.Until
-import org.hamcrest.core.IsNull.notNullValue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertThat
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
@@ -45,14 +39,9 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
-private const val SPLASH_SCREEN_STYLE_ICON = 1
-private const val KEY_SPLASH_SCREEN_STYLE: String = "android.activity.splashScreenStyle"
-private const val BASIC_SAMPLE_PACKAGE: String = "androidx.core.splashscreen.test"
-private const val LAUNCH_TIMEOUT: Long = 5000
-
 @LargeTest
 @RunWith(Parameterized::class)
-public class SplashscreenTest(
+public class SplashscreenParametrizedTest(
     public val name: String,
     public val activityClass: KClass<out SplashScreenTestControllerHolder>
 ) {
@@ -64,7 +53,7 @@ public class SplashscreenTest(
         @JvmStatic
         public fun data(): Iterable<Array<Any>> {
             return listOf(
-                arrayOf("Platform", SplashScreenTestActivity::class),
+                arrayOf("Platform", SplashScreenWithIconBgTestActivity::class),
                 arrayOf("AppCompat", SplashScreenAppCompatTestActivity::class)
             )
         }
@@ -134,6 +123,23 @@ public class SplashscreenTest(
     }
 
     @Test
+    public fun splashScreenViewRemoved() {
+        val activity = startActivityWithSplashScreen {
+            // Clear out any previous instances
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            it.putExtra(EXTRA_ANIMATION_LISTENER, true)
+        }
+        activity.exitAnimationListenerLatch.await(2, TimeUnit.SECONDS)
+        assertNull(
+            "Splash screen view was not removed from its parent",
+            activity.splashScreenView!!.parent
+        )
+    }
+
+    // The vector drawable of the starting window isn't scaled
+    // correctly pre 23
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
     public fun splashscreenViewScreenshotComparison() {
         val activity = startActivityWithSplashScreen {
             // Clear out any previous instances
@@ -165,7 +171,7 @@ public class SplashscreenTest(
             afterScreenshot.width, afterScreenshot.height
         )
 
-        val matcher = MSSIMMatcher(0.90).compareBitmaps(
+        val matcher = MSSIMMatcher(0.99).compareBitmaps(
             beforeBuffer, afterBuffer, afterScreenshot.width,
             afterScreenshot.height
         )
@@ -229,60 +235,8 @@ public class SplashscreenTest(
     private fun startActivityWithSplashScreen(
         intentModifier: ((Intent) -> Unit)? = null
     ): SplashScreenTestController {
-        // Start from the home screen
-        device.pressHome()
-
-        // Wait for launcher
-        val launcherPackage: String = device.launcherPackageName
-        assertThat(launcherPackage, notNullValue())
-        device.wait(
-            Until.hasObject(By.pkg(launcherPackage).depth(0)),
-            LAUNCH_TIMEOUT
+        return startActivityWithSplashScreen(
+            activityClass, device, intentModifier
         )
-
-        // Launch the app
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val baseIntent = context.packageManager.getLaunchIntentForPackage(
-            BASIC_SAMPLE_PACKAGE
-        )
-        val intent = Intent(baseIntent).apply {
-            component = ComponentName(BASIC_SAMPLE_PACKAGE, activityClass.qualifiedName!!)
-            intentModifier?.invoke(this)
-        }
-
-        val monitor = object : Instrumentation.ActivityMonitor(
-            activityClass.qualifiedName!!,
-            Instrumentation.ActivityResult(0, Intent()), false
-        ) {
-            override fun onStartActivity(intent: Intent?): Instrumentation.ActivityResult? {
-                return if (intent?.component?.packageName == BASIC_SAMPLE_PACKAGE) {
-                    Instrumentation.ActivityResult(0, Intent())
-                } else {
-                    null
-                }
-            }
-        }
-        InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
-
-        context.startActivity(
-            intent,
-            // Force the splash screen to be shown with an icon
-            Bundle().apply { putInt(KEY_SPLASH_SCREEN_STYLE, SPLASH_SCREEN_STYLE_ICON) }
-        )
-        assertTrue(
-            device.wait(
-                Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)),
-                LAUNCH_TIMEOUT
-            )
-        )
-        val splashScreenTestActivity =
-            monitor.waitForActivityWithTimeout(LAUNCH_TIMEOUT) as SplashScreenTestControllerHolder?
-        if (splashScreenTestActivity == null) {
-            fail(
-                activityClass.simpleName!! + " was not launched after " +
-                    "$LAUNCH_TIMEOUT ms"
-            )
-        }
-        return splashScreenTestActivity!!.controller
     }
 }
