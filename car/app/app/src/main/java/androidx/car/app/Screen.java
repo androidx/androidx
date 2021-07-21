@@ -179,6 +179,9 @@ public abstract class Screen implements LifecycleOwner {
      *   <dd>The screen is in the process of being pushed to the screen stack, it is valid, but
      *       contents from it are not yet visible in the car screen. You should get a callback to
      *       {@link #onGetTemplate} at a point after this call.
+     *       This is where you can make decision on whether this {@link Screen} is still
+     *       relevant, and if you choose to not return a {@link Template} from this
+     *       {@link Screen} call {@link #finish()}.
      *   <dt>{@link Event#ON_START}
      *   <dd>The template returned from this screen is visible in the car screen.
      *   <dt>{@link Event#ON_RESUME}

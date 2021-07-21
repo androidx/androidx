@@ -254,13 +254,18 @@ public class ScreenManager implements Manager {
         }
 
         if (mScreenStack.contains(screen)) {
-            moveToTop(screen, false);
+            moveToTop(screen);
             return;
         }
 
         Screen top = mScreenStack.peek();
 
         pushAndStart(screen, true);
+
+        if (!mScreenStack.contains(screen)) {
+            // The screen being pushed was finished during it's set up
+            return;
+        }
 
         if (top != null) {
             stop(top, false);
@@ -314,6 +319,11 @@ public class ScreenManager implements Manager {
             screen.dispatchLifecycleEvent(Event.ON_CREATE);
         }
 
+        if (!screen.getLifecycle().getCurrentState().isAtLeast(State.CREATED)) {
+            // The screen was finished in it's onCreate
+            return;
+        }
+
         if (mAppLifecycle.getCurrentState().isAtLeast(State.STARTED)) {
             mCarContext.getCarService(AppManager.class).invalidate();
             screen.dispatchLifecycleEvent(Event.ON_START);
@@ -336,21 +346,17 @@ public class ScreenManager implements Manager {
         }
     }
 
-    private void moveToTop(Screen screen, boolean removeCurrentTop) {
+    private void moveToTop(Screen screen) {
         Screen top = mScreenStack.peek();
         if (top == null || top == screen) {
             return;
-        }
-
-        if (removeCurrentTop) {
-            mScreenStack.pop();
         }
 
         // Moving screen to top of stack, remove from where it's currently at.
         mScreenStack.remove(screen);
 
         pushAndStart(screen, false);
-        stop(top, removeCurrentTop);
+        stop(top, false);
 
         if (mAppLifecycle.getCurrentState().isAtLeast(State.RESUMED)) {
             screen.dispatchLifecycleEvent(Event.ON_RESUME);
