@@ -39,4 +39,6 @@
     <string name="error_message_multiple_hosts">Incompatible system</string>
     <!-- Message displayed when an unknown error is detected [CHAR_LIMIT=200] -->
     <string name="error_message_unknown_error">Unknown error</string>
+    <!-- Message displayed when an unknown error is detected [CHAR_LIMIT=200] -->
+    <string name="error_message_no_vending">Please contact car services</string>
 </resources>
