@@ -34,6 +34,18 @@ val WearMaterialDemos = DemoCategory(
             "Chips",
             listOf(
                 ComposableDemo("Chip") { StandardChips() },
+                ComposableDemo("Compact chip") { SmallChips() },
+                ComposableDemo("Avatar chip") { AvatarChips() },
+                ComposableDemo("Rtl chips") { RtlChips() },
+                ComposableDemo("Custom chips") { CustomChips() },
+                ComposableDemo("Image background chips") { ImageBackgroundChips() },
+            )
+        ),
+        DemoCategory(
+            "Toggle Chip",
+            listOf(
+                ComposableDemo("Toggle chip") { ToggleChips() },
+                ComposableDemo("RTL Toggle chip") { RtlToggleChips() },
             )
         ),
         ComposableDemo("Card") { CardDemo() },
