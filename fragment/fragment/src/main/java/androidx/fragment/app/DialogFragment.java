@@ -344,7 +344,7 @@ public class DialogFragment extends Fragment
         mViewDestroyed = true;
         if (mBackStackId >= 0) {
             getParentFragmentManager().popBackStack(mBackStackId,
-                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE, allowStateLoss);
             mBackStackId = -1;
         } else {
             FragmentTransaction ft = getParentFragmentManager().beginTransaction();
