@@ -52,8 +52,8 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
-import androidx.window.FoldingFeature;
-import androidx.window.WindowInfoRepo;
+import androidx.window.layout.FoldingFeature;
+import androidx.window.layout.WindowInfoRepo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
