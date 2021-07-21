@@ -259,6 +259,13 @@ public abstract class WatchFaceService : WallpaperService() {
 
         /** The maximum permitted duration of [WatchFaceService.createWatchFace]. */
         public const val MAX_CREATE_WATCHFACE_TIME_MILLIS: Int = 5000
+
+        /** The maximum reasonable wire size for a [UserStyleSchema] in bytes. */
+        internal const val MAX_REASONABLE_SCHEMA_WIRE_SIZE_BYTES = 50000
+
+        /** The maximum reasonable wire size for an Icon in a [UserStyleSchema] in pixels. */
+        internal const val MAX_REASONABLE_SCHEMA_ICON_WIDTH = 400
+        internal const val MAX_REASONABLE_SCHEMA_ICON_HEIGHT = 400
     }
 
     /**
@@ -1432,6 +1439,12 @@ public abstract class WatchFaceService : WallpaperService() {
 
                     // Now init has completed, it's OK to complete deferredWatchFaceImpl.
                     initStyleAndComplicationsDone.complete(Unit)
+
+                    // validateSchemaWireSize is fairly expensive so only perform it for
+                    // interactive watchfaces.
+                    if (!watchState.isHeadless) {
+                        validateSchemaWireSize(currentUserStyleRepository.schema)
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "WatchFace crashed during init", e)
                     deferredWatchFaceImpl.completeExceptionally(e)
@@ -1647,6 +1660,25 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (TRACE_DRAW) {
                     Trace.endSection()
                 }
+            }
+        }
+
+        internal fun validateSchemaWireSize(schema: UserStyleSchema) = TraceEvent(
+            "WatchFaceService.validateSchemaWireSize"
+        ).use {
+            var estimatedBytes = 0
+            for (styleSetting in schema.userStyleSettings) {
+                estimatedBytes += styleSetting.estimateWireSizeInBytesAndValidateIconDimensions(
+                    _context,
+                    MAX_REASONABLE_SCHEMA_ICON_WIDTH,
+                    MAX_REASONABLE_SCHEMA_ICON_HEIGHT,
+                )
+            }
+            require(estimatedBytes < MAX_REASONABLE_SCHEMA_WIRE_SIZE_BYTES) {
+                "The estimated wire size of the supplied UserStyleSchemas for watch face " +
+                    "$packageName is too big at $estimatedBytes bytes. UserStyleSchemas get sent " +
+                    "to the companion over bluetooth and should be as small as possible for this " +
+                    "to be performant."
             }
         }
 
