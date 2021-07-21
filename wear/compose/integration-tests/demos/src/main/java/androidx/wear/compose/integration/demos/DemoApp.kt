@@ -97,5 +97,6 @@ private fun DisplayDemoList(category: DemoCategory, onNavigate: (Demo) -> Unit) 
                 )
             )
         }
+        Spacer(modifier = Modifier.size(16.dp))
     }
 }
