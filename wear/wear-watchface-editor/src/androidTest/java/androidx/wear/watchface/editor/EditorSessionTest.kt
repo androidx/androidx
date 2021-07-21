@@ -286,7 +286,7 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         immediateCoroutineScope.launch {
             try {
-                editorSession = EditorSession.createOnWatchEditingSessionImpl(
+                editorSession = EditorSession.createOnWatchEditorSessionImpl(
                     this@OnWatchFaceEditingTestActivity,
                     intent!!,
                     complicationDataSourceInfoRetrieverProvider!!
@@ -454,7 +454,7 @@ public class EditorSessionTest {
         Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
     private val dataSourceComponentName = ComponentName("test.package", "test.class")
 
-    @SuppressLint("NewApi")
+    @SuppressLint("NewApi") // EditorRequest
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
         complicationSlots: List<ComplicationSlot>,
@@ -1324,6 +1324,7 @@ public class EditorSessionTest {
         }
     }
 
+    @Suppress("NewApi") // result.watchFaceId
     @Test
     public fun userStyleAndComplicationPreviewDataInEditorObserver() {
         val scenario = createOnWatchFaceEditingTestActivity(
@@ -1385,6 +1386,7 @@ public class EditorSessionTest {
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
 
+    @SuppressLint("NewApi") // result.watchFaceId
     @Test
     public fun emptyInstanceId() {
         val scenario = createOnWatchFaceEditingTestActivity(
@@ -1623,6 +1625,7 @@ public class EditorSessionTest {
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
 
+    @Suppress("NewApi") // EditorRequest
     @Test
     public fun watchFaceEditorContract_createIntent() {
         val testComponentName = ComponentName("test.package", "test.class")
@@ -1710,7 +1713,7 @@ public class EditorSessionTest {
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
 
-    @SuppressLint("NewApi")
+    @SuppressLint("NewApi") // EditorRequest
     @Test
     public fun closeEditorSessionBeforeInitCompleted() {
         val testComponentName = ComponentName("test.package", "test.class")
@@ -1888,6 +1891,7 @@ public class EditorSessionTest {
         }
     }
 
+    @SuppressLint("NewApi") // EditorRequest
     @Test
     public fun testComponentNameMismatch() {
         val testComponentName = ComponentName("test.package", "test.class")
@@ -1972,6 +1976,7 @@ public class EditorSessionTest {
     }
 }
 
+@SuppressLint("NewApi") // icon.type
 internal fun assertEquals(
     expected: ComplicationDataSourceInfo?,
     actual: ComplicationDataSourceInfo?
