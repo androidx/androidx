@@ -1,114 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
 
     <issue
         id="WrongConstant"
-        message="Must be one of: SessionResult.RESULT_SUCCESS, BaseResult.RESULT_ERROR_UNKNOWN, BaseResult.RESULT_ERROR_INVALID_STATE, BaseResult.RESULT_ERROR_BAD_VALUE, BaseResult.RESULT_ERROR_PERMISSION_DENIED, BaseResult.RESULT_ERROR_IO, BaseResult.RESULT_INFO_SKIPPED, RemoteResult.RESULT_ERROR_SESSION_DISCONNECTED, BaseResult.RESULT_ERROR_NOT_SUPPORTED, RemoteResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED, RemoteResult.RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED, RemoteResult.RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT, RemoteResult.RESULT_ERROR_SESSION_PARENTAL_CONTROL_RESTRICTED, RemoteResult.RESULT_ERROR_SESSION_NOT_AVAILABLE_IN_REGION, RemoteResult.RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED, RemoteResult.RESULT_ERROR_SESSION_SETUP_REQUIRED"
+        message="Must be one of: SessionResult.RESULT_SUCCESS, BaseResult.RESULT_ERROR_UNKNOWN, BaseResult.RESULT_ERROR_INVALID_STATE, BaseResult.RESULT_ERROR_BAD_VALUE, BaseResult.RESULT_ERROR_PERMISSION_DENIED, BaseResult.RESULT_ERROR_IO, BaseResult.RESULT_INFO_SKIPPED, RemoteResult.RESULT_ERROR_SESSION_DISCONNECTED, BaseResult.RESULT_ERROR_NOT_SUPPORTED, RemoteResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED, RemoteResult.RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED, RemoteResult.RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT, RemoteResult.RESULT_ERROR_SESSION_PARENTAL_CONTROL_RESTRICTED, RemoteResult.RESULT_ERROR_SESSION_NOT_AVAILABLE_IN_REGION, RemoteResult.RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED, RemoteResult.RESULT_ERROR_SESSION_SETUP_REQUIRED, but could be BaseResult.RESULT_SUCCESS"
         errorLine1="        return new SessionResult(result.getResultCode(), null, result.getMediaItem(),"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/SessionResult.java"
             line="134"
             column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.media2.session.MediaControllerImplLegacy is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mHandlerThread.quitSafely();"
-        errorLine2="                               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaControllerImplLegacy.java"
-            line="208"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media2.session.MediaNotificationHandler is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return PendingIntent.getForegroundService("
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="235"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media2.session.MediaNotificationHandler is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                || mNotificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) != null) {"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="245"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media2.session.MediaNotificationHandler is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="249"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media2.session.MediaNotificationHandler is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mNotificationManager.createNotificationChannel(channel);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="251"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.media2.session.MediaSessionImplBase is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mMediaButtonIntent = PendingIntent.getForegroundService(mContext, 0, intent, 0);"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
-            line="210"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media2.session.MediaSessionImplBase is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21 &amp;&amp; mAudioManager.isVolumeFixed()) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
-            line="262"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.media2.session.MediaSessionImplBase is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mHandlerThread.quitSafely();"
-        errorLine2="                               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
-            line="313"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.media2.session.SessionToken is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            thread.quitSafely();"
-        errorLine2="                   ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="349"
-            column="20"/>
     </issue>
 
     <issue
@@ -525,7 +426,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="209"
+            line="210"
             column="12"/>
     </issue>
 
@@ -536,7 +437,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="249"
+            line="250"
             column="12"/>
     </issue>
 
@@ -547,7 +448,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="408"
+            line="409"
             column="36"/>
     </issue>
 
@@ -558,7 +459,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="408"
+            line="409"
             column="74"/>
     </issue>
 
