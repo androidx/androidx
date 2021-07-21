@@ -48,6 +48,7 @@ import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.complications.SystemDataSources.DataSourceId
@@ -704,7 +705,8 @@ public abstract class WatchFaceService : WallpaperService() {
         /**
          * [deferredWatchFaceImpl] will complete after [deferredRendererAndComplicationManager].
          */
-        internal var deferredWatchFaceImpl = CompletableDeferred<WatchFaceImpl>()
+        @VisibleForTesting
+        public var deferredWatchFaceImpl = CompletableDeferred<WatchFaceImpl>()
 
         /**
          * [deferredSurfaceHolder] will complete after [onSurfaceChanged], before then it's not
