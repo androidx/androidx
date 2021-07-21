@@ -352,7 +352,7 @@ public sealed class Renderer @WorkerThread constructor(
                 }
                 ) ?: return
             try {
-                if (watchState.isVisible.value) {
+                if (Build.VERSION.SDK_INT >= 30 || watchState.isVisible.value) {
                     renderAndComposite(canvas, calendar)
                 } else {
                     canvas.drawColor(Color.BLACK)
