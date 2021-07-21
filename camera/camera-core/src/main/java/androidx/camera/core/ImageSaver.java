@@ -227,6 +227,7 @@ final class ImageSaver implements Runnable {
                     saveError = SaveError.FILE_IO_FAILED;
                     errorMessage = "Failed to rename file.";
                 }
+                outputUri = Uri.fromFile(targetFile);
             }
         } catch (IOException | IllegalArgumentException e) {
             saveError = SaveError.FILE_IO_FAILED;
