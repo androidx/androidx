@@ -17,9 +17,9 @@
 package androidx.slidingpanelayout.widget
 
 import android.app.Activity
-import androidx.window.FoldingFeature
-import androidx.window.WindowInfoRepo
-import androidx.window.WindowLayoutInfo
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoRepo
+import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher

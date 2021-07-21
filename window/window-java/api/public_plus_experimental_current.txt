@@ -1,12 +1,12 @@
 // Signature format: 4.0
-package androidx.window.java {
+package androidx.window.java.layout {
 
-  public final class WindowInfoRepoCallbackAdapter implements androidx.window.WindowInfoRepo {
-    ctor public WindowInfoRepoCallbackAdapter(androidx.window.WindowInfoRepo repo);
-    method public void addCurrentWindowMetricsListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.WindowMetrics> consumer);
-    method public void addWindowLayoutInfoListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> consumer);
-    method public void removeCurrentWindowMetricsListener(androidx.core.util.Consumer<androidx.window.WindowMetrics> consumer);
-    method public void removeWindowLayoutInfoListener(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> consumer);
+  public final class WindowInfoRepoCallbackAdapter implements androidx.window.layout.WindowInfoRepo {
+    ctor public WindowInfoRepoCallbackAdapter(androidx.window.layout.WindowInfoRepo repo);
+    method public void addCurrentWindowMetricsListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowMetrics> consumer);
+    method public void addWindowLayoutInfoListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
+    method public void removeCurrentWindowMetricsListener(androidx.core.util.Consumer<androidx.window.layout.WindowMetrics> consumer);
+    method public void removeWindowLayoutInfoListener(androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
   }
 
 }

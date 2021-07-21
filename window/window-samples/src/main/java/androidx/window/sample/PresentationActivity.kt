@@ -31,9 +31,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.window.FoldingFeature
-import androidx.window.WindowInfoRepo
-import androidx.window.WindowLayoutInfo
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoRepo
+import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
