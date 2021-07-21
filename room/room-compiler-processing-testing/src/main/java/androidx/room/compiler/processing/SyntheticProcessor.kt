@@ -63,6 +63,23 @@ internal class SyntheticProcessorImpl(
     private val nextRunHandlers = handlers.toMutableList()
     override val messageWatcher = RecordingXMessager()
 
+    internal fun processingSteps() = listOf<XProcessingStep>(
+        // A processing step that just ensures we're run every round.
+        object : XProcessingStep {
+            override fun annotations(): Set<String> = setOf("*")
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XTypeElement> = emptySet()
+        }
+    )
+
+    internal fun postRound(env: XProcessingEnv, round: XRoundEnv) {
+        if (canRunAnotherRound()) {
+            runNextRound(XTestInvocation(env, round))
+        }
+    }
+
     override fun expectsAnotherRound(): Boolean {
         return nextRunHandlers.isNotEmpty()
     }

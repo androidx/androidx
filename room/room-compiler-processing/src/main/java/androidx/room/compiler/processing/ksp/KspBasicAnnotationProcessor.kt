@@ -36,41 +36,45 @@ abstract class KspBasicAnnotationProcessor(
     val symbolProcessorEnvironment: SymbolProcessorEnvironment
 ) : SymbolProcessor, XBasicAnnotationProcessor {
 
-    // Cache and lazily get steps during the initial process() so steps initialization is done once.
-    private val steps by lazy { processingSteps() }
+  private val xEnv = KspProcessingEnv(
+    symbolProcessorEnvironment.options,
+    symbolProcessorEnvironment.codeGenerator,
+    symbolProcessorEnvironment.logger
+  )
 
-    final override fun process(resolver: Resolver): List<KSAnnotated> {
-        val processingEnv = XProcessingEnv.create(
-            symbolProcessorEnvironment.options,
-            resolver,
-            symbolProcessorEnvironment.codeGenerator,
-            symbolProcessorEnvironment.logger
-        )
-        val round = XRoundEnv.create(processingEnv)
-        val deferredElements = steps.flatMap { step ->
-            val invalidElements = mutableSetOf<XElement>()
-            val elementsByAnnotation = step.annotations().mapNotNull { annotation ->
-                val annotatedElements = round.getElementsAnnotatedWith(annotation)
-                val validElements = annotatedElements
-                    .filter { (it as KspElement).declaration.validateExceptLocals() }
-                    .toSet()
-                invalidElements.addAll(annotatedElements - validElements)
-                if (validElements.isNotEmpty()) {
-                    annotation to validElements
-                } else {
-                    null
-                }
-            }.toMap()
-            // Only process the step if there are annotated elements found for this step.
-            if (elementsByAnnotation.isNotEmpty()) {
-                invalidElements + step.process(processingEnv, elementsByAnnotation)
-            } else {
-                invalidElements
-            }
+  final override val xProcessingEnv: XProcessingEnv get() = xEnv
+
+  // Cache and lazily get steps during the initial process() so steps initialization is done once.
+  private val steps by lazy { processingSteps() }
+
+  final override fun process(resolver: Resolver): List<KSAnnotated> {
+    xEnv.resolver = resolver // Set the resolver at the beginning of each round
+    val xRoundEnv = KspRoundEnv(xEnv)
+    val deferredElements = steps.flatMap { step ->
+      val invalidElements = mutableSetOf<XElement>()
+      val elementsByAnnotation = step.annotations().mapNotNull { annotation ->
+        val annotatedElements = xRoundEnv.getElementsAnnotatedWith(annotation)
+        val validElements = annotatedElements
+          .filter { (it as KspElement).declaration.validateExceptLocals() }
+          .toSet()
+        invalidElements.addAll(annotatedElements - validElements)
+        if (validElements.isNotEmpty()) {
+          annotation to validElements
+        } else {
+          null
         }
-        postRound(processingEnv, round)
-        return deferredElements.map { (it as KspElement).declaration }
+      }.toMap()
+      // Only process the step if there are annotated elements found for this step.
+      if (elementsByAnnotation.isNotEmpty()) {
+        invalidElements + step.process(xEnv, elementsByAnnotation)
+      } else {
+        invalidElements
+      }
     }
+    postRound(xEnv, xRoundEnv)
+    xEnv.clearCache() // Reset cache after every round to avoid leaking elements across rounds
+    return deferredElements.map { (it as KspElement).declaration }
+  }
 }
 
 /**

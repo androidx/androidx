@@ -15,6 +15,7 @@
  */
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.XTestInvocation
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -26,59 +27,20 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 
 @ExperimentalProcessingApi
 class SyntheticKspProcessor private constructor(
+    symbolProcessorEnvironment: SymbolProcessorEnvironment,
     private val impl: SyntheticProcessorImpl
-) : SymbolProcessor, SyntheticProcessor by impl {
-    constructor(handlers: List<(XTestInvocation) -> Unit>) : this(
+) : KspBasicAnnotationProcessor(symbolProcessorEnvironment), SyntheticProcessor by impl {
+    constructor(
+        symbolProcessorEnvironment: SymbolProcessorEnvironment,
+        handlers: List<(XTestInvocation) -> Unit>
+    ) : this(
+        symbolProcessorEnvironment,
         SyntheticProcessorImpl(handlers)
     )
 
-    private lateinit var options: Map<String, String>
-    private lateinit var codeGenerator: CodeGenerator
-    private lateinit var logger: KSPLogger
+    override fun finish() {}
 
-    override fun finish() {
-    }
+    override fun processingSteps(): Iterable<XProcessingStep> = impl.processingSteps()
 
-    fun internalInit(
-        options: Map<String, String>,
-        codeGenerator: CodeGenerator,
-        logger: KSPLogger
-    ) {
-        this.options = options
-        this.codeGenerator = codeGenerator
-        this.logger = logger
-    }
-
-    override fun process(resolver: Resolver): List<KSAnnotated> {
-        if (!impl.canRunAnotherRound()) {
-            return emptyList()
-        }
-        val xEnv = XProcessingEnv.create(
-            options,
-            resolver,
-            codeGenerator,
-            logger
-        )
-        val testInvocation = XTestInvocation(
-            processingEnv = xEnv,
-            roundEnv = XRoundEnv.create(xEnv)
-        )
-        impl.runNextRound(testInvocation)
-        return emptyList()
-    }
-
-    internal fun asProvider(): SymbolProcessorProvider = Provider(this)
-
-    private class Provider(
-        private val delegate: SyntheticKspProcessor
-    ) : SymbolProcessorProvider {
-        override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-            delegate.internalInit(
-                options = environment.options,
-                codeGenerator = environment.codeGenerator,
-                logger = environment.logger
-            )
-            return delegate
-        }
-    }
+    override fun postRound(env: XProcessingEnv, round: XRoundEnv) = impl.postRound(env, round)
 }
