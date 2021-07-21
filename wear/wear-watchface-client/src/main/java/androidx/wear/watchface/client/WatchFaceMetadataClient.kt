@@ -23,6 +23,7 @@ import android.content.ServiceConnection
 import android.graphics.RectF
 import android.os.Bundle
 import android.os.IBinder
+import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.data.ComplicationType
@@ -70,7 +71,11 @@ public interface WatchFaceMetadataClient : AutoCloseable {
             watchFaceName
         )
 
-        internal suspend fun createWatchFaceMetadataClientImpl(
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Suppress("ShowingMemberInHiddenClass") // Spurious warning about exposing the
+        // 'hidden' companion object, which _isn't_ hidden.
+        public suspend fun createWatchFaceMetadataClientImpl(
             context: Context,
             intent: Intent,
             watchFaceName: ComponentName
