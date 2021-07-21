@@ -16,27 +16,51 @@
 
 package androidx.wear.phone.interactions.authentication
 
+import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
+import org.mockito.Mockito.mock
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 /** Unit tests for [OAuthRequest] and [OAuthResponse] */
 @RunWith(WearPhoneInteractionsTestRunner::class)
 @DoNotInstrument
+@Config(minSdk = 28)
+@RequiresApi(Build.VERSION_CODES.O)
 public class OAuthRequestResponseTest {
     internal companion object {
+        private val context: Context = mock(Context::class.java)
+        private val packageManager = mock(PackageManager::class.java)
         private const val authProviderUrl = "http://account.myapp.com/auth"
         private const val clientId = "iamtheclient"
-        private const val appPackageName = "com.friendlyapp"
+        private const val appPackageName = "test.app"
         private const val redirectUrl = OAuthRequest.WEAR_REDIRECT_URL_PREFIX
         private const val redirectUrlWithPackageName = "$redirectUrl$appPackageName"
+        private const val redirectUrlWithPackageName_cn =
+            "${OAuthRequest.WEAR_REDIRECT_URL_PREFIX_CN}$appPackageName"
         private const val customRedirectUrl = "https://app.example.com/oauth2redirect"
         private const val customRedirectUrlWithPackageName = "$customRedirectUrl/$appPackageName"
         private val responseUrl = Uri.parse("http://myresponseurl")
+    }
+
+    @Before
+    fun setUp() {
+        Mockito.`when`(context.packageName).thenReturn(appPackageName)
+        Mockito.`when`(context.packageManager).thenReturn(packageManager)
+    }
+
+    private fun setSystemFeatureChina(value: Boolean) {
+        Mockito.`when`(packageManager.hasSystemFeature("cn.google")).thenReturn(value)
     }
 
     private fun checkBuildSuccess(
@@ -72,9 +96,10 @@ public class OAuthRequestResponseTest {
     }
 
     @Test
-    public fun testRequestBuildScuccessWithSetters() {
+    public fun testRequestBuildSuccessWithSetters() {
+        setSystemFeatureChina(false)
         val codeChallenge = CodeChallenge(CodeVerifier())
-        val requestBuilder = OAuthRequest.Builder(appPackageName)
+        val requestBuilder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
             .setClientId(clientId)
             .setCodeChallenge(codeChallenge)
@@ -89,9 +114,47 @@ public class OAuthRequestResponseTest {
     }
 
     @Test
-    public fun testRequestBuildScuccessWithCustomRedirectUti() {
+    public fun testRequestBuildSuccessWithSetters_cn() {
+        setSystemFeatureChina(true)
         val codeChallenge = CodeChallenge(CodeVerifier())
-        val requestBuilder = OAuthRequest.Builder(appPackageName)
+        val requestBuilder = OAuthRequest.Builder(context)
+            .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
+            .setClientId(clientId)
+            .setCodeChallenge(codeChallenge)
+
+        checkBuildSuccess(
+            requestBuilder,
+            authProviderUrl,
+            clientId,
+            redirectUrlWithPackageName_cn,
+            codeChallenge.value
+        )
+    }
+
+    @Test
+    public fun testRequestBuildSuccessWithCustomRedirectUri() {
+        setSystemFeatureChina(false)
+        val codeChallenge = CodeChallenge(CodeVerifier())
+        val requestBuilder = OAuthRequest.Builder(context)
+            .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
+            .setClientId(clientId)
+            .setRedirectUrl(Uri.parse(customRedirectUrl))
+            .setCodeChallenge(codeChallenge)
+
+        checkBuildSuccess(
+            requestBuilder,
+            authProviderUrl,
+            clientId,
+            customRedirectUrlWithPackageName,
+            codeChallenge.value
+        )
+    }
+
+    @Test
+    public fun testRequestBuildSuccessWithCustomRedirectUri_cn() {
+        setSystemFeatureChina(true)
+        val codeChallenge = CodeChallenge(CodeVerifier())
+        val requestBuilder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
             .setClientId(clientId)
             .setRedirectUrl(Uri.parse(customRedirectUrl))
@@ -108,8 +171,9 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildSuccessWithCompleteUrl() {
+        setSystemFeatureChina(false)
         val codeChallenge = CodeChallenge(CodeVerifier())
-        val requestBuilder = OAuthRequest.Builder(appPackageName)
+        val requestBuilder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
                 authProviderUrl = Uri.parse(
                     "$authProviderUrl?client_id=$clientId" +
@@ -131,7 +195,8 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildFailureWithoutAuthProviderUrl() {
-        val builder = OAuthRequest.Builder(appPackageName)
+        setSystemFeatureChina(false)
+        val builder = OAuthRequest.Builder(context)
             .setClientId(clientId)
             .setCodeChallenge(CodeChallenge(CodeVerifier()))
 
@@ -143,7 +208,8 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildFailureWithoutClientId() {
-        val builder = OAuthRequest.Builder(appPackageName)
+        setSystemFeatureChina(false)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
             .setCodeChallenge(CodeChallenge(CodeVerifier()))
 
@@ -156,7 +222,8 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildFailureWithConflictedClientId() {
-        val builder = OAuthRequest.Builder(appPackageName)
+        setSystemFeatureChina(false)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
                 Uri.parse("$authProviderUrl?client_id=XXX")
             )
@@ -174,8 +241,9 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildSuccessWithDuplicatedClientId() {
+        setSystemFeatureChina(false)
         val codeChallenge = CodeChallenge(CodeVerifier())
-        val builder = OAuthRequest.Builder(appPackageName)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
                 Uri.parse("$authProviderUrl?client_id=$clientId")
             )
@@ -193,7 +261,8 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildFailureWithoutCodeChallenge() {
-        val builder = OAuthRequest.Builder(appPackageName)
+        setSystemFeatureChina(false)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
             .setClientId(clientId)
 
@@ -206,8 +275,9 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildFailureWithConflictedCodeChallenge() {
+        setSystemFeatureChina(false)
         val codeChallenge = CodeChallenge(CodeVerifier())
-        val builder = OAuthRequest.Builder(appPackageName)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
                 Uri.parse("$authProviderUrl?code_challenge=XXX")
             )
@@ -225,8 +295,9 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildSuccessWithDuplicatedCodeChallenge() {
+        setSystemFeatureChina(false)
         val codeChallenge = CodeChallenge(CodeVerifier())
-        val builder = OAuthRequest.Builder(appPackageName)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
                 Uri.parse("$authProviderUrl?code_challenge=${codeChallenge.value}")
             )
@@ -244,7 +315,8 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildFailureWithWrongResponseType() {
-        val builder = OAuthRequest.Builder(appPackageName)
+        setSystemFeatureChina(false)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
                 Uri.parse("$authProviderUrl?response_type=XXX")
             )
@@ -262,8 +334,9 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildFailureWithDuplicatedResponseType() {
+        setSystemFeatureChina(false)
         val codeChallenge = CodeChallenge(CodeVerifier())
-        val builder = OAuthRequest.Builder(appPackageName)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
                 Uri.parse("$authProviderUrl?response_type=code")
             )
@@ -281,7 +354,8 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildFailureWithWrongCodeChallengeMethod() {
-        val builder = OAuthRequest.Builder(appPackageName)
+        setSystemFeatureChina(false)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
                 Uri.parse("$authProviderUrl?code_challenge_method=PLAIN")
             )
@@ -299,8 +373,9 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildFailureWithDuplicatedCodeChallengeMethod() {
+        setSystemFeatureChina(false)
         val codeChallenge = CodeChallenge(CodeVerifier())
-        val builder = OAuthRequest.Builder(appPackageName)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
                 Uri.parse("$authProviderUrl?code_challenge_method=S256")
             )
@@ -318,8 +393,9 @@ public class OAuthRequestResponseTest {
 
     @Test
     public fun testRequestBuildFailureWithConflictedRedirectUri() {
+        setSystemFeatureChina(false)
         val codeChallenge = CodeChallenge(CodeVerifier())
-        val builder = OAuthRequest.Builder(appPackageName)
+        val builder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
                 Uri.parse("$authProviderUrl?redirect_uri=$redirectUrlWithPackageName")
             )

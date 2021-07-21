@@ -17,10 +17,12 @@
 package androidx.wear.phone.interactions.authentication
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.wear.utils.WearTypeHelper
 
 /**
  * The OAuth request to be sent to the server to start the OAuth 2 authentication flow.
@@ -49,30 +51,35 @@ public class OAuthRequest internal constructor(
          * The default google-specific custom URL to route the response from the auth
          * server back to the 1P companion app, which then forwards it to the 3P app that made
          * the request on the wear device.
-         *
-         * To deliver an Auth response to your Wear app, set the redirect_uri
-         * parameter on the Auth request, with your app's package name appended.
-         *
-         * For example, if your app's package name is com.package.name, with 1P companion app
-         * paired,  the redirect_uri query will be WEAR_REDIRECT_URL_PREFIX + "com.package.name".
          */
         public const val WEAR_REDIRECT_URL_PREFIX: String = "https://wear.googleapis.com/3p_auth/"
+
+        /**
+         * The default google-specific custom URL in China to route the response from the auth
+         * server back to the 1P companion app, which then forwards it to the 3P app that made
+         * the request on the wear device.
+         */
+        public const val WEAR_REDIRECT_URL_PREFIX_CN: String =
+            "https://wear.googleapis-cn.com/3p_auth/"
     }
 
     /**
      * Builder for constructing new instance of OAuth request.
+     *
+     * @param context The Context of the app sending the auth request.
      */
-    public class Builder(private val packageName: String) {
+    public class Builder(private val context: Context) {
         private var authProviderUrl: Uri? = null
         private var codeChallenge: CodeChallenge? = null
         private var clientId: String? = null
         private var redirectUrl: Uri? = null
+        private val packageName: String = context.packageName
+
         /**
          * Set the url of the auth provider site.
-         * It provides the address pointing to the 3p/4p auth site. Appending query parameters in
-         * this uri is optional, it is recommended to let the builder append query parameters
-         * automatically through the use of setters (no setter is required for the builder to
-         * append the redirect_uri).
+         * Appending query parameters in this uri is optional, it is recommended to let the
+         * builder append query parameters automatically through the use of setters (no setter is
+         * required for the builder to append the redirect_uri).
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public fun setAuthProviderUrl(authProviderUrl: Uri): Builder =
@@ -106,7 +113,8 @@ public class OAuthRequest internal constructor(
          * routed from the auth server back to the companion.
          *
          * Calling this method is optional. If the redirect URL is not specified, it will be
-         * automatically set to [WEAR_REDIRECT_URL_PREFIX]
+         * automatically set to [WEAR_REDIRECT_URL_PREFIX] or [WEAR_REDIRECT_URL_PREFIX_CN] for
+         * rest of the world or China, respectively.
          *
          * Note, the app package name should NOT be included here, it will be appended to the end
          * of redirect_uri automatically in [Builder.build].
@@ -139,7 +147,14 @@ public class OAuthRequest internal constructor(
                 requestUriBuilder,
                 "redirect_uri",
                 Uri.withAppendedPath(
-                    if (redirectUrl == null) Uri.parse(WEAR_REDIRECT_URL_PREFIX) else redirectUrl,
+                    if (redirectUrl == null) {
+                        if (WearTypeHelper.isChinaDevice(context))
+                            Uri.parse(WEAR_REDIRECT_URL_PREFIX_CN)
+                        else
+                            Uri.parse(WEAR_REDIRECT_URL_PREFIX)
+                    } else {
+                        redirectUrl
+                    },
                     packageName
                 ).toString()
             )
