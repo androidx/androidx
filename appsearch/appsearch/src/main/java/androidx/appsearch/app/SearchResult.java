@@ -106,18 +106,6 @@ public final class SearchResult {
     }
 
     /**
-     * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Deprecated
-    /*@exportToFramework:UnsupportedAppUsage*/
-    @NonNull
-    public List<MatchInfo> getMatches() {
-        return getMatchInfos();
-    }
-
-    /**
      * Returns a list of {@link MatchInfo}s providing information about how the document in
      * {@link #getGenericDocument} matched the query.
      *
@@ -234,18 +222,6 @@ public final class SearchResult {
             resetIfBuilt();
             mGenericDocument = document;
             return this;
-        }
-
-        /**
-         * @deprecated TODO(b/181887768): Exists for dogfood transition; must be removed.
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @Deprecated
-        /*@exportToFramework:UnsupportedAppUsage*/
-        @NonNull
-        public Builder addMatch(@NonNull MatchInfo matchInfo) {
-            return addMatchInfo(matchInfo);
         }
 
         /** Adds another match to this SearchResult. */
