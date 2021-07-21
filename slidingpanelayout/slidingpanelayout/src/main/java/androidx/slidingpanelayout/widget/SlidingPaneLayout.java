@@ -586,20 +586,16 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        if (widthMode != MeasureSpec.EXACTLY) {
+        if (widthMode == MeasureSpec.UNSPECIFIED) {
             if (isInEditMode()) {
                 // Don't crash the layout editor. Consume all of the space if specified
                 // or pick a magic number from thin air otherwise.
                 // TODO Better communication with tools of this bogus state.
                 // It will crash on a real device.
-                if (widthMode == MeasureSpec.AT_MOST) {
-                    widthMode = MeasureSpec.EXACTLY;
-                } else if (widthMode == MeasureSpec.UNSPECIFIED) {
-                    widthMode = MeasureSpec.EXACTLY;
-                    widthSize = 300;
-                }
+                widthMode = MeasureSpec.EXACTLY;
+                widthSize = 300;
             } else {
-                throw new IllegalStateException("Width must have an exact value or MATCH_PARENT");
+                throw new IllegalStateException("Width must not be UNSPECIFIED");
             }
         } else if (heightMode == MeasureSpec.UNSPECIFIED) {
             if (isInEditMode()) {
@@ -666,7 +662,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
                         MeasureSpec.AT_MOST);
             } else if (lp.width == LayoutParams.MATCH_PARENT) {
                 childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
-                        MeasureSpec.EXACTLY);
+                        widthMode);
             } else {
                 childWidthSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
             }
