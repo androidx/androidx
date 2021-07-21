@@ -120,6 +120,7 @@ public open class NavDestination(
     private val actions: SparseArrayCompat<NavAction> = SparseArrayCompat()
 
     private var _arguments: MutableMap<String, NavArgument> = mutableMapOf()
+
     /**
      * The arguments supported by this destination. Returns a read-only map of argument names
      * to [NavArgument] objects that can be used to check the type, default value
@@ -353,6 +354,7 @@ public open class NavDestination(
         }
         return bestMatch
     }
+
     /**
      * Build an array containing the hierarchy from the root down to this destination.
      *
@@ -369,15 +371,18 @@ public open class NavDestination(
         do {
             val parent = current!!.parent
             if (
-                previousDestination?.parent != null && previousDestination.parent!!.findNode(
-                        current.id
-                    ) === current
+                // If the current destination is a sibling of the previous, just add it straightaway
+                previousDestination?.parent != null &&
+                previousDestination.parent!!.findNode(current.id) === current
             ) {
                 hierarchy.addFirst(current)
                 break
             }
             if (parent == null || parent.startDestinationId != current.id) {
                 hierarchy.addFirst(current)
+            }
+            if (parent == previousDestination) {
+                break
             }
             current = parent
         } while (current != null)
