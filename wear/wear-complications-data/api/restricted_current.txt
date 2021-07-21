@@ -595,7 +595,7 @@ package androidx.wear.utility {
   }
 
   public final class TraceEventKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void launchWithTracing(kotlinx.coroutines.CoroutineScope, String traceEventName, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static kotlinx.coroutines.Job launchWithTracing(kotlinx.coroutines.CoroutineScope, String traceEventName, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
   }
 
 }

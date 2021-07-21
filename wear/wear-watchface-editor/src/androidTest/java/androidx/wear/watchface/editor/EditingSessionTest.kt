@@ -301,8 +301,9 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
     }
 }
 
-public open class TestComplicationDataSourceInfoRetrieverProvider :
-    ComplicationDataSourceInfoRetrieverProvider, IProviderInfoService.Stub() {
+public open class TestComplicationDataSourceInfoRetrieverProvider(
+    val getProviderInfosLatch: CountDownLatch? = null
+) : ComplicationDataSourceInfoRetrieverProvider, IProviderInfoService.Stub() {
 
     private val dataSourceIcon1: Icon =
         Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
@@ -344,13 +345,18 @@ public open class TestComplicationDataSourceInfoRetrieverProvider :
             ).build().asWireComplicationData(),
     )
 
-    override fun getComplicationDataSourceInfoRetriever(): ComplicationDataSourceInfoRetriever =
-        ComplicationDataSourceInfoRetriever(this)
+    public lateinit var lastComplicationDataSourceInfoRetriever: ComplicationDataSourceInfoRetriever
+
+    override fun getComplicationDataSourceInfoRetriever(): ComplicationDataSourceInfoRetriever {
+        lastComplicationDataSourceInfoRetriever = ComplicationDataSourceInfoRetriever(this)
+        return lastComplicationDataSourceInfoRetriever
+    }
 
     override fun getProviderInfos(
         watchFaceComponent: ComponentName,
         ids: IntArray
     ): Array<WireComplicationProviderInfo?>? {
+        getProviderInfosLatch?.await()
         if (watchFaceComponent != this.watchFaceComponent) {
             return null
         }
@@ -1329,16 +1335,14 @@ public class EditorSessionTest {
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
 
         scenario.onActivity { activity ->
-            runBlocking {
-                // Select [blueStyleOption] and [gothicStyleOption].
-                val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
-                for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                    styleMap[userStyleSetting] = userStyleSetting.options.last()
-                }
-                activity.editorSession.userStyle = UserStyle(styleMap)
-                activity.editorSession.close()
-                activity.finish()
+            // Select [blueStyleOption] and [gothicStyleOption].
+            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+                styleMap[userStyleSetting] = userStyleSetting.options.last()
             }
+            activity.editorSession.userStyle = UserStyle(styleMap)
+            activity.editorSession.close()
+            activity.finish()
         }
 
         val result = editorObserver.awaitEditorStateChange(
@@ -1535,24 +1539,22 @@ public class EditorSessionTest {
         val editorObserver = TestEditorObserver()
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
         scenario.onActivity { activity ->
-            runBlocking {
-                assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
-                    .isEqualTo(redStyleOption.id.value)
-                assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
-                    .isEqualTo(classicStyleOption.id.value)
+            assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+                .isEqualTo(redStyleOption.id.value)
+            assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+                .isEqualTo(classicStyleOption.id.value)
 
-                // Select [blueStyleOption] and [gothicStyleOption].
-                val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
-                for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                    styleMap[userStyleSetting] = userStyleSetting.options.last()
-                }
-                activity.editorSession.userStyle = UserStyle(styleMap)
-
-                // This should cause the style on the to be reverted back to the initial style.
-                activity.editorSession.commitChangesOnClose = false
-                activity.editorSession.close()
-                activity.finish()
+            // Select [blueStyleOption] and [gothicStyleOption].
+            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+                styleMap[userStyleSetting] = userStyleSetting.options.last()
             }
+            activity.editorSession.userStyle = UserStyle(styleMap)
+
+            // This should cause the style on the to be reverted back to the initial style.
+            activity.editorSession.commitChangesOnClose = false
+            activity.editorSession.close()
+            activity.finish()
         }
 
         val result = editorObserver.awaitEditorStateChange(
@@ -1586,22 +1588,20 @@ public class EditorSessionTest {
         val editorObserver = TestEditorObserver()
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
         scenario.onActivity { activity ->
-            runBlocking {
-                assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
-                    .isEqualTo(redStyleOption.id.value)
-                assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
-                    .isEqualTo(classicStyleOption.id.value)
+            assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+                .isEqualTo(redStyleOption.id.value)
+            assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+                .isEqualTo(classicStyleOption.id.value)
 
-                // Select [blueStyleOption] and [gothicStyleOption].
-                val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
-                for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                    styleMap[userStyleSetting] = userStyleSetting.options.last()
-                }
-                activity.editorSession.userStyle = UserStyle(styleMap)
-
-                activity.editorSession.close()
-                activity.finish()
+            // Select [blueStyleOption] and [gothicStyleOption].
+            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+                styleMap[userStyleSetting] = userStyleSetting.options.last()
             }
+            activity.editorSession.userStyle = UserStyle(styleMap)
+
+            activity.editorSession.close()
+            activity.finish()
         }
 
         val result = editorObserver.awaitEditorStateChange(
@@ -1626,26 +1626,54 @@ public class EditorSessionTest {
     @Test
     public fun watchFaceEditorContract_createIntent() {
         val testComponentName = ComponentName("test.package", "test.class")
-        runBlocking {
-            val intent = WatchFaceEditorContract().createIntent(
-                ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(
-                    testComponentName,
-                    testEditorPackageName,
-                    null,
-                    testInstanceId,
-                    null,
-                    null
-                )
+        val intent = WatchFaceEditorContract().createIntent(
+            ApplicationProvider.getApplicationContext<Context>(),
+            EditorRequest(
+                testComponentName,
+                testEditorPackageName,
+                null,
+                testInstanceId,
+                null,
+                null
             )
-            assertThat(intent.getPackage()).isEqualTo(testEditorPackageName)
+        )
+        assertThat(intent.getPackage()).isEqualTo(testEditorPackageName)
 
-            val editorRequest = EditorRequest.createFromIntent(intent)
-            assertThat(editorRequest.editorPackageName).isEqualTo(testEditorPackageName)
-            assertThat(editorRequest.initialUserStyle).isNull()
-            assertThat(editorRequest.watchFaceComponentName).isEqualTo(testComponentName)
-            assertThat(editorRequest.watchFaceId.id).isEqualTo(testInstanceId.id)
+        val editorRequest = EditorRequest.createFromIntent(intent)
+        assertThat(editorRequest.editorPackageName).isEqualTo(testEditorPackageName)
+        assertThat(editorRequest.initialUserStyle).isNull()
+        assertThat(editorRequest.watchFaceComponentName).isEqualTo(testComponentName)
+        assertThat(editorRequest.watchFaceId.id).isEqualTo(testInstanceId.id)
+    }
+
+    @Test
+    public fun forceCloseEditorSessionDuring_fetchComplicationsData() {
+        val getProviderInfosLatch = CountDownLatch(1)
+        val complicationDataSourceInfoRetrieverProvider =
+            TestComplicationDataSourceInfoRetrieverProvider(getProviderInfosLatch)
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            listOf(leftComplication, rightComplication),
+            complicationDataSourceInfoRetrieverProvider =
+                complicationDataSourceInfoRetrieverProvider
+        )
+
+        scenario.onActivity { activity ->
+            activity.immediateCoroutineScope.launch {
+                activity.editorSession.getComplicationsPreviewData()
+                fail("We shouldn't get here due to the editor closing")
+            }
         }
+
+        EditorService.globalEditorService.closeEditor()
+        getProviderInfosLatch.countDown()
+        assertTrue(onDestroyLatch.await(5L, TimeUnit.SECONDS))
+
+        assertTrue(
+            complicationDataSourceInfoRetrieverProvider.lastComplicationDataSourceInfoRetriever
+                .closed
+        )
     }
 
     @Test
@@ -1659,14 +1687,12 @@ public class EditorSessionTest {
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
 
         scenario.onActivity { activity ->
-            runBlocking {
-                // Select [blueStyleOption] and [gothicStyleOption].
-                val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
-                for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                    styleMap[userStyleSetting] = userStyleSetting.options.last()
-                }
-                activity.editorSession.userStyle = UserStyle(styleMap)
+            // Select [blueStyleOption] and [gothicStyleOption].
+            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+                styleMap[userStyleSetting] = userStyleSetting.options.last()
             }
+            activity.editorSession.userStyle = UserStyle(styleMap)
         }
 
         EditorService.globalEditorService.closeEditor()

@@ -65,11 +65,13 @@ import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
@@ -565,10 +567,10 @@ public abstract class BaseEditorSession internal constructor(
         MonochromaticImage.Builder(dataSourceInfo.icon).build()
     ).build()
 
-    protected fun fetchComplicationsData(fetchCoroutineScope: CoroutineScope) {
+    protected fun fetchComplicationsData(fetchCoroutineScope: CoroutineScope): Job {
         val complicationDataSourceInfoRetriever =
             complicationDataSourceInfoRetrieverProvider.getComplicationDataSourceInfoRetriever()
-        fetchCoroutineScope.launchWithTracing("BaseEditorSession.fetchComplicationsData") {
+        return fetchCoroutineScope.launchWithTracing("BaseEditorSession.fetchComplicationsData") {
             try {
                 // Unlikely but WCS could conceivably crash during this call. We could retry but
                 // it's not obvious if that'd succeed or if WCS session state is recoverable,
@@ -737,6 +739,7 @@ internal class OnWatchFaceEditorSessionImpl(
 
     private lateinit var previousWatchFaceUserStyle: UserStyle
     private lateinit var backgroundCoroutineScope: CoroutineScope
+    private lateinit var fetchComplicationsDataJob: Job
 
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
@@ -763,13 +766,24 @@ internal class OnWatchFaceEditorSessionImpl(
             userStyle = previousWatchFaceUserStyle
         }
 
-        // Note this has to be done after resetting userStyle to ensure tests are not racy.
-        if (this::editorDelegate.isInitialized) {
-            editorDelegate.onDestroy()
+        if (this::fetchComplicationsDataJob.isInitialized) {
+            // Wait until the fetchComplicationsDataJob has finished and released the
+            // complicationDataSourceInfoRetriever. This is important because if the service
+            // finishes before this is finished we'll get errors complaining that the service
+            // wasn't unbound.
+            runBlocking {
+                // Canceling the scope & the job means the join will be fast and we won't block for
+                // long. In practice we often won't block at all because fetchComplicationsDataJob
+                // is run only once during editor initialization and it will usually be finished
+                // by the time the user closes the editor.
+                backgroundCoroutineScope.cancel()
+                fetchComplicationsDataJob.join()
+            }
         }
 
-        if (this::backgroundCoroutineScope.isInitialized) {
-            backgroundCoroutineScope.cancel()
+        // Note this has to be done last to ensure tests are not racy.
+        if (this::editorDelegate.isInitialized) {
+            editorDelegate.onDestroy()
         }
     }
 
@@ -789,7 +803,7 @@ internal class OnWatchFaceEditorSessionImpl(
             editorDelegate.backgroundThreadHandler.asCoroutineDispatcher().immediate
         )
 
-        fetchComplicationsData(backgroundCoroutineScope)
+        fetchComplicationsDataJob = fetchComplicationsData(backgroundCoroutineScope)
     }
 }
 

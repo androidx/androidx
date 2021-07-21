@@ -22,6 +22,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.Closeable
 
@@ -95,10 +96,8 @@ public class AsyncTraceEvent(private val traceName: String) : Closeable {
 public fun CoroutineScope.launchWithTracing(
     traceEventName: String,
     block: suspend CoroutineScope.() -> Unit
-) {
-    launch {
-        TraceEvent(traceEventName).use {
-            block.invoke(this)
-        }
+): Job = launch {
+    TraceEvent(traceEventName).use {
+        block.invoke(this)
     }
 }
