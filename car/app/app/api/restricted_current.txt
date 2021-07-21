@@ -132,6 +132,7 @@ package androidx.car.app {
   }
 
   @MainThread public class ScreenManager implements androidx.car.app.managers.Manager {
+    method public int getStackSize();
     method public androidx.car.app.Screen getTop();
     method public void pop();
     method public void popTo(String);
