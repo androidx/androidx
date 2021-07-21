@@ -75,10 +75,8 @@ package androidx.window {
   public interface WindowInfoRepo {
     method public default static androidx.window.WindowInfoRepo create(android.app.Activity activity);
     method public kotlinx.coroutines.flow.Flow<androidx.window.WindowMetrics> getCurrentWindowMetrics();
-    method public androidx.window.WindowMetrics getMaximumWindowMetrics();
     method public kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> getWindowLayoutInfo();
     property public abstract kotlinx.coroutines.flow.Flow<androidx.window.WindowMetrics> currentWindowMetrics;
-    property public abstract androidx.window.WindowMetrics maximumWindowMetrics;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.window.WindowLayoutInfo> windowLayoutInfo;
     field public static final androidx.window.WindowInfoRepo.Companion Companion;
   }
