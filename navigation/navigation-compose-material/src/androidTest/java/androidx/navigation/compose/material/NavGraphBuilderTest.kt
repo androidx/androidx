@@ -163,10 +163,7 @@ internal class NavGraphBuilderTest {
     }
 
     private fun createBottomSheetNavigator() =
-        BottomSheetNavigator(
-            sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            onSheetDismissed = { }
-        )
+        BottomSheetNavigator(sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden))
 }
 
 private const val firstRoute = "first"

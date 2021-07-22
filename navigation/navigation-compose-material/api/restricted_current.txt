@@ -5,7 +5,7 @@ package androidx.navigation.compose.material {
   }
 
   @androidx.navigation.Navigator.Name("BottomSheetNavigator") public final class BottomSheetNavigator extends androidx.navigation.Navigator<androidx.navigation.compose.material.BottomSheetNavigator.Destination> {
-    ctor public BottomSheetNavigator(androidx.compose.material.ModalBottomSheetState sheetState, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> onSheetDismissed);
+    ctor public BottomSheetNavigator(androidx.compose.material.ModalBottomSheetState sheetState);
     method public androidx.navigation.compose.material.BottomSheetNavigator.Destination createDestination();
     method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> getSheetContent();
     method public androidx.compose.material.ModalBottomSheetState getSheetState();
@@ -13,12 +13,12 @@ package androidx.navigation.compose.material {
     property public final androidx.compose.material.ModalBottomSheetState sheetState;
   }
 
-  public static final class BottomSheetNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
+  @androidx.navigation.NavDestination.ClassType(Composable::class) public static final class BottomSheetNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
     ctor public BottomSheetNavigator.Destination(androidx.navigation.compose.material.BottomSheetNavigator navigator, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.ColumnScope,? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
   }
 
   public final class BottomSheetNavigatorKt {
-    method @androidx.compose.runtime.Composable public static androidx.navigation.compose.material.BottomSheetNavigator rememberBottomSheetNavigator(optional androidx.compose.material.ModalBottomSheetState sheetState, androidx.navigation.NavController navController);
+    method @androidx.compose.runtime.Composable public static androidx.navigation.compose.material.BottomSheetNavigator rememberBottomSheetNavigator(optional androidx.compose.material.ModalBottomSheetState sheetState);
   }
 
   public final class NavGraphBuilderKt {
