@@ -187,37 +187,16 @@ internal sealed class PageEvent<T : Any> {
         val pageCount get() = maxPageOffset - minPageOffset + 1
     }
 
+    /**
+     * A [PageEvent] to notify presenter layer of changes in local and remote LoadState.
+     *
+     * Uses two LoadStates objects instead of CombinedLoadStates so that consumers like
+     * PagingDataDiffer can define behavior of convenience properties
+     */
     data class LoadStateUpdate<T : Any>(
-        val loadType: LoadType,
-        val fromMediator: Boolean,
-        val loadState: LoadState // TODO: consider using full state object here
-    ) : PageEvent<T>() {
-        init {
-            // endOfPaginationReached for local refresh is driven by null values in next/prev keys.
-            require(
-                loadType != REFRESH || fromMediator || loadState !is LoadState.NotLoading ||
-                    !loadState.endOfPaginationReached
-            ) {
-                "LoadStateUpdate for local REFRESH may not set endOfPaginationReached = true"
-            }
-
-            require(canDispatchWithoutInsert(loadState, fromMediator)) {
-                "LoadStateUpdates cannot be used to dispatch NotLoading unless it is from remote" +
-                    " mediator and remote mediator reached end of pagination."
-            }
-        }
-
-        companion object {
-            /**
-             * DataSource loads with no more to load must carry LoadState.NotLoading with them,
-             * to ensure content appears in the same frame as e.g. a load state spinner is removed.
-             *
-             * This prevents multiple related RV animations from happening simultaneously
-             */
-            internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
-                loadState is LoadState.Loading || loadState is LoadState.Error || fromMediator
-        }
-    }
+        val source: LoadStates,
+        val mediator: LoadStates? = null,
+    ) : PageEvent<T>()
 
     @Suppress("UNCHECKED_CAST")
     open suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> = this as PageEvent<R>

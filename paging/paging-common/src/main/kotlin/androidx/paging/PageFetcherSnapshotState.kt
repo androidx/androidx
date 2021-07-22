@@ -105,7 +105,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
     internal val failedHintsByLoadType = mutableMapOf<LoadType, ViewportHint>()
 
     // only the local load states
-    internal var sourceLoadStates = LoadStates.IDLE
+    internal var sourceLoadStates = MutableLoadStateCollection()
         private set
 
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {
@@ -122,7 +122,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
         if (sourceLoadStates.get(type) == newState) {
             return false
         }
-        sourceLoadStates = sourceLoadStates.modifyState(type, newState)
+        sourceLoadStates.set(type, newState)
         return true
     }
 
@@ -152,7 +152,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
                     refresh = sourceLoadStates.refresh,
                     prepend = sourceLoadStates.prepend,
                     append = sourceLoadStates.append,
-                    source = sourceLoadStates,
+                    source = sourceLoadStates.snapshot(),
                     mediator = null,
                 )
             )
@@ -163,7 +163,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
                     refresh = sourceLoadStates.refresh,
                     prepend = sourceLoadStates.prepend,
                     append = sourceLoadStates.append,
-                    source = sourceLoadStates,
+                    source = sourceLoadStates.snapshot(),
                     mediator = null,
                 )
             )
@@ -174,7 +174,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
                     refresh = sourceLoadStates.refresh,
                     prepend = sourceLoadStates.prepend,
                     append = sourceLoadStates.append,
-                    source = sourceLoadStates,
+                    source = sourceLoadStates.snapshot(),
                     mediator = null,
                 )
             )
@@ -241,7 +241,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
 
         // Reset load state to NotLoading(endOfPaginationReached = false).
         failedHintsByLoadType.remove(event.loadType)
-        sourceLoadStates = sourceLoadStates.modifyState(event.loadType, NotLoading.Incomplete)
+        sourceLoadStates.set(event.loadType, NotLoading.Incomplete)
 
         when (event.loadType) {
             PREPEND -> {

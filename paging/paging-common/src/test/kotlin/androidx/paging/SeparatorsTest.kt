@@ -17,14 +17,13 @@
 package androidx.paging
 
 import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
 import androidx.paging.TerminalSeparatorType.SOURCE_COMPLETE
 import com.google.common.truth.Truth.assertThat
@@ -1062,15 +1061,12 @@ class SeparatorsTest {
     fun remoteRefreshEndOfPaginationReached_fullyComplete() = runBlockingTest {
         assertThat(
             flowOf(
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = LoadState.Loading
+                loadStateUpdate(
+                    refreshRemote = Loading
                 ),
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = false,
-                    loadState = LoadState.Loading
+                loadStateUpdate(
+                    refreshLocal = Loading,
+                    refreshRemote = Loading
                 ),
                 Refresh(
                     pages = listOf(listOf("a1")).toTransformablePages(),
@@ -1081,20 +1077,23 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    refreshRemote = NotLoading.Complete,
                 ),
-                LoadStateUpdate(
-                    loadType = PREPEND,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    refreshRemote = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
                 ),
-                LoadStateUpdate(
-                    loadType = APPEND,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    refreshRemote = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
                 ),
             ).insertEventSeparators(
                 terminalSeparatorType = FULLY_COMPLETE,
@@ -1102,15 +1101,12 @@ class SeparatorsTest {
             ).toList()
         ).isEqualTo(
             listOf(
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = LoadState.Loading
+                loadStateUpdate(
+                    refreshRemote = Loading
                 ),
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = false,
-                    loadState = LoadState.Loading
+                loadStateUpdate(
+                    refreshLocal = Loading,
+                    refreshRemote = Loading
                 ),
                 Refresh(
                     pages = listOf(listOf("a1")).toTransformablePages(),
@@ -1121,10 +1117,10 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    refreshRemote = NotLoading.Complete
                 ),
                 Prepend(
                     pages = listOf(
@@ -1174,15 +1170,12 @@ class SeparatorsTest {
     fun remoteRefreshEndOfPaginationReached_sourceComplete() = runBlockingTest {
         assertThat(
             flowOf(
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = LoadState.Loading
+                loadStateUpdate(
+                    refreshRemote = Loading
                 ),
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = false,
-                    loadState = LoadState.Loading
+                loadStateUpdate(
+                    refreshLocal = Loading,
+                    refreshRemote = Loading
                 ),
                 Refresh(
                     pages = listOf(listOf("a1")).toTransformablePages(),
@@ -1193,20 +1186,23 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    refreshRemote = NotLoading.Complete
                 ),
-                LoadStateUpdate(
-                    loadType = PREPEND,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    refreshRemote = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
                 ),
-                LoadStateUpdate(
-                    loadType = APPEND,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    refreshRemote = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
                 ),
             ).insertEventSeparators(
                 terminalSeparatorType = SOURCE_COMPLETE,
@@ -1214,15 +1210,12 @@ class SeparatorsTest {
             ).toList()
         ).isEqualTo(
             listOf(
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = LoadState.Loading
+                loadStateUpdate(
+                    refreshRemote = Loading
                 ),
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = false,
-                    loadState = LoadState.Loading
+                loadStateUpdate(
+                    refreshLocal = Loading,
+                    refreshRemote = Loading
                 ),
                 Refresh(
                     pages = listOf(
@@ -1250,10 +1243,10 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                LoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    refreshRemote = NotLoading.Complete
                 ),
                 Prepend(
                     pages = listOf(),
@@ -1299,7 +1292,11 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
+                )
             ).insertEventSeparators(
                 terminalSeparatorType = FULLY_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1350,7 +1347,11 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
+                )
             ).insertEventSeparators(
                 terminalSeparatorType = SOURCE_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1424,7 +1425,11 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
+                ),
                 // Drop the first page, header and separator between "b1" and "a1"
                 Drop(
                     loadType = PREPEND,
@@ -1562,7 +1567,11 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
+                ),
                 // Drop the first page, header and separator between "b1" and "a1"
                 Drop(
                     loadType = PREPEND,
@@ -1697,7 +1706,11 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LoadStateUpdate(APPEND, true, NotLoading.Complete),
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete,
+                ),
             ).insertEventSeparators(
                 terminalSeparatorType = FULLY_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1748,7 +1761,11 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LoadStateUpdate(APPEND, true, NotLoading.Complete),
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete,
+                ),
             ).insertEventSeparators(
                 terminalSeparatorType = SOURCE_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1822,7 +1839,11 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LoadStateUpdate(APPEND, true, NotLoading.Complete),
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete,
+                ),
                 // Drop the last page, footer and separator between "b1" and "c1"
                 Drop(
                     loadType = APPEND,
@@ -1960,7 +1981,11 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LoadStateUpdate(APPEND, true, NotLoading.Complete),
+                loadStateUpdate(
+                    appendLocal = NotLoading.Complete,
+                    prependLocal = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete,
+                ),
                 // Drop the last page, footer and separator between "b1" and "c1"
                 Drop(
                     loadType = APPEND,

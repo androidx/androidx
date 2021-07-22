@@ -22,7 +22,6 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.LoadStateUpdate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -136,10 +135,8 @@ class PageEventTest {
 
     @Test
     fun stateTransform() = runBlockingTest {
-        val state = LoadStateUpdate<Char>(
-            loadType = REFRESH,
-            fromMediator = false,
-            loadState = LoadState.Loading
+        val state = loadStateUpdate<Char>(
+            refreshLocal = LoadState.Loading
         )
 
         assertSame(state, state.map { it + 1 })
@@ -204,7 +201,7 @@ class PageEventTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
             placeholdersAfter = 4,
-            combinedLoadStates = MutableLoadStateCollection().snapshot()
+            combinedLoadStates = MutableCombinedLoadStateCollection().snapshot()
         )
 
         // filter out C

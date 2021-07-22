@@ -33,9 +33,11 @@ class FlattenedPageEventStorageTest {
     private val list = FlattenedPageEventStorage<String>()
 
     @Test
-    fun empty() {
+    fun initialIdleState() {
         assertThat(list.snapshot()).isEqualTo(Snapshot<String>())
-        assertThat(list.getAsEvents()).isEmpty()
+        assertThat(list.getAsEvents()).containsExactly(
+            loadStateUpdate<String>()
+        )
     }
 
     @Test
@@ -277,6 +279,7 @@ class FlattenedPageEventStorageTest {
                     throw IllegalStateException("shouldn't have any drops")
                 }
                 is PageEvent.LoadStateUpdate -> {
+                    if (snapshot.items.isEmpty()) return Snapshot()
                     throw IllegalStateException("shouldn't have any state updates")
                 }
             }

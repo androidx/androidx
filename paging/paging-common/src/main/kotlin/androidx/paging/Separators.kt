@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.LoadStateUpdate
@@ -201,7 +200,7 @@ private class SeparatorState<R : Any, T : R>(
     var endTerminalSeparatorDeferred = false
     var startTerminalSeparatorDeferred = false
 
-    val loadStates = MutableLoadStateCollection()
+    val loadStates = MutableCombinedLoadStateCollection()
     var placeholdersBefore = 0
     var placeholdersAfter = 0
 
@@ -511,12 +510,18 @@ private class SeparatorState<R : Any, T : R>(
     suspend fun onLoadStateUpdate(event: LoadStateUpdate<T>): PageEvent<R> {
         // Check for redundant LoadStateUpdate events to avoid unnecessary mapping to empty inserts
         // that might cause terminal separators to get added out of place.
-        if (loadStates.get(event.loadType, event.fromMediator) == event.loadState) {
+        val snapshot = loadStates.snapshot()
+        if (snapshot.source == event.source && snapshot.mediator == event.mediator) {
             @Suppress("UNCHECKED_CAST")
             return event as PageEvent<R>
         }
 
-        loadStates.set(type = event.loadType, remote = event.fromMediator, state = event.loadState)
+        val prevMediatorStates = snapshot.mediator
+
+        loadStates.set(
+            sourceLoadStates = event.source,
+            remoteLoadStates = event.mediator,
+        )
 
         // Transform terminal load state updates into empty inserts for header + footer support
         // when used with RemoteMediator. In cases where we defer adding a terminal separator,
@@ -524,26 +529,26 @@ private class SeparatorState<R : Any, T : R>(
         // isn't possible to add a separator to. Note: Adding a separate insert event also
         // doesn't work in the case where .insertSeparators() is called multiple times on the
         // same page event stream - we have to transform the terminating LoadStateUpdate event.
-        if (event.loadType != REFRESH && event.fromMediator &&
-            event.loadState.endOfPaginationReached
+        val mediator = event.mediator
+        if (mediator != null && mediator.prepend.endOfPaginationReached &&
+            prevMediatorStates?.prepend != mediator.prepend
         ) {
-            val emptyTerminalInsert: Insert<T> = if (event.loadType == PREPEND) {
-                Insert.Prepend(
-                    pages = emptyList(),
-                    placeholdersBefore = placeholdersBefore,
-                    combinedLoadStates = loadStates.snapshot(),
-                )
-            } else {
-                Insert.Append(
-                    pages = emptyList(),
-                    placeholdersAfter = placeholdersAfter,
-                    combinedLoadStates = loadStates.snapshot(),
-                )
-            }
-
-            return onInsert(emptyTerminalInsert)
+            val prependTerminalInsert: Insert<T> = Insert.Prepend(
+                pages = emptyList(),
+                placeholdersBefore = placeholdersBefore,
+                combinedLoadStates = loadStates.snapshot(),
+            )
+            return onInsert(prependTerminalInsert)
+        } else if (mediator != null && mediator.append.endOfPaginationReached &&
+            prevMediatorStates?.append != mediator.append
+        ) {
+            val appendTerminalInsert: Insert<T> = Insert.Append(
+                pages = emptyList(),
+                placeholdersAfter = placeholdersAfter,
+                combinedLoadStates = loadStates.snapshot(),
+            )
+            return onInsert(appendTerminalInsert)
         }
-
         @Suppress("UNCHECKED_CAST")
         return event as PageEvent<R>
     }

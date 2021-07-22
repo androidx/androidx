@@ -107,7 +107,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             retryChannel.consumeAsFlow()
                 .collect {
                     val (sourceLoadStates, remotePagingState) = stateHolder.withLock { state ->
-                        state.sourceLoadStates to state.currentPagingState(lastHint)
+                        state.sourceLoadStates.snapshot() to state.currentPagingState(lastHint)
                     }
                     // tell remote mediator to retry and it will trigger necessary work / change
                     // its state as necessary.
@@ -326,7 +326,12 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             is LoadResult.Error -> stateHolder.withLock { state ->
                 val loadState = Error(result.throwable)
                 if (state.setSourceLoadState(REFRESH, loadState)) {
-                    pageEventCh.send(LoadStateUpdate(REFRESH, false, loadState))
+                    pageEventCh.send(
+                        LoadStateUpdate(
+                            source = state.sourceLoadStates.snapshot(),
+                            mediator = null,
+                        )
+                    )
                 }
             }
             is LoadResult.Invalid -> onInvalidLoad()
@@ -435,7 +440,12 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     stateHolder.withLock { state ->
                         val loadState = Error(result.throwable)
                         if (state.setSourceLoadState(loadType, loadState)) {
-                            pageEventCh.send(LoadStateUpdate(loadType, false, loadState))
+                            pageEventCh.send(
+                                LoadStateUpdate(
+                                    source = state.sourceLoadStates.snapshot(),
+                                    mediator = null,
+                                )
+                            )
                         }
 
                         // Save the hint for retry on incoming retry signal, typically sent from
@@ -508,7 +518,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private suspend fun PageFetcherSnapshotState<Key, Value>.setLoading(loadType: LoadType) {
         if (setSourceLoadState(loadType, Loading)) {
             pageEventCh.send(
-                LoadStateUpdate(loadType, fromMediator = false, Loading)
+                LoadStateUpdate(
+                    source = sourceLoadStates.snapshot(),
+                    mediator = null,
+                )
             )
         }
     }

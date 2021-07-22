@@ -44,7 +44,7 @@ public abstract class PagingDataDiffer<T : Any>(
 ) {
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
-    private val combinedLoadStates = MutableLoadStateCollection()
+    private val combinedLoadStates = MutableCombinedLoadStateCollection()
     private val loadStateListeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
     private val onPagesUpdatedListeners = CopyOnWriteArrayList<() -> Unit>()
 
@@ -83,6 +83,25 @@ public abstract class PagingDataDiffer<T : Any>(
             differCallback.onRemoved(position, count)
         }
 
+        // for state updates from LoadStateUpdate events
+        override fun onStateUpdate(source: LoadStates, mediator: LoadStates?) {
+            val currentLoadState = combinedLoadStates.snapshot()
+
+            // No change, skip update + dispatch.
+            if (currentLoadState.source == source && currentLoadState.mediator == mediator) {
+                return
+            }
+
+            combinedLoadStates.set(
+                sourceLoadStates = source,
+                remoteLoadStates = mediator
+            )
+
+            val newLoadStates = combinedLoadStates.snapshot()
+            loadStateListeners.forEach { it(newLoadStates) }
+        }
+
+        // for state updates from Drop events
         override fun onStateUpdate(
             loadType: LoadType,
             fromMediator: Boolean,

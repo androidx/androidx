@@ -70,7 +70,11 @@ class CachedPageEventFlowTest(
         )
         upstream.send(refreshEvent)
         runCurrent()
-        assertThat(fastCollector.items()).containsExactly(refreshEvent)
+        // removal of canDispatchWithoutInsert check causes an additional NotLoading state update
+        assertThat(fastCollector.items()).containsExactly(
+            loadStateUpdate<String>(),
+            refreshEvent
+        )
         assertThat(slowCollector.items()).isEmpty()
 
         val appendEvent = Append(
@@ -84,10 +88,18 @@ class CachedPageEventFlowTest(
         )
         upstream.send(appendEvent)
         runCurrent()
-        assertThat(fastCollector.items()).containsExactly(refreshEvent, appendEvent)
+        assertThat(fastCollector.items()).containsExactly(
+            loadStateUpdate<String>(),
+            refreshEvent,
+            appendEvent
+        )
         assertThat(slowCollector.items()).isEmpty()
-        advanceTimeBy(2_000)
-        assertThat(slowCollector.items()).containsExactly(refreshEvent, appendEvent)
+        advanceTimeBy(3_000)
+        assertThat(slowCollector.items()).containsExactly(
+            loadStateUpdate<String>(),
+            refreshEvent,
+            appendEvent
+        )
         val manyNewAppendEvents = (0 until 100).map {
             Append(
                 listOf(
@@ -118,7 +130,11 @@ class CachedPageEventFlowTest(
             TerminationType.CLOSE_UPSTREAM -> upstream.close()
             TerminationType.CLOSE_CACHED_EVENT_FLOW -> subject.close()
         }
-        val fullList = listOf(refreshEvent, appendEvent) + manyNewAppendEvents + finalAppendEvent
+        val fullList = listOf(
+            loadStateUpdate<String>(),
+            refreshEvent,
+            appendEvent
+        ) + manyNewAppendEvents + finalAppendEvent
         runCurrent()
         assertThat(fastCollector.items()).containsExactlyElementsIn(fullList).inOrder()
         assertThat(fastCollector.isActive()).isFalse()
@@ -175,7 +191,7 @@ class CachedPageEventFlowTest(
         collector1.collectIn(testScope)
         runCurrent()
         assertThat(collector1.items()).isEqualTo(
-            listOf(refreshEvent, appendEvent)
+            listOf(loadStateUpdate<String>(), refreshEvent, appendEvent)
         )
         val collector2 = PageCollector(subject.downstreamFlow)
         collector2.collectIn(testScope)
@@ -208,7 +224,7 @@ class CachedPageEventFlowTest(
         )
         upstream.send(prependEvent)
         assertThat(collector1.items()).isEqualTo(
-            listOf(refreshEvent, appendEvent, prependEvent)
+            listOf(loadStateUpdate<String>(), refreshEvent, appendEvent, prependEvent)
         )
         assertThat(collector2.items()).isEqualTo(
             listOf(firstSnapshotRefreshEvent, prependEvent)
@@ -256,6 +272,105 @@ class CachedPageEventFlowTest(
         assertThat(collector4.isActive()).isFalse()
         assertThat(collector4.items()).containsExactly(
             finalState
+        )
+    }
+
+    @Test
+    fun emptyPage_singleLoadStateUpdate() = testScope.runBlockingTest {
+        val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
+        val subject = CachedPageEventFlow(
+            src = upstream.consumeAsFlow(),
+            scope = testScope
+        )
+
+        // creating two collectors and collecting right away to assert that all collectors
+        // collecting before any INSERT event would receive an initial IDLE LoadStateUpdate.
+        val collector = PageCollector(subject.downstreamFlow)
+        collector.collectIn(testScope)
+
+        val collector2 = PageCollector(subject.downstreamFlow)
+        collector2.collectIn(testScope)
+
+        runCurrent()
+
+        // an empty input stream should cause collect to receive a single LoadStateUpdate where
+        // source = LoadStates.IDLE and mediator = null
+        // any collectors that started collection before an Insert should receive this IDLE state
+        // update
+        assertThat(collector.items()).containsExactly(
+            loadStateUpdate<String>(),
+        )
+
+        assertThat(collector2.items()).containsExactly(
+            loadStateUpdate<String>(),
+        )
+
+        // now send refresh event
+        val refreshEvent = Refresh(
+            listOf(
+                TransformablePage(
+                    listOf("a", "b", "c")
+                )
+            ),
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
+            combinedLoadStates = localLoadStatesOf()
+        )
+        upstream.send(refreshEvent)
+        runCurrent()
+
+        assertThat(collector.items()).containsExactly(
+            loadStateUpdate<String>(),
+            refreshEvent
+        )
+
+        assertThat(collector2.items()).containsExactly(
+            loadStateUpdate<String>(),
+            refreshEvent
+        )
+    }
+
+    @Test
+    fun idleStateUpdate_collectedBySingleCollector() = testScope.runBlockingTest {
+        val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
+        val subject = CachedPageEventFlow(
+            src = upstream.consumeAsFlow(),
+            scope = testScope
+        )
+
+        val refreshEvent = Refresh(
+            listOf(
+                TransformablePage(
+                    listOf("a", "b", "c")
+                )
+            ),
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
+            combinedLoadStates = localLoadStatesOf()
+        )
+        upstream.send(refreshEvent)
+        runCurrent()
+
+        val collector = PageCollector(subject.downstreamFlow)
+        collector.collectIn(testScope)
+
+        runCurrent()
+
+        // regardless of when the first collector started collecting (before or after first
+        // INSERT), it would receive the initial IDLE state update
+        assertThat(collector.items()).containsExactly(
+            loadStateUpdate<String>(),
+            refreshEvent
+        )
+
+        val delayedCollector = PageCollector(subject.downstreamFlow)
+        delayedCollector.collectIn(testScope)
+
+        // if a collector started collecting an INSERT but the initial IDLE state has
+        // already been collected by another collector, then these delayed collectors would not
+        // receive it.
+        assertThat(delayedCollector.items()).containsExactly(
+            refreshEvent
         )
     }
 

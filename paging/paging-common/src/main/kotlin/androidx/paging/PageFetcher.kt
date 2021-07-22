@@ -17,9 +17,6 @@
 package androidx.paging
 
 import androidx.annotation.VisibleForTesting
-import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -119,76 +116,68 @@ internal class PageFetcher<Key : Any, Value : Any>(
             .collect { send(it) }
     }
 
+    // TODO(b/195028524) add logic to inject the correct source states upon new generation
     private fun PageFetcherSnapshot<Key, Value>.injectRemoteEvents(
         accessor: RemoteMediatorAccessor<Key, Value>?
     ): Flow<PageEvent<Value>> {
         if (accessor == null) return pageEventFlow
 
-        return simpleChannelFlow {
-            val loadStates = MutableLoadStateCollection()
+        return simpleChannelFlow<PageEvent<Value>> {
+            val sourceStates = MutableLoadStateCollection()
 
-            suspend fun dispatchIfValid(type: LoadType, state: LoadState) {
-                // not loading events are sent w/ insert-drop events.
-                if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(
-                        state,
-                        fromMediator = true
-                    )
-                ) {
-                    send(
-                        PageEvent.LoadStateUpdate<Value>(
-                            loadType = type,
-                            fromMediator = true,
-                            loadState = state
-                        )
-                    )
-                } else {
-                    // Wait for invalidation to set state to NotLoading via Insert to prevent any
-                    // potential for flickering.
-                }
-            }
+            // mediator States initialized to null so we can filter out the first mediator states
+            // for the initial local refresh state update
+            var mediatorStates: MutableLoadStateCollection? = null
 
             launch {
                 var prev = LoadStates.IDLE
                 accessor.state.collect {
-                    if (prev.refresh != it.refresh) {
-                        loadStates.set(REFRESH, true, it.refresh)
-                        dispatchIfValid(REFRESH, it.refresh)
-                    }
-                    if (prev.prepend != it.prepend) {
-                        loadStates.set(PREPEND, true, it.prepend)
-                        dispatchIfValid(PREPEND, it.prepend)
-                    }
-                    if (prev.append != it.append) {
-                        loadStates.set(APPEND, true, it.append)
-                        dispatchIfValid(APPEND, it.append)
+                    if (prev != it) {
+                        if (mediatorStates == null) {
+                            mediatorStates = MutableLoadStateCollection()
+                        }
+                        mediatorStates?.set(it)
+
+                        send(
+                            PageEvent.LoadStateUpdate(
+                                source = sourceStates.snapshot(),
+                                mediator = mediatorStates?.snapshot()
+                            )
+                        )
                     }
                     prev = it
                 }
             }
+
             this@injectRemoteEvents.pageEventFlow.collect { event ->
                 when (event) {
                     is PageEvent.Insert -> {
-                        loadStates.set(
-                            sourceLoadStates = event.combinedLoadStates.source,
-                            remoteLoadStates = accessor.state.value
+                        sourceStates.set(event.combinedLoadStates.source)
+                        mediatorStates?.set(accessor.state.value)
+                        val combinedLoadStates = CombinedLoadStates(
+                            refresh = mediatorStates?.refresh ?: LoadState.NotLoading.Incomplete,
+                            prepend = mediatorStates?.prepend ?: LoadState.NotLoading.Incomplete,
+                            append = mediatorStates?.append ?: LoadState.NotLoading.Incomplete,
+                            source = sourceStates.snapshot(),
+                            mediator = mediatorStates?.snapshot() ?: LoadStates.IDLE,
                         )
-                        send(event.copy(combinedLoadStates = loadStates.snapshot()))
+                        send(event.copy(combinedLoadStates = combinedLoadStates))
                     }
                     is PageEvent.Drop -> {
-                        loadStates.set(
+                        sourceStates.set(
                             type = event.loadType,
-                            remote = false,
                             state = LoadState.NotLoading.Incomplete
                         )
                         send(event)
                     }
                     is PageEvent.LoadStateUpdate -> {
-                        loadStates.set(
-                            type = event.loadType,
-                            remote = event.fromMediator,
-                            state = event.loadState
+                        sourceStates.set(event.source)
+                        send(
+                            PageEvent.LoadStateUpdate(
+                                source = sourceStates.snapshot(),
+                                mediator = mediatorStates?.snapshot()
+                            )
                         )
-                        send(event)
                     }
                 }
             }

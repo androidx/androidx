@@ -16,16 +16,22 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
+import androidx.paging.PagingSource.LoadResult
+import androidx.testutils.DirectDispatcher
 import androidx.testutils.MainDispatcherRule
+import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -812,6 +818,530 @@ class PagingDataDifferTest {
         // this will return only if differ.collectFrom returns
         deferred.await()
     }
+
+    @Test
+    fun refresh_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+        pagingSources ->
+        val collectLoadStates = differ.collectLoadStates()
+
+        // execute queued initial REFRESH
+        loadDispatcher.queue.poll()?.run()
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf(),
+        )
+
+        differ.refresh()
+
+        // execute second REFRESH load
+        loadDispatcher.queue.poll()?.run()
+
+        // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
+        assertThat(pagingSources.size).isEqualTo(2)
+        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf()
+        )
+
+        collectLoadStates.cancel()
+    }
+
+    // TODO(b/195028524) the tests from here on checks the state after Invalid/Error results.
+    //  Upon changes due to b/195028524, the asserts on these tests should see a new resetting
+    //  LoadStateUpdate event
+
+    @Test
+    fun appendInvalid_loadStates() = runTest { differ, loadDispatcher, pagingSources ->
+        val collectLoadStates = differ.collectLoadStates()
+
+        // initial REFRESH
+        loadDispatcher.executeAll()
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf(prependLocal = NotLoading.Complete),
+        )
+
+        // normal append
+        differ[8]
+
+        loadDispatcher.executeAll()
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 12)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+                appendLocal = Loading
+            ),
+            localLoadStatesOf(prependLocal = NotLoading.Complete)
+        )
+
+        // do invalid append which will return LoadResult.Invalid
+        differ[11]
+        pagingSources[0].nextLoadResult = LoadResult.Invalid()
+
+        // using poll().run() instead of executeAll, otherwise this invalid APPEND + subsequent
+        // REFRESH will auto run consecutively and we won't be able to assert them incrementally
+        loadDispatcher.queue.poll()?.run()
+
+        assertThat(pagingSources.size).isEqualTo(2)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            // the invalid append
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+                appendLocal = Loading
+            ),
+            // REFRESH on new paging source. Append/Prepend local states is reset because the
+            // LoadStateUpdate from refresh sends the full map of a local LoadStates which was
+            // initialized as IDLE upon new Snapshot.
+            localLoadStatesOf(
+                refreshLocal = Loading,
+            ),
+        )
+
+        // the LoadResult.Invalid from failed APPEND triggers new pagingSource + initial REFRESH
+        loadDispatcher.queue.poll()?.run()
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(11 until 20)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(),
+        )
+
+        collectLoadStates.cancel()
+    }
+
+    @Test
+    fun prependInvalid_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+        pagingSources ->
+        val collectLoadStates = differ.collectLoadStates()
+
+        // initial REFRESH
+        loadDispatcher.executeAll()
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            // all local states NotLoading.Incomplete
+            localLoadStatesOf(),
+        )
+
+        // normal prepend to ensure LoadStates for Page returns remains the same
+        differ[0]
+
+        loadDispatcher.executeAll()
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(47 until 59)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(prependLocal = Loading),
+            // all local states NotLoading.Incomplete
+            localLoadStatesOf(),
+        )
+
+        // do an invalid prepend which will return LoadResult.Invalid
+        differ[0]
+        pagingSources[0].nextLoadResult = LoadResult.Invalid()
+        loadDispatcher.queue.poll()?.run()
+
+        assertThat(pagingSources.size).isEqualTo(2)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            // the invalid prepend
+            localLoadStatesOf(prependLocal = Loading),
+            // REFRESH on new paging source. Append/Prepend local states is reset because the
+            // LoadStateUpdate from refresh sends the full map of a local LoadStates which was
+            // initialized as IDLE upon new Snapshot.
+            localLoadStatesOf(refreshLocal = Loading),
+        )
+
+        // the LoadResult.Invalid from failed PREPEND triggers new pagingSource + initial REFRESH
+        loadDispatcher.queue.poll()?.run()
+
+        // load starts from 0 again because the provided initialKey = 50 is not multi-generational
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(prependLocal = NotLoading.Complete),
+        )
+
+        collectLoadStates.cancel()
+    }
+
+    @Test
+    fun refreshInvalid_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+        pagingSources ->
+        val collectLoadStates = differ.collectLoadStates()
+
+        // execute queued initial REFRESH load which will return LoadResult.Invalid()
+        pagingSources[0].nextLoadResult = LoadResult.Invalid()
+        loadDispatcher.queue.poll()?.run()
+
+        assertThat(differ.snapshot()).isEmpty()
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            // invalid first refresh. The second refresh state update that follows is identical to
+            // this LoadStates so it gets de-duped
+            localLoadStatesOf(refreshLocal = Loading),
+        )
+
+        // execute second REFRESH load
+        loadDispatcher.queue.poll()?.run()
+
+        // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
+        assertThat(pagingSources.size).isEqualTo(2)
+        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            // all local states NotLoading.Incomplete
+            localLoadStatesOf()
+        )
+
+        collectLoadStates.cancel()
+    }
+
+    @Test
+    fun appendError_retryLoadStates() = runTest { differ, loadDispatcher, pagingSources ->
+        val collectLoadStates = differ.collectLoadStates()
+
+        // initial REFRESH
+        loadDispatcher.executeAll()
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf(prependLocal = NotLoading.Complete),
+        )
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+
+        // append returns LoadResult.Error
+        differ[8]
+        val exception = Throwable()
+        pagingSources[0].nextLoadResult = LoadResult.Error(exception)
+
+        loadDispatcher.queue.poll()?.run()
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+                appendLocal = Loading
+            ),
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+                appendLocal = LoadState.Error(exception)
+            ),
+        )
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+
+        // retry append
+        differ.retry()
+        loadDispatcher.queue.poll()?.run()
+
+        // make sure append success
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 12)
+        // no reset
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+                appendLocal = Loading
+            ),
+            localLoadStatesOf(prependLocal = NotLoading.Complete),
+        )
+
+        collectLoadStates.cancel()
+    }
+
+    @Test
+    fun prependError_retryLoadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+        pagingSources ->
+        val collectLoadStates = differ.collectLoadStates()
+
+        // initial REFRESH
+        loadDispatcher.executeAll()
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf(),
+        )
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+
+        // prepend returns LoadResult.Error
+        differ[0]
+        val exception = Throwable()
+        pagingSources[0].nextLoadResult = LoadResult.Error(exception)
+
+        loadDispatcher.queue.poll()?.run()
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(prependLocal = Loading),
+            localLoadStatesOf(prependLocal = LoadState.Error(exception)),
+        )
+        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+
+        // retry prepend
+        differ.retry()
+
+        loadDispatcher.queue.poll()?.run()
+
+        // make sure prepend success
+        assertThat(differ.snapshot()).containsExactlyElementsIn(47 until 59)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(prependLocal = Loading),
+            localLoadStatesOf(),
+        )
+
+        collectLoadStates.cancel()
+    }
+
+    @Test
+    fun refreshError_retryLoadStates() = runTest() { differ, loadDispatcher, pagingSources ->
+        val collectLoadStates = differ.collectLoadStates()
+
+        // initial load returns LoadResult.Error
+        val exception = Throwable()
+        pagingSources[0].nextLoadResult = LoadResult.Error(exception)
+
+        loadDispatcher.executeAll()
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf(refreshLocal = LoadState.Error(exception)),
+        )
+        assertThat(differ.snapshot()).isEmpty()
+
+        // retry refresh
+        differ.retry()
+
+        loadDispatcher.queue.poll()?.run()
+
+        // refresh retry does not trigger new gen
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+        // Goes directly from Error --> Loading without resetting refresh to NotLoading
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf(prependLocal = NotLoading.Complete),
+        )
+
+        collectLoadStates.cancel()
+    }
+
+    @Test
+    fun prependError_refreshLoadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+        pagingSources ->
+        val collectLoadStates = differ.collectLoadStates()
+
+        // initial REFRESH
+        loadDispatcher.executeAll()
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf(),
+        )
+        assertThat(differ.size).isEqualTo(9)
+        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+
+        // prepend returns LoadResult.Error
+        differ[0]
+        val exception = Throwable()
+        pagingSources[0].nextLoadResult = LoadResult.Error(exception)
+
+        loadDispatcher.queue.poll()?.run()
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(prependLocal = Loading),
+            localLoadStatesOf(prependLocal = LoadState.Error(exception)),
+        )
+
+        // refresh() should reset local LoadStates and trigger new REFRESH
+        differ.refresh()
+        loadDispatcher.queue.poll()?.run()
+
+        // Initial load starts from 0 because initialKey is single gen.
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            // second gen REFRESH load. The Error prepend state was automatically reset to
+            // NotLoading.
+            localLoadStatesOf(refreshLocal = Loading),
+            // REFRESH complete
+            localLoadStatesOf(prependLocal = NotLoading.Complete),
+        )
+
+        collectLoadStates.cancel()
+    }
+
+    @Test
+    fun refreshError_refreshLoadStates() = runTest() { differ, loadDispatcher, pagingSources ->
+        val collectLoadStates = differ.collectLoadStates()
+
+        // the initial load will return LoadResult.Error
+        val exception = Throwable()
+        pagingSources[0].nextLoadResult = LoadResult.Error(exception)
+
+        loadDispatcher.executeAll()
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf(refreshLocal = LoadState.Error(exception)),
+        )
+        assertThat(differ.snapshot()).isEmpty()
+
+        // refresh should trigger new generation
+        differ.refresh()
+
+        loadDispatcher.queue.poll()?.run()
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+        // Goes directly from Error --> Loading without resetting refresh to NotLoading
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf(prependLocal = NotLoading.Complete),
+        )
+
+        collectLoadStates.cancel()
+    }
+
+    @Test
+    fun remoteRefresh_refreshStatePersists() = testScope.runBlockingTest {
+
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val remoteMediator = RemoteMediatorMock(loadDelay = 1500).apply {
+            initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+        }
+        val pager = Pager(
+            PagingConfig(pageSize = 3, enablePlaceholders = false),
+            remoteMediator = remoteMediator,
+        ) {
+            TestPagingSource(loadDelay = 500, items = emptyList())
+        }
+
+        val collectLoadStates = differ.collectLoadStates()
+        val job = launch {
+            pager.flow.collectLatest {
+                differ.collectFrom(it)
+            }
+        }
+        // allow local refresh to complete but not remote refresh
+        advanceTimeBy(600)
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            // initial state
+            localLoadStatesOf(),
+            // remote starts loading
+            remoteLoadStatesOf(
+                refresh = Loading,
+                refreshRemote = Loading,
+            ),
+            // local starts loading
+            remoteLoadStatesOf(
+                refresh = Loading,
+                refreshLocal = Loading,
+                refreshRemote = Loading,
+            ),
+            // local load returns with empty data, mediator is still loading
+            remoteLoadStatesOf(
+                refresh = Loading,
+                prependLocal = NotLoading.Complete,
+                appendLocal = NotLoading.Complete,
+                refreshRemote = Loading,
+            ),
+        )
+
+        // refresh triggers new generation & LoadState reset
+        differ.refresh()
+
+        // allow local refresh to complete but not remote refresh
+        advanceTimeBy(600)
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            // local state is simultaneously reset by the remote mediator state update
+            remoteLoadStatesOf(
+                refresh = Loading,
+                refreshRemote = Loading,
+            ),
+            // local starts second refresh while mediator continues remote refresh from before
+            remoteLoadStatesOf(
+                refresh = Loading,
+                refreshLocal = Loading,
+                refreshRemote = Loading,
+            ),
+            // local load returns empty data
+            remoteLoadStatesOf(
+                refresh = Loading,
+                prependLocal = NotLoading.Complete,
+                appendLocal = NotLoading.Complete,
+                refreshRemote = Loading,
+            ),
+        )
+
+        // allow remote refresh to complete
+        advanceTimeBy(600)
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            // remote refresh returns empty and triggers remote append/prepend
+            remoteLoadStatesOf(
+                prepend = Loading,
+                append = Loading,
+                prependLocal = NotLoading.Complete,
+                appendLocal = NotLoading.Complete,
+                prependRemote = Loading,
+                appendRemote = Loading,
+            ),
+        )
+
+        // allow remote append and prepend to complete
+        advanceUntilIdle()
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            // prepend completes first
+            remoteLoadStatesOf(
+                append = Loading,
+                prependLocal = NotLoading.Complete,
+                appendLocal = NotLoading.Complete,
+                appendRemote = Loading,
+            ),
+            remoteLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+                appendLocal = NotLoading.Complete,
+            ),
+        )
+
+        job.cancel()
+        collectLoadStates.cancel()
+    }
+
+    private fun runTest(
+        scope: CoroutineScope = CoroutineScope(DirectDispatcher),
+        differ: SimpleDiffer = SimpleDiffer(
+            differCallback = dummyDifferCallback,
+            coroutineScope = scope,
+        ),
+        loadDispatcher: TestDispatcher = TestDispatcher(),
+        initialKey: Int? = null,
+        pagingSources: MutableList<TestPagingSource> = mutableListOf(),
+        pager: Pager<Int, Int> =
+            Pager(
+                config = PagingConfig(pageSize = 3, enablePlaceholders = false),
+                initialKey = initialKey,
+                pagingSourceFactory = {
+                    TestPagingSource(
+                        loadDelay = 0,
+                        loadDispatcher = loadDispatcher,
+                    ).also { pagingSources.add(it) }
+                }
+            ),
+        block: (SimpleDiffer, TestDispatcher, MutableList<TestPagingSource>) -> Unit
+    ) {
+        val collection = scope.launch {
+            pager.flow.collect {
+                differ.collectFrom(it)
+            }
+        }
+        scope.run {
+            try {
+                block(differ, loadDispatcher, pagingSources)
+            } finally {
+                collection.cancel()
+            }
+        }
+    }
 }
 
 private fun infinitelySuspendingPagingData(receiver: UiReceiver = dummyReceiver) = PagingData(
@@ -845,7 +1375,11 @@ private class UiReceiverFake : UiReceiver {
     }
 }
 
-private class SimpleDiffer(differCallback: DifferCallback) : PagingDataDiffer<Int>(differCallback) {
+@OptIn(ExperimentalCoroutinesApi::class)
+private class SimpleDiffer(
+    differCallback: DifferCallback,
+    val coroutineScope: CoroutineScope = TestCoroutineScope()
+) : PagingDataDiffer<Int>(differCallback) {
     override suspend fun presentNewList(
         previousList: NullPaddedList<Int>,
         newList: NullPaddedList<Int>,
@@ -855,6 +1389,22 @@ private class SimpleDiffer(differCallback: DifferCallback) : PagingDataDiffer<In
     ): Int? {
         onListPresentable()
         return null
+    }
+
+    private val _localLoadStates = mutableListOf<CombinedLoadStates>()
+
+    fun newCombinedLoadStates(): List<CombinedLoadStates?> {
+        val newCombinedLoadStates = _localLoadStates.toList()
+        _localLoadStates.clear()
+        return newCombinedLoadStates
+    }
+
+    fun collectLoadStates(): Job {
+        return coroutineScope.launch {
+            loadStateFlow.collect { combinedLoadStates ->
+                _localLoadStates.add(combinedLoadStates)
+            }
+        }
     }
 }
 
