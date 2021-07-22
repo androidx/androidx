@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.testutils.DirectDispatcher
 import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -54,15 +55,15 @@ class LegacyPagingSourceTest {
     )
 
     @Test
-    fun init_invalidateOnFetchDispatcher() {
-        val testDispatcher = TestDispatcher()
+    fun init_invalidDataSource() {
+        val testDispatcher = DirectDispatcher
         val dataSource = object : DataSource<Int, Int>(KeyType.ITEM_KEYED) {
             var isInvalidCalls = 0
 
             override val isInvalid: Boolean
                 get() {
                     isInvalidCalls++
-                    return super.isInvalid
+                    return true
                 }
 
             override suspend fun load(params: Params<Int>): BaseResult<Int> {
@@ -72,16 +73,14 @@ class LegacyPagingSourceTest {
             override fun getKeyInternal(item: Int): Int = 0
         }
 
-        // init will immediately trigger a call to DataSource.isInvalid, but if it's launched on
-        // fetchDispatcher, it should block on testDispatcher.executeAll().
-        LegacyPagingSource(
+        val pagingSource = LegacyPagingSource(
             fetchDispatcher = testDispatcher,
             dataSource = dataSource,
         )
 
-        assertEquals(0, dataSource.isInvalidCalls)
-        testDispatcher.executeAll()
         assertEquals(1, dataSource.isInvalidCalls)
+        assertThat(pagingSource.invalid).isTrue()
+        assertThat(dataSource.isInvalid).isTrue()
     }
 
     @Test
@@ -244,11 +243,7 @@ class LegacyPagingSourceTest {
             kotlinInvalidated = true
         }
         var javaInvalidated = false
-        dataSource.addInvalidatedCallback(object : DataSource.InvalidatedCallback {
-            override fun onInvalidated() {
-                javaInvalidated = true
-            }
-        })
+        dataSource.addInvalidatedCallback { javaInvalidated = true }
 
         assertFalse { pagingSource.invalid }
         assertFalse { dataSource.isInvalid }

@@ -99,9 +99,10 @@ public abstract class DataSource<Key : Any, Value : Any>
 // subclassing, except through exposed subclasses.
 internal constructor(internal val type: KeyType) {
 
-    private val invalidateCallbackTracker = InvalidateCallbackTracker<InvalidatedCallback> {
-        it.onInvalidated()
-    }
+    private val invalidateCallbackTracker = InvalidateCallbackTracker<InvalidatedCallback>(
+        callbackInvoker = { it.onInvalidated() },
+        invalidGetter = { isInvalid },
+    )
 
     internal val invalidateCallbackCount: Int
         @VisibleForTesting
