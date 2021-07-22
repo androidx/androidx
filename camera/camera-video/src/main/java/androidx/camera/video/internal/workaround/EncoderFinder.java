@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.workaround;
 
+import android.media.MediaCodec;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Build;
@@ -24,11 +25,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.ExcludeKeyFrameRateInFindEncoderQuirk;
+import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk;
+import androidx.camera.video.internal.encoder.InvalidConfigException;
+
+import java.io.IOException;
 
 /**
- * Workaround to fix the selection of video encoder by MediaFormat on API 21.
+ * Workaround to find the suitable encoder.
+ *
+ * <p>The workaround is to check the quirks to fix the selection of video encoder.
  *
  * @see ExcludeKeyFrameRateInFindEncoderQuirk
+ * @see MediaCodecInfoReportIncorrectInfoQuirk
  */
 public class EncoderFinder {
     private final boolean mShouldRemoveKeyFrameRate;
@@ -45,9 +53,37 @@ public class EncoderFinder {
      *
      * <p>The encoder finder might temporarily alter the media format for better compatibility
      * based on OS version. It is not thread safe to use the same media format instance.
+     *
+     * @param mediaFormat the media format used to find the encoder.
+     * @return the MediaCodec suitable for the given media format.
+     * @throws InvalidConfigException if it is not able to find a MediaCodec by the given media
+     * format.
      */
+    @NonNull
+    public MediaCodec findEncoder(@NonNull MediaFormat mediaFormat,
+            @NonNull MediaCodecList mediaCodecList) throws InvalidConfigException {
+        MediaCodec codec;
+        if (shouldCreateCodecByType(mediaFormat)) {
+            String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
+            try {
+                codec = MediaCodec.createEncoderByType(mimeType);
+            } catch (IOException e) {
+                throw new InvalidConfigException(
+                        "Cannot create encoder by mime type: " + mimeType, e);
+            }
+        } else {
+            String encoderName = findEncoderForFormat(mediaFormat, mediaCodecList);
+            try {
+                codec = MediaCodec.createByCodecName(encoderName);
+            } catch (IOException | NullPointerException | IllegalArgumentException e) {
+                throw new InvalidConfigException("Encoder cannot created: " + encoderName, e);
+            }
+        }
+        return codec;
+    }
+
     @Nullable
-    public String findEncoderForFormat(@NonNull MediaFormat mediaFormat,
+    private String findEncoderForFormat(@NonNull MediaFormat mediaFormat,
             @NonNull MediaCodecList mediaCodecList) {
         Integer tempFrameRate = null;
         Integer tempAacProfile = null;
@@ -82,5 +118,12 @@ public class EncoderFinder {
                 mediaFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, tempAacProfile.intValue());
             }
         }
+    }
+
+    private boolean shouldCreateCodecByType(@NonNull MediaFormat mediaFormat) {
+        String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
+
+        return DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk.class) != null
+                && MediaCodecInfoReportIncorrectInfoQuirk.isProblematicMimeType(mimeType);
     }
 }

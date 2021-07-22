@@ -52,7 +52,6 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -202,7 +201,9 @@ public class EncoderImpl implements Encoder {
         }
 
         mMediaFormat = encoderConfig.toMediaFormat();
-        mMediaCodec = selectMediaCodecEncoder(mMediaFormat);
+        mMediaCodec = mEncoderFinder.findEncoder(mMediaFormat,
+                new MediaCodecList(MediaCodecList.ALL_CODECS));
+        Logger.i(mTag, "Selected encoder: " + mMediaCodec.getName());
 
         try {
             reset();
@@ -649,26 +650,6 @@ public class EncoderImpl implements Encoder {
                 }
             }
         }
-    }
-
-    @NonNull
-    private MediaCodec selectMediaCodecEncoder(@NonNull MediaFormat mediaFormat)
-            throws InvalidConfigException {
-        MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
-        String encoderName;
-
-        encoderName = mEncoderFinder.findEncoderForFormat(mediaFormat, mediaCodecList);
-
-        MediaCodec codec;
-
-        try {
-            codec = MediaCodec.createByCodecName(encoderName);
-        } catch (IOException | NullPointerException | IllegalArgumentException e) {
-            throw new InvalidConfigException("Encoder cannot created: " + encoderName, e);
-        }
-        Logger.i(mTag, "Selected encoder: " + codec.getName());
-
-        return codec;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
