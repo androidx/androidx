@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.wear.watchface.samples.minimal.complications">
+
+  <uses-feature android:name="android.hardware.type.watch" />
+
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission
+      android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
+
+  <application
+      android:allowBackup="true"
+      android:icon="@mipmap/ic_launcher"
+      android:label="@string/app_name"
+      android:supportsRtl="true"
+      android:theme="@android:style/Theme.DeviceDefault"
+      android:fullBackupContent="false">
+
+    <activity
+        android:name=".ConfigActivity"
+        android:label="@string/configuration_title">
+      <intent-filter>
+        <action android:name="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
+
+        <category
+            android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+
+    <service
+        android:name=".WatchFaceService"
+        android:directBootAware="true"
+        android:exported="true"
+        android:label="@string/app_name"
+        android:permission="android.permission.BIND_WALLPAPER">
+
+      <intent-filter>
+        <action android:name="android.service.wallpaper.WallpaperService" />
+        <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+      </intent-filter>
+
+      <meta-data
+          android:name="com.google.android.wearable.watchface.preview"
+          android:resource="@drawable/preview" />
+
+      <meta-data
+          android:name="android.service.wallpaper"
+          android:resource="@xml/watch_face" />
+
+      <meta-data
+          android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
+          android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
+
+      <meta-data
+          android:name="com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
+          android:value="true" />
+
+    </service>
+
+  </application>
+
+</manifest>

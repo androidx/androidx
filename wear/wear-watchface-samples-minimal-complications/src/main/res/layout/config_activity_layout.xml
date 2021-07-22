@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/complication_header"
+      android:textColor="@android:color/white"
+      android:textFontWeight="800" />
+
+  <TextView
+      android:id="@+id/complication_provider_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/complication_none" />
+
+  <ImageView
+    android:id="@+id/complication_preview"
+      android:layout_width="64dp"
+      android:layout_height="64dp" />
+
+  <Button
+      android:id="@+id/complication_change"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/complication_change" />
+</LinearLayout>
