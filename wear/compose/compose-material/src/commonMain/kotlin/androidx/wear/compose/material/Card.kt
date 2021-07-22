@@ -164,11 +164,13 @@ public fun Card(
  * of [Typography.title3]
  * @param time A slot for displaying the time relevant to the contents of the card, expected to be a
  * short piece of end aligned text.
+ * @param title A slot for displaying the title of the card, expected to be one or two lines of text
+ * of [Typography.button]
  * @param body A slot for displaying the details of the [Card], expected to be either [Text]
  * (single or multiple-line) or an [Image]
  * @param modifier Modifier to be applied to the card
  * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
- * [Image] or [Icon] associated with the application.
+ * [Image] associated with the application.
  * @param backgroundPainter A painter used to paint the background of the card. A card will
  * normally have a gradient background. Use [CardDefaults.cardBackgroundPainter()] to obtain an
  * appropriate painter
@@ -188,7 +190,7 @@ public fun AppCard(
     modifier: Modifier = Modifier,
     appImage: @Composable (() -> Unit)? = null,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
-    appColor: Color = MaterialTheme.colors.primary,
+    appColor: Color = MaterialTheme.colors.onSurfaceVariant,
     timeColor: Color = MaterialTheme.colors.onSurfaceVariant,
     titleColor: Color = MaterialTheme.colors.onSurface,
     bodyColor: Color = MaterialTheme.colors.onSurfaceVariant2,
@@ -205,14 +207,16 @@ public fun AppCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CompositionLocalProvider(
-                    LocalContentColor provides appColor,
                     LocalTextStyle provides MaterialTheme.typography.caption1
                 ) {
                     if (appImage != null) {
                         appImage()
                         Spacer(modifier = Modifier.width(6.dp))
                     }
-                    appName()
+                    CompositionLocalProvider(
+                        LocalContentColor provides appColor,
+                        content = appName
+                    )
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 Box(modifier = Modifier.weight(1.0f), contentAlignment = Alignment.CenterEnd) {
