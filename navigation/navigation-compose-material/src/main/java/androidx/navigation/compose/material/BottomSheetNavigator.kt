@@ -22,12 +22,10 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
@@ -36,10 +34,6 @@ import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorState
 import androidx.navigation.compose.material.BottomSheetNavigator.Destination
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 
 /**
  * Create and remember a [BottomSheetNavigator]
@@ -97,30 +91,6 @@ public class BottomSheetNavigator(
             entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         }
 
-        if (latestEntry != null) {
-            LaunchedEffect(sheetState.currentValue, sheetState.targetValue) {
-                val visibilityFlow = snapshotFlow { sheetState.currentValue }
-                    .filter { it == ModalBottomSheetValue.Hidden }
-
-                snapshotFlow { sheetState.currentValue to sheetState.targetValue }
-                    .filter { (currentValue, targetValue) ->
-                        // When the sheet is currently visible but moving towards the hidden state
-                        currentValue != ModalBottomSheetValue.Hidden &&
-                            targetValue == ModalBottomSheetValue.Hidden
-                    }
-                    .map {
-                        state.popWithTransition(latestEntry, false)
-                    }
-                    .combine(visibilityFlow) { transitionListener, isVisible ->
-                        // This means that the currentValue went from not hidden to hidden
-                        // Now we'll let the transitionListener know that everything is settled and
-                        // the back stack entry can be moved to the DESTROYED state
-                        transitionListener.onTransitionComplete()
-                    }
-                    .launchIn(this)
-            }
-        }
-
         SheetContentHost(
             columnHost = columnScope,
             backStackEntry = latestEntry,
@@ -130,8 +100,15 @@ public class BottomSheetNavigator(
                 val transitionForEntry = transitionsInProgress[backStackEntry]
                 transitionForEntry?.onTransitionComplete()
             },
+            onSheetDismissalStarted = { backStackEntry ->
+                // Start a transition when the sheet is being dismissed
+                state.popWithTransition(backStackEntry, false)
+            },
             onSheetDismissed = { backStackEntry ->
-                //state.pop(backStackEntry, saveState = false)
+                // If we had a transition in progress, let the transitionListener know that
+                // everything is settled and the back stack entry can be moved to the DESTROYED
+                // state
+                transitionsInProgress[backStackEntry]?.onTransitionComplete()
             }
         )
     }
