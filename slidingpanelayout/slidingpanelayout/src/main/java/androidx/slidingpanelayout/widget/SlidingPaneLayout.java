@@ -586,19 +586,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        if (widthMode == MeasureSpec.UNSPECIFIED) {
-            if (isInEditMode()) {
-                // Don't crash the layout editor. Consume all of the space if specified
-                // or pick a magic number from thin air otherwise.
-                // TODO Better communication with tools of this bogus state.
-                // It will crash on a real device.
-                widthMode = MeasureSpec.EXACTLY;
-                widthSize = 300;
-            } else {
-                throw new IllegalStateException("Width must not be UNSPECIFIED");
-            }
-        }
-
         int layoutHeight = 0;
         int maxLayoutHeight = 0;
         switch (heightMode) {
@@ -612,7 +599,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         float weightSum = 0;
         boolean canSlide = false;
-        final int widthAvailable = widthSize - getPaddingLeft() - getPaddingRight();
+        final int widthAvailable = Math.max(widthSize - getPaddingLeft() - getPaddingRight(), 0);
         int widthRemaining = widthAvailable;
         final int childCount = getChildCount();
 
@@ -645,12 +632,14 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             int childWidthSpec;
             final int horizontalMargin = lp.leftMargin + lp.rightMargin;
 
+            int childWidthSize = Math.max(widthAvailable - horizontalMargin, 0);
+            // When the parent width spec is UNSPECIFIED, measure each of child to get its
+            // desired width.
             if (lp.width == LayoutParams.WRAP_CONTENT) {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
-                        MeasureSpec.AT_MOST);
+                childWidthSpec = MeasureSpec.makeMeasureSpec(childWidthSize,
+                        widthMode == MeasureSpec.UNSPECIFIED ? widthMode : MeasureSpec.AT_MOST);
             } else if (lp.width == LayoutParams.MATCH_PARENT) {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
-                        widthMode);
+                childWidthSpec = MeasureSpec.makeMeasureSpec(childWidthSize, widthMode);
             } else {
                 childWidthSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
             }

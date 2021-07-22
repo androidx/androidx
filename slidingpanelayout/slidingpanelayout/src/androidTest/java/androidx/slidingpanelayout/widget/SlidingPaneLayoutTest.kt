@@ -19,7 +19,9 @@ package androidx.slidingpanelayout.widget
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.slidingpanelayout.test.R
 import androidx.slidingpanelayout.widget.helpers.TestActivity
@@ -84,6 +86,30 @@ class SlidingPaneLayoutTest {
             container.addView(
                 slidingPaneLayout,
                 ViewGroup.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+            )
+            activity.setContentView(container)
+        }
+
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_fold_layout))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_fold_layout))
+                .check(ViewAssertions.matches(isTwoPane()))
+        }
+    }
+
+    @Test
+    fun testLayoutWidthSpecUnspecific() {
+        TestActivity.onActivityCreated = { activity ->
+            val container = LinearLayout(activity)
+            val sideButton = Button(activity).apply { text = "button" }
+            container.addView(sideButton, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1F))
+            val slidingPaneLayout = activity.layoutInflater.inflate(
+                R.layout.activity_test_fold_layout, null, false
+            )
+            container.addView(
+                slidingPaneLayout,
+                LinearLayout.LayoutParams(0, MATCH_PARENT, 1F)
             )
             activity.setContentView(container)
         }
