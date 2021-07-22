@@ -392,7 +392,9 @@ public class WatchFaceImpl @UiThread constructor(
     private val watchFaceHostApi: WatchFaceHostApi,
     private val watchState: WatchState,
     internal val currentUserStyleRepository: CurrentUserStyleRepository,
-    internal var complicationSlotsManager: ComplicationSlotsManager,
+
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public var complicationSlotsManager: ComplicationSlotsManager,
 
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
