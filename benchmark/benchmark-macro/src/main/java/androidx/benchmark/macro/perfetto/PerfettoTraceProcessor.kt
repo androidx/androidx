@@ -19,6 +19,7 @@ package androidx.benchmark.macro.perfetto
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.device
+import androidx.benchmark.macro.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import org.jetbrains.annotations.TestOnly
 import java.io.File
@@ -54,8 +55,11 @@ internal object PerfettoTraceProcessor {
 
         val command = "$shellPath --run-metric $metric $absoluteTracePath --metrics-output=json"
         Log.d(TAG, "Executing command $command")
-        val json = device.executeShellCommand(command)
-            .trim() // trim to enable empty check below
+
+        val json = userspaceTrace("trace_processor_shell") {
+            device.executeShellCommand(command)
+                .trim() // trim to enable empty check below
+        }
         Log.d(TAG, "Trace Processor result: \n\n $json")
         if (json.isEmpty()) {
             throw IllegalStateException(

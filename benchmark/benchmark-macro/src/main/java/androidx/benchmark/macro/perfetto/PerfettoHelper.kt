@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.macro.DeviceInfo.deviceSummaryString
 import androidx.benchmark.macro.device
+import androidx.benchmark.macro.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import org.jetbrains.annotations.TestOnly
 import java.io.File
@@ -125,13 +126,15 @@ public class PerfettoHelper(private val unbundled: Boolean = Build.VERSION.SDK_I
      */
     public fun stopCollecting(waitTimeInMsecs: Long, destinationFile: String): Boolean {
         // Wait for the dump interval before stopping the trace.
-        Log.i(LOG_TAG, "Waiting for $waitTimeInMsecs millis before stopping perfetto.")
-        SystemClock.sleep(waitTimeInMsecs)
+        userspaceTrace("Wait for perfetto flush") {
+            Log.i(LOG_TAG, "Waiting for $waitTimeInMsecs millis before stopping perfetto.")
+            SystemClock.sleep(waitTimeInMsecs)
+        }
 
         // Stop the perfetto and copy the output file.
         Log.i(LOG_TAG, "Stopping perfetto.")
         try {
-            var stopped = stopPerfetto()
+            var stopped = userspaceTrace("stop perfetto process") { stopPerfetto() }
             if (unbundled) {
                 Log.i(LOG_TAG, "Stopping `traced` and `traced_probes`.")
                 stopped = stopped.or(stopProcess(getProcessId(TRACED)))
@@ -142,14 +145,13 @@ public class PerfettoHelper(private val unbundled: Boolean = Build.VERSION.SDK_I
                 return false
             }
             Log.i(LOG_TAG, "Writing to $destinationFile.")
-            if (!copyFileOutput(destinationFile)) {
-                return false
+            return userspaceTrace("copy trace to output dir") {
+                copyFileOutput(destinationFile)
             }
         } catch (ioe: IOException) {
             Log.e(LOG_TAG, "Unable to stop the perfetto tracing due to " + ioe.message, ioe)
             return false
         }
-        return true
     }
 
     /**
@@ -254,10 +256,12 @@ public class PerfettoHelper(private val unbundled: Boolean = Build.VERSION.SDK_I
         var waitCount = 0
         while (isProcessRunning(pid)) {
             Log.d(LOG_TAG, "Process ($pid) is running")
-            // 60 secs timeout for perfetto shutdown.
+            // timeout for process shutdown.
             if (waitCount < PERFETTO_KILL_WAIT_COUNT) {
                 // Check every 100 millis if process stopped successfully.
-                SystemClock.sleep(PERFETTO_KILL_WAIT_TIME_MS)
+                userspaceTrace("wait for process kill") {
+                    SystemClock.sleep(PERFETTO_KILL_WAIT_TIME_MS)
+                }
                 waitCount++
                 continue
             }
@@ -403,28 +407,30 @@ public class PerfettoHelper(private val unbundled: Boolean = Build.VERSION.SDK_I
         }
 
         internal fun createExecutable(tool: String): String {
-            if (!isAbiSupported()) {
-                throw IllegalStateException(
-                    "Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})"
-                )
+            userspaceTrace("create executable: $tool") {
+                if (!isAbiSupported()) {
+                    throw IllegalStateException(
+                        "Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})"
+                    )
+                }
+                val suffix = when {
+                    // The order is important because `SUPPORTED_64_BIT_ABIS` lists all ABI
+                    // supported by a device. That is why we need to search from most specific to
+                    // least specific. For e.g. emulators claim to support aarch64, when in reality
+                    // they can only support x86 or x86_64.
+                    Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("x86_64") } -> "x86_64"
+                    Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("arm64") } -> "aarch64"
+                    Build.SUPPORTED_32_BIT_ABIS.any { it.startsWith("armeabi") } -> "arm"
+                    else -> IllegalStateException(
+                        // Perfetto does not support x86 binaries
+                        "Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})"
+                    )
+                }
+                val instrumentation = InstrumentationRegistry.getInstrumentation()
+                val inputStream = instrumentation.context.assets.open("${tool}_$suffix")
+                val device = instrumentation.device()
+                return device.createRunnableExecutable(tool, inputStream)
             }
-            val suffix = when {
-                // The order is important because `SUPPORTED_64_BIT_ABIS` lists all ABI supported
-                // by a device. That is why we need to search from most specific to least specific.
-                // For e.g. emulators claim to support aarch64, when in reality they can only
-                // support x86 or x86_64.
-                Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("x86_64") } -> "x86_64"
-                Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("arm64") } -> "aarch64"
-                Build.SUPPORTED_32_BIT_ABIS.any { it.startsWith("armeabi") } -> "arm"
-                else -> IllegalStateException(
-                    // Perfetto does not support x86 binaries
-                    "Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})"
-                )
-            }
-            val instrumentation = InstrumentationRegistry.getInstrumentation()
-            val inputStream = instrumentation.context.assets.open("${tool}_$suffix")
-            val device = instrumentation.device()
-            return device.createRunnableExecutable(tool, inputStream)
         }
     }
 }
