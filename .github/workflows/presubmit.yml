@@ -113,10 +113,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        project: ["activity", "biometric", "compose-compiler", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
+        project: ["activity", "biometric", "compose-compiler", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work", "compose-runtime"]
         include:
           - project: "compose-compiler"
             project-root: "compose/compiler"
+          - project: "compose-runtime"
+            project-root: "compose/runtime"
           - project: "navigation"
             custom-os: "macos-latest" # run one of them on a mac to ensure mac setup works
     runs-on: ${{ matrix.custom-os || matrix.os }}
