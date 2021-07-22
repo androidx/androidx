@@ -427,6 +427,7 @@ package androidx.wear.watchface {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class WatchFaceImpl {
     ctor @UiThread public WatchFaceImpl(androidx.wear.watchface.WatchFace watchface, androidx.wear.watchface.WatchFaceHostApi watchFaceHostApi, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, android.icu.util.Calendar calendar, androidx.wear.watchface.BroadcastsObserver broadcastsObserver, androidx.wear.watchface.BroadcastsReceiver? broadcastsReceiver);
     method public long getPreviewReferenceTimeMillis();
+    method public void setComplicationSlotsManager(androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
     property public final long previewReferenceTimeMillis;
   }
 
@@ -453,12 +454,15 @@ package androidx.wear.watchface {
     ctor public WatchFaceService.EngineWrapper(android.os.Handler uiThreadHandler, android.os.Handler backgroundThreadHandler, boolean headless);
     method public android.os.Handler getBackgroundThreadHandler();
     method public android.content.Context getContext();
+    method public kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFaceImpl> getDeferredWatchFaceImpl();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getInitialUserStyle();
     method public android.os.Handler getUiThreadHandler();
     method public void invalidate();
     method public void setActiveComplicationSlots(int[] complicationSlotIds);
     method public void setDefaultComplicationDataSourceWithFallbacks(int complicationSlotId, java.util.List<android.content.ComponentName>? dataSources, @androidx.wear.complications.SystemDataSources.DataSourceId int fallbackSystemProvider, int type);
+    method public void setDeferredWatchFaceImpl(kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFaceImpl> deferredWatchFaceImpl);
     method @UiThread public void updateContentDescriptionLabels();
+    property public final kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFaceImpl> deferredWatchFaceImpl;
   }
 
   public final class WatchFaceServiceKt {

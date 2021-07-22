@@ -29,7 +29,6 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
@@ -40,6 +39,7 @@ import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
+import androidx.wear.complications.data.RangedValueComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
@@ -96,6 +96,7 @@ import java.util.concurrent.TimeoutException
 
 private const val CONNECT_TIMEOUT_MILLIS = 500L
 private const val DESTROY_TIMEOUT_MILLIS = 500L
+private const val UPDATE_TIMEOUT_MILLIS = 500L
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -478,7 +479,6 @@ class WatchFaceControlClientTest {
         }
     }
 
-    @FlakyTest(bugId = 189880224)
     @Test
     fun interactiveWatchFaceClient_ComplicationDetails() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
@@ -495,21 +495,6 @@ class WatchFaceControlClientTest {
         createEngine()
 
         val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
-
-        interactiveInstance.updateComplicationData(
-            mapOf(
-                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-                    ShortTextComplicationData.Builder(
-                        PlainComplicationText.Builder("Test").build(),
-                        ComplicationText.EMPTY
-                    ).build(),
-                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-                    LongTextComplicationData.Builder(
-                        PlainComplicationText.Builder("Test").build(),
-                        ComplicationText.EMPTY
-                    ).build()
-            )
-        )
 
         assertThat(interactiveInstance.complicationSlotsState.size).isEqualTo(2)
 
@@ -560,10 +545,77 @@ class WatchFaceControlClientTest {
         )
         assertTrue(rightComplicationDetails.isEnabled)
         assertThat(rightComplicationDetails.currentType).isEqualTo(
-            ComplicationType.LONG_TEXT
+            ComplicationType.SHORT_TEXT
         )
 
         interactiveInstance.close()
+    }
+
+    @Test
+    public fun updateComplicationData() {
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        createEngine()
+
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        // Under the hood updateComplicationData is a oneway aidl method so we need to perform some
+        // additional synchronization to ensure it's side effects have been applied before
+        // inspecting complicationSlotsState otherwise we risk test flakes.
+        val updateCountDownLatch = CountDownLatch(1)
+        runBlocking {
+            val leftComplicationSlot = engine.deferredWatchFaceImpl.await()
+                .complicationSlotsManager.complicationSlots[
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+            ]!!
+
+            leftComplicationSlot.complicationData.addObserver {
+                updateCountDownLatch.countDown()
+            }
+        }
+
+        interactiveInstance.updateComplicationData(
+            mapOf(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                    RangedValueComplicationData.Builder(
+                        50.0f,
+                        10.0f,
+                        100.0f,
+                        ComplicationText.EMPTY
+                    ).build(),
+                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
+                    LongTextComplicationData.Builder(
+                        PlainComplicationText.Builder("Test").build(),
+                        ComplicationText.EMPTY
+                    ).build()
+            )
+        )
+        assertTrue(updateCountDownLatch.await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
+
+        assertThat(interactiveInstance.complicationSlotsState.size).isEqualTo(2)
+
+        val leftComplicationDetails = interactiveInstance.complicationSlotsState[
+            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+        ]!!
+        val rightComplicationDetails = interactiveInstance.complicationSlotsState[
+            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+        ]!!
+
+        assertThat(leftComplicationDetails.currentType).isEqualTo(
+            ComplicationType.RANGED_VALUE
+        )
+        assertThat(rightComplicationDetails.currentType).isEqualTo(
+            ComplicationType.LONG_TEXT
+        )
     }
 
     @Test
