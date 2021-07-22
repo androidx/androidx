@@ -32,6 +32,7 @@ import androidx.annotation.NavigationRes
 import androidx.annotation.RestrictTo
 import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
@@ -39,6 +40,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -64,12 +66,15 @@ public open class NavController(
     public val context: Context
 ) {
     private var activity: Activity? = generateSequence(context) {
-        if (it is ContextWrapper) { it.baseContext } else null
+        if (it is ContextWrapper) {
+            it.baseContext
+        } else null
     }.firstOrNull { it is Activity } as Activity?
 
     private var inflater: NavInflater? = null
 
     private var _graph: NavGraph? = null
+
     /**
      * The topmost navigation graph associated with this NavController.
      *
@@ -148,6 +153,7 @@ public open class NavController(
     }
 
     private var _navigatorProvider = NavigatorProvider()
+
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     /**
      * The NavController's [NavigatorProvider]. All [Navigators][Navigator] used
@@ -643,53 +649,119 @@ public open class NavController(
      */
     @MainThread
     public open fun navigateUp(): Boolean {
-        return if (destinationCountOnBackStack == 1) {
-            // If there's only one entry, then we've deep linked into a specific destination
-            // on another task so we need to find the parent and start our task from there
-            val currentDestination = currentDestination
-            var destId = currentDestination!!.id
-            var parent = currentDestination.parent
-            while (parent != null) {
-                if (parent.startDestinationId != destId) {
-                    val args = Bundle()
-                    if (activity != null && activity!!.intent != null) {
-                        val data = activity!!.intent.data
+        // If there's only one entry, then we may have deep linked into a specific destination
+        // on another task.
+        if (destinationCountOnBackStack == 1) {
+            val extras = activity?.intent?.extras
+            if (extras?.getIntArray(KEY_DEEP_LINK_IDS) != null) {
+                return tryRelaunchUpToExplicitStack()
+            } else {
+                return tryRelaunchUpToGeneratedStack()
+            }
+        } else {
+            return popBackStack()
+        }
+    }
 
-                        // We were started via a URI intent.
-                        if (data != null) {
-                            // Include the original deep link Intent so the Destinations can
-                            // synthetically generate additional arguments as necessary.
-                            args.putParcelable(
-                                KEY_DEEP_LINK_INTENT,
-                                activity!!.intent
+    /** Starts a new Activity directed to the next-upper Destination in the explicit deep link
+     * stack used to start this Activity. Returns false if
+     * the current destination was already the root of the deep link.
+     */
+    private fun tryRelaunchUpToExplicitStack(): Boolean {
+        if (!deepLinkHandled) {
+            return false
+        }
+
+        val intent = activity!!.intent
+        val extras = intent.extras
+
+        val deepLinkIds = extras!!.getIntArray(KEY_DEEP_LINK_IDS)!!.toMutableList()
+        val deepLinkArgs = extras.getParcelableArrayList<Bundle>(KEY_DEEP_LINK_ARGS)
+
+        // Remove the leaf destination to pop up to one level above it
+        var leafDestinationId = deepLinkIds.removeLast()
+        deepLinkArgs?.removeLast()
+
+        // Probably deep linked to a single destination only.
+        if (deepLinkIds.isEmpty()) {
+            return false
+        }
+
+        // Find the destination if the leaf destination was a NavGraph
+        with(graph.findDestination(leafDestinationId)) {
+            if (this is NavGraph) {
+                leafDestinationId = this.findStartDestination().id
+            }
+        }
+
+        // The final element of the deep link couldn't have brought us to the current location.
+        if (leafDestinationId != currentDestination?.id) {
+            return false
+        }
+
+        val navDeepLinkBuilder = createDeepLink()
+
+        // Attach the original global arguments, and also the original calling Intent.
+        val arguments = bundleOf(KEY_DEEP_LINK_INTENT to intent)
+        extras.getBundle(KEY_DEEP_LINK_EXTRAS)?.let {
+            arguments.putAll(it)
+        }
+        navDeepLinkBuilder.setArguments(arguments)
+
+        deepLinkIds.forEachIndexed { index, deepLinkId ->
+            navDeepLinkBuilder.addDestination(deepLinkId, deepLinkArgs?.get(index))
+        }
+
+        navDeepLinkBuilder.createTaskStackBuilder().startActivities()
+        activity?.finish()
+        return true
+    }
+
+    /**
+     * Starts a new Activity directed to the parent of the current Destination. Returns false if
+     * the current destination was already the root of the deep link.
+     */
+    private fun tryRelaunchUpToGeneratedStack(): Boolean {
+        val currentDestination = currentDestination
+        var destId = currentDestination!!.id
+        var parent = currentDestination.parent
+        while (parent != null) {
+            if (parent.startDestinationId != destId) {
+                val args = Bundle()
+                if (activity != null && activity!!.intent != null) {
+                    val data = activity!!.intent.data
+
+                    // We were started via a URI intent.
+                    if (data != null) {
+                        // Include the original deep link Intent so the Destinations can
+                        // synthetically generate additional arguments as necessary.
+                        args.putParcelable(
+                            KEY_DEEP_LINK_INTENT,
+                            activity!!.intent
+                        )
+                        val matchingDeepLink = _graph!!.matchDeepLink(
+                            NavDeepLinkRequest(activity!!.intent)
+                        )
+                        if (matchingDeepLink != null) {
+                            val destinationArgs = matchingDeepLink.destination.addInDefaultArgs(
+                                matchingDeepLink.matchingArgs
                             )
-                            val matchingDeepLink = _graph!!.matchDeepLink(
-                                NavDeepLinkRequest(activity!!.intent)
-                            )
-                            if (matchingDeepLink != null) {
-                                val destinationArgs = matchingDeepLink.destination.addInDefaultArgs(
-                                    matchingDeepLink.matchingArgs
-                                )
-                                args.putAll(destinationArgs)
-                            }
+                            args.putAll(destinationArgs)
                         }
                     }
-                    val parentIntents = NavDeepLinkBuilder(this)
-                        .setDestination(parent.id)
-                        .setArguments(args)
-                        .createTaskStackBuilder()
-                    parentIntents.startActivities()
-                    activity?.finish()
-                    return true
                 }
-                destId = parent.id
-                parent = parent.parent
+                val parentIntents = NavDeepLinkBuilder(this)
+                    .setDestination(parent.id)
+                    .setArguments(args)
+                    .createTaskStackBuilder()
+                parentIntents.startActivities()
+                activity?.finish()
+                return true
             }
-            // We're already at the startDestination of the graph so there's no 'Up' to go to
-            false
-        } else {
-            popBackStack()
+            destId = parent.id
+            parent = parent.parent
         }
+        return false
     }
 
     /**
@@ -1287,6 +1359,7 @@ public open class NavController(
             else
                 backQueue.last().destination
             ) ?: throw IllegalStateException("no current navigation node")
+
         @IdRes
         var destId = resId
         val navAction = currentNode.getAction(resId)
