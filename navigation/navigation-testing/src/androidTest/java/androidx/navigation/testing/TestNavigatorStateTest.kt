@@ -119,9 +119,14 @@ class TestNavigatorStateTest {
             .isEqualTo(Lifecycle.State.RESUMED)
 
         navigator.popBackStack(secondEntry, false)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        state.transitionsInProgress.value[firstEntry]?.onTransitionComplete()
         assertThat(firstEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.RESUMED)
-
         state.transitionsInProgress.value[secondEntry]?.onTransitionComplete()
         assertThat(secondEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)

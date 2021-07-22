@@ -120,10 +120,27 @@ public class TestNavigatorState @JvmOverloads constructor(
         popUpTo: NavBackStackEntry,
         saveState: Boolean
     ): OnTransitionCompleteListener {
+        // Get the entry that will be incoming after we have popped all the way up to the desired
+        // entry.
+        // We need to do this before we call popWithTransition because for the TestNavigatorState
+        // pop is called immediately, which would cause the entry to immediately go to RESUMED.
+        val incomingEntry = backStack.value.lastOrNull { entry ->
+            entry != popUpTo &&
+                backStack.value.lastIndexOf(entry) < backStack.value.lastIndexOf(popUpTo)
+        }
+        // When popping, we need to mark the incoming entry as transitioning so we keep it
+        // STARTED until the transition completes at which point we can move it to RESUMED
+        if (incomingEntry != null) {
+            addInProgressTransition(incomingEntry) {
+                removeInProgressTransition(incomingEntry)
+                updateMaxLifecycle()
+            }
+        }
+        addInProgressTransition(popUpTo) { }
         val innerListener = super.popWithTransition(popUpTo, saveState)
         val listener = OnTransitionCompleteListener {
             innerListener.onTransitionComplete()
-            updateMaxLifecycle()
+            updateMaxLifecycle(listOf(popUpTo))
         }
         addInProgressTransition(popUpTo, listener)
         updateMaxLifecycle()
