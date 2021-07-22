@@ -664,6 +664,7 @@ includeProject(":wear:wear-watchface-guava", "wear/wear-watchface-guava", [Build
 includeProject(":wear:wear-watchface-samples", "wear/wear-watchface/samples", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-watchface-samples-app", "wear/wear-watchface/samples/app", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-watchface-samples-minimal", "wear/wear-watchface/samples/minimal", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-samples-minimal-complications", "wear/wear-watchface-samples-minimal-complications", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-watchface-style", "wear/wear-watchface-style", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":webkit:integration-tests:testapp", "webkit/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":webkit:webkit", "webkit/webkit", [BuildType.MAIN])
