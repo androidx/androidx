@@ -80,9 +80,9 @@ public fun <Key : Any> PagedList.Config.toRefreshLoadParams(
  */
 public abstract class PagingSource<Key : Any, Value : Any> {
 
-    private val invalidateCallbackTracker = InvalidateCallbackTracker<() -> Unit>() {
-        it()
-    }
+    private val invalidateCallbackTracker = InvalidateCallbackTracker<() -> Unit>(
+        callbackInvoker = { it() }
+    )
 
     internal val invalidateCallbackCount: Int
         @VisibleForTesting
