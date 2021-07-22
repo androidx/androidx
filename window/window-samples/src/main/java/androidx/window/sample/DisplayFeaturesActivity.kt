@@ -25,10 +25,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.window.layout.WindowInfoRepo
+import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -45,7 +45,7 @@ class DisplayFeaturesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_display_features)
 
-        val windowInfoRepo = WindowInfoRepo.create(this)
+        val windowInfoRepo = windowInfoRepository()
 
         lifecycleScope.launch(Dispatchers.Main) {
             // The block passed to repeatOnLifecycle is executed when the lifecycle

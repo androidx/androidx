@@ -22,10 +22,10 @@ import androidx.window.core.Bounds
  * Metrics about a [android.view.Window], consisting of its bounds.
  *
  *
- * This is usually obtained from [WindowInfoRepo.currentWindowMetrics] or
+ * This is usually obtained from [WindowInfoRepository.currentWindowMetrics] or
  * [WindowMetricsCalculator.computeMaximumWindowMetrics].
  *
- * @see WindowInfoRepo.currentWindowMetrics
+ * @see WindowInfoRepository.currentWindowMetrics
  */
 public class WindowMetrics internal constructor(private val _bounds: Bounds) {
 

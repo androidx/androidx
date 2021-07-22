@@ -101,11 +101,11 @@ public class FoldTest {
         TestActivity.onActivityCreated = { activity ->
             activity.setContentView(R.layout.activity_test_fold_layout)
             val detailView = activity.findViewById<View>(R.id.detail_pane)
-            detailView.minimumWidth = WindowMetricsCalculator.create()
+            detailView.minimumWidth = WindowMetricsCalculator.getOrCreate()
                 .computeCurrentWindowMetrics(activity)
                 .bounds
                 .width() / 2 + detailViewExtraWidth
-            val window = WindowMetricsCalculator.create()
+            val window = WindowMetricsCalculator.getOrCreate()
                 .computeCurrentWindowMetrics(activity).bounds
             detailView.minimumWidth = window.width() / 2 + detailViewExtraWidth
         }
@@ -115,7 +115,7 @@ public class FoldTest {
                 val feature = FoldingFeature(activity = this, orientation = VERTICAL)
                 val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
                 rule.overrideWindowLayoutInfo(info)
-                WindowMetricsCalculator.create().computeCurrentWindowMetrics(this).bounds
+                WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this).bounds
             }
             assertThat(findViewById(R.id.detail_pane).width).isEqualTo(window.width())
         }

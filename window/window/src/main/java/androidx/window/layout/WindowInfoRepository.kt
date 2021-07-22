@@ -17,6 +17,7 @@
 package androidx.window.layout
 
 import android.app.Activity
+import android.os.Looper
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.window.R
@@ -25,7 +26,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * An interface to provide all the relevant info about a [android.view.Window].
  */
-public interface WindowInfoRepo {
+public interface WindowInfoRepository {
 
     /**
      * Returns a [Flow] for consuming the current [WindowMetrics] according to the current
@@ -51,24 +52,47 @@ public interface WindowInfoRepo {
 
     public companion object {
 
-        private var decorator: WindowInfoRepoDecorator = EmptyDecorator
+        private var decorator: WindowInfoRepositoryDecorator = EmptyDecorator
 
+        /**
+         * Provide an instance of [WindowInfoRepository] that is associated to the given [Activity]
+         */
+        @JvmName("getOrCreate")
         @JvmStatic
-        public fun create(activity: Activity): WindowInfoRepo {
-            val taggedRepo = activity.getTag(R.id.androidx_window_activity_scope) as? WindowInfoRepo
-            val repo = taggedRepo ?: activity.getOrCreateTag(R.id.androidx_window_activity_scope) {
-                WindowInfoRepoImpl(
-                    activity,
+        public fun Activity.windowInfoRepository(): WindowInfoRepository {
+            val taggedRepo = getTag(R.id.androidx_window_activity_scope) as? WindowInfoRepository
+            val repo = taggedRepo ?: getOrCreateTag(R.id.androidx_window_activity_scope) {
+                WindowInfoRepositoryImpl(
+                    this,
                     WindowMetricsCalculatorCompat,
-                    ExtensionWindowBackend.getInstance(activity)
+                    ExtensionWindowBackend.getInstance(this)
                 )
             }
             return decorator.decorate(repo)
         }
 
+        private inline fun <reified T> Activity.getTag(id: Int): T? {
+            return window.decorView.getTag(id) as? T
+        }
+
+        /**
+         * Checks to see if an object of type [T] is associated with the tag [id]. If it is
+         * available then it is returned. Otherwise set an object crated using the [producer] and
+         * return that value.
+         * @return object associated with the tag.
+         */
+        private inline fun <reified T> Activity.getOrCreateTag(id: Int, producer: () -> T): T {
+            return (window.decorView.getTag(id) as? T) ?: run {
+                assert(Looper.getMainLooper() == Looper.myLooper())
+                val value = producer()
+                window.decorView.setTag(id, value)
+                value
+            }
+        }
+
         @JvmStatic
         @RestrictTo(LIBRARY_GROUP)
-        public fun overrideDecorator(overridingDecorator: WindowInfoRepoDecorator) {
+        public fun overrideDecorator(overridingDecorator: WindowInfoRepositoryDecorator) {
             decorator = overridingDecorator
         }
 
@@ -81,16 +105,16 @@ public interface WindowInfoRepo {
 }
 
 @RestrictTo(LIBRARY_GROUP)
-public interface WindowInfoRepoDecorator {
+public interface WindowInfoRepositoryDecorator {
     /**
-     * Returns an instance of [WindowInfoRepo] associated to the [Activity]
+     * Returns an instance of [WindowInfoRepository] associated to the [Activity]
      */
     @RestrictTo(LIBRARY_GROUP)
-    public fun decorate(repo: WindowInfoRepo): WindowInfoRepo
+    public fun decorate(repository: WindowInfoRepository): WindowInfoRepository
 }
 
-private object EmptyDecorator : WindowInfoRepoDecorator {
-    override fun decorate(repo: WindowInfoRepo): WindowInfoRepo {
-        return repo
+private object EmptyDecorator : WindowInfoRepositoryDecorator {
+    override fun decorate(repository: WindowInfoRepository): WindowInfoRepository {
+        return repository
     }
 }

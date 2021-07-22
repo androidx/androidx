@@ -74,8 +74,9 @@ public class SidecarCompatUnitTest {
     @Test
     public fun testGetWindowLayout_featureWithEmptyBounds() {
         // Add a feature with an empty bounds to the reported list
+        val activityWindowToken = activity.window?.attributes?.token!!
         val originalWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(
-            getActivityWindowToken(activity)!!
+            activityWindowToken
         )
         val sidecarDisplayFeatures = originalWindowLayoutInfo.displayFeatures ?: emptyList()
         val newFeature = SidecarDisplayFeature()
@@ -210,8 +211,9 @@ public class SidecarCompatUnitTest {
         verify(listener).onWindowLayoutChanged(
             activity, expectedLayoutInfo
         )
+        val activityWindowToken = activity.window?.attributes?.token!!
         verify(sidecarCompat.sidecar!!).onWindowLayoutChangeListenerAdded(
-            getActivityWindowToken(activity)!!
+            activityWindowToken
         )
         verify(fakeView).addOnAttachStateChangeListener(any())
     }

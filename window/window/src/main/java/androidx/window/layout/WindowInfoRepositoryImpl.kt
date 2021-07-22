@@ -27,18 +27,18 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 /**
- * An implementation of [WindowInfoRepo] that provides the [WindowLayoutInfo] and
+ * An implementation of [WindowInfoRepository] that provides the [WindowLayoutInfo] and
  * [WindowMetrics] for the given [Activity].
  *
  * @param activity that the provided window is based on.
  * @param windowMetricsCalculator a helper to calculate the [WindowMetrics] for the [Activity].
  * @param windowBackend a helper to provide the [WindowLayoutInfo].
  */
-internal class WindowInfoRepoImpl(
+internal class WindowInfoRepositoryImpl(
     private val activity: Activity,
     private val windowMetricsCalculator: WindowMetricsCalculator,
     private val windowBackend: WindowBackend
-) : WindowInfoRepo {
+) : WindowInfoRepository {
 
     /**
      * Returns the [WindowMetrics] according to the current system state.

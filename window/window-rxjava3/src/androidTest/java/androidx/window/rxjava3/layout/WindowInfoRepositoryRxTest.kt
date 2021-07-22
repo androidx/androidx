@@ -18,7 +18,7 @@ package androidx.window.rxjava3.layout
 
 import android.graphics.Rect
 import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowInfoRepo
+import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 import com.nhaarman.mockitokotlin2.mock
@@ -29,14 +29,14 @@ import org.junit.Test
 /**
  * Test for the adapter functions that convert to [io.reactivex.rxjava3.core.Observable] or
  * [io.reactivex.rxjava3.core.Flowable] and ensure that data is forwarded appropriately.
- * @see WindowInfoRepo
+ * @see WindowInfoRepository
  */
-public class WindowInfoRepoRxTest {
+public class WindowInfoRepositoryRxTest {
 
     @Test
     public fun testCurrentWindowMetricsObservable() {
         val expected = WindowMetrics(Rect(0, 1, 2, 3))
-        val mockRepo = mock<WindowInfoRepo>()
+        val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.currentWindowMetrics).thenReturn(flowOf(expected))
 
         val testSubscriber = mockRepo.currentWindowMetricsObservable().test()
@@ -47,7 +47,7 @@ public class WindowInfoRepoRxTest {
     @Test
     public fun testCurrentWindowMetricsFlowable() {
         val expected = WindowMetrics(Rect(0, 1, 2, 3))
-        val mockRepo = mock<WindowInfoRepo>()
+        val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.currentWindowMetrics).thenReturn(flowOf(expected))
 
         val testSubscriber = mockRepo.currentWindowMetricsFlowable().test()
@@ -63,7 +63,7 @@ public class WindowInfoRepoRxTest {
             FoldingFeature.State.HALF_OPENED
         )
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
-        val mockRepo = mock<WindowInfoRepo>()
+        val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
 
         val testSubscriber = mockRepo.windowLayoutInfoObservable().test()
@@ -79,7 +79,7 @@ public class WindowInfoRepoRxTest {
             FoldingFeature.State.HALF_OPENED
         )
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
-        val mockRepo = mock<WindowInfoRepo>()
+        val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
 
         val testSubscriber = mockRepo.windowLayoutInfoFlowable().test()

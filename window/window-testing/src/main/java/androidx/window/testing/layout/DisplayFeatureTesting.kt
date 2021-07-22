@@ -54,7 +54,7 @@ import androidx.window.layout.WindowMetricsCalculator
 @JvmName("createFoldingFeature")
 fun FoldingFeature(
     activity: Activity,
-    center: Int = WindowMetricsCalculator.create().computeCurrentWindowMetrics(activity).bounds
+    center: Int = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(activity).bounds
         .centerX(),
     size: Int = 0,
     state: State = HALF_OPENED,
@@ -68,7 +68,7 @@ fun FoldingFeature(
     val offset = size / 2
     val start = center - offset
     val end = center + offset
-    val metrics = WindowMetricsCalculator.create().computeCurrentWindowMetrics(activity)
+    val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(activity)
     val bounds = if (orientation == VERTICAL) {
         val windowHeight = metrics.bounds.height()
         Rect(start, 0, end, windowHeight)

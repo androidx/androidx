@@ -418,5 +418,13 @@ internal class SidecarCompat @VisibleForTesting constructor(
                 }
                 null
             }
+
+        /**
+         * A utility method [Activity] to return an optional [IBinder] window token from an
+         * [Activity].
+         */
+        internal fun getActivityWindowToken(activity: Activity?): IBinder? {
+            return activity?.window?.attributes?.token
+        }
     }
 }

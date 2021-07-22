@@ -1,10 +1,6 @@
 // Signature format: 4.0
 package androidx.window.layout {
 
-  public final class ActivityExtKt {
-    method public static androidx.window.layout.WindowInfoRepo windowInfoRepository(android.app.Activity);
-  }
-
   public interface DisplayFeature {
     method public android.graphics.Rect getBounds();
     property public abstract android.graphics.Rect bounds;
@@ -72,25 +68,25 @@ package androidx.window.layout {
   public static final class FoldingFeature.Type.Companion {
   }
 
-  public interface WindowInfoRepo {
-    method public default static androidx.window.layout.WindowInfoRepo create(android.app.Activity activity);
+  public interface WindowInfoRepository {
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowMetrics> getCurrentWindowMetrics();
+    method public default static androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> getWindowLayoutInfo();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void overrideDecorator(androidx.window.layout.WindowInfoRepoDecorator overridingDecorator);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void overrideDecorator(androidx.window.layout.WindowInfoRepositoryDecorator overridingDecorator);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void reset();
     property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowMetrics> currentWindowMetrics;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo;
-    field public static final androidx.window.layout.WindowInfoRepo.Companion Companion;
+    field public static final androidx.window.layout.WindowInfoRepository.Companion Companion;
   }
 
-  public static final class WindowInfoRepo.Companion {
-    method public androidx.window.layout.WindowInfoRepo create(android.app.Activity activity);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void overrideDecorator(androidx.window.layout.WindowInfoRepoDecorator overridingDecorator);
+  public static final class WindowInfoRepository.Companion {
+    method public androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void overrideDecorator(androidx.window.layout.WindowInfoRepositoryDecorator overridingDecorator);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void reset();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WindowInfoRepoDecorator {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.window.layout.WindowInfoRepo decorate(androidx.window.layout.WindowInfoRepo repo);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WindowInfoRepositoryDecorator {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.window.layout.WindowInfoRepository decorate(androidx.window.layout.WindowInfoRepository repository);
   }
 
   public final class WindowLayoutInfo {
@@ -113,12 +109,12 @@ package androidx.window.layout {
   public interface WindowMetricsCalculator {
     method public androidx.window.layout.WindowMetrics computeCurrentWindowMetrics(android.app.Activity activity);
     method public androidx.window.layout.WindowMetrics computeMaximumWindowMetrics(android.app.Activity activity);
-    method public default static androidx.window.layout.WindowMetricsCalculator create();
+    method public default static androidx.window.layout.WindowMetricsCalculator getOrCreate();
     field public static final androidx.window.layout.WindowMetricsCalculator.Companion Companion;
   }
 
   public static final class WindowMetricsCalculator.Companion {
-    method public androidx.window.layout.WindowMetricsCalculator create();
+    method public androidx.window.layout.WindowMetricsCalculator getOrCreate();
   }
 
 }

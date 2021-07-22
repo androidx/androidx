@@ -20,7 +20,7 @@ import androidx.core.util.Consumer
 import java.util.concurrent.Executor
 
 /**
- * Backing interface for [WindowInfoRepo] instances that serve as the default
+ * Backing interface for [WindowInfoRepository] instances that serve as the default
  * information supplier.
  */
 internal interface WindowBackend {

@@ -35,7 +35,7 @@ import org.junit.Test
 import java.util.concurrent.Executor
 
 @OptIn(ExperimentalCoroutinesApi::class)
-public class WindowInfoRepoImplTest {
+public class WindowInfoRepositoryImplTest {
 
     @get:Rule
     public val activityScenario: ActivityScenarioRule<TestActivity> =
@@ -46,7 +46,7 @@ public class WindowInfoRepoImplTest {
     @Test
     public fun testGetCurrentWindowMetrics(): Unit = testScope.runBlockingTest {
         activityScenario.scenario.onActivity { testActivity ->
-            val repo = WindowInfoRepoImpl(
+            val repo = WindowInfoRepositoryImpl(
                 testActivity,
                 WindowMetricsCalculatorCompat,
                 FakeWindowBackend()
@@ -63,7 +63,7 @@ public class WindowInfoRepoImplTest {
     @Test
     public fun testGetCurrentWindowMetrics_multicasting(): Unit = testScope.runBlockingTest {
         activityScenario.scenario.onActivity { testActivity ->
-            val repo = WindowInfoRepoImpl(
+            val repo = WindowInfoRepositoryImpl(
                 testActivity,
                 WindowMetricsCalculatorCompat,
                 FakeWindowBackend()
@@ -86,7 +86,7 @@ public class WindowInfoRepoImplTest {
             val scenario = ActivityScenario.launch(TestConfigChangeHandlingActivity::class.java)
             val collector = TestConsumer<WindowMetrics>()
             scenario.onActivity { activity ->
-                val repo = WindowInfoRepoImpl(
+                val repo = WindowInfoRepositoryImpl(
                     activity,
                     WindowMetricsCalculatorCompat,
                     FakeWindowBackend()
@@ -109,7 +109,7 @@ public class WindowInfoRepoImplTest {
     @Test
     public fun testGetMaximumWindowMetrics() {
         activityScenario.scenario.onActivity { testActivity ->
-            val repo = WindowInfoRepoImpl(
+            val repo = WindowInfoRepositoryImpl(
                 testActivity,
                 WindowMetricsCalculatorCompat,
                 FakeWindowBackend()
@@ -125,7 +125,7 @@ public class WindowInfoRepoImplTest {
         activityScenario.scenario.onActivity { testActivity ->
             val windowMetricsCalculator = WindowMetricsCalculatorCompat
             val fakeBackend = FakeWindowBackend()
-            val repo = WindowInfoRepoImpl(
+            val repo = WindowInfoRepositoryImpl(
                 testActivity,
                 windowMetricsCalculator,
                 fakeBackend
@@ -144,7 +144,7 @@ public class WindowInfoRepoImplTest {
         activityScenario.scenario.onActivity { testActivity ->
             val windowMetricsCalculator = WindowMetricsCalculatorCompat
             val fakeBackend = FakeWindowBackend()
-            val repo = WindowInfoRepoImpl(
+            val repo = WindowInfoRepositoryImpl(
                 testActivity,
                 windowMetricsCalculator,
                 fakeBackend
