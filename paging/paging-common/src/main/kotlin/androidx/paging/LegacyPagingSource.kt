@@ -26,8 +26,6 @@ import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -50,19 +48,6 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
         registerInvalidatedCallback {
             dataSource.removeInvalidatedCallback(::invalidate)
             dataSource.invalidate()
-        }
-
-        // dataSource.isInvalid is a @WorkerThread function, so it must be called on
-        // fetchDispatcher. This is normally given since LegacyPagingSource should never be
-        // instantiated on @MainThread, but this workaround exists for Room's current
-        // implementation which is a common use-case. See b/178636235.
-        GlobalScope.launch(fetchDispatcher) {
-            // LegacyPagingSource registers invalidate callback after DataSource is created, so we
-            // need to check for race condition here. If DataSource is already invalid, simply
-            // propagate invalidation manually.
-            if (!invalid && dataSource.isInvalid) {
-                invalidate()
-            }
         }
     }
 
