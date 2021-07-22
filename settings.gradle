@@ -639,6 +639,7 @@ includeProject(":wear:wear-input-testing", "wear/wear-input-testing", [BuildType
 includeProject(":wear:wear-ongoing", "wear/wear-ongoing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-phone-interactions", "wear/wear-phone-interactions", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-remote-interactions", "wear/wear-remote-interactions", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-samples-ambient", "wear/wear-samples-ambient", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles", "wear/tiles/tiles", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-proto", "wear/tiles/tiles-proto", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-renderer", "wear/tiles/tiles-renderer", [BuildType.MAIN, BuildType.WEAR])
