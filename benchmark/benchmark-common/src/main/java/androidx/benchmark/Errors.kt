@@ -132,7 +132,7 @@ internal object Errors {
         }
 
         val arguments = InstrumentationRegistry.getArguments()
-        if (arguments["coverage"] == "true") {
+        if (arguments.getString("coverage") == "true") {
             warningPrefix += "CODE-COVERAGE_"
             warningString += """
                 |WARNING: Code coverage enabled
