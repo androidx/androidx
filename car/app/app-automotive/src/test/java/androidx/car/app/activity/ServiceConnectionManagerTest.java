@@ -37,8 +37,12 @@ import android.content.pm.PackageManager;
 import android.os.RemoteException;
 import android.util.Log;
 
+import androidx.car.app.HandshakeInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IRendererService;
+import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.serialization.BundlerException;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
@@ -95,6 +99,8 @@ public class ServiceConnectionManagerTest {
                     anyInt())).thenReturn(true);
             when(mRenderService.onNewIntent(any(Intent.class), any(ComponentName.class),
                     anyInt())).thenReturn(true);
+            when(mRenderService.performHandshake(any(ComponentName.class), anyInt())).thenReturn(
+                    Bundleable.create(new HandshakeInfo("", CarAppApiLevels.getLatest())));
 
             ShadowApplication sa = shadowOf(app);
             sa.setComponentNameAndServiceForBindService(mRendererComponent, mRenderServiceDelegate);
@@ -188,9 +194,43 @@ public class ServiceConnectionManagerTest {
                     TEST_DISPLAY_ID);
             verify(renderService).onNewIntent(TEST_INTENT, mFakeCarAppServiceComponent,
                     TEST_DISPLAY_ID);
+            verify(renderService).performHandshake(mFakeCarAppServiceComponent,
+                    CarAppApiLevels.getLatest());
         } catch (RemoteException e) {
             fail(Log.getStackTraceString(e));
         }
+        assertThat(mServiceConnectionManager.getHandshakeInfo().getHostCarAppApiLevel()).isEqualTo(
+                CarAppApiLevels.getLatest());
+        assertThat(mServiceConnectionManager.isBound()).isTrue();
+    }
+
+    @Test
+    public void testBind_hostDoesNotSupportHandshake_usesMinLevel() throws RemoteException {
+        setupCarAppActivityForTesting();
+        ICarAppActivity iCarAppActivity = mock(ICarAppActivity.class);
+
+        IRendererService renderService = createMockRendererService();
+        when(renderService.performHandshake(any(ComponentName.class), anyInt())).thenThrow(
+                new SecurityException());
+
+        mServiceConnectionManager.setRendererService(renderService);
+        mServiceConnectionManager.bind(TEST_INTENT, iCarAppActivity, TEST_DISPLAY_ID);
+        mMainLooper.idle();
+
+        try {
+            assertThat(mViewModel.getState().getValue()).isEqualTo(CarAppViewModel.State.CONNECTED);
+            assertThat(mViewModel.getError().getValue()).isNull();
+            verify(renderService).initialize(iCarAppActivity, mFakeCarAppServiceComponent,
+                    TEST_DISPLAY_ID);
+            verify(renderService).onNewIntent(TEST_INTENT, mFakeCarAppServiceComponent,
+                    TEST_DISPLAY_ID);
+            verify(renderService).performHandshake(mFakeCarAppServiceComponent,
+                    CarAppApiLevels.getLatest());
+        } catch (RemoteException e) {
+            fail(Log.getStackTraceString(e));
+        }
+        assertThat(mServiceConnectionManager.getHandshakeInfo().getHostCarAppApiLevel()).isEqualTo(
+                CarAppApiLevels.getOldest());
         assertThat(mServiceConnectionManager.isBound()).isTrue();
     }
 
@@ -270,33 +310,6 @@ public class ServiceConnectionManagerTest {
         assertThat(mServiceConnectionManager.isBound()).isFalse();
     }
 
-    // Use delegate to forward events to a mock. Mockito interceptor is not maintained on
-    // top-level IBinder after call to IRenderService.Stub.asInterface() in CarAppActivity.
-    private static class RenderServiceDelegate extends IRendererService.Stub {
-        private final IRendererService mService;
-
-        RenderServiceDelegate(IRendererService service) {
-            mService = service;
-        }
-
-        @Override
-        public boolean initialize(ICarAppActivity carActivity, ComponentName serviceName,
-                int displayId) throws RemoteException {
-            return mService.initialize(carActivity, serviceName, displayId);
-        }
-
-        @Override
-        public boolean onNewIntent(Intent intent, ComponentName serviceName, int displayId)
-                throws RemoteException {
-            return mService.onNewIntent(intent, serviceName, displayId);
-        }
-
-        @Override
-        public void terminate(ComponentName serviceName) throws RemoteException {
-            mService.terminate(serviceName);
-        }
-    }
-
     private IRendererService createMockRendererService() {
         IRendererService renderService = mock(IRendererService.class);
         try {
@@ -305,7 +318,9 @@ public class ServiceConnectionManagerTest {
                     anyInt())).thenReturn(true);
             when(renderService.onNewIntent(any(Intent.class), any(ComponentName.class),
                     anyInt())).thenReturn(true);
-        } catch (RemoteException e) {
+            when(renderService.performHandshake(any(ComponentName.class), anyInt())).thenReturn(
+                    Bundleable.create(new HandshakeInfo("", CarAppApiLevels.getLatest())));
+        } catch (RemoteException | BundlerException e) {
             fail(Log.getStackTraceString(e));
         }
         return renderService;
