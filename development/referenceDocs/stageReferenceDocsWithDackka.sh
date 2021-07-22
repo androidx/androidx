@@ -114,9 +114,8 @@ printf "=================================================================== \n"
 printf "== Generate the language switcher \n"
 printf "=================================================================== \n"
 
-# The switcher script still requires python2 to run correctly
 cd reference
-python2 ./../../../switcher.py --work androidx
+python3 ./../../../switcher.py --work androidx
 
 printf "\n"
 printf "=================================================================== \n"
