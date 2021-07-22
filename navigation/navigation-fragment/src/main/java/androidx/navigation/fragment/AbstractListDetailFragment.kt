@@ -47,8 +47,30 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout
  */
 abstract class AbstractListDetailFragment : Fragment() {
     private var onBackPressedCallback: OnBackPressedCallback? = null
-    private var detailPaneNavHostFragment: NavHostFragment? = null
+    private var _detailPaneNavHostFragment: NavHostFragment? = null
     private var graphId = 0
+
+    /**
+     * Return the [SlidingPaneLayout] this fragment is currently controlling.
+     *
+     * @throws IllegalStateException if the SlidingPaneLayout has not been created by [onCreateView]
+     */
+    val slidingPaneLayout: SlidingPaneLayout
+        get() = requireView() as SlidingPaneLayout
+
+    /**
+     * Return the [NavHostFragment] this fragment uses
+     *
+     * @throws IllegalStateException if the NavHostFragment has not been created by
+     * {@link #onCreateView}.
+     */
+    val detailPaneNavHostFragment: NavHostFragment
+        get() {
+            checkNotNull(_detailPaneNavHostFragment) {
+                "Fragment $this was called before onCreateView()."
+            }
+            return _detailPaneNavHostFragment as NavHostFragment
+        }
 
     private class InnerOnBackPressedCallback(
         private val slidingPaneLayout: SlidingPaneLayout
@@ -75,27 +97,6 @@ abstract class AbstractListDetailFragment : Fragment() {
             // Disable intercepting the system back button when the user returns to the list pane.
             isEnabled = false
         }
-    }
-
-    /**
-     * Return the [SlidingPaneLayout] this fragment is currently controlling.
-     *
-     * @throws IllegalStateException if the SlidingPaneLayout has not been created by [onCreateView]
-     */
-    fun requireSlidingPaneLayout(): SlidingPaneLayout {
-        return requireView() as SlidingPaneLayout
-    }
-
-    /**
-     * Return the [NavHostFragment] this fragment uses
-     *
-     * @throws IllegalStateException if the NavHostFragment has not been created by
-     * {@link #onCreateView}.
-     */
-    fun requireDetailPaneNavHostFragment(): NavHostFragment {
-        if (detailPaneNavHostFragment == null)
-            throw IllegalStateException("Fragment $this was called before onCreateView().")
-        return detailPaneNavHostFragment as NavHostFragment
     }
 
     @CallSuper
@@ -172,7 +173,7 @@ abstract class AbstractListDetailFragment : Fragment() {
         // Now create the NavHostFragment for the detail container
         val existingNavHostFragment =
             childFragmentManager.findFragmentById(R.id.sliding_pane_detail_container)
-        detailPaneNavHostFragment = if (existingNavHostFragment != null) {
+        _detailPaneNavHostFragment = if (existingNavHostFragment != null) {
             existingNavHostFragment as NavHostFragment
         } else {
             onCreateDetailPaneNavHostFragment().also { newNavHostFragment ->
@@ -251,8 +252,8 @@ abstract class AbstractListDetailFragment : Fragment() {
     @CallSuper
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        onBackPressedCallback!!.isEnabled = requireSlidingPaneLayout().isSlideable &&
-            requireSlidingPaneLayout().isOpen
+        onBackPressedCallback!!.isEnabled =
+            slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
     }
 
     @CallSuper
