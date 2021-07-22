@@ -57,19 +57,23 @@ class SearchResultsImpl implements SearchResults {
 
     private boolean mIsClosed = false;
 
+    @Nullable private final AppSearchLogger mLogger;
+
     SearchResultsImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull Executor executor,
             @Nullable String packageName,
             @Nullable String databaseName,
             @NonNull String queryExpression,
-            @NonNull SearchSpec searchSpec) {
+            @NonNull SearchSpec searchSpec,
+            @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
         mPackageName = packageName;
         mDatabaseName = databaseName;
         mQueryExpression = Preconditions.checkNotNull(queryExpression);
         mSearchSpec = Preconditions.checkNotNull(searchSpec);
+        mLogger = logger;
     }
 
     @Override
@@ -93,14 +97,15 @@ class SearchResultsImpl implements SearchResults {
                             /*visibilityStore=*/ null,
                             Process.myUid(),
                             /*callerHasSystemAccess=*/ false,
-                            /*logger=*/ null);
+                            mLogger);
                 } else {
                     // Normal local query, pass in specified database.
                     searchResultPage = mAppSearchImpl.query(
-                            mPackageName, mDatabaseName, mQueryExpression, mSearchSpec, /*logger
-                            =*/ null);
+                            mPackageName, mDatabaseName, mQueryExpression, mSearchSpec, mLogger);
                 }
             } else {
+                // TODO(b/194309308) Logger needs to be passed and logging needs to be done for
+                //  getNextPage as well
                 searchResultPage = mAppSearchImpl.getNextPage(mPackageName, mNextPageToken);
             }
             mNextPageToken = searchResultPage.getNextPageToken();

@@ -330,7 +330,8 @@ class SearchSessionImpl implements AppSearchSession {
                 mPackageName,
                 mDatabaseName,
                 queryExpression,
-                searchSpec);
+                searchSpec,
+                mLogger);
     }
 
     @Override

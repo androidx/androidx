@@ -86,7 +86,8 @@ public class SearchResultsImplTest {
                 "package1",
                 "database1",
                 "",
-                searchSpec);
+                searchSpec,
+                /*logger=*/ null);
 
         List<SearchResult> results = searchResults.getNextPage().get();
         assertThat(results).hasSize(1);
@@ -136,7 +137,8 @@ public class SearchResultsImplTest {
                 "package1",
                 "database1",
                 "",
-                searchSpec);
+                searchSpec,
+                /*logger=*/ null);
         List<GenericDocument> outDocs = new ArrayList<>();
         List<SearchResult> results = searchResults.getNextPage().get();
         assertThat(results).hasSize(2);

@@ -70,8 +70,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 public abstract class AppSearchSessionCtsTestBase {
-    private static final String DB_NAME_1 = "";
-    private static final String DB_NAME_2 = "testDb2";
+    static final String DB_NAME_1 = "";
+    static final String DB_NAME_2 = "testDb2";
 
     private AppSearchSession mDb1;
     private AppSearchSession mDb2;
