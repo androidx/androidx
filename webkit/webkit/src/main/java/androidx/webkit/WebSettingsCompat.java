@@ -406,7 +406,7 @@ public class WebSettingsCompat {
      * In this mode WebView content will be darkened by a user agent unless web page supports dark
      * theme. WebView determines whether web pages supports dark theme by the presence of
      * {@code color-scheme} metadata containing "dark" value. For example,
-     * {@code <meta name="color-scheme" content="dark light">"}.
+     * {@code <meta name="color-scheme" content="dark light">}.
      * If the metadata is not presented WebView content will be darkened by a user agent and
      * {@code prefers-color-scheme} media query will evaluate to light.
      *
