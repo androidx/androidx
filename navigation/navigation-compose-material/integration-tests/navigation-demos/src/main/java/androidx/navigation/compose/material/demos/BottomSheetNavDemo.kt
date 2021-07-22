@@ -59,7 +59,7 @@ fun BottomSheetNavDemo() {
             }
             composable(Destinations.Feed) { Text("Feed!") }
             bottomSheet(Destinations.Sheet + "?arg={arg}") { backstackEntry ->
-                val arg = backstackEntry.arguments?.get("arg") as String
+                val arg = backstackEntry.arguments?.getString("arg") ?: "Missing argument :("
                 BottomSheet(
                     showFeed = { navController.navigate(Destinations.Feed) },
                     showAnotherSheet = {
