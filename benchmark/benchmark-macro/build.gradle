@@ -57,6 +57,11 @@ android {
 
 wire {
     kotlin {}
+
+    // prune unused config components which have deprecated fields
+    prune 'perfetto.protos.TraceConfig.IncidentReportConfig'
+    prune 'perfetto.protos.ProcessStatsConfig.Quirks'
+
     sourcePath {
         srcDir 'src/main/proto'
     }

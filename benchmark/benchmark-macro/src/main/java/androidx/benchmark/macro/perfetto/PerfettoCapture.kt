@@ -20,8 +20,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
-import androidx.benchmark.macro.R
-import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
 /**
@@ -56,16 +54,14 @@ public class PerfettoCapture(private val unbundled: Boolean = Build.VERSION.SDK_
      * TODO: provide configuration options
      */
     public fun start() {
-        val context = InstrumentationRegistry.getInstrumentation().context
-        // Write textproto asset to external files dir, so it can be read by shell
-        // TODO: use binary proto (which will also give us rooted 28 support)
-        val configBytes = context.resources.openRawResource(R.raw.trace_config).readBytes()
-        val textProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.textproto")
+        // Write binary proto to dir that shell can read
+        // TODO: cache on disk
+        val configProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.pb")
         try {
-            textProtoFile.writeBytes(configBytes)
-            helper.startCollecting(textProtoFile.absolutePath, true)
+            configProtoFile.writeBytes(PERFETTO_CONFIG.encode())
+            helper.startCollecting(configProtoFile.absolutePath, false)
         } finally {
-            textProtoFile.delete()
+            configProtoFile.delete()
         }
     }
 
