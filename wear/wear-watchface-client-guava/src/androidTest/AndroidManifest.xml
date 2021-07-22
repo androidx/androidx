@@ -17,7 +17,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.wear.watchface.client.guava.test">
     <application android:requestLegacyExternalStorage="true">
-        <service android:name="androidx.wear.watchface.client.guava.WatchFaceControlTestService">
+        <service android:name="androidx.wear.watchface.client.guava.WatchFaceControlTestService"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.google.android.wearable.action.WATCH_FACE_CONTROL"/>
             </intent-filter>

@@ -16,17 +16,23 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.core.remoteviews.test">
-    <uses-permission android:name="android.permission.BIND_APPWIDGET" />
-    <application>
-        <activity android:name="androidx.core.widget.AppWidgetHostTestActivity"/>
 
-        <receiver android:name="androidx.core.widget.TestAppWidgetProvider">
+    <application>
+        <activity
+            android:name="androidx.core.widget.AppWidgetHostTestActivity"
+            android:exported="true" />
+
+        <receiver
+            android:name="androidx.core.widget.TestAppWidgetProvider"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
+            <meta-data
+                android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_info" />
         </receiver>
 
     </application>
+    <uses-permission android:name="android.permission.BIND_APPWIDGET" />
 </manifest>

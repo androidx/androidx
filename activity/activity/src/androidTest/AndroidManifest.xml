@@ -15,26 +15,58 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.activity.test">
+    package="androidx.activity.test">
 
     <application android:name="androidx.activity.LeakCanaryApp">
-        <activity android:name="androidx.activity.LeakingActivity"
-                android:windowSoftInputMode="stateVisible"/>
-        <activity android:name="androidx.activity.LifecycleComponentActivity"/>
-        <activity android:name="androidx.activity.EagerOverrideLifecycleComponentActivity"/>
-        <activity android:name="androidx.activity.LazyOverrideLifecycleComponentActivity"/>
-        <activity android:name="androidx.activity.ReportFullyDrawnActivity"/>
-        <activity android:name="androidx.activity.ViewModelActivity"/>
-        <activity android:name="androidx.activity.SavedStateActivity"/>
-        <activity android:name="androidx.activity.ContentViewActivity"/>
-        <activity android:name="androidx.activity.EmptyContentActivity" />
-        <activity android:name="androidx.activity.AutoRestarterActivity"/>
-        <activity android:name="androidx.activity.ResultComponentActivity"/>
-        <activity android:name="androidx.activity.ResumeViewModelActivity" />
-        <activity android:name="androidx.activity.PassThroughActivity"/>
-        <activity android:name="androidx.activity.RegisterInInitActivity"/>
-        <activity android:name="androidx.activity.RegisterBeforeOnCreateActivity"/>
-        <activity android:name="androidx.activity.FinishActivity"/>
+        <activity
+            android:name="androidx.activity.LeakingActivity"
+            android:exported="true"
+            android:windowSoftInputMode="stateVisible" />
+        <activity
+            android:name="androidx.activity.LifecycleComponentActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.EagerOverrideLifecycleComponentActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.LazyOverrideLifecycleComponentActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.ReportFullyDrawnActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.ViewModelActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.SavedStateActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.ContentViewActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.EmptyContentActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.AutoRestarterActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.ResultComponentActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.ResumeViewModelActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.PassThroughActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.RegisterInInitActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.RegisterBeforeOnCreateActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.FinishActivity"
+            android:exported="true" />
     </application>
 
 </manifest>
