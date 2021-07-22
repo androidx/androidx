@@ -124,7 +124,11 @@ class PreviewConfigProviderTest {
             )
         ).thenReturn(true)
 
-        val preview = createPreviewWithExtenderImpl(mockPreviewExtenderImpl)
+        val mockVendorExtender = mock(BasicVendorExtender::class.java)
+        Mockito.`when`(mockVendorExtender.previewExtenderImpl)
+            .thenReturn(mockPreviewExtenderImpl)
+
+        val preview = createPreviewWithExtenderImpl(mockVendorExtender)
 
         withContext(Dispatchers.Main) {
             // To set the update listener and Preview will change to active state.
@@ -142,11 +146,7 @@ class PreviewConfigProviderTest {
         verify(mockPreviewExtenderImpl, timeout(3000)).processorType
         verify(mockPreviewExtenderImpl, timeout(3000)).processor
 
-        // getSupportedResolutions supported since version 1.1
-        val version = ExtensionVersion.getRuntimeVersion()
-        if (version != null && version >= Version.VERSION_1_1) {
-            verify(mockPreviewExtenderImpl, timeout(3000)).supportedResolutions
-        }
+        verify(mockVendorExtender, timeout(3000)).supportedPreviewOutputResolutions
 
         val inOrder = Mockito.inOrder(*Mockito.ignoreStubs(mockPreviewExtenderImpl))
         inOrder.verify(mockPreviewExtenderImpl, timeout(3000)).onInit(
@@ -192,7 +192,10 @@ class PreviewConfigProviderTest {
         ).thenReturn(true)
         Mockito.`when`(mockPreviewExtenderImpl.captureStage).thenReturn(fakeCaptureStageImpl)
 
-        val preview = createPreviewWithExtenderImpl(mockPreviewExtenderImpl)
+        val mockVendorExtender = mock(BasicVendorExtender::class.java)
+        Mockito.`when`(mockVendorExtender.previewExtenderImpl)
+            .thenReturn(mockPreviewExtenderImpl)
+        val preview = createPreviewWithExtenderImpl(mockVendorExtender)
 
         withContext(Dispatchers.Main) {
             // To set the update listener and Preview will change to active state.
@@ -237,7 +240,11 @@ class PreviewConfigProviderTest {
             )
         ).thenReturn(true)
 
-        val preview = createPreviewWithExtenderImpl(mockPreviewExtenderImpl)
+        val mockVendorExtender = mock(BasicVendorExtender::class.java)
+        Mockito.`when`(mockVendorExtender.previewExtenderImpl)
+            .thenReturn(mockPreviewExtenderImpl)
+
+        val preview = createPreviewWithExtenderImpl(mockVendorExtender)
 
         withContext(Dispatchers.Main) {
             // To set the update listener and Preview will change to active state.
@@ -274,7 +281,11 @@ class PreviewConfigProviderTest {
             targetFormatResolutionsPairList
         )
 
-        val preview = createPreviewWithExtenderImpl(mockPreviewExtenderImpl)
+        val mockVendorExtender = mock(BasicVendorExtender::class.java)
+        Mockito.`when`(mockVendorExtender.previewExtenderImpl)
+            .thenReturn(mockPreviewExtenderImpl)
+
+        val preview = createPreviewWithExtenderImpl(mockVendorExtender)
 
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, preview)
@@ -295,11 +306,10 @@ class PreviewConfigProviderTest {
         }
     }
 
-    private fun createPreviewWithExtenderImpl(impl: PreviewExtenderImpl) =
+    private fun createPreviewWithExtenderImpl(basicVendorExtender: BasicVendorExtender) =
         Preview.Builder().also {
-            val cameraInfo = cameraSelector.filter(cameraProvider.availableCameraInfos)[0]
-            PreviewConfigProvider(extensionMode, cameraInfo, context).apply {
-                updateBuilderConfig(it, extensionMode, impl, context)
+            PreviewConfigProvider(extensionMode, basicVendorExtender, context).apply {
+                updateBuilderConfig(it, extensionMode, basicVendorExtender, context)
             }
         }.build()
 

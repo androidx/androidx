@@ -43,14 +43,9 @@ import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.extensions.ExtensionMode;
-import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
-import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
-import androidx.camera.extensions.impl.BokehImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
-import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
-import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,56 +60,31 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
             Config.Option.create("camerax.extensions.imageCaptureConfigProvider.mode",
                     Integer.class);
 
-    private ImageCaptureExtenderImpl mImpl;
-    private Context mContext;
+    private final BasicVendorExtender mVendorExtender;
+    private final Context mContext;
     @ExtensionMode.Mode
     private int mEffectMode;
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
-    public ImageCaptureConfigProvider(@ExtensionMode.Mode int mode,
-            @NonNull CameraInfo cameraInfo, @NonNull Context context) {
-        try {
-            switch (mode) {
-                case ExtensionMode.BOKEH:
-                    mImpl = new BokehImageCaptureExtenderImpl();
-                    break;
-                case ExtensionMode.HDR:
-                    mImpl = new HdrImageCaptureExtenderImpl();
-                    break;
-                case ExtensionMode.NIGHT:
-                    mImpl = new NightImageCaptureExtenderImpl();
-                    break;
-                case ExtensionMode.BEAUTY:
-                    mImpl = new BeautyImageCaptureExtenderImpl();
-                    break;
-                case ExtensionMode.AUTO:
-                    mImpl = new AutoImageCaptureExtenderImpl();
-                    break;
-                case ExtensionMode.NONE:
-                default:
-                    return;
-            }
-        } catch (NoClassDefFoundError e) {
-            throw new IllegalArgumentException("Extension mode does not exist: " + mode);
-        }
+    public ImageCaptureConfigProvider(
+            @ExtensionMode.Mode int mode,
+            @NonNull BasicVendorExtender vendorExtender,
+            @NonNull Context context) {
         mEffectMode = mode;
+        mVendorExtender = vendorExtender;
         mContext = context;
-
-        String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
-        CameraCharacteristics cameraCharacteristics =
-                Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
-        mImpl.init(cameraId, cameraCharacteristics);
     }
+
     @NonNull
     @Override
     public ImageCaptureConfig getConfig() {
-        if (mImpl == null) {
+        if (mVendorExtender == null) {
             return new ImageCaptureConfig(OptionsBundle.emptyBundle());
         }
 
         ImageCapture.Builder builder = new ImageCapture.Builder();
 
-        updateBuilderConfig(builder, mEffectMode, mImpl, mContext);
+        updateBuilderConfig(builder, mEffectMode, mVendorExtender, mContext);
 
         return builder.getUseCaseConfig();
     }
@@ -123,19 +93,21 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
      * Update extension related configs to the builder.
      */
     void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
-            @ExtensionMode.Mode int effectMode, @NonNull ImageCaptureExtenderImpl impl,
+            @ExtensionMode.Mode int effectMode, @NonNull BasicVendorExtender vendorExtender,
             @NonNull Context context) {
-        CaptureProcessorImpl captureProcessor = impl.getCaptureProcessor();
+        CaptureProcessorImpl captureProcessor =
+                vendorExtender.getImageCaptureExtenderImpl().getCaptureProcessor();
         if (captureProcessor != null) {
             builder.setCaptureProcessor(new AdaptingCaptureProcessor(captureProcessor));
         }
 
-        if (impl.getMaxCaptureStage() > 0) {
-            builder.setMaxCaptureStages(impl.getMaxCaptureStage());
+        if (vendorExtender.getImageCaptureExtenderImpl().getMaxCaptureStage() > 0) {
+            builder.setMaxCaptureStages(
+                    vendorExtender.getImageCaptureExtenderImpl().getMaxCaptureStage());
         }
 
-        ImageCaptureEventAdapter imageCaptureEventAdapter = new ImageCaptureEventAdapter(impl,
-                context);
+        ImageCaptureEventAdapter imageCaptureEventAdapter =
+                new ImageCaptureEventAdapter(vendorExtender.getImageCaptureExtenderImpl(), context);
         new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
                 new CameraEventCallbacks(imageCaptureEventAdapter));
         builder.setUseCaseEventCallback(imageCaptureEventAdapter);
@@ -144,29 +116,11 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         builder.getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE,
                 effectMode);
 
-        List<Pair<Integer, Size[]>> supportedResolutions = getSupportedResolutions(impl);
-        if (supportedResolutions != null) {
-            builder.setSupportedResolutions(supportedResolutions);
-        }
+        List<Pair<Integer, Size[]>> supportedResolutions =
+                vendorExtender.getSupportedCaptureOutputResolutions();
+        builder.setSupportedResolutions(supportedResolutions);
     }
 
-    /**
-     * Get the supported resolutions.
-     */
-    @Nullable
-    private List<Pair<Integer, Size[]>> getSupportedResolutions(
-            @NonNull ImageCaptureExtenderImpl impl) {
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
-            return null;
-        }
-
-        try {
-            return impl.getSupportedResolutions();
-        } catch (NoSuchMethodError e) {
-            Logger.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
-            return null;
-        }
-    }
 
     /**
      * An implementation to adapt the OEM provided implementation to core.
