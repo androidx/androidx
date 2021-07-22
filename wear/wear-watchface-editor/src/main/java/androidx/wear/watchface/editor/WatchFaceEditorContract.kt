@@ -35,6 +35,7 @@ import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import kotlinx.coroutines.TimeoutCancellationException
+import java.time.Instant
 
 internal const val INSTANCE_ID_KEY: String = "INSTANCE_ID_KEY"
 internal const val COMPONENT_NAME_KEY: String = "COMPONENT_NAME_KEY"
@@ -51,14 +52,30 @@ typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
  * [EditorState].
  *
  * @param renderParameters The [RenderParameters] to use when rendering the screen shot
- * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with. If
- * [EditorSession.DEFAULT_PREVIEW_TIME_MILLIS] is passed then the watch face's default preview time
- * will be used.
+ * @param instant The [Instant] to render with.
  */
 public class PreviewScreenshotParams(
     public val renderParameters: RenderParameters,
-    public val calendarTimeMillis: Long
-)
+    public val instant: Instant
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PreviewScreenshotParams
+
+        if (renderParameters != other.renderParameters) return false
+        if (instant != other.instant) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = renderParameters.hashCode()
+        result = 31 * result + instant.hashCode()
+        return result
+    }
+}
 
 /**
  * The request sent by [WatchFaceEditorContract.createIntent].
@@ -143,7 +160,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
             )?.let {
                 PreviewScreenshotParams(
                     RenderParameters(it),
-                    intent.getLongExtra(RENDER_TIME_MILLIS_KEY, 0)
+                    Instant.ofEpochMilli(intent.getLongExtra(RENDER_TIME_MILLIS_KEY, 0))
                 )
             }
         )
@@ -181,7 +198,7 @@ public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest
             putExtra(HEADLESS_DEVICE_CONFIG_KEY, input.headlessDeviceConfig?.asWireDeviceConfig())
             input.previewScreenshotParams?.let {
                 putExtra(RENDER_PARAMETERS_KEY, it.renderParameters.toWireFormat())
-                putExtra(RENDER_TIME_MILLIS_KEY, it.calendarTimeMillis)
+                putExtra(RENDER_TIME_MILLIS_KEY, it.instant.toEpochMilli())
             }
         }
     }

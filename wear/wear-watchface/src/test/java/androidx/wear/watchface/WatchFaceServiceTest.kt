@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
@@ -26,6 +27,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.BatteryManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -39,6 +41,7 @@ import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import android.view.WindowInsets
 import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.wear.complications.ComplicationSlotBounds
@@ -77,6 +80,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -91,6 +95,7 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
 import org.mockito.Mockito.verify
 import org.robolectric.annotation.Config
+import java.time.Instant
 import java.util.ArrayDeque
 import java.util.PriorityQueue
 
@@ -106,6 +111,7 @@ private const val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
 private const val RIGHT_AND_LEFT_COMPLICATIONS = "RIGHT_AND_LEFT_COMPLICATIONS"
 
 @Config(manifest = Config.NONE)
+@RequiresApi(Build.VERSION_CODES.O)
 @RunWith(WatchFaceTestRunner::class)
 public class WatchFaceServiceTest {
 
@@ -523,6 +529,8 @@ public class WatchFaceServiceTest {
 
     @Before
     public fun setUp() {
+        Assume.assumeTrue("This test suite assumes API 26", Build.VERSION.SDK_INT >= 26)
+
         `when`(handler.getLooper()).thenReturn(Looper.myLooper())
 
         // Capture tasks posted to mHandler and insert in mPendingTasks which is under our control.
@@ -713,13 +721,25 @@ public class WatchFaceServiceTest {
 
     private fun tapAt(x: Int, y: Int) {
         // The eventTime is ignored.
-        watchFaceImpl.onTapCommand(TapType.DOWN, TapEvent(x, y, looperTimeMillis))
-        watchFaceImpl.onTapCommand(TapType.UP, TapEvent(x, y, looperTimeMillis))
+        watchFaceImpl.onTapCommand(
+            TapType.DOWN,
+            TapEvent(x, y, Instant.ofEpochMilli(looperTimeMillis))
+        )
+        watchFaceImpl.onTapCommand(
+            TapType.UP,
+            TapEvent(x, y, Instant.ofEpochMilli(looperTimeMillis))
+        )
     }
 
     private fun tapCancelAt(x: Int, y: Int) {
-        watchFaceImpl.onTapCommand(TapType.DOWN, TapEvent(x, y, looperTimeMillis))
-        watchFaceImpl.onTapCommand(TapType.CANCEL, TapEvent(x, y, looperTimeMillis))
+        watchFaceImpl.onTapCommand(
+            TapType.DOWN,
+            TapEvent(x, y, Instant.ofEpochMilli(looperTimeMillis))
+        )
+        watchFaceImpl.onTapCommand(
+            TapType.CANCEL,
+            TapEvent(x, y, Instant.ofEpochMilli(looperTimeMillis))
+        )
     }
 
     @Test
@@ -738,7 +758,7 @@ public class WatchFaceServiceTest {
         // Tap left complication.
         tapAt(30, 50)
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
-            .isEqualTo(TapEvent(30, 50, 0))
+            .isEqualTo(TapEvent(30, 50, Instant.EPOCH))
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
             .isNull()
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
@@ -750,9 +770,9 @@ public class WatchFaceServiceTest {
         testWatchFaceService.reset()
         tapAt(70, 50)
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
-            .isEqualTo(TapEvent(30, 50, 0))
+            .isEqualTo(TapEvent(30, 50, Instant.EPOCH))
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
-            .isEqualTo(TapEvent(70, 50, 100))
+            .isEqualTo(TapEvent(70, 50, Instant.ofEpochMilli(100)))
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(RIGHT_COMPLICATION_ID))
 
@@ -763,9 +783,9 @@ public class WatchFaceServiceTest {
         tapAt(1, 1)
         // No change in lastComplicationTapDownEvents
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
-            .isEqualTo(TapEvent(30, 50, 0))
+            .isEqualTo(TapEvent(30, 50, Instant.EPOCH))
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
-            .isEqualTo(TapEvent(70, 50, 100))
+            .isEqualTo(TapEvent(70, 50, Instant.ofEpochMilli(100)))
         assertThat(testWatchFaceService.tappedComplicationSlotIds).isEmpty()
     }
 
@@ -788,9 +808,9 @@ public class WatchFaceServiceTest {
 
         // Taps are registered on both complicationSlots.
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
-            .isEqualTo(TapEvent(30, 50, 0))
+            .isEqualTo(TapEvent(30, 50, Instant.EPOCH))
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
-            .isEqualTo(TapEvent(70, 50, 0))
+            .isEqualTo(TapEvent(70, 50, Instant.EPOCH))
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID))
     }
@@ -833,7 +853,7 @@ public class WatchFaceServiceTest {
         // Tap the edge complication.
         tapAt(0, 50)
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[EDGE_COMPLICATION_ID])
-            .isEqualTo(TapEvent(0, 50, 0))
+            .isEqualTo(TapEvent(0, 50, Instant.EPOCH))
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(EDGE_COMPLICATION_ID))
     }
@@ -850,8 +870,14 @@ public class WatchFaceServiceTest {
         // Tap on nothing.
         tapAt(1, 1)
 
-        verify(tapListener).onTapEvent(TapType.DOWN, TapEvent(1, 1, looperTimeMillis))
-        verify(tapListener).onTapEvent(TapType.UP, TapEvent(1, 1, looperTimeMillis))
+        verify(tapListener).onTapEvent(
+            TapType.DOWN,
+            TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis))
+        )
+        verify(tapListener).onTapEvent(
+            TapType.UP,
+            TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis))
+        )
     }
 
     @Test
@@ -892,8 +918,14 @@ public class WatchFaceServiceTest {
             false
         )
 
-        verify(tapListener).onTapEvent(TapType.DOWN, TapEvent(10, 20, looperTimeMillis))
-        verify(tapListener).onTapEvent(TapType.UP, TapEvent(10, 20, looperTimeMillis))
+        verify(tapListener).onTapEvent(
+            TapType.DOWN,
+            TapEvent(10, 20, Instant.ofEpochMilli(looperTimeMillis))
+        )
+        verify(tapListener).onTapEvent(
+            TapType.UP,
+            TapEvent(10, 20, Instant.ofEpochMilli(looperTimeMillis))
+        )
     }
 
     @Test
@@ -908,8 +940,14 @@ public class WatchFaceServiceTest {
         // Tap right complication.
         tapAt(70, 50)
 
-        verify(tapListener, times(0)).onTapEvent(TapType.DOWN, TapEvent(70, 50, looperTimeMillis))
-        verify(tapListener, times(0)).onTapEvent(TapType.UP, TapEvent(70, 50, looperTimeMillis))
+        verify(tapListener, times(0)).onTapEvent(
+            TapType.DOWN,
+            TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis))
+        )
+        verify(tapListener, times(0)).onTapEvent(
+            TapType.UP,
+            TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis))
+        )
     }
 
     @Test
@@ -1680,7 +1718,7 @@ public class WatchFaceServiceTest {
             instanceParams
         )
 
-        assertThat(watchFaceImpl.previewReferenceTimeMillis).isEqualTo(1000)
+        assertThat(watchFaceImpl.previewReferenceInstant.toEpochMilli()).isEqualTo(1000)
     }
 
     @Test
@@ -1710,7 +1748,7 @@ public class WatchFaceServiceTest {
             instanceParams
         )
 
-        assertThat(watchFaceImpl.previewReferenceTimeMillis).isEqualTo(2000)
+        assertThat(watchFaceImpl.previewReferenceInstant.toEpochMilli()).isEqualTo(2000)
     }
 
     @Test
@@ -2148,7 +2186,7 @@ public class WatchFaceServiceTest {
         )
 
         // Initially the complication should be active.
-        assertThat(leftComplication.isActiveAt(0)).isTrue()
+        assertThat(leftComplication.isActiveAt(Instant.EPOCH)).isTrue()
 
         // Send empty data.
         interactiveWatchFaceInstance.updateComplicationData(
@@ -2160,7 +2198,7 @@ public class WatchFaceServiceTest {
             )
         )
 
-        assertThat(leftComplication.isActiveAt(0)).isFalse()
+        assertThat(leftComplication.isActiveAt(Instant.EPOCH)).isFalse()
 
         // Send a complication that is active for a time range.
         interactiveWatchFaceInstance.updateComplicationData(
@@ -2176,10 +2214,10 @@ public class WatchFaceServiceTest {
             )
         )
 
-        assertThat(leftComplication.isActiveAt(999999)).isFalse()
-        assertThat(leftComplication.isActiveAt(1000000)).isTrue()
-        assertThat(leftComplication.isActiveAt(2000000)).isTrue()
-        assertThat(leftComplication.isActiveAt(2000001)).isFalse()
+        assertThat(leftComplication.isActiveAt(Instant.ofEpochMilli(999999))).isFalse()
+        assertThat(leftComplication.isActiveAt(Instant.ofEpochMilli(1000000))).isTrue()
+        assertThat(leftComplication.isActiveAt(Instant.ofEpochMilli(2000000))).isTrue()
+        assertThat(leftComplication.isActiveAt(Instant.ofEpochMilli(2000001))).isFalse()
     }
 
     @Test
@@ -2385,7 +2423,7 @@ public class WatchFaceServiceTest {
         assertThat(
             complication.text.getTextAt(
                 ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                Instant.EPOCH
             )
         ).isEqualTo("Override")
     }
@@ -2432,7 +2470,7 @@ public class WatchFaceServiceTest {
         assertThat(
             complication.text.getTextAt(
                 ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                Instant.EPOCH
             )
         ).isEqualTo("INITIAL_VALUE")
     }
@@ -2958,12 +2996,14 @@ public class WatchFaceServiceTest {
         assertThat(unparceled.isInitiallyEnabled).isTrue()
     }
 
+    @SuppressLint("NewApi")
     @Suppress("DEPRECATION")
     private fun getChinWindowInsetsApi25(@Px chinHeight: Int): WindowInsets =
         WindowInsets.Builder().setSystemWindowInsets(
             Insets.of(0, 0, 0, chinHeight)
         ).build()
 
+    @SuppressLint("NewApi")
     private fun getChinWindowInsetsApi30(@Px chinHeight: Int): WindowInsets =
         WindowInsets.Builder().setInsets(
             WindowInsets.Type.systemBars(),

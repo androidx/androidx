@@ -37,7 +37,6 @@ import android.view.Gravity
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
-import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
@@ -60,6 +59,7 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
 import kotlinx.coroutines.CompletableDeferred
 import java.security.InvalidParameterException
+import java.time.Instant
 import kotlin.math.max
 
 // Human reaction time is limited to ~100ms.
@@ -225,8 +225,8 @@ public class WatchFace(
         /** The [WatchFace]'s screen bounds [Rect]. */
         public val screenBounds: Rect
 
-        /** The UTC reference time to use for previews in milliseconds since the epoch. */
-        public val previewReferenceTimeMillis: Long
+        /** Th reference [Instant] for previews. */
+        public val previewReferenceInstant: Instant
 
         /** The [Handler] for the background thread. */
         public val backgroundThreadHandler: Handler
@@ -234,7 +234,7 @@ public class WatchFace(
         /** Renders the watchface to a [Bitmap] with the [CurrentUserStyleRepository]'s [UserStyle]. */
         public fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
-            calendarTimeMillis: Long,
+            instant: Instant,
             slotIdToComplicationData: Map<Int, ComplicationData>?
         ): Bitmap
 
@@ -322,10 +322,11 @@ public class WatchFace(
         }
     }
 
-    /** The UTC preview time in milliseconds since the epoch, or null if not set. */
-    @get:SuppressWarnings("AutoBoxing")
-    @IntRange(from = 0)
-    public var overridePreviewReferenceTimeMillis: Long? = null
+    /**
+     * The [Instant] to use for preview rendering, or `null` if not set in which case the system
+     * chooses the Instant to use.
+     */
+    public var overridePreviewReferenceInstant: Instant? = null
         private set
 
     /** The legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices. */
@@ -345,11 +346,8 @@ public class WatchFace(
      *
      * @param previewReferenceTimeMillis The UTC preview time in milliseconds since the epoch
      */
-    public fun setOverridePreviewReferenceTimeMillis(
-        @IntRange(from = 0) previewReferenceTimeMillis: Long
-    ): WatchFace = apply {
-        overridePreviewReferenceTimeMillis = previewReferenceTimeMillis
-    }
+    public fun setOverridePreviewReferenceInstant(previewReferenceTimeMillis: Instant): WatchFace =
+        apply { overridePreviewReferenceInstant = previewReferenceTimeMillis }
 
     /**
      * Sets the legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices.
@@ -376,7 +374,21 @@ public class WatchFace(
     }
 }
 
-internal data class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
+internal class MockTime(var speed: Double, var minTime: Long, var maxTime: Long) {
+    /** Apply mock time adjustments. */
+    fun applyMockTime(timeMillis: Long): Long {
+        // This adjustment allows time to be sped up or slowed down and to wrap between two
+        // instants. This is useful when developing animations that occur infrequently (e.g.
+        // hourly).
+        val millis = (speed * (timeMillis - minTime).toDouble()).toLong()
+        val range = maxTime - minTime
+        var delta = millis % range
+        if (delta < 0) {
+            delta += range
+        }
+        return minTime + delta
+    }
+}
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -462,7 +474,7 @@ public class WatchFaceImpl @UiThread constructor(
                 ),
         )
 
-    private val systemTimeProvider = watchface.systemTimeProvider
+    internal val systemTimeProvider = watchface.systemTimeProvider
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
     internal val renderer = watchface.renderer
     private val tapListener = watchface.tapListener
@@ -521,13 +533,15 @@ public class WatchFaceImpl @UiThread constructor(
         mockTime.maxTime = intent.getLongExtra(EXTRA_MOCK_TIME_WRAPPING_MAX_TIME, Long.MAX_VALUE)
     }
 
-    /** The UTC reference time for editor preview images in milliseconds since the epoch. */
-    public val previewReferenceTimeMillis: Long =
-        watchface.overridePreviewReferenceTimeMillis ?: when (watchface.watchFaceType) {
-            WatchFaceType.ANALOG -> watchState.analogPreviewReferenceTimeMillis
-            WatchFaceType.DIGITAL -> watchState.digitalPreviewReferenceTimeMillis
-            else -> throw InvalidParameterException("Unrecognized watchFaceType")
-        }
+    /** The reference [Instant] time for editor preview images in milliseconds since the epoch. */
+    public val previewReferenceInstant: Instant =
+        watchface.overridePreviewReferenceInstant ?: Instant.ofEpochMilli(
+            when (watchface.watchFaceType) {
+                WatchFaceType.ANALOG -> watchState.analogPreviewReferenceTimeMillis
+                WatchFaceType.DIGITAL -> watchState.digitalPreviewReferenceTimeMillis
+                else -> throw InvalidParameterException("Unrecognized watchFaceType")
+            }
+        )
 
     private var inOnSetStyle = false
     internal var initComplete = false
@@ -559,8 +573,6 @@ public class WatchFaceImpl @UiThread constructor(
         TraceEvent("WatchFaceImpl.visibilityObserver").use {
             if (isVisible) {
                 registerReceivers()
-                // Update time zone in case it changed while we weren't visible.
-                calendar.timeZone = TimeZone.getDefault()
                 watchFaceHostApi.invalidate()
 
                 // It's not safe to draw until initComplete because the ComplicationSlotManager init
@@ -646,15 +658,15 @@ public class WatchFaceImpl @UiThread constructor(
         override val screenBounds
             get() = renderer.screenBounds
 
-        override val previewReferenceTimeMillis
-            get() = this@WatchFaceImpl.previewReferenceTimeMillis
+        override val previewReferenceInstant
+            get() = this@WatchFaceImpl.previewReferenceInstant
 
         override val backgroundThreadHandler
             get() = watchFaceHostApi.getBackgroundThreadHandler()
 
         override fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
-            calendarTimeMillis: Long,
+            instant: Instant,
             slotIdToComplicationData: Map<Int, ComplicationData>?
         ): Bitmap = TraceEvent("WFEditorDelegate.takeScreenshot").use {
             val oldComplicationData =
@@ -670,7 +682,7 @@ public class WatchFaceImpl @UiThread constructor(
             }
             val screenShot = renderer.takeScreenshot(
                 Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                    timeInMillis = calendarTimeMillis
+                    timeInMillis = instant.toEpochMilli()
                 },
                 renderParameters
             )
@@ -768,16 +780,7 @@ public class WatchFaceImpl @UiThread constructor(
     /** Sets the calendar's time in milliseconds adjusted by the mock time controls. */
     @UiThread
     private fun setCalendarTime(timeMillis: Long) {
-        // This adjustment allows time to be sped up or slowed down and to wrap between two
-        // instants. This is useful when developing animations that occur infrequently (e.g.
-        // hourly).
-        val millis = (mockTime.speed * (timeMillis - mockTime.minTime).toDouble()).toLong()
-        val range = mockTime.maxTime - mockTime.minTime
-        var delta = millis % range
-        if (delta < 0) {
-            delta += range
-        }
-        calendar.timeInMillis = mockTime.minTime + delta
+        calendar.timeInMillis = mockTime.applyMockTime(timeMillis)
     }
 
     /** @hide */

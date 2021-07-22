@@ -17,7 +17,6 @@
 package androidx.wear.watchface.control
 
 import android.annotation.SuppressLint
-import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
@@ -108,7 +107,6 @@ internal class InteractiveInstanceManager {
 
         /** Can be called on any thread. */
         @SuppressLint("SyntheticAccessor")
-        @RequiresApi(27)
         fun getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
             value: PendingWallpaperInteractiveWatchFaceInstance
         ): IInteractiveWatchFace? {

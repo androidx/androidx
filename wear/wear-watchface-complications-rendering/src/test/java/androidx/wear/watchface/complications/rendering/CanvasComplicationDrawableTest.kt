@@ -32,6 +32,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import java.time.Instant
 
 @RunWith(ComplicationsTestRunner::class)
 public class CanvasComplicationDrawableTest {
@@ -113,7 +114,7 @@ public class CanvasComplicationDrawableTest {
             ),
             slotId
         )
-        assertThat(complicationDrawable.currentTimeMillis).isEqualTo(1234)
+        assertThat(complicationDrawable.currentTime.toEpochMilli()).isEqualTo(1234)
     }
 
     @Test
@@ -122,7 +123,7 @@ public class CanvasComplicationDrawableTest {
             DrawMode.INTERACTIVE,
             setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
             null,
-            mapOf(slotId to TapEvent(50, 50, 1100))
+            mapOf(slotId to TapEvent(50, 50, Instant.ofEpochMilli(1100)))
         )
 
         calendar.timeInMillis = 1099

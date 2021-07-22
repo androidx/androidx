@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.control
 
+import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.wear.utility.TraceEvent
@@ -29,9 +30,9 @@ import androidx.wear.watchface.runBlockingWithTracing
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.time.Instant
 
 /** An interactive watch face instance with SysUI and WCS facing interfaces.*/
-@RequiresApi(27)
 internal class InteractiveWatchFaceImpl(
     internal val engine: WatchFaceService.EngineWrapper,
     internal var instanceId: String
@@ -66,7 +67,13 @@ internal class InteractiveWatchFaceImpl(
         ) { watchFaceImpl ->
             watchFaceImpl.onTapCommand(
                 tapType,
-                TapEvent(xPos, yPos, watchFaceImpl.calendar.timeInMillis)
+                TapEvent(
+                    xPos,
+                    yPos,
+                    Instant.ofEpochMilli(
+                        watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                    )
+                )
             )
         }
 
@@ -75,6 +82,7 @@ internal class InteractiveWatchFaceImpl(
             "InteractiveWatchFaceImpl.getContentDescriptionLabels"
         ) { engine.contentDescriptionLabels }
 
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
     override fun renderWatchFaceToBitmap(params: WatchFaceRenderParams) =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.renderWatchFaceToBitmap"
@@ -83,7 +91,7 @@ internal class InteractiveWatchFaceImpl(
     override fun getPreviewReferenceTimeMillis() =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getPreviewReferenceTimeMillis"
-        ) { watchFaceImpl -> watchFaceImpl.previewReferenceTimeMillis }
+        ) { watchFaceImpl -> watchFaceImpl.previewReferenceInstant.toEpochMilli() }
 
     override fun setWatchUiState(watchUiState: WatchUiState) =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(

@@ -29,6 +29,7 @@ import android.text.style.SuperscriptSpan
 import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
 import androidx.annotation.RestrictTo
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 /** The wire format for [ComplicationText]. */
@@ -54,24 +55,21 @@ public interface ComplicationText {
      * Returns the text that should be displayed for the given timestamp.
      *
      * @param resources [Resources] from the current context
-     * @param dateTimeMillis milliseconds since epoch, e.g. from [System.currentTimeMillis]
+     * @param instant The [Instant] at which to sample the text
      */
     public fun getTextAt(
         resources: Resources,
-        dateTimeMillis: Long
+        instant: Instant
     ): CharSequence
 
     /**
-     * Returns true if the result of [getTextAt] will be the same for both [firstDateTimeMillis]
-     * and [secondDateTimeMillis].
+     * Returns true if the result of [getTextAt] will be the same for both [firstInstant] and
+     * [secondInstant].
      */
-    public fun returnsSameText(
-        firstDateTimeMillis: Long,
-        secondDateTimeMillis: Long
-    ): Boolean
+    public fun returnsSameText(firstInstant: Instant, secondInstant: Instant): Boolean
 
-    /** Returns the next time after [fromDateTimeMillis] at which the text may change.  */
-    public fun getNextChangeTime(fromDateTimeMillis: Long): Long
+    /** Returns the next time after [afterInstant] at which the text may change.  */
+    public fun getNextChangeTime(afterInstant: Instant): Instant
 
     public fun isAlwaysEmpty(): Boolean
 
@@ -225,8 +223,8 @@ public class TimeDifferenceComplicationText internal constructor(
      */
     public class Builder private constructor(
         private val style: TimeDifferenceStyle,
-        private val startDateTimeMillis: Long?,
-        private val endDateTimeMillis: Long?
+        private val startInstant: Instant?,
+        private val endInstant: Instant?
     ) {
         private var text: CharSequence? = null
         private var displayAsNow: Boolean? = null
@@ -242,7 +240,7 @@ public class TimeDifferenceComplicationText internal constructor(
         public constructor(
             style: TimeDifferenceStyle,
             countUpTimeReference: CountUpTimeReference
-        ) : this(style, null, countUpTimeReference.dateTimeMillis)
+        ) : this(style, null, countUpTimeReference.instant)
 
         /**
          * Constructs a [TimeDifferenceComplicationText.Builder] where the complication is counting
@@ -254,7 +252,7 @@ public class TimeDifferenceComplicationText internal constructor(
         public constructor(
             style: TimeDifferenceStyle,
             countDownTimeReference: CountDownTimeReference
-        ) : this(style, countDownTimeReference.dateTimeMillis, null)
+        ) : this(style, countDownTimeReference.instant, null)
 
         /**
          * Sets the text within which the time difference will be displayed.
@@ -304,11 +302,11 @@ public class TimeDifferenceComplicationText internal constructor(
             WireComplicationTextTimeDifferenceBuilder().apply {
                 setStyle(style.wireStyle)
                 setSurroundingText(text)
-                startDateTimeMillis?.let {
-                    setReferencePeriodStartMillis(it)
+                startInstant?.let {
+                    setReferencePeriodStartMillis(it.toEpochMilli())
                 }
-                endDateTimeMillis?.let {
-                    setReferencePeriodEndMillis(it)
+                endInstant?.let {
+                    setReferencePeriodEndMillis(it.toEpochMilli())
                 }
                 displayAsNow?.let { setShowNowText(it) }
                 setMinimumUnit(minimumUnit)
@@ -384,14 +382,14 @@ public class TimeFormatComplicationText internal constructor(
 private class DelegatingComplicationText(
     private val delegate: WireComplicationText
 ) : ComplicationText {
-    override fun getTextAt(resources: Resources, dateTimeMillis: Long) =
-        delegate.getTextAt(resources, dateTimeMillis)
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant.toEpochMilli())
 
-    override fun returnsSameText(firstDateTimeMillis: Long, secondDateTimeMillis: Long) =
-        delegate.returnsSameText(firstDateTimeMillis, secondDateTimeMillis)
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant.toEpochMilli(), secondInstant.toEpochMilli())
 
-    override fun getNextChangeTime(fromDateTimeMillis: Long) =
-        delegate.getNextChangeTime(fromDateTimeMillis)
+    override fun getNextChangeTime(afterInstant: Instant) =
+        Instant.ofEpochMilli(delegate.getNextChangeTime(afterInstant.toEpochMilli()))
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty
     override fun getTimeDependentText(): TimeDependentText = delegate.timeDependentText
@@ -413,14 +411,14 @@ internal fun TimeZone.asJavaTimeZone(): java.util.TimeZone =
 private class DelegatingTimeDependentText(
     private val delegate: WireTimeDependentText
 ) : ComplicationText {
-    override fun getTextAt(resources: Resources, dateTimeMillis: Long) =
-        delegate.getTextAt(resources, dateTimeMillis)
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant.toEpochMilli())
 
-    override fun returnsSameText(firstDateTimeMillis: Long, secondDateTimeMillis: Long) =
-        delegate.returnsSameText(firstDateTimeMillis, secondDateTimeMillis)
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant.toEpochMilli(), secondInstant.toEpochMilli())
 
-    override fun getNextChangeTime(fromDateTimeMillis: Long) =
-        delegate.getNextChangeTime(fromDateTimeMillis)
+    override fun getNextChangeTime(afterInstant: Instant) =
+        Instant.ofEpochMilli(delegate.getNextChangeTime(afterInstant.toEpochMilli()))
 
     override fun isAlwaysEmpty() = false
 

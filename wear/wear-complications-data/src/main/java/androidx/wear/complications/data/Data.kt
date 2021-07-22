@@ -19,6 +19,7 @@ package androidx.wear.complications.data
 import android.app.PendingIntent
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
+import java.time.Instant
 
 /** The wire format for [ComplicationData]. */
 internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
@@ -869,7 +870,10 @@ private fun WireComplicationData.parseTimeRange() =
     if ((startDateTimeMillis == 0L) and (endDateTimeMillis == Long.MAX_VALUE)) {
         null
     } else {
-        TimeRange(startDateTimeMillis, endDateTimeMillis)
+        TimeRange(
+            Instant.ofEpochMilli(startDateTimeMillis),
+            Instant.ofEpochMilli(endDateTimeMillis)
+        )
     }
 
 private fun WireComplicationData.parseIcon() =
@@ -897,11 +901,11 @@ internal fun asPlainWireComplicationData(type: ComplicationType) =
 
 internal fun setValidTimeRange(validTimeRange: TimeRange?, data: WireComplicationDataBuilder) {
     validTimeRange?.let {
-        if (it.startDateTimeMillis > 0) {
-            data.setStartDateTimeMillis(it.startDateTimeMillis)
+        if (it.startDateTimeMillis > Instant.MIN) {
+            data.setStartDateTimeMillis(it.startDateTimeMillis.toEpochMilli())
         }
-        if (it.endDateTimeMillis != Long.MAX_VALUE) {
-            data.setEndDateTimeMillis(it.endDateTimeMillis)
+        if (it.endDateTimeMillis != Instant.MAX) {
+            data.setEndDateTimeMillis(it.endDateTimeMillis.toEpochMilli())
         }
     }
 }

@@ -22,8 +22,10 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
+import android.os.Build
 import android.support.wearable.watchface.SharedMemoryImage
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -60,6 +62,8 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.junit.Assume
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -96,11 +100,17 @@ internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
 }
 
 @RunWith(AndroidJUnit4::class)
+@RequiresApi(Build.VERSION_CODES.O_MR1)
 @MediumTest
 public class WatchFaceControlServiceTest {
 
     @get:Rule
     internal val screenshotRule = AndroidXScreenshotTestRule("wear/wear-watchface")
+
+    @Before
+    public fun setUp() {
+        Assume.assumeTrue("This test suite assumes API 27", Build.VERSION.SDK_INT >= 27)
+    }
 
     private fun createInstance(width: Int, height: Int): IHeadlessWatchFace {
         val instanceService = IWatchFaceControlService.Stub.asInterface(

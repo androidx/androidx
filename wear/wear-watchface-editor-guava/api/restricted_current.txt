@@ -12,7 +12,7 @@ package androidx.wear.watchface.editor {
     method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData>> getListenableComplicationPreviewData();
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationDataSourceInfo>> getListenableComplicationsProviderInfo();
-    method public long getPreviewReferenceTimeMillis();
+    method public java.time.Instant getPreviewReferenceInstant();
     method public androidx.wear.watchface.style.UserStyle getUserStyle();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method public android.content.ComponentName getWatchFaceComponentName();
@@ -21,13 +21,13 @@ package androidx.wear.watchface.editor {
     method @UiThread public static com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.editor.ListenableEditorSession> listenableCreateOnWatchEditorSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.editor.ChosenComplicationDataSource> listenableOpenComplicationDataSourceChooser(int complicationSlotId);
     method public suspend Object? openComplicationDataSourceChooser(int complicationSlotId, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationDataSource> p);
-    method public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? slotIdToComplicationData);
+    method public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? slotIdToComplicationData);
     method public void setCommitChangesOnClose(boolean commitChangesOnClose);
     method public void setUserStyle(androidx.wear.watchface.style.UserStyle userStyle);
     property public Integer? backgroundComplicationSlotId;
     property public boolean commitChangesOnClose;
     property public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> complicationSlotsState;
-    property public long previewReferenceTimeMillis;
+    property public java.time.Instant previewReferenceInstant;
     property public androidx.wear.watchface.style.UserStyle userStyle;
     property public androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
     property public android.content.ComponentName watchFaceComponentName;

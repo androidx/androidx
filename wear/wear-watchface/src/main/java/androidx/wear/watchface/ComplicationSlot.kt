@@ -38,6 +38,7 @@ import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.RenderParameters.HighlightedElement
+import java.time.Instant
 
 /**
  * Interface for rendering complicationSlots onto a [Canvas]. These should be created by
@@ -605,12 +606,12 @@ public class ComplicationSlot internal constructor(
      * Whether or not the complication should be considered active and should be rendered at the
      * specified time.
      */
-    public fun isActiveAt(dateTimeMillis: Long): Boolean {
+    public fun isActiveAt(instant: Instant): Boolean {
         return when (complicationData.value.type) {
             ComplicationType.NO_DATA -> false
             ComplicationType.NO_PERMISSION -> false
             ComplicationType.EMPTY -> false
-            else -> complicationData.value.validTimeRange.contains(dateTimeMillis)
+            else -> complicationData.value.validTimeRange.contains(instant)
         }
     }
 

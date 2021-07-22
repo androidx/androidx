@@ -21,7 +21,7 @@ package androidx.wear.watchface.complications.rendering {
     method public androidx.wear.watchface.complications.rendering.ComplicationStyle getAmbientStyle();
     method public androidx.wear.complications.data.ComplicationData getComplicationData();
     method public android.content.Context? getContext();
-    method public long getCurrentTimeMillis();
+    method public java.time.Instant getCurrentTime();
     method public static androidx.wear.watchface.complications.rendering.ComplicationDrawable? getDrawable(android.content.Context context, int id);
     method public long getHighlightDuration();
     method public CharSequence? getNoDataText();
@@ -37,7 +37,7 @@ package androidx.wear.watchface.complications.rendering {
     method public void setColorFilter(android.graphics.ColorFilter? colorFilter);
     method public void setComplicationData(androidx.wear.complications.data.ComplicationData complicationData, boolean loadDrawablesAsync);
     method public void setContext(android.content.Context context);
-    method public void setCurrentTimeMillis(long currentTimeMillis);
+    method public void setCurrentTime(java.time.Instant currentTime);
     method public void setHighlightDuration(@IntRange(from=0) long highlightDurationMillis);
     method public void setHighlighted(boolean isHighlighted);
     method public void setInAmbientMode(boolean isInAmbientMode);
@@ -48,7 +48,7 @@ package androidx.wear.watchface.complications.rendering {
     property public final androidx.wear.watchface.complications.rendering.ComplicationStyle ambientStyle;
     property public final androidx.wear.complications.data.ComplicationData complicationData;
     property public final android.content.Context? context;
-    property public final long currentTimeMillis;
+    property public final java.time.Instant currentTime;
     property public final long highlightDuration;
     property public final boolean isBurnInProtectionOn;
     property public final boolean isHighlighted;

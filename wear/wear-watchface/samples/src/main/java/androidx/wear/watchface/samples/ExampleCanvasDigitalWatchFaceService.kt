@@ -60,6 +60,7 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import java.time.Instant
 import kotlin.math.max
 import kotlin.math.min
 
@@ -1028,11 +1029,15 @@ class ExampleDigitalWatchCanvasRenderer(
     private fun calculateClockBound(bounds: Rect, calendar: Calendar) {
         val hasVerticalComplication =
             VERTICAL_COMPLICATION_IDS.any {
-                complicationSlotsManager[it]!!.isActiveAt(calendar.timeInMillis)
+                complicationSlotsManager[it]!!.isActiveAt(
+                    Instant.ofEpochMilli(calendar.timeInMillis)
+                )
             }
         val hasHorizontalComplication =
             HORIZONTAL_COMPLICATION_IDS.any {
-                complicationSlotsManager[it]!!.isActiveAt(calendar.timeInMillis)
+                complicationSlotsManager[it]!!.isActiveAt(
+                    Instant.ofEpochMilli(calendar.timeInMillis)
+                )
             }
 
         val marginX = if (hasHorizontalComplication) {

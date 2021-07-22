@@ -77,7 +77,7 @@ import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.ComplicationSlotBoundsType
-import androidx.wear.watchface.editor.EditorSession.Companion.EDITING_SESSION_TIMEOUT_MILLIS
+import androidx.wear.watchface.editor.EditorSession.Companion.EDITING_SESSION_TIMEOUT
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
@@ -112,6 +112,7 @@ import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
+import java.time.Instant
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.MILLISECONDS
@@ -501,7 +502,7 @@ public class EditorSessionTest {
         userStyleSettings: List<UserStyleSetting>,
         complicationSlots: List<ComplicationSlot>,
         watchFaceId: WatchFaceId = testInstanceId,
-        previewReferenceTimeMillis: Long = 12345,
+        previewReferenceInstant: Instant = Instant.ofEpochMilli(12345),
         complicationDataSourceInfoRetrieverProvider: ComplicationDataSourceInfoRetrieverProvider =
             TestComplicationDataSourceInfoRetrieverProvider(),
         shouldTimeout: Boolean = false,
@@ -533,12 +534,12 @@ public class EditorSessionTest {
 
             override val complicationSlotsManager = complicationSlotsManager
             override val screenBounds = this@EditorSessionTest.screenBounds
-            override val previewReferenceTimeMillis = previewReferenceTimeMillis
+            override val previewReferenceInstant = previewReferenceInstant
             override val backgroundThreadHandler = backgroundHandler
 
             override fun renderWatchFaceToBitmap(
                 renderParameters: RenderParameters,
-                calendarTimeMillis: Long,
+                instant: Instant,
                 slotIdToComplicationData:
                     Map<Int, androidx.wear.complications.data.ComplicationData>?
             ) = fakeBitmap
@@ -607,7 +608,7 @@ public class EditorSessionTest {
         val scenario = createOnWatchFaceEditingTestActivityThatThrowsTimeoutException()
         lateinit var activity: OnWatchFaceEditingTestActivity
         scenario.onActivity { activity = it }
-        activity.creationLatch.await(EDITING_SESSION_TIMEOUT_MILLIS + 500, MILLISECONDS)
+        activity.creationLatch.await(EDITING_SESSION_TIMEOUT.toMillis() + 500, MILLISECONDS)
         assert(activity.onCreateException is TimeoutCancellationException)
     }
 
@@ -674,14 +675,16 @@ public class EditorSessionTest {
     }
 
     @Test
-    public fun previewReferenceTimeMillis() {
+    public fun previewReferenceInstant() {
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
             emptyList(),
-            previewReferenceTimeMillis = 54321L
+            previewReferenceInstant = Instant.ofEpochMilli(54321L)
         )
         scenario.onActivity {
-            assertThat(it.editorSession.previewReferenceTimeMillis).isEqualTo(54321L)
+            assertThat(it.editorSession.previewReferenceInstant).isEqualTo(
+                Instant.ofEpochMilli(54321L)
+            )
         }
     }
 
@@ -894,7 +897,7 @@ public class EditorSessionTest {
                 assertThat(
                     (result as ShortTextComplicationData).text.getTextAt(
                         ApplicationProvider.getApplicationContext<Context>().resources,
-                        0
+                        Instant.EPOCH
                     )
                 ).isEqualTo(complicationText)
 
@@ -955,7 +958,7 @@ public class EditorSessionTest {
                 assertThat(
                     (result as LongTextComplicationData).text.getTextAt(
                         ApplicationProvider.getApplicationContext<Context>().resources,
-                        0
+                        Instant.EPOCH
                     )
                 ).isEqualTo("dataSource") // Fallback has been used.
 
@@ -994,7 +997,7 @@ public class EditorSessionTest {
                 assertThat(
                     previewComplication.text.getTextAt(
                         ApplicationProvider.getApplicationContext<Context>().resources,
-                        0
+                        Instant.EPOCH
                     )
                 ).isEqualTo("dataSou")
 
@@ -1039,7 +1042,7 @@ public class EditorSessionTest {
                 assertThat(
                     previewComplication.text.getTextAt(
                         ApplicationProvider.getApplicationContext<Context>().resources,
-                        0
+                        Instant.EPOCH
                     )
                 ).isEqualTo("dataSou") // Fallback truncates for short text.
             }
@@ -1101,7 +1104,7 @@ public class EditorSessionTest {
             assertThat(
                 previewComplication.text.getTextAt(
                     ApplicationProvider.getApplicationContext<Context>().resources,
-                    0
+                    Instant.EPOCH
                 )
             ).isEqualTo("DataSource3")
 
@@ -1399,7 +1402,7 @@ public class EditorSessionTest {
             assertThat(
                 it.editorSession.renderWatchFaceToBitmap(
                     RenderParameters.DEFAULT_INTERACTIVE,
-                    1234L,
+                    Instant.ofEpochMilli(1234L),
                     null
                 )
             ).isEqualTo(fakeBitmap)
@@ -1473,7 +1476,7 @@ public class EditorSessionTest {
         assertThat(
             leftComplicationData.text.getTextAt(
                 ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                Instant.EPOCH
             )
         ).isEqualTo("Left")
 
@@ -1482,7 +1485,7 @@ public class EditorSessionTest {
         assertThat(
             rightComplicationData.text.getTextAt(
                 ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                Instant.EPOCH
             )
         ).isEqualTo("Right")
 
@@ -1628,8 +1631,10 @@ public class EditorSessionTest {
             emptyList(),
             headlessDeviceConfig = DeviceConfig(false, false, 0, 0),
             watchComponentName = headlessWatchFaceComponentName,
-            previewScreenshotParams =
-                PreviewScreenshotParams(RenderParameters.DEFAULT_INTERACTIVE, 0)
+            previewScreenshotParams = PreviewScreenshotParams(
+                RenderParameters.DEFAULT_INTERACTIVE,
+                Instant.EPOCH
+            )
         )
         val editorObserver = TestEditorObserver()
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
@@ -1668,8 +1673,10 @@ public class EditorSessionTest {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
             emptyList(),
-            previewScreenshotParams =
-                PreviewScreenshotParams(RenderParameters.DEFAULT_INTERACTIVE, 0)
+            previewScreenshotParams = PreviewScreenshotParams(
+                RenderParameters.DEFAULT_INTERACTIVE,
+                Instant.EPOCH
+            )
         )
         val editorObserver = TestEditorObserver()
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
@@ -1976,7 +1983,7 @@ public class EditorSessionTest {
                 assertThat(
                     leftComplicationData.text.getTextAt(
                         ApplicationProvider.getApplicationContext<Context>().resources,
-                        0
+                        Instant.EPOCH
                     )
                 ).isEqualTo("Left")
 
@@ -1987,7 +1994,7 @@ public class EditorSessionTest {
                 assertThat(
                     rightComplicationData.text.getTextAt(
                         ApplicationProvider.getApplicationContext<Context>().resources,
-                        0
+                        Instant.EPOCH
                     )
                 ).isEqualTo("Right")
             }
@@ -2011,7 +2018,7 @@ public class EditorSessionTest {
                 assertThat(
                     leftComplicationData.text.getTextAt(
                         ApplicationProvider.getApplicationContext<Context>().resources,
-                        0
+                        Instant.EPOCH
                     )
                 ).isEqualTo("Left")
 

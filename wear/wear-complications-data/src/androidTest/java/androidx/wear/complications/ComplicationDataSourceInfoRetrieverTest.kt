@@ -39,6 +39,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Instant
 
 private typealias WireComplicationProviderInfo =
     android.support.wearable.complications.ComplicationProviderInfo
@@ -164,7 +165,9 @@ public class ComplicationDataSourceInfoRetrieverTest {
                     dataSource1,
                     ComplicationType.SHORT_TEXT
                 ) as ShortTextComplicationData
-            assertThat(complicationData.text.getTextAt(context.resources, 0)).isEqualTo("Left")
+            assertThat(
+                complicationData.text.getTextAt(context.resources, Instant.EPOCH)
+            ).isEqualTo("Left")
             complicationDataSourceInfoRetriever.close()
         }
     }

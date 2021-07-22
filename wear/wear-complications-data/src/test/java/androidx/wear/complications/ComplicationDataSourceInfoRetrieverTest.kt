@@ -41,6 +41,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.doAnswer
+import java.time.Instant
 
 /*
 * Copyright 2021 The Android Open Source Project
@@ -98,7 +99,8 @@ public class ComplicationDataSourceInfoRetrieverTest {
             assertThat(previewData.type).isEqualTo(type)
             assertThat(
                 (previewData as LongTextComplicationData).text.getTextAt(
-                    ApplicationProvider.getApplicationContext<Context>().resources, 0
+                    ApplicationProvider.getApplicationContext<Context>().resources,
+                    Instant.EPOCH
                 )
             ).isEqualTo("Test Text")
         }
@@ -197,9 +199,12 @@ public class ComplicationDataSourceInfoRetrieverTest {
             ComplicationType.SHORT_TEXT,
             componentName = null
         ).fallbackPreviewData as ShortTextComplicationData
-        assertThat(shortTextPreviewData.text.getTextAt(resources, 0)).isEqualTo("complic")
-        assertThat(shortTextPreviewData.contentDescription!!.getTextAt(resources, 0))
-            .isEqualTo("complicationName")
+        assertThat(
+            shortTextPreviewData.text.getTextAt(resources, Instant.EPOCH)
+        ).isEqualTo("complic")
+        assertThat(
+            shortTextPreviewData.contentDescription!!.getTextAt(resources, Instant.EPOCH)
+        ).isEqualTo("complicationName")
         assertThat(shortTextPreviewData.monochromaticImage!!.image).isEqualTo(icon)
     }
 
@@ -213,9 +218,12 @@ public class ComplicationDataSourceInfoRetrieverTest {
             ComplicationType.LONG_TEXT,
             componentName = null
         ).fallbackPreviewData as LongTextComplicationData
-        assertThat(longTextPreviewData.text.getTextAt(resources, 0)).isEqualTo("complicationName")
-        assertThat(longTextPreviewData.contentDescription!!.getTextAt(resources, 0))
-            .isEqualTo("complicationName")
+        assertThat(
+            longTextPreviewData.text.getTextAt(resources, Instant.EPOCH)
+        ).isEqualTo("complicationName")
+        assertThat(
+            longTextPreviewData.contentDescription!!.getTextAt(resources, Instant.EPOCH)
+        ).isEqualTo("complicationName")
         assertThat(longTextPreviewData.monochromaticImage!!.image).isEqualTo(icon)
     }
 
@@ -230,8 +238,9 @@ public class ComplicationDataSourceInfoRetrieverTest {
             componentName = null
         ).fallbackPreviewData as SmallImageComplicationData
         assertThat(smallImagePreviewData.smallImage.image).isEqualTo(icon)
-        assertThat(smallImagePreviewData.contentDescription!!.getTextAt(resources, 0))
-            .isEqualTo("complicationName")
+        assertThat(
+            smallImagePreviewData.contentDescription!!.getTextAt(resources, Instant.EPOCH)
+        ).isEqualTo("complicationName")
     }
 
     @Test
@@ -245,8 +254,9 @@ public class ComplicationDataSourceInfoRetrieverTest {
             componentName = null
         ).fallbackPreviewData as PhotoImageComplicationData
         assertThat(photoImagePreviewData.photoImage).isEqualTo(icon)
-        assertThat(photoImagePreviewData.contentDescription!!.getTextAt(resources, 0))
-            .isEqualTo("complicationName")
+        assertThat(
+            photoImagePreviewData.contentDescription!!.getTextAt(resources, Instant.EPOCH)
+        ).isEqualTo("complicationName")
     }
 
     @Test
@@ -260,8 +270,12 @@ public class ComplicationDataSourceInfoRetrieverTest {
             componentName = null
         ).fallbackPreviewData as MonochromaticImageComplicationData
         assertThat(monochromaticImagePreviewData.monochromaticImage.image).isEqualTo(icon)
-        assertThat(monochromaticImagePreviewData.contentDescription!!.getTextAt(resources, 0))
-            .isEqualTo("complicationName")
+        assertThat(
+            monochromaticImagePreviewData.contentDescription!!.getTextAt(
+                resources,
+                Instant.EPOCH
+            )
+        ).isEqualTo("complicationName")
     }
 
     @Test
@@ -277,11 +291,15 @@ public class ComplicationDataSourceInfoRetrieverTest {
         assertThat(rangedValuePreviewData.min).isEqualTo(0.0f)
         assertThat(rangedValuePreviewData.max).isEqualTo(100.0f)
         assertThat(rangedValuePreviewData.value).isEqualTo(42.0f)
-        assertThat(rangedValuePreviewData.text!!.getTextAt(resources, 0)).isEqualTo(
-            "complicationName"
-        )
+        assertThat(
+            rangedValuePreviewData.text!!.getTextAt(resources, Instant.EPOCH)
+        ).isEqualTo("complicationName")
         assertThat(rangedValuePreviewData.monochromaticImage!!.image).isEqualTo(icon)
-        assertThat(rangedValuePreviewData.contentDescription!!.getTextAt(resources, 0))
-            .isEqualTo("complicationName")
+        assertThat(
+            rangedValuePreviewData.contentDescription!!.getTextAt(
+                resources,
+                Instant.EPOCH
+            )
+        ).isEqualTo("complicationName")
     }
 }

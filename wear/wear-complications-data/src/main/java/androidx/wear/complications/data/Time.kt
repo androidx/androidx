@@ -16,40 +16,42 @@
 
 package androidx.wear.complications.data
 
+import java.time.Instant
+
 /** A range of time, that may be unbounded on either side. */
 public class TimeRange internal constructor(
-    public val startDateTimeMillis: Long,
-    public val endDateTimeMillis: Long
+    public val startDateTimeMillis: Instant,
+    public val endDateTimeMillis: Instant
 ) {
     /** Returns whether the [TimeRange] contains a given point in time. */
-    public operator fun contains(dateTimeMillis: Long): Boolean =
+    public operator fun contains(dateTimeMillis: Instant): Boolean =
         (dateTimeMillis >= startDateTimeMillis) and (dateTimeMillis <= endDateTimeMillis)
 
     public companion object {
         /** The [TimeRange] that includes every point in time. */
         @JvmField
-        public val ALWAYS: TimeRange = TimeRange(0, Long.MAX_VALUE)
+        public val ALWAYS: TimeRange = TimeRange(Instant.MIN, Instant.MAX)
 
         /** Constructs a time range after a given point in time. */
         @JvmStatic
-        public fun after(startDateTimeMillis: Long): TimeRange =
-            TimeRange(startDateTimeMillis, Long.MAX_VALUE)
+        public fun after(startInstant: Instant): TimeRange =
+            TimeRange(startInstant, Instant.MAX)
 
         /** Constructs a time range until a given point in time. */
         @JvmStatic
-        public fun before(endDateTimeMillis: Long): TimeRange = TimeRange(0, endDateTimeMillis)
+        public fun before(endInstant: Instant): TimeRange = TimeRange(Instant.MIN, endInstant)
 
         /** Constructs a time range between two points in time, inclusive of the points
          * themselves.
          */
         @JvmStatic
-        public fun between(startDateTimeMillis: Long, endDateTimeMillis: Long): TimeRange =
-            TimeRange(startDateTimeMillis, endDateTimeMillis)
+        public fun between(startInstant: Instant, endInstant: Instant): TimeRange =
+            TimeRange(startInstant, endInstant)
     }
 }
 
 /** Defines a point in time the complication is counting down until. */
-public class CountDownTimeReference(public val dateTimeMillis: Long)
+public class CountDownTimeReference(public val instant: Instant)
 
 /** Defines a point in time the complication is counting up from. */
-public class CountUpTimeReference(public val dateTimeMillis: Long)
+public class CountUpTimeReference(public val instant: Instant)

@@ -33,8 +33,9 @@ import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
+import java.time.Instant
 
-private const val REFERENCE_PREVIEW_TIME = 123456L
+private val REFERENCE_PREVIEW_TIME = Instant.ofEpochMilli(123456L)
 
 private class TestListenableWatchFaceService : ListenableWatchFaceService() {
     override fun createWatchFaceFuture(
@@ -61,7 +62,7 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
                         calendar: Calendar
                     ) {}
                 }
-            ).apply { setOverridePreviewReferenceTimeMillis(REFERENCE_PREVIEW_TIME) }
+            ).apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
         )
     }
 
@@ -100,7 +101,7 @@ public class ListenableWatchFaceServiceTest {
             )
 
             // Simple check that [watchFace] looks sensible.
-            assertThat(watchFace.overridePreviewReferenceTimeMillis).isEqualTo(
+            assertThat(watchFace.overridePreviewReferenceInstant).isEqualTo(
                 REFERENCE_PREVIEW_TIME
             )
         }
