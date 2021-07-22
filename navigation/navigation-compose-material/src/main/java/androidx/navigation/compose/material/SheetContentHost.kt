@@ -35,10 +35,10 @@ import androidx.navigation.compose.LocalOwnersProvider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 /**
@@ -63,31 +63,21 @@ internal fun SheetContentHost(
     sheetState: ModalBottomSheetState,
     saveableStateHolder: SaveableStateHolder,
     onSheetShown: (entry: NavBackStackEntry) -> Unit = {},
-    onSheetDismissalStarted: (entry: NavBackStackEntry) -> Unit = {},
     onSheetDismissed: (entry: NavBackStackEntry) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     if (backStackEntry != null) {
-        LaunchedEffect(
-            sheetState.currentValue,
-            sheetState.targetValue,
-            backStackEntry
-        ) {
-            val sheetHiddenEvents = snapshotFlow { sheetState.currentValue }
-                .filter { it == ModalBottomSheetValue.Hidden }
-
-            snapshotFlow { sheetState.currentValue to sheetState.targetValue }
-                .filter { (currentValue, targetValue) ->
-                    // When the sheet is currently visible but moving towards the hidden state
-                    currentValue != ModalBottomSheetValue.Hidden &&
-                        targetValue == ModalBottomSheetValue.Hidden
-                }
-                .onEach { onSheetDismissalStarted(backStackEntry) }
-                .combine(sheetHiddenEvents) { _, _ ->
-                    // This means that the currentValue went from not hidden to hidden
-                    onSheetDismissed(backStackEntry)
-                }
-                .launchIn(this)
+        LaunchedEffect(Unit) {
+            val sheetVisibility = snapshotFlow { sheetState.isVisible }
+            sheetVisibility
+                // We are only interested in changes in the sheet's visibility
+                .distinctUntilChanged()
+                // distinctUntilChanged emits the initial value which we don't need
+                .drop(1)
+                // We want to know when the sheet was visible but is not anymore
+                .filter { isVisible -> !isVisible }
+                // Finally, pop the back stack when the sheet has been hidden
+                .collect { onSheetDismissed(backStackEntry) }
         }
 
         // Whenever the composable associated with the latestEntry enters the composition, we

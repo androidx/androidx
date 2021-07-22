@@ -100,15 +100,8 @@ public class BottomSheetNavigator(
                 val transitionForEntry = transitionsInProgress[backStackEntry]
                 transitionForEntry?.onTransitionComplete()
             },
-            onSheetDismissalStarted = { backStackEntry ->
-                // Start a transition when the sheet is being dismissed
-                state.popWithTransition(backStackEntry, false)
-            },
             onSheetDismissed = { backStackEntry ->
-                // If we had a transition in progress, let the transitionListener know that
-                // everything is settled and the back stack entry can be moved to the DESTROYED
-                // state
-                transitionsInProgress[backStackEntry]?.onTransitionComplete()
+                state.pop(backStackEntry, saveState = false)
             }
         )
     }
