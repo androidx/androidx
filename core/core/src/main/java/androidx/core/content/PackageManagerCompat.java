@@ -17,6 +17,12 @@
 package androidx.core.content;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.core.content.UnusedAppRestrictionsConstants.API_30;
+import static androidx.core.content.UnusedAppRestrictionsConstants.API_30_BACKPORT;
+import static androidx.core.content.UnusedAppRestrictionsConstants.API_31;
+import static androidx.core.content.UnusedAppRestrictionsConstants.DISABLED;
+import static androidx.core.content.UnusedAppRestrictionsConstants.ERROR;
+import static androidx.core.content.UnusedAppRestrictionsConstants.FEATURE_NOT_AVAILABLE;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -27,6 +33,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -34,6 +41,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.UserManagerCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -49,6 +57,8 @@ public final class PackageManagerCompat {
         /* Hide constructor */
     }
 
+    static final String LOG_TAG = "PackageManagerCompat";
+
     /**
      * Activity action: creates an intent to redirect the user to UI to turn on/off their
      * permission revocation settings.
@@ -57,50 +67,11 @@ public final class PackageManagerCompat {
     public static final String ACTION_PERMISSION_REVOCATION_SETTINGS =
             "android.intent.action.AUTO_REVOKE_PERMISSIONS";
 
-    /** The status of Unused App Restrictions features is unknown for this app. */
-    public static final int UNUSED_APP_RESTRICTION_STATUS_UNKNOWN = 0;
-
-    /** There are no available Unused App Restrictions features for this app. */
-    public static final int UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE = 1;
-
-    /**
-     * Permission revocation is enabled for this app (i.e. permissions will be automatically
-     * reset if the app is unused).
-     *
-     * Note: this also means that app hibernation is not available for this app.
-     */
-    public static final int PERMISSION_REVOCATION_ENABLED = 2;
-
-    /**
-     * Permission revocation is disabled for this app (i.e. this app is exempt from having
-     * its permissions automatically removed).
-     *
-     * Note: this also means that app hibernation is not available for this app.
-     */
-    public static final int PERMISSION_REVOCATION_DISABLED = 3;
-
-    /**
-     * App hibernation is enabled for this app (i.e. this app will be hibernated and have its
-     * permissions revoked if the app is unused).
-     *
-     * Note: this also means that permission revocation is enabled for this app.
-     */
-    public static final int APP_HIBERNATION_ENABLED = 4;
-
-    /**
-     * App hibernation is disabled for this app (i.e. this app is exempt from being hibernated).
-     *
-     * Note: this also means that permission revocation is disabled for this app.
-     */
-    public static final int APP_HIBERNATION_DISABLED = 5;
-
     /**
      * The status of Unused App Restrictions features for this app.
      * @hide
      */
-    @IntDef({UNUSED_APP_RESTRICTION_STATUS_UNKNOWN, UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE,
-            PERMISSION_REVOCATION_ENABLED, PERMISSION_REVOCATION_DISABLED,
-            APP_HIBERNATION_ENABLED, APP_HIBERNATION_DISABLED})
+    @IntDef({ERROR, FEATURE_NOT_AVAILABLE, DISABLED, API_30_BACKPORT, API_30, API_31})
     @Retention(SOURCE)
     @RestrictTo(LIBRARY)
     public @interface UnusedAppRestrictionsStatus {
@@ -110,50 +81,89 @@ public final class PackageManagerCompat {
      * Returns the status of Unused App Restriction features for the current application, i.e.
      * whether the features are available and if so, enabled for the application.
      *
-     * The returned value is a ListenableFuture with an Integer corresponding to the
-     * UnusedAppRestrictionsStatus (e.g. {@link #UNUSED_APP_RESTRICTION_STATUS_UNKNOWN} or
-     * {@link #PERMISSION_REVOCATION_DISABLED}).
+     * The returned value is a ListenableFuture with an Integer corresponding to a value in
+     * {@link UnusedAppRestrictionsConstants}.
+     *
+     * The possible values are as follows:
+     * <ul>
+     *     <li>{@link UnusedAppRestrictionsConstants#ERROR}: an error occurred when fetching
+     *     the availability and status of Unused App Restrictions features. Check the logs for
+     *     the reason (e.g. if the app's target SDK version < 30 or the user is in locked device
+     *     boot mode).</li>
+     *     <li>{@link UnusedAppRestrictionsConstants#FEATURE_NOT_AVAILABLE}: there are no
+     *     available Unused App Restrictions features for this app.</li>
+     *     <li>{@link UnusedAppRestrictionsConstants#DISABLED}: any available Unused App
+     *     Restrictions features on the device are disabled for this app.</li>
+     *     <li>{@link UnusedAppRestrictionsConstants#API_30_BACKPORT}: Unused App Restrictions
+     *     features introduced by Android API 30 and backported to earlier (API 23-29) devices
+     *     are enabled for this app (i.e. permissions will be automatically reset).</li>
+     *     <li>{@link UnusedAppRestrictionsConstants#API_30}: API 30 Unused App Restrictions
+     *     are enabled for this app (i.e. permissions will be automatically reset).</li>
+     *     <li>{@link UnusedAppRestrictionsConstants#API_31}: API 31 Unused App
+     *     Restrictions are enabled for this app (i.e. this app will be hibernated and have its
+     *     permissions reset).</li>
+     * </ul>
      *
      * Compatibility behavior:
      * <ul>
-     * <li>SDK 31 and above, if {@link PackageManager#isAutoRevokeWhitelisted()} is true, this
-     * will return {@link #APP_HIBERNATION_ENABLED}. Else, it will return
-     * {@link #APP_HIBERNATION_DISABLED}.</li>
-     * <li>SDK 30, if {@link PackageManager#isAutoRevokeWhitelisted()} is true, this will return
-     * {@link #PERMISSION_REVOCATION_ENABLED}. Else, it will return
-     * {@link #PERMISSION_REVOCATION_DISABLED}.</li>
+     * <li>SDK 31 and above, if {@link PackageManager#isAutoRevokeWhitelisted()} is true, this API
+     * will return {@link UnusedAppRestrictionsConstants#DISABLED}. Else, it will return
+     * {@link UnusedAppRestrictionsConstants#API_31}.</li>
+     * <li>SDK 30, if {@link PackageManager#isAutoRevokeWhitelisted()} is true, this API will return
+     * {@link UnusedAppRestrictionsConstants#DISABLED}. Else, it will return
+     * {@link UnusedAppRestrictionsConstants#API_30}.</li>
      * <li>SDK 23 through 29, if there exists an app with the Verifier role that can resolve the
-     * {@code Intent.ACTION_AUTO_REVOKE_PERMISSIONS} action.
+     * {@code Intent.ACTION_AUTO_REVOKE_PERMISSIONS} action, then this API will return
+     * {@link UnusedAppRestrictionsConstants#API_30_BACKPORT} if Unused App Restrictions features
+     * are enabled and {@link UnusedAppRestrictionsConstants#DISABLED} if disabled. Else, it will
+     * return {@link UnusedAppRestrictionsConstants#FEATURE_NOT_AVAILABLE}.
      * <li>SDK 22 and below, this method always returns
-     * {@link #UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE} as runtime permissions did not exist
-     * yet.
+     * {@link UnusedAppRestrictionsConstants#FEATURE_NOT_AVAILABLE} as runtime permissions did
+     * not exist yet.
      * </ul>
      */
     @NonNull
     public static ListenableFuture<Integer> getUnusedAppRestrictionsStatus(
             @NonNull Context context) {
         ResolvableFuture<Integer> resultFuture = ResolvableFuture.create();
+        // If the user is in locked direct boot mode, return error as we cannot access the
+        // unused app restriction settings.
+        if (!UserManagerCompat.isUserUnlocked(context)) {
+            resultFuture.set(ERROR);
+            Log.e(LOG_TAG, "User is in locked direct boot mode");
+            return resultFuture;
+        }
+
         if (!areUnusedAppRestrictionsAvailable(context.getPackageManager())) {
-            resultFuture.set(UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE);
+            resultFuture.set(FEATURE_NOT_AVAILABLE);
+            return resultFuture;
+        }
+
+        int targetSdkVersion = context.getApplicationInfo().targetSdkVersion;
+
+        if (targetSdkVersion < Build.VERSION_CODES.R) {
+            resultFuture.set(ERROR);
+            Log.e(LOG_TAG, "Target SDK version below API 30");
             return resultFuture;
         }
 
         // TODO: replace with VERSION_CODES.S once it's defined
         if (Build.VERSION.SDK_INT >= 31) {
             if (Api30Impl.areUnusedAppRestrictionsEnabled(context)) {
-                resultFuture.set(APP_HIBERNATION_ENABLED);
+                // API 31 unused app restrictions are only available for apps targeting API 31+.
+                // For apps targeting API 30-, API 30 unused app restrictions will be used instead.
+                resultFuture.set(targetSdkVersion >= 31 ? API_31 : API_30);
             } else {
-                resultFuture.set(APP_HIBERNATION_DISABLED);
+                resultFuture.set(DISABLED);
             }
             return resultFuture;
         }
 
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            if (Api30Impl.areUnusedAppRestrictionsEnabled(context)) {
-                resultFuture.set(PERMISSION_REVOCATION_ENABLED);
-            } else {
-                resultFuture.set(PERMISSION_REVOCATION_DISABLED);
-            }
+            resultFuture.set(
+                    Api30Impl.areUnusedAppRestrictionsEnabled(context)
+                            ? API_30
+                            : DISABLED);
             return resultFuture;
         }
 

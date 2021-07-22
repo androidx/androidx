@@ -1014,12 +1014,6 @@ package androidx.core.content {
   public final class PackageManagerCompat {
     method public static com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> getUnusedAppRestrictionsStatus(android.content.Context);
     field public static final String ACTION_PERMISSION_REVOCATION_SETTINGS = "android.intent.action.AUTO_REVOKE_PERMISSIONS";
-    field public static final int APP_HIBERNATION_DISABLED = 5; // 0x5
-    field public static final int APP_HIBERNATION_ENABLED = 4; // 0x4
-    field public static final int PERMISSION_REVOCATION_DISABLED = 3; // 0x3
-    field public static final int PERMISSION_REVOCATION_ENABLED = 2; // 0x2
-    field public static final int UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE = 1; // 0x1
-    field public static final int UNUSED_APP_RESTRICTION_STATUS_UNKNOWN = 0; // 0x0
   }
 
   public final class PermissionChecker {
@@ -1049,6 +1043,15 @@ package androidx.core.content {
     method protected abstract void isPermissionRevocationEnabled(androidx.core.content.UnusedAppRestrictionsBackportCallback);
     method public android.os.IBinder? onBind(android.content.Intent?);
     field public static final String ACTION_UNUSED_APP_RESTRICTIONS_BACKPORT_CONNECTION = "android.support.unusedapprestrictions.action.CustomUnusedAppRestrictionsBackportService";
+  }
+
+  public final class UnusedAppRestrictionsConstants {
+    field public static final int API_30 = 4; // 0x4
+    field public static final int API_30_BACKPORT = 3; // 0x3
+    field public static final int API_31 = 5; // 0x5
+    field public static final int DISABLED = 2; // 0x2
+    field public static final int ERROR = 0; // 0x0
+    field public static final int FEATURE_NOT_AVAILABLE = 1; // 0x1
   }
 
 }
