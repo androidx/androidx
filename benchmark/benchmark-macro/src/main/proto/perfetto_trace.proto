@@ -69,11 +69,37 @@ message UiState {
 // Others - kept only what is necessary
 ///////////////////////////////////////////////////////////////////////////////
 
+message TrackEvent {
+  repeated string categories = 22;
+  oneof name_field {
+    string name = 23;
+  }
+  enum Type {
+    TYPE_SLICE_BEGIN = 1;
+    TYPE_SLICE_END = 2;
+  }
+  optional Type type = 9;
+  optional uint64 track_uuid = 11;
+}
+
+message TrackDescriptor {
+  optional uint64 uuid = 1;
+  optional string name = 2;
+}
+
 message TracePacket {
+  optional uint64 timestamp = 8;
+  optional uint32 timestamp_clock_id = 58;
   oneof data {
+    TrackEvent track_event = 11;
+    TrackDescriptor track_descriptor = 60;
     UiState ui_state = 78;
     bytes compressed_packets = 50; // kept for testing purposes
   }
+  oneof optional_trusted_packet_sequence_id {
+    uint32 trusted_packet_sequence_id = 10;
+  }
+  optional bool incremental_state_cleared = 41;
 }
 
 message Trace {

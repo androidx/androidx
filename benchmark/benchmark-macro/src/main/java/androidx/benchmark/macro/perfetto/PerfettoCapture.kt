@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
+import androidx.benchmark.macro.userspaceTrace
 import java.io.File
 
 /**
@@ -53,13 +54,17 @@ public class PerfettoCapture(private val unbundled: Boolean = Build.VERSION.SDK_
      *
      * TODO: provide configuration options
      */
-    public fun start() {
+    public fun start() = userspaceTrace("start perfetto") {
         // Write binary proto to dir that shell can read
         // TODO: cache on disk
         val configProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.pb")
         try {
-            configProtoFile.writeBytes(PERFETTO_CONFIG.encode())
-            helper.startCollecting(configProtoFile.absolutePath, false)
+            userspaceTrace("write config") {
+                configProtoFile.writeBytes(PERFETTO_CONFIG.encode())
+            }
+            userspaceTrace("start perfetto process") {
+                helper.startCollecting(configProtoFile.absolutePath, false)
+            }
         } finally {
             configProtoFile.delete()
         }
@@ -71,7 +76,7 @@ public class PerfettoCapture(private val unbundled: Boolean = Build.VERSION.SDK_
      * @param destinationPath Absolute path to write perfetto trace to. Must be shell-writable,
      * such as result of `context.getExternalFilesDir(null)` or other similar `external` paths.
      */
-    public fun stop(destinationPath: String) {
+    public fun stop(destinationPath: String) = userspaceTrace("stop perfetto") {
         // Wait time determined empirically by running a trivial startup test (3 iterations) 200
         // times, and validating no metric capture failures.
         if (!helper.stopCollecting(500, destinationPath)) {

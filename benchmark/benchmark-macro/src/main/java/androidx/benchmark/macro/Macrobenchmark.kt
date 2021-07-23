@@ -126,9 +126,11 @@ private fun macrobenchmark(
     // always kill the process at beginning of test
     scope.killProcess()
 
-    compilationMode.compile(packageName) {
-        setupBlock(scope, false)
-        measureBlock(scope)
+    userspaceTrace("compile $packageName") {
+        compilationMode.compile(packageName) {
+            setupBlock(scope, false)
+            measureBlock(scope)
+        }
     }
 
     // Perfetto collector is separate from metrics, so we can control file
@@ -141,36 +143,52 @@ private fun macrobenchmark(
         }
         var isFirstRun = true
         val metricResults = List(iterations) { iteration ->
-            setupBlock(scope, isFirstRun)
+            userspaceTrace("setupBlock") {
+                setupBlock(scope, isFirstRun)
+            }
             isFirstRun = false
 
             val tracePath = perfettoCollector.record(uniqueName, iteration) {
                 try {
-                    metrics.forEach {
-                        it.start()
+                    userspaceTrace("start metrics") {
+                        metrics.forEach {
+                            it.start()
+                        }
                     }
-                    measureBlock(scope)
+                    userspaceTrace("measureBlock") {
+                        measureBlock(scope)
+                    }
                 } finally {
-                    metrics.forEach {
-                        it.stop()
+                    userspaceTrace("stop metrics") {
+                        metrics.forEach {
+                            it.stop()
+                        }
                     }
                 }
             }!!
 
             tracePaths.add(tracePath)
-            val metricsWithUiState = metrics
-                // capture list of Map<String,Long> per metric
-                .map { it.getMetrics(packageName, tracePath) }
-                // merge into one map
-                .reduce { sum, element -> sum + element }
 
+            val metricsWithUiState = userspaceTrace("extract metrics") {
+                metrics
+                    // capture list of Map<String,Long> per metric
+                    .map { it.getMetrics(packageName, tracePath) }
+                    // merge into one map
+                    .reduce { sum, element -> sum + element }
+            }
             // append UI state to trace, so tools opening trace will highlight relevant part in UI
             val uiState = UiState(
                 timelineStart = metricsWithUiState.timelineStart,
                 timelineEnd = metricsWithUiState.timelineEnd,
                 highlightPackage = packageName
             )
-            File(tracePath).appendUiState(uiState)
+            File(tracePath).apply {
+                // Disabled currently, see b/194424816 and b/174007010
+                // appendBytes(UserspaceTracing.commitToTrace().encode())
+                UserspaceTracing.commitToTrace() // clear buffer
+
+                appendUiState(uiState)
+            }
             Log.d(TAG, "Iteration $iteration captured $uiState")
 
             // report just the metrics

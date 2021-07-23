@@ -76,6 +76,9 @@ package androidx.benchmark.macro {
   public final class TagKt {
   }
 
+  public final class UserspaceTracingKt {
+  }
+
 }
 
 package androidx.benchmark.macro.perfetto {
