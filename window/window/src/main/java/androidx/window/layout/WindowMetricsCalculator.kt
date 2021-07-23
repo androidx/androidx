@@ -76,7 +76,7 @@ interface WindowMetricsCalculator {
 
     companion object {
         @JvmStatic
-        fun create(): WindowMetricsCalculator {
+        fun getOrCreate(): WindowMetricsCalculator {
             return WindowMetricsCalculatorCompat
         }
     }
