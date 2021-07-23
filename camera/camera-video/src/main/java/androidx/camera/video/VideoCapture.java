@@ -91,29 +91,12 @@ import java.util.concurrent.Executor;
  * <p>VideoCapture is used to create a camera stream suitable for video application. The camera
  * stream is used by the extended classes of {@link VideoOutput}.
  * {@link #withOutput(VideoOutput)} can be used to create a VideoCapture instance associated with
- * the given VideoOutput.
- *
- * <p>When {@linkplain androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle binding}
- * VideoCapture to lifecycle, VideoCapture will create a camera stream with the resolution
- * selected by the {@link QualitySelector} in VideoOutput. Example:
- * <pre>
- *     <code>
- *         Recorder recorder = new Recorder.Builder()
- *                 .setQualitySelector(QualitySelector.of(QualitySelector.QUALITY_FHD))
- *                 .build();
- *         VideoCapture<Recorder> videoCapture = VideoCapture.withOutput(recorder);
- *     </code>
- * </pre>
- *
- * <p>Then VideoCapture will {@link VideoOutput#onSurfaceRequested(SurfaceRequest) ask}
- * VideoOutput to {@link SurfaceRequest#provideSurface provide} a {@link Surface} for setting up
- * the camera stream. After VideoCapture is bound, update QualitySelector in VideoOutput will not
- * have any effect. If it needs to change the resolution of the camera stream after VideoCapture
- * is bound, it has to update QualitySelector of VideoOutput and rebind
- * ({@linkplain androidx.camera.lifecycle.ProcessCameraProvider#unbind unbind} and
- * {@linkplain androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle bind}) the
- * VideoCapture. If the extended class of VideoOutput does not have API to modify the
- * QualitySelector, it has to create new VideoOutput and VideoCapture for rebinding.
+ * the given VideoOutput. Take {@link Recorder} as an example,
+ * <pre>{@code
+ *         VideoCapture<Recorder> videoCapture
+ *                 = VideoCapture.withOutput(new Recorder.Builder().build());
+ * }</pre>
+ * Then {@link #getOutput()} can retrieve the Recorder instance.
  *
  * @param <T> the type of VideoOutput
  */
