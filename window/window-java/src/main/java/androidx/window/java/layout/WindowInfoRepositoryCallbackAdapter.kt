@@ -17,7 +17,7 @@
 package androidx.window.java.layout
 
 import androidx.core.util.Consumer
-import androidx.window.layout.WindowInfoRepo
+import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 import kotlinx.coroutines.CoroutineScope
@@ -31,12 +31,12 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
- * An adapted interface for [WindowInfoRepo] that allows listening for events via a callback
+ * An adapted interface for [WindowInfoRepository] that allows listening for events via a callback
  * shaped API.
  */
-class WindowInfoRepoCallbackAdapter(
-    private val repo: WindowInfoRepo
-) : WindowInfoRepo by repo {
+class WindowInfoRepositoryCallbackAdapter(
+    private val repository: WindowInfoRepository
+) : WindowInfoRepository by repository {
 
     /**
      * A [ReentrantLock] to protect against concurrent access to [consumerToJobMap].
@@ -47,16 +47,16 @@ class WindowInfoRepoCallbackAdapter(
     /**
      * Register a listener to consume [WindowMetrics] values. If the same consumer is registered
      * twice then this method is a no-op.
-     * @see WindowInfoRepo.currentWindowMetrics
+     * @see WindowInfoRepository.currentWindowMetrics
      */
     fun addCurrentWindowMetricsListener(executor: Executor, consumer: Consumer<WindowMetrics>) {
-        addListener(executor, consumer, repo.currentWindowMetrics)
+        addListener(executor, consumer, repository.currentWindowMetrics)
     }
 
     /**
      * Remove a listener to stop consuming [WindowMetrics] values. If the listener has already
      * been removed then this is a no-op.
-     * @see WindowInfoRepo.currentWindowMetrics
+     * @see WindowInfoRepository.currentWindowMetrics
      */
     fun removeCurrentWindowMetricsListener(consumer: Consumer<WindowMetrics>) {
         removeListener(consumer)
@@ -65,19 +65,19 @@ class WindowInfoRepoCallbackAdapter(
     /**
      * Register a listener to consume [WindowLayoutInfo] values. If the same consumer is
      * registered twice then this method is a no-op.
-     * @see WindowInfoRepo.windowLayoutInfo
+     * @see WindowInfoRepository.windowLayoutInfo
      */
     fun addWindowLayoutInfoListener(
         executor: Executor,
         consumer: Consumer<WindowLayoutInfo>
     ) {
-        addListener(executor, consumer, repo.windowLayoutInfo)
+        addListener(executor, consumer, repository.windowLayoutInfo)
     }
 
     /**
      * Remove a listener to stop consuming [WindowLayoutInfo] values. If the listener has already
      * been removed then this is a no-op.
-     * @see WindowInfoRepo.windowLayoutInfo
+     * @see WindowInfoRepository.windowLayoutInfo
      */
     fun removeWindowLayoutInfoListener(consumer: Consumer<WindowLayoutInfo>) {
         removeListener(consumer)

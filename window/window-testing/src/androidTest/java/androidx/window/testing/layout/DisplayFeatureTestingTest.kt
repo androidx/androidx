@@ -41,7 +41,8 @@ public class DisplayFeatureTestingTest {
     @Test
     public fun testFold_emptyWidthIsFold() {
         activityRule.scenario.onActivity { activity ->
-            val metrics = WindowMetricsCalculator.create().computeCurrentWindowMetrics(activity)
+            val metrics = WindowMetricsCalculator.getOrCreate()
+                .computeCurrentWindowMetrics(activity)
             val bounds = metrics.bounds
             val center = bounds.centerX()
             val actual = FoldingFeature(activity = activity, state = FLAT, orientation = VERTICAL)
@@ -54,7 +55,8 @@ public class DisplayFeatureTestingTest {
     @Test
     public fun testFold_boundsMatchOrientation() {
         activityRule.scenario.onActivity { activity ->
-            val metrics = WindowMetricsCalculator.create().computeCurrentWindowMetrics(activity)
+            val metrics = WindowMetricsCalculator.getOrCreate()
+                .computeCurrentWindowMetrics(activity)
             val bounds = metrics.bounds
             val center = bounds.centerX()
             val actual = FoldingFeature(activity = activity, state = FLAT, orientation = HORIZONTAL)
@@ -67,7 +69,8 @@ public class DisplayFeatureTestingTest {
     @Test
     public fun testFold_nonEmptyWidthIsFold() {
         activityRule.scenario.onActivity { activity ->
-            val metrics = WindowMetricsCalculator.create().computeCurrentWindowMetrics(activity)
+            val metrics = WindowMetricsCalculator.getOrCreate()
+                .computeCurrentWindowMetrics(activity)
             val bounds = metrics.bounds
             val center = bounds.centerX()
             val width = 20

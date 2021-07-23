@@ -19,8 +19,8 @@ package androidx.slidingpanelayout.widget
 import androidx.slidingpanelayout.widget.helpers.TestActivity
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
-import androidx.window.layout.windowInfoRepository
 import androidx.window.testing.layout.FoldingFeature
 import androidx.window.testing.layout.WindowLayoutInfoPublisherRule
 import org.junit.Assert.assertEquals

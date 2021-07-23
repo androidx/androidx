@@ -16,7 +16,7 @@
 
 package androidx.window.testing.layout
 
-import androidx.window.layout.WindowInfoRepo
+import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
@@ -52,22 +52,22 @@ public class WindowLayoutInfoPublisherRule() : TestRule {
         extraBufferCapacity = 1,
         onBufferOverflow = DROP_OLDEST
     )
-    private val overrideServices = PublishWindowInfoRepoDecorator(flow)
+    private val overrideServices = PublishWindowInfoRepositoryDecorator(flow)
 
     @ExperimentalCoroutinesApi
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
-                WindowInfoRepo.overrideDecorator(overrideServices)
+                WindowInfoRepository.overrideDecorator(overrideServices)
                 base.evaluate()
-                WindowInfoRepo.reset()
+                WindowInfoRepository.reset()
             }
         }
     }
 
     /**
      * Send an arbitrary [WindowLayoutInfo] through
-     * [androidx.window.layout.WindowInfoRepo.windowLayoutInfo]. Each event is sent only once.
+     * [androidx.window.layout.WindowInfoRepository.windowLayoutInfo]. Each event is sent only once.
      */
     public fun overrideWindowLayoutInfo(info: WindowLayoutInfo) {
         flow.tryEmit(info)

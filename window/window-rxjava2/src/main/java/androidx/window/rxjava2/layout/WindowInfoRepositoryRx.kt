@@ -13,46 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("WindowInfoRepoRx")
+@file:JvmName("WindowInfoRepositoryRx")
 
-package androidx.window.rxjava3.layout
+package androidx.window.rxjava2.layout
 
-import androidx.window.layout.WindowInfoRepo
+import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
-import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.core.Observable
-import kotlinx.coroutines.rx3.asFlowable
-import kotlinx.coroutines.rx3.asObservable
+import io.reactivex.Flowable
+import io.reactivex.Observable
+import kotlinx.coroutines.rx2.asFlowable
+import kotlinx.coroutines.rx2.asObservable
 
 /**
  * Return an [Observable] stream of [WindowMetrics].
- * @see WindowInfoRepo.currentWindowMetrics
+ * @see WindowInfoRepository.currentWindowMetrics
  */
-fun WindowInfoRepo.currentWindowMetricsObservable(): Observable<WindowMetrics> {
+fun WindowInfoRepository.currentWindowMetricsObservable(): Observable<WindowMetrics> {
     return currentWindowMetrics.asObservable()
 }
 
 /**
  * Return a [Flowable] stream of [WindowMetrics].
- * @see WindowInfoRepo.currentWindowMetrics
+ * @see WindowInfoRepository.currentWindowMetrics
  */
-fun WindowInfoRepo.currentWindowMetricsFlowable(): Flowable<WindowMetrics> {
+fun WindowInfoRepository.currentWindowMetricsFlowable(): Flowable<WindowMetrics> {
     return currentWindowMetrics.asFlowable()
 }
 
 /**
  * Return an [Observable] stream of [WindowLayoutInfo].
- * @see WindowInfoRepo.windowLayoutInfo
+ * @see WindowInfoRepository.windowLayoutInfo
  */
-public fun WindowInfoRepo.windowLayoutInfoObservable(): Observable<WindowLayoutInfo> {
+public fun WindowInfoRepository.windowLayoutInfoObservable(): Observable<WindowLayoutInfo> {
     return windowLayoutInfo.asObservable()
 }
 
 /**
  * Return a [Flowable] stream of [WindowLayoutInfo].
- * @see WindowInfoRepo.windowLayoutInfo
+ * @see WindowInfoRepository.windowLayoutInfo
  */
-public fun WindowInfoRepo.windowLayoutInfoFlowable(): Flowable<WindowLayoutInfo> {
+public fun WindowInfoRepository.windowLayoutInfoFlowable(): Flowable<WindowLayoutInfo> {
     return windowLayoutInfo.asFlowable()
 }
