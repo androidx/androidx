@@ -89,7 +89,7 @@ public class UiStateTest {
                     compressed_packets = ByteString.of(0, 1, 3)
                 ),
                 TracePacket(
-                    UiState(
+                    ui_state = UiState(
                         timeline_start_ts = 0,
                         timeline_end_ts = 1,
                         UiState.HighlightProcess(cmdline = "test.package")
