@@ -131,7 +131,7 @@ class CaptureConfigAdapterDeviceTest {
             }.build()
 
         // Act
-        cameraControl!!.submitCaptureRequests(listOf(captureConfig))
+        cameraControl!!.submitStillCaptureRequests(listOf(captureConfig))
 
         // Assert
         Truth.assertThat(

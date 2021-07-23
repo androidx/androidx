@@ -40,6 +40,7 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.workaround.AeFpsRange;
 import androidx.camera.camera2.internal.compat.workaround.AutoFlashAEModeDisabler;
+import androidx.camera.camera2.internal.compat.workaround.UseTorchAsFlash;
 import androidx.camera.camera2.interop.Camera2CameraControl;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -122,10 +123,13 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private final ExposureControl mExposureControl;
     private final Camera2CameraControl mCamera2CameraControl;
     private final AeFpsRange mAeFpsRange;
+    private final UseTorchAsFlash mUseTorchAsFlash;
     @GuardedBy("mLock")
     private int mUseCount = 0;
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
+    private boolean mIsTorchEnabledByFlash = false;
+    private boolean mIsAeTriggeredByFlash = false;
     @ImageCapture.FlashMode
     private volatile int mFlashMode = FLASH_MODE_OFF;
     private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler();
@@ -184,6 +188,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mZoomControl = new ZoomControl(this, mCameraCharacteristics, mExecutor);
         mTorchControl = new TorchControl(this, mCameraCharacteristics, mExecutor);
         mAeFpsRange = new AeFpsRange(cameraQuirks);
+        mUseTorchAsFlash = new UseTorchAsFlash(cameraQuirks);
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
         mExecutor.execute(
                 () -> addCaptureResultListener(mCamera2CameraControl.getCaptureRequestListener()));
@@ -384,40 +389,79 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     /**
-     * Issues a {@link CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_START} request to start auto
-     * exposure scan.
+     * {@inheritDoc}
+     *
+     * <p>Issues a {@link CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_START} request to start auto
+     * exposure scan. In some cases, torch flash will be used instead of issuing
+     * {@code CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START}.
      *
      * @return a {@link ListenableFuture} which completes when the request is completed.
      * Cancelling the ListenableFuture is a no-op.
      */
     @Override
     @NonNull
-    public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
+    public ListenableFuture<Void> startFlashSequence() {
         if (!isControlInUse()) {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
         return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
                 completer -> {
-                    mExecutor.execute(() -> mFocusMeteringControl.triggerAePrecapture(completer));
-                    return "triggerAePrecapture";
+                    mExecutor.execute(() -> {
+                        if (mUseTorchAsFlash.shouldUseTorchAsFlash()
+                                || mTemplate == CameraDevice.TEMPLATE_RECORD) {
+                            Logger.d(TAG, "Use torch as flash");
+                            if (mIsTorchOn) {
+                                completer.set(null);
+                            } else {
+                                mTorchControl.enableTorchInternal(completer, true);
+                                mIsTorchEnabledByFlash = true;
+                            }
+                        } else {
+                            mFocusMeteringControl.triggerAePrecapture(completer);
+                            mIsAeTriggeredByFlash = true;
+                        }
+                    });
+                    return "startFlashSequence";
                 }));
     }
 
     /**
-     * Issues {@link CaptureRequest#CONTROL_AF_TRIGGER_CANCEL} or {@link
+     * {@inheritDoc}
+     *
+     * <p>Issues {@link CaptureRequest#CONTROL_AF_TRIGGER_CANCEL} and/or {@link
      * CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL} request to cancel auto focus or auto
      * exposure scan.
+     *
+     * <p>When torch is used instead of issuing
+     * {@code CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START} in
+     * {@link #startFlashSequence()}, this method will close torch instead of issuing
+     * {@code CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL}.
      */
     @Override
-    public void cancelAfAeTrigger(final boolean cancelAfTrigger,
-            final boolean cancelAePrecaptureTrigger) {
+    public void cancelAfAndFinishFlashSequence(final boolean cancelAfTrigger,
+            final boolean finishFlashSequence) {
         if (!isControlInUse()) {
             Logger.w(TAG, "Camera is not active.");
             return;
         }
-        mExecutor.execute(() -> mFocusMeteringControl.cancelAfAeTrigger(cancelAfTrigger,
-                cancelAePrecaptureTrigger));
+        mExecutor.execute(() -> {
+            boolean cancelAeTrigger = false;
+            if (finishFlashSequence) {
+                if (mIsTorchEnabledByFlash) {
+                    mIsTorchEnabledByFlash = false;
+                    mTorchControl.enableTorchInternal(null, false);
+                }
+                if (mIsAeTriggeredByFlash) {
+                    mIsAeTriggeredByFlash = false;
+                    cancelAeTrigger = true;
+                }
+            }
+
+            if (cancelAfTrigger || cancelAeTrigger) {
+                mFocusMeteringControl.cancelAfAeTrigger(cancelAfTrigger, cancelAeTrigger);
+            }
+        });
     }
 
     @NonNull
@@ -432,12 +476,33 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     /** {@inheritDoc} */
     @Override
-    public void submitCaptureRequests(@NonNull final List<CaptureConfig> captureConfigs) {
+    public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         if (!isControlInUse()) {
             Logger.w(TAG, "Camera is not active.");
             return;
         }
-        mExecutor.execute(() -> submitCaptureRequestsInternal(captureConfigs));
+        mExecutor.execute(() -> {
+            List<CaptureConfig> configsToSubmit = new ArrayList<>(captureConfigs);
+            for (int i = 0; i < captureConfigs.size(); i++) {
+                CaptureConfig captureConfig = captureConfigs.get(i);
+                int templateToModify = CaptureConfig.TEMPLATE_TYPE_NONE;
+                if (mTemplate == CameraDevice.TEMPLATE_RECORD && !isLegacyDevice()) {
+                    // Always override template by TEMPLATE_VIDEO_SNAPSHOT when repeating
+                    // template is TEMPLATE_RECORD. Note: TEMPLATE_VIDEO_SNAPSHOT is not
+                    // supported on legacy device.
+                    templateToModify = CameraDevice.TEMPLATE_VIDEO_SNAPSHOT;
+                } else if (captureConfig.getTemplateType() == CaptureConfig.TEMPLATE_TYPE_NONE) {
+                    templateToModify = CameraDevice.TEMPLATE_STILL_CAPTURE;
+                }
+
+                if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE) {
+                    CaptureConfig.Builder configBuilder = CaptureConfig.Builder.from(captureConfig);
+                    configBuilder.setTemplateType(templateToModify);
+                    configsToSubmit.set(i, configBuilder.build());
+                }
+            }
+            submitCaptureRequestsInternal(configsToSubmit);
+        });
     }
 
     /** {@inheritDoc} */
@@ -737,6 +802,12 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @VisibleForTesting
     long getCurrentSessionUpdateId()  {
         return mCurrentSessionUpdateId;
+    }
+
+    private boolean isLegacyDevice() {
+        Integer level =
+                mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+        return level != null && level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     /** An interface to listen to camera capture results. */

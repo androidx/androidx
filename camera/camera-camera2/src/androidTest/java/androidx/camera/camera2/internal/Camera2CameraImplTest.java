@@ -399,7 +399,7 @@ public final class Camera2CameraImplTest {
         captureConfigBuilder.addSurface(useCase1.getSessionConfig().getSurfaces().get(0));
         captureConfigBuilder.addCameraCaptureCallback(captureCallback);
 
-        mCamera2CameraImpl.getCameraControlInternal().submitCaptureRequests(
+        mCamera2CameraImpl.getCameraControlInternal().submitStillCaptureRequests(
                 Arrays.asList(captureConfigBuilder.build()));
 
         UseCase useCase2 = createUseCase();
@@ -436,7 +436,7 @@ public final class Camera2CameraImplTest {
         captureConfigBuilder.addSurface(useCase1.getSessionConfig().getSurfaces().get(0));
         captureConfigBuilder.addCameraCaptureCallback(captureCallback);
 
-        mCamera2CameraImpl.getCameraControlInternal().submitCaptureRequests(
+        mCamera2CameraImpl.getCameraControlInternal().submitStillCaptureRequests(
                 Arrays.asList(captureConfigBuilder.build()));
         mCamera2CameraImpl.detachUseCases(Arrays.asList(useCase1));
 
