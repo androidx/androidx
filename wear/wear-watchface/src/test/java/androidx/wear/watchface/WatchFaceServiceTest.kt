@@ -99,6 +99,7 @@ private const val NO_COMPLICATIONS = "NO_COMPLICATIONS"
 private const val LEFT_COMPLICATION = "LEFT_COMPLICATION"
 private const val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
 private const val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
+private const val RIGHT_AND_LEFT_COMPLICATIONS = "RIGHT_AND_LEFT_COMPLICATIONS"
 
 @Config(manifest = Config.NONE)
 @RunWith(WatchFaceTestRunner::class)
@@ -255,7 +256,7 @@ public class WatchFaceServiceTest {
 
     private val leftAndRightComplicationsOption = ComplicationSlotsOption(
         Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
-        "Both",
+        "Left and Right",
         null,
         listOf(
             ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
@@ -266,7 +267,7 @@ public class WatchFaceServiceTest {
     )
     private val noComplicationsOption = ComplicationSlotsOption(
         Option.Id(NO_COMPLICATIONS),
-        "Both",
+        "None",
         null,
         listOf(
             ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
@@ -1401,9 +1402,9 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun styleChangesAccessibilityTraversalIndex() {
-        val leftAndRightComplicationsOptionIndexReversed = ComplicationSlotsOption(
-            Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
-            "Both",
+        val rightAndSelectComplicationsOption = ComplicationSlotsOption(
+            Option.Id(RIGHT_AND_LEFT_COMPLICATIONS),
+            "Right and Left",
             null,
             listOf(
                 ComplicationSlotOverlay.Builder(LEFT_COMPLICATION_ID)
@@ -1420,7 +1421,7 @@ public class WatchFaceServiceTest {
             icon = null,
             complicationConfig = listOf(
                 leftAndRightComplicationsOption,
-                leftAndRightComplicationsOptionIndexReversed
+                rightAndSelectComplicationsOption
             ),
             affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
         )
@@ -1464,7 +1465,7 @@ public class WatchFaceServiceTest {
 
         // Change the style
         watchFaceImpl.currentUserStyleRepository.userStyle = UserStyle(
-            hashMapOf(complicationsStyleSetting to leftAndRightComplicationsOptionIndexReversed)
+            hashMapOf(complicationsStyleSetting to rightAndSelectComplicationsOption)
         )
         runPostedTasksFor(0)
 
