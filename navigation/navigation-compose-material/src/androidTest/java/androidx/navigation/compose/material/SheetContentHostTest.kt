@@ -154,10 +154,37 @@ internal class SheetContentHostTest {
         assertThat(sheetState.currentValue == ModalBottomSheetValue.Expanded)
         composeTestRule.onNodeWithTag(bodyContentTag).performClick()
         composeTestRule.runOnIdle {
-            assertWithMessage("Sheet is visible")
+            assertWithMessage("Sheet is not visible")
                 .that(sheetState.isVisible).isFalse()
             assertWithMessage("Back stack entry should be in the dismissed entries list")
                 .that(dismissedBackStackEntries)
+                .containsExactly(backStackEntry)
+        }
+    }
+
+    @Test
+    fun testOnSheetShownCalled_programmaticShow() = runBlockingTest(testClock) {
+        val sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden)
+        val backStackEntry = createBackStackEntry(sheetState)
+
+        val shownBackStackEntries = mutableListOf<NavBackStackEntry>()
+
+        composeTestRule.setBottomSheetContent(
+            backStackEntry = mutableStateOf(backStackEntry),
+            sheetState = sheetState,
+            onSheetShown = { entry -> shownBackStackEntries.add(entry) },
+            onSheetDismissed = { }
+        )
+
+        assertThat(sheetState.currentValue == ModalBottomSheetValue.Hidden)
+        testDispatcher.pauseDispatcher {
+            launch { sheetState.show() }
+        }
+        composeTestRule.runOnIdle {
+            assertWithMessage("Sheet is visible")
+                .that(sheetState.isVisible).isTrue()
+            assertWithMessage("Back stack entry should be in the shown entries list")
+                .that(shownBackStackEntries)
                 .containsExactly(backStackEntry)
         }
     }
