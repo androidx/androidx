@@ -15,6 +15,7 @@ package androidx.car.app.activity.renderer.surface {
 
   public interface SurfaceControlCallback {
     method public default void onError(String, Throwable);
+    method public void onKeyEvent(android.view.KeyEvent);
     method public void onTouchEvent(android.view.MotionEvent);
     method public void onWindowFocusChanged(boolean, boolean);
     method public void setSurfaceWrapper(androidx.car.app.activity.renderer.surface.SurfaceWrapper);

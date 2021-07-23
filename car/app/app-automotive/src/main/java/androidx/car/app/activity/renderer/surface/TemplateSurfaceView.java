@@ -29,6 +29,7 @@ import android.os.Build.VERSION;
 import android.os.IBinder;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceControlViewHost.SurfacePackage;
 import android.view.SurfaceView;
@@ -316,6 +317,17 @@ public final class TemplateSurfaceView extends SurfaceView {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(@NonNull KeyEvent event) {
+        ISurfaceControl surfaceControl = mSurfaceControl;
+        if (surfaceControl != null) {
+            requireNonNull(mServiceDispatcher).dispatch("onKeyEvent",
+                    () -> surfaceControl.onKeyEvent(event));
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
