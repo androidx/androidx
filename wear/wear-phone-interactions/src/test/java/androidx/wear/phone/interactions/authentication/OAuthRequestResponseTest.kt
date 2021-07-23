@@ -17,20 +17,21 @@
 package androidx.wear.phone.interactions.authentication
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.ShadowPackageManager
 
 /** Unit tests for [OAuthRequest] and [OAuthResponse] */
 @RunWith(WearPhoneInteractionsTestRunner::class)
@@ -39,28 +40,29 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RequiresApi(Build.VERSION_CODES.O)
 public class OAuthRequestResponseTest {
     internal companion object {
-        private val context: Context = mock(Context::class.java)
-        private val packageManager = mock(PackageManager::class.java)
+        private val context: Context = ApplicationProvider.getApplicationContext()
+        private val packageManager: ShadowPackageManager = Shadows.shadowOf(context.packageManager)
         private const val authProviderUrl = "http://account.myapp.com/auth"
         private const val clientId = "iamtheclient"
-        private const val appPackageName = "test.app"
+        private val appPackageName = context.packageName
         private const val redirectUrl = OAuthRequest.WEAR_REDIRECT_URL_PREFIX
-        private const val redirectUrlWithPackageName = "$redirectUrl$appPackageName"
-        private const val redirectUrlWithPackageName_cn =
+        private val redirectUrlWithPackageName = "$redirectUrl$appPackageName"
+        private val redirectUrlWithPackageName_cn =
             "${OAuthRequest.WEAR_REDIRECT_URL_PREFIX_CN}$appPackageName"
         private const val customRedirectUrl = "https://app.example.com/oauth2redirect"
-        private const val customRedirectUrlWithPackageName = "$customRedirectUrl/$appPackageName"
+        private val customRedirectUrlWithPackageName = "$customRedirectUrl/$appPackageName"
         private val responseUrl = Uri.parse("http://myresponseurl")
     }
 
     @Before
     fun setUp() {
-        Mockito.`when`(context.packageName).thenReturn(appPackageName)
-        Mockito.`when`(context.packageManager).thenReturn(packageManager)
+        // We need to make sure that context.packageName is not empty as it can lead to passing
+        // tests when they shouldn't.
+        assertFalse(context.packageName.isEmpty())
     }
 
     private fun setSystemFeatureChina(value: Boolean) {
-        Mockito.`when`(packageManager.hasSystemFeature("cn.google")).thenReturn(value)
+        packageManager.setSystemFeature("cn.google", value)
     }
 
     private fun checkBuildSuccess(
