@@ -24,10 +24,8 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TestMonotonicFrameClock
@@ -65,22 +63,22 @@ internal class SheetContentHostTest {
     @Test
     fun testSheetShownAndHidden() = runBlockingTest {
         val backStackEntryState = mutableStateOf<NavBackStackEntry?>(null)
-        var backStackEntry by backStackEntryState
         val sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
         composeTestRule.setBottomSheetContent(
             backStackEntryState,
             sheetState,
-            onSheetDismissed = { backStackEntry = null }
+            onSheetShown = { },
+            onSheetDismissed = { }
         )
 
-        backStackEntry = createBackStackEntry(sheetState)
+        backStackEntryState.value = createBackStackEntry(sheetState)
         composeTestRule.runOnIdle {
             assertWithMessage("Bottom sheet was shown")
                 .that(sheetState.isVisible).isTrue()
         }
 
-        backStackEntry = null
+        backStackEntryState.value = null
         composeTestRule.runOnIdle {
             assertWithMessage("Bottom sheet was hidden")
                 .that(sheetState.isVisible).isFalse()
@@ -97,6 +95,7 @@ internal class SheetContentHostTest {
         composeTestRule.setBottomSheetContent(
             mutableStateOf(backStackEntry),
             sheetState,
+            onSheetShown = { },
             onSheetDismissed = { entry -> dismissedBackStackEntries.add(entry) }
         )
 
@@ -121,6 +120,7 @@ internal class SheetContentHostTest {
         composeTestRule.setBottomSheetContent(
             mutableStateOf(backStackEntry),
             sheetState,
+            onSheetShown = { },
             onSheetDismissed = { entry -> dismissedBackStackEntries.add(entry) }
         )
 
@@ -147,6 +147,7 @@ internal class SheetContentHostTest {
         composeTestRule.setBottomSheetContent(
             mutableStateOf(backStackEntry),
             sheetState,
+            onSheetShown = { },
             onSheetDismissed = { entry -> dismissedBackStackEntries.add(entry) }
         )
 
@@ -164,6 +165,7 @@ internal class SheetContentHostTest {
     private fun ComposeContentTestRule.setBottomSheetContent(
         backStackEntry: State<NavBackStackEntry?>,
         sheetState: ModalBottomSheetState,
+        onSheetShown: (NavBackStackEntry) -> Unit,
         onSheetDismissed: (NavBackStackEntry) -> Unit
     ) {
         setContent {
@@ -175,6 +177,7 @@ internal class SheetContentHostTest {
                         backStackEntry = backStackEntry.value,
                         sheetState = sheetState,
                         saveableStateHolder = saveableStateHolder,
+                        onSheetShown = onSheetShown,
                         onSheetDismissed = onSheetDismissed
                     )
                 },

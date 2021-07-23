@@ -62,7 +62,7 @@ internal fun SheetContentHost(
     backStackEntry: NavBackStackEntry?,
     sheetState: ModalBottomSheetState,
     saveableStateHolder: SaveableStateHolder,
-    onSheetShown: (entry: NavBackStackEntry) -> Unit = {},
+    onSheetShown: (entry: NavBackStackEntry) -> Unit,
     onSheetDismissed: (entry: NavBackStackEntry) -> Unit
 ) {
     val scope = rememberCoroutineScope()
