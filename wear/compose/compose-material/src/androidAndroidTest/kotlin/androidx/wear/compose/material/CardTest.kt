@@ -227,7 +227,6 @@ public class CardColorTest {
 
     @Test
     public fun app_card_gives_default_colors() {
-        var expectedAppImageColor = Color.Transparent
         var expectedAppColor = Color.Transparent
         var expectedTimeColor = Color.Transparent
         var expectedTitleColor = Color.Transparent
@@ -236,12 +235,10 @@ public class CardColorTest {
         var actualTitleColor = Color.Transparent
         var actualTimeColor = Color.Transparent
         var actualAppColor = Color.Transparent
-        var actualAppImageColor = Color.Transparent
         val testBackground = Color.White
 
         rule.setContentWithTheme {
-            expectedAppImageColor = MaterialTheme.colors.primary
-            expectedAppColor = MaterialTheme.colors.primary
+            expectedAppColor = MaterialTheme.colors.onSurfaceVariant
             expectedTimeColor = MaterialTheme.colors.onSurfaceVariant
             expectedTitleColor = MaterialTheme.colors.onSurface
             expectedBodyColor = MaterialTheme.colors.onSurfaceVariant2
@@ -253,7 +250,6 @@ public class CardColorTest {
                 AppCard(
                     onClick = {},
                     appName = { actualAppColor = LocalContentColor.current },
-                    appImage = { actualAppImageColor = LocalContentColor.current },
                     time = { actualTimeColor = LocalContentColor.current },
                     body = { actualBodyColor = LocalContentColor.current },
                     title = { actualTitleColor = LocalContentColor.current },
@@ -262,7 +258,6 @@ public class CardColorTest {
             }
         }
 
-        assertEquals(expectedAppImageColor, actualAppImageColor)
         assertEquals(expectedAppColor, actualAppColor)
         assertEquals(expectedTimeColor, actualTimeColor)
         assertEquals(expectedTitleColor, actualTitleColor)
