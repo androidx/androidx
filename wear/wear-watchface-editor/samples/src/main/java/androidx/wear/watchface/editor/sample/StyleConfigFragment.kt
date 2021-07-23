@@ -100,9 +100,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
             is BooleanUserStyleSetting -> {
                 booleanStyle.isChecked = (userStyleOption as BooleanOption).value
                 booleanStyle.setOnCheckedChangeListener { _, isChecked ->
-                    setUserStyleOption(
-                        styleSetting.getOptionForId(BooleanOption(isChecked).id.value)
-                    )
+                    setUserStyleOption(styleSetting.getOptionForId(BooleanOption(isChecked).id))
                 }
                 styleOptionsList.visibility = View.GONE
                 styleOptionsList.isEnabled = false
@@ -161,7 +159,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                             setUserStyleOption(
                                 rangedStyleSetting.getOptionForId(
                                     DoubleRangeOption(minValue + delta * progress.toFloat())
-                                        .id.value
+                                        .id
                                 )
                             )
                         }

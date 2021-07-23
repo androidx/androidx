@@ -52,7 +52,7 @@ package androidx.wear.watchface.style {
     method public final CharSequence getDisplayName();
     method public final android.graphics.drawable.Icon? getIcon();
     method public final androidx.wear.watchface.style.UserStyleSetting.Id getId();
-    method public androidx.wear.watchface.style.UserStyleSetting.Option getOptionForId(byte[] optionId);
+    method public androidx.wear.watchface.style.UserStyleSetting.Option getOptionForId(androidx.wear.watchface.style.UserStyleSetting.Option.Id optionId);
     method public final java.util.List<androidx.wear.watchface.style.UserStyleSetting.Option> getOptions();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final java.util.List<androidx.wear.watchface.style.data.OptionWireFormat> getWireFormatOptionsList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract androidx.wear.watchface.style.data.UserStyleSettingWireFormat toWireFormat();

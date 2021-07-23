@@ -142,7 +142,7 @@ public sealed class UserStyleSetting(
         if (id == null) {
             options[defaultOptionIndex]
         } else {
-            getOptionForId(id)
+            getOptionForId(Option.Id(id))
         }
 
     private constructor(wireFormat: UserStyleSettingWireFormat) : this(
@@ -297,14 +297,14 @@ public sealed class UserStyleSetting(
      * Translates an option name into an option. This will need to be overridden for userStyle
      * categories that can't sensibly be fully enumerated (e.g. a full 24-bit color picker).
      *
-     * @param optionId The ID of the option
+     * @param optionId The [Option.Id] of the option
      * @return An [Option] corresponding to the name. This could either be one of the options from
      * [UserStyleSetting]s or a newly constructed Option depending on the nature of the
      * UserStyleSetting. If optionName is unrecognized then the default value for the setting should
      * be returned.
      */
-    public open fun getOptionForId(optionId: ByteArray): Option =
-        options.find { it.id.value.contentEquals(optionId) } ?: options[defaultOptionIndex]
+    public open fun getOptionForId(optionId: Option.Id): Option =
+        options.find { it.id.value.contentEquals(optionId.value) } ?: options[defaultOptionIndex]
 
     /** A BooleanUserStyleSetting represents a setting with a true and a false setting. */
     public class BooleanUserStyleSetting : UserStyleSetting {
@@ -736,8 +736,10 @@ public sealed class UserStyleSetting(
             get() = (options[defaultOptionIndex] as DoubleRangeOption).value
 
         /** We support all values in the range [min ... max] not just min & max. */
-        override fun getOptionForId(optionId: ByteArray): Option =
-            options.find { it.id.value.contentEquals(optionId) } ?: checkedOptionForId(optionId)
+        override fun getOptionForId(optionId: Option.Id): Option =
+            options.find { it.id.value.contentEquals(optionId.value) } ?: checkedOptionForId(
+                optionId.value
+            )
 
         private fun checkedOptionForId(optionId: ByteArray): DoubleRangeOption {
             return try {
@@ -975,8 +977,10 @@ public sealed class UserStyleSetting(
         /**
          * We support all values in the range [min ... max] not just min & max.
          */
-        override fun getOptionForId(optionId: ByteArray): Option =
-            options.find { it.id.value.contentEquals(optionId) } ?: checkedOptionForId(optionId)
+        override fun getOptionForId(optionId: Option.Id): Option =
+            options.find { it.id.value.contentEquals(optionId.value) } ?: checkedOptionForId(
+                optionId.value
+            )
 
         private fun checkedOptionForId(optionId: ByteArray): LongRangeOption {
             return try {
@@ -1063,7 +1067,9 @@ public sealed class UserStyleSetting(
                 CustomValueOptionWireFormat(id.value)
         }
 
-        override fun getOptionForId(optionId: ByteArray): Option =
-            options.find { it.id.value.contentEquals(optionId) } ?: CustomValueOption(optionId)
+        override fun getOptionForId(optionId: Option.Id): Option =
+            options.find { it.id.value.contentEquals(optionId.value) } ?: CustomValueOption(
+                optionId.value
+            )
     }
 }
