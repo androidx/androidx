@@ -1111,8 +1111,11 @@ public final class AppSearchImpl implements Closeable {
      * @throws AppSearchException on IcingSearchEngine error or if can't advance on nextPageToken.
      */
     @NonNull
-    public SearchResultPage getNextPage(@NonNull String packageName, long nextPageToken)
+    public SearchResultPage getNextPage(@NonNull String packageName, long nextPageToken,
+            @Nullable SearchStats.Builder statsBuilder)
             throws AppSearchException {
+        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+
         mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
@@ -1121,6 +1124,13 @@ public final class AppSearchImpl implements Closeable {
             checkNextPageToken(packageName, nextPageToken);
             SearchResultProto searchResultProto = mIcingSearchEngineLocked.getNextPage(
                     nextPageToken);
+
+            if (statsBuilder != null) {
+                statsBuilder.setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()));
+                AppSearchLoggerHelper.copyNativeStats(searchResultProto.getQueryStats(),
+                        statsBuilder);
+            }
+
             mLogUtil.piiTrace(
                     "getNextPage, response",
                     searchResultProto.getResultsCount(),
@@ -1136,9 +1146,21 @@ public final class AppSearchImpl implements Closeable {
                     mNextPageTokensLocked.get(packageName).remove(nextPageToken);
                 }
             }
-            return rewriteSearchResultProto(searchResultProto, mSchemaMapLocked);
+            long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
+            SearchResultPage resultPage = rewriteSearchResultProto(searchResultProto,
+                    mSchemaMapLocked);
+            if (statsBuilder != null) {
+                statsBuilder.setRewriteSearchResultLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - rewriteSearchResultLatencyStartMillis));
+            }
+            return resultPage;
         } finally {
             mReadWriteLock.readLock().unlock();
+            if (statsBuilder != null) {
+                statsBuilder.setTotalLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
+            }
         }
     }
 
