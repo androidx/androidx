@@ -41,7 +41,9 @@ import java.util.Map;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.camera2.interop",
+                "androidx.camera.camera2.internal" })
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2CameraInfoTest {
 
