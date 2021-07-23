@@ -1500,18 +1500,14 @@ public class WatchFaceServiceTest {
     @Test
     public fun getOptionForIdentifier_ListViewStyleSetting() {
         // Check the correct Options are returned for known option names.
-        assertThat(colorStyleSetting.getOptionForId(redStyleOption.id.value)).isEqualTo(
-            redStyleOption
-        )
-        assertThat(colorStyleSetting.getOptionForId(greenStyleOption.id.value)).isEqualTo(
+        assertThat(colorStyleSetting.getOptionForId(redStyleOption.id)).isEqualTo(redStyleOption)
+        assertThat(colorStyleSetting.getOptionForId(greenStyleOption.id)).isEqualTo(
             greenStyleOption
         )
-        assertThat(colorStyleSetting.getOptionForId(blueStyleOption.id.value)).isEqualTo(
-            blueStyleOption
-        )
+        assertThat(colorStyleSetting.getOptionForId(blueStyleOption.id)).isEqualTo(blueStyleOption)
 
         // For unknown option names the first element in the list should be returned.
-        assertThat(colorStyleSetting.getOptionForId("unknown".encodeToByteArray()))
+        assertThat(colorStyleSetting.getOptionForId(Option.Id("unknown".encodeToByteArray())))
             .isEqualTo(colorStyleList.first())
     }
 
