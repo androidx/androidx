@@ -93,22 +93,20 @@ public sealed class UserStyleSetting(
             }
         }
 
-        override fun toString(): String = value
-
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
             other as Id
 
-            if (value != other.value) return false
-
-            return true
+            return value == other.value
         }
 
         override fun hashCode(): Int {
             return value.hashCode()
         }
+
+        override fun toString(): String = value
     }
 
     public companion object {
@@ -170,6 +168,19 @@ public sealed class UserStyleSetting(
     public val defaultOption: Option
         get() = options[defaultOptionIndex]
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as UserStyleSetting
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
     override fun toString(): String = "{${id.value} : " +
         options.joinToString(transform = { it.toString() }) + "}"
 
@@ -203,6 +214,17 @@ public sealed class UserStyleSetting(
                     "Option.Id.value.size (${value.size}) must be less than MAX_LENGTH " +
                         "($MAX_LENGTH)"
                 }
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (javaClass != other?.javaClass) return false
+                other as Id
+                return value.contentEquals(other.value)
+            }
+
+            override fun hashCode(): Int {
+                return value.contentHashCode()
             }
 
             override fun toString(): String =
@@ -249,6 +271,19 @@ public sealed class UserStyleSetting(
         @Suppress("HiddenAbstractMethod")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         public abstract fun toWireFormat(): OptionWireFormat
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Option
+
+            return id == other.id
+        }
+
+        override fun hashCode(): Int {
+            return id.hashCode()
+        }
 
         override fun toString(): String =
             try {

@@ -137,4 +137,100 @@ public class UserStyleSettingTest {
             // Expected
         }
     }
+
+    @Test
+    public fun equalsBasedOnId() {
+        val setting = DoubleRangeUserStyleSetting(
+            UserStyleSetting.Id("example_setting"),
+            "Example Ranged Setting",
+            "An example setting",
+            null,
+            0.0,
+            1.0,
+            listOf(WatchFaceLayer.BASE),
+            0.1
+        )
+        val settingCopy = DoubleRangeUserStyleSetting(
+            UserStyleSetting.Id("example_setting"),
+            "Example Ranged Setting",
+            "An example setting",
+            null,
+            0.0,
+            1.0,
+            listOf(WatchFaceLayer.BASE),
+            0.1
+        )
+        val settings1ModifiedInfo = DoubleRangeUserStyleSetting(
+            UserStyleSetting.Id("example_setting"),
+            "Example Ranged Setting (modified)",
+            "An example setting (modified)",
+            null,
+            0.0,
+            100.0,
+            listOf(WatchFaceLayer.BASE),
+            3.0
+        )
+        val settings1ModifiedId = DoubleRangeUserStyleSetting(
+            UserStyleSetting.Id("example_setting_modified"),
+            "Example Ranged Setting",
+            "An example setting",
+            null,
+            0.0,
+            1.0,
+            listOf(WatchFaceLayer.BASE),
+            0.1
+        )
+        assertThat(setting).isEqualTo(setting)
+        assertThat(setting).isEqualTo(settingCopy)
+        assertThat(setting).isEqualTo(settings1ModifiedInfo)
+        assertThat(setting).isNotEqualTo(settings1ModifiedId)
+    }
+
+    @Test
+    public fun hashcodeBasedOnId() {
+        val setting = DoubleRangeUserStyleSetting(
+            UserStyleSetting.Id("example_setting"),
+            "Example Ranged Setting",
+            "An example setting",
+            null,
+            0.0,
+            1.0,
+            listOf(WatchFaceLayer.BASE),
+            0.1
+        )
+        val settingCopy = DoubleRangeUserStyleSetting(
+            UserStyleSetting.Id("example_setting"),
+            "Example Ranged Setting",
+            "An example setting",
+            null,
+            0.0,
+            1.0,
+            listOf(WatchFaceLayer.BASE),
+            0.1
+        )
+        val settings1ModifiedInfo = DoubleRangeUserStyleSetting(
+            UserStyleSetting.Id("example_setting"),
+            "Example Ranged Setting (modified)",
+            "An example setting (modified)",
+            null,
+            0.0,
+            100.0,
+            listOf(WatchFaceLayer.BASE),
+            3.0
+        )
+        val settings1ModifiedId = DoubleRangeUserStyleSetting(
+            UserStyleSetting.Id("example_setting_modified"),
+            "Example Ranged Setting",
+            "An example setting",
+            null,
+            0.0,
+            1.0,
+            listOf(WatchFaceLayer.BASE),
+            0.1
+        )
+        assertThat(setting.hashCode()).isEqualTo(setting.hashCode())
+        assertThat(setting.hashCode()).isEqualTo(settingCopy.hashCode())
+        assertThat(setting.hashCode()).isEqualTo(settings1ModifiedInfo.hashCode())
+        assertThat(setting.hashCode()).isNotEqualTo(settings1ModifiedId.hashCode())
+    }
 }
