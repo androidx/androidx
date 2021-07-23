@@ -317,6 +317,32 @@ public class CurrentUserStyleRepositoryTest {
     }
 
     @Test
+    public fun userStyle_get() {
+        val userStyle = UserStyle(
+            hashMapOf(
+                colorStyleSetting to greenStyleOption,
+                watchHandStyleSetting to gothicStyleOption
+            )
+        )
+
+        assertThat(userStyle[colorStyleSetting]).isEqualTo(greenStyleOption)
+        assertThat(userStyle[watchHandStyleSetting]).isEqualTo(gothicStyleOption)
+    }
+
+    @Test
+    public fun userStyle_getById() {
+        val userStyle = UserStyle(
+            hashMapOf(
+                colorStyleSetting to greenStyleOption,
+                watchHandStyleSetting to gothicStyleOption
+            )
+        )
+
+        assertThat(userStyle[colorStyleSetting.id]).isEqualTo(greenStyleOption)
+        assertThat(userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption)
+    }
+
+    @Test
     public fun userStyle_getAndSetDifferentOptionInstances() {
         val setting = BooleanUserStyleSetting(
             UserStyleSetting.Id("setting"),
