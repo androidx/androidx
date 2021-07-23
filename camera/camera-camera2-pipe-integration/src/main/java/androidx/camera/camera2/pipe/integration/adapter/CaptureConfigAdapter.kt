@@ -20,6 +20,7 @@ import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.impl.CAMERAX_TAG_BUNDLE
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
@@ -74,12 +75,11 @@ class CaptureConfigAdapter(
                 configOptions.retrieveOption(CaptureConfig.OPTION_JPEG_QUALITY)!!.toByte()
         }
 
-        // TODO: When adding support for extensions, also add support for passing capture request
-        //  tags with each request, since extensions may rely on these tags.
         return Request(
             streams = listOf(streamId),
             listeners = listOf(callbacks),
             parameters = parameters,
+            extras = mapOf(CAMERAX_TAG_BUNDLE to captureConfig.tagBundle),
             template = RequestTemplate(captureConfig.templateType)
         )
     }

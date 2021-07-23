@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.Config
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
@@ -51,17 +52,31 @@ class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraCompone
 // TODO: Further implement the methods in this class as needed
 class FakeUseCaseCamera(override var activeUseCases: Set<UseCase> = emptySet()) : UseCaseCamera {
 
-    override fun <T> setParameter(key: CaptureRequest.Key<T>, value: T) {
+    override fun <T> setParameter(
+        key: CaptureRequest.Key<T>,
+        value: T,
+        priority: Config.OptionPriority
+    ) {
     }
 
-    override fun <T> setParameterAsync(key: CaptureRequest.Key<T>, value: T): Deferred<Unit> {
+    override fun <T> setParameterAsync(
+        key: CaptureRequest.Key<T>,
+        value: T,
+        priority: Config.OptionPriority
+    ): Deferred<Unit> {
         return CompletableDeferred<Unit>().apply { complete(Unit) }
     }
 
-    override fun <T> setParameters(values: Map<CaptureRequest.Key<*>, Any>) {
+    override fun setParameters(
+        values: Map<CaptureRequest.Key<*>, Any>,
+        priority: Config.OptionPriority
+    ) {
     }
 
-    override fun <T> setParametersAsync(values: Map<CaptureRequest.Key<*>, Any>): Deferred<Unit> {
+    override fun setParametersAsync(
+        values: Map<CaptureRequest.Key<*>, Any>,
+        priority: Config.OptionPriority
+    ): Deferred<Unit> {
         return CompletableDeferred<Unit>().apply { complete(Unit) }
     }
 

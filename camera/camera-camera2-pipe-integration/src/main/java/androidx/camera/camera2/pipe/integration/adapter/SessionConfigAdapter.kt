@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
-import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.StreamId
@@ -136,18 +135,4 @@ class SessionConfigAdapter(
         // Surface was not retrieved from the ListenableFuture.
         return surfaces.isNotEmpty() && !surfaces.contains(null)
     }
-}
-
-/**
- * Convert the implementation options to the CaptureRequest key-value map.
- */
-fun SessionConfig.getImplementationOptionParameters(): Map<CaptureRequest.Key<*>, Any> {
-    val parameters = mutableMapOf<CaptureRequest.Key<*>, Any>()
-    for (configOption in implementationOptions.listOptions()) {
-        val requestKey = configOption.token as? CaptureRequest.Key<*> ?: continue
-        val value = implementationOptions.retrieveOption(configOption) ?: continue
-        parameters[requestKey] = value
-    }
-
-    return parameters
 }
