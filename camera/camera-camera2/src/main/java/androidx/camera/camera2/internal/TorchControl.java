@@ -21,6 +21,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl.OperationCanceledException;
@@ -162,10 +163,19 @@ final class TorchControl {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
-    void enableTorchInternal(@NonNull Completer<Void> completer, boolean enabled) {
+    void enableTorchInternal(@Nullable Completer<Void> completer, boolean enabled) {
+        if (!mHasFlashUnit) {
+            if (completer != null) {
+                completer.setException(new IllegalStateException("No flash unit"));
+            }
+            return;
+        }
+
         if (!mIsActive) {
             setLiveDataValue(mTorchState, TorchState.OFF);
-            completer.setException(new OperationCanceledException("Camera is not active."));
+            if (completer != null) {
+                completer.setException(new OperationCanceledException("Camera is not active."));
+            }
             return;
         }
 

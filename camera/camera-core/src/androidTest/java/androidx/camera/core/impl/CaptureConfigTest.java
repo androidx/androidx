@@ -66,6 +66,15 @@ public class CaptureConfigTest {
     }
 
     @Test
+    public void builderNotSetTemplate() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        CaptureConfig captureConfig = builder.build();
+
+        assertThat(captureConfig.getTemplateType()).isEqualTo(CaptureConfig.TEMPLATE_TYPE_NONE);
+    }
+
+    @Test
     public void builderAddSurface() {
         CaptureConfig.Builder builder = new CaptureConfig.Builder();
 

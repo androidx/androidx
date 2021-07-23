@@ -103,7 +103,7 @@ import java.util.concurrent.TimeoutException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public final class Camera2CameraControlImplTest {
+public final class Camera2CameraControlImplDeviceTest {
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
@@ -339,23 +339,6 @@ public final class Camera2CameraControlImplTest {
     }
 
     @Test
-    public void triggerAf_captureRequestSent() throws InterruptedException {
-        mCamera2CameraControlImpl.triggerAf();
-
-        HandlerUtil.waitForLooperToIdle(mHandler);
-
-        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
-                mCaptureConfigArgumentCaptor.capture());
-        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
-        Camera2ImplConfig resultCaptureConfig =
-                new Camera2ImplConfig(captureConfig.getImplementationOptions());
-        assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_TRIGGER, null))
-                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START);
-    }
-
-    @Test
     @LargeTest
     public void triggerAf_futureSucceeds() throws Exception {
         Camera2CameraControlImpl camera2CameraControlImpl =
@@ -366,11 +349,10 @@ public final class Camera2CameraControlImplTest {
 
     @Test
     @LargeTest
-    public void triggerAePrecapture_futureSucceeds() throws Exception {
+    public void startFlashSequence_futureSucceeds() throws Exception {
         Camera2CameraControlImpl camera2CameraControlImpl =
                 createCamera2CameraControlWithPhysicalCamera();
-        ListenableFuture<CameraCaptureResult> future =
-                camera2CameraControlImpl.triggerAePrecapture();
+        ListenableFuture<Void> future = camera2CameraControlImpl.startFlashSequence();
         future.get(5, TimeUnit.SECONDS);
     }
 
@@ -384,93 +366,6 @@ public final class Camera2CameraControlImplTest {
                 imageAnalysis);
 
         return (Camera2CameraControlImpl) mCamera.getCameraControl();
-    }
-
-    @Test
-    public void triggerAePrecapture_captureRequestSent() throws InterruptedException {
-        mCamera2CameraControlImpl.triggerAePrecapture();
-
-        HandlerUtil.waitForLooperToIdle(mHandler);
-
-        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
-                mCaptureConfigArgumentCaptor.capture());
-        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
-        Camera2ImplConfig resultCaptureConfig =
-                new Camera2ImplConfig(captureConfig.getImplementationOptions());
-        assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
-                .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
-    }
-
-    @Test
-    public void cancelAfAeTrigger_captureRequestSent() throws InterruptedException {
-        mCamera2CameraControlImpl.cancelAfAeTrigger(true, true);
-
-        HandlerUtil.waitForLooperToIdle(mHandler);
-
-        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
-                mCaptureConfigArgumentCaptor.capture());
-        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
-        Camera2ImplConfig resultCaptureConfig =
-                new Camera2ImplConfig(captureConfig.getImplementationOptions());
-        assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_TRIGGER, null))
-                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
-
-        if (Build.VERSION.SDK_INT >= 23) {
-            assertThat(
-                    resultCaptureConfig.getCaptureRequestOption(
-                            CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
-                    .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
-        }
-    }
-
-    @Test
-    public void cancelAfTrigger_captureRequestSent() throws InterruptedException {
-        mCamera2CameraControlImpl.cancelAfAeTrigger(true, false);
-
-        HandlerUtil.waitForLooperToIdle(mHandler);
-
-        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
-                mCaptureConfigArgumentCaptor.capture());
-        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
-        Camera2ImplConfig resultCaptureConfig =
-                new Camera2ImplConfig(captureConfig.getImplementationOptions());
-        assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_TRIGGER, null))
-                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
-        assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
-                .isNull();
-    }
-
-    @Test
-    public void cancelAeTrigger_captureRequestSent() throws InterruptedException {
-        mCamera2CameraControlImpl.cancelAfAeTrigger(false, true);
-
-        HandlerUtil.waitForLooperToIdle(mHandler);
-
-        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
-                mCaptureConfigArgumentCaptor.capture());
-        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
-        Camera2ImplConfig resultCaptureConfig =
-                new Camera2ImplConfig(captureConfig.getImplementationOptions());
-
-        assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_TRIGGER, null))
-                .isNull();
-
-        if (Build.VERSION.SDK_INT >= 23) {
-            assertThat(
-                    resultCaptureConfig.getCaptureRequestOption(
-                            CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
-                    .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
-        }
     }
 
     private <T> void assertArraySize(T[] array, int expectedSize) {

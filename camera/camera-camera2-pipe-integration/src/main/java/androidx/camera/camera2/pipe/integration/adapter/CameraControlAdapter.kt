@@ -158,13 +158,16 @@ class CameraControlAdapter @Inject constructor(
         return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create())
     }
 
-    override fun triggerAePrecapture(): ListenableFuture<CameraCaptureResult> {
-        warn { "TODO: triggerAePrecapture is not yet supported" }
-        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create())
+    override fun startFlashSequence(): ListenableFuture<Void> {
+        warn { "TODO: startFlashSequence is not yet supported" }
+        return Futures.immediateFuture(null)
     }
 
-    override fun cancelAfAeTrigger(cancelAfTrigger: Boolean, cancelAePrecaptureTrigger: Boolean) {
-        warn { "TODO: cancelAfAeTrigger is not yet supported" }
+    override fun cancelAfAndFinishFlashSequence(
+        cancelAfTrigger: Boolean,
+        finishFlashSequence: Boolean
+    ) {
+        warn { "TODO: cancelAfAndFinishFlashSequence is not yet supported" }
     }
 
     @SuppressLint("UnsafeOptInUsageError")
@@ -187,7 +190,7 @@ class CameraControlAdapter @Inject constructor(
         }.asListenableFuture()
     }
 
-    override fun submitCaptureRequests(captureConfigs: List<CaptureConfig>) {
+    override fun submitStillCaptureRequests(captureConfigs: List<CaptureConfig>) {
         val camera = useCaseManager.camera
         checkNotNull(camera) { "Attempted to issue capture requests while the camera isn't ready." }
         camera.capture(captureConfigs)

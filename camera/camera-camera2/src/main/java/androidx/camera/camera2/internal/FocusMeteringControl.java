@@ -404,7 +404,7 @@ class FocusMeteringControl {
      *                  operation succeeds or fails. Passing null to simply ignore the result.
      */
     @ExecutedBy("mExecutor")
-    void triggerAePrecapture(@Nullable Completer<CameraCaptureResult> completer) {
+    void triggerAePrecapture(@Nullable Completer<Void> completer) {
         if (!mIsActive) {
             if (completer != null) {
                 completer.setException(
@@ -424,7 +424,7 @@ class FocusMeteringControl {
             @Override
             public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
                 if (completer != null) {
-                    completer.set(cameraCaptureResult);
+                    completer.set(null);
                 }
             }
 
