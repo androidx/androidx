@@ -39,12 +39,18 @@ internal object PerfettoResultsParser {
 
     private fun JSONObject.parseStartupMetricsWithUiState(): MetricsWithUiState {
         val durMs = getJSONObject("to_first_frame").getDouble("dur_ms")
+        val fullyDrawnMs = optJSONObject("report_fully_drawn")?.getDouble("dur_ms")
+
+        val metricMap = mutableMapOf("startupMs" to durMs.toLong())
+        if (fullyDrawnMs != null) {
+            metricMap["fullyDrawnMs"] = fullyDrawnMs.toLong()
+        }
 
         val eventTimestamps = optJSONObject("event_timestamps")
         val timelineStart = eventTimestamps?.optLong("intent_received")
         val timelineEnd = eventTimestamps?.optLong("first_frame")
         return MetricsWithUiState(
-            metrics = mapOf("startupMs" to durMs.toLong()),
+            metrics = metricMap,
             timelineStart = timelineStart,
             timelineEnd = timelineEnd
         )
