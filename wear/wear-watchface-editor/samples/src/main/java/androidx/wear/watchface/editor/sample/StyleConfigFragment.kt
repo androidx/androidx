@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.R
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
@@ -42,7 +43,6 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
-import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.widget.SwipeDismissFrameLayout
@@ -100,7 +100,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
             is BooleanUserStyleSetting -> {
                 booleanStyle.isChecked = (userStyleOption as BooleanOption).value
                 booleanStyle.setOnCheckedChangeListener { _, isChecked ->
-                    setUserStyleOption(styleSetting.getOptionForId(BooleanOption(isChecked).id))
+                    setUserStyleOption(BooleanOption.from(isChecked))
                 }
                 styleOptionsList.visibility = View.GONE
                 styleOptionsList.isEnabled = false

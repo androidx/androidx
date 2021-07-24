@@ -74,10 +74,17 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.BooleanUserStyleSetting.BooleanOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
-    ctor public UserStyleSetting.BooleanUserStyleSetting.BooleanOption(boolean value);
+    method public static androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption from(boolean value);
     method public boolean getValue();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.BooleanOptionWireFormat toWireFormat();
     property public final boolean value;
+    field public static final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption.Companion Companion;
+    field public static final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption FALSE;
+    field public static final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption TRUE;
+  }
+
+  public static final class UserStyleSetting.BooleanUserStyleSetting.BooleanOption.Companion {
+    method public androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption from(boolean value);
   }
 
   public static final class UserStyleSetting.Companion {

@@ -243,7 +243,7 @@ public sealed class UserStyleSetting(
             ): Option =
                 when (wireFormat) {
                     is BooleanOptionWireFormat ->
-                        BooleanUserStyleSetting.BooleanOption(wireFormat)
+                        BooleanUserStyleSetting.BooleanOption.fromWireFormat(wireFormat)
 
                     is ComplicationsOptionWireFormat ->
                         ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(wireFormat)
@@ -333,7 +333,7 @@ public sealed class UserStyleSetting(
             displayName,
             description,
             icon,
-            listOf(BooleanOption(true), BooleanOption(false)),
+            listOf(BooleanOption.TRUE, BooleanOption.FALSE),
             when (defaultValue) {
                 true -> 0
                 false -> 1
@@ -363,16 +363,10 @@ public sealed class UserStyleSetting(
         public class BooleanOption : Option {
             public val value: Boolean
 
-            public constructor(value: Boolean) : super(
+            internal constructor(value: Boolean) : super(
                 Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 })
             ) {
                 this.value = value
-            }
-
-            internal constructor(
-                wireFormat: BooleanOptionWireFormat
-            ) : super(Id(wireFormat.mId)) {
-                value = wireFormat.mId[0] == 1.toByte()
             }
 
             /** @hide */
@@ -381,6 +375,26 @@ public sealed class UserStyleSetting(
                 BooleanOptionWireFormat(id.value)
 
             override fun toString(): String = if (id.value[0] == 1.toByte()) "true" else "false"
+
+            public companion object {
+                @JvmField
+                public val TRUE = BooleanOption(true)
+
+                @JvmField
+                public val FALSE = BooleanOption(false)
+
+                @JvmStatic
+                public fun from(value: Boolean): BooleanOption {
+                    return if (value) TRUE else FALSE
+                }
+
+                @JvmStatic
+                internal fun fromWireFormat(
+                    wireFormat: BooleanOptionWireFormat
+                ): BooleanOption {
+                    return from(wireFormat.mId[0] == 1.toByte())
+                }
+            }
         }
     }
 
