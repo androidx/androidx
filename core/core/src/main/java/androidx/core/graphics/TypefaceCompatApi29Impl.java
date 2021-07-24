@@ -42,6 +42,27 @@ import java.io.InputStream;
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(29)
 public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
+
+    private static int getMatchScore(@NonNull FontStyle o1, @NonNull FontStyle o2) {
+        return Math.abs((o1.getWeight() - o2.getWeight())) / 100 + (o1.getSlant() == o2.getSlant() ? 0 : 2);
+    }
+
+    private Font findBaseFont(@NonNull FontFamily family) {
+        final FontStyle normal = new FontStyle(FontStyle.FONT_WEIGHT_NORMAL,
+                FontStyle.FONT_SLANT_UPRIGHT);
+        Font bestFont = family.getFont(0);
+        int bestScore = getMatchScore(normal, bestFont.getStyle());
+        for (int i = 1; i < family.getSize(); ++i) {
+            final Font candidate = family.getFont(i);
+            final int score = getMatchScore(normal, candidate.getStyle());
+            if (score < bestScore) {
+                bestFont = candidate;
+                bestScore = score;
+            }
+        }
+        return bestFont;
+    }
+
     @Override
     protected FontsContractCompat.FontInfo findBestInfo(FontsContractCompat.FontInfo[] fonts,
             int style) {
@@ -86,14 +107,9 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
             if (familyBuilder == null) {
                 return null;  // No font is added. Give up.
             }
-            final FontStyle defaultStyle = new FontStyle(
-                    (style & Typeface.BOLD) != 0 ? FontStyle.FONT_WEIGHT_BOLD
-                            : FontStyle.FONT_WEIGHT_NORMAL,
-                    (style & Typeface.ITALIC) != 0 ? FontStyle.FONT_SLANT_ITALIC
-                            : FontStyle.FONT_SLANT_UPRIGHT
-            );
-            return new Typeface.CustomFallbackBuilder(familyBuilder.build())
-                    .setStyle(defaultStyle)
+            final FontFamily family = familyBuilder.build();
+            return new Typeface.CustomFallbackBuilder(family)
+                    .setStyle(findBaseFont(family).getStyle())
                     .build();
         } catch (Exception e) {
             return null;
@@ -128,14 +144,9 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
             if (familyBuilder == null) {
                 return null;  // No font is added. Give up.
             }
-            final FontStyle defaultStyle = new FontStyle(
-                    (style & Typeface.BOLD) != 0 ? FontStyle.FONT_WEIGHT_BOLD
-                            : FontStyle.FONT_WEIGHT_NORMAL,
-                    (style & Typeface.ITALIC) != 0 ? FontStyle.FONT_SLANT_ITALIC
-                            : FontStyle.FONT_SLANT_UPRIGHT
-            );
-            return new Typeface.CustomFallbackBuilder(familyBuilder.build())
-                    .setStyle(defaultStyle)
+            final FontFamily family = familyBuilder.build();
+            return new Typeface.CustomFallbackBuilder(family)
+                    .setStyle(findBaseFont(family).getStyle())
                     .build();
         } catch (Exception e) {
             return null;
