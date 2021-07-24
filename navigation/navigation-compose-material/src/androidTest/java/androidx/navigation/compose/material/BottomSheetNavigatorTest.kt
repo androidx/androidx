@@ -16,6 +16,7 @@
 
 package androidx.navigation.compose.material
 
+import android.os.Bundle
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,12 +26,21 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.plusAssign
 import androidx.navigation.testing.TestNavigatorState
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -159,9 +169,7 @@ internal class BottomSheetNavigatorTest {
             )
         }
 
-        val destination = BottomSheetNavigator.Destination(navigator) {
-            Text("Fake Sheet Content")
-        }
+        val destination = navigator.createFakeDestination()
         val backStackEntry = navigatorState.createBackStackEntry(destination, null)
         navigator.navigate(listOf(backStackEntry), null, null)
         composeTestRule.awaitIdle()
@@ -180,4 +188,66 @@ internal class BottomSheetNavigatorTest {
             .that(navigatorState.backStack.value)
             .isEmpty()
     }
+
+    @Test
+    fun testSheetShownAfterNavControllerRestoresState() = runBlocking {
+        lateinit var navController: NavHostController
+        lateinit var navigator: BottomSheetNavigator
+        var savedState: Bundle? = null
+        var compositionState by mutableStateOf(0)
+
+        val sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden)
+
+        composeTestRule.setContent {
+            navController = if (savedState == null) {
+                rememberNavController()
+            } else {
+                NavHostController(LocalContext.current).apply {
+                    restoreState(savedState)
+                }
+            }
+            navigator = remember(navController) { BottomSheetNavigator(sheetState) }
+            navController.navigatorProvider += navigator
+            if (compositionState == 0) {
+                ModalBottomSheetLayout(
+                    bottomSheetNavigator = navigator
+                ) {
+                    NavHost(navController, startDestination = "first") {
+                        bottomSheet("first") {
+                            Text("Hello!")
+                        }
+                    }
+                }
+            }
+        }
+
+        savedState = navController.saveState()
+
+        // Dispose the ModalBottomSheetLayout
+        compositionState = 1
+        composeTestRule.awaitIdle()
+
+        assertWithMessage("Bottom Sheet is visible")
+            .that(sheetState.isVisible).isFalse()
+
+        // Recompose with the ModalBottomSheetLayout
+        compositionState = 0
+        composeTestRule.awaitIdle()
+
+        assertWithMessage("Destination is first destination")
+            .that(navController.currentDestination?.route)
+            .isEqualTo("first")
+        assertWithMessage("Bottom sheet is visible")
+            .that(sheetState.isVisible).isTrue()
+    }
+
+    /**
+     * Create a [BottomSheetNavigator.Destination] with some fake content
+     * Having an empty Composable will result in the sheet's height being 0 which crashes
+     * ModalBottomSheetLayout
+     */
+    private fun BottomSheetNavigator.createFakeDestination() =
+        BottomSheetNavigator.Destination(this) {
+            Text("Fake Sheet Content")
+        }
 }
