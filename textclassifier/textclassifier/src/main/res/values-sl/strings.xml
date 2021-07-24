@@ -28,5 +28,5 @@ limitations under the License.
     <string name="add_contact_desc" msgid="1739272501140197425">"Dodaj med stike"</string>
     <string name="floating_toolbar_open_overflow_description" msgid="6778458701858708647">"Več možnosti"</string>
     <string name="floating_toolbar_close_overflow_description" msgid="3112942430227166657">"Zapiranje dodatnih elementov"</string>
-    <string name="abc_share" msgid="37557693057519685">"Skup. raba"</string>
+    <string name="abc_share" msgid="37557693057519685">"Deljenje"</string>
 </resources>
