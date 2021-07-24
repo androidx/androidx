@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
@@ -40,6 +41,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -60,7 +62,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setWorkerExecutor(executor).build());
     }
 
-    // TODO(b/194207451) Following tests can be moved to CtsTestBase if customized logger is
+    // TODO(b/194207451) Following test can be moved to CtsTestBase if customized logger is
     //  supported for platform backend.
     @Test
     public void testLogger_searchStatsLogged() throws Exception {
@@ -101,5 +103,75 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(logger.mSearchStats.getDatabase()).isEqualTo(DB_NAME_2);
         assertThat(logger.mSearchStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
         assertThat(logger.mSearchStats.getQueryLength()).isEqualTo(queryStr.length());
+    }
+
+    // TODO(b/185441119) Following test can be moved to CtsTestBase if we fix the binder
+    //  transaction limit in framework.
+    @Test
+    public void testPutLargeDocument() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchTestUtils.TestLogger logger = new AppSearchTestUtils.TestLogger();
+        AppSearchSession db2 = LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
+                        .setLogger(logger).build()).get();
+
+        // Schema registration
+        db2.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        char[] chars = new char[16_000_000];
+        Arrays.fill(chars, ' ');
+        String body = String.valueOf(chars) + "the end.";
+
+        // Index a document
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace", "id1")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody(body)
+                .build();
+        AppSearchBatchResult<String, Void> result = db2.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(email).build()).get();
+        assertThat(result.isSuccess()).isTrue();
+
+        SearchResults searchResults = db2.search("end", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(1);
+        AppSearchEmail outEmail = new AppSearchEmail(outDocuments.get(0));
+        assertThat(outEmail).isEqualTo(email);
+    }
+
+    // TODO(b/185441119) Following test can be moved to CtsTestBase if we fix the binder
+    //  transaction limit in framework.
+    @Test
+    public void testPutLargeDocument_exceedLimit() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchTestUtils.TestLogger logger = new AppSearchTestUtils.TestLogger();
+        AppSearchSession db2 = LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
+                        .setLogger(logger).build()).get();
+
+        // Schema registration
+        db2.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Create a String property that make the document exceed the total size limit.
+        char[] chars = new char[17_000_000];
+        String body = new StringBuilder().append(chars).toString();
+
+        // Index a document
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace", "id1")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody(body)
+                .build();
+        AppSearchBatchResult<String, Void> result = db2.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(email).build()).get();
+        assertThat(result.getFailures()).containsKey("id1");
+        assertThat(result.getFailures().get("id1").getErrorMessage())
+                .contains("was too large to write. Max is 16777215");
     }
 }
