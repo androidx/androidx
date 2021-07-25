@@ -950,6 +950,17 @@ public final class MediaRouter {
     }
 
     /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static boolean isGroupVolumeUxEnabled() {
+        if (sGlobal == null) {
+            return false;
+        }
+        return getGlobalRouter().isGroupVolumeUxEnabled();
+    }
+
+    /**
      * Returns how many {@link MediaRouter.Callback callbacks} are registered throughout the all
      * {@link MediaRouter media routers} in this process.
      */
@@ -1511,10 +1522,7 @@ public final class MediaRouter {
          */
         @PlaybackVolume
         public int getVolumeHandling() {
-            Bundle extras = (sGlobal.getRouterParams() == null)
-                    ? null : sGlobal.getRouterParams().getExtras();
-            if (isGroup() && extras != null
-                    && extras.getBoolean(MediaRouterParams.EXTRAS_KEY_DISABLE_GROUP_VOLUME_UX)) {
+            if (isGroup() && !isGroupVolumeUxEnabled()) {
                 return PLAYBACK_VOLUME_FIXED;
             }
             return mVolumeHandling;
@@ -2867,6 +2875,17 @@ public final class MediaRouter {
             }
             return mRouterParams.isTransferToLocalEnabled();
         }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public boolean isGroupVolumeUxEnabled() {
+            return mRouterParams == null || mRouterParams.mExtras == null
+                    || mRouterParams.mExtras.getBoolean(
+                            MediaRouterParams.ENABLE_GROUP_VOLUME_UX, true);
+        }
+
 
         @Override
         public void addProvider(@NonNull MediaRouteProvider providerInstance) {
