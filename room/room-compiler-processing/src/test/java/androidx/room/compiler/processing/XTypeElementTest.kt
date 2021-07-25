@@ -502,6 +502,38 @@ class XTypeElementTest {
     }
 
     @Test
+    fun lateinitFields() {
+        fun buildSource(pkg: String) = Source.kotlin(
+            "Foo.kt",
+            """
+            package $pkg
+            class Subject {
+                lateinit var x:String
+                var y:String = "abc"
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(buildSource("app")),
+            classpath = compileFiles(listOf(buildSource("lib")))
+        ) { invocation ->
+            listOf("app", "lib").forEach { pkg ->
+                val subject = invocation.processingEnv.requireTypeElement("$pkg.Subject")
+                assertWithMessage(subject.fallbackLocationText)
+                    .that(subject.getDeclaredFields().map { it.name })
+                    .containsExactly(
+                        "x", "y"
+                    )
+                assertWithMessage(subject.fallbackLocationText)
+                    .that(subject.getDeclaredMethods().map { it.name })
+                    .containsExactly(
+                        "getX", "setX", "getY", "setY"
+                    )
+            }
+        }
+    }
+
+    @Test
     fun fieldsInInterfaces() {
         val src = Source.kotlin(
             "Foo.kt",
