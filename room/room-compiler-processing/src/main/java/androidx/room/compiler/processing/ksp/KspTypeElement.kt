@@ -36,6 +36,7 @@ import com.google.devtools.ksp.isOpen
 import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.javapoet.ClassName
 
@@ -113,7 +114,7 @@ internal sealed class KspTypeElement(
                 // only order instance properties with backing fields, we don't care about the order
                 // of companion properties or properties without backing fields.
                 val (withBackingField, withoutBackingField) = it.partition {
-                    it.declaration.hasBackingField
+                    it.declaration.hasBackingFieldFixed
                 }
                 KspClassFileUtility.orderFields(declaration, withBackingField) + withoutBackingField
             }
@@ -136,7 +137,7 @@ internal sealed class KspTypeElement(
 
     private val _declaredFields by lazy {
         _declaredProperties.filter {
-            it.declaration.hasBackingField
+            it.declaration.hasBackingFieldFixed
         }
     }
 
@@ -325,6 +326,13 @@ internal sealed class KspTypeElement(
                 }
         }
     }
+
+    /**
+     * Workaround for https://github.com/google/ksp/issues/529 where KSP returns false for
+     * backing field when the property has a lateinit modifier.
+     */
+    private val KSPropertyDeclaration.hasBackingFieldFixed
+        get() = hasBackingField || modifiers.contains(Modifier.LATEINIT)
 
     companion object {
         fun create(
