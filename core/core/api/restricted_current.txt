@@ -1788,10 +1788,23 @@ package androidx.core.location {
   }
 
   public final class LocationCompat {
+    method public static float getBearingAccuracyDegrees(android.location.Location);
     method public static long getElapsedRealtimeMillis(android.location.Location);
     method public static long getElapsedRealtimeNanos(android.location.Location);
+    method public static float getSpeedAccuracyMetersPerSecond(android.location.Location);
+    method public static float getVerticalAccuracyMeters(android.location.Location);
+    method public static boolean hasBearingAccuracy(android.location.Location);
+    method public static boolean hasSpeedAccuracy(android.location.Location);
+    method public static boolean hasVerticalAccuracy(android.location.Location);
     method public static boolean isMock(android.location.Location);
+    method public static void setBearingAccuracyDegrees(android.location.Location, float);
     method public static void setMock(android.location.Location, boolean);
+    method public static void setSpeedAccuracyMetersPerSecond(android.location.Location, float);
+    method public static void setVerticalAccuracyMeters(android.location.Location, float);
+    field public static final String EXTRA_BEARING_ACCURACY = "bearingAccuracy";
+    field public static final String EXTRA_IS_MOCK = "mockLocation";
+    field public static final String EXTRA_SPEED_ACCURACY = "speedAccuracy";
+    field public static final String EXTRA_VERTICAL_ACCURACY = "verticalAccuracy";
   }
 
   public final class LocationManagerCompat {
