@@ -225,6 +225,9 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.Option.Id.Companion {
   }
 
+  public final class UserStyleSettingKt {
+  }
+
   public enum WatchFaceLayer {
     enum_constant public static final androidx.wear.watchface.style.WatchFaceLayer BASE;
     enum_constant public static final androidx.wear.watchface.style.WatchFaceLayer COMPLICATIONS;

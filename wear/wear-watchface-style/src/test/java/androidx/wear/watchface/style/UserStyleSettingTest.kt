@@ -26,6 +26,7 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.nio.ByteBuffer
+import kotlin.test.assertFailsWith
 
 @RunWith(StyleTestRunner::class)
 public class UserStyleSettingTest {
@@ -239,5 +240,83 @@ public class UserStyleSettingTest {
         assertThat(setting.hashCode()).isEqualTo(settingCopy.hashCode())
         assertThat(setting.hashCode()).isEqualTo(settings1ModifiedInfo.hashCode())
         assertThat(setting.hashCode()).isNotEqualTo(settings1ModifiedId.hashCode())
+    }
+
+    @Test
+    public fun noDuplicatedComplicationSlotOptions() {
+        val leftComplicationSlot =
+            UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(1)
+        val rightComplicationSlot =
+            UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(2)
+        assertFailsWith<IllegalArgumentException>("should not allow duplicates") {
+            UserStyleSetting.ComplicationSlotsUserStyleSetting(
+                UserStyleSetting.Id("complication_location"),
+                "Complication Location",
+                "Configure the location of the complications on the watch face",
+                icon = null,
+                listOf(
+                    UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id("both"),
+                        "left and right complications",
+                        icon = null,
+                        listOf(leftComplicationSlot, rightComplicationSlot),
+                    ),
+                    UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id("left"),
+                        "left complication",
+                        icon = null,
+                        listOf(leftComplicationSlot),
+                    ),
+                    UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id("right"),
+                        "right complication",
+                        icon = null,
+                        listOf(rightComplicationSlot),
+                    ),
+                    UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id("both"),
+                        "right and left complications",
+                        icon = null,
+                        listOf(rightComplicationSlot, leftComplicationSlot),
+                    )
+                ),
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+            )
+        }
+    }
+
+    @Test
+    public fun noDuplicatedListOptions() {
+        assertFailsWith<IllegalArgumentException>("should not allow duplicates") {
+            UserStyleSetting.ListUserStyleSetting(
+                UserStyleSetting.Id("hands"),
+                "Hands",
+                "Configure the hands of the watch face",
+                icon = null,
+                listOf(
+                    UserStyleSetting.ListUserStyleSetting.ListOption(
+                        UserStyleSetting.Option.Id("plain"),
+                        "plain hands",
+                        icon = null
+                    ),
+                    UserStyleSetting.ListUserStyleSetting.ListOption(
+                        UserStyleSetting.Option.Id("florescent"),
+                        "florescent hands",
+                        icon = null
+                    ),
+                    UserStyleSetting.ListUserStyleSetting.ListOption(
+                        UserStyleSetting.Option.Id("thick"),
+                        "thick hands",
+                        icon = null
+                    ),
+                    UserStyleSetting.ListUserStyleSetting.ListOption(
+                        UserStyleSetting.Option.Id("plain"),
+                        "simple hands",
+                        icon = null
+                    )
+                ),
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+            )
+        }
     }
 }

@@ -23,6 +23,7 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.UserStyleSetting.Id.Companion.MAX_LENGTH
+import androidx.wear.watchface.style.UserStyleSetting.Option.Id.Companion.MAX_LENGTH
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
@@ -546,7 +547,10 @@ public sealed class UserStyleSetting(
             complicationConfig.indexOf(defaultOption),
             affectsWatchFaceLayers
         ) {
-            require(affectsWatchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS))
+            require(affectsWatchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
+                "ComplicationSlotsUserStyleSetting must affect the complications layer"
+            }
+            requireUniqueOptionIds(id, complicationConfig)
         }
 
         internal constructor(
@@ -802,7 +806,9 @@ public sealed class UserStyleSetting(
             options,
             options.indexOf(defaultOption),
             affectsWatchFaceLayers
-        )
+        ) {
+            requireUniqueOptionIds(id, options)
+        }
 
         internal constructor(wireFormat: ListUserStyleSettingWireFormat) : super(wireFormat)
 
@@ -1085,5 +1091,17 @@ public sealed class UserStyleSetting(
             options.find { it.id.value.contentEquals(optionId.value) } ?: CustomValueOption(
                 optionId.value
             )
+    }
+}
+
+internal fun requireUniqueOptionIds(
+    setting: UserStyleSetting.Id,
+    options: List<UserStyleSetting.Option>
+) {
+    val uniqueIds = HashSet<UserStyleSetting.Option.Id>()
+    for (option in options) {
+        require(uniqueIds.add(option.id)) {
+            "duplicated option id: ${option.id} in $setting"
+        }
     }
 }
