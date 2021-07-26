@@ -48,21 +48,21 @@ class TwoPaneFragment : AbstractListDetailFragment() {
     }
 
     private fun openDetails(destinationId: Int) {
-        val detailNavController = requireDetailPaneNavHostFragment().navController
+        val detailNavController = detailPaneNavHostFragment.navController
         detailNavController.navigate(
             destinationId,
             null,
             NavOptions.Builder()
                 .setPopUpTo(detailNavController.graph.startDestinationId, true)
                 .apply {
-                    if (requireSlidingPaneLayout().isOpen) {
+                    if (slidingPaneLayout.isOpen) {
                         setEnterAnim(R.anim.nav_default_enter_anim)
                         setExitAnim(R.anim.nav_default_exit_anim)
                     }
                 }
                 .build()
         )
-        requireSlidingPaneLayout().open()
+        slidingPaneLayout.open()
     }
 
     companion object {
