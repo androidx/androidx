@@ -958,7 +958,8 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun renderWatchFaceToBitmap(
         params: WatchFaceRenderParams
     ): Bundle = TraceEvent("WatchFaceImpl.renderWatchFaceToBitmap").use {
-        val oldStyle = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
+        val oldStyle = currentUserStyleRepository.userStyle
+
         params.userStyle?.let {
             onSetStyleInternal(UserStyle(UserStyleData(it), currentUserStyleRepository.schema))
         }
@@ -985,7 +986,7 @@ public class WatchFaceImpl @UiThread constructor(
 
         // Restore previous style & complicationSlots if required.
         if (params.userStyle != null) {
-            onSetStyleInternal(UserStyle(oldStyle))
+            onSetStyleInternal(oldStyle)
         }
 
         if (params.idAndComplicationDatumWireFormats != null) {
@@ -1006,7 +1007,8 @@ public class WatchFaceImpl @UiThread constructor(
             timeInMillis = params.calendarTimeMillis
         }
         return complicationSlotsManager[params.complicationSlotId]?.let {
-            val oldStyle = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
+            val oldStyle = currentUserStyleRepository.userStyle
+
             val newStyle = params.userStyle
             if (newStyle != null) {
                 onSetStyleInternal(
@@ -1042,7 +1044,7 @@ public class WatchFaceImpl @UiThread constructor(
             }
 
             if (newStyle != null) {
-                onSetStyleInternal(UserStyle(oldStyle))
+                onSetStyleInternal(oldStyle)
             }
 
             SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)

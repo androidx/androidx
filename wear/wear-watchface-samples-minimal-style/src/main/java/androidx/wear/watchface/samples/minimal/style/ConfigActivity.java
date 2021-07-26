@@ -29,13 +29,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.wear.watchface.editor.ListenableEditorSession;
 import androidx.wear.watchface.style.UserStyle;
-import androidx.wear.watchface.style.UserStyleSetting;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 /** Configuration activity for the watch face. */
@@ -104,11 +101,10 @@ public class ConfigActivity extends ComponentActivity {
             return;
         }
 
-        UserStyle userStyle = copyOfUserStyle(mEditorSession.getUserStyle());
+        UserStyle userStyle = mEditorSession.getUserStyle();
         TimeStyle.Value value = mTimeStyle.get(userStyle);
         TimeStyle.Value newValue = NEXT_VALUE_MAP.get(value);
-        mTimeStyle.set(userStyle, newValue);
-        mEditorSession.setUserStyle(userStyle);
+        mEditorSession.setUserStyle(mTimeStyle.set(userStyle, newValue));
         updateStyleValue();
     }
 
@@ -122,12 +118,6 @@ public class ConfigActivity extends ComponentActivity {
 
     private <T> void addCallback(ListenableFuture<T> future, FutureCallback<T> callback) {
         FutureCallback.addCallback(future, callback, mMainExecutor);
-    }
-
-    private static UserStyle copyOfUserStyle(UserStyle userStyle) {
-        Map<UserStyleSetting, UserStyleSetting.Option> styleMap = new HashMap<>();
-        styleMap.putAll(userStyle.getSelectedOptions());
-        return new UserStyle(styleMap);
     }
 
     private static EnumMap<TimeStyle.Value, TimeStyle.Value> createNextValueMap() {
