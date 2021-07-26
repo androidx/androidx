@@ -16,9 +16,10 @@
 
 @file:Suppress("UnstableApiUsage")
 
-package androidx.lifecycle.lint
+package androidx.lifecycle.livedata.core.lint
 
-import androidx.lifecycle.lint.stubs.STUBS
+import androidx.lifecycle.lint.NonNullableMutableLiveDataDetector
+import androidx.lifecycle.livedata.core.lint.stubs.STUBS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestLintResult

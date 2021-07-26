@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.lint.stubs
+package androidx.lifecycle.livedata.core.lint.stubs
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 

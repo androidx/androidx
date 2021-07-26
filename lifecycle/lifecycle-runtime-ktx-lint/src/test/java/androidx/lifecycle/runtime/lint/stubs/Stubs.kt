@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.lint.stubs
+package androidx.lifecycle.runtime.lint.stubs
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFiles
