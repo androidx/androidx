@@ -16,24 +16,23 @@
 
 package androidx.benchmark.macro
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import androidx.activity.ComponentActivity
 
 /**
  * Activity with configurable text and launch time, for testing.
  */
-public class ConfigurableActivity : Activity() {
+class ConfigurableActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(
-            TextView(this).apply {
-                text = intent.getStringExtra(EXTRA_TEXT)
-            }
-        )
+        val view = TextView(this).apply {
+            text = intent.getStringExtra(EXTRA_TEXT)
+        }
+        setContentView(view)
 
         val sleepDurMs = intent.getLongExtra(EXTRA_SLEEP_DUR_MS, 0)
         if (sleepDurMs > 0) {
@@ -41,19 +40,42 @@ public class ConfigurableActivity : Activity() {
             Thread.sleep(sleepDurMs)
             Log.d(TAG, "sleep complete")
         }
+
+        val reportFullyDrawnDelayMs = intent.getLongExtra(
+            EXTRA_REPORT_FULLY_DRAWN_DELAY_MS, /* default */ -1
+        )
+        when (reportFullyDrawnDelayMs) {
+            -1L -> {} // ignore
+            0L -> reportFullyDrawn() // report immediately
+            else -> {
+                // report delayed, modify text
+                val runnable = {
+                    view.text = FULLY_DRAWN_TEXT
+                    reportFullyDrawn()
+                }
+                view.postDelayed(runnable, reportFullyDrawnDelayMs)
+            }
+        }
     }
 
-    public companion object {
+    companion object {
         private const val TAG = "ConfigurableActivity"
-        public const val ACTION: String = "androidx.benchmark.macro.CONFIGURABLE_ACTIVITY"
-        public const val EXTRA_TEXT: String = "TEXT"
-        public const val EXTRA_SLEEP_DUR_MS: String = "SLEEP_DUR_MS"
+        private const val ACTION: String = "androidx.benchmark.macro.CONFIGURABLE_ACTIVITY"
+        private const val EXTRA_TEXT: String = "TEXT"
+        private const val EXTRA_SLEEP_DUR_MS: String = "SLEEP_DUR_MS"
+        private const val EXTRA_REPORT_FULLY_DRAWN_DELAY_MS = "REPORT_FULLY_DRAWN_DELAY_MS"
+        const val FULLY_DRAWN_TEXT = "FULLY DRAWN"
 
-        public fun createIntent(text: String, sleepDurMs: Long = 0): Intent {
+        fun createIntent(
+            text: String,
+            sleepDurMs: Long = 0,
+            reportFullyDrawnWithDelay: Long? = null
+        ): Intent {
             return Intent().apply {
                 action = ACTION
                 putExtra(EXTRA_TEXT, text)
                 putExtra(EXTRA_SLEEP_DUR_MS, sleepDurMs)
+                putExtra(EXTRA_REPORT_FULLY_DRAWN_DELAY_MS, reportFullyDrawnWithDelay)
             }
         }
     }

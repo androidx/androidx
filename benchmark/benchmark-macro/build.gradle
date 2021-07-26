@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.wireRuntime)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
+    androidTestImplementation(project(":activity:activity-ktx"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
