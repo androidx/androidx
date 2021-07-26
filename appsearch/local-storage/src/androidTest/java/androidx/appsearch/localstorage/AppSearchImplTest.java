@@ -832,7 +832,8 @@ public class AppSearchImplTest {
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document2);
 
         long nextPageToken = searchResultPage.getNextPageToken();
-        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken);
+        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*statsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document1);
     }
@@ -879,13 +880,14 @@ public class AppSearchImplTest {
         // Try getting next page with the wrong package, package2
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.getNextPage("package2",
-                        nextPageToken));
+                        nextPageToken, /*statsBuilder=*/ null));
         assertThat(e).hasMessageThat().contains(
                 "Package \"package2\" cannot use nextPageToken: " + nextPageToken);
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
 
         // Can continue getting next page for package1
-        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken);
+        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*statsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document1);
     }
@@ -929,7 +931,8 @@ public class AppSearchImplTest {
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document2);
 
         long nextPageToken = searchResultPage.getNextPageToken();
-        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken);
+        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*statsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document1);
     }
@@ -976,13 +979,15 @@ public class AppSearchImplTest {
 
         // Try getting next page with the wrong package, package2
         AppSearchException e = assertThrows(AppSearchException.class,
-                () -> mAppSearchImpl.getNextPage("package2", nextPageToken));
+                () -> mAppSearchImpl.getNextPage("package2", nextPageToken,
+                        /*statsBuilder=*/ null));
         assertThat(e).hasMessageThat().contains(
                 "Package \"package2\" cannot use nextPageToken: " + nextPageToken);
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
 
         // Can continue getting next page for package1
-        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken);
+        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*statsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document1);
     }
@@ -1031,7 +1036,8 @@ public class AppSearchImplTest {
 
         // Can't get next page because we invalidated the token.
         AppSearchException e = assertThrows(AppSearchException.class,
-                () -> mAppSearchImpl.getNextPage("package1", nextPageToken));
+                () -> mAppSearchImpl.getNextPage("package1", nextPageToken,
+                        /*statsBuilder=*/ null));
         assertThat(e).hasMessageThat().contains(
                 "Package \"package1\" cannot use nextPageToken: " + nextPageToken);
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
@@ -1085,7 +1091,8 @@ public class AppSearchImplTest {
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
 
         // Can continue getting next page for package1
-        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken);
+        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*statsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document1);
     }
@@ -1135,7 +1142,8 @@ public class AppSearchImplTest {
 
         // Can't get next page because we invalidated the token.
         AppSearchException e = assertThrows(AppSearchException.class,
-                () -> mAppSearchImpl.getNextPage("package1", nextPageToken));
+                () -> mAppSearchImpl.getNextPage("package1", nextPageToken,
+                        /*statsBuilder=*/ null));
         assertThat(e).hasMessageThat().contains(
                 "Package \"package1\" cannot use nextPageToken: " + nextPageToken);
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
@@ -1190,7 +1198,8 @@ public class AppSearchImplTest {
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
 
         // Can continue getting next page for package1
-        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken);
+        searchResultPage = mAppSearchImpl.getNextPage("package1", nextPageToken,
+                /*statsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document1);
     }
@@ -2001,7 +2010,7 @@ public class AppSearchImplTest {
                 /*logger=*/ null));
 
         assertThrows(IllegalStateException.class, () -> appSearchImpl.getNextPage("package",
-                /*nextPageToken=*/ 1L));
+                /*nextPageToken=*/ 1L, /*statsBuilder=*/ null));
 
         assertThrows(IllegalStateException.class, () -> appSearchImpl.invalidateNextPageToken(
                 "package",
