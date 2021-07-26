@@ -21,9 +21,7 @@ import android.content.Intent
 import android.support.wearable.notifications.IBridgingManagerService
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -60,12 +58,12 @@ class BridgingManagerServiceTest {
 
         val binder = bridgingManagerService.onBind(intent)
 
-        assertNotNull(binder)
+        assertThat(binder).isNotNull()
         val bridgingManagerServiceImpl = IBridgingManagerService.Stub.asInterface(binder)
-        assertNotNull(bridgingManagerServiceImpl)
+        assertThat(bridgingManagerServiceImpl).isNotNull()
 
         bridgingManagerServiceImpl.setBridgingConfig(bridgingConfig.toBundle(context))
-        assertEquals(bridgingConfig, testBridgingConfigurationHandler.bridgingConfig)
+        assertThat(testBridgingConfigurationHandler.bridgingConfig).isEqualTo(bridgingConfig)
     }
 
     @Test
@@ -79,11 +77,11 @@ class BridgingManagerServiceTest {
             context /* packageName = PACKAGE_NAME */, false
         ).build()
 
-        var binder = bridgingManagerService.onBind(intent)
+        val binder = bridgingManagerService.onBind(intent)
 
-        assertNotNull(binder)
+        assertThat(binder).isNotNull()
         val bridgingManagerServiceImpl = IBridgingManagerService.Stub.asInterface(binder)
-        assertNotNull(bridgingManagerServiceImpl)
+        assertThat(bridgingManagerServiceImpl).isNotNull()
 
         assertThrows(
             IllegalArgumentException::class.java
@@ -100,7 +98,7 @@ class BridgingManagerServiceTest {
 
         val binder = bridgingManagerService.onBind(intent)
 
-        assertNull(binder)
+        assertThat(binder).isNull()
     }
 
     @Test
@@ -110,7 +108,7 @@ class BridgingManagerServiceTest {
 
         val binder = bridgingManagerService.onBind(intent = null)
 
-        assertNull(binder)
+        assertThat(binder).isNull()
     }
 
     companion object {

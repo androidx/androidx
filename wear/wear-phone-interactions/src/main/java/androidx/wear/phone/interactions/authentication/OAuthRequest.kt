@@ -148,10 +148,11 @@ public class OAuthRequest internal constructor(
                 "redirect_uri",
                 Uri.withAppendedPath(
                     if (redirectUrl == null) {
-                        if (WearTypeHelper.isChinaBuild(context))
+                        if (WearTypeHelper.isChinaBuild(context)) {
                             Uri.parse(WEAR_REDIRECT_URL_PREFIX_CN)
-                        else
+                        } else {
                             Uri.parse(WEAR_REDIRECT_URL_PREFIX)
+                        }
                     } else {
                         redirectUrl
                     },
@@ -178,14 +179,14 @@ public class OAuthRequest internal constructor(
             expectedQueryParam: String
         ) {
             val currentQueryParam = authProviderUrl!!.getQueryParameter(queryKey)
-            currentQueryParam?.let {
+            if (currentQueryParam != null) {
                 require(expectedQueryParam == currentQueryParam) {
                     "The '$queryKey' query param already exists in the authProviderUrl, " +
                         "expect to have the value of '$expectedQueryParam', but " +
                         "'$currentQueryParam' is given. Please correct it,  or leave it out " +
                         "to allow the request builder to append it automatically."
                 }
-            } ?: run {
+            } else {
                 requestUriBuilder.appendQueryParameter(queryKey, expectedQueryParam)
             }
         }
