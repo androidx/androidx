@@ -360,15 +360,12 @@ public sealed class UserStyleSetting(
         public fun getDefaultValue(): Boolean = (options[defaultOptionIndex] as BooleanOption).value
 
         /** Represents a true or false option in the [BooleanUserStyleSetting]. */
-        public class BooleanOption : Option {
+        public class BooleanOption private constructor(
+            /** The boolean value this instance represents. */
             public val value: Boolean
-
-            internal constructor(value: Boolean) : super(
-                Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 })
-            ) {
-                this.value = value
-            }
-
+        ) : Option(
+            Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 })
+        ) {
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): BooleanOptionWireFormat =
