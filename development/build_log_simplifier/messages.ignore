@@ -1161,3 +1161,4 @@ Copying lint text report to .*
 # > Configure project :ads-identifier
 WARNING\:The option setting \'android\.experimental\.enableArtProfiles\=true\' is experimental\.
 The current default is \'false\'\.
+ksp\-.* might not work with kotlin\-.* properly\. Please pick the same version of ksp and kotlin plugins\.
