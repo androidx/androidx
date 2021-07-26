@@ -23,30 +23,36 @@ import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.macro.perfetto.createTempFileFromAsset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
-public class StartupTimingMetricTest {
-    @LargeTest
+class StartupTimingMetricTest {
+    @MediumTest
     @Test
-    public fun noResults() {
+    fun noResults() {
         assumeTrue(isAbiSupported())
         val packageName = "fake.package.fiction.nostartups"
         val metrics = measureStartup(packageName) {
             // Do nothing
         }
-        assertEquals(metrics.metrics.isEmpty(), true)
+        assertEquals(true, metrics.metrics.isEmpty())
     }
 
     @LargeTest
     @Test
-    public fun validateStartup() {
+    fun validateStartup() {
         assumeTrue(isAbiSupported())
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
         val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
@@ -67,9 +73,57 @@ public class StartupTimingMetricTest {
         assertNotNull(metrics.timelineEnd)
     }
 
+    private fun validateStartup_fullyDrawn(delay: Long) {
+        assumeTrue(isAbiSupported())
+        val packageName = "androidx.benchmark.macro.test"
+        val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
+        val metrics = measureStartup(packageName) {
+            // Simulate a warm start, since it's our own process
+            scope.pressHome()
+            scope.startActivityAndWait(
+                ConfigurableActivity.createIntent(
+                    text = "ORIGINAL TEXT",
+                    reportFullyDrawnWithDelay = delay
+                )
+            )
+
+            if (delay > 0) {
+                UiDevice
+                    .getInstance(InstrumentationRegistry.getInstrumentation())
+                    .wait(Until.findObject(By.text(ConfigurableActivity.FULLY_DRAWN_TEXT)), 3000)
+            }
+        }
+        assertTrue("startupMs" in metrics.metrics)
+        assertTrue("fullyDrawnMs" in metrics.metrics)
+
+        val startupMs = metrics.metrics["startupMs"]!!
+        val fullyDrawnMs = metrics.metrics["fullyDrawnMs"]!!
+
+        val startupShouldBeFaster = delay > 0
+        assertEquals(
+            startupShouldBeFaster,
+            startupMs < fullyDrawnMs,
+            "startup $startupMs, fully drawn $fullyDrawnMs"
+        )
+        assertNotNull(metrics.timelineStart)
+        assertNotNull(metrics.timelineEnd)
+    }
+
     @LargeTest
     @Test
-    public fun fixedStartupTraceMetrics() {
+    fun validateStartup_fullyDrawn_immediate() {
+        validateStartup_fullyDrawn(0)
+    }
+
+    @LargeTest
+    @Test
+    fun validateStartup_fullyDrawn_delayed() {
+        validateStartup_fullyDrawn(100)
+    }
+
+    @MediumTest
+    @Test
+    fun fixedStartupTraceMetrics() {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("WarmStartup", ".trace")
         val metric = StartupTimingMetric()

@@ -16,22 +16,6 @@
 
 package androidx.benchmark.macro
 
-import android.app.Activity
-import android.os.Build
-import android.os.Bundle
+import androidx.activity.ComponentActivity
 
-class TrivialStartupActivity : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (intent.getBooleanExtra(EXTRA_REPORT_FULLY_DRAWN, true)) {
-                reportFullyDrawn()
-            }
-        }
-    }
-
-    companion object {
-        const val EXTRA_REPORT_FULLY_DRAWN = "REPORT_FULLY_DRAWN"
-    }
-}
+class TrivialStartupActivity : ComponentActivity()
