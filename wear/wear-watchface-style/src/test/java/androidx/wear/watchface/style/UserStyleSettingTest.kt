@@ -77,8 +77,8 @@ public class UserStyleSettingTest {
 
     @Test
     public fun byteArrayConversion() {
-        assertThat(BooleanOption(true).value).isEqualTo(true)
-        assertThat(BooleanOption(false).value).isEqualTo(false)
+        assertThat(BooleanOption.TRUE.value).isEqualTo(true)
+        assertThat(BooleanOption.FALSE.value).isEqualTo(false)
         assertThat(DoubleRangeOption(123.4).value).isEqualTo(123.4)
         assertThat(LongRangeOption(1234).value).isEqualTo(1234)
     }
