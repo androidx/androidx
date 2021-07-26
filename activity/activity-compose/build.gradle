@@ -26,11 +26,11 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
-    api projectOrArtifact(":compose:runtime:runtime")
-    api projectOrArtifact(":compose:runtime:runtime-saveable")
+    api(projectOrArtifact(":compose:runtime:runtime"))
+    api(projectOrArtifact(":compose:runtime:runtime-saveable"))
     api(projectOrArtifact(":activity:activity-ktx"))
     api(projectOrArtifact(":compose:ui:ui"))
 
