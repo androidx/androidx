@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.AnchorType
+import androidx.wear.compose.foundation.ArcPaddingValues
+import androidx.wear.compose.foundation.BasicCurvedText
 import androidx.wear.compose.foundation.CurvedRow
 import androidx.wear.compose.foundation.CurvedRowScope
 import androidx.wear.compose.foundation.RadialAlignment
@@ -155,6 +157,27 @@ fun CurvedRowAlignmentDemo() {
     ) {
         SeparatorBlock()
         RgbBlocks()
+        SeparatorBlock()
+    }
+}
+
+@Composable
+fun CurvedTextDemo() {
+    CurvedRow(modifier = Modifier.fillMaxSize()) {
+        SeparatorBlock()
+        BasicCurvedText(
+            "Curved Text",
+            18.sp,
+            modifier = Modifier.radialAlignment(RadialAlignment.Outer)
+        )
+        SeparatorBlock()
+        BasicCurvedText(
+            "And More",
+            20.sp,
+            clockwise = false,
+            contentArcPadding = ArcPaddingValues(angular = 5.dp),
+            modifier = Modifier.radialAlignment(RadialAlignment.Inner)
+        )
         SeparatorBlock()
     }
 }

@@ -24,6 +24,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.ParentDataModifier
@@ -152,7 +154,11 @@ fun CurvedRow(
             val radius = diameter / 2f
 
             val measuredChildren = measurables.map { m ->
-                NormalMeasuredChild(m)
+                if (m.isCurvedComponent) {
+                    CurvedMeasuredChild(m)
+                } else {
+                    NormalMeasuredChild(m)
+                }
             }
 
             // Measure the children, we only need an upper bound for the thickness of each element.
@@ -258,7 +264,6 @@ private abstract class MeasuredChild(
 }
 
 private class NormalMeasuredChild(measurable: Measurable) : MeasuredChild(measurable) {
-
     override fun initialMeasurePass(radius: Float) {
         // This is the size biggest square box that fits in half a circle
         val biggestSize = (radius * 2 / sqrt(5f)).toInt()
@@ -347,15 +352,52 @@ private class NormalMeasuredChild(measurable: Measurable) : MeasuredChild(measur
     fun sqr(x: Float): Float = x * x
 }
 
-private fun Float.toRadians() = this * PI.toFloat() / 180f
-private fun Float.toDegrees() = this * 180f / PI.toFloat()
+private class CurvedMeasuredChild(measurable: Measurable) : MeasuredChild(measurable) {
+    override fun initialMeasurePass(radius: Float) {
+        val diameter = (2 * radius).toInt()
+        width = measurable.minIntrinsicWidth(diameter)
+        height = measurable.minIntrinsicHeight(diameter)
+    }
+
+    override fun estimateThickness(radius: Float) = height.toFloat()
+
+    override fun calculateRadialPosition(
+        radius: Float,
+        curvedRowThickness: Float,
+        curvedRowRadialAlignment: RadialAlignment
+    ) {
+        val radialAlignment = measurable.radialAlignment ?: curvedRowRadialAlignment
+        componentRadialPosition = (curvedRowThickness - height) * radialAlignment.ratio
+
+        // Once we know the position we need to place CurvedText children on, call measure with the
+        // right size.
+        val size = (2 * (radius - componentRadialPosition)).roundToInt()
+        placeable = measurable.measure(Constraints(maxWidth = size, maxHeight = size))
+
+        sweep = width / (radius - placeable[FirstBaseline] - componentRadialPosition)
+    }
+
+    override fun place(
+        radius: Float,
+        scope: Placeable.PlacementScope,
+        centerAngle: Float,
+        clockwise: Boolean
+    ) {
+        place(scope, componentRadialPosition, componentRadialPosition, centerAngle)
+    }
+}
+
+internal fun Float.toRadians() = this * PI.toFloat() / 180f
+internal fun Float.toDegrees() = this * 180f / PI.toFloat()
 
 internal class RadialAlignmentImpl(
     private val radialAlignment: RadialAlignment,
     inspectorInfo: InspectorInfo.() -> Unit
 ) : ParentDataModifier, InspectorValueInfo(inspectorInfo) {
     override fun Density.modifyParentData(parentData: Any?) =
-        ((parentData as? CurvedRowParentData) ?: CurvedRowParentData(radialAlignment))
+        ((parentData as? CurvedRowParentData) ?: CurvedRowParentData()).also {
+            it.radialAlignment = radialAlignment
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -372,8 +414,12 @@ internal class RadialAlignmentImpl(
  * Parent Data associated with children of a CurvedRow
  */
 internal data class CurvedRowParentData(
-    var radialAlignment: RadialAlignment
+    var radialAlignment: RadialAlignment? = null,
+    var isCurvedComponent: Boolean = false,
 )
 
-internal val Measurable.radialAlignment: RadialAlignment?
+internal val IntrinsicMeasurable.isCurvedComponent: Boolean
+    get() = (parentData as? CurvedRowParentData)?.isCurvedComponent ?: false
+
+internal val IntrinsicMeasurable.radialAlignment: RadialAlignment?
     get() = (parentData as? CurvedRowParentData)?.radialAlignment
