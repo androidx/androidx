@@ -49,9 +49,7 @@ internal class PerfettoCaptureWrapper {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun stop(benchmarkName: String, iteration: Int): String {
         val iterString = iteration.toString().padStart(3, '0')
-        // NOTE: Macrobenchmarks still use legacy .trace name until
-        // Studio supports .perfetto-trace extension (b/171251272)
-        val traceName = "${benchmarkName}_iter${iterString}_${dateToFileName()}.trace"
+        val traceName = "${benchmarkName}_iter${iterString}_${dateToFileName()}.perfetto-trace"
         return Outputs.writeFile(fileName = traceName, reportKey = "perfetto_trace_$iterString") {
             capture!!.stop(it.absolutePath)
         }
