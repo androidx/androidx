@@ -13,7 +13,7 @@ dependencies {
     api("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
     api("androidx.fragment:fragment:1.2.4")
     api("androidx.recyclerview:recyclerview:1.1.0")
-    api("androidx.core:core:1.5.0-alpha04")
+    api("androidx.core:core:1.6.0")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
 
     androidTestImplementation(project(":test:screenshot:test-screenshot"))
@@ -35,7 +35,7 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)
 
-    implementation("androidx.core:core-ktx:1.5.0-alpha04")
+    implementation("androidx.core:core-ktx:1.6.0")
 
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 
