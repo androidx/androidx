@@ -147,7 +147,7 @@ public final class Recorder implements VideoOutput {
         /**
          * There's a running recording and the Recorder is being reset.
          */
-        RESETING,
+        RESETTING,
         /**
          * The Recorder encountered errors and any operation will attempt will throw an
          * {@link IllegalStateException}. Users can handle the error by monitoring
@@ -305,7 +305,7 @@ public final class Recorder implements VideoOutput {
     public void onSurfaceRequested(@NonNull SurfaceRequest request) {
         synchronized (mLock) {
             switch (getObservableData(mState)) {
-                case RESETING:
+                case RESETTING:
                     // Fall-through
                 case PENDING_RECORDING:
                     // Fall-through
@@ -484,7 +484,7 @@ public final class Recorder implements VideoOutput {
             ActiveRecording activeRecording = ActiveRecording.from(pendingRecording);
             mRunningRecording = activeRecording;
             switch (getObservableData(mState)) {
-                case RESETING:
+                case RESETTING:
                     // Fall-through
                 case INITIALIZING:
                     // The recording will automatically start once the initialization completes.
@@ -516,7 +516,7 @@ public final class Recorder implements VideoOutput {
             switch (getObservableData(mState)) {
                 case PENDING_RECORDING:
                     // Fall-through
-                case RESETING:
+                case RESETTING:
                     // Fall-through
                 case INITIALIZING:
                     // The recording will automatically pause once the initialization completes.
@@ -545,7 +545,7 @@ public final class Recorder implements VideoOutput {
             switch (getObservableData(mState)) {
                 case PENDING_PAUSED:
                     // Fall-through
-                case RESETING:
+                case RESETTING:
                     // Fall-through
                 case INITIALIZING:
                     // The recording will automatically start once the initialization completes.
@@ -576,7 +576,7 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case PENDING_PAUSED:
                     // Fall-through
-                case RESETING:
+                case RESETTING:
                     // Fall-through
                 case INITIALIZING:
                     finalizeRecording(VideoRecordEvent.ERROR_NO_VALID_DATA,
@@ -622,12 +622,12 @@ public final class Recorder implements VideoOutput {
                 case PAUSED:
                     // Fall-through
                 case RECORDING:
-                    setState(State.RESETING);
+                    setState(State.RESETTING);
                     // If there's an active recording, stop it first then release the resources
                     // at finalizeRecording().
                     mSequentialExecutor.execute(() -> stopInternal(VideoRecordEvent.ERROR_NONE));
                     break;
-                case RESETING:
+                case RESETTING:
                     // No-Op, the Recorder is being reset.
                     break;
             }
@@ -673,7 +673,7 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case PAUSED:
                     // Fall-through
-                case RESETING:
+                case RESETTING:
                     throw new IllegalStateException(
                             "Incorrectly invoke onInitialized() in state " + state);
                 case INITIALIZING:
@@ -1314,10 +1314,14 @@ public final class Recorder implements VideoOutput {
             setAudioState(AudioState.INITIALIZING);
         }
         synchronized (mLock) {
-            if (getObservableData(mState) == State.RESETING) {
+            if (getObservableData(mState) == State.RESETTING) {
                 resetInternal();
             } else {
-                setState(State.IDLING);
+                // Reset the internal state to idling, except when the error is with an recorder
+                // error, which can't be recovered without reinitializing the recorder.
+                if (error != VideoRecordEvent.ERROR_RECORDER_ERROR) {
+                    setState(State.IDLING);
+                }
             }
         }
     }
