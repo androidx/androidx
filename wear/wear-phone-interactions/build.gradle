@@ -26,7 +26,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.5.0-beta01")
+    api("androidx.core:core:1.6.0")
     api(libs.kotlinStdlib)
     api(project(':wear:wear'))
 
