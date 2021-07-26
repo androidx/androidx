@@ -304,7 +304,8 @@ public final class Recorder implements VideoOutput {
     @Override
     public void onSurfaceRequested(@NonNull SurfaceRequest request) {
         synchronized (mLock) {
-            switch (getObservableData(mState)) {
+            State state = getObservableData(mState);
+            switch (state) {
                 case RESETTING:
                     // Fall-through
                 case PENDING_RECORDING:
@@ -322,9 +323,11 @@ public final class Recorder implements VideoOutput {
                 case RECORDING:
                     // Fall-through
                 case PAUSED:
-                    // Fall-through
+                    throw new IllegalStateException("Surface was requested when the Recorder had "
+                            + "been initialized with state " + state);
                 case ERROR:
-                    throw new IllegalStateException("The Recorder has been initialized.");
+                    throw new IllegalStateException("Surface was requested when the Recorder had "
+                            + "encountered error " + mErrorCause);
             }
         }
     }
@@ -503,6 +506,8 @@ public final class Recorder implements VideoOutput {
                 case RECORDING:
                     throw new IllegalStateException("There's an active recording.");
                 case ERROR:
+                    Logger.e(TAG, "Recording was started when the Recorder had encountered error "
+                            + mErrorCause);
                     finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
             }
@@ -534,6 +539,8 @@ public final class Recorder implements VideoOutput {
                     // No-op when the recording is already paused.
                     break;
                 case ERROR:
+                    Logger.e(TAG, "Recording was paused when the Recorder had encountered error "
+                            + mErrorCause);
                     finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
             }
@@ -563,6 +570,8 @@ public final class Recorder implements VideoOutput {
                     setState(State.RECORDING);
                     break;
                 case ERROR:
+                    Logger.e(TAG, "Recording was resumed when the Recorder had encountered error "
+                            + mErrorCause);
                     finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
             }
@@ -591,6 +600,8 @@ public final class Recorder implements VideoOutput {
                     mSequentialExecutor.execute(() -> stopInternal(VideoRecordEvent.ERROR_NONE));
                     break;
                 case ERROR:
+                    Logger.e(TAG, "Recording was stopped when the Recorder had encountered error "
+                            + mErrorCause);
                     finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
                     break;
             }
@@ -691,6 +702,9 @@ public final class Recorder implements VideoOutput {
                     }
                     break;
                 case ERROR:
+                    Logger.e(TAG,
+                            "onInitialized() was invoked when the Recorder had encountered error "
+                                    + mErrorCause);
                     break;
             }
         }
