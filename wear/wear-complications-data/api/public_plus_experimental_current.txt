@@ -5,11 +5,13 @@ package androidx.wear.complications {
     ctor public ComplicationDataSourceInfo(String appName, String name, android.graphics.drawable.Icon icon, androidx.wear.complications.data.ComplicationType type, android.content.ComponentName? componentName);
     method public String getAppName();
     method public android.content.ComponentName? getComponentName();
+    method public androidx.wear.complications.data.ComplicationData getFallbackPreviewData();
     method public android.graphics.drawable.Icon getIcon();
     method public String getName();
     method public androidx.wear.complications.data.ComplicationType getType();
     property public final String appName;
     property public final android.content.ComponentName? componentName;
+    property public final androidx.wear.complications.data.ComplicationData fallbackPreviewData;
     property public final android.graphics.drawable.Icon icon;
     property public final String name;
     property public final androidx.wear.complications.data.ComplicationType type;
@@ -277,6 +279,7 @@ package androidx.wear.complications.data {
     property public final androidx.wear.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.complications.data.ComplicationText text;
     property public final androidx.wear.complications.data.ComplicationText? title;
+    field public static final int MAX_TEXT_LENGTH;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 

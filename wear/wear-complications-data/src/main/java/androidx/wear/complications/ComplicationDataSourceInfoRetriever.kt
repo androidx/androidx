@@ -32,6 +32,17 @@ import androidx.wear.complications.ComplicationDataSourceInfoRetriever.Result
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.ComplicationType.Companion.fromWireType
+import androidx.wear.complications.data.LongTextComplicationData
+import androidx.wear.complications.data.MonochromaticImage
+import androidx.wear.complications.data.MonochromaticImageComplicationData
+import androidx.wear.complications.data.NoDataComplicationData
+import androidx.wear.complications.data.PhotoImageComplicationData
+import androidx.wear.complications.data.PlainComplicationText
+import androidx.wear.complications.data.RangedValueComplicationData
+import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.complications.data.SmallImage
+import androidx.wear.complications.data.SmallImageComplicationData
+import androidx.wear.complications.data.SmallImageType
 import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.TraceEvent
 import kotlinx.coroutines.CompletableDeferred
@@ -148,7 +159,9 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
 
     /**
      * Requests preview [ComplicationData] for a complication data source [ComponentName] and
-     * [ComplicationType].
+     * [ComplicationType]. Note if `null` is returned
+     * [ComplicationDataSourceInfo.fallbackPreviewData] can be used to generate fallback preview
+     * data based on the name and icon of the provider.
      *
      * @param complicationDataSourceComponent The [ComponentName] of the complication data source
      * from which preview data is requested.
@@ -259,6 +272,65 @@ public class ComplicationDataSourceInfo(
      */
     public val componentName: ComponentName?,
 ) {
+    /**
+     * Lazily constructed fallback preview [ComplicationData] based on this
+     * ComplicationDataSourceInfo. This is useful when
+     * [ComplicationDataSourceInfoRetriever.retrievePreviewComplicationData] returns `null` (e.g.
+     * on a pre-android R device).
+     */
+    public val fallbackPreviewData: ComplicationData by lazy {
+        val contentDescription = PlainComplicationText.Builder(name).build()
+        when (type) {
+            ComplicationType.SHORT_TEXT ->
+                ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder(
+                        name.take(ShortTextComplicationData.MAX_TEXT_LENGTH)
+                    ).build(),
+                    contentDescription
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(icon).build()
+                ).build()
+
+            ComplicationType.LONG_TEXT ->
+                LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder(name).build(),
+                    contentDescription
+                ).setMonochromaticImage(
+                    MonochromaticImage.Builder(icon).build()
+                ).build()
+
+            ComplicationType.SMALL_IMAGE ->
+                SmallImageComplicationData.Builder(
+                    SmallImage.Builder(icon, SmallImageType.ICON).build(),
+                    contentDescription
+                ).build()
+
+            ComplicationType.MONOCHROMATIC_IMAGE ->
+                MonochromaticImageComplicationData.Builder(
+                    MonochromaticImage.Builder(icon).build(),
+                    contentDescription
+                ).build()
+
+            ComplicationType.PHOTO_IMAGE ->
+                PhotoImageComplicationData.Builder(
+                    icon,
+                    contentDescription
+                ).build()
+
+            ComplicationType.RANGED_VALUE ->
+                RangedValueComplicationData.Builder(
+                    42f,
+                    0f,
+                    100f,
+                    contentDescription
+                ).setMonochromaticImage(MonochromaticImage.Builder(icon).build())
+                    .setText(PlainComplicationText.Builder(name).build())
+                    .build()
+
+            else -> NoDataComplicationData()
+        }
+    }
+
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             require(componentName != null) {

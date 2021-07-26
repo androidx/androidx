@@ -36,12 +36,8 @@ import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationDataSourceInfo
 import androidx.wear.complications.ComplicationDataSourceInfoRetriever
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
-import androidx.wear.complications.data.MonochromaticImage
-import androidx.wear.complications.data.PlainComplicationText
-import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.complications.toApiComplicationDataSourceInfo
 import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.utility.AsyncTraceEvent
@@ -545,27 +541,26 @@ public abstract class BaseEditorSession internal constructor(
             return null
         }
         // Fetch preview ComplicationData if possible.
-        dataSourceInfo.componentName?.let {
-            try {
+        if (dataSourceInfo.componentName == null) {
+            return dataSourceInfo.fallbackPreviewData
+        }
+        try {
+            val previewData =
                 complicationDataSourceInfoRetriever.retrievePreviewComplicationData(
-                    it,
+                    dataSourceInfo.componentName!!,
                     dataSourceInfo.type
                 )
-            } catch (e: Exception) {
-                // Something went wrong, so use fallback preview data.
-                makeFallbackPreviewData(dataSourceInfo)
+            // If the data source sends us ComplicationData of the wrong type then use fallback
+            // data.
+            if (previewData == null || previewData.type != dataSourceInfo.type) {
+                return dataSourceInfo.fallbackPreviewData
             }
-        } ?: makeFallbackPreviewData(dataSourceInfo)
+            return previewData
+        } catch (e: Exception) {
+            // Something went wrong, so use fallback preview data.
+            return dataSourceInfo.fallbackPreviewData
+        }
     }
-
-    private fun makeFallbackPreviewData(
-        dataSourceInfo: ComplicationDataSourceInfo
-    ) = ShortTextComplicationData.Builder(
-        PlainComplicationText.Builder(dataSourceInfo.name).build(),
-        ComplicationText.EMPTY
-    ).setMonochromaticImage(
-        MonochromaticImage.Builder(dataSourceInfo.icon).build()
-    ).build()
 
     protected fun fetchComplicationsData(fetchCoroutineScope: CoroutineScope): Job {
         val complicationDataSourceInfoRetriever =
