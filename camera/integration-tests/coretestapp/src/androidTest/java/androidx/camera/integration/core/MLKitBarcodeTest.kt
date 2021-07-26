@@ -23,22 +23,22 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth.assertWithMessage
 import com.google.mlkit.vision.barcode.Barcode.FORMAT_QR_CODE
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -130,41 +130,41 @@ class MLKitBarcodeTest(
         val latchForBarcodeDetect = CountDownLatch(2)
 
         imageAnalysis.setAnalyzer(
-            Dispatchers.Main.asExecutor(),
-            { imageProxy ->
-                barcodeScanner.process(
-                    InputImage.fromMediaImage(
-                        imageProxy.image!!,
-                        imageProxy.imageInfo.rotationDegrees
-                    )
+            CameraXExecutors.ioExecutor()
+        ) { imageProxy ->
+            Log.d(TAG, "Process image proxy: $imageProxy")
+            barcodeScanner.process(
+                InputImage.fromMediaImage(
+                    imageProxy.image!!,
+                    imageProxy.imageInfo.rotationDegrees
                 )
-                    .addOnSuccessListener { barcodes ->
-                        barcodes.forEach {
-                            if ("Hi, CamX!" == it.displayValue) {
-                                latchForBarcodeDetect.countDown()
-                            }
-                            Log.d(TAG, "barcode display value: {${it.displayValue}} ")
+            )
+                .addOnSuccessListener { barcodes ->
+                    barcodes.forEach {
+                        if ("Hi, CamX!" == it.displayValue) {
+                            latchForBarcodeDetect.countDown()
                         }
+                        Log.d(TAG, "barcode display value: {${it.displayValue}} ")
                     }
-                    .addOnFailureListener { exception ->
-                        Log.e(TAG, "processImage onFailure: $exception")
-                    }
-                    // When the image is from CameraX analysis use case, must call image.close() on
-                    // received images when finished using them. Otherwise, new images may not be
-                    // received or the camera may stall.
-                    .addOnCompleteListener {
-                        imageProxy.close()
-                    }
-            }
-        )
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "processImage onFailure: $exception")
+                }
+                // When the image is from CameraX analysis use case, must call image.close() on
+                // received images when finished using them. Otherwise, new images may not be
+                // received or the camera may stall.
+                .addOnCompleteListener {
+                    Log.d(TAG, "Close image proxy: $imageProxy")
+                    imageProxy.close()
+                }
+        }
 
         // Verify it is the CameraX lab test environment and can detect qr-code.
-        assertTrue(
+        assertWithMessage(
             "Fail to detect qrcode, resolution: $resolution, " +
                 "rearCameraE2E: ${isLoggable(true)}, " +
-                "frontCameraE2E: ${isLoggable(false)} ",
-            latchForBarcodeDetect.await(DETECT_TIMEOUT, TimeUnit.MILLISECONDS)
-        )
+                "frontCameraE2E: ${isLoggable(false)} "
+        ).that(latchForBarcodeDetect.await(DETECT_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
     }
 
     private fun initImageAnalysis(): ImageAnalysis {
