@@ -29,6 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.wear.compose.foundation.ArcPaddingValues
+import androidx.wear.compose.foundation.BasicCurvedText
 import androidx.wear.compose.foundation.CurvedRow
 
 @Sampled
@@ -50,6 +52,33 @@ fun SimpleCurvedRow() {
         )
         BasicText(
             "CurvedRow",
+            Modifier.background(Color.White).padding(2.dp),
+            TextStyle(
+                color = Color.Black,
+                fontSize = 16.sp,
+            )
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun CurvedAndNormalText() {
+    CurvedRow(modifier = Modifier.fillMaxSize()) {
+        BasicCurvedText(
+            "Curved Text",
+            fontSize = 16.sp,
+            color = Color.Black,
+            background = Color.White,
+            contentArcPadding = ArcPaddingValues(2.dp)
+        )
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .background(Color.Gray)
+        )
+        BasicText(
+            "Normal Text",
             Modifier.background(Color.White).padding(2.dp),
             TextStyle(
                 color = Color.Black,
