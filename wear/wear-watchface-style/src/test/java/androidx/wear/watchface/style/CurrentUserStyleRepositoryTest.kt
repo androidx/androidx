@@ -344,27 +344,46 @@ public class CurrentUserStyleRepositoryTest {
 
     @Test
     public fun userStyle_getAndSetDifferentOptionInstances() {
-        val setting = BooleanUserStyleSetting(
+        val option0 = ListUserStyleSetting.ListOption(
+            Option.Id("0"),
+            "option 0",
+            icon = null
+        )
+        val option1 = ListUserStyleSetting.ListOption(
+            Option.Id("1"),
+            "option 1",
+            icon = null
+        )
+        val option0Copy = ListUserStyleSetting.ListOption(
+            Option.Id("0"),
+            "option #0",
+            icon = null
+        )
+        val option1Copy = ListUserStyleSetting.ListOption(
+            Option.Id("1"),
+            "option #1",
+            icon = null
+        )
+        val setting = ListUserStyleSetting(
             UserStyleSetting.Id("setting"),
-            "setting", "setting description", null, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, true
+            "setting",
+            "setting description",
+            icon = null,
+            listOf(option0, option1),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
         )
 
-        val optionTrue = BooleanUserStyleSetting.BooleanOption(true)
-        val optionTrueCopy = BooleanUserStyleSetting.BooleanOption(true)
-        val optionFalse = BooleanUserStyleSetting.BooleanOption(false)
-        val optionFalseCopy = BooleanUserStyleSetting.BooleanOption(false)
-
-        val userStyle = UserStyle(mapOf(setting to optionTrue))
-        assertThat(userStyle.selectedOptions[setting]).isEqualTo(optionTrue)
-        assertThat(userStyle.selectedOptions[setting]).isEqualTo(optionTrueCopy)
+        val userStyle = UserStyle(mapOf(setting to option0))
+        assertThat(userStyle.selectedOptions[setting]).isEqualTo(option0)
+        assertThat(userStyle.selectedOptions[setting]).isEqualTo(option0Copy)
 
         val userStyleMap = userStyle.selectedOptions.toMutableMap()
-        userStyleMap[setting] = optionFalse
+        userStyleMap[setting] = option1
         val newUserStyle = UserStyle(userStyleMap)
 
-        assertThat(userStyle.selectedOptions[setting]).isEqualTo(optionTrue)
-        assertThat(newUserStyle.selectedOptions[setting]).isEqualTo(optionFalse)
-        assertThat(newUserStyle.selectedOptions[setting]).isEqualTo(optionFalseCopy)
+        assertThat(userStyle.selectedOptions[setting]).isEqualTo(option0)
+        assertThat(newUserStyle.selectedOptions[setting]).isEqualTo(option1)
+        assertThat(newUserStyle.selectedOptions[setting]).isEqualTo(option1Copy)
     }
 
     @Test
@@ -402,7 +421,7 @@ public class CurrentUserStyleRepositoryTest {
             true
         )
 
-        val optionTrue = BooleanUserStyleSetting.BooleanOption(true)
+        val optionTrue = BooleanUserStyleSetting.BooleanOption.TRUE
 
         val userStyle = UserStyle(mapOf(setting to optionTrue))
         assertThat(userStyle.selectedOptions[setting]).isEqualTo(optionTrue)
@@ -446,8 +465,8 @@ public class CurrentUserStyleRepositoryTest {
             true
         )
 
-        val optionTrue = BooleanUserStyleSetting.BooleanOption(true)
-        val optionFalse = BooleanUserStyleSetting.BooleanOption(false)
+        val optionTrue = BooleanUserStyleSetting.BooleanOption.TRUE
+        val optionFalse = BooleanUserStyleSetting.BooleanOption.FALSE
 
         val userStyle = UserStyle(mapOf(setting to optionTrue))
         assertThat(userStyle.selectedOptions[setting]).isEqualTo(optionTrue)
@@ -563,8 +582,8 @@ public class CurrentUserStyleRepositoryTest {
 
     @Test
     public fun optionIdToStringTest() {
-        assertThat(BooleanUserStyleSetting.BooleanOption(true).toString()).isEqualTo("true")
-        assertThat(BooleanUserStyleSetting.BooleanOption(false).toString()).isEqualTo("false")
+        assertThat(BooleanUserStyleSetting.BooleanOption.TRUE.toString()).isEqualTo("true")
+        assertThat(BooleanUserStyleSetting.BooleanOption.FALSE.toString()).isEqualTo("false")
         assertThat(gothicStyleOption.toString()).isEqualTo("gothic_style")
         assertThat(DoubleRangeUserStyleSetting.DoubleRangeOption(12.3).toString())
             .isEqualTo("12.3")

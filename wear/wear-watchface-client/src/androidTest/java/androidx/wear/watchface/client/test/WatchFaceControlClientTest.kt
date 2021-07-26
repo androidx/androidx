@@ -448,7 +448,7 @@ class WatchFaceControlClientTest {
                 UserStyleData(
                     mapOf(
                         "color_style_setting" to "green_style".encodeToByteArray(),
-                        "draw_hour_pips_style_setting" to BooleanOption(false).id.value,
+                        "draw_hour_pips_style_setting" to BooleanOption.FALSE.id.value,
                         "watch_hand_length_style_setting" to DoubleRangeOption(0.8).id.value
                     )
                 ),
@@ -674,7 +674,7 @@ class WatchFaceControlClientTest {
                 UserStyleData(
                     mapOf(
                         "color_style_setting" to "blue_style".encodeToByteArray(),
-                        "draw_hour_pips_style_setting" to BooleanOption(false).id.value,
+                        "draw_hour_pips_style_setting" to BooleanOption.FALSE.id.value,
                         "watch_hand_length_style_setting" to DoubleRangeOption(0.25).id.value
                     )
                 ),
@@ -875,7 +875,7 @@ class WatchFaceControlClientTest {
                     mapOf(
                         COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray(),
                         WATCH_HAND_LENGTH_STYLE_SETTING to DoubleRangeOption(0.25).id.value,
-                        DRAW_HOUR_PIPS_STYLE_SETTING to BooleanOption(false).id.value,
+                        DRAW_HOUR_PIPS_STYLE_SETTING to BooleanOption.FALSE.id.value,
                         COMPLICATIONS_STYLE_SETTING to NO_COMPLICATIONS.encodeToByteArray()
                     )
                 ),
