@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
@@ -109,28 +109,6 @@
             file="src/androidTest/java/androidx/core/content/FileProviderTest.java"
             line="466"
             column="27"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="            resolveInfo.providerInfo = new ProviderInfo();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/content/IntentCompatTest.java"
-            line="318"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="            resolveInfo.providerInfo.name = &quot;Name needed to keep toString() happy :)&quot;;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/content/IntentCompatTest.java"
-            line="319"
-            column="13"/>
     </issue>
 
     <issue
@@ -674,6 +652,28 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
+        errorLine1="            assertValueEquals(&quot;$keyPath/$key&quot;, b1[key], b2[key])"
+        errorLine2="                                               ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationTester.kt"
+            line="39"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
+        errorLine1="            assertValueEquals(&quot;$keyPath/$key&quot;, b1[key], b2[key])"
+        errorLine2="                                                        ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/NotificationTester.kt"
+            line="39"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 29 (current min is 28): `COLOR_DODGE`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR_DODGE, null);"
         errorLine2="                                                      ~~~~~~~~~~~">
@@ -1136,45 +1136,12 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one or more of: AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_TEXT, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED"
+        message="Must be one or more of: AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_TEXT, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED, but could be AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_TITLE, AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED, AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED"
         errorLine1="            return event.getContentChangeTypes();"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
             line="344"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_DISABLED, ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_WHITELISTED, ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_ENABLED"
-        errorLine1="            return cm.getRestrictBackgroundStatus();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/net/ConnectivityManagerCompat.java"
-            line="160"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: GnssStatusCompat.CONSTELLATION_UNKNOWN, GnssStatusCompat.CONSTELLATION_GPS, GnssStatusCompat.CONSTELLATION_SBAS, GnssStatusCompat.CONSTELLATION_GLONASS, GnssStatusCompat.CONSTELLATION_QZSS, GnssStatusCompat.CONSTELLATION_BEIDOU, GnssStatusCompat.CONSTELLATION_GALILEO, GnssStatusCompat.CONSTELLATION_IRNSS"
-        errorLine1="        return mWrapped.getConstellationType(satelliteIndex);"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/location/GnssStatusWrapper.java"
-            line="48"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: IconCompat.TYPE_UNKNOWN, IconCompat.TYPE_BITMAP, IconCompat.TYPE_RESOURCE, IconCompat.TYPE_DATA, IconCompat.TYPE_URI, IconCompat.TYPE_ADAPTIVE_BITMAP, IconCompat.TYPE_URI_ADAPTIVE_BITMAP"
-        errorLine1="            return icon.getType();"
-        errorLine2="                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="1101"
             column="20"/>
     </issue>
 
@@ -1209,17 +1176,6 @@
             file="src/main/java/androidx/core/app/NotificationCompat.java"
             line="7276"
             column="35"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: NotificationCompat.GROUP_ALERT_ALL, NotificationCompat.GROUP_ALERT_SUMMARY, NotificationCompat.GROUP_ALERT_CHILDREN"
-        errorLine1="            return notification.getGroupAlertBehavior();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7637"
-            column="20"/>
     </issue>
 
     <issue
@@ -1341,17 +1297,6 @@
             file="src/main/java/androidx/core/view/WindowInsetsControllerCompat.java"
             line="275"
             column="16"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH, WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE, WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE"
-        errorLine1="            return mInsetsController.getSystemBarsBehavior();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsControllerCompat.java"
-            line="723"
-            column="20"/>
     </issue>
 
     <issue
@@ -5409,7 +5354,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java"
-            line="148"
+            line="157"
             column="36"/>
     </issue>
 
@@ -5431,7 +5376,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/IntentCompat.java"
-            line="183"
+            line="118"
             column="27"/>
     </issue>
 
