@@ -1110,10 +1110,13 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     /**
-     * Check if the content in this layout cannot fully fit side by side and therefore
-     * the content pane can be slid back and forth.
+     * Check if both the list and detail view panes in this layout can fully fit side-by-side. If
+     * not, the content pane has the capability to slide back and forth. Note that the lock mode
+     * is not taken into account in this method. This method is typically used to determine
+     * whether the layout is showing two-pane or single-pane.
      *
-     * @return true if content in this layout can be slid open and closed
+     * @return true if both panes cannot fit side-by-side, and detail pane in this layout has
+     * the capability to slide back and forth.
      */
     public boolean isSlideable() {
         return mCanSlide;
@@ -1631,8 +1634,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             return true;
         }
     }
-
-
 
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
         private static final int[] ATTRS = new int[]{
