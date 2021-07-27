@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
+    kotlinPlugin("androidx.compose.compiler:compiler:1.0.1")
     implementation(libs.kotlinStdlib)
 
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
