@@ -87,7 +87,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+                hasErrorContaining(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
             }
         }
     }
@@ -117,8 +117,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             classpathFiles = libraryClasspath
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
-                hasRawOutputContaining(
+                hasError(
                     ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD +
                         " - id in test.library.MissingGetterEntity"
                 )
@@ -137,7 +136,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+                hasErrorContaining(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+                    .onLineContaining("int id")
             }
         }
     }
@@ -153,7 +153,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
+                hasErrorContaining(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
             }
         }
     }
@@ -246,7 +246,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             annotation
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.INVALID_INDEX_ORDERS_SIZE)
+                hasErrorContaining(ProcessorErrors.INVALID_INDEX_ORDERS_SIZE)
             }
         }
     }
@@ -283,7 +283,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 `is`(invocation.processingEnv.requireType(TypeName.INT).typeName)
             )
             invocation.assertCompilationResult {
-                hasWarning(
+                hasWarningContaining(
                     ProcessorErrors.mismatchedSetter(
                         fieldName = "id",
                         ownerType = ClassName.bestGuess("foo.bar.MyEntity"),
@@ -325,7 +325,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
+                hasErrorContaining(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
             }
         }
     }
@@ -492,7 +492,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             hashMapOf(Pair("tableName", "\" \""))
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
+                hasErrorContaining(ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
             }
         }
     }
@@ -504,7 +504,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.MISSING_PRIMARY_KEY)
+                hasErrorContaining(ProcessorErrors.MISSING_PRIMARY_KEY)
             }
         }
     }
@@ -518,7 +518,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
+                hasErrorContaining(ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
+                    .onLineContaining("myDate")
             }
         }
     }
@@ -540,7 +541,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id")))
             invocation.assertCompilationResult {
-                hasWarning(
+                hasWarningContaining(
                     ProcessorErrors.embeddedPrimaryKeyIsDropped(
                         "foo.bar.MyEntity", "x"
                     )
@@ -814,7 +815,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             annotation
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY)
+                hasErrorContaining(ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY)
             }
         }
     }
@@ -833,7 +834,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             annotation
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.indexColumnDoesNotExist("bar", listOf("id, foo"))
                 )
             }
@@ -855,7 +856,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             annotation
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.duplicateIndexInEntity("index_MyEntity_foo")
                 )
             }
@@ -887,7 +888,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
             invocation.assertCompilationResult {
-                hasWarning(
+                hasWarningContaining(
                     ProcessorErrors.droppedSuperClassFieldIndex(
                         fieldName = "name",
                         childEntity = "foo.bar.MyEntity",
@@ -1102,7 +1103,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
             invocation.assertCompilationResult {
-                hasWarning(
+                hasWarningContaining(
                     ProcessorErrors.droppedSuperClassIndex(
                         childEntity = "foo.bar.MyEntity",
                         superEntity = "foo.bar.Base"
@@ -1136,7 +1137,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
             invocation.assertCompilationResult {
-                hasWarning(
+                hasWarningContaining(
                     ProcessorErrors.droppedSuperClassIndex(
                         childEntity = "foo.bar.MyEntity",
                         superEntity = "foo.bar.Base"
@@ -1166,7 +1167,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
             invocation.assertCompilationResult {
-                hasWarning(
+                hasWarningContaining(
                     ProcessorErrors.droppedEmbeddedIndex(
                         entityName = "foo.bar.MyEntity.Foo",
                         fieldPath = "foo",
@@ -1194,7 +1195,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION)
+                hasErrorContaining(ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION)
             }
         }
     }
@@ -1215,7 +1216,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
             invocation.assertCompilationResult {
-                hasWarning(
+                hasWarningContaining(
                     ProcessorErrors.droppedEmbeddedFieldIndex("foo > a", "foo.bar.MyEntity")
                 )
             }
@@ -1262,7 +1263,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = mapOf("primaryKeys" to "\"id\"")
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.multiplePrimaryKeyAnnotations(
                         listOf("PrimaryKey[id]", "PrimaryKey[foo]")
                     )
@@ -1280,7 +1281,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = mapOf("primaryKeys" to "\"foo\"")
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.primaryKeyColumnDoesNotExist("foo", listOf("id"))
                 )
             }
@@ -1299,7 +1300,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.isEmpty(), `is`(true))
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.multiplePrimaryKeyAnnotations(
                         listOf("PrimaryKey[x]", "PrimaryKey[y]")
                     )
@@ -1390,7 +1391,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
             assertThat(entity.primaryKey.autoGenerateId, `is`(false))
             invocation.assertCompilationResult {
-                hasNote("PrimaryKey[baseId] is overridden by PrimaryKey[id]")
+                hasNoteContaining("PrimaryKey[baseId] is overridden by PrimaryKey[id]")
             }
         }
     }
@@ -1420,7 +1421,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.primaryKey.fields.size, `is`(1))
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
             invocation.assertCompilationResult {
-                hasNote("PrimaryKey[baseId] is overridden by PrimaryKey[id]")
+                hasNoteContaining("PrimaryKey[baseId] is overridden by PrimaryKey[id]")
             }
         }
     }
@@ -1451,7 +1452,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
             assertThat(entity.primaryKey.autoGenerateId, `is`(false))
             invocation.assertCompilationResult {
-                hasNote("PrimaryKey[baseId] is overridden by PrimaryKey[id]")
+                hasNoteContaining("PrimaryKey[baseId] is overridden by PrimaryKey[id]")
             }
         }
     }
@@ -1501,7 +1502,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
                 assertThat(entity.primaryKey.autoGenerateId, `is`(true))
                 invocation.assertCompilationResult {
-                    hasError(ProcessorErrors.AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT)
+                    hasErrorContaining(ProcessorErrors.AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT)
                 }
             }
         }
@@ -1602,7 +1603,9 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.primaryKey.columnNames, `is`(listOf("bar_a", "bar_b")))
             invocation.assertCompilationResult {
-                hasNote("PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]")
+                hasNoteContaining(
+                    "PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]"
+                )
             }
         }
     }
@@ -1641,7 +1644,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.primaryKey.columnNames, `is`(listOf("id")))
             invocation.assertCompilationResult {
-                hasNote("PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
+                hasNoteContaining("PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
             }
         }
     }
@@ -1671,7 +1674,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.primaryKey.fields.size, `is`(1))
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.primaryKeyNull("id"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("id"))
             }
         }
     }
@@ -1687,8 +1690,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.primaryKeyNull("id"))
-                hasError(ProcessorErrors.primaryKeyNull("anotherId"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("id"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("anotherId"))
             }
         }
     }
@@ -1705,7 +1708,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.primaryKeyNull("anotherId")
                 )
             }
@@ -1722,7 +1725,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = mapOf("primaryKeys" to "{\"id\", \"foo\"}")
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.primaryKeyNull("foo"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
             }
         }
     }
@@ -1758,7 +1761,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.primaryKeyNull("foo"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
             }
         }
     }
@@ -1780,9 +1783,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
-                hasError(ProcessorErrors.primaryKeyNull("foo > b"))
-                hasError(ProcessorErrors.primaryKeyNull("foo"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                    .onLineContaining("String a")
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
+                    .onLineContaining("String b")
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                    .onLineContaining("Foo foo")
                 hasErrorCount(3)
             }
         }
@@ -1810,10 +1816,10 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
-                hasError(ProcessorErrors.primaryKeyNull("foo > b"))
-                hasError(ProcessorErrors.primaryKeyNull("foo"))
-                hasError(ProcessorErrors.primaryKeyNull("foo > a > bb"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > a > bb"))
                 hasErrorCount(4)
             }
         }
@@ -1850,9 +1856,9 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             sources = listOf(parent)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.primaryKeyNull("foo"))
-                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
-                hasError(ProcessorErrors.primaryKeyNull("foo > b"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
                 hasErrorCount(3)
             }
         }
@@ -1889,10 +1895,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             sources = listOf(parent)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.primaryKeyNull("foo"))
-                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
-                hasError(ProcessorErrors.primaryKeyNull("foo > b"))
-                hasNote("PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]")
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
+                hasNoteContaining(
+                    "PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]"
+                )
                 hasErrorCount(3)
             }
         }
@@ -1930,10 +1938,10 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             sources = listOf(parent)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.primaryKeyNull("foo"))
-                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
-                hasError(ProcessorErrors.primaryKeyNull("foo > b"))
-                hasNote("PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
+                hasNoteContaining("PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
                 hasErrorCount(3)
             }
         }
@@ -1970,7 +1978,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             sources = listOf(parent)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasNote("PrimaryKey[foo > a] is overridden by PrimaryKey[id]")
+                hasNoteContaining("PrimaryKey[foo > a] is overridden by PrimaryKey[id]")
             }
         }
     }
@@ -2006,9 +2014,9 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             sources = listOf(parent)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.primaryKeyNull("foo"))
-                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
-                hasNote("PrimaryKey[foo > a] is overridden by PrimaryKey[id]")
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                hasErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasNoteContaining("PrimaryKey[foo > a] is overridden by PrimaryKey[id]")
                 hasErrorCount(2)
             }
         }
@@ -2026,7 +2034,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(RELATION_IN_ENTITY)
+                hasErrorContaining(RELATION_IN_ENTITY)
             }
         }
     }
@@ -2051,7 +2059,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.INVALID_FOREIGN_KEY_ACTION)
+                hasErrorContaining(ProcessorErrors.INVALID_FOREIGN_KEY_ACTION)
             }
         }
     }
@@ -2075,8 +2083,17 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                compilationDidFail()
-                hasRawOutputContaining("cannot find symbol")
+                // KSP runs processors even when java code is not valid hence we'll get the
+                // error from room. For JavaP and Kapt, they don't run the processor when
+                // the java code has an error
+                if (invocation.isKsp) {
+                    hasErrorContaining(
+                        ProcessorErrors.foreignKeyNotAnEntity("<Error>")
+                    ).onLine(11)
+                } else {
+                    hasErrorContaining("cannot find symbol")
+                        .onLine(7)
+                }
             }
         }
     }
@@ -2100,7 +2117,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = annotation, sources = listOf(COMMON.NOT_AN_ENTITY)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.foreignKeyNotAnEntity(
                         COMMON.NOT_AN_ENTITY_TYPE_NAME.toString()
                     )
@@ -2128,7 +2145,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.foreignKeyChildColumnDoesNotExist(
                         "namex", listOf("id", "name")
                     )
@@ -2156,7 +2173,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.foreignKeyColumnNumberMismatch(
                         listOf("name", "id"), listOf("lastName")
                     )
@@ -2184,7 +2201,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST)
+                hasErrorContaining(ProcessorErrors.FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST)
             }
         }
     }
@@ -2208,7 +2225,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST)
+                hasErrorContaining(ProcessorErrors.FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST)
             }
         }
     }
@@ -2356,7 +2373,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.indices, `is`(emptyList()))
             invocation.assertCompilationResult {
-                hasWarning(ProcessorErrors.foreignKeyMissingIndexInChildColumn("name"))
+                hasWarningContaining(ProcessorErrors.foreignKeyMissingIndexInChildColumn("name"))
             }
         }
     }
@@ -2382,7 +2399,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, invocation ->
             assertThat(entity.indices, `is`(emptyList()))
             invocation.assertCompilationResult {
-                hasWarning(
+                hasWarningContaining(
                     ProcessorErrors.foreignKeyMissingIndexInChildColumns(
                         listOf(
                             "lName",
@@ -2431,7 +2448,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyEntity -> foo.bar.MyEntity"
                     )
@@ -2456,7 +2473,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"
                     )
@@ -2479,7 +2496,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"
                     )
@@ -2503,7 +2520,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"
                     )
@@ -2539,7 +2556,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.INVALID_TABLE_NAME)
+                hasErrorContaining(ProcessorErrors.INVALID_TABLE_NAME)
             }
         }
     }
@@ -2556,7 +2573,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.INVALID_COLUMN_NAME)
+                hasErrorContaining(ProcessorErrors.INVALID_COLUMN_NAME)
             }
         }
     }

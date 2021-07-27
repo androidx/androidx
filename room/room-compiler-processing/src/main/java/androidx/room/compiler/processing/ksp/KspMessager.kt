@@ -42,15 +42,16 @@ internal class KspMessager(
 
         // In Javac, the Messager requires all preceding parameters to report an error.
         // In KSP, the KspLogger only needs the last so ignore the preceding parameters.
-        val ksNode = if (annotationValue != null) {
-            (annotationValue as KspAnnotationValue).valueArgument
-        } else if (annotation != null) {
-            (annotation as KspAnnotation).ksAnnotated
-        } else {
-            (element as KspElement).declaration
-        }
-
-        if (ksNode.location == NonExistLocation) {
+        val nodes = sequence {
+            yield((annotationValue as? KspAnnotationValue)?.valueArgument)
+            yield((annotation as? KspAnnotation)?.ksAnnotated)
+            yield((element as? KspElement)?.declaration)
+        }.filterNotNull()
+        val ksNode = nodes.firstOrNull {
+            // pick first node with a location, if possible
+            it.location != NonExistLocation
+        } ?: nodes.firstOrNull() // fallback to the first non-null argument
+        if (ksNode == null || ksNode.location == NonExistLocation) {
             internalPrintMessage(kind, "$msg - ${element.fallbackLocationText}", ksNode)
         } else {
             internalPrintMessage(kind, msg, ksNode)

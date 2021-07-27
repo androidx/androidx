@@ -32,7 +32,7 @@ internal interface CompilationTestRunner {
 
     fun canRun(params: TestCompilationParameters): Boolean
 
-    fun compile(params: TestCompilationParameters): CompilationResult
+    fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult
 }
 
 @ExperimentalProcessingApi

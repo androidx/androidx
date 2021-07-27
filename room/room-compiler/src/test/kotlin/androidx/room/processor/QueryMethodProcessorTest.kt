@@ -1367,7 +1367,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorCount(2)
-                hasError(DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP)
+                hasErrorContaining(DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP)
                 hasErrorContaining("Not sure how to convert a Cursor to this method's return type")
             }
         }

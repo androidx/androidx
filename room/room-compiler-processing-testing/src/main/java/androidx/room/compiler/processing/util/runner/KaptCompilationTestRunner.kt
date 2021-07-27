@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,40 +19,36 @@ package androidx.room.compiler.processing.util.runner
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.util.CompilationResult
-import androidx.room.compiler.processing.util.KotlinCompilationUtil
-import androidx.room.compiler.processing.util.KotlinCompileTestingCompilationResult
-import com.tschuchort.compiletesting.KotlinCompilation
-import java.io.ByteArrayOutputStream
+import androidx.room.compiler.processing.util.KotlinCompilationResult
+import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
+import androidx.room.compiler.processing.util.compiler.compile
+import androidx.room.compiler.processing.util.compiler.withAtLeastOneKotlinSource
+import java.io.File
 
 @ExperimentalProcessingApi
 internal object KaptCompilationTestRunner : CompilationTestRunner {
-
     override val name: String = "kapt"
 
     override fun canRun(params: TestCompilationParameters): Boolean {
         return true
     }
 
-    override fun compile(params: TestCompilationParameters): CompilationResult {
+    override fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult {
         val syntheticJavacProcessor = SyntheticJavacProcessor(params.handlers)
-        val outputStream = ByteArrayOutputStream()
-        val compilation = KotlinCompilationUtil.prepareCompilation(
+        val args = TestCompilationArguments(
             sources = params.sources,
-            outputStream = outputStream,
-            classpaths = params.classpath
+            classpath = params.classpath,
+            kaptProcessors = listOf(syntheticJavacProcessor),
+            processorOptions = params.options
+        ).withAtLeastOneKotlinSource()
+        val result = compile(
+            workingDir = workingDir,
+            arguments = args
         )
-        compilation.kaptArgs.putAll(params.options)
-        compilation.annotationProcessors = listOf(syntheticJavacProcessor)
-        val result = compilation.compile()
-        return KotlinCompileTestingCompilationResult(
+        return KotlinCompilationResult(
             testRunner = this,
-            delegate = result,
             processor = syntheticJavacProcessor,
-            successfulCompilation = result.exitCode == KotlinCompilation.ExitCode.OK,
-            outputSourceDirs = listOf(
-                compilation.kaptSourceDir, compilation.kaptKotlinGeneratedDir
-            ),
-            rawOutput = outputStream.toString(Charsets.UTF_8),
+            delegate = result
         )
     }
 }
