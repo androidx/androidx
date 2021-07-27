@@ -287,10 +287,10 @@ public class CarContext extends ContextWrapper {
      * {@link Session} is at least {@link Lifecycle.State#CREATED}</b>.
      *
      * @param intent the {@link Intent} to send to the target application
-     * @throws SecurityException         if the app attempts to start a different app explicitly or
-     *                                   does not have permissions for the requested action
-     * @throws HostException             if the remote call fails
-     * @throws NullPointerException      if {@code intent} is {@code null}
+     * @throws SecurityException    if the app attempts to start a different app explicitly or
+     *                              does not have permissions for the requested action
+     * @throws HostException        if the remote call fails
+     * @throws NullPointerException if {@code intent} is {@code null}
      */
     public void startCarApp(@NonNull Intent intent) {
         requireNonNull(intent);
@@ -498,6 +498,31 @@ public class CarContext extends ContextWrapper {
      * Requests the provided {@code permissions} from the user, calling the provided {@code
      * listener} in the main thread.
      *
+     * <p>The app can define a branded background to the permission request through the
+     * <code>carPermissionActivityLayout</code> theme attribute, by declaring it in a theme and
+     * referencing the theme from the <code>androidx.car.app.theme</code> metadata.
+     *
+     * <p>In <code>AndroidManifest.xml</code>, under the <code>application</code> element
+     * corresponding to the car app:
+     *
+     * <pre>{@code
+     * <meta-data
+     *   android:name="androidx.car.app.theme"
+     *   android:resource="@style/CarAppTheme"/>
+     * }</pre>
+     *
+     * The <code>CarAppTheme</code> style is defined as any other themes in a resource file:
+     *
+     * <pre>{@code
+     * <resources>
+     *   <style name="CarAppTheme">
+     *     <item name="carPermissionActivityLayout">@layout/app_branded_background</item>
+     *   </style>
+     * </resources>
+     * }</pre>
+     *
+     * <p>The default behavior is to have no background behind the permission request.
+     *
      * @see CarContext#requestPermissions(List, Executor, OnRequestPermissionsListener)=
      */
     public void requestPermissions(@NonNull List<String> permissions,
@@ -546,7 +571,8 @@ public class CarContext extends ContextWrapper {
         requireNonNull(permissions);
         requireNonNull(listener);
 
-        ComponentName appActivityComponent = new ComponentName(this, CarAppInternalActivity.class);
+        ComponentName appActivityComponent = new ComponentName(this,
+                CarAppPermissionActivity.class);
 
         Lifecycle lifecycle = mLifecycle;
         Bundle extras = new Bundle(2);
@@ -667,7 +693,8 @@ public class CarContext extends ContextWrapper {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
+    @RestrictTo(LIBRARY_GROUP)
+    // Restrict to testing library
     ManagerCache getManagers() {
         return mManagers;
     }
