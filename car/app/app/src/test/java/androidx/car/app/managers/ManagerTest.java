@@ -30,7 +30,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class ManagerTest {
-    private static class MockManager implements Manager {
+    public static class MockManager implements Manager {
         @Nullable
         public final Integer mFoo;
         @Nullable
@@ -38,14 +38,14 @@ public class ManagerTest {
 
         /** Accessed via reflection */
         @SuppressWarnings("unused")
-        MockManager() {
+        public MockManager() {
             mFoo = null;
             mBar = null;
         }
 
         /** Accessed via reflection */
         @SuppressWarnings("unused")
-        MockManager(@NonNull Integer foo, @NonNull String bar) {
+        public MockManager(@NonNull Integer foo, @NonNull String bar) {
             mFoo = foo;
             mBar = bar;
         }

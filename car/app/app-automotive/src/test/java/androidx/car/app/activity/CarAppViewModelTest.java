@@ -33,11 +33,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Tests for {@link CarAppViewModel} */
 @RunWith(RobolectricTestRunner.class)
+@Config(instrumentedPackages = { "androidx.car.app.activity" })
 @DoNotInstrument
 public class CarAppViewModelTest {
     private static final ComponentName TEST_COMPONENT_NAME = new ComponentName(
