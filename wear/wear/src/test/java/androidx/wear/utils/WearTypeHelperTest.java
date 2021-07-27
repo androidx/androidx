@@ -51,17 +51,17 @@ public class WearTypeHelperTest {
 
     @Test
     @Config(sdk = 28)
-    public void test_isChinaDevice() {
+    public void test_isChinaBuild() {
         setSystemFeatureChina(true);
 
-        assertTrue(WearTypeHelper.isChinaDevice(mContext));
+        assertTrue(WearTypeHelper.isChinaBuild(mContext));
     }
 
     @Test
     @Config(sdk = 28)
-    public void test_isROWDevice() {
+    public void test_isROWBuild() {
         setSystemFeatureChina(false);
 
-        assertFalse(WearTypeHelper.isChinaDevice(mContext));
+        assertFalse(WearTypeHelper.isChinaBuild(mContext));
     }
 }

@@ -29,15 +29,16 @@ public final class WearTypeHelper {
     static final String CHINA_SYSTEM_FEATURE = "cn.google";
 
     /**
-     * Returns whether the given device is China device.
+     * Returns whether the given device is running a China build.
      *
      * This can be used together with
      * {@code androidx.wear.phone.interactions.PhoneTypeHelper} to
      * decide what Uri should be used when opening Play Store on connected phone.
      *
-     * @return True if it is China device and false if it is rest of the world device.
+     * @return True if device is running a China build and false if it is running the rest of the
+     * world build.
      */
-    public static boolean isChinaDevice(@NonNull Context context) {
+    public static boolean isChinaBuild(@NonNull Context context) {
         return context.getPackageManager().hasSystemFeature(CHINA_SYSTEM_FEATURE);
     }
 

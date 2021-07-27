@@ -148,7 +148,7 @@ public class OAuthRequest internal constructor(
                 "redirect_uri",
                 Uri.withAppendedPath(
                     if (redirectUrl == null) {
-                        if (WearTypeHelper.isChinaDevice(context))
+                        if (WearTypeHelper.isChinaBuild(context))
                             Uri.parse(WEAR_REDIRECT_URL_PREFIX_CN)
                         else
                             Uri.parse(WEAR_REDIRECT_URL_PREFIX)
