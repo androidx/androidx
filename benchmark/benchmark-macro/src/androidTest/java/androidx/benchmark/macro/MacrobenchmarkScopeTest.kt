@@ -44,31 +44,31 @@ public class MacrobenchmarkScopeTest {
         // since error messages from e.g. startActivityAndWait may be less clear
         try {
             val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
-            pm.getApplicationInfo(TARGET_PACKAGE_NAME, 0)
+            pm.getApplicationInfo(Packages.TARGET, 0)
         } catch (notFoundException: PackageManager.NameNotFoundException) {
             throw IllegalStateException(
-                "Unable to find target $TARGET_PACKAGE_NAME, is it installed?"
+                "Unable to find target ${Packages.TARGET}, is it installed?"
             )
         }
     }
 
     @Test
     public fun killTest() {
-        val scope = MacrobenchmarkScope(TARGET_PACKAGE_NAME, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         scope.pressHome()
         scope.startActivityAndWait()
-        assertTrue(isProcessAlive(TARGET_PACKAGE_NAME))
+        assertTrue(isProcessAlive(Packages.TARGET))
         scope.killProcess()
-        assertFalse(isProcessAlive(TARGET_PACKAGE_NAME))
+        assertFalse(isProcessAlive(Packages.TARGET))
     }
 
     @Test
     public fun compile_speedProfile() {
-        val scope = MacrobenchmarkScope(TARGET_PACKAGE_NAME, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         val iterations = 1
         var executions = 0
         val compilation = CompilationMode.SpeedProfile(warmupIterations = iterations)
-        compilation.compile(TARGET_PACKAGE_NAME) {
+        compilation.compile(Packages.TARGET) {
             executions += 1
             scope.pressHome()
             scope.startActivityAndWait()
@@ -79,19 +79,19 @@ public class MacrobenchmarkScopeTest {
     @Test
     public fun compile_speed() {
         val compilation = CompilationMode.Speed
-        compilation.compile(TARGET_PACKAGE_NAME) {
+        compilation.compile(Packages.TARGET) {
             fail("Should never be called for $compilation")
         }
     }
 
     @Test
     public fun startActivityAndWait_activityNotExported() {
-        val scope = MacrobenchmarkScope(TARGET_PACKAGE_NAME, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         scope.pressHome()
 
         val intent = Intent()
-        intent.setPackage(TARGET_PACKAGE_NAME)
-        intent.action = "$TARGET_PACKAGE_NAME.NOT_EXPORTED_ACTIVITY"
+        intent.setPackage(Packages.TARGET)
+        intent.action = "${Packages.TARGET}.NOT_EXPORTED_ACTIVITY"
 
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val prop = device.executeShellCommand("getprop service.adb.root").trim()
@@ -113,12 +113,12 @@ public class MacrobenchmarkScopeTest {
 
     @Test
     public fun startActivityAndWait_invalidActivity() {
-        val scope = MacrobenchmarkScope(TARGET_PACKAGE_NAME, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         scope.pressHome()
 
         val intent = Intent()
         intent.setPackage("this.is.not.a.real.package")
-        intent.action = "$TARGET_PACKAGE_NAME.NOT_EXPORTED_ACTIVITY"
+        intent.action = "${Packages.TARGET}.NOT_EXPORTED_ACTIVITY"
 
         // should throw, unable to resolve Intent
         val exceptionMessage = assertFailsWith<IllegalStateException> {
@@ -130,7 +130,10 @@ public class MacrobenchmarkScopeTest {
 
     @Test
     public fun startActivityAndWait_sameActivity() {
-        val scope = MacrobenchmarkScope(LOCAL_PACKAGE_NAME, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
+            launchWithClearTask = true
+        )
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         // Launch first activity, and validate it is displayed
@@ -159,14 +162,5 @@ public class MacrobenchmarkScopeTest {
 
     private fun isProcessAlive(packageName: String): Boolean {
         return processes().any { it.contains(packageName) }
-    }
-
-    public companion object {
-        // Separate target app. Use this app/package if killing/compiling target process.
-        private const val TARGET_PACKAGE_NAME =
-            "androidx.benchmark.integration.macrobenchmark.target"
-
-        // This test app. Use this app/package if not killing/compiling target.
-        private const val LOCAL_PACKAGE_NAME = "androidx.benchmark.macro.test"
     }
 }
