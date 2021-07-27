@@ -3,7 +3,7 @@
     package="androidx.profileinstaller.integration.testapp">
 
     <application android:label="profileinstaller test app">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

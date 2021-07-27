@@ -19,6 +19,7 @@
     <application>
         <activity
             android:name=".SplashScreenTestActivity"
+            android:exported="true"
             android:theme="@style/Theme.Test.Starting">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -28,6 +29,7 @@
 
         <activity
             android:name=".SplashScreenAppCompatTestActivity"
+            android:exported="true"
             android:theme="@style/Theme.Test.Starting.AppCompat">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />

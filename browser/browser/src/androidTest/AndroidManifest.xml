@@ -15,59 +15,39 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.customtabs.test">
+    package="android.support.customtabs.test">
 
     <application>
-        <activity android:name="androidx.browser.customtabs.TestActivity"
-                android:enabled="false">
+        <activity
+            android:name="androidx.browser.customtabs.TestActivity"
+            android:enabled="false"
+            android:exported="true">
             <!-- A browsable intent filter is required for the TrustedWebActivityService. -->
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="https"
-                      android:host="www.example.com"
-                      android:pathPrefix="/notifications"/>
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="www.example.com"
+                    android:pathPrefix="/notifications"
+                    android:scheme="https" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <service android:name="androidx.browser.customtabs.PostMessageService"
-                 android:enabled="false"/>
-
-        <service android:name="androidx.browser.customtabs.TestCustomTabsService"
-                 android:enabled="false">
-            <intent-filter>
-                <category android:name="androidx.browser.trusted.category.TrustedWebActivities" />
-            </intent-filter>
-        </service>
-
-        <service android:name="androidx.browser.customtabs.TestCustomTabsServiceSupportsTwas"
-                 android:enabled="false">
-            <intent-filter>
-                <action android:name="android.support.customtabs.action.CustomTabsService" />
-                <category android:name="androidx.browser.trusted.category.TrustedWebActivities" />
-                <category android:name="androidx.browser.trusted.category.TrustedWebActivitySplashScreensV1" />
-            </intent-filter>
-        </service>
-
-        <service android:name="androidx.browser.customtabs.TestCustomTabsServiceNoSplashScreens"
-                 android:enabled="false">
-            <intent-filter>
-                <action android:name="android.support.customtabs.action.CustomTabsService" />
-                <category android:name="androidx.browser.trusted.category.TrustedWebActivities" />
-            </intent-filter>
-        </service>
-
-        <activity android:name="androidx.browser.trusted.TestBrowser"
-                  android:theme="@style/Theme.AppCompat.Light"
-                  android:exported="true"
-                  android:enabled="false">
+        <activity
+            android:name="androidx.browser.trusted.TestBrowser"
+            android:enabled="false"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -76,36 +56,77 @@
             </intent-filter>
         </activity>
 
-        <service android:name="androidx.browser.trusted.TestTrustedWebActivityService"
-                 android:enabled="false">
-            <intent-filter>
-                <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </service>
+        <activity
+            android:name="androidx.browser.trusted.LauncherActivity"
+            android:enabled="false"
+            android:exported="true"
+            android:label="Test Launcher Activity"
+            android:theme="@style/Theme.AppCompat.Light">
 
-        <activity android:name="androidx.browser.trusted.LauncherActivity"
-                  android:label="Test Launcher Activity"
-                  android:theme="@style/Theme.AppCompat.Light"
-                  android:enabled="false">
-
-            <meta-data android:name="android.support.customtabs.trusted.DEFAULT_URL"
-                       android:value="https://www.test.com/default_url/" />
+            <meta-data
+                android:name="android.support.customtabs.trusted.DEFAULT_URL"
+                android:value="https://www.test.com/default_url/" />
 
             <meta-data
                 android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"
                 android:resource="@color/status_bar_color" />
         </activity>
 
-        <!-- For TWA splash screens -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="android.support.customtabs.trusted.test_fileprovider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths" />
         </provider>
+
+        <service
+            android:name="androidx.browser.customtabs.TestCustomTabsServiceNoSplashScreens"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.support.customtabs.action.CustomTabsService" />
+                <category android:name="androidx.browser.trusted.category.TrustedWebActivities" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="androidx.browser.customtabs.PostMessageService"
+            android:enabled="false"
+            android:exported="true" />
+
+        <service
+            android:name="androidx.browser.trusted.TestTrustedWebActivityService"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="androidx.browser.customtabs.TestCustomTabsService"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <category android:name="androidx.browser.trusted.category.TrustedWebActivities" />
+            </intent-filter>
+        </service>
+
+        <!-- For TWA splash screens -->
+        <service
+            android:name="androidx.browser.customtabs.TestCustomTabsServiceSupportsTwas"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.support.customtabs.action.CustomTabsService" />
+
+                <category android:name="androidx.browser.trusted.category.TrustedWebActivities" />
+                <category android:name="androidx.browser.trusted.category.TrustedWebActivitySplashScreensV1" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

@@ -96,6 +96,7 @@ class ImageViewUtils {
         }
     }
 
+    @SuppressLint("SoonBlockedPrivateApi") // only called for API <21
     private static void fetchDrawMatrixField() {
         if (!sDrawMatrixFieldFetched) {
             try {

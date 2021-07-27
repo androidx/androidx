@@ -21,121 +21,150 @@
      to come from a domain that you own or have control over. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.support.transition">
-    <application android:label="@string/activity_sample_code"
-            android:supportsRtl="true"
-            android:icon="@drawable/app_sample_code"
-            android:theme="@style/Theme.Transition">
 
-        <activity android:name=".SupportTransitionDemos">
+    <application
+        android:icon="@drawable/app_sample_code"
+        android:label="@string/activity_sample_code"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Transition">
+
+        <activity
+            android:name=".SupportTransitionDemos"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.SceneUsage"
-                  android:label="@string/scene"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.SceneUsage"
+            android:exported="true"
+            android:label="@string/scene"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.CustomUsage"
-                  android:label="@string/custom"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.CustomUsage"
+            android:exported="true"
+            android:label="@string/custom"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.BeginDelayedUsage"
-                  android:label="@string/beginDelayed"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.BeginDelayedUsage"
+            android:exported="true"
+            android:label="@string/beginDelayed"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.ArcMotionUsage"
-                  android:label="@string/arcMotion"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.ArcMotionUsage"
+            android:exported="true"
+            android:label="@string/arcMotion"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.ExplodeUsage"
-                  android:label="@string/explode"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.ExplodeUsage"
+            android:exported="true"
+            android:label="@string/explode"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.ChangeClipBoundsUsage"
-                  android:label="@string/clipBounds"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.ChangeClipBoundsUsage"
+            android:exported="true"
+            android:label="@string/clipBounds"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.ChangeTransformUsage"
-                  android:label="@string/changeTransform"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.ChangeTransformUsage"
+            android:exported="true"
+            android:label="@string/changeTransform"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.ChangeImageTransformUsage"
-                  android:label="@string/changeImageTransform"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.ChangeImageTransformUsage"
+            android:exported="true"
+            android:label="@string/changeImageTransform"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.ReparentImageUsage"
-                  android:label="@string/reparentImage"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.ReparentImageUsage"
+            android:exported="true"
+            android:label="@string/reparentImage"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.FragmentTransitionUsage"
-                  android:label="@string/fragmentTransition"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.FragmentTransitionUsage"
+            android:exported="true"
+            android:label="@string/fragmentTransition"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.SidePropagationUsage"
-                  android:label="@string/side_propagation"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.SidePropagationUsage"
+            android:exported="true"
+            android:label="@string/side_propagation"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.RecyclerViewUsage"
-                  android:label="@string/recycler_view"
-                  android:theme="@style/Theme.Transition">
+        <activity
+            android:name=".widget.RecyclerViewUsage"
+            android:exported="true"
+            android:label="@string/recycler_view"
+            android:theme="@style/Theme.Transition">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.transition.SAMPLE_CODE" />
