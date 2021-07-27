@@ -17,7 +17,8 @@
 package androidx.benchmark.macro.perfetto
 
 import android.os.Build
-import androidx.benchmark.Outputs
+import androidx.benchmark.macro.FileLinkingRule
+import androidx.benchmark.macro.Packages
 import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -28,29 +29,31 @@ import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.io.File
+import kotlin.test.assertEquals
 
 @SdkSuppress(minSdkVersion = 29) // Lower to 21 after fixing trace config.
 @RunWith(Parameterized::class)
-public class PerfettoCaptureTest(private val unbundled: Boolean) {
-    private val traceFile = File(Outputs.dirUsableByAppAndShell, "PerfettoCaptureTest.trace")
-    private val traceFilePath = traceFile.absolutePath
+class PerfettoCaptureTest(private val unbundled: Boolean) {
+    @get:Rule
+    val linkRule = FileLinkingRule()
 
     @Before
     @After
-    public fun cleanup() {
+    fun cleanup() {
         PerfettoCapture(unbundled).cancel()
-        traceFile.delete()
     }
 
     @LargeTest
     @Test
-    public fun traceAndCheckFileSize() {
+    fun captureAndValidateTrace() {
         // Change the check to API >=21, once we have the correct Perfetto config.
         assumeTrue(Build.VERSION.SDK_INT >= 29 && isAbiSupported())
+
+        val traceFilePath = linkRule.createReportedTracePath(Packages.TEST)
         val perfettoCapture = PerfettoCapture(unbundled)
 
         verifyTraceEnable(false)
@@ -59,27 +62,40 @@ public class PerfettoCaptureTest(private val unbundled: Boolean) {
 
         verifyTraceEnable(true)
 
-        trace("PerfettoCaptureTest") {
+        // TODO: figure out why this sleep (200ms+) is needed - possibly related to b/194105203
+        Thread.sleep(500)
+
+        trace(TRACE_SECTION_LABEL) {
             // Tracing non-trivial duration for manual debugging/verification
             Thread.sleep(20)
         }
 
         perfettoCapture.stop(traceFilePath)
 
-        val length = traceFile.length()
-        assertTrue("Expect > 10KiB file, was $length bytes", length > 10 * 1024)
+        val matchingSlices = PerfettoTraceProcessor.querySlices(
+            absoluteTracePath = traceFilePath,
+            TRACE_SECTION_LABEL
+        )
+
+        assertEquals(1, matchingSlices.size)
+        matchingSlices.first().apply {
+            assertEquals(TRACE_SECTION_LABEL, name)
+            assertTrue(dur > 15_000_000) // should be at least 15ms
+        }
     }
 
-    public companion object {
+    companion object {
+        const val TRACE_SECTION_LABEL = "PerfettoCaptureTest"
+
         @Parameterized.Parameters(name = "unbundled={0}")
         @JvmStatic
-        public fun parameters(): Array<Any> {
+        fun parameters(): Array<Any> {
             return arrayOf(true, false)
         }
     }
 }
 
-public fun verifyTraceEnable(enabled: Boolean) {
+fun verifyTraceEnable(enabled: Boolean) {
     // We poll here, since we may need to wait for enable flags to propagate to apps
     verifyWithPolling(
         "Timeout waiting for Trace.isEnabled == $enabled",
