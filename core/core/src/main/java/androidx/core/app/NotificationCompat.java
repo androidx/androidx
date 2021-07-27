@@ -1649,9 +1649,7 @@ public class NotificationCompat {
 
         /**
          * Setting this flag will make it so the notification is automatically
-         * canceled when the user clicks it in the panel.  The PendingIntent
-         * set with {@link #setDeleteIntent} will be broadcast when the notification
-         * is canceled.
+         * canceled when the user clicks it in the panel.
          */
         public @NonNull Builder setAutoCancel(boolean autoCancel) {
             setFlag(Notification.FLAG_AUTO_CANCEL, autoCancel);
