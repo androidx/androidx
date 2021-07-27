@@ -87,7 +87,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.core" })
 @DoNotInstrument
 public class FocusMeteringControlTest {
     @ParameterizedRobolectricTestRunner.Parameters

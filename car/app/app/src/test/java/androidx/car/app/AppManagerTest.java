@@ -47,10 +47,12 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link AppManager}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(instrumentedPackages = { "androidx.activity" })
 @DoNotInstrument
 public final class AppManagerTest {
     @Mock

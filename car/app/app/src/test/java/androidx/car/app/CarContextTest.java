@@ -57,6 +57,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
 
@@ -67,6 +68,7 @@ import java.util.Locale;
 
 /** Tests for {@link CarContext}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(instrumentedPackages = { "androidx.activity" })
 @DoNotInstrument
 public class CarContextTest {
     private static final String APP_SERVICE = "app";

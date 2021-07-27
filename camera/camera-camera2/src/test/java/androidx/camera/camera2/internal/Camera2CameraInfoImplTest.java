@@ -70,7 +70,8 @@ import java.util.concurrent.Executor;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = {"androidx.camera.camera2.internal"})
 public class Camera2CameraInfoImplTest {
     private static final String CAMERA0_ID = "0";
     private static final int CAMERA0_SUPPORTED_HARDWARE_LEVEL =

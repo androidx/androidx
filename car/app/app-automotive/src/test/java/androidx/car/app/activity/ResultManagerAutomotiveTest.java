@@ -36,10 +36,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link ResultManagerAutomotive}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(instrumentedPackages = { "androidx.car.app.activity" })
 @DoNotInstrument
 public class ResultManagerAutomotiveTest {
     private final ComponentName mRendererComponent = new ComponentName(
