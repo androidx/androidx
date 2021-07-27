@@ -176,22 +176,21 @@ public annotation class TapType {
  *            --ef androidx.wear.watchface.extra.MOCK_TIME_SPEED_MULTIPLIER 2.0
  *
  *
- * To use the default watch face configuration UI add the following into your watch face's
- * AndroidManifest.xml:
+ * To use the sample on watch face editor UI, import the wear:wear-watchface-editor-samples library
+ * and add the following into your watch face's AndroidManifest.xml:
  *
  * ```
  * <activity
- *   android:name="androidx.wear.watchface.ui.WatchFaceConfigActivity"
+ *   android:name="androidx.wear.watchface.editor.sample.WatchFaceConfigActivity"
  *   android:exported="true"
- *   android:directBootAware="true"
  *   android:label="Config"
  *   android:theme="@android:style/Theme.Translucent.NoTitleBar">
  *   <intent-filter>
- *     <action android:name="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL" />
- *       <category android:name=
- *            "com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
- *       <category android:name="android.intent.category.DEFAULT" />
- *    </intent-filter>
+ *     <action android:name="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
+ *     <category android:name=
+ *         "com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
+ *     <category android:name="android.intent.category.DEFAULT" />
+ *   </intent-filter>
  * </activity>
  * ```
  *
