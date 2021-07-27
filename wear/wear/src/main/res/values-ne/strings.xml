@@ -18,4 +18,12 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="ws_navigation_drawer_content_description" msgid="777117228299084604">"नेभिगेसन ड्रअर"</string>
     <string name="ws_action_drawer_content_description" msgid="8863821639144537553">"कारबाहीसम्बन्धी ड्रअर"</string>
+    <!-- no translation found for confirmation_overlay_a11y_description_success (2936753235333429892) -->
+    <skip />
+    <!-- no translation found for confirmation_overlay_a11y_description_fail (6412144553299494336) -->
+    <skip />
+    <!-- no translation found for confirmation_overlay_a11y_description_phone (8809042819843332546) -->
+    <skip />
+    <!-- no translation found for confirmation_overlay_a11y_type_image (4327971892987955014) -->
+    <skip />
 </resources>
