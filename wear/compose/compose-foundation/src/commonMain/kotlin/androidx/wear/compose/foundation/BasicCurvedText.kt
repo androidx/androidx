@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import kotlin.math.ceil
 
@@ -90,28 +89,26 @@ fun ArcPaddingValues(radial: Dp = 0.dp, angular: Dp = 0.dp) =
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
  * @param text The text to display
- * @param fontSize Specified the size of the font.
+ * @param style Specified the style to use.
  * @param clockwise The direction the text follows (default is true). Usually text at the top of the
  * screen goes clockwise, and text at the bottom goes counterclockwise.
- * @param color The color the text will be draw in
- * @param background The color that will be used to draw the background below the text. This will
- * be on an annulus sector shape.
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
  * [Dp] see [ArcPaddingValues]
  */
 @Composable
 fun CurvedRowScope.BasicCurvedText(
     text: String,
-    fontSize: TextUnit,
+    style: CurvedTextStyle,
     modifier: Modifier = Modifier,
     clockwise: Boolean = true,
-    color: Color = Color.Black,
-    background: Color = Color.Unspecified,
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
 ) {
+    // Apply defaults when fields are not specified
+    val actualStyle = DefaultCurvedTextStyles + style
+
     val delegate = remember { CurvedTextDelegate() }
     val fontSizePx = with(LocalDensity.current) {
-        fontSize.toPx()
+        actualStyle.fontSize.toPx()
     }
     val arcPaddingPx = with(LocalDensity.current) {
         remember(contentArcPadding) {
@@ -131,7 +128,7 @@ fun CurvedRowScope.BasicCurvedText(
             .graphicsLayer()
             .drawBehind {
                 drawIntoCanvas { canvas ->
-                    delegate.doDraw(canvas, size, color, background)
+                    delegate.doDraw(canvas, size, actualStyle.color, actualStyle.background)
                 }
             },
         content = {},
