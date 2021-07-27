@@ -49,7 +49,7 @@ class AutoMigrationWriterTest {
                 from = 1,
                 to = 2,
                 schemaDiff = SchemaDiffResult(
-                    addedColumns = mapOf(
+                    addedColumns = linkedMapOf(
                         Pair(
                             "artistId",
                             AutoMigration.AddedColumn(
@@ -58,8 +58,8 @@ class AutoMigrationWriterTest {
                                     "artistId",
                                     "artistId",
                                     "INTEGER",
-                                    true,
-                                    "0"
+                                    false,
+                                    ""
                                 )
                             )
                         )
@@ -115,7 +115,7 @@ class AutoMigrationWriterTest {
                 from = 1,
                 to = 2,
                 schemaDiff = SchemaDiffResult(
-                    addedColumns = mapOf(
+                    addedColumns = linkedMapOf(
                         Pair(
                             "artistId",
                             AutoMigration.AddedColumn(
