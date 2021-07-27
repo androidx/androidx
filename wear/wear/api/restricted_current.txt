@@ -115,7 +115,7 @@ package androidx.wear.utils {
   }
 
   public final class WearTypeHelper {
-    method public static boolean isChinaDevice(android.content.Context);
+    method public static boolean isChinaBuild(android.content.Context);
   }
 
 }
