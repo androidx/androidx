@@ -48,13 +48,13 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
     @ParameterizedRobolectricTestRunner.Parameters
     public static Collection<Object[]> data() {
         final List<Object[]> data = new ArrayList<>();
-        data.add(new Object[]{new Config("Samsung", "heroqltevzw", "0")});
-        data.add(new Object[]{new Config("Samsung", "heroqltevzw", "1",
+        data.add(new Object[]{new Config("heroqltevzw", "0")});
+        data.add(new Object[]{new Config("heroqltevzw", "1",
                 getExpectedSupportedCombinations())});
-        data.add(new Object[]{new Config("Samsung", "heroqltetmo", "0")});
-        data.add(new Object[]{new Config("Samsung", "heroqltetmo", "1",
+        data.add(new Object[]{new Config("heroqltetmo", "0")});
+        data.add(new Object[]{new Config("heroqltetmo", "1",
                 getExpectedSupportedCombinations())});
-        data.add(new Object[]{new Config(null, null, "0")});
+        data.add(new Object[]{new Config(null, "0")});
         return data;
     }
 
@@ -69,8 +69,7 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
     @Test
     public void checkExtraSupportedSurfaceCombinations() {
         // Set up device properties
-        if (mConfig.mBrand != null) {
-            ReflectionHelpers.setStaticField(Build.class, "BRAND", mConfig.mBrand);
+        if (mConfig.mDevice != null) {
             ReflectionHelpers.setStaticField(Build.class, "DEVICE", mConfig.mDevice);
         }
 
@@ -115,17 +114,14 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
 
     static class Config {
         @Nullable
-        final String mBrand;
-        @Nullable
         final String mDevice;
         @NonNull
         final String mCameraId;
         @NonNull
         final SurfaceCombination[] mExpectedSupportedSurfaceCombinations;
 
-        Config(@Nullable String brand, @Nullable String device, @NonNull String cameraId,
+        Config(@Nullable String device, @NonNull String cameraId,
                 @NonNull SurfaceCombination... expectedSupportedSurfaceCombinations) {
-            mBrand = brand;
             mDevice = device;
             mCameraId = cameraId;
             mExpectedSupportedSurfaceCombinations = expectedSupportedSurfaceCombinations;
