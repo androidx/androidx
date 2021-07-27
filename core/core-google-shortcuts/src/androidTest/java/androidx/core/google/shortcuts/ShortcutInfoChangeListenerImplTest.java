@@ -79,7 +79,6 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setShortLabel("short label")
                 .setLongLabel("long label")
                 .setIntent(intent)
-                .setIcon(IconCompat.createWithContentUri("content://abc"))
                 .build();
 
         mShortcutInfoChangeListener.onShortcutUpdated(Collections.singletonList(shortcut));
@@ -221,7 +220,6 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setShortLabel("short label")
                 .setLongLabel("long label")
                 .setIntent(intent)
-                .setIcon(IconCompat.createWithContentUri("content://abc"))
                 .build();
 
         mShortcutInfoChangeListener.onShortcutAdded(Collections.singletonList(shortcut));
@@ -283,5 +281,59 @@ public class ShortcutInfoChangeListenerImplTest {
         // Action has no equals comparator, so instead we compare their string forms.
         assertThat(actionsString).containsExactly(expectedAction1.toString(),
                 expectedAction2.toString());
+    }
+
+    @Test
+    @SmallTest
+    public void onShortcutUpdated_withUriIcon_savesToAppIndexWithUri() throws Exception {
+        ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
+
+        Intent intent = Intent.parseUri("app://shortcut", 0);
+        ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
+                .setShortLabel("short label")
+                .setIntent(intent)
+                .setIcon(IconCompat.createWithContentUri(
+                        "file:///data/user/0/com.example.myapp/files/ic_myicon.jpg"))
+                .build();
+
+        mShortcutInfoChangeListener.onShortcutUpdated(Collections.singletonList(shortcut));
+
+        verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
+        List<Indexable> allValues = indexableCaptor.getAllValues();
+        Indexable expected = new ShortcutBuilder()
+                .setId("publicIntent")
+                .setShortcutLabel("short label")
+                .setUrl(ShortcutUtils.getIndexableUrl(mContext, "publicIntent"))
+                .setShortcutUrl(ShortcutUtils.getIndexableShortcutUrl(mContext, intent, null))
+                .setImage("file:///data/user/0/com.example.myapp/files/ic_myicon.jpg")
+                .build();
+        assertThat(allValues).containsExactly(expected);
+    }
+
+    @Test
+    @SmallTest
+    public void onShortcutUpdated_withAdaptiveUriIcon_savesToAppIndexWithUri() throws Exception {
+        ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
+
+        Intent intent = Intent.parseUri("app://shortcut", 0);
+        ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
+                .setShortLabel("short label")
+                .setIntent(intent)
+                .setIcon(IconCompat.createWithAdaptiveBitmapContentUri(
+                        "file:///data/user/0/com.example.myapp/files/ic_myicon.jpg"))
+                .build();
+
+        mShortcutInfoChangeListener.onShortcutUpdated(Collections.singletonList(shortcut));
+
+        verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
+        List<Indexable> allValues = indexableCaptor.getAllValues();
+        Indexable expected = new ShortcutBuilder()
+                .setId("publicIntent")
+                .setShortcutLabel("short label")
+                .setUrl(ShortcutUtils.getIndexableUrl(mContext, "publicIntent"))
+                .setShortcutUrl(ShortcutUtils.getIndexableShortcutUrl(mContext, intent, null))
+                .setImage("file:///data/user/0/com.example.myapp/files/ic_myicon.jpg")
+                .build();
+        assertThat(allValues).containsExactly(expected);
     }
 }
