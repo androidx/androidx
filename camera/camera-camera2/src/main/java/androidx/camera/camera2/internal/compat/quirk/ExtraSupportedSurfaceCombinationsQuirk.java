@@ -43,8 +43,8 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
     }
 
     private static boolean isSamsungS7() {
-        return "Samsung".equalsIgnoreCase(Build.BRAND) && ("heroqltevzw".equalsIgnoreCase(
-                Build.DEVICE) || "heroqltetmo".equalsIgnoreCase(Build.DEVICE));
+        return "heroqltevzw".equalsIgnoreCase(Build.DEVICE) || "heroqltetmo".equalsIgnoreCase(
+                Build.DEVICE);
     }
 
     /**
