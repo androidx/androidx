@@ -17,11 +17,12 @@
 package androidx.camera.extensions
 
 import android.content.Context
-import android.hardware.camera2.CameraAccessException
 import android.os.Build
-import androidx.camera.core.CameraInfoUnavailableException
 import androidx.camera.core.CameraSelector
 import androidx.camera.extensions.ExtensionMode.Mode
+import androidx.camera.extensions.impl.PreviewExtenderImpl.ProcessorType
+import androidx.camera.extensions.impl.PreviewImageProcessorImpl
+import androidx.camera.extensions.impl.RequestUpdateProcessorImpl
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
 import androidx.camera.extensions.util.ExtensionsTestUtil
@@ -31,15 +32,14 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 @SmallTest
 @RunWith(Parameterized::class)
@@ -54,10 +54,9 @@ class PreviewExtenderValidationTest(
     private lateinit var extensionsManager: ExtensionsManager
 
     @Before
-    @Throws(Exception::class)
     fun setUp() {
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        Assume.assumeTrue(
+        assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(
             CameraUtil.hasCameraWithLensFacing(
                 lensFacing
             )
@@ -65,7 +64,7 @@ class PreviewExtenderValidationTest(
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        Assume.assumeTrue(
+        assumeTrue(
             extensionsManager.isExtensionAvailable(
                 cameraProvider,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
@@ -75,11 +74,6 @@ class PreviewExtenderValidationTest(
     }
 
     @After
-    @Throws(
-        InterruptedException::class,
-        ExecutionException::class,
-        TimeoutException::class
-    )
     fun cleanUp() {
         if (::cameraProvider.isInitialized) {
             cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
@@ -98,14 +92,10 @@ class PreviewExtenderValidationTest(
     }
 
     @Test
-    @Throws(
-        CameraInfoUnavailableException::class,
-        CameraAccessException::class
-    )
     fun getSupportedResolutionsImplementationTest() {
         // getSupportedResolutions supported since version 1.1
         val version = ExtensionVersion.getRuntimeVersion()
-        Assume.assumeTrue(version != null && version.compareTo(Version.VERSION_1_1) >= 0)
+        assumeTrue(version != null && version.compareTo(Version.VERSION_1_1) >= 0)
 
         // Creates the ImageCaptureExtenderImpl to retrieve the target format/resolutions pair list
         // from vendor library for the target effect mode.
@@ -118,14 +108,25 @@ class PreviewExtenderValidationTest(
 
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    @Throws(
-        CameraInfoUnavailableException::class,
-        CameraAccessException::class
-    )
     fun returnsNullFromOnPresetSession_whenAPILevelOlderThan28() {
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.
         val impl = ExtensionsTestUtil.createPreviewExtenderImpl(extensionMode, lensFacing)
         Truth.assertThat(impl.onPresetSession()).isNull()
+    }
+
+    @Test
+    fun returnCorrectProcessor() {
+        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(extensionMode, lensFacing)
+
+        when (val processorType = impl.processorType) {
+            ProcessorType.PROCESSOR_TYPE_NONE -> assertThat(impl.processor).isNull()
+            ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY ->
+                assertThat(impl.processor).isInstanceOf(RequestUpdateProcessorImpl::class.java)
+            ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR ->
+                assertThat(impl.processor).isInstanceOf(PreviewImageProcessorImpl::class.java)
+            else ->
+                throw IllegalArgumentException("Unexpected ProcessorType: $processorType")
+        }
     }
 }
