@@ -15,9 +15,4 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.core.splashscreen">
-
-    <application>
-        <activity android:name=".test.SplashScreenAppCompatTestActivity" />
-    </application>
-</manifest>
+    package="androidx.core.splashscreen"/>
