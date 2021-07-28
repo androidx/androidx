@@ -472,23 +472,27 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     private val colorStyleSetting by lazy {
         UserStyleSetting.ListUserStyleSetting(
             UserStyleSetting.Id(COLOR_STYLE_SETTING),
-            getString(R.string.colors_style_setting),
-            getString(R.string.colors_style_setting_description),
+            resources,
+            R.string.colors_style_setting,
+            R.string.colors_style_setting_description,
             icon = null,
             options = listOf(
                 UserStyleSetting.ListUserStyleSetting.ListOption(
                     Option.Id(RED_STYLE),
-                    getString(R.string.colors_style_red),
+                    resources,
+                    R.string.colors_style_red,
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
                     Option.Id(GREEN_STYLE),
-                    getString(R.string.colors_style_green),
+                    resources,
+                    R.string.colors_style_green,
                     Icon.createWithResource(this, R.drawable.green_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
                     Option.Id(BLUE_STYLE),
-                    getString(R.string.colors_style_blue),
+                    resources,
+                    R.string.colors_style_blue,
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),

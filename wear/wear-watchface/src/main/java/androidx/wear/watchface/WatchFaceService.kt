@@ -264,8 +264,8 @@ public abstract class WatchFaceService : WallpaperService() {
         internal const val MAX_REASONABLE_SCHEMA_WIRE_SIZE_BYTES = 50000
 
         /** The maximum reasonable wire size for an Icon in a [UserStyleSchema] in pixels. */
-        internal const val MAX_REASONABLE_SCHEMA_ICON_WIDTH = 400
-        internal const val MAX_REASONABLE_SCHEMA_ICON_HEIGHT = 400
+        @Px internal const val MAX_REASONABLE_SCHEMA_ICON_WIDTH = 400
+        @Px internal const val MAX_REASONABLE_SCHEMA_ICON_HEIGHT = 400
     }
 
     /**
