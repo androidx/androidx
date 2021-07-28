@@ -54,7 +54,6 @@ internal class WindowInfoRepositoryImpl(
      * current bounds that the user has selected for the [Activity][android.app.Activity]'s
      * window.
      *
-     * @see maximumWindowMetrics
      * @see android.view.WindowManager.getCurrentWindowMetrics
      */
     override val currentWindowMetrics: Flow<WindowMetrics>
@@ -62,36 +61,6 @@ internal class WindowInfoRepositoryImpl(
             return configurationChanged {
                 windowMetricsCalculator.computeCurrentWindowMetrics(activity)
             }
-        }
-
-    /**
-     * Returns the largest [WindowMetrics] an app may expect in the current system state.
-     *
-     *
-     * The metrics describe the size of the largest potential area the window might occupy with
-     * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
-     * and any combination of flags that would allow the window to extend behind display cutouts.
-     *
-     *
-     * The value of this is based on the largest **potential** windowing state of the system.
-     * For example, for activities in multi-window mode the metrics returned are based on what the
-     * bounds would be if the user expanded the window to cover the entire screen.
-     *
-     *
-     * Note that this might still be smaller than the size of the physical display if certain
-     * areas of the display are not available to windows created for the associated [Context].
-     * For example, devices with foldable displays that wrap around the enclosure may split the
-     * physical display into different regions, one for the front and one for the back, each acting
-     * as different logical displays. In this case [.getMaximumWindowMetrics] would return
-     * the region describing the side of the device the associated [context&#39;s][Context]
-     * window is placed.
-     *
-     * @see currentWindowMetrics
-     * @see android.view.WindowManager.getMaximumWindowMetrics
-     */
-    val maximumWindowMetrics: WindowMetrics
-        get() {
-            return windowMetricsCalculator.computeMaximumWindowMetrics(activity)
         }
 
     private fun <T> configurationChanged(producer: () -> T): Flow<T> {

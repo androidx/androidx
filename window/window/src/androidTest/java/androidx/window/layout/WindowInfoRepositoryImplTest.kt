@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.Executor
@@ -105,20 +104,6 @@ public class WindowInfoRepositoryImplTest {
                 collector.assertValueCount(2)
             }
         }
-
-    @Test
-    public fun testGetMaximumWindowMetrics() {
-        activityScenario.scenario.onActivity { testActivity ->
-            val repo = WindowInfoRepositoryImpl(
-                testActivity,
-                WindowMetricsCalculatorCompat,
-                FakeWindowBackend()
-            )
-            val expected = WindowMetricsCalculatorCompat.computeMaximumWindowMetrics(testActivity)
-            val actual = repo.maximumWindowMetrics
-            assertEquals(expected, actual)
-        }
-    }
 
     @Test
     public fun testWindowLayoutFeatures(): Unit = testScope.runBlockingTest {
