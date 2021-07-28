@@ -33,7 +33,7 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter cardBackgroundPainter(optional long startBackgroundColor, optional long endBackgroundColor, optional androidx.compose.ui.unit.LayoutDirection gradientDirection);
     method public float getAppImageSize();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter imageBackgroundPainter(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter imageWithScrimBackgroundPainter(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush);
     property public final float AppImageSize;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material.CardDefaults INSTANCE;

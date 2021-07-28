@@ -130,7 +130,7 @@ fun CardDemo() {
                     Text("Text coloured to stand out on the image")
                 }
             },
-            backgroundPainter = CardDefaults.imageBackgroundPainter(
+            backgroundPainter = CardDefaults.imageWithScrimBackgroundPainter(
                 backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)
             ),
             bodyColor = MaterialTheme.colors.onSurface,
