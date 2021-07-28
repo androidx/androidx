@@ -19,18 +19,15 @@ package androidx.benchmark.macro
 import androidx.benchmark.MetricResult
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-public class MetricResultExtensionsTest {
+class MetricResultExtensionsTest {
     @Test
-    public fun mergeToMetricResults_trivial() {
+    fun mergeToMetricResults_trivial() {
         assertEquals(
             expected = listOf(
                 // note, bar sorted first
@@ -44,7 +41,7 @@ public class MetricResultExtensionsTest {
     }
 
     @Test
-    public fun mergeToMetricResults_standard() {
+    fun mergeToMetricResults_standard() {
         assertEquals(
             expected = listOf(
                 // note, bar sorted first
@@ -60,19 +57,19 @@ public class MetricResultExtensionsTest {
     }
 
     @Test
-    public fun mergeToMetricResults_missingKey() {
-        val exception = assertFailsWith<IllegalStateException> {
-            listOf(
+    fun mergeToMetricResults_missingKey() {
+        assertEquals(
+            expected = listOf(
+                MetricResult("bar", longArrayOf(101, 201)),
+                MetricResult("foo", longArrayOf(100, 200))
+            ),
+            actual = listOf(
                 mapOf("foo" to 100L, "bar" to 101L),
-                mapOf("foo" to 300L), // bar missing! Time to crash!
+                mapOf("foo" to 300L), // bar missing! Skip this iteration!
                 mapOf("foo" to 200L, "bar" to 201L),
             ).mergeToMetricResults(
                 tracePaths = listOf("trace1.trace", "trace2.trace", "trace3.trace")
             )
-        }
-        val message = exception.message
-        assertNotNull(message)
-        assertTrue(message.contains("Iteration 1 missing keys [bar]"))
-        assertTrue(message.contains("trace1.trace\ntrace2.trace\ntrace3.trace"))
+        )
     }
 }
