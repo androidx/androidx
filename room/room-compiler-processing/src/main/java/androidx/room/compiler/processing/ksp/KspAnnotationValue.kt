@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotationValue
+import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -56,6 +57,20 @@ internal class KspAnnotationValue(
                 // with, and using "Any" prevents the array from being cast to the correct
                 // type later on.
                 is List<*> -> value.map { unwrap(it) }
+                // TODO: https://github.com/google/ksp/issues/429
+                // If the enum value is from compiled code KSP gives us the actual value an not
+                // the KSType, so we wrap it as KspEnumEntry for consistency.
+                is Enum<*> -> {
+                    val declaration =
+                        env.resolver.getClassDeclarationByName(value::class.java.canonicalName)
+                            ?: error("Cannot find KSClassDeclaration for Enum '$value'.")
+                    val valueDeclaration = declaration.declarations
+                        .filterIsInstance<KSClassDeclaration>()
+                        .filter { it.classKind == ClassKind.ENUM_ENTRY }
+                        .firstOrNull() { it.simpleName.getShortName() == value.name }
+                        ?: error("Cannot find ENUM_ENTRY '$value' in '$declaration'.")
+                    KspEnumEntry.create(env, valueDeclaration)
+                }
                 else -> value
             }
         }
