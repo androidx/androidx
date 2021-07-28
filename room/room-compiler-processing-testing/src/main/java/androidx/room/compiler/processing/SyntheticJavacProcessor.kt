@@ -26,7 +26,6 @@ import androidx.room.compiler.processing.compat.XConverters.toJavac
 >>>>>>> 65af8188878 (Fixed lint issues)
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.XTestInvocation
-import com.google.auto.common.BasicAnnotationProcessor.ProcessingStep
 import javax.lang.model.SourceVersion
 
 @Suppress("VisibleForTests")
