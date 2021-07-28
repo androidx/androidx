@@ -16,38 +16,29 @@
 
 package androidx.benchmark.macro
 
+import android.util.Log
 import androidx.benchmark.MetricResult
 
 /**
  * Merge the Map<String, Long> results from each iteration into one List<MetricResult>
  */
 internal fun List<Map<String, Long>>.mergeToMetricResults(
-    tracePaths: List<String>
+    @Suppress("UNUSED_PARAMETER") tracePaths: List<String>
 ): List<MetricResult> {
     val setOfAllKeys = flatMap { it.keys }.toSet()
 
-    // validate each key shows up in each iteration
-    val iterationErrorStrings = mapIndexedNotNull { iteration, iterationResults ->
-        if (iterationResults.keys != setOfAllKeys) {
-            "Iteration $iteration missing keys " + (setOfAllKeys - iterationResults.keys)
-        } else null
-    }
-    if (iterationErrorStrings.isNotEmpty()) {
-        throw IllegalStateException(
-            "Error, different metrics observed in different iterations.\n\n" +
-                iterationErrorStrings.joinToString("\n") +
-                "Please report a bug, and include a logcat capture, and all traces captured by " +
-                "this test run:\n" + tracePaths.joinToString("\n") + "\n" +
-                DeviceInfo.deviceSummaryString
-        )
-    }
-
     // build Map<String, List<Long>>
-    val listResults: Map<String, List<Long>> = setOfAllKeys.map { key ->
-        key to map {
-            it[key] ?: error("Metric $key not observed in iteration")
+    val listResults: Map<String, List<Long>> = setOfAllKeys.associateWith { key ->
+        mapIndexedNotNull { iteration, resultMap ->
+            if (resultMap.keys != setOfAllKeys) {
+                // TODO: assert that metrics are always captured (b/193827052)
+                Log.d(TAG, "Skipping results from iter $iteration, it didn't capture all metrics")
+                null
+            } else {
+                resultMap[key] ?: error("Metric $key not observed in iteration")
+            }
         }
-    }.toMap()
+    }
 
     // transform to List<MetricResult>, sorted by metric name
     return listResults.map { (metricName, values) ->
