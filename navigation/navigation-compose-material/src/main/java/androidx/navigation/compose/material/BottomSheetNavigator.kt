@@ -101,7 +101,16 @@ public class BottomSheetNavigator(
                 transitionForEntry?.onTransitionComplete()
             },
             onSheetDismissed = { backStackEntry ->
-                state.pop(backStackEntry, saveState = false)
+                // Sheet dismissal can be started through popBackStack in which case we have a
+                // transition that we'll want to complete
+                val transitionForEntry = transitionsInProgress[backStackEntry]
+                if (transitionForEntry != null) {
+                    transitionForEntry.onTransitionComplete()
+                } else {
+                    // When the sheet has been dismissed by the user we always want to pop
+                    // the whole back stack of this navigator's state
+                    state.pop(popUpTo = state.backStack.value.first(), saveState = false)
+                }
             }
         )
     }
@@ -116,6 +125,10 @@ public class BottomSheetNavigator(
         entries.forEach { entry ->
             state.pushWithTransition(entry)
         }
+    }
+
+    override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
+        state.popWithTransition(popUpTo, savedState)
     }
 
     /**

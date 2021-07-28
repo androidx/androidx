@@ -25,8 +25,13 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.SaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -67,7 +72,10 @@ internal fun SheetContentHost(
 ) {
     val scope = rememberCoroutineScope()
     if (backStackEntry != null) {
-        LaunchedEffect(Unit) {
+        val currentOnSheetShown by rememberUpdatedState(onSheetShown)
+        val currentOnSheetDismissed by rememberUpdatedState(onSheetDismissed)
+        var hideCalled by remember(backStackEntry) { mutableStateOf(false) }
+        LaunchedEffect(backStackEntry, hideCalled) {
             val sheetVisibility = snapshotFlow { sheetState.isVisible }
             sheetVisibility
                 // We are only interested in changes in the sheet's visibility
@@ -77,17 +85,24 @@ internal fun SheetContentHost(
                 // We want to know when the sheet was visible but is not anymore
                 .filter { isVisible -> !isVisible }
                 // Finally, pop the back stack when the sheet has been hidden
-                .collect { onSheetDismissed(backStackEntry) }
+                .collect { if (!hideCalled) currentOnSheetDismissed(backStackEntry) }
         }
 
         // Whenever the composable associated with the latestEntry enters the composition, we
         // want to show the sheet, and hide it when this composable leaves the composition
-        DisposableEffect(Unit) {
+        DisposableEffect(backStackEntry) {
             scope.launch {
-                sheetState.internalShow()
-                onSheetShown(backStackEntry)
+                sheetState.show()
+                currentOnSheetShown(backStackEntry)
             }
-            onDispose { scope.launch { sheetState.internalHide() } }
+            onDispose {
+                scope.launch {
+                    // Yikes
+                    hideCalled = true
+                    sheetState.internalHide()
+                    hideCalled = false
+                }
+            }
         }
 
         val content = (backStackEntry.destination as BottomSheetNavigator.Destination).content
