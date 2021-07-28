@@ -20,7 +20,9 @@ package androidx.window.layout
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ComponentCallbacks
 import android.content.Context
+import android.content.res.Configuration
 import android.os.IBinder
 import android.text.TextUtils
 import android.util.Log
@@ -51,6 +53,9 @@ internal class SidecarCompat @VisibleForTesting constructor(
     // Map of active listeners registered with #onWindowLayoutChangeListenerAdded() and not yet
     // removed by #onWindowLayoutChangeListenerRemoved().
     private val windowListenerRegisteredContexts = mutableMapOf<IBinder, Activity>()
+    // Map of activities registered to their component callbacks so we can keep track and
+    // remove when the activity is unregistered
+    private val componentCallbackMap = mutableMapOf<Activity, ComponentCallbacks>()
     private var extensionCallback: ExtensionCallbackInterface? = null
 
     constructor(context: Context) : this(
@@ -103,16 +108,47 @@ internal class SidecarCompat @VisibleForTesting constructor(
             sidecar?.onDeviceStateListenersChanged(false)
         }
         extensionCallback?.onWindowLayoutChanged(activity, getWindowLayoutInfo(activity))
+        registerConfigurationChangeListener(activity)
+    }
+
+    private fun registerConfigurationChangeListener(activity: Activity) {
+        // Only register a component callback if we haven't already as register
+        // may be called multiple times for the same activity
+        if (componentCallbackMap[activity] == null) {
+            // Create a configuration change observer to send updated WindowLayoutInfo
+            // when the configuration of the app changes: b/186647126
+            val configChangeObserver = object : ComponentCallbacks {
+                override fun onConfigurationChanged(newConfig: Configuration) {
+                    extensionCallback?.onWindowLayoutChanged(
+                        activity,
+                        getWindowLayoutInfo(activity)
+                    )
+                }
+
+                override fun onLowMemory() {
+                    return
+                }
+            }
+            componentCallbackMap[activity] = configChangeObserver
+            activity.registerComponentCallbacks(configChangeObserver)
+        }
     }
 
     override fun onWindowLayoutChangeListenerRemoved(activity: Activity) {
         val windowToken = getActivityWindowToken(activity) ?: return
         sidecar?.onWindowLayoutChangeListenerRemoved(windowToken)
+        unregisterComponentCallback(activity)
         val isLast = windowListenerRegisteredContexts.size == 1
         windowListenerRegisteredContexts.remove(windowToken)
         if (isLast) {
             sidecar?.onDeviceStateListenersChanged(true)
         }
+    }
+
+    private fun unregisterComponentCallback(activity: Activity) {
+        val configChangeObserver = componentCallbackMap[activity]
+        activity.unregisterComponentCallbacks(configChangeObserver)
+        componentCallbackMap.remove(activity)
     }
 
     @SuppressLint("BanUncheckedReflection")
