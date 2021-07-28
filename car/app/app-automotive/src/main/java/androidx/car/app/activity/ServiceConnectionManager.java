@@ -35,8 +35,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.HandshakeInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IRendererService;
+import androidx.car.app.versioning.CarAppApiLevels;
 
 import java.util.List;
 
@@ -59,10 +61,15 @@ public class ServiceConnectionManager {
     private final Context mContext;
     private final ServiceDispatcher mServiceDispatcher;
     private int mDisplayId;
-    @Nullable private Intent mIntent;
-    @Nullable private ICarAppActivity mICarAppActivity;
+    @Nullable
+    private Intent mIntent;
+    @Nullable
+    private ICarAppActivity mICarAppActivity;
+    @Nullable
+    private HandshakeInfo mHandshakeInfo;
 
-    @Nullable IRendererService mRendererService;
+    @Nullable
+    IRendererService mRendererService;
 
     /** A listener receive connection status updates */
     public interface ServiceConnectionListener extends ErrorHandler {
@@ -83,7 +90,8 @@ public class ServiceConnectionManager {
      * Returns a {@link ServiceDispatcher} that can be used to communicate with the renderer
      * service.
      */
-    @NonNull ServiceDispatcher getServiceDispatcher() {
+    @NonNull
+    ServiceDispatcher getServiceDispatcher() {
         return mServiceDispatcher;
     }
 
@@ -105,6 +113,14 @@ public class ServiceConnectionManager {
     @VisibleForTesting
     void setRendererService(@Nullable IRendererService rendererService) {
         mRendererService = rendererService;
+    }
+
+    /**
+     * Returns the {@link HandshakeInfo} that has been agreed with the host.
+     */
+    @Nullable
+    public HandshakeInfo getHandshakeInfo() {
+        return mHandshakeInfo;
     }
 
     /** Returns true if the service is currently bound and able to receive messages */
@@ -158,7 +174,7 @@ public class ServiceConnectionManager {
 
                     // Host rejected the binding.
                     Log.i(LogTags.TAG, "Host service " + name + " rejected the binding "
-                                    + "request");
+                            + "request");
                     mListener.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE);
                 }
             };
@@ -236,6 +252,13 @@ public class ServiceConnectionManager {
         IRendererService rendererService = requireNonNull(mRendererService);
         ComponentName serviceComponentName = requireNonNull(mServiceComponentName);
 
+        // If the host does not support the getHandshakeInfo API, return oldest as it means to
+        // communicate at minimum level.
+        mHandshakeInfo = mServiceDispatcher.fetchNoFail("performHandshake",
+                new HandshakeInfo("", CarAppApiLevels.getOldest()),
+                () -> (HandshakeInfo) rendererService.performHandshake(serviceComponentName,
+                        CarAppApiLevels.getLatest()).get());
+
         Boolean success = mServiceDispatcher.fetch("initialize", false,
                 () -> rendererService.initialize(carAppActivity,
                         serviceComponentName, mDisplayId));
@@ -244,6 +267,7 @@ public class ServiceConnectionManager {
             mListener.onError(ErrorHandler.ErrorType.HOST_ERROR);
             return;
         }
+
         if (!updateIntent()) {
             return;
         }
