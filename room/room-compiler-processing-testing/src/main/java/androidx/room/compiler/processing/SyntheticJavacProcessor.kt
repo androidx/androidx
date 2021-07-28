@@ -36,6 +36,7 @@ class SyntheticJavacProcessor private constructor(
 ) : JavacBasicAnnotationProcessor(), SyntheticProcessor by impl {
     constructor(handlers: List<(XTestInvocation) -> Unit>) : this(SyntheticProcessorImpl(handlers))
 
+<<<<<<< HEAD
     override fun processingSteps(): Iterable<XProcessingStep> = impl.processingSteps()
 
 <<<<<<< HEAD
@@ -51,4 +52,11 @@ class SyntheticJavacProcessor private constructor(
     }
 
     override fun getSupportedSourceVersion() = SourceVersion.latest()
+=======
+    override fun getSupportedSourceVersion() = SourceVersion.latest()
+
+    override fun processingSteps() = impl.processingSteps()
+
+    override fun postRound(env: XProcessingEnv, round: XRoundEnv) = impl.postRound(env, round)
+>>>>>>> 2e9f6f254cc (Move initSteps() into JavacBasicAnnotationProcessor and make final)
 }
