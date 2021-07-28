@@ -16,10 +16,12 @@
 
 package androidx.navigation.compose.material
 
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.SwipeableDefaults
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,18 +38,46 @@ import androidx.navigation.NavigatorState
 import androidx.navigation.compose.material.BottomSheetNavigator.Destination
 
 /**
- * Create and remember a [BottomSheetNavigator]
+ * The state of a [ModalBottomSheetLayout] that the [BottomSheetNavigator] drives
  *
- * @param sheetState The [ModalBottomSheetState] that the [BottomSheetNavigator] will use to
- * drive the sheet state
+ * @param sheetState The sheet state that is driven by the [BottomSheetNavigator]
+ */
+@ExperimentalMaterialApi
+class BottomSheetNavigatorSheetState(private val sheetState: ModalBottomSheetState) {
+    /**
+     * @see ModalBottomSheetState.isVisible
+     */
+    val isVisible: Boolean
+        get() = sheetState.isVisible
+
+    /**
+     * @see ModalBottomSheetState.currentValue
+     */
+    val currentValue: ModalBottomSheetValue
+        get() = sheetState.currentValue
+
+    /**
+     * @see ModalBottomSheetState.targetValue
+     */
+    val targetValue: ModalBottomSheetValue
+        get() = sheetState.targetValue
+}
+
+/**
+ * Create and remember a [BottomSheetNavigator]
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 public fun rememberBottomSheetNavigator(
-    sheetState: ModalBottomSheetState =
-        rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-): BottomSheetNavigator = remember(sheetState) {
-    BottomSheetNavigator(sheetState = sheetState)
+    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec
+): BottomSheetNavigator {
+    val sheetState = rememberModalBottomSheetState(
+        ModalBottomSheetValue.Hidden,
+        animationSpec
+    )
+    return remember(sheetState) {
+        BottomSheetNavigator(sheetState = sheetState)
+    }
 }
 
 /**
@@ -69,8 +99,13 @@ public fun rememberBottomSheetNavigator(
 @OptIn(ExperimentalMaterialApi::class)
 @Navigator.Name("BottomSheetNavigator")
 public class BottomSheetNavigator(
-    val sheetState: ModalBottomSheetState
+    internal val sheetState: ModalBottomSheetState
 ) : Navigator<BottomSheetNavigator.Destination>() {
+
+    /**
+     * Access properties of the [ModalBottomSheetLayout]'s [ModalBottomSheetState]
+     */
+    public val navigatorSheetState = BottomSheetNavigatorSheetState(sheetState)
 
     /**
      * A [Composable] function that hosts the current sheet content. This should be set as
