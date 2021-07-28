@@ -34,6 +34,7 @@ import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.google.shortcuts.builders.CapabilityBuilder;
 import androidx.core.google.shortcuts.builders.ParameterBuilder;
 import androidx.core.google.shortcuts.builders.ShortcutBuilder;
+import androidx.core.graphics.drawable.IconCompat;
 
 import com.google.crypto.tink.KeysetHandle;
 import com.google.firebase.appindexing.Action;
@@ -188,6 +189,16 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
                     shortcutBuilder
                             .setCapability(capabilityList.toArray(new CapabilityBuilder[0]));
                 }
+            }
+        }
+
+        // Add icon
+        if (shortcut.getIcon() != null) {
+            IconCompat icon = shortcut.getIcon();
+            if (icon.getType() == IconCompat.TYPE_URI_ADAPTIVE_BITMAP
+                    || icon.getType() == IconCompat.TYPE_URI) {
+                // Assume the uri is public and can be opened by Google apps
+                shortcutBuilder.setImage(icon.getUri().toString());
             }
         }
 
