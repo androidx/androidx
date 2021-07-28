@@ -15,6 +15,7 @@
  */
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.util.RecordingXMessager
 import androidx.room.compiler.processing.util.XTestInvocation
 
@@ -48,6 +49,20 @@ internal interface SyntheticProcessor {
      * Returns true if the processor expected to run another round.
      */
     fun expectsAnotherRound(): Boolean
+}
+
+@ExperimentalProcessingApi
+internal interface SyntheticXProcessingStep: XProcessingStep {
+//        override fun process(
+//            env: XProcessingEnv,
+//            elementsByAnnotation: Map<String, Set<XElement>>
+//        ): Set<XTypeElement> {
+//            return emptySet()
+//        }
+
+//        override fun annotations(): Set<String> {
+//            return emptySet()
+//        }
 }
 
 /**
