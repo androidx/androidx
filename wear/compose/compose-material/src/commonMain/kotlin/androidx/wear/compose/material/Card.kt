@@ -380,7 +380,7 @@ public object CardDefaults {
      * image to ensure that any text drawn over the image is legible
      */
     @Composable
-    public fun imageBackgroundPainter(
+    public fun imageWithScrimBackgroundPainter(
         backgroundImagePainter: Painter,
         backgroundImageScrimBrush: Brush = Brush.linearGradient(
             colors = listOf(
