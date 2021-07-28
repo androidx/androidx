@@ -57,6 +57,7 @@ dependencies {
     implementation(project(':wear:compose:compose-material'))
     implementation(project(':wear:compose:compose-foundation'))
     implementation(project(":wear:compose:compose-foundation-samples"))
+    implementation(project(":wear:compose:compose-material-samples"))
 
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testCore)

@@ -639,6 +639,7 @@ includeProject(":wear:compose:compose-foundation", "wear/compose/compose-foundat
 includeProject(":wear:compose:compose-foundation-samples", "wear/compose/compose-foundation/samples", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-material", "wear/compose/compose-material", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-material-benchmark", "wear/compose/compose-material/benchmark", [BuildType.COMPOSE])
+includeProject(":wear:compose:compose-material-samples", "wear/compose/compose-material/samples", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:demos", "wear/compose/integration-tests/demos", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:macrobenchmark", "wear/compose/integration-tests/macrobenchmark", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:macrobenchmark-target", "wear/compose/integration-tests/macrobenchmark-target", [BuildType.COMPOSE])

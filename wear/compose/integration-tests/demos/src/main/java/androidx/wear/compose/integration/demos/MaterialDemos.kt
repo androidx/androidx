@@ -18,6 +18,8 @@ package androidx.wear.compose.integration.demos
 
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
+import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 
 val WearMaterialDemos = DemoCategory(
     "Material",
@@ -49,5 +51,7 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Card") { CardDemo() },
+        ComposableDemo("Scaling Lazy Column") { SimpleScalingLazyColumn() },
+        ComposableDemo("List Headers") { ScalingLazyColumnWithHeaders() },
     ),
 )
