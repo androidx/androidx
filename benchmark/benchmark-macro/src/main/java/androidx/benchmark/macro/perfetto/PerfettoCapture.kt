@@ -60,7 +60,7 @@ public class PerfettoCapture(private val unbundled: Boolean = Build.VERSION.SDK_
         val configProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.pb")
         try {
             userspaceTrace("write config") {
-                configProtoFile.writeBytes(PERFETTO_CONFIG.encode())
+                configProtoFile.writeBytes(PERFETTO_CONFIG.validateAndEncode())
             }
             userspaceTrace("start perfetto process") {
                 helper.startCollecting(configProtoFile.absolutePath, false)

@@ -28,19 +28,20 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-public class ShellUtilsTest {
+class ShellUtilsTest {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
-    public fun trivial() {
+    fun trivial() {
         assertEquals("foo\n", device.executeShellScript("echo foo"))
 
         assertEquals(ShellOutput("foo\n", ""), device.executeShellScriptWithStderr("echo foo"))
     }
 
+    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
-    public fun trivialStderr() {
+    fun trivialStderr() {
         val shellOutput = device.executeShellScriptWithStderr("invalidCommand")
 
         assertEquals("", shellOutput.stdout)
@@ -58,7 +59,7 @@ public class ShellUtilsTest {
 
     @SdkSuppress(minSdkVersion = 26) // xargs only available before 26
     @Test
-    public fun pipe_xargs() {
+    fun pipe_xargs() {
         // validate piping works with xargs
         assertEquals("foo\n", device.executeShellScript("echo foo | xargs echo $1"))
     }

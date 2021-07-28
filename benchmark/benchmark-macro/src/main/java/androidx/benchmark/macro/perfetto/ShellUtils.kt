@@ -163,6 +163,14 @@ internal fun UiDevice.createRunnableExecutable(name: String, inputStream: InputS
     return runnableExecutablePath
 }
 
+/**
+ * Returns true if the shell session is rooted, and thus root commands can be run (e.g. atrace
+ * commands with root-only tags)
+ */
+internal fun UiDevice.isShellSessionRooted(): Boolean {
+    return executeShellCommand("getprop service.adb.root").trim() == "1"
+}
+
 private fun UiDevice.moveToTmpAndMakeExecutable(src: String, dst: String) {
     // Note: we don't check for return values from the below, since shell based file
     // permission errors generally crash our process.
