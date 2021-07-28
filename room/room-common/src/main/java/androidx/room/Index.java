@@ -16,8 +16,6 @@
 
 package androidx.room;
 
-import androidx.annotation.StringDef;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -59,14 +57,27 @@ public @interface Index {
     /**
      * List of column sort orders in the Index.
      * <p>
-     * The size of array should be equal to size of columns in {@link #value()}
-     * See <a href="https://sqlite.org/lang_createindex.html">SQLite documentation</a> for details
-     * on descending indices.
+     * The number of entries in the array should be equal to size of columns in {@link #value()}.
+     * <p>
+     * The default order of all columns in the index is {@link Order#ASC}.
+     * <p>
+     * Note that there is no value in providing a sort order on a single-column index. Column sort
+     * order of an index are relevant on multi-column indices and specifically in those that are
+     * considered 'covering indices', for such indices specifying an order can have performance
+     * improvements on queries containing ORDER BY clauses.SchemaDifferTest See
+     * <a href="https://www.sqlite.org/queryplanner.html#_sorting_by_index">SQLite documentation</a>
+     * for details on sorting by index and the usage of the sort order by the query optimizer.
+     * <p>
+     * As an example, consider a table called 'Song' with two columns, 'name' and 'length'. If a
+     * covering index is created for it: <code>CREATE INDEX `song_name_length` on `Song`
+     * (`name` ASC, `length` DESC)</code>, then a query containing an ORDER BY clause with matching
+     * order of the index will be able to avoid a table scan by using the index, but a mismatch in
+     * order won't. Therefore the columns order of the index should be the same as the most
+     * frequently executed query with sort order.
      *
      * @return The list of column sort orders in the Index.
      */
-    @Order
-    String[] orders() default {};
+    Order[] orders() default {};
 
     /**
      * Name of the index. If not set, Room will set it to the list of columns joined by '_' and
@@ -86,22 +97,19 @@ public @interface Index {
      */
     boolean unique() default false;
 
-    /**
-     * Ascending returning order.
-     */
-    String ASC = "ASC";
+    enum Order {
+        /**
+         * Ascending returning order.
+         *
+         * @see Index#orders()
+         */
+        ASC,
 
-    /**
-     * Descending returning order.
-     */
-    String DESC = "DESC";
-
-    /**
-     * Constants definition for sort order that can be used in {@link #orders()}
-     */
-    @StringDef({ASC, DESC})
-    @Retention(RetentionPolicy.CLASS)
-    @SuppressWarnings("PublicTypedef")
-    @interface Order {
+        /**
+         * Descending returning order.
+         *
+         * @see Index#orders()
+         */
+        DESC
     }
 }

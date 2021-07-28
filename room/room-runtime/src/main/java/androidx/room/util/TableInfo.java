@@ -689,8 +689,9 @@ public final class TableInfo {
             this.name = name;
             this.unique = unique;
             this.columns = columns;
-            this.orders = orders == null || orders.size() == 0 ? Collections.nCopies(columns.size(),
-                    androidx.room.Index.ASC) : orders;
+            this.orders = orders == null || orders.size() == 0
+                    ? Collections.nCopies(columns.size(), androidx.room.Index.Order.ASC.name())
+                    : orders;
         }
 
         @Override

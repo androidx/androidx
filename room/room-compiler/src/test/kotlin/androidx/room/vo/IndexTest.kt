@@ -24,11 +24,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+private typealias IndexOrder = androidx.room.Index.Order
+
 @RunWith(JUnit4::class)
 class IndexTest {
     @Test
     fun createSimpleSQL() {
-        val index = Index("foo", false, listOf(mockField("bar"), mockField("baz")))
+        val index = Index("foo", false, listOf(mockField("bar"), mockField("baz")), emptyList())
         MatcherAssert.assertThat(
             index.createQuery("my_table"),
             CoreMatchers.`is`(
@@ -39,7 +41,7 @@ class IndexTest {
 
     @Test
     fun createUnique() {
-        val index = Index("foo", true, listOf(mockField("bar"), mockField("baz")))
+        val index = Index("foo", true, listOf(mockField("bar"), mockField("baz")), emptyList())
         MatcherAssert.assertThat(
             index.createQuery("my_table"),
             CoreMatchers.`is`(
@@ -54,7 +56,7 @@ class IndexTest {
             name = "foo",
             unique = false,
             fields = listOf(mockField("bar"), mockField("baz")),
-            orders = listOf("ASC", "DESC")
+            orders = listOf(IndexOrder.ASC, IndexOrder.DESC)
         )
         MatcherAssert.assertThat(
             index.createQuery("my_table"),

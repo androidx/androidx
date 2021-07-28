@@ -89,7 +89,7 @@ data class IndexInput(
     val name: String,
     val unique: Boolean,
     val columnNames: List<String>,
-    val orders: List<String> = emptyList(),
+    val orders: List<androidx.room.Index.Order>
 )
 
 /**

@@ -113,12 +113,15 @@ public class IndexBundle implements SchemaEquality<IndexBundle> {
             return false;
         }
 
+        // order matters and null orders is considered equal to all ASC orders, to be backward
+        // compatible with schemas where orders are not present in the schema file
         int columnsSize = mColumnNames != null ? mColumnNames.size() : 0;
         List<String> orders = mOrders == null || mOrders.isEmpty()
-                ? Collections.nCopies(columnsSize, Index.ASC) : mOrders;
+                ? Collections.nCopies(columnsSize, Index.Order.ASC.name()) : mOrders;
         List<String> otherOrders = other.mOrders == null || other.mOrders.isEmpty()
-                ? Collections.nCopies(columnsSize, Index.ASC) : other.mOrders;
+                ? Collections.nCopies(columnsSize, Index.Order.ASC.name()) : other.mOrders;
         if (!orders.equals(otherOrders)) return false;
+
         return true;
     }
 }

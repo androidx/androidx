@@ -1196,6 +1196,7 @@ class SchemaDifferTest {
                             "index1",
                             true,
                             emptyList<String>(),
+                            emptyList<String>(),
                             "CREATE UNIQUE INDEX IF NOT EXISTS `index1` ON `Song`" +
                                 "(`title`)"
                         )

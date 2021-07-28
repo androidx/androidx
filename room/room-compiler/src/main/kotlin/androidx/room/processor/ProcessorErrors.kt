@@ -66,7 +66,8 @@ object ProcessorErrors {
         " autoGenerate, its type must be int, Integer, long or Long."
     val AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS = "When @PrimaryKey annotation is used on a" +
         " field annotated with @Embedded, the embedded class should have only 1 field."
-    val INVALID_INDEX_ORDERS_SIZE = "@Index.orders size should be equal to columns count of index"
+    val INVALID_INDEX_ORDERS_SIZE = "The number of entries in @Index#orders() should be " +
+        "equal to the amount of columns defined in the @Index value."
 
     val DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP = "Do not use ImmutableMultimap as a type (as with" +
         " Multimap itself). Instead use the subtypes such as ImmutableSetMultimap or " +

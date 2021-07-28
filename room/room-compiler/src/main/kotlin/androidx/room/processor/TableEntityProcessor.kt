@@ -118,7 +118,8 @@ class TableEntityProcessor internal constructor(
                     IndexInput(
                         name = createIndexName(listOf(it.columnName), tableName),
                         unique = false,
-                        columnNames = listOf(it.columnName)
+                        columnNames = listOf(it.columnName),
+                        orders = emptyList()
                     )
                 }
             }
@@ -550,7 +551,8 @@ class TableEntityProcessor internal constructor(
                         IndexInput(
                             name = createIndexName(it.columnNames, tableName),
                             unique = it.unique,
-                            columnNames = it.columnNames
+                            columnNames = it.columnNames,
+                            orders = it.orders
                         )
                     }
                 } else {
