@@ -136,7 +136,7 @@ private typealias WireComplicationProviderInfo =
 
 internal val redStyleOption = ListOption(Option.Id("red_style"), "Red", icon = null)
 internal val greenStyleOption = ListOption(Option.Id("green_style"), "Green", icon = null)
-internal val blueStyleOption = ListOption(Option.Id("bluestyle"), "Blue", icon = null)
+internal val blueStyleOption = ListOption(Option.Id("blue_style"), "Blue", icon = null)
 internal val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 internal val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
     UserStyleSetting.Id("color_style_setting"),

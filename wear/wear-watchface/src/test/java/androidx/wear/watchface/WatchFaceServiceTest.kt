@@ -132,7 +132,7 @@ public class WatchFaceServiceTest {
         ListUserStyleSetting.ListOption(Option.Id("green_style"), "Green", icon = null)
 
     private val blueStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("bluestyle"), "Blue", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("blue_style"), "Blue", icon = null)
 
     private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 

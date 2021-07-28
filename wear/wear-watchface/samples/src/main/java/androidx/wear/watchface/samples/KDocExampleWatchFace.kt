@@ -70,7 +70,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 icon = null
                             ),
                             ListUserStyleSetting.ListOption(
-                                Option.Id("bluestyle"),
+                                Option.Id("blue_style"),
                                 "Blue",
                                 icon = null
                             )
