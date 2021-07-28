@@ -18,4 +18,8 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="ws_navigation_drawer_content_description" msgid="777117228299084604">"നാവിഗേഷൻ ഡ്രോയർ"</string>
     <string name="ws_action_drawer_content_description" msgid="8863821639144537553">"ആക്ഷൻ ഡ്രോയർ"</string>
+    <string name="confirmation_overlay_a11y_description_success" msgid="2936753235333429892">"വിജയകരം"</string>
+    <string name="confirmation_overlay_a11y_description_fail" msgid="6412144553299494336">"പരാജയം"</string>
+    <string name="confirmation_overlay_a11y_description_phone" msgid="8809042819843332546">"നിങ്ങളുടെ ഫോണിൽ തുറന്നത്"</string>
+    <string name="confirmation_overlay_a11y_type_image" msgid="4327971892987955014">"ചിത്രം"</string>
 </resources>
