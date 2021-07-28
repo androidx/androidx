@@ -49,10 +49,6 @@ internal interface SyntheticProcessor {
      * Returns true if the processor expected to run another round.
      */
     fun expectsAnotherRound(): Boolean
-
-    fun processingSteps(): Iterable<XProcessingStep>
-
-    fun postRound(xProcessingEnv: XProcessingEnv, xRoundEnv: XRoundEnv)
 }
 
 /**
@@ -68,7 +64,7 @@ internal class SyntheticProcessorImpl(
     private val nextRunHandlers = handlers.toMutableList()
     override val messageWatcher = RecordingXMessager()
 
-    override fun processingSteps() = listOf<XProcessingStep>(
+    internal fun processingSteps() = listOf<XProcessingStep>(
         // A processing step that just ensures we're run every round.
         object: XProcessingStep {
             override fun annotations(): Set<String> = setOf("*")
@@ -79,9 +75,9 @@ internal class SyntheticProcessorImpl(
         }
     )
 
-    override fun postRound(xProcessingEnv: XProcessingEnv, xRoundEnv: XRoundEnv) {
-        if (!canRunAnotherRound()) {
-            return
+    internal fun postRound(env: XProcessingEnv, round: XRoundEnv) {
+        if (canRunAnotherRound()) {
+            runNextRound(XTestInvocation(env, round))
         }
     }
 
