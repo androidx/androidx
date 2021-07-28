@@ -15,7 +15,6 @@
  */
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.util.RecordingXMessager
 import androidx.room.compiler.processing.util.XTestInvocation
 
@@ -66,7 +65,7 @@ internal class SyntheticProcessorImpl(
 
     internal fun processingSteps() = listOf<XProcessingStep>(
         // A processing step that just ensures we're run every round.
-        object: XProcessingStep {
+        object : XProcessingStep {
             override fun annotations(): Set<String> = setOf("*")
             override fun process(
                 env: XProcessingEnv,

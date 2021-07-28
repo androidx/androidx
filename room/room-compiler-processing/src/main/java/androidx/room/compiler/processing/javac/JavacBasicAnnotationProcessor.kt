@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XBasicAnnotationProcessor
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XProcessingStep
-import androidx.room.compiler.processing.XRoundEnv
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.collect.ImmutableSetMultimap
 import javax.annotation.processing.RoundEnvironment

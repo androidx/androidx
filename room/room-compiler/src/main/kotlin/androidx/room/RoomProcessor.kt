@@ -16,7 +16,6 @@
 
 package androidx.room
 
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors

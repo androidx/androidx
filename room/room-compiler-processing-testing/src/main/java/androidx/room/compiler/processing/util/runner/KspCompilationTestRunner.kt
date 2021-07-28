@@ -23,7 +23,6 @@ import androidx.room.compiler.processing.util.KotlinCompilationUtil
 import androidx.room.compiler.processing.util.KotlinCompileTestingCompilationResult
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.XTestInvocation
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
