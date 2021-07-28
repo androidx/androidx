@@ -37,7 +37,7 @@ final class TimeStyle {
         SECONDS,
     }
 
-    private static final UserStyleSetting.Id ID = new UserStyleSetting.Id("TypeStyle");
+    private static final UserStyleSetting.Id ID = new UserStyleSetting.Id("TimeStyle");
 
     private static final UserStyleSetting.Option.Id MINIMAL_ID =
             new UserStyleSetting.Option.Id("minimal");
@@ -102,12 +102,12 @@ final class TimeStyle {
                         new UserStyleSetting.ListUserStyleSetting.ListOption(
                                 MINIMAL_ID,
                                 getString(context, R.string.time_style_minimal_name),
-                                getIcon(context, R.drawable.tyme_style_minimal_icon)
+                                getIcon(context, R.drawable.time_style_minimal_icon)
                         ),
                         new UserStyleSetting.ListUserStyleSetting.ListOption(
                                 SECONDS_ID,
                                 getString(context, R.string.time_style_seconds_name),
-                                getIcon(context, R.drawable.tyme_style_seconds_icon)
+                                getIcon(context, R.drawable.time_style_seconds_icon)
                         )
                 ),
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS);
