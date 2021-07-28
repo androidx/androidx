@@ -29,6 +29,8 @@ import androidx.annotation.RestrictTo;
 public final class LogTags {
     public static final String TAG = androidx.car.app.utils.LogTags.TAG + ".Act";
 
+    public static final String TAG_ERROR = androidx.car.app.utils.LogTags.TAG + ".Error";
+
     private LogTags() {
     }
 }
