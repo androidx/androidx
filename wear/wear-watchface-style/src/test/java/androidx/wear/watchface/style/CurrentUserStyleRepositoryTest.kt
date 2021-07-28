@@ -38,7 +38,7 @@ public class CurrentUserStyleRepositoryTest {
         ListUserStyleSetting.ListOption(Option.Id("green_style"), "Green", icon = null)
 
     private val blueStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("bluestyle"), "Blue", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("blue_style"), "Blue", icon = null)
 
     private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
@@ -195,7 +195,7 @@ public class CurrentUserStyleRepositoryTest {
         val userStyle = UserStyle(
             UserStyleData(
                 mapOf(
-                    "color_style_setting" to "bluestyle".encodeToByteArray(),
+                    "color_style_setting" to "blue_style".encodeToByteArray(),
                     "hand_style_setting" to "gothic_style".encodeToByteArray()
                 )
             ),
@@ -203,7 +203,7 @@ public class CurrentUserStyleRepositoryTest {
         )
 
         assertThat(userStyle.selectedOptions[colorStyleSetting]!!.id.value.decodeToString())
-            .isEqualTo("bluestyle")
+            .isEqualTo("blue_style")
         assertThat(userStyle.selectedOptions[watchHandStyleSetting]!!.id.value.decodeToString())
             .isEqualTo("gothic_style")
     }
