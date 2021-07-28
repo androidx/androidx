@@ -30,11 +30,14 @@ import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.awaitPendingRefresh
 import androidx.room.pendingRefresh
 import androidx.room.refreshRunnable
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.base.MainThread
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -162,6 +165,43 @@ class PagingSourceTest {
     }
 
     @Test
+    fun loadEverythingRawQuery() {
+        // open db
+        val items = createItems(startId = 15, count = 50)
+        db.dao.insert(items)
+        val query = SimpleSQLiteQuery(
+            "SELECT * FROM PagingEntity ORDER BY id ASC"
+        )
+        val pager = Pager(
+            config = CONFIG,
+            pagingSourceFactory = { db.dao.loadItemsRaw(query) }
+        )
+        runTest(pager = pager) {
+            itemStore.awaitInitialLoad()
+            assertThat(
+                itemStore.peekItems()
+            ).containsExactlyElementsIn(
+                items.createExpected(
+                    fromIndex = 0,
+                    toIndex = CONFIG.initialLoadSize
+                )
+            )
+            // now access more items that should trigger loading more
+            withContext(Dispatchers.Main) {
+                itemStore.get(20)
+            }
+            assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
+            // now access to the end of the list, it should load everything as we disabled jumping
+            withContext(Dispatchers.Main) {
+                itemStore.get(items.size - 1)
+            }
+            assertThat(itemStore.awaitItem(items.size - 1)).isEqualTo(items.last())
+            assertThat(itemStore.peekItems()).isEqualTo(items)
+            assertThat(itemStore.currentGenerationId).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun loadEverything_inReverse() {
         // open db
         val items = createItems(startId = 0, count = 100)
@@ -196,6 +236,210 @@ class PagingSourceTest {
             assertThat(itemStore.awaitItem(0)).isEqualTo(items[0])
             assertThat(itemStore.peekItems()).isEqualTo(items)
             assertThat(itemStore.currentGenerationId).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun loadEverythingRawQuery_inReverse() {
+        // open db
+        val items = createItems(startId = 0, count = 100)
+        db.dao.insert(items)
+        val query = SimpleSQLiteQuery(
+            "SELECT * FROM PagingEntity ORDER BY id ASC"
+        )
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 98,
+            pagingSourceFactory = { db.dao.loadItemsRaw(query) }
+        )
+        runTest(pager) {
+            itemStore.awaitInitialLoad()
+            assertThat(
+                itemStore.peekItems()
+            ).containsExactlyElementsIn(
+                items.createExpected(
+                    // Paging 3 implementation loads starting from initial key
+                    fromIndex = 98,
+                    toIndex = 100
+                )
+            )
+            // now access more items that should trigger loading more
+            withContext(Dispatchers.Main) {
+                itemStore.get(40)
+            }
+            assertThat(itemStore.awaitItem(40)).isEqualTo(items[40])
+            // now access to the beginning of the list, it should load everything as we don't
+            // support jumping
+            withContext(Dispatchers.Main) {
+                itemStore.get(0)
+            }
+            assertThat(itemStore.awaitItem(0)).isEqualTo(items[0])
+            assertThat(itemStore.peekItems()).isEqualTo(items)
+            assertThat(itemStore.currentGenerationId).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun rawQuery_userSuppliedLimitOffset() {
+        val items = createItems(startId = 15, count = 70)
+        db.dao.insert(items)
+
+        val query = SimpleSQLiteQuery(
+            "SELECT * FROM PagingEntity ORDER BY id ASC LIMIT 30 OFFSET 5"
+        )
+        val pager = Pager(
+            config = CONFIG,
+            pagingSourceFactory = { db.dao.loadItemsRaw(query) }
+        )
+
+        runTest(pager = pager) {
+            itemStore.awaitInitialLoad()
+            assertThat(
+                itemStore.peekItems()
+            ).containsExactlyElementsIn(
+                // returns items 20 to 28 with 21 null place holders after
+                items.createBoundedExpected(
+                    fromIndex = 5,
+                    toIndex = 5 + CONFIG.initialLoadSize,
+                    toPlaceholderIndex = 35,
+                )
+            )
+            // now access more items that should trigger loading more
+            withContext(Dispatchers.Main) {
+                itemStore.get(15)
+            }
+            // item 15 is offset by 5 = 20
+            assertThat(itemStore.awaitItem(15)).isEqualTo(items[20])
+            // normally itemStore.get(50) is valid, but user-set LIMIT should bound item count to 30
+            // itemStore.get(50) should now become invalid
+            val expectedException = assertFailsWith<IndexOutOfBoundsException> {
+                withContext(Dispatchers.Main) {
+                    itemStore.get(50)
+                }
+            }
+            assertThat(expectedException.message).isEqualTo("Index: 50, Size: 30")
+            assertThat(itemStore.currentGenerationId).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun rawQuery_multipleArguments() {
+        val items = createItems(startId = 0, count = 80)
+        db.dao.insert(items)
+        val query = SimpleSQLiteQuery(
+            "SELECT * " +
+                "FROM PagingEntity " +
+                "WHERE id > 49 AND id < 76 " +
+                "ORDER BY id ASC " +
+                "LIMIT 20"
+        )
+        val pager = Pager(
+            config = CONFIG,
+            pagingSourceFactory = { db.dao.loadItemsRaw(query) }
+        )
+
+        runTest(pager = pager) {
+            itemStore.awaitInitialLoad()
+            assertThat(
+                itemStore.peekItems()
+            ).containsExactlyElementsIn(
+                // returns items 50 to 58 with 11 null place holders after
+                items.createBoundedExpected(
+                    fromIndex = 50,
+                    toIndex = 50 + CONFIG.initialLoadSize,
+                    toPlaceholderIndex = 70,
+                )
+            )
+            // now access more items that should trigger loading more
+            withContext(Dispatchers.Main) {
+                itemStore.get(15)
+            }
+            // item 15 is offset by 50 because of `WHERE id > 49` arg
+            assertThat(itemStore.awaitItem(15)).isEqualTo(items[65])
+            // normally itemStore.get(50) is valid, but user-set LIMIT should bound item count to 20
+            val expectedException = assertFailsWith<IndexOutOfBoundsException> {
+                withContext(Dispatchers.Main) {
+                    itemStore.get(50)
+                }
+            }
+            assertThat(expectedException.message).isEqualTo("Index: 50, Size: 20")
+            assertThat(itemStore.currentGenerationId).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun keyTooLarge_returnLastPage() {
+        val items = createItems(startId = 0, count = 50)
+        db.dao.insert(items)
+
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 80
+        ) {
+            db.dao.loadItems()
+        }
+        runTest(pager = pager) {
+            itemStore.awaitInitialLoad()
+            assertThat(
+                itemStore.peekItems()
+            ).containsExactlyElementsIn(
+                // should return last page when key is too large
+                items.createExpected(
+                    fromIndex = 41,
+                    toIndex = 50,
+                )
+            )
+            // now trigger a prepend
+            withContext(Dispatchers.Main) {
+                itemStore.get(20)
+            }
+            assertThat(itemStore.awaitItem(20)).isEqualTo(items[20])
+        }
+    }
+
+    @Test
+    fun jumping() {
+        val items = createItems(startId = 0, count = 200)
+        db.dao.insert(items)
+
+        val config = PagingConfig(
+            pageSize = 3,
+            initialLoadSize = 9,
+            enablePlaceholders = true,
+            jumpThreshold = 80
+        )
+        val pager = Pager(
+            config = config,
+        ) {
+            db.dao.loadItems()
+        }
+        runTest(pager = pager) {
+            itemStore.awaitInitialLoad()
+            assertThat(
+                itemStore.peekItems()
+            ).containsExactlyElementsIn(
+                items.createExpected(
+                    fromIndex = 0,
+                    toIndex = config.initialLoadSize,
+                )
+            )
+            // now trigger a jump, accessed index needs to be larger than jumpThreshold
+            withContext(Dispatchers.Main) {
+                itemStore.get(120)
+            }
+            // the jump should trigger a refresh load with new generation
+            itemStore.awaitGeneration(2)
+            itemStore.awaitInitialLoad()
+            // the refresh should load around anchorPosition of 120, with refresh key as 116
+            // and null placeholders before and after
+            assertThat(
+                itemStore.peekItems()
+            ).containsExactlyElementsIn(
+                items.createExpected(
+                    fromIndex = 116,
+                    toIndex = 116 + config.initialLoadSize,
+                )
+            )
         }
     }
 
@@ -441,12 +685,23 @@ class PagingSourceTest {
      */
     private fun List<PagingEntity?>.createExpected(
         fromIndex: Int,
-        toIndex: Int
+        toIndex: Int,
     ): List<PagingEntity?> {
         val result = mutableListOf<PagingEntity?>()
         (0 until fromIndex).forEach { _ -> result.add(null) }
         result.addAll(this.subList(fromIndex, toIndex))
         (toIndex until size).forEach { _ -> result.add(null) }
+        return result
+    }
+
+    private fun List<PagingEntity?>.createBoundedExpected(
+        fromIndex: Int,
+        toIndex: Int,
+        toPlaceholderIndex: Int,
+    ): List<PagingEntity?> {
+        val result = mutableListOf<PagingEntity?>()
+        result.addAll(this.subList(fromIndex, toIndex))
+        (toIndex until toPlaceholderIndex).forEach { _ -> result.add(null) }
         return result
     }
 
@@ -497,6 +752,9 @@ class PagingSourceTest {
 
         @Query("SELECT * FROM PagingEntity ORDER BY id ASC")
         fun loadItems(): PagingSource<Int, PagingEntity>
+
+        @RawQuery(observedEntities = [PagingEntity::class])
+        fun loadItemsRaw(query: SupportSQLiteQuery): PagingSource<Int, PagingEntity>
     }
 
     /**
@@ -683,7 +941,7 @@ class PagingSourceTest {
         private val CONFIG = PagingConfig(
             pageSize = 3,
             initialLoadSize = 9,
-            enablePlaceholders = true
+            enablePlaceholders = true,
         )
     }
 }
