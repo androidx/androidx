@@ -56,8 +56,10 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -136,6 +138,9 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     static final String TAG_SESSION_UPDATE_ID = "CameraControlSessionUpdateId";
     private final AtomicLong mNextSessionUpdateId = new AtomicLong(0);
+    @NonNull
+    private volatile ListenableFuture<Void> mFlashModeChangeSessionUpdateFuture =
+            Futures.immediateFuture(null);
     //******************** Should only be accessed by executor *****************************//
     private int mTemplate = DEFAULT_TEMPLATE;
     // SessionUpdateId will auto-increment every time session updates.
@@ -354,7 +359,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
 
-        updateSessionConfig();
+        // On some devices, AE precapture may not work properly if the repeating request to change
+        // the flash mode is not completed. We need to store the future so that AE precapture can
+        // wait for it.
+        mFlashModeChangeSessionUpdateFuture = updateSessionConfigAsync();
     }
 
     /** {@inheritDoc} */
@@ -388,6 +396,46 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                 }));
     }
 
+    @ExecutedBy("mExecutor")
+    @NonNull
+    private ListenableFuture<Void> waitForSessionUpdateId(long sessionUpdateIdToWait) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            addCaptureResultListener(captureResult -> {
+                boolean updated = isSessionUpdated(captureResult, sessionUpdateIdToWait);
+                if (updated) {
+                    completer.set(null);
+                    return true; // remove the callback
+                }
+                return false; // continue checking
+            });
+            return "waitForSessionUpdateId:" + sessionUpdateIdToWait;
+        });
+    }
+
+    /**
+     * Check if the sessionUpdateId in capture result is larger than the given sessionUpdateId.
+     */
+    static boolean isSessionUpdated(@NonNull TotalCaptureResult captureResult,
+            long sessionUpdateId) {
+        if (captureResult.getRequest() == null) {
+            return false;
+        }
+        Object tag = captureResult.getRequest().getTag();
+        if (tag instanceof TagBundle) {
+            Long tagLong =
+                    (Long) ((TagBundle) tag).getTag(Camera2CameraControlImpl.TAG_SESSION_UPDATE_ID);
+            if (tagLong == null) {
+                return false;
+            }
+            long sessionUpdateIdInCaptureResult = tagLong.longValue();
+            // Check if session update is already done.
+            if (sessionUpdateIdInCaptureResult >= sessionUpdateId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -405,25 +453,33 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
-        return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
-                completer -> {
-                    mExecutor.execute(() -> {
-                        if (mUseTorchAsFlash.shouldUseTorchAsFlash()
-                                || mTemplate == CameraDevice.TEMPLATE_RECORD) {
-                            Logger.d(TAG, "Use torch as flash");
-                            if (mIsTorchOn) {
-                                completer.set(null);
-                            } else {
-                                mTorchControl.enableTorchInternal(completer, true);
-                                mIsTorchEnabledByFlash = true;
-                            }
-                        } else {
-                            mFocusMeteringControl.triggerAePrecapture(completer);
-                            mIsAeTriggeredByFlash = true;
-                        }
-                    });
-                    return "startFlashSequence";
-                }));
+
+        // Prior to AE precapture, wait until pending flash mode session change is completed. On
+        // some devices, AE precapture may not work properly if the repeating request to change
+        // the flash mode is not completed.
+        ListenableFuture<Void> future = FutureChain.from(mFlashModeChangeSessionUpdateFuture)
+                .transformAsync(v -> {
+                    return CallbackToFutureAdapter.getFuture(
+                            completer -> {
+                                if (mUseTorchAsFlash.shouldUseTorchAsFlash()
+                                        || mTemplate == CameraDevice.TEMPLATE_RECORD) {
+                                    Logger.d(TAG, "startFlashSequence: Use torch");
+                                    if (mIsTorchOn) {
+                                        completer.set(null);
+                                    } else {
+                                        mTorchControl.enableTorchInternal(completer, true);
+                                        mIsTorchEnabledByFlash = true;
+                                    }
+                                } else {
+                                    Logger.d(TAG, "startFlashSequence: use triggerAePrecapture");
+                                    mFocusMeteringControl.triggerAePrecapture(completer);
+                                    mIsAeTriggeredByFlash = true;
+                                }
+                                return "startFlashSequence";
+                            });
+                }, mExecutor);
+
+        return Futures.nonCancellationPropagating(future);
     }
 
     /**
@@ -541,6 +597,23 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
      */
     public void updateSessionConfig() {
         mExecutor.execute(this::updateSessionConfigSynchronous);
+    }
+
+    /**
+     * Triggers an update to the session and returns a ListenableFuture which completes when the
+     * session is updated successfully.
+     */
+    @NonNull
+    ListenableFuture<Void> updateSessionConfigAsync() {
+        ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
+            mExecutor.execute(() -> {
+                long sessionUpdateId = updateSessionConfigSynchronous();
+                Futures.propagate(waitForSessionUpdateId(sessionUpdateId), completer);
+            });
+            return "updateSessionConfigAsync";
+        });
+
+        return Futures.nonCancellationPropagating(future);
     }
 
     /**
@@ -800,7 +873,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     @VisibleForTesting
-    long getCurrentSessionUpdateId()  {
+    long getCurrentSessionUpdateId() {
         return mCurrentSessionUpdateId;
     }
 
