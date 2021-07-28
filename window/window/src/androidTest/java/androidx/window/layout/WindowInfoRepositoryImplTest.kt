@@ -90,6 +90,7 @@ public class WindowInfoRepositoryImplTest {
                     WindowMetricsCalculatorCompat,
                     FakeWindowBackend()
                 )
+                activity.resetLayoutCounter()
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 activity.waitForLayout()
                 testScope.launch {
@@ -97,6 +98,7 @@ public class WindowInfoRepositoryImplTest {
                 }
             }
             scenario.onActivity { activity ->
+                activity.resetLayoutCounter()
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 activity.waitForLayout()
             }
