@@ -16,24 +16,27 @@
 
 package androidx.wear.phone.interactions.authentication
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
+import org.robolectric.annotation.Config
 
 /** Unit tests for [CodeVerifier] and [CodeChallenge] */
+@Config(minSdk = 26)
+@RequiresApi(Build.VERSION_CODES.O)
 public class CodeVerifierCodeChallengeTest {
     @Test
     public fun testVerifierDefaultConstructor() {
         val verifier = CodeVerifier()
-        assertEquals(43, verifier.value.length)
+        assertThat(verifier.value.length).isEqualTo(43)
     }
 
     @Test
     public fun testVerifierConstructor() {
         val verifier = CodeVerifier(96)
-        assertEquals(128, verifier.value.length)
+        assertThat(verifier.value.length).isEqualTo(128)
     }
 
     @Test
@@ -49,14 +52,14 @@ public class CodeVerifierCodeChallengeTest {
     @Test
     public fun testVerifierEquality() {
         val verifier = CodeVerifier()
-        assertTrue(verifier.equals(CodeVerifier(verifier.value)))
+        assertThat(CodeVerifier(verifier.value)).isEqualTo(verifier)
     }
 
     @Test
     public fun testVerifierInequality() {
-        assertFalse(CodeVerifier().equals(CodeVerifier()))
-        assertFalse(CodeVerifier(50).equals(CodeVerifier(50)))
-        assertFalse(CodeVerifier().equals(null))
+        assertThat(CodeVerifier()).isNotEqualTo(CodeVerifier())
+        assertThat(CodeVerifier(50)).isNotEqualTo(CodeVerifier(50))
+        assertThat(CodeVerifier()).isNotEqualTo(null)
     }
 
     @Test
@@ -64,22 +67,20 @@ public class CodeVerifierCodeChallengeTest {
         // see https://tools.ietf.org/html/rfc7636#appendix-A
         val verifier = CodeVerifier("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")
         val challenge = CodeChallenge(verifier)
-        assertEquals("E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM", challenge.value)
+        assertThat(challenge.value).isEqualTo("E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM")
     }
 
     @Test
     public fun testChallengeEquality() {
         val verifierValue = "jdshfkshg-8973834_SDFSSGE"
-        assertTrue(
-            CodeChallenge(CodeVerifier(verifierValue)).equals(
-                CodeChallenge(CodeVerifier(verifierValue))
-            )
-        )
+        assertThat(
+            CodeChallenge(CodeVerifier(verifierValue))
+        ).isEqualTo(CodeChallenge(CodeVerifier(verifierValue)))
     }
 
     @Test
     public fun testChallengeInequality() {
-        assertFalse(CodeChallenge(CodeVerifier()).equals(CodeChallenge(CodeVerifier())))
-        assertFalse(CodeChallenge(CodeVerifier()).equals(null))
+        assertThat(CodeChallenge(CodeVerifier())).isNotEqualTo(CodeChallenge(CodeVerifier()))
+        assertThat(CodeChallenge(CodeVerifier())).isNotEqualTo(null)
     }
 }

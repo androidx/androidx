@@ -23,7 +23,7 @@ import android.database.MatrixCursor
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.PhoneTypeHelper.Companion.getPhoneDeviceType
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,36 +61,32 @@ class PhoneTypeHelperTest {
     @Test
     fun testGetDeviceType_returnsIosWhenAltMode() {
         createFakePhoneTypeQuery(PhoneTypeHelper.IOS_MODE)
-        assertEquals(
-            getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
-            PhoneTypeHelper.DEVICE_TYPE_IOS.toLong()
-        )
+        assertThat(
+            getPhoneDeviceType(ApplicationProvider.getApplicationContext())
+        ).isEqualTo(PhoneTypeHelper.DEVICE_TYPE_IOS)
     }
 
     @Test
     fun testGetDeviceType_returnsAndroidWhenNonAltMode() {
         createFakePhoneTypeQuery(PhoneTypeHelper.ANDROID_MODE)
-        assertEquals(
-            getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
-            PhoneTypeHelper.DEVICE_TYPE_ANDROID.toLong()
-        )
+        assertThat(
+            getPhoneDeviceType(ApplicationProvider.getApplicationContext())
+        ).isEqualTo(PhoneTypeHelper.DEVICE_TYPE_ANDROID)
     }
 
     @Test
     fun testGetDeviceType_returnsErrorWhenModeUnknown() {
         createFakePhoneTypeQuery(PhoneTypeHelper.DEVICE_TYPE_UNKNOWN)
-        assertEquals(
-            getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
-            PhoneTypeHelper.DEVICE_TYPE_UNKNOWN.toLong()
-        )
+        assertThat(
+            getPhoneDeviceType(ApplicationProvider.getApplicationContext())
+        ).isEqualTo(PhoneTypeHelper.DEVICE_TYPE_UNKNOWN)
     }
 
     @Test
     fun testGetDeviceType_returnsErrorWhenContentMissing() {
-        assertEquals(
-            getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
-            PhoneTypeHelper.DEVICE_TYPE_ERROR.toLong()
-        )
+        assertThat(
+            getPhoneDeviceType(ApplicationProvider.getApplicationContext())
+        ).isEqualTo(PhoneTypeHelper.DEVICE_TYPE_ERROR)
     }
 
     /*

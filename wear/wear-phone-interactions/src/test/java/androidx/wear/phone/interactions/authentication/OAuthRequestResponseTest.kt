@@ -22,8 +22,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
@@ -58,7 +57,7 @@ public class OAuthRequestResponseTest {
     fun setUp() {
         // We need to make sure that context.packageName is not empty as it can lead to passing
         // tests when they shouldn't.
-        assertFalse(context.packageName.isEmpty())
+        assertThat(context.packageName).isNotEmpty()
     }
 
     private fun setSystemFeatureChina(value: Boolean) {
@@ -80,12 +79,12 @@ public class OAuthRequestResponseTest {
         }
 
         val requestUrl = request!!.requestUrl
-        assertEquals(requestUrl.toString().indexOf(expectedAuthProviderUrl), 0)
-        assertEquals(requestUrl.getQueryParameter("redirect_uri"), expectedRedirectUri)
-        assertEquals(requestUrl.getQueryParameter("client_id"), expectedClientId)
-        assertEquals(requestUrl.getQueryParameter("response_type"), "code")
-        assertEquals(requestUrl.getQueryParameter("code_challenge"), expectedCodeChallenge)
-        assertEquals(requestUrl.getQueryParameter("code_challenge_method"), "S256")
+        assertThat(requestUrl.toString().indexOf(expectedAuthProviderUrl)).isEqualTo(0)
+        assertThat(requestUrl.getQueryParameter("redirect_uri")).isEqualTo(expectedRedirectUri)
+        assertThat(requestUrl.getQueryParameter("client_id")).isEqualTo(expectedClientId)
+        assertThat(requestUrl.getQueryParameter("response_type")).isEqualTo("code")
+        assertThat(requestUrl.getQueryParameter("code_challenge")).isEqualTo(expectedCodeChallenge)
+        assertThat(requestUrl.getQueryParameter("code_challenge_method")).isEqualTo("S256")
     }
 
     private fun checkBuildFailure(builder: OAuthRequest.Builder, errorMsg: String) {
@@ -93,7 +92,7 @@ public class OAuthRequestResponseTest {
             builder.build()
             fail("should fail without providing correct/adequate info for building request")
         } catch (e: Exception) {
-            assertEquals(errorMsg, e.message)
+            assertThat(e.message).isEqualTo(errorMsg)
         }
     }
 
@@ -418,8 +417,8 @@ public class OAuthRequestResponseTest {
     public fun testNoErrorResponseBuild() {
         val response = OAuthResponse.Builder().setResponseUrl(responseUrl).build()
 
-        assertEquals(RemoteAuthClient.NO_ERROR, response.errorCode)
-        assertEquals(responseUrl, response.responseUrl)
+        assertThat(response.errorCode).isEqualTo(RemoteAuthClient.NO_ERROR)
+        assertThat(response.responseUrl).isEqualTo(responseUrl)
     }
 
     @Test
@@ -428,14 +427,14 @@ public class OAuthRequestResponseTest {
             .setErrorCode(RemoteAuthClient.ERROR_UNSUPPORTED)
             .build()
 
-        assertEquals(RemoteAuthClient.ERROR_UNSUPPORTED, response1.errorCode)
-        assertEquals(null, response1.responseUrl)
+        assertThat(response1.errorCode).isEqualTo(RemoteAuthClient.ERROR_UNSUPPORTED)
+        assertThat(response1.responseUrl).isNull()
 
         val response2 = OAuthResponse.Builder()
             .setErrorCode(RemoteAuthClient.ERROR_PHONE_UNAVAILABLE)
             .build()
 
-        assertEquals(RemoteAuthClient.ERROR_PHONE_UNAVAILABLE, response2.errorCode)
-        assertEquals(null, response2.responseUrl)
+        assertThat(response2.errorCode).isEqualTo(RemoteAuthClient.ERROR_PHONE_UNAVAILABLE)
+        assertThat(response2.responseUrl).isNull()
     }
 }
