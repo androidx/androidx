@@ -12,10 +12,7 @@ androidStudio = "2021.1.1.3"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "27.2.1"
-# Compose 1.0 stable is aligned with AGP 7.0 / Lint 30.0.0 stable - so we use a higher min to
-# compile against as we don't need to maintain compatibility with older versions of Lint.
-# TODO: update to 30.0.0 stable when it is released
-androidLintMinCompose = "30.0.0-alpha15"
+androidLintMinCompose = "30.0.0"
 androidxTest = "1.4.0-beta01"
 androidxTestExt = "1.1.3-beta01"
 atomicFu = "0.14.4"
