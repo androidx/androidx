@@ -126,6 +126,7 @@ public abstract class UseCase {
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     // The currently attached session config
+    @NonNull
     private SessionConfig mAttachedSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
     /**
@@ -343,7 +344,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
+    @NonNull
     public SessionConfig getSessionConfig() {
         return mAttachedSessionConfig;
     }

@@ -187,13 +187,11 @@ class UseCaseCameraImpl(
         val repeatingListeners = CameraCallbackMap()
 
         for (useCase in activeUseCases) {
-            val repeatingCapture = useCase.sessionConfig?.repeatingCaptureConfig
-            if (repeatingCapture != null) {
-                for (deferrableSurface in repeatingCapture.surfaces) {
-                    val streamId = surfaceToStreamMap[deferrableSurface]
-                    if (streamId != null) {
-                        repeatingStreamIds.add(streamId)
-                    }
+            val repeatingCapture = useCase.sessionConfig.repeatingCaptureConfig
+            for (deferrableSurface in repeatingCapture.surfaces) {
+                val streamId = surfaceToStreamMap[deferrableSurface]
+                if (streamId != null) {
+                    repeatingStreamIds.add(streamId)
                 }
             }
         }
