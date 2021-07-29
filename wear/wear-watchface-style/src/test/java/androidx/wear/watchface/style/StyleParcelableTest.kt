@@ -259,10 +259,10 @@ public class StyleParcelableTest {
             UserStyle(UserStyleData(UserStyleWireFormat.CREATOR.createFromParcel(parcel)), schema)
         parcel.recycle()
 
-        assertThat(unparcelled.selectedOptions.size).isEqualTo(2)
-        assertThat(unparcelled.selectedOptions[styleSetting1]!!.id.value.decodeToString())
+        assertThat(unparcelled.size).isEqualTo(2)
+        assertThat(unparcelled[styleSetting1]!!.id.value.decodeToString())
             .isEqualTo(option2.id.value.decodeToString())
-        assertThat(unparcelled.selectedOptions[styleSetting2]!!.id.value.decodeToString())
+        assertThat(unparcelled[styleSetting2]!!.id.value.decodeToString())
             .isEqualTo(option3.id.value.decodeToString())
     }
 

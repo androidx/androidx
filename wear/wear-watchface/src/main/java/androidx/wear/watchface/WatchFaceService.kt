@@ -435,7 +435,7 @@ public abstract class WatchFaceService : WallpaperService() {
     internal fun writePrefs(context: Context, fileName: String, style: UserStyle) {
         val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter()
         writer.use {
-            for ((key, value) in style.selectedOptions) {
+            for ((key, value) in style) {
                 writer.write(key.id.value)
                 writer.newLine()
                 writer.write(Base64.encodeToString(value.id.value, Base64.NO_WRAP))
