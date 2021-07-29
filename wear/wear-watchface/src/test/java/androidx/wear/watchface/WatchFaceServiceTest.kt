@@ -29,6 +29,7 @@ import android.os.BatteryManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.Parcel
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.Constants
@@ -54,6 +55,7 @@ import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
@@ -2888,6 +2890,49 @@ public class WatchFaceServiceTest {
                     "androidx.wear.watchface.test is too big"
             )
         }
+    }
+
+    @Test
+    public fun getComplicationSlotMetadataWireFormats_parcelTest() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "TestID",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                emptyList()
+            )
+        )
+
+        val metadata = engineWrapper.getComplicationSlotMetadataWireFormats()
+        assertThat(metadata.size).isEqualTo(2)
+        assertThat(metadata[0].id).isEqualTo(leftComplication.id)
+        assertThat(metadata[1].id).isEqualTo(rightComplication.id)
+
+        val parcel = Parcel.obtain()
+        metadata[0].writeToParcel(parcel, 0)
+
+        parcel.setDataPosition(0)
+
+        // This shouldn't throw an exception.
+        val unparceled = ComplicationSlotMetadataWireFormat.CREATOR.createFromParcel(parcel)
+        parcel.recycle()
+
+        // A quick check, we don't need to test everything here.
+        assertThat(unparceled.id).isEqualTo(leftComplication.id)
+        assertThat(unparceled.complicationBounds.size)
+            .isEqualTo(metadata[0].complicationBounds.size)
+        assertThat(unparceled.complicationBoundsType.size)
+            .isEqualTo(metadata[0].complicationBounds.size)
+        assertThat(unparceled.isInitiallyEnabled).isTrue()
     }
 
     @Suppress("DEPRECATION")

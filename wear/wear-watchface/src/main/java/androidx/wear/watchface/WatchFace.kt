@@ -972,8 +972,14 @@ public class WatchFaceImpl @UiThread constructor(
 
         params.idAndComplicationDatumWireFormats?.let {
             for (idAndData in it) {
-                complicationSlotsManager[idAndData.id]!!.renderer
-                    .loadData(idAndData.complicationData.toApiComplicationData(), false)
+                val complicationSlot = complicationSlotsManager[idAndData.id]
+                require(complicationSlot != null) {
+                    "ComplicationSlot ID ${idAndData.id} is unknown"
+                }
+                complicationSlot.renderer.loadData(
+                    idAndData.complicationData.toApiComplicationData(),
+                    false
+                )
             }
         }
 
