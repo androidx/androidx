@@ -16,12 +16,24 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build
 import androidx.benchmark.Outputs
 import androidx.test.uiautomator.UiDevice
 import java.io.File
 import java.io.InputStream
 
 internal data class ShellOutput(val stdout: String, val stderr: String)
+
+private fun UiDevice.chmodExecutable(absoluteFilePath: String) {
+    if (Build.VERSION.SDK_INT >= 23) {
+        executeShellCommand("chmod +x $absoluteFilePath")
+    } else {
+        // chmod with support for +x only added in API 23
+        // While 777 is technically more permissive, this is only used for scripts and temporary
+        // files in tests, so we don't worry about permissions / access here
+        executeShellCommand("chmod 777 $absoluteFilePath")
+    }
+}
 
 /**
  * Provides shell scripting functionality, as well as stdin/stderr capabilities (for the first/last
@@ -69,7 +81,7 @@ private fun UiDevice.executeShellScript(
         // Note: we don't check for return values from the below, since shell based file
         // permission errors generally crash our process.
         executeShellCommand("cp ${writableScriptFile.absolutePath} $runnableScriptPath")
-        executeShellCommand("chmod +x $runnableScriptPath")
+        chmodExecutable(runnableScriptPath)
 
         val stdout = executeShellCommand(runnableScriptPath)
         val stderr = stderrPath?.run { executeShellCommand("cat $stderrPath") }
@@ -175,5 +187,5 @@ private fun UiDevice.moveToTmpAndMakeExecutable(src: String, dst: String) {
     // Note: we don't check for return values from the below, since shell based file
     // permission errors generally crash our process.
     executeShellCommand("cp $src $dst")
-    executeShellCommand("chmod +x $dst")
+    chmodExecutable(dst)
 }
