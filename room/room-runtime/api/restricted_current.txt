@@ -330,10 +330,12 @@ package androidx.room.util {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class TableInfo.Index {
-    ctor public TableInfo.Index(String!, boolean, java.util.List<java.lang.String!>!);
+    ctor @Deprecated public TableInfo.Index(String!, boolean, java.util.List<java.lang.String!>!);
+    ctor public TableInfo.Index(String!, boolean, java.util.List<java.lang.String!>!, java.util.List<java.lang.String!>!);
     field public static final String DEFAULT_PREFIX = "index_";
     field public final java.util.List<java.lang.String!>! columns;
     field public final String! name;
+    field public final java.util.List<java.lang.String!>! orders;
     field public final boolean unique;
   }
 

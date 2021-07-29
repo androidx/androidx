@@ -1195,7 +1195,8 @@ class SchemaDifferTest {
                         IndexBundle(
                             "index1",
                             true,
-                            listOf("title"),
+                            emptyList<String>(),
+                            emptyList<String>(),
                             "CREATE UNIQUE INDEX IF NOT EXISTS `index1` ON `Song`" +
                                 "(`title`)"
                         )

@@ -158,7 +158,7 @@ public class EntityBundleTest {
 
     private IndexBundle createIndexBundle(String colName) {
         return new IndexBundle("ind_" + colName, false,
-                asList(colName), "create");
+                asList(colName), Collections.emptyList(), "create");
     }
 
     private ForeignKeyBundle createForeignKeyBundle(String targetTable, String column) {

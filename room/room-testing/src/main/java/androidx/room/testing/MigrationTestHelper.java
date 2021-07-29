@@ -515,7 +515,7 @@ public class MigrationTestHelper extends TestWatcher {
         Set<TableInfo.Index> result = new HashSet<>();
         for (IndexBundle bundle : indices) {
             result.add(new TableInfo.Index(bundle.getName(), bundle.isUnique(),
-                    bundle.getColumnNames()));
+                    bundle.getColumnNames(), bundle.getOrders()));
         }
         return result;
     }

@@ -45,12 +45,14 @@ interface EntityProcessor : EntityOrViewProcessor {
             return annotation.getAsAnnotationBoxArray<androidx.room.Index>("indices").map {
                 val indexAnnotation = it.value
                 val nameValue = indexAnnotation.name
+                val columns = indexAnnotation.value.asList()
+                val orders = indexAnnotation.orders.asList()
                 val name = if (nameValue == "") {
-                    createIndexName(indexAnnotation.value.asList(), tableName)
+                    createIndexName(columns, tableName)
                 } else {
                     nameValue
                 }
-                IndexInput(name, indexAnnotation.unique, indexAnnotation.value.asList())
+                IndexInput(name, indexAnnotation.unique, columns, orders)
             }
         }
 
@@ -83,7 +85,12 @@ interface EntityProcessor : EntityOrViewProcessor {
 /**
  * Processed Index annotation output.
  */
-data class IndexInput(val name: String, val unique: Boolean, val columnNames: List<String>)
+data class IndexInput(
+    val name: String,
+    val unique: Boolean,
+    val columnNames: List<String>,
+    val orders: List<androidx.room.Index.Order>
+)
 
 /**
  * ForeignKey, before it is processed in the context of a database.

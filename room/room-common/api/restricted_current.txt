@@ -139,8 +139,14 @@ package androidx.room {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({}) public @interface Index {
     method public abstract String name() default "";
+    method public abstract androidx.room.Index.Order[] orders() default {};
     method public abstract boolean unique() default false;
     method public abstract String[] value();
+  }
+
+  public enum Index.Order {
+    enum_constant public static final androidx.room.Index.Order ASC;
+    enum_constant public static final androidx.room.Index.Order DESC;
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface Insert {

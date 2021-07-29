@@ -108,14 +108,21 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
             )
             entity.indices.forEach { index ->
                 val columnNames = index.columnNames.joinToString(",") { "\"$it\"" }
+                val orders = if (index.orders.isEmpty()) {
+                    index.columnNames.map { "ASC" }.joinToString(",") { "\"$it\"" }
+                } else {
+                    index.orders.joinToString(",") { "\"$it\"" }
+                }
                 addStatement(
-                    "$L.add(new $T($S, $L, $T.asList($L)))",
+                    "$L.add(new $T($S, $L, $T.asList($L), $T.asList($L)))",
                     indicesSetVar,
                     RoomTypeNames.TABLE_INFO_INDEX,
                     index.name,
                     index.unique,
                     Arrays::class.typeName,
-                    columnNames
+                    columnNames,
+                    Arrays::class.typeName,
+                    orders,
                 )
             }
 
