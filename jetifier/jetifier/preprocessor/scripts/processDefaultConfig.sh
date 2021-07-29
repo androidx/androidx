@@ -29,7 +29,7 @@ JETIFIER_DIR="$ROOT_DIR/../.."
 BUILD_DIR="$ROOT_DIR/../../../../../../out/androidx"
 DEFAULT_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.config"
 GENERATED_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.generated.config"
-PREPROCESSOR_DISTRO_PATH="$BUILD_DIR/jetifier-preprocessor/build/distributions/jetifier-preprocessor.zip"
+PREPROCESSOR_DISTRO_PATH="$BUILD_DIR/jetifier/jetifier-preprocessor/build/distributions/jetifier-preprocessor.zip"
 PREPROCESSOR_BIN_PATH="$OUT_DIR/jetifier-preprocessor/bin/jetifier-preprocessor"
 SUPPORT_LIBS_BUILD_NUMBER="4631572"
 APP_TOOLKIT_BUILD_NUMBER="4669041"
@@ -61,7 +61,7 @@ function printSuccess() {
 
 function buildProjectUsingGradle() {
 	cd $1
-	sh gradlew :jetifier-preprocessor:clean :jetifier-preprocessor:publish $2 > $TEMP_LOG --stacktrace
+	sh gradlew :jetifier:jetifier-preprocessor:clean :jetifier:jetifier-preprocessor:distZip $2 > $TEMP_LOG --stacktrace
 }
 
 function downloadPackage() {
