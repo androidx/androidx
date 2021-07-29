@@ -16,11 +16,8 @@
 
 package androidx.wear.watchface.samples.minimal.complications;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -29,6 +26,7 @@ import android.widget.TextView;
 import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.wear.complications.ComplicationDataSourceInfo;
 import androidx.wear.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable;
@@ -56,11 +54,7 @@ public class ConfigActivity extends ComponentActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config_activity_layout);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            mMainExecutor = MainExecutorApi28.getMainExecutor(this);
-        } else {
-            mMainExecutor = MainExecutorApi25.getMainExecutor();
-        }
+        mMainExecutor = ContextCompat.getMainExecutor(getApplicationContext());
 
         mComplicationProviderName = findViewById(R.id.complication_provider_name);
         mComplicationPreview = findViewById(R.id.complication_preview);
@@ -176,20 +170,5 @@ public class ConfigActivity extends ComponentActivity {
 
     private <T> void addCallback(ListenableFuture<T> future, FutureCallback<T> callback) {
         FutureCallback.addCallback(future, callback, mMainExecutor);
-    }
-
-    private static final class MainExecutorApi25 {
-        public static Handler sMainThreadHandler = new Handler(Looper.getMainLooper());
-
-        public static Executor getMainExecutor() {
-            return sMainThreadHandler::post;
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.P)
-    private static final class MainExecutorApi28 {
-        public static Executor getMainExecutor(Context context) {
-            return context.getMainExecutor();
-        }
     }
 }
