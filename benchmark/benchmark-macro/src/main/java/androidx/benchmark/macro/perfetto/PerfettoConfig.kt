@@ -16,6 +16,9 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import perfetto.protos.DataSourceConfig
 import perfetto.protos.FtraceConfig
 import perfetto.protos.MeminfoCounters
@@ -54,26 +57,31 @@ private val FTRACE_DATA_SOURCE = TraceConfig.DataSource(
                 "lowmemorykiller/lowmemory_kill",
             ),
             atrace_categories = listOf(
-                // atrace categories currently come from default systrace tags
-                "am",
-                "binder_driver",
-                "camera",
-                "dalvik",
-                "freq",
-                "gfx",
-                "hal",
-                "idle",
-                "input",
-                "memreclaim",
-                "res",
-                "sched",
-                "sync",
-                "view",
+                AtraceTag.ActivityManager,
+                AtraceTag.BinderDriver,
+                AtraceTag.Camera,
+                AtraceTag.Dalvik,
+                AtraceTag.Frequency,
+                AtraceTag.Graphics,
+                AtraceTag.HardwareModules,
+                AtraceTag.Idle,
+                AtraceTag.Input,
+                AtraceTag.MemReclaim,
+                AtraceTag.Resources,
+                AtraceTag.Scheduling,
+                AtraceTag.Synchronization,
+                AtraceTag.View,
+                AtraceTag.WindowManager
                 // "webview" not included to workaround b/190743595
-                "wm",
                 // "memory" not included as some Q devices requiring ftrace_event
                 // configuration directly to collect this data. See b/171085599
-            ),
+            ).filter {
+                // filter to only supported tags on unrooted build
+                // TODO: use root-only tags as needed
+                it.supported(api = Build.VERSION.SDK_INT, rooted = false)
+            }.map {
+                it.tag
+            },
             // Trace all apps for now
             atrace_apps = listOf("*")
         )
@@ -138,3 +146,22 @@ internal val PERFETTO_CONFIG = TraceConfig(
         LINUX_SYS_STATS_DATASOURCE,
     ),
 )
+
+internal fun TraceConfig.validateAndEncode(): ByteArray {
+    val ftraceConfig = data_sources
+        .mapNotNull { it.config?.ftrace_config }
+        .first()
+
+    // check tags against known-supported tags based on SDK_INT / root status
+    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    val supportedTags = AtraceTag.supported(
+        api = Build.VERSION.SDK_INT,
+        rooted = device.isShellSessionRooted()
+    ).map { it.tag }.toSet()
+
+    val unsupportedTags = (ftraceConfig.atrace_categories - supportedTags)
+    check(unsupportedTags.isEmpty()) {
+        "Error - attempted to use unsupported atrace tags: $unsupportedTags"
+    }
+    return encode()
+}
