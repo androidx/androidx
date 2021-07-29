@@ -16,17 +16,13 @@
 
 package androidx.wear.watchface.samples.minimal.style;
 
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.wear.watchface.editor.ListenableEditorSession;
 import androidx.wear.watchface.style.UserStyle;
 import androidx.wear.watchface.style.UserStyleSetting;
@@ -58,11 +54,7 @@ public class ConfigActivity extends ComponentActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config_activity_layout);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            mMainExecutor = MainExecutorApi28.getMainExecutor(this);
-        } else {
-            mMainExecutor = MainExecutorApi25.getMainExecutor();
-        }
+        mMainExecutor = ContextCompat.getMainExecutor(getApplicationContext());
         mTimeStyle = new TimeStyle(this);
 
         mStyleValue = findViewById(R.id.style_value);
@@ -135,20 +127,5 @@ public class ConfigActivity extends ComponentActivity {
         map.put(TimeStyle.Value.MINIMAL, TimeStyle.Value.SECONDS);
         map.put(TimeStyle.Value.SECONDS, TimeStyle.Value.MINIMAL);
         return map;
-    }
-
-    private static final class MainExecutorApi25 {
-        public static Handler sMainThreadHandler = new Handler(Looper.getMainLooper());
-
-        public static Executor getMainExecutor() {
-            return sMainThreadHandler::post;
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.P)
-    private static final class MainExecutorApi28 {
-        public static Executor getMainExecutor(Context context) {
-            return context.getMainExecutor();
-        }
     }
 }
