@@ -24,11 +24,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.SwipeableDefaults
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -43,7 +39,7 @@ import androidx.navigation.compose.material.BottomSheetNavigator.Destination
  * @param sheetState The sheet state that is driven by the [BottomSheetNavigator]
  */
 @ExperimentalMaterialApi
-class BottomSheetNavigatorSheetState(private val sheetState: ModalBottomSheetState) {
+public class BottomSheetNavigatorSheetState(private val sheetState: ModalBottomSheetState) {
     /**
      * @see ModalBottomSheetState.isVisible
      */
@@ -115,7 +111,6 @@ public class BottomSheetNavigator(
         val columnScope = this
         val saveableStateHolder = rememberSaveableStateHolder()
         val backStackEntries by state.backStack.collectAsState()
-        val transitionsInProgress by state.transitionsInProgress.collectAsState()
 
         // We always replace the sheet's content instead of overlaying and nesting floating
         // window destinations. That means that only *one* concurrent destination is supported by
@@ -132,15 +127,13 @@ public class BottomSheetNavigator(
             sheetState = sheetState,
             saveableStateHolder = saveableStateHolder,
             onSheetShown = { backStackEntry ->
-                val transitionForEntry = transitionsInProgress[backStackEntry]
-                transitionForEntry?.onTransitionComplete()
+                state.markTransitionComplete(backStackEntry)
             },
             onSheetDismissed = { backStackEntry ->
                 // Sheet dismissal can be started through popBackStack in which case we have a
                 // transition that we'll want to complete
-                val transitionForEntry = transitionsInProgress[backStackEntry]
-                if (transitionForEntry != null) {
-                    transitionForEntry.onTransitionComplete()
+                if (state.transitionsInProgress.value.contains(backStackEntry)) {
+                    state.markTransitionComplete(backStackEntry)
                 } else {
                     // When the sheet has been dismissed by the user we always want to pop
                     // the whole back stack of this navigator's state
