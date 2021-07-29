@@ -31,7 +31,7 @@ import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.style.WatchFaceLayer
 
 /**

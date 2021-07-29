@@ -33,7 +33,7 @@ package androidx.wear.watchface {
   }
 
   public interface CanvasComplication {
-    method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationSlotBoundsType int boundsType, android.icu.util.Calendar calendar, @ColorInt int color);
+    method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @androidx.wear.watchface.ComplicationSlotBoundsType int boundsType, android.icu.util.Calendar calendar, @ColorInt int color);
     method public androidx.wear.complications.data.ComplicationData? getData();
     method public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
     method @WorkerThread public default void onRendererCreated(androidx.wear.watchface.Renderer renderer);
@@ -125,6 +125,19 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy);
     method public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
     method public androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.ComplicationSlotBounds bounds);
+  }
+
+  @IntDef({androidx.wear.watchface.ComplicationSlotBoundsType.ROUND_RECT, androidx.wear.watchface.ComplicationSlotBoundsType.BACKGROUND, androidx.wear.watchface.ComplicationSlotBoundsType.EDGE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public @interface ComplicationSlotBoundsType {
+    field public static final int BACKGROUND = 1; // 0x1
+    field public static final androidx.wear.watchface.ComplicationSlotBoundsType.Companion Companion;
+    field public static final int EDGE = 2; // 0x2
+    field public static final int ROUND_RECT = 0; // 0x0
+  }
+
+  public static final class ComplicationSlotBoundsType.Companion {
+    field public static final int BACKGROUND = 1; // 0x1
+    field public static final int EDGE = 2; // 0x2
+    field public static final int ROUND_RECT = 0; // 0x0
   }
 
   public final class ComplicationSlotsManager {

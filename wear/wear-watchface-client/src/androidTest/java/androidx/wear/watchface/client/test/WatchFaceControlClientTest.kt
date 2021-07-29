@@ -55,7 +55,7 @@ import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.control.WatchFaceControlService
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.samples.BLUE_STYLE
 import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
 import androidx.wear.watchface.samples.COMPLICATIONS_STYLE_SETTING

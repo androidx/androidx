@@ -57,7 +57,7 @@ import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyle

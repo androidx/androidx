@@ -28,7 +28,7 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.client.WatchFaceClientExperimental
 import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.control.WatchFaceControlService
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import com.google.common.truth.Truth
