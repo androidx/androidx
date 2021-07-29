@@ -162,10 +162,6 @@ public final class Recorder implements VideoOutput {
          */
         INITIALIZING,
         /**
-         * Audio recording is not supported by this Recorder.
-         */
-        UNSUPPORTED,
-        /**
          * Audio recording is disabled for the running recording.
          */
         DISABLED,
@@ -241,9 +237,10 @@ public final class Recorder implements VideoOutput {
     // May be equivalent to mUserProvidedExecutor or an internal executor if the user did not
     // provide an executor.
     private final Executor mExecutor;
+    private final AtomicBoolean mSurfaceRequested = new AtomicBoolean(false);
+    private final AtomicBoolean mAudioInitialized = new AtomicBoolean(false);
     private SurfaceRequest.TransformationInfo mSurfaceTransformationInfo = null;
     private Throwable mErrorCause;
-    private AtomicBoolean mSurfaceRequested = new AtomicBoolean(false);
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final SparseArray<CallbackToFutureAdapter.Completer<Void>> mEncodingCompleters =
@@ -294,13 +291,8 @@ public final class Recorder implements VideoOutput {
         mSequentialExecutor = CameraXExecutors.newSequentialExecutor(mExecutor);
 
         mMediaSpec = MutableStateObservable.withInitialState(composeRecorderMediaSpec(mediaSpec));
-        if (getObservableData(mMediaSpec).getAudioSpec().getChannelCount()
-                == AudioSpec.CHANNEL_COUNT_NONE) {
-            setAudioState(AudioState.UNSUPPORTED);
-        }
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public void onSurfaceRequested(@NonNull SurfaceRequest request) {
         synchronized (mLock) {
@@ -477,26 +469,18 @@ public final class Recorder implements VideoOutput {
      * completes. The recording will be considered active, so before it's finalized, an
      * {@link IllegalStateException} will be thrown if this method is called for a second time.
      *
-     * @throws IllegalStateException if there's an active recording or the Recorder has been
-     * released.
+     * @throws IllegalStateException if there's an active recording, or the audio is
+     * {@link PendingRecording#withAudioEnabled() enabled} for the recording but
+     * {@link android.Manifest.permission#RECORD_AUDIO} is not granted.
      */
+    @SuppressLint("MissingPermission")
     @NonNull
     ActiveRecording start(@NonNull PendingRecording pendingRecording) {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
+        ActiveRecording activeRecording = ActiveRecording.from(pendingRecording);
         synchronized (mLock) {
-            ActiveRecording activeRecording = ActiveRecording.from(pendingRecording);
-            mRunningRecording = activeRecording;
-            switch (getObservableData(mState)) {
-                case RESETTING:
-                    // Fall-through
-                case INITIALIZING:
-                    // The recording will automatically start once the initialization completes.
-                    setState(State.PENDING_RECORDING);
-                    break;
-                case IDLING:
-                    mSequentialExecutor.execute(this::startInternal);
-                    setState(State.RECORDING);
-                    break;
+            State state = getObservableData(mState);
+            switch (state) {
                 case PENDING_PAUSED:
                     // Fall-through
                 case PAUSED:
@@ -505,15 +489,35 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case RECORDING:
                     throw new IllegalStateException("There's an active recording.");
+                case RESETTING:
+                    // Fall-through
+                case INITIALIZING:
+                    setupAudioIfNeeded(activeRecording);
+                    mRunningRecording = activeRecording;
+                    // The recording will automatically start once the initialization completes.
+                    setState(State.PENDING_RECORDING);
+                    break;
+                case IDLING:
+                    setupAudioIfNeeded(activeRecording);
+                    mRunningRecording = activeRecording;
+                    mSequentialExecutor.execute(this::startInternal);
+                    setState(State.RECORDING);
+                    break;
                 case ERROR:
-                    Logger.e(TAG, "Recording was started when the Recorder had encountered error "
-                            + mErrorCause);
-                    finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR, mErrorCause);
+                    Logger.e(TAG,
+                            "Recording was started when the Recorder had encountered error "
+                                    + mErrorCause);
+                    // Immediately finalize the recording if the Recorder encountered error.
+                    activeRecording.updateVideoRecordEvent(VideoRecordEvent.finalizeWithError(
+                            activeRecording.getOutputOptions(),
+                            getCurrentRecordingStats(),
+                            OutputResults.of(Uri.EMPTY),
+                            VideoRecordEvent.ERROR_RECORDER_ERROR,
+                            mErrorCause));
                     break;
             }
-
-            return activeRecording;
         }
+        return activeRecording;
     }
 
     void pause() {
@@ -646,13 +650,7 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private void initializeInternal(SurfaceRequest surfaceRequest) {
-        if (mAudioState != AudioState.UNSUPPORTED) {
-            // Skip setting up audio as the media spec shows there's no audio channel.
-            setupAudio();
-        }
-
         if (mSurface != null) {
             // The video encoder has already be created, providing the surface directly.
             surfaceRequest.provideSurface(mSurface, mSequentialExecutor, (result) -> {
@@ -769,9 +767,22 @@ public final class Recorder implements VideoOutput {
                 .build();
     }
 
-    @ExecutedBy("mSequentialExecutor")
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    private void setupAudio() {
+    private void setupAudioIfNeeded(@NonNull ActiveRecording activeRecording) {
+        if (!activeRecording.isAudioEnabled()) {
+            // Skip if audio is not enabled for the recording.
+            return;
+        }
+
+        if (!isAudioSupported()) {
+            throw new IllegalStateException("The Recorder doesn't support recording with audio");
+        }
+
+        if (mAudioInitialized.getAndSet(true)) {
+            // Skip if audio has already been initialized.
+            return;
+        }
+
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
         AudioEncoderConfig config = composeAudioEncoderConfig(mediaSpec);
 
@@ -793,14 +804,7 @@ public final class Recorder implements VideoOutput {
                     mediaSpec.getAudioSpec());
         } catch (AudioSourceAccessException e) {
             Logger.e(TAG, "Unable to create audio source." + e);
-            setState(State.ERROR);
-            mErrorCause = e;
-            return;
-        } catch (SecurityException e) {
-            Logger.e(TAG, "Missing audio recording permission." + e);
-            setState(State.ERROR);
-            mErrorCause = e;
-            return;
+            throw new IllegalStateException("Unable to create audio source.", e);
         }
 
         mAudioEncoder.setEncoderCallback(new EncoderCallback() {
@@ -878,7 +882,6 @@ public final class Recorder implements VideoOutput {
         }, mSequentialExecutor);
     }
 
-    @ExecutedBy("mSequentialExecutor")
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @NonNull
     private AudioSource setupAudioSource(@NonNull BufferProvider<InputBuffer> bufferProvider,
@@ -896,8 +899,6 @@ public final class Recorder implements VideoOutput {
                     @Override
                     public void onSilenced(boolean silenced) {
                         switch (mAudioState) {
-                            case UNSUPPORTED:
-                                // Fall-through
                             case DISABLED:
                                 // Fall-through
                             case ENCODER_ERROR:
@@ -1235,7 +1236,7 @@ public final class Recorder implements VideoOutput {
     private void resetInternal() {
         if (mAudioEncoder != null) {
             mAudioEncoder.release();
-            mAudioSource = null;
+            mAudioEncoder = null;
         }
         if (mVideoEncoder != null) {
             mVideoEncoder.release();
@@ -1247,13 +1248,12 @@ public final class Recorder implements VideoOutput {
         }
 
         mSurfaceRequested.set(false);
+        mAudioInitialized.set(false);
         setState(State.INITIALIZING);
     }
 
     private int internalAudioStateToEventAudioState(AudioState audioState) {
         switch (audioState) {
-            case UNSUPPORTED:
-                // Fall-through
             case DISABLED:
                 return RecordingStats.AUDIO_DISABLED;
             case INITIALIZING:
@@ -1271,7 +1271,7 @@ public final class Recorder implements VideoOutput {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean isAudioEnabled() {
-        return mAudioState != AudioState.UNSUPPORTED && mAudioState != AudioState.DISABLED;
+        return mAudioState != AudioState.DISABLED && mAudioState != AudioState.ENCODER_ERROR;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1320,13 +1320,6 @@ public final class Recorder implements VideoOutput {
         mRecordingStopError = VideoRecordEvent.ERROR_UNKNOWN;
         mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
 
-        // Reset audio setting to the Recorder default.
-        if (getObservableData(mMediaSpec).getAudioSpec().getChannelCount()
-                == AudioSpec.CHANNEL_COUNT_NONE) {
-            setAudioState(AudioState.UNSUPPORTED);
-        } else {
-            setAudioState(AudioState.INITIALIZING);
-        }
         synchronized (mLock) {
             if (getObservableData(mState) == State.RESETTING) {
                 resetInternal();
@@ -1379,6 +1372,11 @@ public final class Recorder implements VideoOutput {
         }
     }
 
+    boolean isAudioSupported() {
+        return getObservableData(mMediaSpec).getAudioSpec().getChannelCount()
+                != AudioSpec.CHANNEL_COUNT_NONE;
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void setState(@NonNull State state) {
         synchronized (mLock) {
@@ -1395,6 +1393,7 @@ public final class Recorder implements VideoOutput {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mSequentialExecutor")
     void setAudioState(AudioState audioState) {
         Logger.d(TAG, "Transitioning audio state: " + mAudioState + " --> " + audioState);
         mAudioState = audioState;

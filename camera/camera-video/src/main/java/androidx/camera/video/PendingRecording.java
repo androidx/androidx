@@ -101,14 +101,19 @@ public final class PendingRecording {
      * {@link RecordingStats#AUDIO_DISABLED} for all {@link RecordingStats} send to the listener
      * set by {@link #withEventListener(Executor, Consumer)}.
      *
-     * <p>This method requires the caller to hold the permission
-     * {@link android.Manifest.permission#RECORD_AUDIO}.
+     * <p>Recording with audio requires the {@link android.Manifest.permission#RECORD_AUDIO}
+     * permission; without it, recording will fail at {@link #start()} with an
+     * {@link IllegalStateException}.
      *
      * @return this pending recording
+     * @throws IllegalStateException if the {@link Recorder} this recording is associated to
+     * doesn't support audio.
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @NonNull
     public PendingRecording withAudioEnabled() {
+        Preconditions.checkState(mRecorder.isAudioSupported(), "The Recorder this recording is "
+                + "associated to doesn't support audio.");
         mAudioEnabled = true;
         return this;
     }
@@ -134,7 +139,8 @@ public final class PendingRecording {
      * {@link ActiveRecording} will be in a finalized state, and all controls will be no-ops.
      *
      * @throws IllegalStateException if the associated Recorder currently has an unfinished
-     * active recording.
+     * active recording, or if the recording has {@link #withAudioEnabled()} audio} but
+     * {@link android.Manifest.permission#RECORD_AUDIO} is not granted.
      */
     @NonNull
     public ActiveRecording start() {
