@@ -181,6 +181,7 @@ public open class NavController(
         mutableMapOf<Navigator<out NavDestination>, NavControllerNavigatorState>()
     private var addToBackStackHandler: ((backStackEntry: NavBackStackEntry) -> Unit)? = null
     private var popFromBackStackHandler: ((popUpTo: NavBackStackEntry) -> Unit)? = null
+    private val entrySavedState = mutableMapOf<NavBackStackEntry, Boolean>()
 
     /**
      * Call [Navigator.navigate] while setting up a [handler] that receives callbacks
@@ -269,43 +270,28 @@ public open class NavController(
             }
         }
 
-        override fun pushWithTransition(
-            backStackEntry: NavBackStackEntry
-        ): OnTransitionCompleteListener {
-            val innerListener = super.pushWithTransition(backStackEntry)
-            val listener = OnTransitionCompleteListener {
-                innerListener.onTransitionComplete()
-                if (!this@NavControllerNavigatorState.isNavigating) {
-                    updateBackStackLifecycle()
-                }
-            }
-            addInProgressTransition(backStackEntry, listener)
-            return listener
+        override fun popWithTransition(popUpTo: NavBackStackEntry, saveState: Boolean) {
+            super.popWithTransition(popUpTo, saveState)
+            entrySavedState[popUpTo] = saveState
         }
 
-        override fun popWithTransition(
-            popUpTo: NavBackStackEntry,
-            saveState: Boolean
-        ): OnTransitionCompleteListener {
-            // we need to mark the entry as transitioning before making the super call to pop so
-            // we don't move its lifecycle to DESTROYED.
-            addInProgressTransition(popUpTo) { }
-            val innerListener = super.popWithTransition(popUpTo, saveState)
-            val listener = OnTransitionCompleteListener {
-                innerListener.onTransitionComplete()
-                if (backQueue.contains(popUpTo)) {
-                    updateBackStackLifecycle()
-                } else {
-                    // If the entry is no longer part of the backStack, we need to manually move
-                    // it to DESTROYED, and clear its view model
-                    popUpTo.maxLifecycle = Lifecycle.State.DESTROYED
-                    if (!saveState) {
-                        viewModel?.clear(popUpTo.id)
-                    }
+        override fun markTransitionComplete(entry: NavBackStackEntry) {
+            val savedState = entrySavedState[entry] == true
+            super.markTransitionComplete(entry)
+            entrySavedState.remove(entry)
+            if (!backQueue.contains(entry)) {
+                // If the entry is no longer part of the backStack, we need to manually move
+                // it to DESTROYED, and clear its view model
+                entry.maxLifecycle = Lifecycle.State.DESTROYED
+                if (!savedState) {
+                    viewModel?.clear(entry.id)
                 }
+                updateBackStackLifecycle()
+            } else if (!this@NavControllerNavigatorState.isNavigating) {
+                updateBackStackLifecycle()
             }
-            addInProgressTransition(popUpTo, listener)
-            return listener
+            // else, updateBackStackLifecycle() will be called after any ongoing navigate() call
+            // completes
         }
     }
 
@@ -604,17 +590,7 @@ public open class NavController(
         val navigator = navigatorProvider
             .getNavigator<Navigator<NavDestination>>(entry.destination.navigatorName)
         val state = navigatorState[navigator]
-        val transitioning = state?.transitionsInProgress?.value?.containsKey(entry)
-        // When popping, we need to mark the incoming entry as transitioning so we keep it
-        // STARTED until the transition completes at which point we can move it to RESUMED
-        if (backQueue.isNotEmpty() && transitioning == true) {
-            state.addInProgressTransition(backQueue.last()) {
-                state.removeInProgressTransition(backQueue.last())
-                if (!state.isNavigating) {
-                    updateBackStackLifecycle()
-                }
-            }
-        }
+        val transitioning = state?.transitionsInProgress?.value?.contains(entry)
         if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
             if (saveState) {
                 // Move the state through STOPPED
@@ -862,7 +838,7 @@ public open class NavController(
                     val navigator = navigatorProvider
                         .getNavigator<Navigator<*>>(entry.destination.navigatorName)
                     val state = navigatorState[navigator]
-                    val transitioning = state?.transitionsInProgress?.value?.containsKey(entry)
+                    val transitioning = state?.transitionsInProgress?.value?.contains(entry)
                     if (transitioning != true) {
                         upwardStateTransitions[entry] = Lifecycle.State.RESUMED
                     } else {
