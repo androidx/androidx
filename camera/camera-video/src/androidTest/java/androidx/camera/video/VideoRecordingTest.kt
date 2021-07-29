@@ -24,16 +24,15 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
+import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -61,7 +60,7 @@ class VideoRecordingTest(
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
 
     companion object {
-        private const val VIDEO_TIMEOUT = 10_000L
+        private const val VIDEO_TIMEOUT_SEC = 10L
         private const val TAG = "VideoRecordingTest"
         @JvmStatic
         @Parameterized.Parameters
@@ -75,7 +74,8 @@ class VideoRecordingTest(
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
-    private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
+    private lateinit var cameraProvider: ProcessCameraProvider
+    private lateinit var lifecycleOwner: FakeLifecycleOwner
     private lateinit var preview: Preview
     private lateinit var cameraInfo: CameraInfo
 
@@ -112,36 +112,34 @@ class VideoRecordingTest(
     @Before
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
-        // Skip for b/168175357
+        // Skip test for b/168175357
         Assume.assumeFalse(
             "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
         )
 
-        CameraX.initialize(context, Camera2Config.defaultConfig()).get()
-        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
-        cameraInfo = cameraUseCaseAdapter.cameraInfo
+        cameraProvider = ProcessCameraProvider.getInstance(context).get()
+        lifecycleOwner = FakeLifecycleOwner()
+        lifecycleOwner.startAndResume()
 
         // Add extra Preview to provide an additional surface for b/168187087.
         preview = Preview.Builder().build()
         // Sets surface provider to preview
         instrumentation.runOnMainSync {
-            preview.setSurfaceProvider(
-                getSurfaceProvider()
-            )
+            preview.setSurfaceProvider(getSurfaceProvider())
+            cameraInfo = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+                .cameraInfo
         }
     }
 
     @After
     fun tearDown() {
-        if (this::cameraUseCaseAdapter.isInitialized) {
+        if (this::cameraProvider.isInitialized) {
             instrumentation.runOnMainSync {
-                cameraUseCaseAdapter.apply {
-                    removeUseCases(useCases)
-                }
+                cameraProvider.unbindAll()
             }
+            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         }
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
     }
 
     @Test
@@ -157,7 +155,7 @@ class VideoRecordingTest(
         latchForVideoRecording = CountDownLatch(5)
 
         instrumentation.runOnMainSync {
-            cameraUseCaseAdapter.addUseCases(listOf(preview, videoCapture))
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, videoCapture)
         }
 
         // Act.
@@ -172,15 +170,13 @@ class VideoRecordingTest(
 
     @Test
     fun getCorrectResolution_when_setSupportedQuality() {
+        // Pre-arrange.
         Assume.assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
-
         val qualityList = QualitySelector.getSupportedQualities(cameraInfo)
-        instrumentation.runOnMainSync {
-            cameraUseCaseAdapter.addUseCases(listOf(preview))
-        }
-
         Log.d(TAG, "CameraSelector: ${cameraSelector.lensFacing}, QualityList: $qualityList ")
+
         qualityList.forEach loop@{ quality ->
+            // Arrange.
             val targetResolution = QualitySelector.getResolution(cameraInfo, quality)
             if (targetResolution == null) {
                 // If targetResolution is null, try next one
@@ -199,7 +195,13 @@ class VideoRecordingTest(
             latchForVideoRecording = CountDownLatch(5)
 
             instrumentation.runOnMainSync {
-                cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    cameraSelector,
+                    preview,
+                    videoCapture
+                )
             }
 
             // Act.
@@ -210,31 +212,65 @@ class VideoRecordingTest(
 
             // Cleanup.
             file.delete()
-            instrumentation.runOnMainSync {
-                cameraUseCaseAdapter.apply {
-                    removeUseCases(listOf(videoCapture))
-                }
-            }
         }
     }
 
+    @Test
+    fun stopRecording_when_useCaseUnbind() {
+        // Arrange.
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        latchForVideoSaved = CountDownLatch(1)
+        latchForVideoRecording = CountDownLatch(5)
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, videoCapture)
+        }
+
+        // Act.
+        startVideoRecording(videoCapture, file)
+        instrumentation.runOnMainSync {
+            cameraProvider.unbind(videoCapture)
+        }
+
+        // Verify.
+        // Wait for finalize event to saved file.
+        assertThat(latchForVideoSaved.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
+
+        // Check if any error after recording finalized
+        assertWithMessage(TAG + "Finalize with error: ${finalize.error}, ${finalize.cause}.")
+            .that(finalize.hasError()).isFalse()
+
+        // Cleanup.
+        file.delete()
+    }
+
+    // TODO(b/193385037): Add test to check video-recording stop when lifecylce state is paused.
+
+    private fun startVideoRecording(videoCapture: VideoCapture<Recorder>, file: File):
+        ActiveRecording {
+            val outputOptions = FileOutputOptions.builder().setFile(file).build()
+
+            val activeRecording = videoCapture.output
+                .prepareRecording(outputOptions)
+                .withEventListener(
+                    CameraXExecutors.directExecutor(),
+                    videoRecordEventListener
+                )
+                .start()
+
+            // Wait for status event to proceed recording for a while.
+            assertThat(latchForVideoRecording.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
+
+            return activeRecording
+        }
+
     private fun completeVideoRecording(videoCapture: VideoCapture<Recorder>, file: File) {
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
-
-        val activeRecording = videoCapture.output
-            .prepareRecording(outputOptions)
-            .withEventListener(
-                CameraXExecutors.directExecutor(),
-                videoRecordEventListener
-            )
-            .start()
-
-        // Wait for status event to proceed recording for a while.
-        assertThat(latchForVideoRecording.await(VIDEO_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        val activeRecording = startVideoRecording(videoCapture, file)
 
         activeRecording.stop()
         // Wait for finalize event to saved file.
-        assertThat(latchForVideoSaved.await(VIDEO_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(latchForVideoSaved.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
 
         // Check if any error after recording finalized
         assertWithMessage(TAG + "Finalize with error: ${finalize.error}, ${finalize.cause}.")
