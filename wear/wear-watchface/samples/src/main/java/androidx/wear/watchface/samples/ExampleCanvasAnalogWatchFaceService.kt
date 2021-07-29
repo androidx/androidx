@@ -100,23 +100,27 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
     private val colorStyleSetting by lazy {
         ListUserStyleSetting(
             UserStyleSetting.Id(COLOR_STYLE_SETTING),
-            getString(R.string.colors_style_setting),
-            getString(R.string.colors_style_setting_description),
+            resources,
+            R.string.colors_style_setting,
+            R.string.colors_style_setting_description,
             icon = null,
             options = listOf(
                 ListUserStyleSetting.ListOption(
                     Option.Id(RED_STYLE),
-                    getString(R.string.colors_style_red),
+                    resources,
+                    R.string.colors_style_red,
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 ListUserStyleSetting.ListOption(
                     Option.Id(GREEN_STYLE),
-                    getString(R.string.colors_style_green),
+                    resources,
+                    R.string.colors_style_green,
                     Icon.createWithResource(this, R.drawable.green_style)
                 ),
                 ListUserStyleSetting.ListOption(
                     Option.Id(BLUE_STYLE),
-                    getString(R.string.colors_style_blue),
+                    resources,
+                    R.string.colors_style_blue,
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),
@@ -131,8 +135,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
     private val drawHourPipsStyleSetting by lazy {
         BooleanUserStyleSetting(
             UserStyleSetting.Id(DRAW_HOUR_PIPS_STYLE_SETTING),
-            getString(R.string.watchface_pips_setting),
-            getString(R.string.watchface_pips_setting_description),
+            resources,
+            R.string.watchface_pips_setting,
+            R.string.watchface_pips_setting_description,
             null,
             listOf(WatchFaceLayer.BASE),
             true
@@ -142,8 +147,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
     private val watchHandLengthStyleSetting by lazy {
         DoubleRangeUserStyleSetting(
             UserStyleSetting.Id(WATCH_HAND_LENGTH_STYLE_SETTING),
-            getString(R.string.watchface_hand_length_setting),
-            getString(R.string.watchface_hand_length_setting_description),
+            resources,
+            R.string.watchface_hand_length_setting,
+            R.string.watchface_hand_length_setting_description,
             null,
             0.25,
             1.0,
@@ -157,13 +163,15 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
     private val complicationsStyleSetting by lazy {
         ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id(COMPLICATIONS_STYLE_SETTING),
-            getString(R.string.watchface_complications_setting),
-            getString(R.string.watchface_complications_setting_description),
+            resources,
+            R.string.watchface_complications_setting,
+            R.string.watchface_complications_setting_description,
             icon = null,
             complicationConfig = listOf(
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
-                    getString(R.string.watchface_complications_setting_both),
+                    resources,
+                    R.string.watchface_complications_setting_both,
                     null,
                     // NB this list is empty because each [ComplicationSlotOverlay] is applied on
                     // top of the initial config.
@@ -171,7 +179,8 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ),
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id(NO_COMPLICATIONS),
-                    getString(R.string.watchface_complications_setting_none),
+                    resources,
+                    R.string.watchface_complications_setting_none,
                     null,
                     listOf(
                         ComplicationSlotOverlay(
@@ -186,7 +195,8 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ),
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id(LEFT_COMPLICATION),
-                    getString(R.string.watchface_complications_setting_left),
+                    resources,
+                    R.string.watchface_complications_setting_left,
                     null,
                     listOf(
                         ComplicationSlotOverlay(
@@ -197,7 +207,8 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ),
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id(RIGHT_COMPLICATION),
-                    getString(R.string.watchface_complications_setting_right),
+                    resources,
+                    R.string.watchface_complications_setting_right,
                     null,
                     listOf(
                         ComplicationSlotOverlay(

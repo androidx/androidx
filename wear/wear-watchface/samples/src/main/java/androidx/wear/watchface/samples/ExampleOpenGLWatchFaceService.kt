@@ -86,18 +86,21 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
     private val colorStyleSetting by lazy {
         ListUserStyleSetting(
             UserStyleSetting.Id("color_style_setting"),
-            "Colors",
-            "Watchface colorization",
+            resources,
+            R.string.colors_style_setting,
+            R.string.colors_style_setting_description,
             icon = null,
             options = listOf(
                 ListUserStyleSetting.ListOption(
                     Option.Id("red_style"),
-                    "Red",
+                    resources,
+                    R.string.colors_style_red,
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 ListUserStyleSetting.ListOption(
                     Option.Id("green_style"),
-                    "Green",
+                    resources,
+                    R.string.colors_style_green,
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             ),
