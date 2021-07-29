@@ -25,7 +25,7 @@ import androidx.window.extensions.ExtensionFoldingFeature.TYPE_HINGE
 import androidx.window.extensions.ExtensionWindowLayoutInfo
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
-import androidx.window.layout.FoldingFeature.Type.Companion.FOLD
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
@@ -61,7 +61,9 @@ public class ExtensionTranslatingCallbackTest {
             ExtensionWindowLayoutInfo(
                 extensionDisplayFeatures
             )
-        val expectedFeatures = listOf(FoldingFeature(Bounds(foldFeature.bounds), FOLD, FLAT))
+        val expectedFeatures = listOf(
+            HardwareFoldingFeature(Bounds(foldFeature.bounds), FOLD, FLAT)
+        )
         val expected = WindowLayoutInfo(expectedFeatures)
         val mockCallback = mock<ExtensionCallbackInterface>()
         val extensionTranslatingCallback =

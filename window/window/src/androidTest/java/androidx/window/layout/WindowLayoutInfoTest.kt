@@ -20,7 +20,7 @@ import androidx.test.filters.SmallTest
 import androidx.window.core.Bounds
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
-import androidx.window.layout.FoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -41,8 +41,9 @@ public class WindowLayoutInfoTest {
 
     @Test
     public fun testBuilder_setDisplayFeatures() {
-        val feature1: DisplayFeature = FoldingFeature(Bounds(1, 0, 3, 4), HINGE, FLAT)
-        val feature2: DisplayFeature = FoldingFeature(Bounds(1, 0, 1, 4), HINGE, HALF_OPENED)
+        val feature1: DisplayFeature = HardwareFoldingFeature(Bounds(1, 0, 3, 4), HINGE, FLAT)
+        val feature2: DisplayFeature =
+            HardwareFoldingFeature(Bounds(1, 0, 1, 4), HINGE, HALF_OPENED)
         val displayFeatures = listOf(feature1, feature2)
         val builder = WindowLayoutInfo.Builder()
         builder.setDisplayFeatures(displayFeatures)
@@ -62,7 +63,7 @@ public class WindowLayoutInfoTest {
     public fun testEquals_differentFeatures() {
         val originalFeatures = listOf<DisplayFeature>()
         val rect = Bounds(1, 0, 1, 10)
-        val differentFeatures = listOf(FoldingFeature(rect, HINGE, FLAT))
+        val differentFeatures = listOf(HardwareFoldingFeature(rect, HINGE, FLAT))
         val original = WindowLayoutInfo(originalFeatures)
         val different = WindowLayoutInfo(differentFeatures)
         assertNotEquals(original, different)
@@ -80,8 +81,10 @@ public class WindowLayoutInfoTest {
 
     @Test
     public fun testHashCode_matchesIfEqualFeatures() {
-        val originalFeature: DisplayFeature = FoldingFeature(Bounds(0, 0, 100, 0), HINGE, FLAT)
-        val matchingFeature: DisplayFeature = FoldingFeature(Bounds(0, 0, 100, 0), HINGE, FLAT)
+        val originalFeature: DisplayFeature =
+            HardwareFoldingFeature(Bounds(0, 0, 100, 0), HINGE, FLAT)
+        val matchingFeature: DisplayFeature =
+            HardwareFoldingFeature(Bounds(0, 0, 100, 0), HINGE, FLAT)
         val firstFeatures = listOf(originalFeature)
         val secondFeatures = listOf(matchingFeature)
         val first = WindowLayoutInfo(firstFeatures)

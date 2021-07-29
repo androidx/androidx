@@ -19,8 +19,6 @@ package androidx.window.java.layout
 import android.graphics.Rect
 import androidx.window.java.TestConsumer
 import androidx.window.layout.FoldingFeature
-import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
-import androidx.window.layout.FoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
@@ -86,7 +84,7 @@ public class WindowInfoRepositoryCallbackAdapterTest {
 
     @Test
     public fun testRegisterListener() {
-        val feature = FoldingFeature(Rect(0, 100, 100, 100), HINGE, HALF_OPENED)
+        val feature = mock<FoldingFeature>()
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
@@ -100,7 +98,7 @@ public class WindowInfoRepositoryCallbackAdapterTest {
 
     @Test
     public fun testWindowLayoutInfo_registerMultipleIsNoOp() {
-        val feature = FoldingFeature(Rect(0, 100, 100, 100), HINGE, HALF_OPENED)
+        val feature = mock<FoldingFeature>()
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
@@ -115,7 +113,7 @@ public class WindowInfoRepositoryCallbackAdapterTest {
 
     @Test
     public fun testWindowLayoutInfo_unregister() {
-        val feature = FoldingFeature(Rect(0, 100, 100, 100), HINGE, HALF_OPENED)
+        val feature = mock<FoldingFeature>()
         val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepository>()
         val channel = Channel<WindowLayoutInfo>()
