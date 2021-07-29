@@ -132,6 +132,17 @@ public class CurrentUserStyleRepositoryTest {
     }
 
     @Test
+    public fun addUserStyleListener_samConversion() {
+        lateinit var selectedOptions: Map<UserStyleSetting, Option>
+        userStyleRepository.addUserStyleChangeListener {
+            selectedOptions = it.selectedOptions
+        }
+
+        assertThat(selectedOptions[colorStyleSetting]).isEqualTo(redStyleOption)
+        assertThat(selectedOptions[watchHandStyleSetting]).isEqualTo(classicStyleOption)
+    }
+
+    @Test
     public fun assigning_userStyle() {
         val newStyle = UserStyle(
             hashMapOf(

@@ -12,7 +12,7 @@ package androidx.wear.watchface.style {
     property @UiThread public final androidx.wear.watchface.style.UserStyle userStyle;
   }
 
-  public static interface CurrentUserStyleRepository.UserStyleChangeListener {
+  public static fun interface CurrentUserStyleRepository.UserStyleChangeListener {
     method @UiThread public void onUserStyleChanged(androidx.wear.watchface.style.UserStyle userStyle);
   }
 
