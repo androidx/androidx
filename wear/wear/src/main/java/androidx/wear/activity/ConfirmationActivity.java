@@ -114,6 +114,9 @@ public class ConfirmationActivity extends Activity {
 
         @ConfirmationOverlay.OverlayType int type = CONFIRMATION_OVERLAY_TYPES.get(requestedType);
         CharSequence message = intent.getStringExtra(EXTRA_MESSAGE);
+        if (message == null) {
+            message = "";
+        }
 
         new ConfirmationOverlay()
                 .setType(type)
