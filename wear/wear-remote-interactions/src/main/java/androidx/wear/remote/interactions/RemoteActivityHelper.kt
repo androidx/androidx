@@ -17,7 +17,6 @@ package androidx.wear.remote.interactions
 
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Parcel
 import android.os.ResultReceiver
@@ -32,6 +31,8 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
+// Disabling max line length is needed for the link to work properly in the KDoc.
+/* ktlint-disable max-line-length */
 /**
  * Support for opening android intents on other devices.
  *
@@ -52,17 +53,25 @@ import java.util.concurrent.Executors
  * [startRemoteActivity] returns a [ListenableFuture], which is completed after the intent has
  * been sent or failed if there was an issue with sending the intent.
  *
+ * nodeId is the opaque string that represents a
+ * [node](https://developers.google.com/android/reference/com/google/android/gms/wearable/Node)
+ * in the Android Wear network. For the given device, it can obtained by `NodeClient.getLocalNode()`
+ * and the list of nodes to which this device is currently connected can be obtained by
+ * `NodeClient.getConnectedNodes()`. More information about this can be found
+ * [here](https://developers.google.com/android/reference/com/google/android/gms/wearable/NodeClient).
+ *
  * @param context The [Context] of the application for sending the intent.
  * @param executor [Executor] used for getting data to be passed in remote intent. If not
  * specified, default will be `Executors.newSingleThreadExecutor()`.
  */
-public class RemoteIntentHelper(
+/* ktlint-enable max-line-length */
+public class RemoteActivityHelper(
     private val context: Context,
     private val executor: Executor = Executors.newSingleThreadExecutor()
 ) {
     public companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val ACTION_REMOTE_INTENT: String =
+        @SuppressWarnings("ActionValue")
+        public const val ACTION_REMOTE_INTENT: String =
             "com.google.android.wearable.intent.action.REMOTE_INTENT"
 
         private const val EXTRA_INTENT: String = "com.google.android.wearable.intent.extra.INTENT"
@@ -83,35 +92,13 @@ public class RemoteIntentHelper(
         internal const val DEFAULT_PACKAGE = "com.google.android.wearable.app"
 
         /**
-         * Creates [android.content.IntentFilter] with action specifying remote intent.
-         */
-        @JvmStatic
-        public fun createActionRemoteIntentFilter(): IntentFilter =
-            IntentFilter(ACTION_REMOTE_INTENT)
-
-        /**
-         * Checks whether action of the given [android.content.Intent] specifies the remote intent.
-         */
-        @JvmStatic
-        public fun isActionRemoteIntent(intent: Intent): Boolean =
-            ACTION_REMOTE_INTENT == intent.action
-
-        /**
-         * Checks whether the given [android.content.IntentFilter] has action that specifies the
-         * remote intent.
-         */
-        @JvmStatic
-        public fun hasActionRemoteIntent(intentFilter: IntentFilter): Boolean =
-            intentFilter.hasAction(ACTION_REMOTE_INTENT)
-
-        /**
          * Returns the [android.content.Intent] extra specifying remote intent.
          *
          * @param intent The intent holding configuration.
          * @return The remote intent, or null if none was set.
          */
         @JvmStatic
-        public fun getRemoteIntentExtraIntent(intent: Intent): Intent? =
+        public fun getTargetIntent(intent: Intent): Intent? =
             intent.getParcelableExtra(EXTRA_INTENT)
 
         /**
@@ -121,7 +108,7 @@ public class RemoteIntentHelper(
          * @return The node id, or null if none was set.
          */
         @JvmStatic
-        public fun getRemoteIntentNodeId(intent: Intent): String? =
+        public fun getTargetNodeId(intent: Intent): String? =
             intent.getStringExtra(EXTRA_NODE_ID)
 
         /**
@@ -160,11 +147,11 @@ public class RemoteIntentHelper(
      * the activity will start on the companion phone device. Otherwise, the activity will
      * start on all connected watch devices.
      *
-     * @param intent         The intent to open on the remote device. Action must be set to
+     * @param targetIntent   The intent to open on the remote device. Action must be set to
      *                       [android.content.Intent.ACTION_VIEW], a data uri must be populated
      *                       using [android.content.Intent.setData], and the category
      *                       [android.content.Intent.CATEGORY_BROWSABLE] must be present.
-     * @param nodeId         Wear OS node id for the device where the activity should be
+     * @param targetNodeId   Wear OS node id for the device where the activity should be
      *                       started. If null, and the current device is a watch, the
      *                       activity will start on the companion phone device. Otherwise,
      *                       the activity will start on all connected watch devices.
@@ -174,21 +161,23 @@ public class RemoteIntentHelper(
      */
     @JvmOverloads
     public fun startRemoteActivity(
-        intent: Intent,
-        nodeId: String? = null,
+        targetIntent: Intent,
+        targetNodeId: String? = null,
     ): ListenableFuture<Void> {
         return CallbackToFutureAdapter.getFuture {
-            require(Intent.ACTION_VIEW == intent.action) {
+            require(Intent.ACTION_VIEW == targetIntent.action) {
                 "Only ${Intent.ACTION_VIEW} action is currently supported for starting a" +
                     " remote activity"
             }
-            requireNotNull(intent.data) { "Data Uri is required when starting a remote activity" }
-            require(intent.categories?.contains(Intent.CATEGORY_BROWSABLE) == true) {
+            requireNotNull(targetIntent.data) {
+                "Data Uri is required when starting a remote activity"
+            }
+            require(targetIntent.categories?.contains(Intent.CATEGORY_BROWSABLE) == true) {
                 "The category ${Intent.CATEGORY_BROWSABLE} must be present on the intent"
             }
 
             startCreatingIntentForRemoteActivity(
-                intent, nodeId, it, nodeClient,
+                targetIntent, targetNodeId, it, nodeClient,
                 object : Callback {
                     override fun intentCreated(intent: Intent) {
                         context.sendBroadcast(intent)
@@ -224,40 +213,37 @@ public class RemoteIntentHelper(
         if (nodeId != null) {
             nodeClient.getCompanionPackageForNode(nodeId)
                 .addOnCompleteListener(
-                    executor,
-                    { taskPackageName ->
-                        val packageName = taskPackageName.result ?: DEFAULT_PACKAGE
-                        callback.intentCreated(
-                            createIntent(
-                                intent,
-                                RemoteIntentResultReceiver(completer, numNodes = 1),
-                                nodeId,
-                                packageName
-                            )
+                    executor
+                ) { taskPackageName ->
+                    val packageName = taskPackageName.result ?: DEFAULT_PACKAGE
+                    callback.intentCreated(
+                        createIntent(
+                            intent,
+                            RemoteIntentResultReceiver(completer, numNodes = 1),
+                            nodeId,
+                            packageName
                         )
-                    }
-                ).addOnFailureListener(executor, { callback.onFailure(it) })
+                    )
+                }.addOnFailureListener(executor) { callback.onFailure(it) }
             return
         }
 
         nodeClient.connectedNodes.addOnCompleteListener(
-            executor,
-            { taskConnectedNodes ->
-                val connectedNodes = taskConnectedNodes.result
-                val resultReceiver = RemoteIntentResultReceiver(completer, connectedNodes.size)
-                for (node in connectedNodes) {
-                    nodeClient.getCompanionPackageForNode(node.id).addOnCompleteListener(
-                        executor,
-                        { taskPackageName ->
-                            val packageName = taskPackageName.result ?: DEFAULT_PACKAGE
-                            callback.intentCreated(
-                                createIntent(intent, resultReceiver, node.id, packageName)
-                            )
-                        }
-                    ).addOnFailureListener(executor, { callback.onFailure(it) })
-                }
+            executor
+        ) { taskConnectedNodes ->
+            val connectedNodes = taskConnectedNodes.result
+            val resultReceiver = RemoteIntentResultReceiver(completer, connectedNodes.size)
+            for (node in connectedNodes) {
+                nodeClient.getCompanionPackageForNode(node.id).addOnCompleteListener(
+                    executor
+                ) { taskPackageName ->
+                    val packageName = taskPackageName.result ?: DEFAULT_PACKAGE
+                    callback.intentCreated(
+                        createIntent(intent, resultReceiver, node.id, packageName)
+                    )
+                }.addOnFailureListener(executor) { callback.onFailure(it) }
             }
-        ).addOnFailureListener(executor, { callback.onFailure(it) })
+        }.addOnFailureListener(executor) { callback.onFailure(it) }
     }
 
     /**
