@@ -20,12 +20,12 @@ package androidx.wear.watchface.client {
 
   @androidx.wear.watchface.client.WatchFaceClientExperimental public final class ListenableWatchFaceMetadataClient {
     ctor public ListenableWatchFaceMetadataClient();
-    method public static com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.WatchFaceMetadataClient> listenableCreateWatchFaceMetadataClient(android.content.Context context, android.content.ComponentName watchFaceName);
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.WatchFaceMetadataClient> createListenableWatchFaceMetadataClient(android.content.Context context, android.content.ComponentName watchFaceName);
     field public static final androidx.wear.watchface.client.ListenableWatchFaceMetadataClient.Companion Companion;
   }
 
   public static final class ListenableWatchFaceMetadataClient.Companion {
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.WatchFaceMetadataClient> listenableCreateWatchFaceMetadataClient(android.content.Context context, android.content.ComponentName watchFaceName);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.WatchFaceMetadataClient> createListenableWatchFaceMetadataClient(android.content.Context context, android.content.ComponentName watchFaceName);
   }
 
 }
