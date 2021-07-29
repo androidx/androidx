@@ -403,7 +403,9 @@ public sealed class UserStyleSetting private constructor(
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value for this BooleanUserStyleSetting.
+         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor (
             id: Id,
             displayName: CharSequence,
@@ -658,8 +660,10 @@ public sealed class UserStyleSetting private constructor(
          * [WatchFaceLayer.COMPLICATIONS].
          * @param defaultOption The default option, used when data isn't persisted. Optional
          * parameter which defaults to the first element of [complicationConfig].
+         * @hide
          */
         @JvmOverloads
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor (
             id: Id,
             displayName: CharSequence,
@@ -777,7 +781,9 @@ public sealed class UserStyleSetting private constructor(
              * @param complicationSlotOverlays Overlays to be applied when this
              * ComplicationSlotsOption is selected. If this is empty then the net result is the
              * initial complication configuration.
+             * @hide
              */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public constructor(
                 id: Id,
                 displayName: CharSequence,
@@ -905,7 +911,9 @@ public sealed class UserStyleSetting private constructor(
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value for this DoubleRangeUserStyleSetting.
+         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor (
             id: Id,
             displayName: CharSequence,
@@ -1066,8 +1074,10 @@ public sealed class UserStyleSetting private constructor(
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultOption The default option, used when data isn't persisted.
+         * @hide
          */
         @JvmOverloads
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor (
             id: Id,
             displayName: CharSequence,
@@ -1165,7 +1175,9 @@ public sealed class UserStyleSetting private constructor(
              * selection UI.
              * @param icon [Icon] for use in the style selection UI. This gets sent to the
              * companion over bluetooth and should be small (ideally a few kb in size).
+             * @hide
              */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public constructor(id: Id, displayName: CharSequence, icon: Icon?) : super(id) {
                 displayNameInternal = DisplayText.CharSequenceDisplayText(displayName)
                 this.icon = icon
@@ -1278,7 +1290,9 @@ public sealed class UserStyleSetting private constructor(
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value for this LongRangeUserStyleSetting.
+         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor (
             id: Id,
             displayName: CharSequence,
@@ -1442,7 +1456,9 @@ public sealed class UserStyleSetting private constructor(
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value [ByteArray].
+         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor (
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
             defaultValue: ByteArray
