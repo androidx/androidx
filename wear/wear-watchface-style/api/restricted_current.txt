@@ -45,6 +45,7 @@ package androidx.wear.watchface.style {
   }
 
   public abstract sealed class UserStyleSetting {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final int estimateWireSizeInBytesAndValidateIconDimensions(android.content.Context context, int maxWidth, int maxHeight);
     method public final java.util.Collection<androidx.wear.watchface.style.WatchFaceLayer> getAffectedWatchFaceLayers();
     method public final androidx.wear.watchface.style.UserStyleSetting.Option getDefaultOption();
     method public final int getDefaultOptionIndex();

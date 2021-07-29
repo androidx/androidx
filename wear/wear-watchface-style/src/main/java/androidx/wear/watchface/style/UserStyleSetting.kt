@@ -16,14 +16,19 @@
 
 package androidx.wear.watchface.style
 
+import android.annotation.SuppressLint
+import android.content.ContentResolver
+import android.content.Context
+import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
+import android.os.Build
+import android.util.TypedValue
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
-import androidx.wear.watchface.style.UserStyleSetting.Id.Companion.MAX_LENGTH
-import androidx.wear.watchface.style.UserStyleSetting.Option.Id.Companion.MAX_LENGTH
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
@@ -39,6 +44,7 @@ import androidx.wear.watchface.style.data.LongRangeOptionWireFormat
 import androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.OptionWireFormat
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
+import java.io.InputStream
 import java.nio.ByteBuffer
 import java.security.InvalidParameterException
 
@@ -77,6 +83,45 @@ public sealed class UserStyleSetting(
     public val defaultOptionIndex: Int,
     public val affectedWatchFaceLayers: Collection<WatchFaceLayer>
 ) {
+    /**
+     * Estimates the wire size of the UserStyleSetting in bytes. This does not account for the
+     * overhead of the serialization method. Where possible the exact wire size for any referenced
+     * [Icon]s is used but this isn't possible in all cases and as a fallback width x height x 4
+     * is used.
+     *
+     * Note this method can be slow.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun estimateWireSizeInBytesAndValidateIconDimensions(
+        context: Context,
+        maxWidth: Int,
+        maxHeight: Int
+    ): Int {
+        var sizeEstimate = id.value.length + displayName.length + description.length +
+            4 /** [defaultOptionIndex] */ + affectedWatchFaceLayers.size * 4
+        icon?.getWireSizeAndDimensions(context)?.let { wireSizeAndDimensions ->
+            wireSizeAndDimensions.wireSizeBytes?.let {
+                sizeEstimate += it
+            }
+            require(
+                wireSizeAndDimensions.width <= maxWidth && wireSizeAndDimensions.height <= maxHeight
+            ) {
+                "UserStyleSetting id $id has a ${wireSizeAndDimensions.width} x " +
+                    "${wireSizeAndDimensions.height} icon. This is too big, the maximum size is " +
+                    "$maxWidth x $maxHeight."
+            }
+        }
+        for (option in options) {
+            sizeEstimate += option.estimateWireSizeInBytesAndValidateIconDimensions(
+                context,
+                maxWidth,
+                maxHeight
+            )
+        }
+        return sizeEstimate
+    }
+
     /**
      * Machine readable identifier for [UserStyleSetting]s. The length of this identifier may not
      * exceed [MAX_LENGTH].
@@ -194,6 +239,16 @@ public sealed class UserStyleSetting(
      *     within the UserStyleSetting. Short ids are encouraged.
      */
     public abstract class Option(public val id: Id) {
+        /**
+         * Computes a lower bound estimate of the wire size of the Option in bytes. This does not
+         * account for the overhead of the serialization method.
+         */
+        internal open fun estimateWireSizeInBytesAndValidateIconDimensions(
+            context: Context,
+            maxWidth: Int,
+            maxHeight: Int
+        ): Int = id.value.size
+
         /**
          * Machine readable identifier for [Option]s. The length of this identifier may not exceed
          * [MAX_LENGTH].
@@ -317,7 +372,8 @@ public sealed class UserStyleSetting(
          * @param displayName Localized human readable name for the element, used in the userStyle
          * selection UI.
          * @param description Localized description string displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * companion over bluetooth and should be small (ideally a few kb in size).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value for this BooleanUserStyleSetting.
@@ -500,6 +556,18 @@ public sealed class UserStyleSetting(
                 wireFormat.accessibilityTraversalIndex
             )
 
+            /**
+             * Computes a lower bound estimate of the wire format size of this
+             * ComplicationSlotOverlay.
+             */
+            internal fun estimateWireSizeInBytes(): Int {
+                var estimate = 16 // Estimate for everything except complicationSlotBounds
+                complicationSlotBounds?.let {
+                    estimate += it.perComplicationTypeBounds.size * (4 + 16)
+                }
+                return estimate
+            }
+
             internal fun toWireFormat() =
                 ComplicationOverlayWireFormat(
                     complicationSlotId,
@@ -518,7 +586,8 @@ public sealed class UserStyleSetting(
          * @param displayName Localized human readable name for the element, used in the userStyle
          * selection UI.
          * @param description Localized description string displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * companion over bluetooth and should be small (ideally a few kb in size).
          * @param complicationConfig The configuration for affected complications.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects, must include
@@ -590,7 +659,8 @@ public sealed class UserStyleSetting(
              * @param id [Id] for the element, must be unique.
              * @param displayName Localized human readable name for the element, used in the
              * userStyle selection UI.
-             * @param icon [Icon] for use in the style selection UI.
+             * @param icon [Icon] for use in the style selection UI. This gets sent to the
+             * companion over bluetooth and should be small (ideally a few kb in size).
              * @param complicationSlotOverlays Overlays to be applied when this
              * ComplicationSlotsOption is selected. If this is empty then the net result is the
              * initial complication configuration.
@@ -613,6 +683,31 @@ public sealed class UserStyleSetting(
                     wireFormat.mComplicationOverlays.map { ComplicationSlotOverlay(it) }
                 displayName = wireFormat.mDisplayName
                 icon = wireFormat.mIcon
+            }
+
+            internal override fun estimateWireSizeInBytesAndValidateIconDimensions(
+                context: Context,
+                maxWidth: Int,
+                maxHeight: Int
+            ): Int {
+                var sizeEstimate = id.value.size + displayName.length
+                for (overlay in complicationSlotOverlays) {
+                    sizeEstimate += overlay.estimateWireSizeInBytes()
+                }
+                icon?.getWireSizeAndDimensions(context)?.let { wireSizeAndDimensions ->
+                    wireSizeAndDimensions.wireSizeBytes?.let {
+                        sizeEstimate += it
+                    }
+                    require(
+                        wireSizeAndDimensions.width <= maxWidth &&
+                            wireSizeAndDimensions.height <= maxHeight
+                    ) {
+                        "ComplicationSlotsOption id $id has a ${wireSizeAndDimensions.width} x " +
+                            "${wireSizeAndDimensions.height} icon. This is too big, the maximum " +
+                            "size is $maxWidth x $maxHeight."
+                    }
+                }
+                return sizeEstimate
             }
 
             /** @hide */
@@ -663,7 +758,8 @@ public sealed class UserStyleSetting(
          * @param displayName Localized human readable name for the element, used in the user style
          * selection UI.
          * @param description Localized description string displayed under the displayName.
-         * @param icon [Icon] for use in the style selection UI.
+         * @param icon [Icon] for use in the style selection UI. This gets sent to the
+         * companion over bluetooth and should be small (ideally a few kb in size).
          * @param minimumValue Minimum value (inclusive).
          * @param maximumValue Maximum value (inclusive).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
@@ -780,7 +876,8 @@ public sealed class UserStyleSetting(
          * @param displayName Localized human readable name for the element, used in the userStyle
          * selection UI.
          * @param description Localized description string displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * companion over bluetooth and should be small (ideally a few kb in size).
          * @param options List of all options for this ListUserStyleSetting.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
@@ -839,7 +936,8 @@ public sealed class UserStyleSetting(
              * [ListUserStyleSetting].
              * @param displayName Localized human readable name for the setting, used in the style
              * selection UI.
-             * @param icon [Icon] for use in the style selection UI.
+             * @param icon [Icon] for use in the style selection UI. This gets sent to the
+             * companion over bluetooth and should be small (ideally a few kb in size).
              */
             public constructor(id: Id, displayName: CharSequence, icon: Icon?) : super(id) {
                 this.displayName = displayName
@@ -851,6 +949,28 @@ public sealed class UserStyleSetting(
             ) : super(Id(wireFormat.mId)) {
                 displayName = wireFormat.mDisplayName
                 icon = wireFormat.mIcon
+            }
+
+            internal override fun estimateWireSizeInBytesAndValidateIconDimensions(
+                context: Context,
+                maxWidth: Int,
+                maxHeight: Int
+            ): Int {
+                var sizeEstimate = id.value.size + displayName.length
+                icon?.getWireSizeAndDimensions(context)?.let { wireSizeAndDimensions ->
+                    wireSizeAndDimensions.wireSizeBytes?.let {
+                        sizeEstimate += it
+                    }
+                    require(
+                        wireSizeAndDimensions.width <= maxWidth &&
+                            wireSizeAndDimensions.height <= maxHeight
+                    ) {
+                        "ListOption id $id has a ${wireSizeAndDimensions.width} x " +
+                            "${wireSizeAndDimensions.height} icon. This is too big, the maximum " +
+                            "size is $maxWidth x $maxHeight."
+                    }
+                }
+                return sizeEstimate
             }
 
             /** @hide */
@@ -902,7 +1022,8 @@ public sealed class UserStyleSetting(
          * @param displayName Localized human readable name for the element, used in the userStyle
          * selection UI.
          * @param description Localized description string displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * companion over bluetooth and should be small (ideally a few kb in size).
          * @param minimumValue Minimum value (inclusive).
          * @param maximumValue Maximum value (inclusive).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
@@ -1100,5 +1221,67 @@ internal fun requireUniqueOptionIds(
         require(uniqueIds.add(option.id)) {
             "duplicated option id: ${option.id} in $setting"
         }
+    }
+}
+
+internal class WireSizeAndDimensions(
+    val wireSizeBytes: Int?,
+    val width: Int,
+    val height: Int
+)
+
+@SuppressLint("ClassVerificationFailure", "ResourceType")
+internal fun Icon.getWireSizeAndDimensions(context: Context): WireSizeAndDimensions {
+    // Where possible use the exact wire size.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        when (type) {
+            Icon.TYPE_RESOURCE -> {
+                return getWireSizeAndDimensionsFromStream(
+                    context.resources.openRawResource(resId, TypedValue()),
+                    context.resources
+                )
+            }
+
+            Icon.TYPE_URI -> {
+                if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+                    context.contentResolver.openInputStream(uri)?.let {
+                        return getWireSizeAndDimensionsFromStream(it, context.resources)
+                    }
+                }
+            }
+
+            Icon.TYPE_URI_ADAPTIVE_BITMAP -> {
+                if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+                    context.contentResolver.openInputStream(uri)?.let {
+                        return getWireSizeAndDimensionsFromStream(it, context.resources)
+                    }
+                }
+            }
+        }
+    }
+
+    // Fall back to loading the full drawable (comparatively expensive). We can't provide the
+    // wire size in this instance.
+    val drawable = loadDrawable(context)
+    return WireSizeAndDimensions(null, drawable.minimumWidth, drawable.minimumHeight)
+}
+
+private fun getWireSizeAndDimensionsFromStream(
+    stream: InputStream,
+    resources: Resources
+): WireSizeAndDimensions {
+    try {
+        val wireSize = stream.available()
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeResourceStream(
+            resources,
+            TypedValue(),
+            stream,
+            null,
+            options
+        )
+        return WireSizeAndDimensions(wireSize, options.outWidth, options.outHeight)
+    } finally {
+        stream.close()
     }
 }

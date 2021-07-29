@@ -269,7 +269,7 @@ public class CurrentUserStyleRepositoryTest {
     }
 
     @Test
-    public fun userStyle_multiple_ComplicationsUserStyleSetting_notAllowed() {
+    public fun userStyle_multiple_CustomValueUserStyleSetting_notAllowed() {
         val customStyleSetting1 = CustomValueUserStyleSetting(
             listOf(WatchFaceLayer.BASE),
             "default".encodeToByteArray()
@@ -285,7 +285,7 @@ public class CurrentUserStyleRepositoryTest {
             )
             fail(
                 "Constructing a UserStyleSchema with more than one " +
-                    "ComplicationSlotsUserStyleSetting should fail"
+                    "CustomValueUserStyleSetting should fail"
             )
         } catch (e: Exception) {
             // expected

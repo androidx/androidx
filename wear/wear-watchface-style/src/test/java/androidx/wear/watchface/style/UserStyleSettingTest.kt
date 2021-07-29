@@ -16,6 +16,8 @@
 
 package androidx.wear.watchface.style
 
+import android.graphics.Bitmap
+import android.graphics.drawable.Icon
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
@@ -35,6 +37,12 @@ public class UserStyleSettingTest {
         Option.Id(ByteArray(8).apply { ByteBuffer.wrap(this).putDouble(value) })
 
     private fun byteArrayToDouble(value: ByteArray) = ByteBuffer.wrap(value).double
+
+    private val icon_100x100 =
+        Icon.createWithBitmap(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
+
+    private val icon_10x10 =
+        Icon.createWithBitmap(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
 
     @Test
     public fun rangedUserStyleSetting_getOptionForId_returns_default_for_bad_input() {

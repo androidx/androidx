@@ -20,6 +20,7 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Insets
 import android.graphics.Rect
 import android.graphics.RectF
@@ -68,6 +69,7 @@ import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -454,7 +456,9 @@ public class WatchFaceServiceTest {
 
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
-        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
+        runBlocking {
+            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.await()
+        }
 
         currentUserStyleRepository = watchFaceImpl.currentUserStyleRepository
         complicationSlotsManager = watchFaceImpl.complicationSlotsManager
@@ -2786,6 +2790,103 @@ public class WatchFaceServiceTest {
                 0
             )
         ).isEqualTo("RIGHT!")
+    }
+
+    @Test
+    public fun schemaWithTooLargeIcon() {
+        val tooLargeIcon = Icon.createWithBitmap(
+            Bitmap.createBitmap(
+                WatchFaceService.MAX_REASONABLE_SCHEMA_ICON_WIDTH + 1,
+                WatchFaceService.MAX_REASONABLE_SCHEMA_ICON_HEIGHT + 1,
+                Bitmap.Config.ARGB_8888
+            )
+        )
+
+        val settingWithTooLargeIcon = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            tooLargeIcon,
+            colorStyleList,
+            listOf(WatchFaceLayer.BASE)
+        )
+
+        try {
+            initWallpaperInteractiveWatchFaceInstance(
+                WatchFaceType.ANALOG,
+                emptyList(),
+                UserStyleSchema(listOf(settingWithTooLargeIcon, watchHandStyleSetting)),
+                WallpaperInteractiveWatchFaceInstanceParams(
+                    "interactiveInstanceId",
+                    DeviceConfig(
+                        false,
+                        false,
+                        0,
+                        0
+                    ),
+                    WatchUiState(false, 0),
+                    UserStyle(
+                        hashMapOf(
+                            colorStyleSetting to blueStyleOption,
+                            watchHandStyleSetting to gothicStyleOption
+                        )
+                    ).toWireFormat(),
+                    null
+                )
+            )
+
+            fail("Should have thrown an exception due to an Icon that's too large")
+        } catch (e: Exception) {
+            assertThat(e.message).contains(
+                "UserStyleSetting id color_style_setting has a 401 x 401 icon. This is too big, " +
+                    "the maximum size is 400 x 400."
+            )
+        }
+    }
+
+    @Test
+    public fun schemaWithTooLargeWireFormat() {
+        val longOptionsList = ArrayList<ListUserStyleSetting.ListOption>()
+        for (i in 0..10000) {
+            longOptionsList.add(
+                ListUserStyleSetting.ListOption(Option.Id("id$i"), "Name", icon = null)
+            )
+        }
+        val tooLargeList = ListUserStyleSetting(
+            UserStyleSetting.Id("too_large"),
+            "Too large!",
+            "Description", /* icon = */
+            null,
+            longOptionsList,
+            listOf(WatchFaceLayer.BASE)
+        )
+
+        try {
+            initWallpaperInteractiveWatchFaceInstance(
+                WatchFaceType.ANALOG,
+                emptyList(),
+                UserStyleSchema(listOf(tooLargeList, watchHandStyleSetting)),
+                WallpaperInteractiveWatchFaceInstanceParams(
+                    "interactiveInstanceId",
+                    DeviceConfig(
+                        false,
+                        false,
+                        0,
+                        0
+                    ),
+                    WatchUiState(false, 0),
+                    UserStyle(hashMapOf(watchHandStyleSetting to gothicStyleOption)).toWireFormat(),
+                    null
+                )
+            )
+
+            fail("Should have thrown an exception due to an Icon that's too large")
+        } catch (e: Exception) {
+            assertThat(e.message).contains(
+                "The estimated wire size of the supplied UserStyleSchemas for watch face " +
+                    "androidx.wear.watchface.test is too big"
+            )
+        }
     }
 
     @Suppress("DEPRECATION")
