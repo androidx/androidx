@@ -366,7 +366,7 @@ public class CurrentUserStyleRepository(
     public val schema: UserStyleSchema
 ) {
     /** A listener for observing [UserStyle] changes. */
-    public interface UserStyleChangeListener {
+    public fun interface UserStyleChangeListener {
         /** Called whenever the [UserStyle] changes. */
         @UiThread
         public fun onUserStyleChanged(userStyle: UserStyle)

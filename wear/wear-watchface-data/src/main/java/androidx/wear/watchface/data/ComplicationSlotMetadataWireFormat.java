@@ -45,11 +45,11 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
 
     @ParcelField(2)
     @NonNull
-    int[] mComplicationBoundsType;
+    int[] mComplicationBoundsType = new int[0];
 
     @ParcelField(3)
     @NonNull
-    RectF[] mComplicationBounds;
+    RectF[] mComplicationBounds = new RectF[0];
 
     @ParcelField(4)
     @ComplicationSlotBoundsType
@@ -58,7 +58,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
     @ParcelField(5)
     @NonNull
     @ComplicationData.ComplicationType
-    int[] mSupportedTypes;
+    int[] mSupportedTypes = new int[0];
 
     @ParcelField(6)
     @Nullable
