@@ -48,7 +48,6 @@ import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
@@ -284,12 +283,14 @@ public class EditorSessionGuavaTest {
             assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
                 .isEqualTo(classicStyleOption.id.value)
 
-            // Select [blueStyleOption] and [gothicStyleOption].
-            val styleMap = listenableEditorSession.userStyle.selectedOptions.toMutableMap()
-            for (userStyleSetting in listenableEditorSession.userStyleSchema.userStyleSettings) {
-                styleMap[userStyleSetting] = userStyleSetting.options.last()
-            }
-            listenableEditorSession.userStyle = UserStyle(styleMap)
+            // Select [blueStyleOption] and [gothicStyleOption], which are the last options in the
+            // corresponding setting definitions.
+            listenableEditorSession.userStyle =
+                listenableEditorSession.userStyle.toMutableUserStyle().apply {
+                    listenableEditorSession.userStyleSchema.userStyleSettings.forEach {
+                        this[it] = it.options.last()
+                    }
+                }.toUserStyle()
 
             // This should cause the style on the to be reverted back to the initial style.
             listenableEditorSession.commitChangesOnClose = false

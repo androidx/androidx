@@ -1337,11 +1337,11 @@ public class EditorSessionTest {
 
         scenario.onActivity { activity ->
             // Select [blueStyleOption] and [gothicStyleOption].
-            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                styleMap[userStyleSetting] = userStyleSetting.options.last()
+                mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = UserStyle(styleMap)
+            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
             activity.editorSession.close()
             activity.finish()
         }
@@ -1456,11 +1456,11 @@ public class EditorSessionTest {
                 .isEqualTo(classicStyleOption.id.value)
 
             // Select [blueStyleOption] and [gothicStyleOption].
-            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                styleMap[userStyleSetting] = userStyleSetting.options.last()
+                mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = UserStyle(styleMap)
+            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
 
             // The editorDelegate should be unaffected because a separate headless instance is
             // used.
@@ -1505,11 +1505,11 @@ public class EditorSessionTest {
                 activity.deferredDone.await()
             }
             // Select [blueStyleOption] and [gothicStyleOption].
-            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                styleMap[userStyleSetting] = userStyleSetting.options.last()
+                mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = UserStyle(styleMap)
+            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
             activity.editorSession.close()
             activity.finish()
         }
@@ -1547,11 +1547,11 @@ public class EditorSessionTest {
                 .isEqualTo(classicStyleOption.id.value)
 
             // Select [blueStyleOption] and [gothicStyleOption].
-            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                styleMap[userStyleSetting] = userStyleSetting.options.last()
+                mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = UserStyle(styleMap)
+            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
 
             // This should cause the style on the to be reverted back to the initial style.
             activity.editorSession.commitChangesOnClose = false
@@ -1596,11 +1596,11 @@ public class EditorSessionTest {
                 .isEqualTo(classicStyleOption.id.value)
 
             // Select [blueStyleOption] and [gothicStyleOption].
-            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                styleMap[userStyleSetting] = userStyleSetting.options.last()
+                mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = UserStyle(styleMap)
+            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
 
             activity.editorSession.close()
             activity.finish()
@@ -1691,11 +1691,11 @@ public class EditorSessionTest {
 
         scenario.onActivity { activity ->
             // Select [blueStyleOption] and [gothicStyleOption].
-            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                styleMap[userStyleSetting] = userStyleSetting.options.last()
+                mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = UserStyle(styleMap)
+            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
         }
 
         EditorService.globalEditorService.closeEditor()

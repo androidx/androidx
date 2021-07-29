@@ -21,6 +21,7 @@ import android.graphics.drawable.Icon;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
+import androidx.wear.watchface.style.MutableUserStyle;
 import androidx.wear.watchface.style.UserStyle;
 import androidx.wear.watchface.style.UserStyleSetting;
 import androidx.wear.watchface.style.WatchFaceLayer;
@@ -65,8 +66,10 @@ final class TimeStyle {
         return current == null ? Value.MINIMAL : ID_VALUE_MAP.get(current.getId());
     }
 
-    public void set(UserStyle userStyle, Value value) {
-        userStyle.getSelectedOptions().put(mSetting, getOptionForValue(value));
+    public UserStyle set(UserStyle userStyle, Value value) {
+        MutableUserStyle mutableUserStyle = userStyle.toMutableUserStyle();
+        mutableUserStyle.set(mSetting, getOptionForValue(value));
+        return mutableUserStyle.toUserStyle();
     }
 
     public CharSequence getDisplayName(Value value) {
