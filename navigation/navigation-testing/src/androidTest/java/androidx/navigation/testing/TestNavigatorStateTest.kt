@@ -103,7 +103,7 @@ class TestNavigatorStateTest {
         assertThat(firstEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
 
-        state.transitionsInProgress.value[firstEntry]?.onTransitionComplete()
+        state.markTransitionComplete(firstEntry)
         assertThat(firstEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.RESUMED)
 
@@ -113,23 +113,38 @@ class TestNavigatorStateTest {
             .isEqualTo(Lifecycle.State.CREATED)
         assertThat(secondEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
 
-        state.transitionsInProgress.value[secondEntry]?.onTransitionComplete()
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(secondEntry)
         assertThat(secondEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.RESUMED)
 
-        navigator.popBackStack(secondEntry, false)
+        navigator.popBackStack(secondEntry, true)
         assertThat(secondEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.CREATED)
         assertThat(firstEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
 
-        state.transitionsInProgress.value[firstEntry]?.onTransitionComplete()
+        state.markTransitionComplete(firstEntry)
         assertThat(firstEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.RESUMED)
-        state.transitionsInProgress.value[secondEntry]?.onTransitionComplete()
+        state.markTransitionComplete(secondEntry)
         assertThat(secondEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)
+
+        val restoredSecondEntry = state.restoreBackStackEntry(secondEntry)
+        navigator.navigate(listOf(restoredSecondEntry), null, null)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(restoredSecondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(restoredSecondEntry)
+        assertThat(restoredSecondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
     }
 
     @Navigator.Name("test")

@@ -118,7 +118,7 @@ public fun NavHost(
     val backStack by composeNavigator.backStack.collectAsState()
     val transitionsInProgress by composeNavigator.transitionsInProgress.collectAsState()
 
-    val backStackEntry = transitionsInProgress.keys.lastOrNull { entry ->
+    val backStackEntry = transitionsInProgress.lastOrNull { entry ->
         entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
     } ?: backStack.lastOrNull { entry ->
         entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
@@ -137,13 +137,13 @@ public fun NavHost(
                     // There's no animation for the initial crossfade,
                     // so we can instantly mark the transition as complete
                     transitionsInProgress.forEach { entry ->
-                        entry.value.onTransitionComplete()
+                        composeNavigator.onTransitionComplete(entry)
                     }
                     initialCrossfade = false
                 }
                 onDispose {
                     transitionsInProgress.forEach { entry ->
-                        entry.value.onTransitionComplete()
+                        composeNavigator.onTransitionComplete(entry)
                     }
                 }
             }
