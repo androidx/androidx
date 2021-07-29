@@ -41,6 +41,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+private typealias IndexOrder = androidx.room.Index.Order
+
 @RunWith(JUnit4::class)
 class TableEntityProcessorTest : BaseEntityParserTest() {
     @Test
@@ -167,6 +169,85 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { entity, _ ->
             assertThat(entity.fields.columnNames).contains("id")
+        }
+    }
+
+    @Test
+    fun index_sort_desc() {
+        val annotation = mapOf(
+            "indices" to """@Index(value = {"foo"}, orders = {Index.Order.DESC})"""
+        )
+        singleEntity(
+            """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """,
+            annotation
+        ) { entity, _ ->
+            assertThat(
+                entity.indices,
+                `is`(
+                    listOf(
+                        Index(
+                            name = "index_MyEntity_foo",
+                            unique = false,
+                            fields = fieldsByName(entity, "foo"),
+                            orders = listOf(IndexOrder.DESC)
+                        )
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
+    fun index_sort_multiple() {
+        val annotation = mapOf(
+            "tableName" to "\"MyTable\"",
+            "indices" to
+                """@Index(value = {"foo", "id"}, orders = {Index.Order.DESC, Index.Order.ASC})"""
+        )
+        singleEntity(
+            """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """,
+            annotation
+        ) { entity, _ ->
+            assertThat(
+                entity.indices,
+                `is`(
+                    listOf(
+                        Index(
+                            name = "index_MyTable_foo_id",
+                            unique = false,
+                            fields = fieldsByName(entity, "foo", "id"),
+                            orders = listOf(IndexOrder.DESC, IndexOrder.ASC)
+                        )
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
+    fun index_invalidOrdersSize() {
+        val annotation = mapOf(
+            "indices" to """@Index(value = {"foo", "id"}, orders = {Index.Order.DESC})"""
+        )
+        singleEntity(
+            """
+                @PrimaryKey
+                public int id;
+                public String foo;
+                """,
+            annotation
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.INVALID_INDEX_ORDERS_SIZE)
+            }
         }
     }
 
@@ -530,7 +611,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                         Index(
                             name = "index_MyEntity_foo",
                             unique = false,
-                            fields = fieldsByName(entity, "foo")
+                            fields = fieldsByName(entity, "foo"),
+                            emptyList()
                         )
                     )
                 )
@@ -555,7 +637,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                         Index(
                             name = "index_MyEntity_foo",
                             unique = false,
-                            fields = fieldsByName(entity, "foo")
+                            fields = fieldsByName(entity, "foo"),
+                            orders = emptyList()
                         )
                     )
                 )
@@ -583,7 +666,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                         Index(
                             name = "index_MyEntity_foo_id",
                             unique = false,
-                            fields = fieldsByName(entity, "foo", "id")
+                            fields = fieldsByName(entity, "foo", "id"),
+                            orders = emptyList()
                         )
                     )
                 )
@@ -613,12 +697,14 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                         Index(
                             name = "index_MyEntity_foo_id",
                             unique = false,
-                            fields = fieldsByName(entity, "foo", "id")
+                            fields = fieldsByName(entity, "foo", "id"),
+                            orders = emptyList()
                         ),
                         Index(
                             name = "index_MyEntity_bar_column_foo",
                             unique = false,
-                            fields = fieldsByName(entity, "bar", "foo")
+                            fields = fieldsByName(entity, "bar", "foo"),
+                            orders = emptyList()
                         )
                     )
                 )
@@ -646,7 +732,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                         Index(
                             name = "index_MyEntity_foo_id",
                             unique = true,
-                            fields = fieldsByName(entity, "foo", "id")
+                            fields = fieldsByName(entity, "foo", "id"),
+                            orders = emptyList()
                         )
                     )
                 )
@@ -674,7 +761,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                         Index(
                             name = "myName",
                             unique = false,
-                            fields = fieldsByName(entity, "foo")
+                            fields = fieldsByName(entity, "foo"),
+                            orders = emptyList()
                         )
                     )
                 )
@@ -703,7 +791,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                         Index(
                             name = "index_MyTable_foo",
                             unique = false,
-                            fields = fieldsByName(entity, "foo")
+                            fields = fieldsByName(entity, "foo"),
+                            orders = emptyList()
                         )
                     )
                 )
@@ -851,7 +940,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     Index(
                         name = "index_MyEntity_name_lastName",
                         unique = false,
-                        fields = fieldsByName(entity, "name", "lastName")
+                        fields = fieldsByName(entity, "name", "lastName"),
+                        orders = emptyList()
                     )
                 )
             )
@@ -892,7 +982,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     Index(
                         name = "index_MyEntity_name_lastName",
                         unique = false,
-                        fields = fieldsByName(entity, "name", "lastName")
+                        fields = fieldsByName(entity, "name", "lastName"),
+                        orders = emptyList()
                     )
                 )
             )
@@ -965,7 +1056,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     Index(
                         name = "index_MyEntity_name",
                         unique = false,
-                        fields = fieldsByName(entity, "name")
+                        fields = fieldsByName(entity, "name"),
+                        orders = emptyList()
                     )
                 )
             )
@@ -1151,7 +1243,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     Index(
                         name = "index_MyEntity_a",
                         unique = false,
-                        fields = fieldsByName(entity, "a")
+                        fields = fieldsByName(entity, "a"),
+                        orders = emptyList()
                     )
                 )
             )

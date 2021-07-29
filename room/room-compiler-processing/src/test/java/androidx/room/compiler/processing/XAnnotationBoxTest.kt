@@ -17,6 +17,8 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
+import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnum
+import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnumArray
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithPrimitiveArray
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithTypeReferences
 import androidx.room.compiler.processing.testcode.JavaEnum
@@ -506,6 +508,86 @@ class XAnnotationBoxTest(
                     annotation?.value?.intArray
                 ).isEqualTo(
                     intArrayOf(1, 2, 3)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun javaEnum() {
+        val javaSrc = Source.java(
+            "JavaSubject.java",
+            """
+            import androidx.room.compiler.processing.testcode.*;
+            class JavaSubject {
+                @JavaAnnotationWithEnum(JavaEnum.VAL1)
+                Object annotated1;
+            }
+            """.trimIndent()
+        )
+        val kotlinSrc = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            import androidx.room.compiler.processing.testcode.*;
+            class KotlinSubject {
+                @JavaAnnotationWithEnum(JavaEnum.VAL1)
+                val annotated1: Any = TODO()
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(javaSrc, kotlinSrc)
+        ) { invocation ->
+            arrayOf("JavaSubject", "KotlinSubject").map {
+                invocation.processingEnv.requireTypeElement(it)
+            }.forEach { subject ->
+                val annotation = subject.getField("annotated1").getAnnotation(
+                    JavaAnnotationWithEnum::class
+                )
+                assertThat(
+                    annotation?.value?.value
+                ).isEqualTo(
+                    JavaEnum.VAL1
+                )
+            }
+        }
+    }
+
+    @Test
+    fun javaEnumArray() {
+        val javaSrc = Source.java(
+            "JavaSubject.java",
+            """
+            import androidx.room.compiler.processing.testcode.*;
+            class JavaSubject {
+                @JavaAnnotationWithEnumArray(enumArray = {JavaEnum.VAL1, JavaEnum.VAL2})
+                Object annotated1;
+            }
+            """.trimIndent()
+        )
+        val kotlinSrc = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            import androidx.room.compiler.processing.testcode.*;
+            class KotlinSubject {
+                @JavaAnnotationWithEnumArray(enumArray = [JavaEnum.VAL1, JavaEnum.VAL2])
+                val annotated1:Any = TODO()
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(javaSrc, kotlinSrc)
+        ) { invocation ->
+            arrayOf("JavaSubject", "KotlinSubject").map {
+                invocation.processingEnv.requireTypeElement(it)
+            }.forEach { subject ->
+                val annotation = subject.getField("annotated1").getAnnotation(
+                    JavaAnnotationWithEnumArray::class
+                )
+                assertThat(
+                    annotation?.value?.enumArray
+                ).isEqualTo(
+                    arrayOf(JavaEnum.VAL1, JavaEnum.VAL2)
                 )
             }
         }
