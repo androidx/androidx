@@ -43,11 +43,11 @@ public class ListenableWatchFaceMetadataClient {
          * dies during startup.
          */
         @JvmStatic
-        public fun listenableCreateWatchFaceMetadataClient(
+        public fun createListenableWatchFaceMetadataClient(
             context: Context,
             watchFaceName: ComponentName
         ): ListenableFuture<WatchFaceMetadataClient> =
-            listenableCreateWatchFaceMetadataClientImpl(
+            createListenableWatchFaceMetadataClientImpl(
                 context,
                 Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
                     setPackage(watchFaceName.packageName)
@@ -55,7 +55,7 @@ public class ListenableWatchFaceMetadataClient {
                 watchFaceName
             )
 
-        internal fun listenableCreateWatchFaceMetadataClientImpl(
+        internal fun createListenableWatchFaceMetadataClientImpl(
             context: Context,
             intent: Intent,
             watchFaceName: ComponentName

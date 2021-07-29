@@ -71,7 +71,7 @@ public class ListenableWatchFaceMetadataClientTest {
     @Test
     public fun getSchema() {
         val listenableFuture =
-            ListenableWatchFaceMetadataClient.listenableCreateWatchFaceMetadataClientImpl(
+            ListenableWatchFaceMetadataClient.createListenableWatchFaceMetadataClientImpl(
                 context,
                 Intent(context, WatchFaceControlTestService::class.java).apply {
                     action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
