@@ -144,6 +144,7 @@ import java.util.List;
  * @see GuidedActionsStylist
  * @deprecated use {@link GuidedStepSupportFragment}
  */
+@SuppressWarnings("HiddenSuperclass")
 @Deprecated
 public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.FocusListener {
 

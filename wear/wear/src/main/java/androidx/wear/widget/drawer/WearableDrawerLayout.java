@@ -98,6 +98,7 @@ import androidx.wear.widget.drawer.WearableDrawerView.DrawerState;
  *     &lt;/androidx.wear.widget.drawer.WearableDrawerView&gt;
  * &lt;/androidx.wear.widget.drawer.WearableDrawerLayout&gt;</pre>
  */
+@SuppressWarnings("HiddenSuperclass")
 public class WearableDrawerLayout extends FrameLayout
         implements View.OnLayoutChangeListener, NestedScrollingParent, FlingListener {
 

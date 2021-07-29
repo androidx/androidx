@@ -140,6 +140,7 @@ import java.util.List;
  * @see GuidedAction
  * @see GuidedActionsStylist
  */
+@SuppressWarnings("HiddenSuperclass")
 public class GuidedStepSupportFragment extends Fragment implements GuidedActionAdapter.FocusListener {
 
     private static final String TAG_LEAN_BACK_ACTIONS_FRAGMENT = "leanBackGuidedStepSupportFragment";

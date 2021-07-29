@@ -37,6 +37,7 @@ import java.util.Set;
 /**
  * Slice template containing all view components.
  */
+@SuppressWarnings("HiddenSuperclass")
 @RequiresApi(19)
 public class TemplateView extends SliceChildView implements
         SliceViewPolicy.PolicyChangeListener {
