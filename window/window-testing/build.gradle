@@ -37,6 +37,7 @@ dependencies {
     api(libs.junit)
     implementation("androidx.core:core:1.3.2")
 
+    androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
