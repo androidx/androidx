@@ -18,6 +18,7 @@ package androidx.benchmark.macro
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.benchmark.macro.perfetto.isShellSessionRooted
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -37,7 +38,7 @@ import kotlin.test.assertTrue
 @SdkSuppress(minSdkVersion = 27) // Lowest version validated
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-public class MacrobenchmarkScopeTest {
+class MacrobenchmarkScopeTest {
     @Before
     fun setup() {
         // validate target is installed with clear error message,
@@ -53,7 +54,7 @@ public class MacrobenchmarkScopeTest {
     }
 
     @Test
-    public fun killTest() {
+    fun killTest() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         scope.pressHome()
         scope.startActivityAndWait()
@@ -63,7 +64,7 @@ public class MacrobenchmarkScopeTest {
     }
 
     @Test
-    public fun compile_speedProfile() {
+    fun compile_speedProfile() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         val iterations = 1
         var executions = 0
@@ -77,7 +78,7 @@ public class MacrobenchmarkScopeTest {
     }
 
     @Test
-    public fun compile_speed() {
+    fun compile_speed() {
         val compilation = CompilationMode.Speed
         compilation.compile(Packages.TARGET) {
             fail("Should never be called for $compilation")
@@ -85,7 +86,7 @@ public class MacrobenchmarkScopeTest {
     }
 
     @Test
-    public fun startActivityAndWait_activityNotExported() {
+    fun startActivityAndWait_activityNotExported() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         scope.pressHome()
 
@@ -94,8 +95,7 @@ public class MacrobenchmarkScopeTest {
         intent.action = "${Packages.TARGET}.NOT_EXPORTED_ACTIVITY"
 
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val prop = device.executeShellCommand("getprop service.adb.root").trim()
-        if (prop == "1") {
+        if (device.isShellSessionRooted()) {
             // while device and adb session are both rooted, doesn't throw
             scope.startActivityAndWait(intent)
         } else {
@@ -112,7 +112,7 @@ public class MacrobenchmarkScopeTest {
     }
 
     @Test
-    public fun startActivityAndWait_invalidActivity() {
+    fun startActivityAndWait_invalidActivity() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         scope.pressHome()
 
@@ -129,7 +129,7 @@ public class MacrobenchmarkScopeTest {
     }
 
     @Test
-    public fun startActivityAndWait_sameActivity() {
+    fun startActivityAndWait_sameActivity() {
         val scope = MacrobenchmarkScope(
             Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
             launchWithClearTask = true
