@@ -169,9 +169,9 @@ public class CurrentUserStyleRepositoryTest {
 
     @Test
     public fun addUserStyleListener_samConversion() {
-        lateinit var selectedOptions: Map<UserStyleSetting, Option>
+        lateinit var selectedOptions: UserStyle
         userStyleRepository.addUserStyleChangeListener {
-            selectedOptions = it.selectedOptions
+            selectedOptions = it
         }
 
         assertThat(selectedOptions[colorStyleSetting]).isEqualTo(redStyleOption)
