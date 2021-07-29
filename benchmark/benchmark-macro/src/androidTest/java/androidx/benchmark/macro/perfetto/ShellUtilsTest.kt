@@ -31,7 +31,6 @@ import org.junit.runner.RunWith
 class ShellUtilsTest {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
     fun trivial() {
         assertEquals("foo\n", device.executeShellScript("echo foo"))
@@ -39,7 +38,6 @@ class ShellUtilsTest {
         assertEquals(ShellOutput("foo\n", ""), device.executeShellScriptWithStderr("echo foo"))
     }
 
-    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
     fun trivialStderr() {
         val shellOutput = device.executeShellScriptWithStderr("invalidCommand")
@@ -57,7 +55,7 @@ class ShellUtilsTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 26) // xargs only available before 26
+    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
     @Test
     fun pipe_xargs() {
         // validate piping works with xargs
@@ -71,7 +69,7 @@ class ShellUtilsTest {
         assertEquals("foo\n", device.executeShellScript("echo foo | echo $(</dev/stdin)"))
     }
 
-    @SdkSuppress(minSdkVersion = 26) // xargs only available before 26
+    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
     @Test
     public fun stdinArg_xargs() {
         // validate stdin to first command in script
@@ -85,7 +83,6 @@ class ShellUtilsTest {
         assertEquals("foo\n", device.executeShellScript("echo $(</dev/stdin)", stdin = "foo"))
     }
 
-    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
     public fun multilineRedirect() {
         assertEquals(
@@ -99,7 +96,7 @@ class ShellUtilsTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 26) // xargs only available before 26
+    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
     @Test
     public fun multilineRedirectStdin_xargs() {
         assertEquals(
@@ -129,7 +126,6 @@ class ShellUtilsTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 23) // broken below 23
     @Test
     public fun createRunnableExecutable_simpleScript() {
         val path = device.createRunnableExecutable(
