@@ -30,14 +30,15 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+    kotlinPlugin("androidx.compose.compiler:compiler:1.0.1")
 
     implementation(KOTLIN_STDLIB)
-    api(projectOrArtifact(":compose:runtime:runtime"))
-    api(projectOrArtifact(":compose:runtime:runtime-saveable"))
+    api("androidx.compose.foundation:foundation:1.0.1")
+    api("androidx.compose.foundation:foundation-layout:1.0.1")
+    api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.compose.runtime:runtime-saveable:1.0.1")
+    api("androidx.compose.material:material:1.0.1")
     api(projectOrArtifact(":navigation:navigation-compose"))
-    api(projectOrArtifact(":compose:foundation:foundation"))
-    api(projectOrArtifact(":compose:material:material"))
 
     androidTestImplementation projectOrArtifact(":compose:test-utils")
     androidTestImplementation(projectOrArtifact(":navigation:navigation-testing"))
