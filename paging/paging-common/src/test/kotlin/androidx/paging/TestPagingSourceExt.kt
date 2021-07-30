@@ -26,7 +26,8 @@ internal fun createRefresh(
     pages = pages(0, range),
     placeholdersBefore = range.first.coerceAtLeast(0),
     placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
-    combinedLoadStates = combinedLoadStates
+    sourceLoadStates = combinedLoadStates.source,
+    mediatorLoadStates = combinedLoadStates.mediator,
 )
 
 internal fun createRefresh(
@@ -37,7 +38,8 @@ internal fun createRefresh(
     pages = pages(0, range),
     placeholdersBefore = range.first.coerceAtLeast(0),
     placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
-    combinedLoadStates = localLoadStatesOf(prependLocal = startState, appendLocal = endState)
+    sourceLoadStates = loadStates(prepend = startState, append = endState),
+    mediatorLoadStates = null,
 )
 
 internal fun createPrepend(
@@ -48,7 +50,8 @@ internal fun createPrepend(
 ) = PageEvent.Insert.Prepend(
     pages = pages(pageOffset, range),
     placeholdersBefore = range.first.coerceAtLeast(0),
-    combinedLoadStates = localLoadStatesOf(prependLocal = startState, appendLocal = endState)
+    sourceLoadStates = loadStates(prepend = startState, append = endState),
+    mediatorLoadStates = null,
 )
 
 internal fun createAppend(
@@ -59,7 +62,8 @@ internal fun createAppend(
 ) = PageEvent.Insert.Append(
     pages = pages(pageOffset, range),
     placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
-    combinedLoadStates = localLoadStatesOf(prependLocal = startState, appendLocal = endState)
+    sourceLoadStates = loadStates(prepend = startState, append = endState),
+    mediatorLoadStates = null,
 )
 
 private fun pages(

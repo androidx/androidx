@@ -28,8 +28,10 @@ internal class MutableCombinedLoadStateCollection {
     private var refresh: LoadState = NotLoading.Incomplete
     private var prepend: LoadState = NotLoading.Incomplete
     private var append: LoadState = NotLoading.Incomplete
-    private var source: LoadStates = LoadStates.IDLE
-    private var mediator: LoadStates? = null
+    var source: LoadStates = LoadStates.IDLE
+        private set
+    var mediator: LoadStates? = null
+        private set
 
     fun snapshot() = CombinedLoadStates(
         refresh = refresh,
@@ -38,14 +40,6 @@ internal class MutableCombinedLoadStateCollection {
         source = source,
         mediator = mediator,
     )
-
-    fun set(combinedLoadStates: CombinedLoadStates) {
-        refresh = combinedLoadStates.refresh
-        prepend = combinedLoadStates.prepend
-        append = combinedLoadStates.append
-        source = combinedLoadStates.source
-        mediator = combinedLoadStates.mediator
-    }
 
     fun set(sourceLoadStates: LoadStates, remoteLoadStates: LoadStates?) {
         source = sourceLoadStates
@@ -116,19 +110,5 @@ internal class MutableCombinedLoadStateCollection {
             }
             else -> remoteState
         }
-    }
-
-    internal inline fun forEach(op: (LoadType, Boolean, LoadState) -> Unit) {
-        source.forEach { type, state ->
-            op(type, false, state)
-        }
-        mediator?.forEach { type, state ->
-            op(type, true, state)
-        }
-    }
-
-    internal fun terminates(loadType: LoadType): Boolean {
-        return get(loadType, false)!!.endOfPaginationReached &&
-            get(loadType, true)?.endOfPaginationReached != false
     }
 }

@@ -102,13 +102,4 @@ public class CombinedLoadStates(
             op(type, true, state)
         }
     }
-
-    internal companion object {
-        val IDLE_SOURCE = CombinedLoadStates(
-            refresh = LoadState.NotLoading.Incomplete,
-            prepend = LoadState.NotLoading.Incomplete,
-            append = LoadState.NotLoading.Incomplete,
-            source = LoadStates.IDLE
-        )
-    }
 }

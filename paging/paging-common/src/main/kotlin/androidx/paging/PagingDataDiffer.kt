@@ -85,20 +85,7 @@ public abstract class PagingDataDiffer<T : Any>(
 
         // for state updates from LoadStateUpdate events
         override fun onStateUpdate(source: LoadStates, mediator: LoadStates?) {
-            val currentLoadState = combinedLoadStates.snapshot()
-
-            // No change, skip update + dispatch.
-            if (currentLoadState.source == source && currentLoadState.mediator == mediator) {
-                return
-            }
-
-            combinedLoadStates.set(
-                sourceLoadStates = source,
-                remoteLoadStates = mediator
-            )
-
-            val newLoadStates = combinedLoadStates.snapshot()
-            loadStateListeners.forEach { it(newLoadStates) }
+            dispatchLoadStates(source, mediator)
         }
 
         // for state updates from Drop events
@@ -118,11 +105,20 @@ public abstract class PagingDataDiffer<T : Any>(
         }
     }
 
-    private fun dispatchLoadStates(states: CombinedLoadStates) {
-        if (combinedLoadStates.snapshot() == states) return
+    internal fun dispatchLoadStates(source: LoadStates, mediator: LoadStates?) {
+        // No change, skip update + dispatch.
+        if (combinedLoadStates.source == source &&
+            combinedLoadStates.mediator == mediator
+        ) {
+            return
+        }
 
-        combinedLoadStates.set(states)
-        loadStateListeners.forEach { it(states) }
+        combinedLoadStates.set(
+            sourceLoadStates = source,
+            remoteLoadStates = mediator
+        )
+        val newLoadStates = combinedLoadStates.snapshot()
+        loadStateListeners.forEach { it(newLoadStates) }
     }
 
     /**
@@ -140,7 +136,6 @@ public abstract class PagingDataDiffer<T : Any>(
     public abstract suspend fun presentNewList(
         previousList: NullPaddedList<T>,
         newList: NullPaddedList<T>,
-        newCombinedLoadStates: CombinedLoadStates,
         lastAccessedIndex: Int,
         onListPresentable: () -> Unit,
     ): Int?
@@ -162,7 +157,6 @@ public abstract class PagingDataDiffer<T : Any>(
                         val transformedLastAccessedIndex = presentNewList(
                             previousList = presenter,
                             newList = newPresenter,
-                            newCombinedLoadStates = event.combinedLoadStates,
                             lastAccessedIndex = lastAccessedIndex,
                             onListPresentable = {
                                 presenter = newPresenter
@@ -178,7 +172,7 @@ public abstract class PagingDataDiffer<T : Any>(
 
                         // Dispatch LoadState updates as soon as we are done diffing, but after
                         // setting presenter.
-                        dispatchLoadStates(event.combinedLoadStates)
+                        dispatchLoadStates(event.sourceLoadStates, event.mediatorLoadStates)
 
                         if (transformedLastAccessedIndex == null) {
                             // Send an initialize hint in case the new list is empty, which would
@@ -217,9 +211,9 @@ public abstract class PagingDataDiffer<T : Any>(
                         // If index points to a placeholder after transformations, resend it unless
                         // there are no more items to load.
                         if (event is Insert) {
-                            val prependDone =
-                                event.combinedLoadStates.prepend.endOfPaginationReached
-                            val appendDone = event.combinedLoadStates.append.endOfPaginationReached
+                            val snapshot = combinedLoadStates.snapshot()
+                            val prependDone = snapshot.prepend.endOfPaginationReached
+                            val appendDone = snapshot.append.endOfPaginationReached
                             val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
                                 !(event.loadType == APPEND && appendDone)
 

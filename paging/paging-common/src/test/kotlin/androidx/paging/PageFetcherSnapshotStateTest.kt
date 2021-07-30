@@ -490,23 +490,21 @@ class PageFetcherSnapshotStateTest {
         val pageSize = 2
         val initialPage = get(initialPageIndex)
         val presenter = PagePresenter(
-            insertEvent = PageEvent.Insert.Refresh(
+            insertEvent = localRefresh(
                 pages = listOf(TransformablePage(initialPage.data)),
                 placeholdersBefore = initialPage.itemsBefore,
                 placeholdersAfter = initialPage.itemsAfter,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
 
         for (i in 0 until initialPageIndex) {
             val offset = i + 1
             presenter.processEvent(
-                PageEvent.Insert.Prepend(
+                localPrepend(
                     pages = listOf(
                         TransformablePage(originalPageOffset = -offset, data = get(i).data)
                     ),
                     placeholdersBefore = initialPage.itemsBefore - (offset * pageSize),
-                    combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
                 ),
                 ProcessPageEventCallbackCapture()
             )
@@ -515,12 +513,11 @@ class PageFetcherSnapshotStateTest {
         for (i in (initialPageIndex + 1)..lastIndex) {
             val offset = i - initialPageIndex
             presenter.processEvent(
-                PageEvent.Insert.Append(
+                localAppend(
                     pages = listOf(
                         TransformablePage(originalPageOffset = offset, data = get(i).data)
                     ),
                     placeholdersAfter = initialPage.itemsAfter - (offset * pageSize),
-                    combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
                 ),
                 ProcessPageEventCallbackCapture()
             )

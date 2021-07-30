@@ -19,9 +19,6 @@ package androidx.paging
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
-import androidx.paging.PageEvent.Insert.Companion.Append
-import androidx.paging.PageEvent.Insert.Companion.Prepend
-import androidx.paging.PageEvent.Insert.Companion.Refresh
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -37,7 +34,7 @@ internal fun <T : Any> adjacentInsertEvent(
     originalPageOffset: Int,
     placeholdersRemaining: Int
 ) = if (isPrepend) {
-    Prepend(
+    localPrepend(
         pages = listOf(
             TransformablePage(
                 originalPageOffset = originalPageOffset,
@@ -45,10 +42,9 @@ internal fun <T : Any> adjacentInsertEvent(
             )
         ),
         placeholdersBefore = placeholdersRemaining,
-        combinedLoadStates = localLoadStatesOf()
     )
 } else {
-    Append(
+    localAppend(
         pages = listOf(
             TransformablePage(
                 originalPageOffset = originalPageOffset,
@@ -56,7 +52,6 @@ internal fun <T : Any> adjacentInsertEvent(
             )
         ),
         placeholdersAfter = placeholdersRemaining,
-        combinedLoadStates = localLoadStatesOf()
     )
 }
 
@@ -66,19 +61,17 @@ class PageEventTest {
     @Test
     fun placeholdersException() {
         assertFailsWith<IllegalArgumentException> {
-            Refresh<Char>(
+            localRefresh<Char>(
                 pages = listOf(),
                 placeholdersBefore = 1,
                 placeholdersAfter = -1,
-                combinedLoadStates = localLoadStatesOf()
             )
         }
         assertFailsWith<IllegalArgumentException> {
-            Refresh<Char>(
+            localRefresh<Char>(
                 pages = listOf(),
                 placeholdersBefore = -1,
                 placeholdersAfter = 1,
-                combinedLoadStates = localLoadStatesOf()
             )
         }
     }
@@ -135,7 +128,7 @@ class PageEventTest {
 
     @Test
     fun stateTransform() = runBlockingTest {
-        val state = loadStateUpdate<Char>(
+        val state = localLoadStateUpdate<Char>(
             refreshLocal = LoadState.Loading
         )
 
@@ -146,16 +139,14 @@ class PageEventTest {
 
     @Test
     fun insertMap() = runBlockingTest {
-        val insert = Append(
+        val insert = localAppend(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
             placeholdersAfter = 4,
-            combinedLoadStates = localLoadStatesOf()
         )
         assertEquals(
-            Append(
+            localAppend(
                 pages = listOf(TransformablePage(listOf("a", "b"))),
                 placeholdersAfter = 4,
-                combinedLoadStates = localLoadStatesOf()
             ),
             insert.map { it.toString() }
         )
@@ -169,7 +160,7 @@ class PageEventTest {
     @Test
     fun insertMapTransformed() = runBlockingTest {
         assertEquals(
-            Append(
+            localAppend(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffsets = intArrayOf(0),
@@ -179,35 +170,33 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                combinedLoadStates = localLoadStatesOf()
             ),
-            Append(
+            localAppend(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffsets = intArrayOf(0),
-                        data = listOf('a', 'b'),
+                        data = listOf("a", "b"),
                         hintOriginalPageOffset = 0,
                         hintOriginalIndices = listOf(0, 2)
                     )
                 ),
                 placeholdersAfter = 4,
-                combinedLoadStates = localLoadStatesOf()
             ).map { it.toString() }
         )
     }
 
     @Test
     fun insertFilter() = runBlockingTest {
-        val insert = Append(
+        val insert = localAppend(
             pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
             placeholdersAfter = 4,
-            combinedLoadStates = MutableCombinedLoadStateCollection().snapshot()
         )
 
         // filter out C
         val insertNoC = insert.filter { it != 'c' }
+
         assertEquals(
-            Append(
+            localAppend(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffsets = intArrayOf(0),
@@ -217,14 +206,13 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                combinedLoadStates = localLoadStatesOf()
             ),
             insertNoC
         )
 
         // now filter out A, to validate filtration when lookup present
         assertEquals(
-            Append(
+            localAppend(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffsets = intArrayOf(0),
@@ -234,7 +222,6 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                combinedLoadStates = localLoadStatesOf()
             ),
             insertNoC.filter { it != 'a' }
         )
@@ -242,10 +229,9 @@ class PageEventTest {
 
     @Test
     fun insertFlatMap() = runBlockingTest {
-        val insert = Append(
+        val insert = localAppend(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
             placeholdersAfter = 4,
-            combinedLoadStates = localLoadStatesOf()
         )
 
         val flatMapped = insert.flatMap {
@@ -253,7 +239,7 @@ class PageEventTest {
         }
 
         assertEquals(
-            Append(
+            localAppend(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffsets = intArrayOf(0),
@@ -263,7 +249,6 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                combinedLoadStates = localLoadStatesOf()
             ),
             flatMapped
         )
@@ -273,7 +258,7 @@ class PageEventTest {
         }
 
         assertEquals(
-            Append(
+            localAppend(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffsets = intArrayOf(0),
@@ -283,7 +268,6 @@ class PageEventTest {
                     )
                 ),
                 placeholdersAfter = 4,
-                combinedLoadStates = localLoadStatesOf()
             ),
             flatMappedAgain
         )

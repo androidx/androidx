@@ -33,9 +33,8 @@ internal sealed class PageEvent<T : Any> {
         val pages: List<TransformablePage<T>>,
         val placeholdersBefore: Int,
         val placeholdersAfter: Int,
-        // NOTE: If more events have combinedLoadStates, make sure to change PageFetcher's
-        //  injectRemoteEvents method
-        val combinedLoadStates: CombinedLoadStates
+        val sourceLoadStates: LoadStates,
+        val mediatorLoadStates: LoadStates? = null
     ) : PageEvent<T>() {
         init {
             require(loadType == APPEND || placeholdersBefore >= 0) {
@@ -65,7 +64,8 @@ internal sealed class PageEvent<T : Any> {
             pages = transform(pages),
             placeholdersBefore = placeholdersBefore,
             placeholdersAfter = placeholdersAfter,
-            combinedLoadStates = combinedLoadStates
+            sourceLoadStates = sourceLoadStates,
+            mediatorLoadStates = mediatorLoadStates,
         )
 
         override suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> = mapPages {
@@ -119,26 +119,44 @@ internal sealed class PageEvent<T : Any> {
                 pages: List<TransformablePage<T>>,
                 placeholdersBefore: Int,
                 placeholdersAfter: Int,
-                combinedLoadStates: CombinedLoadStates
+                sourceLoadStates: LoadStates,
+                mediatorLoadStates: LoadStates? = null
             ) = Insert(
                 REFRESH,
                 pages,
                 placeholdersBefore,
                 placeholdersAfter,
-                combinedLoadStates,
+                sourceLoadStates,
+                mediatorLoadStates,
             )
 
             fun <T : Any> Prepend(
                 pages: List<TransformablePage<T>>,
                 placeholdersBefore: Int,
-                combinedLoadStates: CombinedLoadStates
-            ) = Insert(PREPEND, pages, placeholdersBefore, -1, combinedLoadStates)
+                sourceLoadStates: LoadStates,
+                mediatorLoadStates: LoadStates? = null
+            ) = Insert(
+                PREPEND,
+                pages,
+                placeholdersBefore,
+                -1,
+                sourceLoadStates,
+                mediatorLoadStates,
+            )
 
             fun <T : Any> Append(
                 pages: List<TransformablePage<T>>,
                 placeholdersAfter: Int,
-                combinedLoadStates: CombinedLoadStates
-            ) = Insert(APPEND, pages, -1, placeholdersAfter, combinedLoadStates)
+                sourceLoadStates: LoadStates,
+                mediatorLoadStates: LoadStates? = null
+            ) = Insert(
+                APPEND,
+                pages,
+                -1,
+                placeholdersAfter,
+                sourceLoadStates,
+                mediatorLoadStates,
+            )
 
             /**
              * Empty refresh, used to convey initial state.
@@ -149,20 +167,15 @@ internal sealed class PageEvent<T : Any> {
                 pages = listOf(TransformablePage.EMPTY_INITIAL_PAGE),
                 placeholdersBefore = 0,
                 placeholdersAfter = 0,
-                combinedLoadStates = CombinedLoadStates(
+                sourceLoadStates = LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     prepend = LoadState.NotLoading.Complete,
                     append = LoadState.NotLoading.Complete,
-                    source = LoadStates(
-                        refresh = LoadState.NotLoading.Incomplete,
-                        prepend = LoadState.NotLoading.Complete,
-                        append = LoadState.NotLoading.Complete,
-                    ),
-                )
+                ),
             )
         }
     }
-
+    // TODO: b/195658070 consider refactoring Drop events to carry full source/mediator states.
     data class Drop<T : Any>(
         val loadType: LoadType,
         /**

@@ -124,44 +124,35 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
         return simpleChannelFlow<PageEvent<Value>> {
             val sourceStates = MutableLoadStateCollection()
-
-            // mediator States initialized to null so we can filter out the first mediator states
-            // for the initial local refresh state update
-            var mediatorStates: MutableLoadStateCollection? = null
+            var mediatorStates = LoadStates.IDLE
 
             launch {
                 var prev = LoadStates.IDLE
-                accessor.state.collect {
-                    if (prev != it) {
-                        if (mediatorStates == null) {
-                            mediatorStates = MutableLoadStateCollection()
-                        }
-                        mediatorStates?.set(it)
-
+                accessor.state.collect { newStates ->
+                    if (prev != newStates) {
+                        mediatorStates = newStates
                         send(
                             PageEvent.LoadStateUpdate(
                                 source = sourceStates.snapshot(),
-                                mediator = mediatorStates?.snapshot()
+                                mediator = mediatorStates
                             )
                         )
                     }
-                    prev = it
+                    prev = newStates
                 }
             }
 
             this@injectRemoteEvents.pageEventFlow.collect { event ->
                 when (event) {
                     is PageEvent.Insert -> {
-                        sourceStates.set(event.combinedLoadStates.source)
-                        mediatorStates?.set(accessor.state.value)
-                        val combinedLoadStates = CombinedLoadStates(
-                            refresh = mediatorStates?.refresh ?: LoadState.NotLoading.Incomplete,
-                            prepend = mediatorStates?.prepend ?: LoadState.NotLoading.Incomplete,
-                            append = mediatorStates?.append ?: LoadState.NotLoading.Incomplete,
-                            source = sourceStates.snapshot(),
-                            mediator = mediatorStates?.snapshot() ?: LoadStates.IDLE,
+                        sourceStates.set(event.sourceLoadStates)
+                        mediatorStates = accessor.state.value
+                        send(
+                            event.copy(
+                                sourceLoadStates = event.sourceLoadStates,
+                                mediatorLoadStates = mediatorStates
+                            )
                         )
-                        send(event.copy(combinedLoadStates = combinedLoadStates))
                     }
                     is PageEvent.Drop -> {
                         sourceStates.set(
@@ -174,8 +165,8 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         sourceStates.set(event.source)
                         send(
                             PageEvent.LoadStateUpdate(
-                                source = sourceStates.snapshot(),
-                                mediator = mediatorStates?.snapshot()
+                                source = event.source,
+                                mediator = mediatorStates
                             )
                         )
                     }

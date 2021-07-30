@@ -200,7 +200,8 @@ private class SeparatorState<R : Any, T : R>(
     var endTerminalSeparatorDeferred = false
     var startTerminalSeparatorDeferred = false
 
-    val loadStates = MutableCombinedLoadStateCollection()
+    val sourceStates = MutableLoadStateCollection()
+    var mediatorStates: LoadStates? = null
     var placeholdersBefore = 0
     var placeholdersAfter = 0
 
@@ -234,10 +235,10 @@ private class SeparatorState<R : Any, T : R>(
 
         return when (terminalSeparatorType) {
             FULLY_COMPLETE -> {
-                combinedLoadStates.source.prepend.endOfPaginationReached &&
-                    combinedLoadStates.mediator?.prepend?.endOfPaginationReached != false
+                sourceLoadStates.prepend.endOfPaginationReached &&
+                    mediatorLoadStates?.prepend?.endOfPaginationReached != false
             }
-            SOURCE_COMPLETE -> combinedLoadStates.source.prepend.endOfPaginationReached
+            SOURCE_COMPLETE -> sourceLoadStates.prepend.endOfPaginationReached
         }
     }
 
@@ -248,10 +249,10 @@ private class SeparatorState<R : Any, T : R>(
 
         return when (terminalSeparatorType) {
             FULLY_COMPLETE -> {
-                combinedLoadStates.source.append.endOfPaginationReached &&
-                    combinedLoadStates.mediator?.append?.endOfPaginationReached != false
+                sourceLoadStates.append.endOfPaginationReached &&
+                    mediatorLoadStates?.append?.endOfPaginationReached != false
             }
-            SOURCE_COMPLETE -> combinedLoadStates.source.append.endOfPaginationReached
+            SOURCE_COMPLETE -> sourceLoadStates.append.endOfPaginationReached
         }
     }
 
@@ -268,7 +269,9 @@ private class SeparatorState<R : Any, T : R>(
         }
 
         // Update SeparatorState before we do any real work.
-        loadStates.set(event.combinedLoadStates)
+        sourceStates.set(event.sourceLoadStates)
+        mediatorStates = event.mediatorLoadStates
+
         // Append insert has placeholdersBefore = -1 as a placeholder value.
         if (event.loadType != APPEND) {
             placeholdersBefore = event.placeholdersBefore
@@ -480,7 +483,7 @@ private class SeparatorState<R : Any, T : R>(
      * Process a [Drop] event to update [pageStash] stage.
      */
     fun onDrop(event: Drop<T>): Drop<R> {
-        loadStates.set(type = event.loadType, remote = false, state = NotLoading.Incomplete)
+        sourceStates.set(type = event.loadType, state = NotLoading.Incomplete)
         if (event.loadType == PREPEND) {
             placeholdersBefore = event.placeholdersRemaining
             headerAdded = false
@@ -508,20 +511,16 @@ private class SeparatorState<R : Any, T : R>(
     }
 
     suspend fun onLoadStateUpdate(event: LoadStateUpdate<T>): PageEvent<R> {
+        val prevMediator = mediatorStates
         // Check for redundant LoadStateUpdate events to avoid unnecessary mapping to empty inserts
         // that might cause terminal separators to get added out of place.
-        val snapshot = loadStates.snapshot()
-        if (snapshot.source == event.source && snapshot.mediator == event.mediator) {
+        if (sourceStates.snapshot() == event.source && prevMediator == event.mediator) {
             @Suppress("UNCHECKED_CAST")
             return event as PageEvent<R>
         }
 
-        val prevMediatorStates = snapshot.mediator
-
-        loadStates.set(
-            sourceLoadStates = event.source,
-            remoteLoadStates = event.mediator,
-        )
+        sourceStates.set(event.source)
+        mediatorStates = event.mediator
 
         // Transform terminal load state updates into empty inserts for header + footer support
         // when used with RemoteMediator. In cases where we defer adding a terminal separator,
@@ -529,23 +528,24 @@ private class SeparatorState<R : Any, T : R>(
         // isn't possible to add a separator to. Note: Adding a separate insert event also
         // doesn't work in the case where .insertSeparators() is called multiple times on the
         // same page event stream - we have to transform the terminating LoadStateUpdate event.
-        val mediator = event.mediator
-        if (mediator != null && mediator.prepend.endOfPaginationReached &&
-            prevMediatorStates?.prepend != mediator.prepend
+        if (event.mediator != null && event.mediator.prepend.endOfPaginationReached &&
+            prevMediator?.prepend != event.mediator.prepend
         ) {
             val prependTerminalInsert: Insert<T> = Insert.Prepend(
                 pages = emptyList(),
                 placeholdersBefore = placeholdersBefore,
-                combinedLoadStates = loadStates.snapshot(),
+                sourceLoadStates = event.source,
+                mediatorLoadStates = event.mediator,
             )
             return onInsert(prependTerminalInsert)
-        } else if (mediator != null && mediator.append.endOfPaginationReached &&
-            prevMediatorStates?.append != mediator.append
+        } else if (event.mediator != null && event.mediator.append.endOfPaginationReached &&
+            prevMediator?.append != event.mediator.append
         ) {
             val appendTerminalInsert: Insert<T> = Insert.Append(
                 pages = emptyList(),
                 placeholdersAfter = placeholdersAfter,
-                combinedLoadStates = loadStates.snapshot(),
+                sourceLoadStates = event.source,
+                mediatorLoadStates = event.mediator,
             )
             return onInsert(appendTerminalInsert)
         }

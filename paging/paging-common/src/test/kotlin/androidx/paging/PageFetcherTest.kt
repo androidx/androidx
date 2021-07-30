@@ -22,7 +22,6 @@ import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
-import androidx.paging.PageEvent.Insert
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
@@ -226,14 +225,14 @@ class PageFetcherTest {
             // completion
             assertTrue(pagingSources[0].invalid)
             assertThat(fetcherState.pageEventLists[0]).containsExactly(
-                loadStateUpdate<Int>(refreshLocal = Loading)
+                localLoadStateUpdate<Int>(refreshLocal = Loading)
             )
             // previous load() returning LoadResult.Invalid should trigger a new paging source
             // retrying with the same load params, this should return a refresh starting
             // from key = 50
             assertTrue(!pagingSources[1].invalid)
             assertThat(fetcherState.pageEventLists[1]).containsExactly(
-                loadStateUpdate<Int>(refreshLocal = Loading),
+                localLoadStateUpdate<Int>(refreshLocal = Loading),
                 createRefresh(50..51)
             )
 
@@ -255,7 +254,7 @@ class PageFetcherTest {
 
             assertThat(fetcherState.pageEventLists.size).isEqualTo(1)
             assertThat(fetcherState.newEvents()).containsExactly(
-                loadStateUpdate<Int>(refreshLocal = Loading),
+                localLoadStateUpdate<Int>(refreshLocal = Loading),
                 createRefresh(50..51),
             )
 
@@ -277,7 +276,7 @@ class PageFetcherTest {
 
             // make sure the append load never completes
             assertThat(fetcherState.pageEventLists[0].last()).isEqualTo(
-                loadStateUpdate<Int>(appendLocal = Loading),
+                localLoadStateUpdate<Int>(appendLocal = Loading),
             )
 
             // the invalid result handler should exit the append load loop gracefully and allow
@@ -287,7 +286,7 @@ class PageFetcherTest {
 
             // second generation should load refresh with cached append load params
             assertThat(fetcherState.newEvents()).containsExactly(
-                loadStateUpdate<Int>(refreshLocal = Loading),
+                localLoadStateUpdate<Int>(refreshLocal = Loading),
                 createRefresh(51..52)
             )
 
@@ -308,7 +307,7 @@ class PageFetcherTest {
 
             assertThat(fetcherState.pageEventLists.size).isEqualTo(1)
             assertThat(fetcherState.newEvents()).containsExactly(
-                loadStateUpdate<Int>(refreshLocal = Loading),
+                localLoadStateUpdate<Int>(refreshLocal = Loading),
                 createRefresh(50..51),
             )
             // prepend a page
@@ -329,7 +328,7 @@ class PageFetcherTest {
 
             // make sure the prepend load never completes
             assertThat(fetcherState.pageEventLists[0].last()).isEqualTo(
-                loadStateUpdate<Int>(prependLocal = Loading),
+                localLoadStateUpdate<Int>(prependLocal = Loading),
             )
 
             // the invalid result should exit the prepend load loop gracefully and allow fetcher to
@@ -339,7 +338,7 @@ class PageFetcherTest {
 
             // second generation should load refresh with cached prepend load params
             assertThat(fetcherState.newEvents()).containsExactly(
-                loadStateUpdate<Int>(refreshLocal = Loading),
+                localLoadStateUpdate<Int>(refreshLocal = Loading),
                 createRefresh(49..50)
             )
 
@@ -576,7 +575,7 @@ class PageFetcherTest {
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).isEqualTo(
                 listOf<PageEvent<Int>>(
-                    loadStateUpdate<Int>(refreshLocal = Loading),
+                    localLoadStateUpdate<Int>(refreshLocal = Loading),
                     createRefresh(range = 50..51)
                 )
             )
@@ -599,7 +598,7 @@ class PageFetcherTest {
             assertEquals(2, fetcherState.pageEventLists[0].size)
             assertThat(fetcherState.newEvents()).isEqualTo(
                 listOf<PageEvent<Int>>(
-                    loadStateUpdate<Int>(refreshLocal = Loading),
+                    localLoadStateUpdate<Int>(refreshLocal = Loading),
                     createRefresh(range = 50..51)
                 )
             )
@@ -622,7 +621,7 @@ class PageFetcherTest {
             assertEquals(2, fetcherState.pageEventLists[1].size)
             assertThat(fetcherState.newEvents()).isEqualTo(
                 listOf<PageEvent<Int>>(
-                    loadStateUpdate<Int>(refreshLocal = Loading),
+                    localLoadStateUpdate<Int>(refreshLocal = Loading),
                     createRefresh(range = 50..51)
                 )
             )
@@ -1084,7 +1083,7 @@ class PageFetcherTest {
 
         assertEquals(1, fetcherState.pagingDataList.size)
         assertThat(fetcherState.newEvents()).containsExactly(
-            loadStateUpdate<Int>(
+            localLoadStateUpdate<Int>(
                 refreshLocal = Loading,
             ),
             EMPTY_SOURCE_REFRESH,
@@ -1095,7 +1094,7 @@ class PageFetcherTest {
 
         assertEquals(2, fetcherState.pagingDataList.size)
         assertThat(fetcherState.newEvents()).containsExactly(
-            loadStateUpdate<Int>(
+            localLoadStateUpdate<Int>(
                 refreshLocal = Loading,
             ),
             EMPTY_SOURCE_REFRESH,
@@ -1123,15 +1122,15 @@ class PageFetcherTest {
         advanceUntilIdle()
 
         assertThat(fetcherState.newEvents()).containsExactly(
-            loadStateUpdate<Int>(
+            remoteLoadStateUpdate<Int>(
                 refreshRemote = Loading
             ),
-            loadStateUpdate<Int>(
+            remoteLoadStateUpdate<Int>(
                 refreshLocal = Loading,
                 refreshRemote = Loading,
             ),
             // all remote States should be updated within single LoadStateUpdate
-            loadStateUpdate<Int>(
+            remoteLoadStateUpdate<Int>(
                 refreshLocal = Loading,
                 refreshRemote = NotLoading.Complete,
                 prependRemote = NotLoading.Complete,
@@ -1146,13 +1145,13 @@ class PageFetcherTest {
         assertThat(fetcherState.newEvents()).containsExactly(
             // all remote States should be updated within single LoadStateUpdate
             // the second gen refreshRemote.Loading was sent in previous PagingData
-            loadStateUpdate<Int>(
+            remoteLoadStateUpdate<Int>(
                 refreshLocal = Loading,
                 refreshRemote = NotLoading.Complete,
                 prependRemote = NotLoading.Complete,
                 appendRemote = NotLoading.Complete,
             ),
-            loadStateUpdate<Int>(
+            remoteLoadStateUpdate<Int>(
                 refreshRemote = NotLoading.Complete,
                 prependRemote = NotLoading.Complete,
                 appendRemote = NotLoading.Complete,
@@ -1165,43 +1164,24 @@ class PageFetcherTest {
 
     companion object {
         internal val EMPTY_SOURCE_REFRESH =
-            Insert.Refresh(
-                pages = listOf(TransformablePage.EMPTY_INITIAL_PAGE),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                combinedLoadStates = CombinedLoadStates(
-                    refresh = NotLoading.Incomplete,
+            localRefresh<Int>(
+                source = loadStates(
                     prepend = NotLoading.Complete,
                     append = NotLoading.Complete,
-                    source = LoadStates(
-                        refresh = NotLoading.Incomplete,
-                        prepend = NotLoading.Complete,
-                        append = NotLoading.Complete,
-                    ),
-                    mediator = null
                 )
             )
 
         internal val EMPTY_REMOTE_REFRESH =
-            Insert.Refresh(
-                pages = listOf(TransformablePage.EMPTY_INITIAL_PAGE),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                combinedLoadStates = CombinedLoadStates(
-                    refresh = NotLoading.Complete,
-                    prepend = NotLoading.Complete,
+            remoteRefresh<Int>(
+                source = loadStates(
                     append = NotLoading.Complete,
-                    source = LoadStates(
-                        refresh = NotLoading.Incomplete,
-                        prepend = NotLoading.Complete,
-                        append = NotLoading.Complete,
-                    ),
-                    mediator = LoadStates(
-                        refresh = NotLoading.Complete,
-                        prepend = NotLoading.Complete,
-                        append = NotLoading.Complete,
-                    ),
-                )
+                    prepend = NotLoading.Complete,
+                ),
+                mediator = loadStates(
+                    refresh = NotLoading.Complete,
+                    append = NotLoading.Complete,
+                    prepend = NotLoading.Complete,
+                ),
             )
     }
 }

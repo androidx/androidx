@@ -20,9 +20,6 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
-import androidx.paging.PageEvent.Insert.Companion.Append
-import androidx.paging.PageEvent.Insert.Companion.Prepend
-import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PagingSource.LoadResult
 import androidx.testutils.DirectDispatcher
 import androidx.testutils.MainDispatcherRule
@@ -162,25 +159,22 @@ class PagingDataDifferTest {
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
         pageEventCh.trySend(
-            Refresh(
+            localRefresh(
                 pages = listOf(TransformablePage(0, listOf(0, 1))),
                 placeholdersBefore = 4,
                 placeholdersAfter = 4,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
         pageEventCh.trySend(
-            Prepend(
+            localPrepend(
                 pages = listOf(TransformablePage(-1, listOf(-1, -2))),
                 placeholdersBefore = 2,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
         pageEventCh.trySend(
-            Append(
+            localAppend(
                 pages = listOf(TransformablePage(1, listOf(2, 3))),
                 placeholdersAfter = 2,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
 
@@ -218,10 +212,9 @@ class PagingDataDifferTest {
         // to a placeholder:
         // [null, null, [], [-1], [1], [3], null, null]
         pageEventCh.trySend(
-            Prepend(
+            localPrepend(
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
         assertThat(receiver.hints).isEqualTo(
@@ -240,14 +233,10 @@ class PagingDataDifferTest {
         // Now index 0 has been loaded:
         // [[-3], [], [-1], [1], [3], null, null]
         pageEventCh.trySend(
-            Prepend(
+            localPrepend(
                 pages = listOf(TransformablePage(-3, listOf(-3, -4))),
                 placeholdersBefore = 0,
-                combinedLoadStates = localLoadStatesOf(
-                    refreshLocal = NotLoading.Incomplete,
-                    prependLocal = NotLoading.Complete,
-                    appendLocal = NotLoading.Incomplete
-                )
+                source = loadStates(prepend = NotLoading.Complete)
             )
         )
         assertThat(receiver.hints).isEmpty()
@@ -270,14 +259,10 @@ class PagingDataDifferTest {
         // Should only resend the hint for index 5, since index 0 has already been loaded:
         // [[-3], [], [-1], [1], [3], [], null, null]
         pageEventCh.trySend(
-            Append(
+            localAppend(
                 pages = listOf(TransformablePage(2, listOf())),
                 placeholdersAfter = 2,
-                combinedLoadStates = localLoadStatesOf(
-                    refreshLocal = NotLoading.Incomplete,
-                    prependLocal = NotLoading.Complete,
-                    appendLocal = NotLoading.Incomplete
-                )
+                source = loadStates(prepend = NotLoading.Complete)
             )
         )
         assertThat(receiver.hints).isEqualTo(
@@ -296,15 +281,10 @@ class PagingDataDifferTest {
         // Index 5 hasn't loaded, but we are at the end of the list:
         // [[-3], [], [-1], [1], [3], [], [5]]
         pageEventCh.trySend(
-            Append(
+            localAppend(
                 pages = listOf(TransformablePage(3, listOf(4, 5))),
                 placeholdersAfter = 0,
-                combinedLoadStates = localLoadStatesOf(
-                    NotLoading.Incomplete,
-                    NotLoading.Complete,
-                    NotLoading.Complete
-                )
-
+                source = loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete)
             )
         )
         assertThat(receiver.hints).isEmpty()
@@ -318,25 +298,22 @@ class PagingDataDifferTest {
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
         pageEventCh.trySend(
-            Refresh(
+            localRefresh(
                 pages = listOf(TransformablePage(0, listOf(0, 1))),
                 placeholdersBefore = 4,
                 placeholdersAfter = 4,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
         pageEventCh.trySend(
-            Prepend(
+            localPrepend(
                 pages = listOf(TransformablePage(-1, listOf(-1, -2))),
                 placeholdersBefore = 2,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
         pageEventCh.trySend(
-            Append(
+            localAppend(
                 pages = listOf(TransformablePage(1, listOf(2, 3))),
                 placeholdersAfter = 2,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
 
@@ -374,10 +351,9 @@ class PagingDataDifferTest {
         // to a placeholder:
         // [null, null, [], [-1], [1], [3], null, null]
         pageEventCh.trySend(
-            Prepend(
+            localPrepend(
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
         assertThat(receiver.hints).isEqualTo(
@@ -408,10 +384,9 @@ class PagingDataDifferTest {
         // previous page drop:
         // [[-3], [], [-1], [1], [3], null, null]
         pageEventCh.trySend(
-            Prepend(
+            localPrepend(
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
 
@@ -423,25 +398,22 @@ class PagingDataDifferTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
         pageEventCh.trySend(
-            Refresh(
+            localRefresh(
                 pages = listOf(TransformablePage(0, listOf(0, 1))),
                 placeholdersBefore = 4,
                 placeholdersAfter = 4,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
         pageEventCh.trySend(
-            Prepend(
+            localPrepend(
                 pages = listOf(TransformablePage(-1, listOf(-1, -2))),
                 placeholdersBefore = 2,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
         pageEventCh.trySend(
-            Append(
+            localAppend(
                 pages = listOf(TransformablePage(1, listOf(2, 3))),
                 placeholdersAfter = 2,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
 
@@ -484,12 +456,7 @@ class PagingDataDifferTest {
         }
 
         pageEventCh.trySend(
-            Refresh(
-                pages = listOf(TransformablePage(emptyList())),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
-            )
+            localRefresh(pages = listOf(TransformablePage(emptyList())))
         )
 
         assertThat(uiReceiver.hints).isEqualTo(
@@ -1383,7 +1350,6 @@ private class SimpleDiffer(
     override suspend fun presentNewList(
         previousList: NullPaddedList<Int>,
         newList: NullPaddedList<Int>,
-        newCombinedLoadStates: CombinedLoadStates,
         lastAccessedIndex: Int,
         onListPresentable: () -> Unit
     ): Int? {

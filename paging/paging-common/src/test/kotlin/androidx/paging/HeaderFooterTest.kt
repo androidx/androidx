@@ -17,9 +17,6 @@
 package androidx.paging
 
 import androidx.paging.LoadState.NotLoading
-import androidx.paging.PageEvent.Insert.Companion.Append
-import androidx.paging.PageEvent.Insert.Companion.Prepend
-import androidx.paging.PageEvent.Insert.Companion.Refresh
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -33,9 +30,9 @@ import kotlin.test.assertEquals
 /**
  * Prepend and append are both Done, so that headers will appear
  */
-private val fullLoadStates = localLoadStatesOf(
-    prependLocal = NotLoading.Complete,
-    appendLocal = NotLoading.Complete
+private val fullLoadStates = loadStates(
+    prepend = NotLoading.Complete,
+    append = NotLoading.Complete
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -59,18 +56,17 @@ class HeaderFooterTest {
 
     @Test
     fun insertHeader_prepend() = runBlockingTest {
-        val actual = Prepend(
+        val actual = localPrepend(
             pages = listOf(
                 TransformablePage(
                     data = listOf(0),
                     originalPageOffset = -1
                 )
             ),
-            placeholdersBefore = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         ).insertHeaderItem(-1)
 
-        val expected = Prepend(
+        val expected = localPrepend(
             pages = listOf(
                 TransformablePage(
                     data = listOf(-1),
@@ -83,8 +79,7 @@ class HeaderFooterTest {
                     originalPageOffset = -1
                 )
             ),
-            placeholdersBefore = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         )
 
         assertThat(actual).isEqualTo(expected)
@@ -92,19 +87,17 @@ class HeaderFooterTest {
 
     @Test
     fun insertHeader_refresh() = runBlockingTest {
-        val actual = Refresh(
+        val actual = localRefresh(
             pages = listOf(
                 TransformablePage(
                     data = listOf("a"),
                     originalPageOffset = 0
                 )
             ),
-            placeholdersBefore = 0,
-            placeholdersAfter = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         ).insertHeaderItem("HEADER")
 
-        val expected = Refresh(
+        val expected = localRefresh(
             pages = listOf(
                 TransformablePage(
                     data = listOf("HEADER"),
@@ -117,9 +110,7 @@ class HeaderFooterTest {
                     originalPageOffset = 0
                 )
             ),
-            placeholdersBefore = 0,
-            placeholdersAfter = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         )
 
         assertThat(actual).isEqualTo(expected)
@@ -127,19 +118,17 @@ class HeaderFooterTest {
 
     @Test
     fun insertHeader_empty() = runBlockingTest {
-        val actual = Refresh(
+        val actual = localRefresh(
             pages = listOf(
                 TransformablePage(
                     data = emptyList<String>(),
                     originalPageOffset = 0
                 )
             ),
-            placeholdersBefore = 0,
-            placeholdersAfter = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         ).insertHeaderItem("HEADER")
 
-        val expected = Refresh(
+        val expected = localRefresh(
             pages = listOf(
                 TransformablePage(
                     data = listOf("HEADER"),
@@ -148,9 +137,7 @@ class HeaderFooterTest {
                     hintOriginalIndices = listOf(0)
                 )
             ),
-            placeholdersBefore = 0,
-            placeholdersAfter = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         )
 
         assertEquals(expected, actual)
@@ -158,18 +145,17 @@ class HeaderFooterTest {
 
     @Test
     fun insertFooter_append() = runBlockingTest {
-        val actual = Append(
+        val actual = localAppend(
             pages = listOf(
                 TransformablePage(
                     data = listOf("b"),
                     originalPageOffset = 0
                 )
             ),
-            placeholdersAfter = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         ).insertFooterItem("FOOTER")
 
-        val expected = Append(
+        val expected = localAppend(
             pages = listOf(
                 TransformablePage(
                     data = listOf("b"),
@@ -182,8 +168,7 @@ class HeaderFooterTest {
                     hintOriginalIndices = listOf(0)
                 )
             ),
-            placeholdersAfter = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         )
 
         assertEquals(expected, actual)
@@ -191,19 +176,17 @@ class HeaderFooterTest {
 
     @Test
     fun insertFooter_refresh() = runBlockingTest {
-        val actual = Refresh(
+        val actual = localRefresh(
             pages = listOf(
                 TransformablePage(
                     data = listOf("a"),
                     originalPageOffset = 0
                 )
             ),
-            placeholdersBefore = 0,
-            placeholdersAfter = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         ).insertFooterItem("FOOTER")
 
-        val expected = Refresh(
+        val expected = localRefresh(
             pages = listOf(
                 TransformablePage(
                     data = listOf("a"),
@@ -216,9 +199,7 @@ class HeaderFooterTest {
                     hintOriginalIndices = listOf(0)
                 )
             ),
-            placeholdersBefore = 0,
-            placeholdersAfter = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         )
 
         assertThat(actual).isEqualTo(expected)
@@ -226,19 +207,17 @@ class HeaderFooterTest {
 
     @Test
     fun insertFooter_empty() = runBlockingTest {
-        val actual = Refresh(
+        val actual = localRefresh(
             pages = listOf(
                 TransformablePage(
                     data = emptyList<String>(),
                     originalPageOffset = 0
                 )
             ),
-            placeholdersBefore = 0,
-            placeholdersAfter = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         ).insertFooterItem("FOOTER")
 
-        val expected = Refresh(
+        val expected = localRefresh(
             pages = listOf(
                 TransformablePage(
                     data = listOf("FOOTER"),
@@ -247,9 +226,7 @@ class HeaderFooterTest {
                     hintOriginalIndices = listOf(0)
                 )
             ),
-            placeholdersBefore = 0,
-            placeholdersAfter = 0,
-            combinedLoadStates = fullLoadStates
+            source = fullLoadStates
         )
 
         assertThat(actual).isEqualTo(expected)

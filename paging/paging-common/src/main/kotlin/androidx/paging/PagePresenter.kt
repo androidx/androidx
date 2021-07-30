@@ -205,8 +205,8 @@ internal class PagePresenter<T : Any>(
             }
         }
         callback.onStateUpdate(
-            source = insert.combinedLoadStates.source,
-            mediator = insert.combinedLoadStates.mediator
+            source = insert.sourceLoadStates,
+            mediator = insert.mediatorLoadStates
         )
     }
 

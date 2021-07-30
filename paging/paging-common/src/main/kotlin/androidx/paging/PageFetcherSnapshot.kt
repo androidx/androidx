@@ -243,7 +243,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             if (state.sourceLoadStates.get(loadType) == NotLoading.Complete) {
                 return@simpleFlatMapLatest flowOf()
             } else if (state.sourceLoadStates.get(loadType) !is Error) {
-                state.setSourceLoadState(loadType, NotLoading.Incomplete)
+                state.sourceLoadStates.set(loadType, NotLoading.Incomplete)
             }
         }
 
@@ -280,17 +280,20 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
                 // Update loadStates which are sent along with this load's Insert PageEvent.
                 stateHolder.withLock { state ->
-                    state.setSourceLoadState(REFRESH, NotLoading.Incomplete)
+                    state.sourceLoadStates.set(
+                        type = REFRESH,
+                        state = NotLoading.Incomplete
+                    )
                     if (result.prevKey == null) {
-                        state.setSourceLoadState(
+                        state.sourceLoadStates.set(
                             type = PREPEND,
-                            newState = NotLoading.Complete
+                            state = NotLoading.Complete
                         )
                     }
                     if (result.nextKey == null) {
-                        state.setSourceLoadState(
+                        state.sourceLoadStates.set(
                             type = APPEND,
-                            newState = NotLoading.Complete
+                            state = NotLoading.Complete
                         )
                     }
                 }
@@ -325,14 +328,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
             is LoadResult.Error -> stateHolder.withLock { state ->
                 val loadState = Error(result.throwable)
-                if (state.setSourceLoadState(REFRESH, loadState)) {
-                    pageEventCh.send(
-                        LoadStateUpdate(
-                            source = state.sourceLoadStates.snapshot(),
-                            mediator = null,
-                        )
-                    )
-                }
+                state.setError(loadType = REFRESH, error = loadState)
             }
             is LoadResult.Invalid -> onInvalidLoad()
         }
@@ -439,14 +435,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 is LoadResult.Error -> {
                     stateHolder.withLock { state ->
                         val loadState = Error(result.throwable)
-                        if (state.setSourceLoadState(loadType, loadState)) {
-                            pageEventCh.send(
-                                LoadStateUpdate(
-                                    source = state.sourceLoadStates.snapshot(),
-                                    mediator = null,
-                                )
-                            )
-                        }
+                        state.setError(loadType = loadType, error = loadState)
 
                         // Save the hint for retry on incoming retry signal, typically sent from
                         // user interaction.
@@ -480,9 +469,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 // Update load state to success if this is the final load result for this
                 // load hint, and only if we didn't error out.
                 if (loadKey == null && state.sourceLoadStates.get(loadType) !is Error) {
-                    state.setSourceLoadState(
+                    state.sourceLoadStates.set(
                         type = loadType,
-                        newState = when {
+                        state = when {
                             endOfPaginationReached -> NotLoading.Complete
                             else -> NotLoading.Incomplete
                         }
@@ -516,7 +505,23 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     }
 
     private suspend fun PageFetcherSnapshotState<Key, Value>.setLoading(loadType: LoadType) {
-        if (setSourceLoadState(loadType, Loading)) {
+        if (sourceLoadStates.get(loadType) != Loading) {
+            sourceLoadStates.set(type = loadType, state = Loading)
+            pageEventCh.send(
+                LoadStateUpdate(
+                    source = sourceLoadStates.snapshot(),
+                    mediator = null,
+                )
+            )
+        }
+    }
+
+    private suspend fun PageFetcherSnapshotState<Key, Value>.setError(
+        loadType: LoadType,
+        error: Error
+    ) {
+        if (sourceLoadStates.get(loadType) != error) {
+            sourceLoadStates.set(type = loadType, state = error)
             pageEventCh.send(
                 LoadStateUpdate(
                     source = sourceLoadStates.snapshot(),

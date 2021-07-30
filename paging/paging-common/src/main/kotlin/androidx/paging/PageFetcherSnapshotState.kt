@@ -118,14 +118,6 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
             .onStart { appendGenerationIdCh.trySend(appendGenerationId) }
     }
 
-    fun setSourceLoadState(type: LoadType, newState: LoadState): Boolean {
-        if (sourceLoadStates.get(type) == newState) {
-            return false
-        }
-        sourceLoadStates.set(type, newState)
-        return true
-    }
-
     /**
      * Convert a loaded [Page] into a [PageEvent] for [PageFetcherSnapshot.pageEventCh].
      *
@@ -148,35 +140,20 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
                 pages = pages,
                 placeholdersBefore = placeholdersBefore,
                 placeholdersAfter = placeholdersAfter,
-                combinedLoadStates = CombinedLoadStates(
-                    refresh = sourceLoadStates.refresh,
-                    prepend = sourceLoadStates.prepend,
-                    append = sourceLoadStates.append,
-                    source = sourceLoadStates.snapshot(),
-                    mediator = null,
-                )
+                sourceLoadStates = sourceLoadStates.snapshot(),
+                mediatorLoadStates = null,
             )
             PREPEND -> Prepend(
                 pages = pages,
                 placeholdersBefore = placeholdersBefore,
-                combinedLoadStates = CombinedLoadStates(
-                    refresh = sourceLoadStates.refresh,
-                    prepend = sourceLoadStates.prepend,
-                    append = sourceLoadStates.append,
-                    source = sourceLoadStates.snapshot(),
-                    mediator = null,
-                )
+                sourceLoadStates = sourceLoadStates.snapshot(),
+                mediatorLoadStates = null,
             )
             APPEND -> Append(
                 pages = pages,
                 placeholdersAfter = placeholdersAfter,
-                combinedLoadStates = CombinedLoadStates(
-                    refresh = sourceLoadStates.refresh,
-                    prepend = sourceLoadStates.prepend,
-                    append = sourceLoadStates.append,
-                    source = sourceLoadStates.snapshot(),
-                    mediator = null,
-                )
+                sourceLoadStates = sourceLoadStates.snapshot(),
+                mediatorLoadStates = null,
             )
         }
     }

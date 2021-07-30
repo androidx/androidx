@@ -17,9 +17,6 @@
 package androidx.paging
 
 import androidx.paging.LoadState.NotLoading
-import androidx.paging.PageEvent.Insert.Companion.Append
-import androidx.paging.PageEvent.Insert.Companion.Prepend
-import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.SeparatorsTest.Companion.LETTER_SEPARATOR_GENERATOR
 import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
 import androidx.paging.TerminalSeparatorType.SOURCE_COMPLETE
@@ -360,29 +357,30 @@ private fun transformablePage(
 private fun generateRefresh(
     data: List<String>,
     loadStates: CombinedLoadStates
-) = Refresh(
+) = remoteRefresh(
     pages = listOf(transformablePage(0, data)),
-    placeholdersBefore = 0,
-    placeholdersAfter = 0,
-    combinedLoadStates = loadStates
+    source = loadStates.source,
+    mediator = loadStates.mediator ?: loadStates()
 )
 
 private fun generatePrepend(
     originalPageOffset: Int,
     pages: List<List<String>>,
     loadStates: CombinedLoadStates
-) = Prepend(
+) = remotePrepend(
     pages = pages.map { data -> transformablePage(originalPageOffset, data) },
     placeholdersBefore = 0,
-    combinedLoadStates = loadStates
+    source = loadStates.source,
+    mediator = loadStates.mediator ?: loadStates()
 )
 
 private fun generateAppend(
     originalPageOffset: Int,
     pages: List<List<String>>,
     loadStates: CombinedLoadStates
-) = Append(
+) = remoteAppend(
     pages = pages.map { data -> transformablePage(originalPageOffset, data) },
     placeholdersAfter = 0,
-    combinedLoadStates = loadStates
+    source = loadStates.source,
+    mediator = loadStates.mediator ?: loadStates()
 )
