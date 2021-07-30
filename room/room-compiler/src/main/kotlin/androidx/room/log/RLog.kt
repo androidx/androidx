@@ -45,36 +45,33 @@ class RLog(
     }
 
     fun d(element: XElement, msg: String, vararg args: Any) {
-        messager.printMessage(NOTE, msg.safeFormat(args), element)
+        printToMessager(messager, NOTE, msg.safeFormat(args), element)
     }
 
     fun d(msg: String, vararg args: Any) {
-        messager.printMessage(NOTE, msg.safeFormat(args))
+        printToMessager(messager, NOTE, msg.safeFormat(args))
     }
 
     fun e(element: XElement, msg: String, vararg args: Any) {
-        messager.printMessage(ERROR, msg.safeFormat(args), element)
+        printToMessager(messager, ERROR, msg.safeFormat(args), element)
     }
 
     fun e(msg: String, vararg args: Any) {
-        messager.printMessage(ERROR, msg.safeFormat(args), defaultElement)
+        printToMessager(messager, ERROR, msg.safeFormat(args), defaultElement)
     }
 
     fun w(warning: Warning, element: XElement? = null, msg: String, vararg args: Any) {
         if (suppressedWarnings.contains(warning)) {
             return
         }
-        messager.printMessage(
-            WARNING, msg.safeFormat(args),
-            element ?: defaultElement
-        )
+        printToMessager(messager, WARNING, msg.safeFormat(args), element ?: defaultElement)
     }
 
     fun w(warning: Warning, msg: String, vararg args: Any) {
         if (suppressedWarnings.contains(warning)) {
             return
         }
-        messager.printMessage(WARNING, msg.safeFormat(args), defaultElement)
+        printToMessager(messager, WARNING, msg.safeFormat(args), defaultElement)
     }
 
     private data class DiagnosticMessage(
@@ -104,18 +101,44 @@ class RLog(
         fun hasErrors() = messages.containsKey(ERROR)
 
         fun writeTo(context: Context) {
-            val printMessage = context.logger.messager::printMessage
             messages.forEach { pair ->
-                val kind = pair.key
                 pair.value.forEach { diagnosticMessage ->
-                    printMessage(
-                        kind,
+                    printToMessager(
+                        context.logger.messager,
+                        pair.key,
                         diagnosticMessage.msg,
                         diagnosticMessage.element,
                         diagnosticMessage.annotation,
                         diagnosticMessage.annotationValue
                     )
                 }
+            }
+        }
+    }
+
+    companion object {
+        private fun printToMessager(
+            messager: XMessager,
+            kind: Diagnostic.Kind,
+            msg: String,
+            element: XElement? = null,
+            annotation: XAnnotation? = null,
+            annotationValue: XAnnotationValue? = null
+        ) {
+            if (element == null) {
+                check(annotation == null && annotationValue == null) {
+                    "If element is null, annotation and annotationValue must also be null."
+                }
+                messager.printMessage(kind, msg)
+            } else if (annotation == null) {
+                check(annotationValue == null) {
+                    "If annotation is null, annotationValue must also be null."
+                }
+                messager.printMessage(kind, msg, element)
+            } else if (annotationValue == null) {
+                messager.printMessage(kind, msg, element, annotation)
+            } else {
+                messager.printMessage(kind, msg, element, annotation, annotationValue)
             }
         }
     }
