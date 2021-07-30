@@ -16,6 +16,7 @@
 
 package androidx.profileinstaller.benchmark
 
+import android.annotation.SuppressLint
 import android.content.res.AssetManager
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
@@ -52,6 +53,7 @@ class ProfileInstallerTranscodeBenchmark {
         mTempCurFile?.delete()
     }
 
+    @SuppressLint("NewApi")
     private inline fun BenchmarkRule.Scope.newTranscoderUntimed(
         block: (DeviceProfileWriter) -> Unit
     ): DeviceProfileWriter {
@@ -69,6 +71,7 @@ class ProfileInstallerTranscodeBenchmark {
         return transcoder!!
     }
 
+    @SuppressLint("NewApi")
     private fun assumeDeviceSupportsAot() {
         val transcoder = DeviceProfileWriter(
             assets,
@@ -85,6 +88,7 @@ class ProfileInstallerTranscodeBenchmark {
     }
 
     @Test
+    @SuppressLint("NewApi")
     fun deviceAllowsProfileInstallerAotWrites() {
         val transcoder = DeviceProfileWriter(
             assets,
@@ -100,6 +104,7 @@ class ProfileInstallerTranscodeBenchmark {
     }
 
     @Test
+    @SuppressLint("NewApi")
     fun copyProfileOrRead() {
         assumeDeviceSupportsAot()
         benchmarkRule.measureRepeated {
@@ -110,6 +115,7 @@ class ProfileInstallerTranscodeBenchmark {
     }
 
     @Test
+    @SuppressLint("NewApi")
     fun transcodeIfNeeded() {
         assumeDeviceSupportsAot()
         benchmarkRule.measureRepeated {
@@ -122,6 +128,7 @@ class ProfileInstallerTranscodeBenchmark {
     }
 
     @Test
+    @SuppressLint("NewApi")
     fun writeIfNeeded() {
         assumeDeviceSupportsAot()
         benchmarkRule.measureRepeated {
@@ -135,6 +142,7 @@ class ProfileInstallerTranscodeBenchmark {
     }
 
     @Test
+    @SuppressLint("NewApi")
     fun fullProfileReadTranscodeWrite() {
         assumeDeviceSupportsAot()
         benchmarkRule.measureRepeated {
