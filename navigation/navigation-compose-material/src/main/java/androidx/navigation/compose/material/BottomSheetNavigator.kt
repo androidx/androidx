@@ -139,9 +139,7 @@ public class BottomSheetNavigator(
                 if (state.transitionsInProgress.value.contains(backStackEntry)) {
                     state.markTransitionComplete(backStackEntry)
                 } else {
-                    // When the sheet has been dismissed by the user we always want to pop
-                    // the whole back stack of this navigator's state
-                    state.pop(popUpTo = state.backStack.value.first(), saveState = false)
+                    state.pop(popUpTo = backStackEntry, saveState = false)
                 }
             }
         )
