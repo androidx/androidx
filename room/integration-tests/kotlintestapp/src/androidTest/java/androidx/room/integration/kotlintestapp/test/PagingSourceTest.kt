@@ -28,6 +28,7 @@ import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Insert
+import androidx.room.InvalidationTracker
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RawQuery
@@ -73,6 +74,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
@@ -540,6 +542,94 @@ class PagingSourceTest {
     }
 
     @Test
+    fun prependWithBlockingObserver() {
+        val items = createItems(startId = 0, count = 90)
+        db.dao.insert(items)
+
+        val pager = Pager(
+            config = CONFIG,
+            initialKey = 20,
+            pagingSourceFactory = { db.dao.loadItems().also { pagingSources.add(it) } }
+        )
+
+        // to block the PagingSource's observer, this observer needs to be registered first
+        val blockingObserver = object : InvalidationTracker.Observer("PagingEntity") {
+            // make sure observer blocks the time longer than the timeout of waiting for
+            // paging source invalidation, so that we can assert new generation failure later
+            override fun onInvalidated(tables: MutableSet<String>) {
+                Thread.sleep(3_500)
+            }
+        }
+        db.invalidationTracker.addWeakObserver(
+            blockingObserver
+        )
+
+        runTest(pager) {
+            itemStore.awaitInitialLoad()
+            val initialItems = items.createExpected(
+                fromIndex = 20,
+                toIndex = 20 + CONFIG.initialLoadSize
+            )
+            assertThat(
+                itemStore.peekItems()
+            ).containsExactlyElementsIn(
+                // should load starting from initial Key = 20
+                initialItems
+            )
+            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+
+            db.dao.deleteItems(
+                items.subList(0, 60).map { it.id }
+            )
+
+            // Now get more items. The pagingSource's load() will check for invalidation.
+            // Normally the check would return "invalidation = true" but in this test case,
+            // room's invalidation flag has already been reset but observer notification is delayed.
+            // This means the paging source is not being invalidated.
+            itemStore.get(10)
+
+            val expectError = assertFailsWith<AssertionError> {
+                itemStore.awaitGeneration(2)
+            }
+            assertThat(expectError.message).isEqualTo("didn't complete in expected time")
+
+            // and stale PagingSource would return item 70 instead of item 10
+            assertThat(itemStore.awaitItem(10)).isEqualTo(items[70])
+            assertFalse(pagingSources[0].invalid)
+
+            // prepend again
+            itemStore.get(0)
+
+            // the blocking observer's callback should complete now and the PagingSource should be
+            // invalidated successfully
+            itemStore.awaitGeneration(2)
+            assertTrue(pagingSources[0].invalid)
+            assertFalse(pagingSources[1].invalid)
+        }
+    }
+
+    private fun simple_emptyStart_thenAddAnItem(
+        preOpenDb: Boolean
+    ) {
+        if (preOpenDb) {
+            // trigger db open
+            db.openHelper.writableDatabase
+        }
+
+        runTest {
+            itemStore.awaitGeneration(1)
+            itemStore.awaitInitialLoad()
+            assertThat(itemStore.peekItems()).isEmpty()
+
+            val entity = PagingEntity(id = 1, value = "foo")
+            db.dao.insert(entity)
+            itemStore.awaitGeneration(2)
+            itemStore.awaitInitialLoad()
+            assertThat(itemStore.peekItems()).containsExactly(entity)
+        }
+    }
+
+    @Test
     fun appendWithDelayedInvalidation() {
         val items = createItems(startId = 0, count = 90)
         db.dao.insert(items)
@@ -623,27 +713,6 @@ class PagingSourceTest {
 
             assertThat(itemStore.currentGenerationId).isEqualTo(2)
             assertThat(pagingSources.size).isEqualTo(2)
-        }
-    }
-
-    private fun simple_emptyStart_thenAddAnItem(
-        preOpenDb: Boolean
-    ) {
-        if (preOpenDb) {
-            // trigger db open
-            db.openHelper.writableDatabase
-        }
-
-        runTest {
-            itemStore.awaitGeneration(1)
-            itemStore.awaitInitialLoad()
-            assertThat(itemStore.peekItems()).isEmpty()
-
-            val entity = PagingEntity(id = 1, value = "foo")
-            db.dao.insert(entity)
-            itemStore.awaitGeneration(2)
-            itemStore.awaitInitialLoad()
-            assertThat(itemStore.peekItems()).containsExactly(entity)
         }
     }
 
