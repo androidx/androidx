@@ -573,6 +573,7 @@ public open class NavController(
         // here since we're being called from the Navigator already
         popEntryFromBackStack(popUpTo)
         onComplete()
+        updateOnBackPressedCallbackEnabled()
         dispatchOnDestinationChanged()
     }
 
