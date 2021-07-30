@@ -102,12 +102,11 @@ internal class BottomSheetNavigatorTest {
         val sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden)
         val navigator = BottomSheetNavigator(sheetState)
         val navigatorState = TestNavigatorState()
+        navigator.onAttach(navigatorState)
 
         composeTestRule.setContent {
             Column { navigator.sheetContent(this) }
         }
-
-        navigator.onAttach(navigatorState)
 
         var firstDestinationCompositions = 0
         val firstDestinationContentTag = "firstSheetContentTest"
