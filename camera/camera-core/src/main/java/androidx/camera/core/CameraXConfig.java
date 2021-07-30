@@ -56,6 +56,7 @@ import java.util.concurrent.Executor;
  * @see androidx.camera.lifecycle.ProcessCameraProvider#configureInstance(CameraXConfig)
  * @see CameraXConfig.Builder
  */
+@SuppressWarnings("HiddenSuperclass")
 public final class CameraXConfig implements TargetConfig<CameraX> {
 
     /**
