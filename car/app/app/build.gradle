@@ -16,6 +16,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
+import androidx.build.LibraryVersions
 import androidx.build.Release
 import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.metalava.MetalavaRunnerKt
@@ -68,20 +69,21 @@ project.ext {
 }
 
 android {
+    buildFeatures {
+        resValues = true
+        aidl = true
+    }
     defaultConfig {
         minSdkVersion 23
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        resValue "string", "car_app_library_version", LibraryVersions.CAR_APP.toString()
+        consumerProguardFiles "proguard-rules.pro"
     }
     lintOptions {
         // We rely on keeping a bunch of private variables in the library for serialization.
         disable("BanKeepAnnotation")
-    }
-    buildFeatures {
-        aidl = true
-    }
-    buildTypes.all {
-        consumerProguardFiles "proguard-rules.pro"
     }
 
     testOptions.unitTests.includeAndroidResources = true
