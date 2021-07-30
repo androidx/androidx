@@ -18,6 +18,7 @@ package androidx.car.app.activity;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -87,6 +88,34 @@ public class ServiceDispatcherTest {
 
         verify(mViewModel, times(1))
                 .onError(eq(ErrorHandler.ErrorType.HOST_ERROR));
+    }
+
+    @Test
+    public void dispatchNoFail_serviceBound_invoked() throws RemoteException {
+        IRendererService rendererService = mock(IRendererService.class);
+        Intent intent = mock(Intent.class);
+        ComponentName componentName = mock(ComponentName.class);
+
+
+        ServiceDispatcher.OneWayCall call = () -> rendererService.onNewIntent(intent,
+                componentName, 0);
+
+        mServiceDispatcher.setOnBindingListener(() -> true);
+        mServiceDispatcher.dispatchNoFail("test", call);
+
+        verify(rendererService, times(1)).onNewIntent(intent, componentName, 0);
+    }
+
+    @Test
+    public void dispatchNoFail_serviceThrowsError_errorHandlerNotInvoked() {
+        ServiceDispatcher.OneWayCall call = () -> {
+            throw new RemoteException();
+        };
+
+        mServiceDispatcher.setOnBindingListener(() -> true);
+        mServiceDispatcher.dispatchNoFail("test", call);
+
+        verify(mViewModel, never()).onError(any());
     }
 
     @Test

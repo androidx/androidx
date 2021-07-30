@@ -84,6 +84,14 @@ public class ServiceDispatcher {
         });
     }
 
+    /** Dispatches the given {@link OneWayCall}. Ignores any errors. This is a non-blocking call. */
+    public void dispatchNoFail(@NonNull String description, @NonNull OneWayCall call) {
+        fetchNoFail(description, null, (ReturnCall<Void>) () -> {
+            call.invoke();
+            return null;
+        });
+    }
+
     /**
      * Retrieves a value from the service handling any communication error and displaying the
      * error to the user.
