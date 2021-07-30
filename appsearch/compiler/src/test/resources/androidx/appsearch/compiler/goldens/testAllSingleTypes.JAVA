@@ -11,7 +11,7 @@ import java.lang.Integer;
 import java.lang.Long;
 import java.lang.Override;
 import java.lang.String;
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
 public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {

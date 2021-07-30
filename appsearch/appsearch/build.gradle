@@ -24,10 +24,6 @@ plugins {
 }
 
 android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
@@ -35,7 +31,6 @@ android {
 
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
-    api(libs.jsr250)
 
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
     implementation('androidx.core:core:1.2.0')
