@@ -356,6 +356,16 @@ public final class Camera2CameraControlImplDeviceTest {
         future.get(5, TimeUnit.SECONDS);
     }
 
+    @Test
+    @LargeTest
+    public void setFlashModeAndStartFlashSequence_futureSucceeds() throws Exception {
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                createCamera2CameraControlWithPhysicalCamera();
+        camera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_ON);
+        ListenableFuture<Void> future = camera2CameraControlImpl.startFlashSequence();
+        future.get(5, TimeUnit.SECONDS);
+    }
+
     private Camera2CameraControlImpl createCamera2CameraControlWithPhysicalCamera() {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         // Make ImageAnalysis active.
