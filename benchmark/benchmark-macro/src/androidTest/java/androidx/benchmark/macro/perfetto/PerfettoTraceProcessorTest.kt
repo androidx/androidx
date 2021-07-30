@@ -19,7 +19,6 @@ package androidx.benchmark.macro.perfetto
 import androidx.benchmark.macro.device
 import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertTrue
@@ -27,14 +26,14 @@ import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 @SmallTest
-@SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
-public class PerfettoTraceProcessorTest {
+class PerfettoTraceProcessorTest {
     @Test
-    public fun shellPath() {
+    fun shellPath() {
         assumeTrue(isAbiSupported())
         val shellPath = PerfettoTraceProcessor.shellPath
         val device = InstrumentationRegistry.getInstrumentation().device()
@@ -46,7 +45,7 @@ public class PerfettoTraceProcessorTest {
     }
 
     @Test
-    public fun getJsonMetrics_tracePathWithSpaces() {
+    fun getJsonMetrics_tracePathWithSpaces() {
         assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
             PerfettoTraceProcessor.getJsonMetrics("/a b", "ignored")
@@ -54,7 +53,7 @@ public class PerfettoTraceProcessorTest {
     }
 
     @Test
-    public fun getJsonMetrics_metricWithSpaces() {
+    fun getJsonMetrics_metricWithSpaces() {
         assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
             PerfettoTraceProcessor.getJsonMetrics("/ignored", "a b")
@@ -62,7 +61,7 @@ public class PerfettoTraceProcessorTest {
     }
 
     @Test
-    public fun validateAbiNotSupportedBehavior() {
+    fun validateAbiNotSupportedBehavior() {
         assumeFalse(isAbiSupported())
         assertFailsWith<IllegalStateException> {
             PerfettoTraceProcessor.shellPath
@@ -71,6 +70,23 @@ public class PerfettoTraceProcessorTest {
         assertFailsWith<IllegalStateException> {
             PerfettoTraceProcessor.getJsonMetrics("ignored_path", "ignored_metric")
         }
+    }
+
+    @Test
+    fun querySlices() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("WarmStartup", ".trace")
+        // check known slice content is queryable
+        assertEquals(
+            expected = listOf(
+                PerfettoTraceProcessor.Slice(
+                    name = "activityStart",
+                    ts = 4131162160602,
+                    dur = 17779012
+                )
+            ),
+            actual = PerfettoTraceProcessor.querySlices(traceFile.absolutePath, "activityStart")
+        )
     }
 
     @Test
