@@ -23,4 +23,12 @@ oneway interface ISurfaceListener {
    * surface.
    */
   void onSurfaceChanged(in Bundleable surfaceWrapper) = 2;
+
+  /**
+   * Notifies that the surface is destroyed.
+   *
+   * @param surfaceWrapper a {@link SurfaceWrapper} that contains the updated information on the
+   * surface.
+   */
+  void onSurfaceDestroyed(in Bundleable surfaceWrapper) = 3;
 }
