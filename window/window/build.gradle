@@ -64,6 +64,7 @@ dependencies {
     testImplementation(compileOnly(project(":window:window-extensions")))
     testImplementation(compileOnly(project(":window:window-sidecar")))
 
+    androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
