@@ -34,10 +34,11 @@ dependencies {
     implementation(projectOrArtifact(":paging:paging-compose"))
     implementation(projectOrArtifact(":paging:paging-compose:paging-compose-samples"))
 
-    def room_version = "2.3.0-alpha02"
+    def room_version = "2.4.0-alpha04"
     api("androidx.room:room-runtime:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+    implementation("androidx.room:room-paging:$room_version")
 }
 
 androidx {

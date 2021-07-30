@@ -48,7 +48,6 @@ import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room.solver.query.parameter.CollectionQueryParameterAdapter
-import androidx.room.solver.query.result.CompatPagingSourceQueryResultBinder
 import androidx.room.solver.query.result.PagingSourceQueryResultBinder
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
@@ -548,6 +547,27 @@ class TypeAdapterStoreTest {
     }
 
     @Test
+    fun testMissingRoomPaging() {
+        runProcessorTest { invocation ->
+            val pagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingSource::class)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val pagingSourceIntIntType = invocation.processingEnv
+                .getDeclaredType(pagingSourceElement, intType, intType)
+
+            assertThat(pagingSourceIntIntType, notNullValue())
+            assertThat(
+                PagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(pagingSourceIntIntType),
+                `is`(true)
+            )
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.MISSING_ROOM_PAGING_ARTIFACT)
+            }
+        }
+    }
+
+    @Test
     fun testFindPublisher() {
         listOf(
             COMMON.RX2_FLOWABLE to COMMON.RX2_ROOM,
@@ -764,7 +784,9 @@ class TypeAdapterStoreTest {
 
     @Test
     fun findPagingSourceIntKey() {
-        runProcessorTest { invocation ->
+        runProcessorTest(
+            sources = listOf(COMMON.LIMIT_OFFSET_PAGING_SOURCE),
+        ) { invocation ->
             val pagingSourceElement = invocation.processingEnv
                 .requireTypeElement(PagingSource::class)
             val intType = invocation.processingEnv.requireType(Integer::class)
@@ -922,47 +944,6 @@ class TypeAdapterStoreTest {
             val binder = parsedDao.queryMethods.filterIsInstance<ReadQueryMethod>()
                 .first().queryResultBinder
             assertThat(binder is PagingSourceQueryResultBinder).isTrue()
-        }
-    }
-
-    @Test
-    fun testCompatPagingSourceBinder() {
-        val inputSource =
-            Source.java(
-                qName = "foo.bar.MyDao",
-                code =
-                    """
-                ${DaoProcessorTest.DAO_PREFIX}
-
-                @Dao abstract class MyDao {
-                    @Query("SELECT uid FROM User")
-                    abstract androidx.paging.PagingSource<Integer, User> getAllIds();
-                }
-                    """.trimIndent()
-            )
-        runProcessorTest(
-            sources = listOf(
-                inputSource,
-                COMMON.USER,
-                COMMON.PAGING_SOURCE,
-            ),
-        ) { invocation: XTestInvocation ->
-            val dao = invocation.roundEnv
-                .getElementsAnnotatedWith(
-                    Dao::class.qualifiedName!!
-                ).first()
-            check(dao.isTypeElement())
-            val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
-            val parser = DaoProcessor(
-                invocation.context,
-                dao, dbType, null
-            )
-            val parsedDao = parser.process()
-            assertThat(parsedDao.queryMethods.size, `is`(1))
-            val binder = parsedDao.queryMethods.filterIsInstance<ReadQueryMethod>()
-                .first().queryResultBinder
-            assertThat(binder is CompatPagingSourceQueryResultBinder).isTrue()
         }
     }
 

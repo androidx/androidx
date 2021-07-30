@@ -51,7 +51,6 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
         return PositionalDataSourceQueryResultBinder(
             listAdapter = listAdapter,
             tableNames = tableNames,
-            forPaging3 = false
         )
     }
 
