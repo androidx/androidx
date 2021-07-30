@@ -163,7 +163,7 @@ internal class SheetContentHostTest {
     }
 
     @Test
-    fun testOnSheetShownCalled_programmaticShow() = runBlockingTest(testClock) {
+    fun testOnSheetShownCalled_onBackStackEntryEnter() = runBlockingTest(testClock) {
         val sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden)
         val backStackEntry = createBackStackEntry(sheetState)
 
@@ -176,10 +176,6 @@ internal class SheetContentHostTest {
             onSheetDismissed = { }
         )
 
-        assertThat(sheetState.currentValue == ModalBottomSheetValue.Hidden)
-        testDispatcher.pauseDispatcher {
-            launch { sheetState.show() }
-        }
         composeTestRule.runOnIdle {
             assertWithMessage("Sheet is visible")
                 .that(sheetState.isVisible).isTrue()

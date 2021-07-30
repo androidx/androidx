@@ -92,7 +92,7 @@ internal fun SheetContentHost(
         // want to show the sheet, and hide it when this composable leaves the composition
         DisposableEffect(backStackEntry) {
             scope.launch {
-                sheetState.show()
+                sheetState.internalShow()
                 currentOnSheetShown(backStackEntry)
             }
             onDispose {
