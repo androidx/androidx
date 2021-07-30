@@ -155,11 +155,38 @@ public final class AudioManagerCompat {
         }
     }
 
+    /**
+     * Indicates if the device implements a fixed volume policy.
+     *
+     * <p>Some devices may not have volume control and may operate at a fixed volume, and may not
+     * enable muting or changing the volume of audio streams. This method will return {@code true}
+     * on such devices.
+     *
+     * <p>Compatibility: It returns {@code false} on API level below 21.
+     */
+    public static boolean isVolumeFixed(@NonNull AudioManager audioManager) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            return Api21Impl.isVolumeFixed(audioManager);
+        } else {
+            return false;
+        }
+    }
+
     private AudioManagerCompat() {}
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+
+        @DoNotInline
+        static boolean isVolumeFixed(AudioManager audioManager) {
+            return audioManager.isVolumeFixed();
+        }
+
+        private Api21Impl() {}
+    }
 
     @RequiresApi(26)
     private static class Api26Impl {
-        private Api26Impl() {}
 
         @DoNotInline
         static int abandonAudioFocusRequest(AudioManager audioManager,
@@ -171,15 +198,18 @@ public final class AudioManagerCompat {
         static int requestAudioFocus(AudioManager audioManager, AudioFocusRequest focusRequest) {
             return audioManager.requestAudioFocus(focusRequest);
         }
+
+        private Api26Impl() {}
     }
 
     @RequiresApi(28)
     private static class Api28Impl {
-        private Api28Impl() {}
 
         @DoNotInline
         static int getStreamMinVolume(AudioManager audioManager, int streamType) {
             return audioManager.getStreamMinVolume(streamType);
         }
+
+        private Api28Impl() {}
     }
 }
