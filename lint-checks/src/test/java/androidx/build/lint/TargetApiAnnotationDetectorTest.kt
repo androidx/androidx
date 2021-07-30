@@ -48,4 +48,25 @@ src/androidx/TargetApiUsageJava.java:25: Error: Use @RequiresApi instead of @Tar
 
         check(*input).expect(expected)
     }
+
+    @Test
+    fun `Detection of TargetApi usage in Kotlin sources`() {
+        val input = arrayOf(
+            ktSample("androidx.TargetApiUsageKotlin"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/TargetApiUsageKotlin.kt:22: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
+@TargetApi(29)
+~~~~~~~~~~~~~~
+src/androidx/TargetApiUsageKotlin.kt:25: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
+    @TargetApi(30)
+    ~~~~~~~~~~~~~~
+2 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
 }
