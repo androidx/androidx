@@ -596,6 +596,7 @@ package androidx.media {
     method public static int abandonAudioFocusRequest(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
     method @IntRange(from=0) public static int getStreamMaxVolume(android.media.AudioManager, int);
     method @IntRange(from=0) public static int getStreamMinVolume(android.media.AudioManager, int);
+    method public static boolean isVolumeFixed(android.media.AudioManager);
     method public static int requestAudioFocus(android.media.AudioManager, androidx.media.AudioFocusRequestCompat);
     field public static final int AUDIOFOCUS_GAIN = 1; // 0x1
     field public static final int AUDIOFOCUS_GAIN_TRANSIENT = 2; // 0x2
