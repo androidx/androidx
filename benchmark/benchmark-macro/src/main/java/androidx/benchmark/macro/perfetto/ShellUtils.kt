@@ -189,3 +189,17 @@ private fun UiDevice.moveToTmpAndMakeExecutable(src: String, dst: String) {
     executeShellCommand("cp $src $dst")
     chmodExecutable(dst)
 }
+
+internal fun UiDevice.isPackageAlive(packageName: String): Boolean {
+    if (Build.VERSION.SDK_INT >= 24) {
+        // On API 23 (first version to offer it) we observe that 'pidof'
+        // returns list of all processes :|
+        return executeShellCommand("pidof $packageName").isNotBlank()
+    }
+
+    // Can't use ps -A on older platforms, arg isn't supported.
+    // Can't simply run ps, since it gets truncated
+    return executeShellScript("ps | grep $packageName")
+        .split("\r?\n")
+        .any { it.trim().endsWith(" $packageName") }
+}

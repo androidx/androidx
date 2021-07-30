@@ -292,6 +292,10 @@ public class PerfettoHelper(
         }
 
         Log.d(LOG_TAG, "Checking if $pid is running")
+
+        if (Build.VERSION.SDK_INT <= 23) {
+            TODO("pid checking for api 23 and below not yet supported")
+        }
         val output = device.executeShellCommand("ps -A $pid")
         return output.contains(pid)
     }
