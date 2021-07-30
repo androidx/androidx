@@ -37,6 +37,7 @@ import androidx.annotation.RestrictTo;
  *
  * TODO(peconn): Make this not abstract with API change.
  */
+@SuppressWarnings("HiddenSuperclass")
 public abstract class PostMessageServiceConnection
         implements PostMessageBackend, ServiceConnection {
     private static final String TAG = "PostMessageServConn";

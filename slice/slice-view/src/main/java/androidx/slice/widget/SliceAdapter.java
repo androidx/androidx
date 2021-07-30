@@ -47,6 +47,7 @@ import java.util.Set;
 /**
  * RecyclerView.Adapter for the Slice components.
  */
+@SuppressWarnings("HiddenSuperclass")
 @RequiresApi(19)
 public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHolder>
         implements SliceActionView.SliceActionLoadingListener {

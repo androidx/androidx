@@ -33,6 +33,7 @@ import androidx.annotation.RestrictTo;
  * @param <T> Should be specified as the root class (e.g. class X extends
  *           AppWidgetProviderWithCallbacks\<X>)
  */
+@SuppressWarnings("HiddenSuperclass")
 public class AppWidgetProviderWithCallbacks<T extends CallbackReceiver> extends
         AppWidgetProvider implements CallbackReceiver<T>, CallbackBase<T> {
 
