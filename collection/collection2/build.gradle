@@ -95,11 +95,11 @@ kotlin {
             configure([macosX64Main, linuxX64Main, mingwX64Main, iosX64Main, iosArm32Main, iosArm64Main]) {
                 dependsOn nonJvmMain
             }
-        }
 
-        nativeTest // Used for all native targets.
-        configure([macosX64Test, linuxX64Test, mingwX64Test, iosX64Test, iosArm32Test, iosArm64Test]) {
-            dependsOn nativeTest
+            nativeTest // Used for all native targets.
+            configure([macosX64Test, linuxX64Test, mingwX64Test, iosX64Test, iosArm32Test, iosArm64Test]) {
+                dependsOn nativeTest
+            }
         }
 
         if (githubBuild) {
