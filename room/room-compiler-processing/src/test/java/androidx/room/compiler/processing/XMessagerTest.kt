@@ -197,7 +197,7 @@ class XMessagerTest {
             }
             assertThat(fooAnnotations).hasSize(1)
             val fooAnnotation = fooAnnotations.get(0)
-            val fooAnnotationValue = fooAnnotation.annotationValues.firstOrNull {
+            val fooAnnotationValue = fooAnnotation.annotationValues.first {
                 it.name == "value"
             }
             assertThat(fooAnnotationValue).isNotNull()
@@ -213,101 +213,6 @@ class XMessagerTest {
                 hasErrorCount(1)
                 hasWarningCount(0)
                 hasError("intentional failure")
-            }
-        }
-    }
-
-    @Test
-    fun reportingAnnotationFailsWhenElementIsNullTest() {
-        runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "test.FooAnnotation",
-                    """
-                    package test;
-                    @interface FooAnnotation {
-                      String value();
-                    }
-                    """.trimIndent()
-                ),
-                Source.java(
-                    "test.Foo",
-                    """
-                    package test;
-                    @FooAnnotation("fooValue")
-                    class Foo {}
-                    """.trimIndent()
-                )
-            )
-        ) {
-            val fooElement = it.processingEnv.requireTypeElement("test.Foo")
-            val fooAnnotations = fooElement.getAllAnnotations().filter {
-                it.qualifiedName == "test.FooAnnotation"
-            }
-            assertThat(fooAnnotations).hasSize(1)
-            val fooAnnotation = fooAnnotations.get(0)
-            assertThat(fooAnnotation).isNotNull()
-            try {
-                it.processingEnv.messager.printMessage(
-                    Diagnostic.Kind.ERROR,
-                    "intentional failure",
-                    null,
-                    fooAnnotation,
-                )
-            } catch (e: AssertionError) {
-                assertThat(e.message).contains(
-                    "If element is null, annotation and annotationValue must also be null"
-                )
-            }
-        }
-    }
-
-    @Test
-    fun reportingAnnotationValueFailsWhenAnnotationIsNullTest() {
-        runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "test.FooAnnotation",
-                    """
-                    package test;
-                    @interface FooAnnotation {
-                      String value();
-                    }
-                    """.trimIndent()
-                ),
-                Source.java(
-                    "test.Foo",
-                    """
-                    package test;
-                    @FooAnnotation("fooValue")
-                    class Foo {}
-                    """.trimIndent()
-                )
-            )
-        ) {
-            val fooElement = it.processingEnv.requireTypeElement("test.Foo")
-            val fooAnnotations = fooElement.getAllAnnotations().filter {
-                it.qualifiedName == "test.FooAnnotation"
-            }
-            assertThat(fooAnnotations).hasSize(1)
-            val fooAnnotation = fooAnnotations.get(0)
-            assertThat(fooAnnotation).isNotNull()
-            val fooAnnotationValue = fooAnnotation.annotationValues.firstOrNull {
-                it.name == "value"
-            }
-            assertThat(fooAnnotationValue).isNotNull()
-            try {
-                it.processingEnv.messager.printMessage(
-                    Diagnostic.Kind.ERROR,
-                    "intentional failure",
-                    fooElement,
-                    null,
-                    fooAnnotationValue
-                )
-            } catch (e: AssertionError) {
-                assertThat(e.message).contains(
-                    "If annotation is null, annotationValue must also be null"
-                )
             }
         }
     }

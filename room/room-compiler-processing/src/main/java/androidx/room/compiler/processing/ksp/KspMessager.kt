@@ -46,13 +46,11 @@ internal class KspMessager(
             (annotationValue as KspAnnotationValue).valueArgument
         } else if (annotation != null) {
             (annotation as KspAnnotation).ksAnnotated
-        } else if (element != null) {
-            (element as KspElement).declaration
         } else {
-            null
+            (element as KspElement).declaration
         }
 
-        if (ksNode == null || ksNode.location == NonExistLocation) {
+        if (ksNode.location == NonExistLocation) {
             internalPrintMessage(kind, "$msg - ${element.fallbackLocationText}", ksNode)
         } else {
             internalPrintMessage(kind, msg, ksNode)

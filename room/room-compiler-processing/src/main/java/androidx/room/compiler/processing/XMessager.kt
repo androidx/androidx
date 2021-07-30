@@ -30,30 +30,74 @@ abstract class XMessager {
      *
      * @param kind Kind of the message
      * @param msg The actual message to report to the compiler
+     */
+    fun printMessage(kind: Diagnostic.Kind, msg: String) {
+        printMsg(kind, msg)
+    }
+
+    /**
+     * Prints the given [msg] to the logs while also associating it with the given [element],
+     * [annotation], and [annotationValue].
+     *
+     * @param kind Kind of the message
+     * @param msg The actual message to report to the compiler
+     * @param element The element with whom the message should be associated with
+     */
+    final fun printMessage(
+        kind: Diagnostic.Kind,
+        msg: String,
+        element: XElement,
+    ) {
+        printMsg(kind, msg, element)
+    }
+
+    /**
+     * Prints the given [msg] to the logs while also associating it with the given [element],
+     * [annotation], and [annotationValue].
+     *
+     * @param kind Kind of the message
+     * @param msg The actual message to report to the compiler
+     * @param element The element with whom the message should be associated with
+     * @param annotation The annotation with whom the msg should be associated with
+     */
+    final fun printMessage(
+        kind: Diagnostic.Kind,
+        msg: String,
+        element: XElement,
+        annotation: XAnnotation,
+    ) {
+        printMsg(kind, msg, element, annotation)
+    }
+
+    /**
+     * Prints the given [msg] to the logs while also associating it with the given [element],
+     * [annotation], and [annotationValue].
+     *
+     * @param kind Kind of the message
+     * @param msg The actual message to report to the compiler
      * @param element The element with whom the message should be associated with
      * @param annotation The annotation with whom the msg should be associated with
      * @param annotationValue The annotation value with whom the msg should be associated with
      */
-    @JvmOverloads
-    fun printMessage(
+    final fun printMessage(
+        kind: Diagnostic.Kind,
+        msg: String,
+        element: XElement,
+        annotation: XAnnotation,
+        annotationValue: XAnnotationValue
+    ) {
+        printMsg(kind, msg, element, annotation, annotationValue)
+    }
+
+    private fun printMsg(
         kind: Diagnostic.Kind,
         msg: String,
         element: XElement? = null,
         annotation: XAnnotation? = null,
         annotationValue: XAnnotationValue? = null
     ) {
-        if (element == null) {
-            assert(annotation == null && annotationValue == null) {
-                "If element is null, annotation and annotationValue must also be null."
-            }
-        } else if (annotation == null) {
-            assert(annotationValue == null) {
-                "If annotation is null, annotationValue must also be null."
-            }
-        }
-
         watchers.forEach {
-            it.printMessage(kind, msg, element, annotation, annotationValue)
+            it.printMsg(kind, msg, element, annotation, annotationValue)
         }
         onPrintMessage(kind, msg, element, annotation, annotationValue)
     }
