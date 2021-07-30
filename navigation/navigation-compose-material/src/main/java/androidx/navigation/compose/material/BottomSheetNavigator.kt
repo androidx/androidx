@@ -24,6 +24,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.SwipeableDefaults
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -123,6 +124,16 @@ public class BottomSheetNavigator(
             // We might have entries in the back stack that aren't started currently, so filter
             // these
             entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        }
+
+        // Mark all of the entries' transitions as complete, except for the entry we are
+        // currently displaying because it will have its transition completed when the sheet's
+        // animation has completed
+        DisposableEffect(backStackEntries) {
+            backStackEntries.forEach {
+                if (it != latestEntry) state.markTransitionComplete(it)
+            }
+            onDispose {  }
         }
 
         SheetContentHost(
