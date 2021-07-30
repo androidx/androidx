@@ -91,6 +91,17 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
         return __result;
     }
 
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public SavedStateHandle toSavedStateHandle() {
+        SavedStateHandle __result = new SavedStateHandle();
+        if (arguments.containsKey("mainArg")) {
+            String mainArg = (String) arguments.get("mainArg");
+            __result.set("mainArg", mainArg);
+        }
+        return __result;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {

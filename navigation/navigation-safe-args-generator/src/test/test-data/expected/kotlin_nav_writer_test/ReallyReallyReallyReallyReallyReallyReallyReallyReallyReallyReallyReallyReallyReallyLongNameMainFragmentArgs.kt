@@ -13,6 +13,11 @@ public data class
     return result
   }
 
+  public fun toSavedStateHandle(): SavedStateHandle {
+    val result = SavedStateHandle()
+    return result
+  }
+
   public companion object {
     @JvmStatic
     public fun fromBundle(bundle: Bundle):
