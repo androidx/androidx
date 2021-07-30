@@ -300,6 +300,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
             .addMethod(fromSavedStateHandleMethod)
             .addMethods(specs.getters())
             .addMethod(specs.toBundleMethod("toBundle"))
+            .addMethod(specs.toSavedStateHandleMethod())
             .addMethod(specs.equalsMethod(className))
             .addMethod(specs.hashCodeMethod())
             .addMethod(specs.toStringMethod(className))
@@ -427,6 +428,44 @@ private class ClassWithArgsSpecs(
             if (arg.defaultValue != null) {
                 nextControlFlow("else").apply {
                     arg.type.addBundlePutStatement(this, arg, result, arg.defaultValue.write())
+                }
+            }
+            endControlFlow()
+        }
+        addStatement("return $N", result)
+    }.build()
+
+    fun toSavedStateHandleMethod(
+        addOverrideAnnotation: Boolean = false
+    ) = MethodSpec.methodBuilder("toSavedStateHandle").apply {
+        if (addOverrideAnnotation) {
+            addAnnotation(Override::class.java)
+        }
+        addAnnotation(suppressAnnotationSpec)
+        addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
+        addModifiers(Modifier.PUBLIC)
+        returns(SAVED_STATE_HANDLE_CLASSNAME)
+        val result = "__result"
+        addStatement(
+            "$T $N = new $T()", SAVED_STATE_HANDLE_CLASSNAME, result, SAVED_STATE_HANDLE_CLASSNAME
+        )
+        args.forEach { arg ->
+            beginControlFlow("if ($N.containsKey($S))", hashMapFieldSpec.name, arg.name).apply {
+                addStatement(
+                    "$T $N = ($T) $N.get($S)",
+                    arg.type.typeName(),
+                    arg.sanitizedName,
+                    arg.type.typeName(),
+                    hashMapFieldSpec.name,
+                    arg.name
+                )
+                arg.type.addSavedStateHandleSetStatement(this, arg, result, arg.sanitizedName)
+            }
+            if (arg.defaultValue != null) {
+                nextControlFlow("else").apply {
+                    arg.type.addSavedStateHandleSetStatement(
+                        this, arg, result, arg.defaultValue.write()
+                    )
                 }
             }
             endControlFlow()
