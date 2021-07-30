@@ -130,6 +130,25 @@ public class SanitizedMainFragmentArgs implements NavArgs {
         return __result;
     }
 
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public SavedStateHandle toSavedStateHandle() {
+        SavedStateHandle __result = new SavedStateHandle();
+        if (arguments.containsKey("name.with.dot")) {
+            int nameWithDot = (int) arguments.get("name.with.dot");
+            __result.set("name.with.dot", nameWithDot);
+        }
+        if (arguments.containsKey("name_with_underscore")) {
+            int nameWithUnderscore = (int) arguments.get("name_with_underscore");
+            __result.set("name_with_underscore", nameWithUnderscore);
+        }
+        if (arguments.containsKey("name with spaces")) {
+            int nameWithSpaces = (int) arguments.get("name with spaces");
+            __result.set("name with spaces", nameWithSpaces);
+        }
+        return __result;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {

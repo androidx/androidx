@@ -349,6 +349,79 @@ public class MainFragmentArgs implements NavArgs {
         return __result;
     }
 
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public SavedStateHandle toSavedStateHandle() {
+        SavedStateHandle __result = new SavedStateHandle();
+        if (arguments.containsKey("main")) {
+            String main = (String) arguments.get("main");
+            __result.set("main", main);
+        }
+        if (arguments.containsKey("optional")) {
+            int optional = (int) arguments.get("optional");
+            __result.set("optional", optional);
+        } else {
+            __result.set("optional", -1);
+        }
+        if (arguments.containsKey("reference")) {
+            int reference = (int) arguments.get("reference");
+            __result.set("reference", reference);
+        } else {
+            __result.set("reference", R.drawable.background);
+        }
+        if (arguments.containsKey("referenceZeroDefaultValue")) {
+            int referenceZeroDefaultValue = (int) arguments.get("referenceZeroDefaultValue");
+            __result.set("referenceZeroDefaultValue", referenceZeroDefaultValue);
+        } else {
+            __result.set("referenceZeroDefaultValue", 0);
+        }
+        if (arguments.containsKey("floatArg")) {
+            float floatArg = (float) arguments.get("floatArg");
+            __result.set("floatArg", floatArg);
+        } else {
+            __result.set("floatArg", 1F);
+        }
+        if (arguments.containsKey("floatArrayArg")) {
+            float[] floatArrayArg = (float[]) arguments.get("floatArrayArg");
+            __result.set("floatArrayArg", floatArrayArg);
+        }
+        if (arguments.containsKey("objectArrayArg")) {
+            ActivityInfo[] objectArrayArg = (ActivityInfo[]) arguments.get("objectArrayArg");
+            __result.set("objectArrayArg", objectArrayArg);
+        }
+        if (arguments.containsKey("boolArg")) {
+            boolean boolArg = (boolean) arguments.get("boolArg");
+            __result.set("boolArg", boolArg);
+        } else {
+            __result.set("boolArg", true);
+        }
+        if (arguments.containsKey("optionalParcelable")) {
+            ActivityInfo optionalParcelable = (ActivityInfo) arguments.get("optionalParcelable");
+            if (Parcelable.class.isAssignableFrom(ActivityInfo.class) || optionalParcelable == null) {
+                __result.set("optionalParcelable", Parcelable.class.cast(optionalParcelable));
+            } else if (Serializable.class.isAssignableFrom(ActivityInfo.class)) {
+                __result.set("optionalParcelable", Serializable.class.cast(optionalParcelable));
+            } else {
+                throw new UnsupportedOperationException(ActivityInfo.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
+            }
+        } else {
+            __result.set("optionalParcelable", null);
+        }
+        if (arguments.containsKey("enumArg")) {
+            AccessMode enumArg = (AccessMode) arguments.get("enumArg");
+            if (Parcelable.class.isAssignableFrom(AccessMode.class) || enumArg == null) {
+                __result.set("enumArg", Parcelable.class.cast(enumArg));
+            } else if (Serializable.class.isAssignableFrom(AccessMode.class)) {
+                __result.set("enumArg", Serializable.class.cast(enumArg));
+            } else {
+                throw new UnsupportedOperationException(AccessMode.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
+            }
+        } else {
+            __result.set("enumArg", AccessMode.READ);
+        }
+        return __result;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {

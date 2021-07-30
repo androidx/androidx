@@ -54,6 +54,30 @@ public data class MainFragmentArgs(
     return result
   }
 
+  @Suppress("CAST_NEVER_SUCCEEDS")
+  public fun toSavedStateHandle(): SavedStateHandle {
+    val result = SavedStateHandle()
+    result.set("main", this.main)
+    result.set("optional", this.optional)
+    result.set("reference", this.reference)
+    result.set("referenceZeroDefaultValue", this.referenceZeroDefaultValue)
+    result.set("floatArg", this.floatArg)
+    result.set("floatArrayArg", this.floatArrayArg)
+    result.set("objectArrayArg", this.objectArrayArg)
+    result.set("boolArg", this.boolArg)
+    if (Parcelable::class.java.isAssignableFrom(ActivityInfo::class.java)) {
+      result.set("optionalParcelable", this.optionalParcelable as Parcelable?)
+    } else if (Serializable::class.java.isAssignableFrom(ActivityInfo::class.java)) {
+      result.set("optionalParcelable", this.optionalParcelable as Serializable?)
+    }
+    if (Parcelable::class.java.isAssignableFrom(AccessMode::class.java)) {
+      result.set("enumArg", this.enumArg as Parcelable)
+    } else if (Serializable::class.java.isAssignableFrom(AccessMode::class.java)) {
+      result.set("enumArg", this.enumArg as Serializable)
+    }
+    return result
+  }
+
   public companion object {
     @JvmStatic
     @Suppress("UNCHECKED_CAST")
