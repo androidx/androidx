@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
 import javax.tools.Diagnostic
@@ -28,7 +30,13 @@ class RecordingXMessager : XMessager() {
 
     fun diagnostics(): Map<Diagnostic.Kind, List<DiagnosticMessage>> = diagnostics
 
-    override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
+    override fun onPrintMessage(
+        kind: Diagnostic.Kind,
+        msg: String,
+        element: XElement?,
+        annotation: XAnnotation?,
+        annotationValue: XAnnotationValue?
+    ) {
         diagnostics.getOrPut(
             kind
         ) {
@@ -36,7 +44,9 @@ class RecordingXMessager : XMessager() {
         }.add(
             DiagnosticMessage(
                 msg = msg,
-                element = element
+                element = element,
+                annotation = annotation,
+                annotationValue = annotationValue
             )
         )
     }

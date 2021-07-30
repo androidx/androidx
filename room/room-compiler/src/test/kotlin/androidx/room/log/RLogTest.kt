@@ -16,6 +16,8 @@
 
 package androidx.room.log
 
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
 import androidx.room.vo.Warning
@@ -29,8 +31,13 @@ class RLogTest {
     @Test
     fun testSafeFormat() {
         val messager = object : XMessager() {
-            override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
-            }
+            override fun onPrintMessage(
+                kind: Diagnostic.Kind,
+                msg: String,
+                element: XElement?,
+                annotation: XAnnotation?,
+                annotationValue: XAnnotationValue?
+            ) {}
         }
         val logger = RLog(messager, emptySet(), null)
 
