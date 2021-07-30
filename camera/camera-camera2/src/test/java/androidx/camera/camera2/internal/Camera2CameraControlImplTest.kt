@@ -17,11 +17,13 @@
 package androidx.camera.camera2.internal
 
 import android.content.Context
+import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
@@ -29,6 +31,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
 import androidx.camera.camera2.internal.compat.quirk.UseTorchAsFlashQuirk
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Quirks
@@ -45,6 +48,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.reset
@@ -121,6 +125,35 @@ class Camera2CameraControlImplTest {
         HandlerUtil.waitForLooperToIdle(handler)
 
         // Assert.
+        assertAePrecaptureTrigger()
+    }
+
+    @Test
+    fun startFlashSequence_flashModeWasSet() {
+        // Act 1
+        cameraControl.flashMode = ImageCapture.FLASH_MODE_ON
+        cameraControl.startFlashSequence()
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert 1: ensures AePrecapture is not invoked.
+        verify(controlUpdateCallback, never()).onCameraControlCaptureRequests(any())
+
+        // Act 2: Send the CaptureResult
+        val tagBundle = cameraControl.sessionConfig.repeatingCaptureConfig.tagBundle
+        val mockCaptureRequest = mock(CaptureRequest::class.java)
+        `when`(mockCaptureRequest.tag).thenReturn(tagBundle)
+        val mockCaptureResult = mock(TotalCaptureResult::class.java)
+        `when`(mockCaptureResult.request).thenReturn(mockCaptureRequest)
+        for (cameraCaptureCallback in cameraControl.sessionConfig.repeatingCameraCaptureCallbacks) {
+            val callback = CaptureCallbackConverter.toCaptureCallback(cameraCaptureCallback)
+            callback.onCaptureCompleted(
+                mock(CameraCaptureSession::class.java),
+                mockCaptureRequest, mockCaptureResult
+            )
+        }
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert 2: AePrecapture is triggered.
         assertAePrecaptureTrigger()
     }
 

@@ -21,7 +21,6 @@ import android.graphics.Rect;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
-import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.os.Build;
 import android.util.Rational;
@@ -40,7 +39,6 @@ import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -588,7 +586,7 @@ class FocusMeteringControl {
 
                     // Check 3A regions
                     if (mIsAutoFocusCompleted) {
-                        if (isSessionUpdated(result, sessionUpdateId)) {
+                        if (Camera2CameraControlImpl.isSessionUpdated(result, sessionUpdateId)) {
                             completeActionFuture(mIsFocusSuccessful);
                             return true; // remove this listener
                         }
@@ -658,7 +656,8 @@ class FocusMeteringControl {
                     captureResult -> {
                         Integer afMode = captureResult.get(CaptureResult.CONTROL_AF_MODE);
                         if (afMode == targetAfMode
-                                && isSessionUpdated(captureResult, sessionUpdateId)) {
+                                && Camera2CameraControlImpl.isSessionUpdated(captureResult,
+                                sessionUpdateId)) {
                             completeCancelFuture();
                             return true; // remove this listener
                         }
@@ -667,28 +666,6 @@ class FocusMeteringControl {
 
             mCameraControl.addCaptureResultListener(mSessionListenerForCancel);
         }
-    }
-
-    private static boolean isSessionUpdated(@NonNull TotalCaptureResult captureResult,
-            long sessionUpdateId) {
-        if (captureResult.getRequest() == null) {
-            return false;
-        }
-        Object tag = captureResult.getRequest().getTag();
-        if (tag instanceof TagBundle) {
-            Long tagLong =
-                    (Long) ((TagBundle) tag).getTag(Camera2CameraControlImpl.TAG_SESSION_UPDATE_ID);
-            if (tagLong == null) {
-                return false;
-            }
-            long sessionUpdateIdInCaptureResult = tagLong.longValue();
-            // Check if session update is already done.
-            if (sessionUpdateIdInCaptureResult >= sessionUpdateId) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     boolean isFocusMeteringSupported(@NonNull FocusMeteringAction action) {
