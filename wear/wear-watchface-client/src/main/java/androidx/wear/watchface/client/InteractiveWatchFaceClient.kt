@@ -32,7 +32,7 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.TapType
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle

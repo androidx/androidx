@@ -2,7 +2,7 @@
 package androidx.wear.watchface.client {
 
   public final class ComplicationSlotState {
-    ctor public ComplicationSlotState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationSlotBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.data.ComplicationType defaultDataSourceType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras);
+    ctor public ComplicationSlotState(android.graphics.Rect bounds, @androidx.wear.watchface.ComplicationSlotBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.data.ComplicationType defaultDataSourceType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public ComplicationSlotState(androidx.wear.watchface.data.ComplicationStateWireFormat complicationStateWireFormat);
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();

@@ -34,7 +34,6 @@ import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting

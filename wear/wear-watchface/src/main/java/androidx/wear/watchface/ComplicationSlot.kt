@@ -23,7 +23,9 @@ import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.os.Bundle
 import androidx.annotation.ColorInt
+import androidx.annotation.IntDef
 import androidx.annotation.Px
+import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.wear.complications.ComplicationSlotBounds
@@ -31,7 +33,6 @@ import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
@@ -151,6 +152,31 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
         @Px x: Int,
         @Px y: Int
     ): Boolean = false
+}
+
+/** @hide */
+@IntDef(
+    value = [
+        ComplicationSlotBoundsType.ROUND_RECT,
+        ComplicationSlotBoundsType.BACKGROUND,
+        ComplicationSlotBoundsType.EDGE
+    ]
+)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public annotation class ComplicationSlotBoundsType {
+    public companion object {
+        /** The default, most complication slots are either circular or rounded rectangles. */
+        public const val ROUND_RECT: Int = 0
+
+        /**
+         * For a full screen image complication slot drawn behind the watch face. Note you can only
+         * have a single background complication slot.
+         */
+        public const val BACKGROUND: Int = 1
+
+        /** For edge of screen complication slots. */
+        public const val EDGE: Int = 2
+    }
 }
 
 /**
