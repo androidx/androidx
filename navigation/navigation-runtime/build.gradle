@@ -44,6 +44,13 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.multidex)
+}
+
+android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }
 
 androidx {
