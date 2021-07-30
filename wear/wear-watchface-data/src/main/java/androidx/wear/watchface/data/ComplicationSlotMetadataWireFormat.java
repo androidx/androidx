@@ -52,7 +52,6 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
     RectF[] mComplicationBounds = new RectF[0];
 
     @ParcelField(4)
-    @ComplicationSlotBoundsType
     int mBoundsType;
 
     @ParcelField(5)
@@ -89,7 +88,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
             int id,
             @NonNull int[] complicationBoundsType,
             @NonNull RectF[] complicationBounds,
-            @ComplicationSlotBoundsType int boundsType,
+            int boundsType,
             @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
             @Nullable List<ComponentName> defaultDataSourcesToTry,
             int fallbackSystemDataSource,
@@ -124,7 +123,6 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
         return mComplicationBounds;
     }
 
-    @ComplicationSlotBoundsType
     public int getBoundsType() {
         return mBoundsType;
     }

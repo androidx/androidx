@@ -36,7 +36,7 @@ import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams
 import androidx.wear.watchface.control.data.GetUserStyleSchemaParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
