@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,6 +34,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
@@ -42,6 +44,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageSaver.OnImageSavedCallback;
 import androidx.camera.core.ImageSaver.SaveError;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -55,7 +58,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -104,6 +109,11 @@ public class ImageSaverTest {
     private static final String TAG = "ImageSaverTest";
     private static final String INVALID_DATA_PATH = "/invalid_path";
 
+    private static final String TAG_TO_IGNORE = ExifInterface.TAG_COMPRESSION;
+    private static final String TAG_TO_IGNORE_VALUE = "6";
+    private static final String TAG_TO_COPY = ExifInterface.TAG_MAKE;
+    private static final String TAG_TO_COPY_VALUE = "make";
+
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
             GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -124,8 +134,7 @@ public class ImageSaverTest {
     private final ImageProxy mMockJpegImage = mock(ImageProxy.class);
     @Mock
     private final ImageProxy.PlaneProxy mJpegDataPlane = mock(ImageProxy.PlaneProxy.class);
-    private final ByteBuffer mJpegDataBuffer =
-            ByteBuffer.wrap(Base64.decode(JPEG_IMAGE_DATA_BASE_64, Base64.DEFAULT));
+    private ByteBuffer mJpegDataBuffer;
 
     private final Semaphore mSemaphore = new Semaphore(0);
     private final ImageSaver.OnImageSavedCallback mMockCallback =
@@ -152,8 +161,10 @@ public class ImageSaverTest {
     private ContentResolver mContentResolver;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
+        assumeFalse("Skip for Cuttlefish.", Build.MODEL.contains("Cuttlefish"));
         createDefaultPictureFolderIfNotExist();
+        mJpegDataBuffer = createJpegBufferWithExif();
         // The YUV image's behavior.
         when(mMockYuvImage.getFormat()).thenReturn(ImageFormat.YUV_420_888);
         when(mMockYuvImage.getWidth()).thenReturn(WIDTH);
@@ -191,7 +202,42 @@ public class ImageSaverTest {
 
     @After
     public void tearDown() {
-        mBackgroundExecutor.shutdown();
+        if (mBackgroundExecutor != null) {
+            mBackgroundExecutor.shutdown();
+        }
+    }
+
+    private ByteBuffer createJpegBufferWithExif() throws IOException {
+        // Create a jpeg file with the test data.
+        File tempFile = File.createTempFile("jpeg_with_exif", ".jpg");
+        tempFile.deleteOnExit();
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            fos.write(Base64.decode(JPEG_IMAGE_DATA_BASE_64, Base64.DEFAULT));
+        }
+
+        // Add exif tag to the jpeg file and save.
+        ExifInterface saveExif = new ExifInterface(tempFile.toString());
+        saveExif.setAttribute(TAG_TO_IGNORE, TAG_TO_IGNORE_VALUE);
+        saveExif.setAttribute(TAG_TO_COPY, TAG_TO_COPY_VALUE);
+        saveExif.saveAttributes();
+
+        // Verify that the tags are saved correctly.
+        ExifInterface verifyExif = new ExifInterface(tempFile.getPath());
+        assertThat(verifyExif.getAttribute(TAG_TO_IGNORE)).isEqualTo(TAG_TO_IGNORE_VALUE);
+        assertThat(verifyExif.getAttribute(TAG_TO_COPY)).isEqualTo(TAG_TO_COPY_VALUE);
+
+        // Read the jpeg file and return it as a ByteBuffer.
+        byte[] buffer = new byte[1024];
+        try (FileInputStream in = new FileInputStream(tempFile);
+             ByteArrayOutputStream out = new ByteArrayOutputStream(1024)) {
+            int read;
+            while (true) {
+                read = in.read(buffer);
+                if (read == -1) break;
+                out.write(buffer, 0, read);
+            }
+            return ByteBuffer.wrap(out.toByteArray());
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -231,6 +277,23 @@ public class ImageSaverTest {
                 mBackgroundExecutor,
                 mBackgroundExecutor,
                 mSyncCallback);
+    }
+
+    @Test
+    public void savedImage_exifIsCopiedToCroppedImage() throws IOException, InterruptedException {
+        // Arrange.
+        File saveLocation = File.createTempFile("test", ".jpg");
+        saveLocation.deleteOnExit();
+
+        // Act.
+        getDefaultImageSaver(mMockJpegImage, saveLocation).run();
+        mSemaphore.acquire();
+        verify(mMockCallback).onImageSaved(any());
+
+        // Assert.
+        ExifInterface exifInterface = new ExifInterface(saveLocation.getPath());
+        assertThat(exifInterface.getAttribute(TAG_TO_IGNORE)).isNotEqualTo(TAG_TO_IGNORE_VALUE);
+        assertThat(exifInterface.getAttribute(TAG_TO_COPY)).isEqualTo(TAG_TO_COPY_VALUE);
     }
 
     @Test
