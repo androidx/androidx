@@ -9,7 +9,7 @@ import java.lang.Override;
 import java.lang.String;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
 public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
