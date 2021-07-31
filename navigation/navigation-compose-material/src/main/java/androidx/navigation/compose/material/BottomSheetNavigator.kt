@@ -48,19 +48,19 @@ public class BottomSheetNavigatorSheetState(private val sheetState: ModalBottomS
     /**
      * @see ModalBottomSheetState.isVisible
      */
-    val isVisible: Boolean
+    public val isVisible: Boolean
         get() = sheetState.isVisible
 
     /**
      * @see ModalBottomSheetState.currentValue
      */
-    val currentValue: ModalBottomSheetValue
+    public val currentValue: ModalBottomSheetValue
         get() = sheetState.currentValue
 
     /**
      * @see ModalBottomSheetState.targetValue
      */
-    val targetValue: ModalBottomSheetValue
+    public val targetValue: ModalBottomSheetValue
         get() = sheetState.targetValue
 }
 
