@@ -35,7 +35,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@SdkSuppress(minSdkVersion = 27) // Lowest version validated
+@SdkSuppress(minSdkVersion = 26) // Lowest version validated
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class MacrobenchmarkScopeTest {

@@ -37,7 +37,16 @@ import java.io.IOException
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21)
-public class PerfettoHelper(private val unbundled: Boolean = Build.VERSION.SDK_INT in 21..28) {
+public class PerfettoHelper(
+    private val unbundled: Boolean = Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED
+) {
+
+    init {
+        require(unbundled || Build.VERSION.SDK_INT >= LOWEST_BUNDLED_VERSION_SUPPORTED) {
+            "Perfetto capture using the os version of perfetto requires API " +
+                "$LOWEST_BUNDLED_VERSION_SUPPORTED or greater."
+        }
+    }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val device = instrumentation.device()
@@ -341,6 +350,9 @@ public class PerfettoHelper(private val unbundled: Boolean = Build.VERSION.SDK_I
 
     internal companion object {
         internal const val LOG_TAG = "PerfettoCapture"
+
+        const val LOWEST_BUNDLED_VERSION_SUPPORTED = 29
+
         // Command to start the perfetto tracing in the background.
         // perfetto --background -c /data/misc/perfetto-traces/trace_config.pb -o
         // /data/misc/perfetto-traces/trace_output.pb
