@@ -133,7 +133,7 @@ public class BottomSheetNavigator(
             backStackEntries.forEach {
                 if (it != latestEntry) state.markTransitionComplete(it)
             }
-            onDispose {  }
+            onDispose { }
         }
 
         SheetContentHost(
