@@ -769,6 +769,7 @@ File externalRoot = new File(rootDir, "../../external")
 
 includeProject(":icing", new File(externalRoot, "icing"), [BuildType.MAIN])
 includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"), [BuildType.MAIN])
+includeProject(":external:libyuv", "external/libyuv", [BuildType.MAIN])
 includeProject(":noto-emoji-compat-font", new File(externalRoot, "noto-fonts/emoji-compat"), [BuildType.MAIN])
 includeProject(":noto-emoji-compat-flatbuffers", new File(externalRoot, "noto-fonts/emoji-compat-flatbuffers"), [BuildType.MAIN])
 
