@@ -3,12 +3,6 @@ set -e
 
 # This script runs frameworks/support/gradlew
 
-function showDiskStats() {
-  echo "df -h"
-  df -h
-}
-showDiskStats
-
 # find script
 SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 
