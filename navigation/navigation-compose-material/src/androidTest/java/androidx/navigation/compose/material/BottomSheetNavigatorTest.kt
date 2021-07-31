@@ -43,6 +43,7 @@ import androidx.navigation.plusAssign
 import androidx.navigation.testing.TestNavigatorState
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -232,6 +233,43 @@ internal class BottomSheetNavigatorTest {
             .isEqualTo("first")
         assertWithMessage("Bottom sheet is visible")
             .that(sheetState.isVisible).isTrue()
+    }
+
+    @Test
+    fun testNavigateCompletesEntriesTransitions() = runBlocking {
+        val sheetState = ModalBottomSheetState(ModalBottomSheetValue.Hidden)
+        val navigator = BottomSheetNavigator(sheetState)
+        val navigatorState = TestNavigatorState()
+
+        navigator.onAttach(navigatorState)
+
+        composeTestRule.setContent {
+            ModalBottomSheetLayout(
+                bottomSheetNavigator = navigator,
+                content = { Box(Modifier.fillMaxSize()) }
+            )
+        }
+
+        val backStackEntry1 = navigatorState.createBackStackEntry(
+            navigator.createFakeDestination(), null
+        )
+        val backStackEntry2 = navigatorState.createBackStackEntry(
+            navigator.createFakeDestination(), null
+        )
+
+        navigator.navigate(
+            entries = listOf(backStackEntry1, backStackEntry2),
+            navOptions = null,
+            navigatorExtras = null
+        )
+
+        composeTestRule.awaitIdle()
+
+        assertThat(navigatorState.transitionsInProgress.value)
+            .doesNotContain(backStackEntry1)
+
+        assertThat(navigatorState.transitionsInProgress.value)
+            .doesNotContain(backStackEntry2)
     }
 
     /**
