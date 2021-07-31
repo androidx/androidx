@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"Sistema eguneratu egin behar da"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"Sistema ez da bateragarria"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"Errore ezezaguna"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"Jarri autoaren laguntza-zerbitzuarekin harremanetan"</string>
 </resources>

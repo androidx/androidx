@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"Потрібно оновити систему"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"Несумісна система"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"Невідома помилка"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"Зверніться в автомобільний сервіс"</string>
 </resources>
