@@ -19,9 +19,12 @@ package androidx.benchmark.macro.perfetto
 import android.os.Build
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
+import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
 import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import androidx.testutils.verifyWithPolling
 import androidx.tracing.Trace
 import androidx.tracing.trace
@@ -32,26 +35,46 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
-@SdkSuppress(minSdkVersion = 29) // Lower to 21 after fixing trace config.
-@RunWith(Parameterized::class)
-class PerfettoCaptureTest(private val unbundled: Boolean) {
+@SdkSuppress(minSdkVersion = 28) // Lowering blocked by b/131359446
+@RunWith(AndroidJUnit4::class)
+class PerfettoCaptureTest {
     @get:Rule
     val linkRule = FileLinkingRule()
 
     @Before
     @After
     fun cleanup() {
-        PerfettoCapture(unbundled).cancel()
+        PerfettoCapture(true).cancel()
+        if (Build.VERSION.SDK_INT >= LOWEST_BUNDLED_VERSION_SUPPORTED) {
+            PerfettoCapture(false).cancel()
+        }
     }
+
+    @SdkSuppress(maxSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED - 1)
+    @SmallTest
+    @Test
+    fun bundledNotSupported() {
+        assumeTrue(isAbiSupported())
+
+        assertFailsWith<IllegalArgumentException> {
+            PerfettoCapture(false)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED)
+    @LargeTest
+    @Test
+    fun captureAndValidateTrace_bundled() = captureAndValidateTrace(unbundled = false)
 
     @LargeTest
     @Test
-    fun captureAndValidateTrace() {
-        // Change the check to API >=21, once we have the correct Perfetto config.
-        assumeTrue(Build.VERSION.SDK_INT >= 29 && isAbiSupported())
+    fun captureAndValidateTrace_unbundled() = captureAndValidateTrace(unbundled = true)
+
+    private fun captureAndValidateTrace(unbundled: Boolean) {
+        assumeTrue(isAbiSupported())
 
         val traceFilePath = linkRule.createReportedTracePath(Packages.TEST)
         val perfettoCapture = PerfettoCapture(unbundled)
@@ -86,12 +109,6 @@ class PerfettoCaptureTest(private val unbundled: Boolean) {
 
     companion object {
         const val TRACE_SECTION_LABEL = "PerfettoCaptureTest"
-
-        @Parameterized.Parameters(name = "unbundled={0}")
-        @JvmStatic
-        fun parameters(): Array<Any> {
-            return arrayOf(true, false)
-        }
     }
 }
 
