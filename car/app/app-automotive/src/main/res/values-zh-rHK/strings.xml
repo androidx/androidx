@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"必須更新系統"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"系統不兼容"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"不明錯誤"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"請與汽車道路救援服務聯絡"</string>
 </resources>

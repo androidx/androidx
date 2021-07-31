@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"சிஸ்டம் புதுப்பிப்பு தேவை"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"இணக்கத்தன்மையற்ற சிஸ்டம்"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"அறியப்படாத பிழை"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"கார் சேவையகத்தைத் தொடர்புகொள்ளவும்"</string>
 </resources>

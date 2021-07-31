@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"Tizim yangilanishi kerak"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"Nomuvofiq tizim"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"Notanish xato"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"Avtoservisga murojaat qiling"</string>
 </resources>
