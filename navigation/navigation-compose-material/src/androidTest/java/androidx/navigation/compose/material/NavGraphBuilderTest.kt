@@ -29,6 +29,7 @@ import androidx.navigation.compose.navArgument
 import androidx.navigation.contains
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
+import androidx.navigation.plusAssign
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -53,7 +54,7 @@ internal class NavGraphBuilderTest {
         val arg = "myarg"
         composeTestRule.setContent {
             navController = TestNavHostController(LocalContext.current)
-            navController.navigatorProvider.addNavigator(createBottomSheetNavigator())
+            navController.navigatorProvider += createBottomSheetNavigator()
 
             NavHost(navController, startDestination = firstRoute) {
                 bottomSheet(firstRoute) { }
@@ -75,7 +76,7 @@ internal class NavGraphBuilderTest {
         val defaultArg = "default"
         composeTestRule.setContent {
             navController = TestNavHostController(LocalContext.current)
-            navController.navigatorProvider.addNavigator(createBottomSheetNavigator())
+            navController.navigatorProvider += createBottomSheetNavigator()
 
             NavHost(navController, startDestination = firstRoute) {
                 bottomSheet(firstRoute) { }
@@ -100,7 +101,7 @@ internal class NavGraphBuilderTest {
         val deeplink = NavDeepLinkRequest.Builder.fromUri(Uri.parse(uriString)).build()
         composeTestRule.setContent {
             navController = TestNavHostController(LocalContext.current)
-            navController.navigatorProvider.addNavigator(createBottomSheetNavigator())
+            navController.navigatorProvider += createBottomSheetNavigator()
 
             NavHost(navController, startDestination = firstRoute) {
                 bottomSheet(firstRoute) { }
@@ -123,7 +124,7 @@ internal class NavGraphBuilderTest {
         lateinit var navController: TestNavHostController
         composeTestRule.setContent {
             navController = TestNavHostController(LocalContext.current)
-            navController.navigatorProvider.addNavigator(createBottomSheetNavigator())
+            navController.navigatorProvider += createBottomSheetNavigator()
 
             NavHost(navController, startDestination = firstRoute) {
                 navigation(startDestination = secondRoute, route = firstRoute) {
@@ -133,30 +134,7 @@ internal class NavGraphBuilderTest {
         }
 
         composeTestRule.runOnUiThread {
-            assertWithMessage("Destination should be added to the graph")
-                .that(firstRoute in navController.graph)
-                .isTrue()
-        }
-    }
-
-    @Test
-    fun testNavigationNestedInGraph() {
-        lateinit var navController: TestNavHostController
-        composeTestRule.setContent {
-            navController = TestNavHostController(LocalContext.current)
-            navController.navigatorProvider.addNavigator(createBottomSheetNavigator())
-
-            NavHost(navController, startDestination = firstRoute) {
-                bottomSheet(firstRoute) { }
-                navigation(startDestination = thirdRoute, route = secondRoute) {
-                    bottomSheet(thirdRoute) { }
-                }
-            }
-        }
-
-        composeTestRule.runOnUiThread {
-            navController.navigate(secondRoute)
-            assertWithMessage("Destination should be added to the graph")
+            assertWithMessage("Sheet destination should be added to the graph")
                 .that(secondRoute in navController.graph)
                 .isTrue()
         }
