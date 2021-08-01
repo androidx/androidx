@@ -34,7 +34,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * QualitySelector defines the desired quality setting.
@@ -351,118 +353,145 @@ public class QualitySelector {
     }
 
     /**
-     * Finds a quality that matches the desired quality settings.
+     * Generates a sorted quality list that matches the desired quality settings.
      *
      * <p>The method bases on the desired qualities and the fallback strategy to find a supported
-     * quality on this device. The desired qualities can be set by a series of try methods such
+     * quality list on this device. The desired qualities can be set by a series of try methods such
      * as {@link #firstTry(int)}, {@link #of(int)}, {@link Procedure#thenTry(int)} and
      * {@link Procedure#finallyTry(int)}. The fallback strategy can be set via
      * {@link #of(int, int)} and {@link Procedure#finallyTry(int, int)}. If no fallback strategy
      * is specified, {@link #FALLBACK_STRATEGY_NONE} will be applied by default.
      *
      * <p>The search algorithm first checks which desired quality is supported according to the
-     * set sequence. If no desired quality is supported, the fallback strategy will be applied to
-     * the quality set with it. If there is still no quality can be found, {@link #QUALITY_NONE}
-     * will be returned.
+     * set sequence and adds to the returned list by order. Then the fallback strategy will be
+     * applied to add more valid qualities.
      *
      * @param cameraInfo the cameraInfo for checking the quality.
-     * @return the first supported quality of the desired qualities, or a supported quality
-     * searched by fallback strategy, or {@link #QUALITY_NONE} when no quality is found.
+     * @return a sorted supported quality list according to the desired quality settings.
      * @see Procedure
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    @VideoQuality
-    public int select(@NonNull CameraInfo cameraInfo) {
+    @NonNull
+    public List<Integer> getPrioritizedQualities(@NonNull CameraInfo cameraInfo) {
         VideoCapabilities videoCapabilities = VideoCapabilities.from(cameraInfo);
 
-        List<Integer> supportedQualityList = videoCapabilities.getSupportedQualities();
-        if (supportedQualityList.isEmpty()) {
+        List<Integer> supportedQualities = videoCapabilities.getSupportedQualities();
+        if (supportedQualities.isEmpty()) {
             Logger.w(TAG, "No supported quality on the device.");
-            return QUALITY_NONE;
+            return new ArrayList<>();
         }
+        Logger.d(TAG, "supportedQualities = " + supportedQualities);
 
-        // Find exact quality.
+        // Use LinkedHashSet to prevent from duplicate quality and keep the adding order.
+        Set<Integer> sortedQualities = new LinkedHashSet<>();
+        // Add exact quality.
         for (Integer quality : mPreferredQualityList) {
-            if (videoCapabilities.isQualitySupported(quality)) {
-                Logger.d(TAG, "Quality is selected by exact quality = " + quality);
-                return quality;
+            if (quality == QUALITY_HIGHEST) {
+                // Highest means user want a quality as higher as possible, so the return list can
+                // contain all supported resolutions from large to small.
+                sortedQualities.addAll(supportedQualities);
+                break;
+            } else if (quality == QUALITY_LOWEST) {
+                // Opposite to the highest
+                List<Integer> reversedList = new ArrayList<>(supportedQualities);
+                Collections.reverse(reversedList);
+                sortedQualities.addAll(reversedList);
+                break;
+            } else {
+                if (supportedQualities.contains(quality)) {
+                    sortedQualities.add(quality);
+                }
             }
         }
 
-        // Find quality by fallback strategy based on fallback quality.
-        return selectByFallbackStrategy(videoCapabilities);
+        // Add quality by fallback strategy based on fallback quality.
+        addByFallbackStrategy(supportedQualities, sortedQualities);
+
+        return new ArrayList<>(sortedQualities);
     }
 
-    @VideoQuality
-    private int selectByFallbackStrategy(VideoCapabilities videoCapabilities) {
+    @NonNull
+    @Override
+    public String toString() {
+        return "QualitySelector{"
+                + "preferredQualities=" + mPreferredQualityList
+                + ", fallbackQuality=" + mFallbackQuality
+                + ", fallbackStrategy=" + mFallbackStrategy
+                + "}";
+    }
+
+    private void addByFallbackStrategy(@NonNull List<Integer> supportedQualities,
+            @NonNull Set<Integer> priorityQualities) {
+        if (supportedQualities.isEmpty()) {
+            return;
+        }
+        if (priorityQualities.containsAll(supportedQualities)) {
+            // priorityQualities already contains all supported qualities, no need to add by
+            // fallback strategy.
+            return;
+        }
         Logger.d(TAG, "Select quality by fallbackStrategy = " + mFallbackStrategy
                 + " on fallback quality = " + mFallbackQuality);
-        // If fallback quality is already supported, return directly.
-        if (videoCapabilities.isQualitySupported(mFallbackQuality)) {
-            return mFallbackQuality;
-        }
-
         // No fallback strategy, return directly.
         if (mFallbackStrategy == QualitySelector.FALLBACK_STRATEGY_NONE) {
-            return QUALITY_NONE;
+            return;
         }
 
-        // Size is from large to small
+        // Note that fallback quality could be an unsupported quality, so all quality constants
+        // need to be loaded to find the position of fallback quality.
+        // The list returned from getSortedQualities() is sorted from large to small.
         List<Integer> sizeSortedQualities = getSortedQualities();
-        int index = sizeSortedQualities.indexOf(mFallbackQuality);
+        int fallbackQuality;
+        if (mFallbackQuality == QUALITY_HIGHEST) {
+            fallbackQuality = sizeSortedQualities.get(0);
+        } else if (mFallbackQuality == QUALITY_LOWEST) {
+            fallbackQuality = sizeSortedQualities.get(sizeSortedQualities.size() - 1);
+        } else {
+            fallbackQuality = mFallbackQuality;
+        }
+
+        int index = sizeSortedQualities.indexOf(fallbackQuality);
         Preconditions.checkState(index != -1); // Should not happen.
 
         // search larger supported quality
-        int largerQuality = QUALITY_NONE;
-        for (int i = index - 1; i > 0; i--) {
+        List<Integer> largerQualities = new ArrayList<>();
+        for (int i = index - 1; i >= 0; i--) {
             int quality = sizeSortedQualities.get(i);
-            if (videoCapabilities.getProfile(quality) != null) {
-                largerQuality = quality;
-                break;
+            if (supportedQualities.contains(quality)) {
+                largerQualities.add(quality);
             }
         }
 
         // search smaller supported quality
-        int smallerQuality = QUALITY_NONE;
-        for (int i = index + 1; index < sizeSortedQualities.size() - 1; i++) {
+        List<Integer> smallerQualities = new ArrayList<>();
+        for (int i = index + 1; i < sizeSortedQualities.size(); i++) {
             int quality = sizeSortedQualities.get(i);
-            if (videoCapabilities.getProfile(quality) != null) {
-                smallerQuality = quality;
-                break;
+            if (supportedQualities.contains(quality)) {
+                smallerQualities.add(quality);
             }
         }
 
         Logger.d(TAG, "sizeSortedQualities = " + sizeSortedQualities
-                + ", fallback quality = " + mFallbackQuality
-                + ", largerQuality = " + largerQuality
-                + ", smallerQuality = " + smallerQuality);
+                + ", fallback quality = " + fallbackQuality
+                + ", largerQualities = " + largerQualities
+                + ", smallerQualities = " + smallerQualities);
 
         switch (mFallbackStrategy) {
             case QualitySelector.FALLBACK_STRATEGY_HIGHER:
-                if (largerQuality != QUALITY_NONE) {
-                    return largerQuality;
-                } else if (smallerQuality != QUALITY_NONE) {
-                    return smallerQuality;
-                }
+                priorityQualities.addAll(largerQualities);
+                priorityQualities.addAll(smallerQualities);
                 break;
             case QualitySelector.FALLBACK_STRATEGY_STRICTLY_HIGHER:
-                if (largerQuality != QUALITY_NONE) {
-                    return largerQuality;
-                }
+                priorityQualities.addAll(largerQualities);
                 break;
             case QualitySelector.FALLBACK_STRATEGY_LOWER:
-                if (smallerQuality != QUALITY_NONE) {
-                    return smallerQuality;
-                } else if (largerQuality != QUALITY_NONE) {
-                    return largerQuality;
-                }
+                priorityQualities.addAll(smallerQualities);
+                priorityQualities.addAll(largerQualities);
                 break;
             case QualitySelector.FALLBACK_STRATEGY_STRICTLY_LOWER:
-                if (smallerQuality != QUALITY_NONE) {
-                    return smallerQuality;
-                }
+                priorityQualities.addAll(smallerQualities);
                 break;
             case QualitySelector.FALLBACK_STRATEGY_NONE:
                 // No-Op
@@ -470,7 +499,6 @@ public class QualitySelector {
             default:
                 throw new AssertionError("Unhandled fallback strategy: " + mFallbackStrategy);
         }
-        return QUALITY_NONE;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
