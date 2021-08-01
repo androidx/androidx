@@ -25,6 +25,7 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
@@ -140,7 +141,7 @@ class VideoCaptureDeviceTest {
             QUALITY_HIGHEST,
             QUALITY_LOWEST
         )
-        qualityList.forEach { quality ->
+        qualityList.forEach loop@{ quality ->
             val targetResolution = QualitySelector.getResolution(cameraInfo, quality)
             val videoOutput = TestVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
@@ -150,6 +151,9 @@ class VideoCaptureDeviceTest {
             val videoCapture = VideoCapture.withOutput(videoOutput)
 
             // Act.
+            if (!checkUseCasesCombinationSupported(videoCapture)) {
+                return@loop
+            }
             instrumentation.runOnMainSync {
                 cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
             }
@@ -296,5 +300,14 @@ class VideoCaptureDeviceTest {
         }
 
         return frameUpdateSemaphore
+    }
+
+    private fun checkUseCasesCombinationSupported(vararg useCases: UseCase): Boolean {
+        return try {
+            cameraUseCaseAdapter.checkAttachUseCases(listOf(*useCases))
+            true
+        } catch (e: CameraUseCaseAdapter.CameraException) {
+            false
+        }
     }
 }

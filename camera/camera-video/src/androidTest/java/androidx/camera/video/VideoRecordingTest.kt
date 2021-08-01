@@ -205,11 +205,11 @@ class VideoRecordingTest(
                 .setQualitySelector(QualitySelector.of(quality)).build()
 
             val videoCapture = VideoCapture.withOutput(recorder)
-            val file = File.createTempFile("video_$targetResolution", ".tmp")
-                .apply { deleteOnExit() }
 
-            latchForVideoSaved = CountDownLatch(1)
-            latchForVideoRecording = CountDownLatch(5)
+            if (!checkUseCasesCombinationSupported(preview, videoCapture)) {
+                Log.e(TAG, "The UseCase combination is not supported for quality setting: $quality")
+                return@loop
+            }
 
             instrumentation.runOnMainSync {
                 cameraProvider.unbindAll()
@@ -220,6 +220,12 @@ class VideoRecordingTest(
                     videoCapture
                 )
             }
+
+            val file = File.createTempFile("video_$targetResolution", ".tmp")
+                .apply { deleteOnExit() }
+
+            latchForVideoSaved = CountDownLatch(1)
+            latchForVideoRecording = CountDownLatch(5)
 
             // Act.
             completeVideoRecording(videoCapture, file)
