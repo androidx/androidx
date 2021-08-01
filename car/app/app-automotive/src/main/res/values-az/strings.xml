@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"Sistemin güncəllənməsi tələb olunur"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"Sistem uyğun deyil"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"Naməlum xəta"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"Avtomobil servisləri ilə əlaqə saxlayın"</string>
 </resources>

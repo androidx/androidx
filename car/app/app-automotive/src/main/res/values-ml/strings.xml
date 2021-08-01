@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"സിസ്‌റ്റം അപ്ഡേറ്റ് ചെയ്യേണ്ടതുണ്ട്"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"അനുയോജ്യമല്ലാത്ത സിസ്‌റ്റം"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"അജ്ഞാത പിശക്"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"കാർ സേവനങ്ങളെ ബന്ധപ്പെടുക"</string>
 </resources>
