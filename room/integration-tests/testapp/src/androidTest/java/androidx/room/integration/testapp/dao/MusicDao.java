@@ -100,6 +100,10 @@ public interface MusicDao {
     @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
     Map<Artist, List<Song>> getAllArtistAndTheirSongsList();
 
+    @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist "
+            + "ORDER BY mArtistName ASC")
+    Map<Artist, List<Song>> getAllArtistAndTheirSongsListOrdered();
+
     @Transaction
     @Query("SELECT * FROM Artist JOIN Album ON Artist.mArtistName = Album.mAlbumArtist")
     Map<Artist, List<AlbumWithSongs>> getAllArtistAndTheirAlbumsWithSongsList();

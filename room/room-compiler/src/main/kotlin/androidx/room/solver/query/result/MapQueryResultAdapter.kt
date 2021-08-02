@@ -59,8 +59,9 @@ class MapQueryResultAdapter(
         declaredValueType
     )
 
-    private val hashMapType = ParameterizedTypeName.get(
-        ClassName.get(HashMap::class.java),
+    // LinkedHashMap is used as impl to preserve key ordering for ordered query results.
+    private val mapImplType = ParameterizedTypeName.get(
+        ClassName.get(LinkedHashMap::class.java),
         keyTypeArg.typeName,
         declaredValueType
     )
@@ -71,7 +72,7 @@ class MapQueryResultAdapter(
             valueRowAdapter.onCursorReady(cursorVarName, scope)
 
             val mapVarName = outVarName
-            addStatement("final $T $L = new $T()", mapType, mapVarName, hashMapType)
+            addStatement("final $T $L = new $T()", mapType, mapVarName, mapImplType)
 
             val tmpKeyVarName = scope.getTmpVar("_key")
             val tmpValueVarName = scope.getTmpVar("_value")
