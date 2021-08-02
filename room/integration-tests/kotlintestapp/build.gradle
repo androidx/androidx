@@ -126,7 +126,7 @@ dependencies {
     androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-ktx"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
-    androidTestImplementation("androidx.paging:paging-runtime:3.0.0")
+    androidTestImplementation(projectOrArtifact(":paging:paging-runtime"))
     androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(libs.rxjava2)
     testImplementation(libs.mockitoCore)
