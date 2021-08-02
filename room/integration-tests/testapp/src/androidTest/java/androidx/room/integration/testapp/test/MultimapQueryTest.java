@@ -55,6 +55,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -202,6 +203,22 @@ public class MultimapQueryTest {
 
         Map<Artist, List<Song>> artistToSongsMap = mMusicDao.getAllArtistAndTheirSongsList();
         assertContentsOfResultMapWithList(artistToSongsMap);
+    }
+
+    @Test
+    public void testJoinByArtistNameListOrdered() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        // Sorted by artist name ascending
+        List<Artist> expectedArtists = Arrays.asList(mAcDc, mPinkFloyd, mRhcp, mTheClash);
+
+        Iterator<Artist> artists =
+                mMusicDao.getAllArtistAndTheirSongsListOrdered().keySet().iterator();
+        int index = 0;
+        while (artists.hasNext()) {
+            assertThat(artists.next()).isEqualTo(expectedArtists.get(index++));
+        }
     }
 
     @Test

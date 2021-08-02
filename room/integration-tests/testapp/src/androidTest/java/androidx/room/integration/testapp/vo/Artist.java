@@ -51,4 +51,9 @@ public class Artist {
         result = 31 * result + (mArtistName != null ? mArtistName.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Artist{name='" + mArtistName + "'}";
+    }
 }
