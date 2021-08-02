@@ -47,14 +47,14 @@ internal class InteractiveWatchFaceImpl(
         task: (watchFaceImpl: WatchFaceImpl) -> R
     ): R = TraceEvent(traceName).use {
         runBlocking {
-            val watchFaceImpl = engine.deferredWatchFaceImpl.await()
-            withContext(engine.uiThreadCoroutineScope.coroutineContext) {
-                try {
+            try {
+                val watchFaceImpl = engine.deferredWatchFaceImpl.await()
+                withContext(engine.uiThreadCoroutineScope.coroutineContext) {
                     task(watchFaceImpl)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Operation failed", e)
-                    throw e
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Operation failed", e)
+                throw e
             }
         }
     }
