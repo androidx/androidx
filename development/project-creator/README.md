@@ -17,8 +17,7 @@ is most appropriate for the project/module you are creating.
 2. [OWNERS] Add your name (and others) to the OWNERS file
 3. [build.grade] Check that the correct library version is assigned
 4. [build.grade] Fill out the project/module name
-5. [build.grade] Fill out the project/module description
-6. [package-info.java] Fill out the project/module package-info.java file
+5. [package-info.java] Fill out the project/module package-info.java file
 
 ### Project/Module Types
 

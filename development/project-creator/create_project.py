@@ -160,6 +160,21 @@ def ask_yes_or_no(question):
             if reply[0] == 'n': return False
         print("Please respond with y/n")
 
+def ask_library_purpose():
+    question = ("Project description (please complete the sentence): "
+        "This library makes it easy for developers to... ")
+    while(True):
+        reply = str(input(question)).strip()
+        if reply: return reply
+        print("Please input a description!")
+
+def ask_project_description():
+    question = ("Please provide a project description: ")
+    while(True):
+        reply = str(input(question)).strip()
+        if reply: return reply
+        print("Please input a description!")
+
 def get_gradle_project_coordinates(group_id, artifact_id):
     coordinates = group_id.replace("androidx", "").replace(".",":")
     coordinates += ":" + artifact_id
@@ -282,6 +297,13 @@ def create_directories(group_id, artifact_id):
         remove_line("mavenVersion = LibraryVersions.",
                     full_artifact_path + "/build.gradle")
 
+    # If the project is a library that produces a jar/aar that will go
+    # on GMaven, ask for a special project description.
+    if get_library_type(artifact_id) == "PUBLISHED_LIBRARY":
+        project_description = ask_library_purpose()
+    else:
+        project_description = ask_project_description()
+
     # Rename the package-info directory
     full_package_info_dir = get_package_info_file_dir(group_id, artifact_id)
     full_package_info_path = full_package_info_dir + "/package-info.java"
@@ -307,6 +329,7 @@ def create_directories(group_id, artifact_id):
     sed("<GROUPID>", group_id_version_macro, full_artifact_path + "/build.gradle")
     # Update the name and description in the build.gradle
     sed("<NAME>", group_id + ":" + artifact_id, full_artifact_path + "/build.gradle")
+    sed("<DESCRIPTION>", project_description, full_artifact_path + "/build.gradle")
 
 def get_new_settings_gradle_line(group_id, artifact_id):
     """Generates the line needed for frameworks/support/settings.gradle.
@@ -582,9 +605,7 @@ def print_todo_list(group_id, artifact_id):
           "\n\t\t" + build_gradle_path)
     print("\t4. Fill out the project/module name in the build.gradle:"
           "\n\t\t" + build_gradle_path)
-    print("\t5. Fill out the project/module description in the build.gradle:"
-          "\n\t\t" + build_gradle_path)
-    print("\t6. Update the project/module package-info.java file:"
+    print("\t5. Update the project/module package-info.java file:"
           "\n\t\t" + package_info_path)
 
 def main(args):
@@ -603,6 +624,8 @@ def main(args):
     update_docs_tip_of_tree_build_grade(args.group_id, args.artifact_id)
     print("Created directories. \nRunning updateApi for the new "
           "library, this may take a minute...", end='')
+    print_todo_list(args.group_id, args.artifact_id)
+    return
     if run_update_api(args.group_id, args.artifact_id):
         print("done.")
     else:
