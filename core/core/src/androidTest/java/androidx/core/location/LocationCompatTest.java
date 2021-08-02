@@ -16,6 +16,7 @@
 
 package androidx.core.location;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -68,6 +69,33 @@ public class LocationCompatTest {
         assertTrue(Math.abs(
                 LocationCompat.getElapsedRealtimeMillis(location) - locationElapsedRealtimeMs)
                 < MAX_ELAPSED_REALTIME_OFFSET_MS);
+    }
+
+    @Test
+    public void testVerticalAccuracy() {
+        Location location = new Location("");
+        assertFalse(LocationCompat.hasVerticalAccuracy(location));
+        LocationCompat.setVerticalAccuracyMeters(location, 1f);
+        assertTrue(LocationCompat.hasVerticalAccuracy(location));
+        assertEquals(1f, LocationCompat.getVerticalAccuracyMeters(location), 0f);
+    }
+
+    @Test
+    public void testSpeedAccuracy() {
+        Location location = new Location("");
+        assertFalse(LocationCompat.hasSpeedAccuracy(location));
+        LocationCompat.setSpeedAccuracyMetersPerSecond(location, 1f);
+        assertTrue(LocationCompat.hasSpeedAccuracy(location));
+        assertEquals(1f, LocationCompat.getSpeedAccuracyMetersPerSecond(location), 0f);
+    }
+
+    @Test
+    public void testBearingAccuracy() {
+        Location location = new Location("");
+        assertFalse(LocationCompat.hasBearingAccuracy(location));
+        LocationCompat.setBearingAccuracyDegrees(location, 1f);
+        assertTrue(LocationCompat.hasBearingAccuracy(location));
+        assertEquals(1f, LocationCompat.getBearingAccuracyDegrees(location), 0f);
     }
 
     @Test
