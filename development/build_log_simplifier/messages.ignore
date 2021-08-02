@@ -307,7 +307,7 @@ Annotation processors discovery from compile classpath is deprecated\.
 Set 'kapt\.includeCompileClasspath = false' to disable discovery\.
 Run the build with '\-\-info' for more details\.
 # > Task :room:room-compiler:test
-WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
+WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
 WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
