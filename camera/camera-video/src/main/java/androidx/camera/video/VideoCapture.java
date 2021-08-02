@@ -200,6 +200,19 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * @hide
      */
     @SuppressWarnings("unchecked")
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void onStateAttached() {
+        super.onStateAttached();
+        getOutput().onSourceStateChanged(VideoOutput.SourceState.ACTIVE);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @SuppressWarnings("unchecked")
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -238,6 +251,18 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     public void onDetached() {
         clearPipeline();
         getOutput().getStreamState().removeObserver(mStreamStateObserver);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @SuppressWarnings("unchecked")
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void onStateDetached() {
+        getOutput().onSourceStateChanged(VideoOutput.SourceState.INACTIVE);
     }
 
     @NonNull

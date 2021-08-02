@@ -49,6 +49,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeNoException
@@ -217,17 +218,16 @@ class RecorderTest {
         val pendingRecording = recorder.prepareRecording(outputOptions)
         var uri: Uri = Uri.EMPTY
         pendingRecording.withEventListener(
-            CameraXExecutors.directExecutor(),
-            {
-                if (it is VideoRecordEvent.Status) {
-                    statusSemaphore.release()
-                }
-                if (it is VideoRecordEvent.Finalize) {
-                    uri = it.outputResults.outputUri
-                    finalizeSemaphore.release()
-                }
+            CameraXExecutors.directExecutor()
+        ) {
+            if (it is VideoRecordEvent.Status) {
+                statusSemaphore.release()
             }
-        ).withAudioEnabled()
+            if (it is VideoRecordEvent.Finalize) {
+                uri = it.outputResults.outputUri
+                finalizeSemaphore.release()
+            }
+        }.withAudioEnabled()
 
         val activeRecording = pendingRecording.start()
 
@@ -525,6 +525,34 @@ class RecorderTest {
         // Wait for the recording to be finalized.
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
+        file.delete()
+    }
+
+    @Test
+    fun start_finalizeImmediatelyWhenSourceInactive() {
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.builder().setFile(file).build()
+
+        val pendingRecording = recorder.prepareRecording(outputOptions)
+        pendingRecording.withEventListener(
+            CameraXExecutors.directExecutor(),
+            videoRecordEventListener
+        ).withAudioEnabled()
+
+        recorder.onSourceStateChanged(VideoOutput.SourceState.INACTIVE)
+
+        pendingRecording.start()
+
+        verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+        verifyNoMoreInteractions(videoRecordEventListener)
+        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
+        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
+        val finalize = captor.value as VideoRecordEvent.Finalize
+        assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_SOURCE_INACTIVE)
+
         file.delete()
     }
 

@@ -53,6 +53,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import org.mockito.ArgumentCaptor.forClass
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.atLeastOnce
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.timeout
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
 import java.io.File
 import java.util.ArrayList
 import java.util.concurrent.CountDownLatch
@@ -247,15 +254,72 @@ class VideoRecordingTest(
         // Wait for finalize event to saved file.
         assertThat(latchForVideoSaved.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
 
-        // Check if any error after recording finalized
-        assertWithMessage(TAG + "Finalize with error: ${finalize.error}, ${finalize.cause}.")
-            .that(finalize.hasError()).isFalse()
+        assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_SOURCE_INACTIVE)
 
         // Cleanup.
         file.delete()
     }
 
-    // TODO(b/193385037): Add test to check video-recording stop when lifecylce state is paused.
+    @Test
+    fun stopRecordingWhenLifecycleStops() {
+        // Arrange.
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        latchForVideoSaved = CountDownLatch(1)
+        latchForVideoRecording = CountDownLatch(5)
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, videoCapture)
+        }
+
+        // Act.
+        startVideoRecording(videoCapture, file)
+        lifecycleOwner.pauseAndStop()
+
+        // Verify.
+        // Wait for finalize event to saved file.
+        assertThat(latchForVideoSaved.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
+
+        assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_SOURCE_INACTIVE)
+
+        // Cleanup.
+        file.delete()
+    }
+
+    @Test
+    fun start_finalizeImmediatelyWhenSourceInactive() {
+        // Arrange.
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.builder().setFile(file).build()
+        @Suppress("UNCHECKED_CAST")
+        val mockListener = mock(Consumer::class.java) as Consumer<VideoRecordEvent>
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, videoCapture)
+        }
+        lifecycleOwner.pauseAndStop()
+
+        // Act.
+        videoCapture.output
+            .prepareRecording(outputOptions)
+            .withEventListener(
+                CameraXExecutors.directExecutor(),
+                mockListener
+            )
+            .start()
+
+        // Verify.
+        verify(mockListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+        verifyNoMoreInteractions(mockListener)
+        val captor = forClass(VideoRecordEvent::class.java)
+        verify(mockListener, atLeastOnce()).accept(captor.capture())
+        val finalize = captor.value as VideoRecordEvent.Finalize
+        assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_SOURCE_INACTIVE)
+
+        // Cleanup.
+        file.delete()
+    }
 
     @Test
     fun recordingWithPreviewAndImageAnalysis() {

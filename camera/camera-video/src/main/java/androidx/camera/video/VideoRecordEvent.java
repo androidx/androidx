@@ -146,13 +146,14 @@ public abstract class VideoRecordEvent {
     public static final int ERROR_INSUFFICIENT_DISK = 3;
 
     /**
-     * The recording failed because the camera was closed.
+     * The recording failed because the source becomes inactive and stops sending frames.
      *
-     * <p>One case is that camera has been closed due to lifecycle has stopped, so video
-     * recording cannot be started.
+     * <p>One case is that if camera is closed due to lifecycle stopped, the active recording
+     * will be finalized with this error, and the output will be generated, containing the frames
+     * produced before camera closing. Attempting to start a new recording will be finalized
+     * immediately if the source remains inactive.
      */
-    // TODO(b/193575052): Make this public if/when it is used.
-    static final int ERROR_CAMERA_CLOSED = 4;
+    public static final int ERROR_SOURCE_INACTIVE = 4;
 
     /**
      * The recording failed due to invalid output options.
@@ -202,8 +203,8 @@ public abstract class VideoRecordEvent {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {ERROR_NONE, ERROR_UNKNOWN, ERROR_FILE_SIZE_LIMIT_REACHED,
-            ERROR_INSUFFICIENT_DISK, /*ERROR_CAMERA_CLOSED,*/ ERROR_INVALID_OUTPUT_OPTIONS,
-            ERROR_ENCODING_FAILED, ERROR_RECORDER_ERROR, ERROR_NO_VALID_DATA})
+            ERROR_INSUFFICIENT_DISK, ERROR_INVALID_OUTPUT_OPTIONS, ERROR_ENCODING_FAILED,
+            ERROR_RECORDER_ERROR, ERROR_NO_VALID_DATA, ERROR_SOURCE_INACTIVE})
     public @interface VideoRecordError {
     }
 
