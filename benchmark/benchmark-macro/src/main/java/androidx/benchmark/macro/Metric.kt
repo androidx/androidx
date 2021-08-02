@@ -19,6 +19,7 @@ package androidx.benchmark.macro
 import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.macro.perfetto.isPackageAlive
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
@@ -63,9 +64,8 @@ public class FrameTimingMetric : Metric() {
             val instrumentation = InstrumentationRegistry.getInstrumentation()
             if (instrumentation != null) {
                 val device = UiDevice.getInstance(instrumentation)
-                val result = device.executeShellCommand("ps -A | grep $packageName")
-                if (!result.isNullOrEmpty()) {
-                    error(exception.message ?: "Assertion error (Found $packageName)")
+                if (!device.isPackageAlive(packageName)) {
+                    error(exception.message ?: "Assertion error, $packageName not running")
                 }
             }
         }

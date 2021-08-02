@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.macro.Packages
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -25,6 +26,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertNotNull
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -64,27 +66,27 @@ class ShellUtilsTest {
 
     @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
     @Test
-    public fun pipe_echo() {
+    fun pipe_echo() {
         // validate piping works
         assertEquals("foo\n", device.executeShellScript("echo foo | echo $(</dev/stdin)"))
     }
 
     @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
     @Test
-    public fun stdinArg_xargs() {
+    fun stdinArg_xargs() {
         // validate stdin to first command in script
         assertEquals("foo\n", device.executeShellScript("xargs echo $1", stdin = "foo"))
     }
 
     @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
     @Test
-    public fun stdinArg_echo() {
+    fun stdinArg_echo() {
         // validate stdin to first command in script
         assertEquals("foo\n", device.executeShellScript("echo $(</dev/stdin)", stdin = "foo"))
     }
 
     @Test
-    public fun multilineRedirect() {
+    fun multilineRedirect() {
         assertEquals(
             "foo\n",
             device.executeShellScript(
@@ -98,7 +100,7 @@ class ShellUtilsTest {
 
     @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
     @Test
-    public fun multilineRedirectStdin_xargs() {
+    fun multilineRedirectStdin_xargs() {
         assertEquals(
             "foo\n",
             device.executeShellScript(
@@ -113,7 +115,7 @@ class ShellUtilsTest {
 
     @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
     @Test
-    public fun multilineRedirectStdin_echo() {
+    fun multilineRedirectStdin_echo() {
         assertEquals(
             "foo\n",
             device.executeShellScript(
@@ -127,7 +129,7 @@ class ShellUtilsTest {
     }
 
     @Test
-    public fun createRunnableExecutable_simpleScript() {
+    fun createRunnableExecutable_simpleScript() {
         val path = device.createRunnableExecutable(
             name = "myScript.sh",
             inputStream = "echo foo".byteInputStream()
@@ -140,5 +142,14 @@ class ShellUtilsTest {
         } finally {
             device.executeShellCommand("rm $path")
         }
+    }
+
+    @Test
+    fun isPackageAlive() {
+        // this package is certainly alive...
+        assertNotNull(device.isPackageAlive(Packages.TEST))
+
+        // this made up one shouldn't be
+        assertNotNull(device.isPackageAlive("com.notalive.package.notarealapp"))
     }
 }
