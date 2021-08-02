@@ -177,10 +177,11 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         RoutingSessionInfo sessionInfo = builder.build();
         sessionRecord.setSessionInfo(sessionInfo);
 
-        // Member route controllers for a dynamic group are created after the group route is
-        // created. (DynamicGroupRouteController#notifyDynamicRoutesChanged is called)
+        // Create member route controllers if it's a static group. Member route controllers
+        // for a dynamic group will be created after the group route is created.
+        // (DynamicGroupRouteController#notifyDynamicRoutesChanged is called)
         if ((sessionFlags & (SessionRecord.SESSION_FLAG_GROUP | SessionRecord.SESSION_FLAG_DYNAMIC))
-                == (SessionRecord.SESSION_FLAG_GROUP | SessionRecord.SESSION_FLAG_DYNAMIC)) {
+                == SessionRecord.SESSION_FLAG_GROUP) {
             sessionRecord.updateMemberRouteControllers(routeId, /*oldSession=*/null,
                     sessionInfo);
         }
