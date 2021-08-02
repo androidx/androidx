@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 
 /**
@@ -23,5 +25,7 @@ import androidx.room.compiler.processing.XElement
  */
 data class DiagnosticMessage(
     val msg: String,
-    val element: XElement?
+    val element: XElement?,
+    val annotation: XAnnotation?,
+    val annotationValue: XAnnotationValue?
 )
