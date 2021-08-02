@@ -34,6 +34,7 @@ import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.OptIn
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
@@ -65,7 +66,6 @@ import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -222,38 +222,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         // devices when running the test.
         val imageProperties = callback.results.first()
         Assert.assertEquals(GUARANTEED_RESOLUTION, imageProperties.size)
-    }
-
-    @Test
-    fun canCaptureWithFlashOn() {
-        skipTestOnCameraPipeConfig()
-
-        canTakePictureWithFlashMode(ImageCapture.FLASH_MODE_ON)
-    }
-
-    @Test
-    fun canCaptureWithFlashAuto() {
-        skipTestOnCameraPipeConfig()
-
-        canTakePictureWithFlashMode(ImageCapture.FLASH_MODE_AUTO)
-    }
-
-    private fun canTakePictureWithFlashMode(flashMode: Int) = runBlocking {
-        val imageCapture = ImageCapture.Builder()
-            .setFlashMode(flashMode)
-            .build()
-
-        camera = CameraUtil.createCameraAndAttachUseCase(context, BACK_SELECTOR, imageCapture)
-
-        // Take picture after preview is ready for a while. It can cause issue on some devices when
-        // flash is on.
-        delay(2_000)
-
-        val callback = FakeImageCaptureCallback(capturesCount = 1)
-        imageCapture.takePicture(mainExecutor, callback)
-
-        // Wait for the signal that the image has been captured.
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
     }
 
     @Test
@@ -1508,10 +1476,12 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         private var imageWriter: ImageWriter? = null
 
+        @RequiresApi(Build.VERSION_CODES.M)
         override fun onOutputSurface(surface: Surface, imageFormat: Int) {
             imageWriter = ImageWriter.newInstance(surface, 2)
         }
 
+        @RequiresApi(Build.VERSION_CODES.M)
         override fun process(bundle: ImageProxyBundle) {
             val imageProxyListenableFuture = bundle.getImageProxy(bundle.captureIds[0])
             try {
