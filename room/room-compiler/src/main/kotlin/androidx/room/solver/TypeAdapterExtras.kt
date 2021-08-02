@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,20 @@
 
 package androidx.room.solver
 
-import androidx.room.compiler.processing.XType
-import androidx.room.parser.ParsedQuery
-import androidx.room.solver.query.result.QueryResultBinder
+import kotlin.reflect.KClass
 
-interface QueryResultBinderProvider {
-    fun provide(
-        declared: XType,
-        query: ParsedQuery,
-        extras: TypeAdapterExtras
-    ): QueryResultBinder
+/**
+ * Bag of objects to pass additional information to the [TypeAdapterStore].
+ */
+class TypeAdapterExtras {
+    private val data = mutableMapOf<KClass<*>, Any>()
 
-    fun matches(declared: XType): Boolean
+    fun <T : Any> getData(key: KClass<T>): T? {
+        @Suppress("UNCHECKED_CAST")
+        return data[key] as T?
+    }
+
+    fun <T : Any> putData(key: KClass<T>, value: T) {
+        data[key] = value
+    }
 }

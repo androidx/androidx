@@ -52,7 +52,7 @@ class RawQueryMethodProcessor(
         val observedTableNames = processObservedTables()
         val query = SqlParser.rawQueryForTables(observedTableNames)
         // build the query but don't calculate result info since we just guessed it.
-        val resultBinder = delegate.findResultBinder(returnType, query)
+        val resultBinder = delegate.findResultBinder(returnType, query) { }
         val runtimeQueryParam = findRuntimeQueryParameter(delegate.extractParams())
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         val rawQueryMethod = RawQueryMethod(
