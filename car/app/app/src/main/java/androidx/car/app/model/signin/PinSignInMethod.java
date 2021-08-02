@@ -39,12 +39,6 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
     @Nullable
     private final CarText mPinCode;
 
-    // TODO(b/189881361): this field is kept around for the alpha01 release to avoid breaking apps.
-    // Remove once we are in beta and deem safe.
-    @Keep
-    @Nullable
-    private final String mPin;
-
     /**
      * Returns a {@link PinSignInMethod} instance.
      *
@@ -71,19 +65,12 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
                     "PIN must not be longer than " + MAX_PIN_LENGTH + " characters");
         }
         mPinCode = CarText.create(pinCode);
-        mPin = mPinCode.toString();
     }
 
     /** Returns the PIN or activation code to present to the user. */
     @NonNull
     public CarText getPinCode() {
-        if (mPinCode != null) {
-            // For apps that uses a newer version of the library, this field should always be set.
-            return mPinCode;
-        }
-
-        // Fallback to the String value for older clients.
-        return CarText.create(requireNonNull(mPin));
+        return requireNonNull(mPinCode);
     }
 
     @Override
@@ -108,6 +95,5 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
     /** Constructs an empty instance, used by serialization code. */
     private PinSignInMethod() {
         mPinCode = null;
-        mPin = null;
     }
 }
