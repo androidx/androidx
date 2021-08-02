@@ -159,7 +159,7 @@ package androidx.wear.watchface.client {
     field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
-  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") public @interface WatchFaceClientExperimental {
+  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) public @interface WatchFaceClientExperimental {
   }
 
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
