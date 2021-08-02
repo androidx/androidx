@@ -862,6 +862,67 @@ public class EditorSessionTest {
     }
 
     @Test
+    public fun getPreviewData_dataSourceSendsWrongType() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication, backgroundComplication)
+        )
+        scenario.onActivity {
+            runBlocking {
+                val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
+                val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
+                val complicationType = ComplicationType.LONG_TEXT
+                val complicationText = "TestText"
+                val mockBinder = Mockito.mock(IBinder::class.java)
+
+                `when`(mockProviderInfoService.apiVersion).thenReturn(1)
+                `when`(mockProviderInfoService.asBinder()).thenReturn(mockBinder)
+
+                doAnswer {
+                    val callback = it.arguments[2] as IPreviewComplicationDataCallback
+                    callback.updateComplicationData(
+                        ShortTextComplicationData.Builder(
+                            PlainComplicationText.Builder(complicationText).build(),
+                            ComplicationText.EMPTY
+                        ).build().asWireComplicationData()
+                    )
+                    true
+                }.`when`(mockProviderInfoService).requestPreviewComplicationData(
+                    eq(dataSourceComponentName),
+                    eq(complicationType.toWireComplicationType()),
+                    any()
+                )
+
+                val complicationDataSourceInfoRetriever =
+                    ComplicationDataSourceInfoRetriever(mockProviderInfoService)
+                val deferredPreviewData = async {
+                    editorSession.getPreviewData(
+                        complicationDataSourceInfoRetriever,
+                        ComplicationDataSourceInfo(
+                            "dataSource.app",
+                            "dataSource",
+                            dataSourceIcon,
+                            complicationType,
+                            dataSourceComponentName
+                        )
+                    )
+                }
+
+                val result = deferredPreviewData.await()
+                assertThat(result).isInstanceOf(LongTextComplicationData::class.java)
+                assertThat(
+                    (result as LongTextComplicationData).text.getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        0
+                    )
+                ).isEqualTo("dataSource") // Fallback has been used.
+
+                complicationDataSourceInfoRetriever.close()
+            }
+        }
+    }
+
+    @Test
     @SdkSuppress(maxSdkVersion = 28)
     public fun getPreviewData_preRFallback() {
         val scenario = createOnWatchFaceEditingTestActivity(
@@ -893,7 +954,7 @@ public class EditorSessionTest {
                         ApplicationProvider.getApplicationContext<Context>().resources,
                         0
                     )
-                ).isEqualTo("dataSource")
+                ).isEqualTo("dataSou")
 
                 complicationDataSourceInfoRetriever.close()
             }
@@ -938,7 +999,7 @@ public class EditorSessionTest {
                         ApplicationProvider.getApplicationContext<Context>().resources,
                         0
                     )
-                ).isEqualTo("dataSource")
+                ).isEqualTo("dataSou") // Fallback truncates for short text.
             }
         }
     }

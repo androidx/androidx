@@ -207,6 +207,10 @@ public class ShortTextComplicationData internal constructor(
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
         public val TYPE: ComplicationType = ComplicationType.SHORT_TEXT
+
+        /** The maximum length of [ShortTextComplicationData.text] in characters. */
+        @JvmField
+        public val MAX_TEXT_LENGTH = 7
     }
 }
 
