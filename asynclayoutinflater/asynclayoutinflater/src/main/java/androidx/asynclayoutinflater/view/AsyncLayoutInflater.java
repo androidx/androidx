@@ -161,6 +161,7 @@ public final class AsyncLayoutInflater {
         private static final InflateThread sInstance;
         static {
             sInstance = new InflateThread();
+            sInstance.setName("AsyncLayoutInflator");
             sInstance.start();
         }
 
