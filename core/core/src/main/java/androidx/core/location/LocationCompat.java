@@ -37,7 +37,33 @@ import java.lang.reflect.Method;
  */
 public final class LocationCompat {
 
-    private static final String EXTRA_IS_MOCK = "mockLocation";
+    /**
+     * Constant used as a key to store mock location status in {@link Location#getExtras()} for
+     * Android SDK levels below JBMR2 (18).
+     */
+    @SuppressWarnings("ActionValue") // legacy value
+    public static final String EXTRA_IS_MOCK = "mockLocation";
+
+    /**
+     * Constant used as a key to store vertical accuracy in {@link Location#getExtras()} for
+     * Android SDK levels below Oreo (26).
+     */
+    @SuppressWarnings("ActionValue") // legacy value
+    public static final String EXTRA_VERTICAL_ACCURACY = "verticalAccuracy";
+
+    /**
+     * Constant used as a key to store speed accuracy in {@link Location#getExtras()} for
+     * Android SDK levels below Oreo (26).
+     */
+    @SuppressWarnings("ActionValue") // legacy value
+    public static final String EXTRA_SPEED_ACCURACY = "speedAccuracy";
+
+    /**
+     * Constant used as a key to store bearing accuracy in {@link Location#getExtras()} for
+     * Android SDK levels below Oreo (26).
+     */
+    @SuppressWarnings("ActionValue") // legacy value
+    public static final String EXTRA_BEARING_ACCURACY = "bearingAccuracy";
 
     @Nullable
     private static Method sSetIsFromMockProviderMethod;
@@ -92,14 +118,209 @@ public final class LocationCompat {
     }
 
     /**
+     * Returns true if this location has a vertical accuracy.
+     *
+     * @see Location#hasVerticalAccuracy()
+     */
+    public static boolean hasVerticalAccuracy(@NonNull Location location) {
+        if (VERSION.SDK_INT >= 26) {
+            return Api26Impl.hasVerticalAccuracy(location);
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                return false;
+            }
+
+            return extras.containsKey(EXTRA_VERTICAL_ACCURACY);
+        }
+    }
+
+    /**
+     * Get the estimated vertical accuracy of this location in meters.
+     *
+     * <p>NOTE: On API levels below 26, the concept of vertical accuracy does not exist. In order to
+     * allow for backwards compatibility and testing however, this method will attempt to read a
+     * float extra with the key {@link #EXTRA_VERTICAL_ACCURACY} and return the result.
+     *
+     * @see Location#getVerticalAccuracyMeters()
+     */
+    public static float getVerticalAccuracyMeters(@NonNull Location location) {
+        if (VERSION.SDK_INT >= 26) {
+            return Api26Impl.getVerticalAccuracyMeters(location);
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                return 0.0f;
+            }
+
+            return extras.getFloat(EXTRA_VERTICAL_ACCURACY, 0.0f);
+        }
+    }
+
+    /**
+     * Set the estimated vertical accuracy of this location in meters.
+     *
+     * <p>NOTE: On API levels below 26, the concept of vertical accuracy does not exist. In order to
+     * allow for backwards compatibility and testing however, this method will attempt to set a
+     * float extra with the key {@link #EXTRA_VERTICAL_ACCURACY} to include vertical accuracy. Be
+     * aware that this will overwrite any prior extra value under the same key.
+     *
+     * @see Location#setVerticalAccuracyMeters(float)
+     */
+    public static void setVerticalAccuracyMeters(@NonNull Location location,
+            float verticalAccuracyM) {
+        if (VERSION.SDK_INT >= 26) {
+            Api26Impl.setVerticalAccuracyMeters(location, verticalAccuracyM);
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                location.setExtras(new Bundle());
+                extras = location.getExtras();
+            }
+
+            extras.putFloat(EXTRA_VERTICAL_ACCURACY, verticalAccuracyM);
+        }
+    }
+
+    /**
+     * Returns true if this location has a speed accuracy.
+     *
+     * @see Location#hasSpeedAccuracy()
+     */
+    public static boolean hasSpeedAccuracy(@NonNull Location location) {
+        if (VERSION.SDK_INT >= 26) {
+            return Api26Impl.hasSpeedAccuracy(location);
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                return false;
+            }
+
+            return extras.containsKey(EXTRA_SPEED_ACCURACY);
+        }
+    }
+
+    /**
+     * Get the estimated speed accuracy of this location in meters per second.
+     *
+     * <p>NOTE: On API levels below 26, the concept of speed accuracy does not exist. In order to
+     * allow for backwards compatibility and testing however, this method will attempt to read a
+     * float extra with the key {@link #EXTRA_SPEED_ACCURACY} and return the result.
+     *
+     * @see Location#getSpeedAccuracyMetersPerSecond()
+     */
+    public static float getSpeedAccuracyMetersPerSecond(@NonNull Location location) {
+        if (VERSION.SDK_INT >= 26) {
+            return Api26Impl.getSpeedAccuracyMetersPerSecond(location);
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                return 0.0f;
+            }
+
+            return extras.getFloat(EXTRA_SPEED_ACCURACY, 0.0f);
+        }
+    }
+
+    /**
+     * Set the estimated speed accuracy of this location in meters per second.
+     *
+     * <p>NOTE: On API levels below 26, the concept of speed accuracy does not exist. In order to
+     * allow for backwards compatibility and testing however, this method will attempt to set a
+     * float extra with the key {@link #EXTRA_SPEED_ACCURACY} to include speed accuracy. Be
+     * aware that this will overwrite any prior extra value under the same key.
+     *
+     * @see Location#setSpeedAccuracyMetersPerSecond(float)
+     */
+    public static void setSpeedAccuracyMetersPerSecond(@NonNull Location location,
+            float speedAccuracyMps) {
+        if (VERSION.SDK_INT >= 26) {
+            Api26Impl.setSpeedAccuracyMetersPerSecond(location, speedAccuracyMps);
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                location.setExtras(new Bundle());
+                extras = location.getExtras();
+            }
+
+            extras.putFloat(EXTRA_SPEED_ACCURACY, speedAccuracyMps);
+        }
+    }
+
+    /**
+     * Returns true if this location has a bearing accuracy.
+     *
+     * @see Location#hasBearingAccuracy()
+     */
+    public static boolean hasBearingAccuracy(@NonNull Location location) {
+        if (VERSION.SDK_INT >= 26) {
+            return Api26Impl.hasBearingAccuracy(location);
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                return false;
+            }
+
+            return extras.containsKey(EXTRA_BEARING_ACCURACY);
+        }
+    }
+
+    /**
+     * Get the estimated bearing accuracy of this location in degrees.
+     *
+     * <p>NOTE: On API levels below 26, the concept of bearing accuracy does not exist. In order to
+     * allow for backwards compatibility and testing however, this method will attempt to read a
+     * float extra with the key {@link #EXTRA_BEARING_ACCURACY} and return the result.
+     *
+     * @see Location#getBearingAccuracyDegrees()
+     */
+    public static float getBearingAccuracyDegrees(@NonNull Location location) {
+        if (VERSION.SDK_INT >= 26) {
+            return Api26Impl.getBearingAccuracyDegrees(location);
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                return 0.0f;
+            }
+
+            return extras.getFloat(EXTRA_BEARING_ACCURACY, 0.0f);
+        }
+    }
+
+    /**
+     * Set the estimated bearing accuracy of this location in degrees.
+     *
+     * <p>NOTE: On API levels below 26, the concept of bearing accuracy does not exist. In order to
+     * allow for backwards compatibility and testing however, this method will attempt to set a
+     * float extra with the key {@link #EXTRA_BEARING_ACCURACY} to include bearing accuracy. Be
+     * aware that this will overwrite any prior extra value under the same key.
+     *
+     * @see Location#setBearingAccuracyDegrees(float)
+     */
+    public static void setBearingAccuracyDegrees(@NonNull Location location,
+            float bearingAccuracyD) {
+        if (VERSION.SDK_INT >= 26) {
+            Api26Impl.setBearingAccuracyDegrees(location, bearingAccuracyD);
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                location.setExtras(new Bundle());
+                extras = location.getExtras();
+            }
+
+            extras.putFloat(EXTRA_BEARING_ACCURACY, bearingAccuracyD);
+        }
+    }
+
+    /**
      * Returns true if this location is marked as a mock location. If this location comes from the
      * Android framework, this indicates that the location was provided by a test location provider,
      * and thus may not be related to the actual location of the device.
      *
      * <p>NOTE: On API levels below 18, the concept of a mock location does not exist. In order to
      * allow for backwards compatibility and testing however, this method will attempt to read a
-     * boolean extra with the key "mockLocation" and use the result to determine whether this should
-     * be considered a mock location.
+     * boolean extra with the key {@link #EXTRA_IS_MOCK} and use the result to determine whether
+     * this should be considered a mock location.
      *
      * @see android.location.LocationManager#addTestProvider
      */
@@ -121,8 +342,8 @@ public final class LocationCompat {
      *
      * <p>NOTE: On API levels below 18, the concept of a mock location does not exist. In order to
      * allow for backwards compatibility and testing however, this method will attempt to set a
-     * boolean extra with the key "mockLocation" to mark the location as mock. Be aware that this
-     * will overwrite any prior extra value under the same key.
+     * boolean extra with the key {@link #EXTRA_IS_MOCK} to mark the location as mock. Be aware that
+     * this will overwrite any prior extra value under the same key.
      */
     public static void setMock(@NonNull Location location, boolean mock) {
         if (VERSION.SDK_INT >= 18) {
@@ -157,6 +378,57 @@ public final class LocationCompat {
                     }
                 }
             }
+        }
+    }
+
+    @RequiresApi(26)
+    private static class Api26Impl {
+
+        private Api26Impl() {}
+
+        @DoNotInline
+        static boolean hasVerticalAccuracy(Location location) {
+            return location.hasVerticalAccuracy();
+        }
+
+        @DoNotInline
+        static float getVerticalAccuracyMeters(Location location) {
+            return location.getVerticalAccuracyMeters();
+        }
+
+        @DoNotInline
+        static void setVerticalAccuracyMeters(Location location, float verticalAccuracyM) {
+            location.setVerticalAccuracyMeters(verticalAccuracyM);
+        }
+
+        @DoNotInline
+        static boolean hasSpeedAccuracy(Location location) {
+            return location.hasSpeedAccuracy();
+        }
+
+        @DoNotInline
+        static float getSpeedAccuracyMetersPerSecond(Location location) {
+            return location.getSpeedAccuracyMetersPerSecond();
+        }
+
+        @DoNotInline
+        static void setSpeedAccuracyMetersPerSecond(Location location, float speedAccuracyMps) {
+            location.setSpeedAccuracyMetersPerSecond(speedAccuracyMps);
+        }
+
+        @DoNotInline
+        static boolean hasBearingAccuracy(Location location) {
+            return location.hasBearingAccuracy();
+        }
+
+        @DoNotInline
+        static float getBearingAccuracyDegrees(Location location) {
+            return location.getBearingAccuracyDegrees();
+        }
+
+        @DoNotInline
+        static void setBearingAccuracyDegrees(Location location, float bearingAccuracyD) {
+            location.setBearingAccuracyDegrees(bearingAccuracyD);
         }
     }
 
