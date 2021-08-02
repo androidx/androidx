@@ -32,6 +32,7 @@ import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
 import androidx.car.app.sample.showcase.common.misc.RequestPermissionScreen;
 import androidx.car.app.sample.showcase.common.misc.ResultDemoScreen;
+import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationService;
 import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationsDemoScreen;
 import androidx.car.app.sample.showcase.common.navigation.routing.NavigatingDemoScreen;
 import androidx.car.app.sample.showcase.common.renderer.Renderer;
@@ -104,6 +105,10 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
     @Override
     public void onDestroy(@NonNull LifecycleOwner owner) {
         Log.i("SHOWCASE", "onDestroy");
+
+        // Stop navigation notification service if it is running.
+        CarContext context = getCarContext();
+        context.stopService(new Intent(context, NavigationNotificationService.class));
     }
 
     @Override
