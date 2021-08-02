@@ -18,6 +18,8 @@ package androidx.benchmark.macro
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
+import androidx.benchmark.macro.perfetto.isPackageAlive
 import androidx.benchmark.macro.perfetto.isShellSessionRooted
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -35,16 +37,19 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@SdkSuppress(minSdkVersion = 26) // Lowest version validated
+@SdkSuppress(minSdkVersion = 21)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class MacrobenchmarkScopeTest {
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val device = UiDevice.getInstance(instrumentation)
+
     @Before
     fun setup() {
         // validate target is installed with clear error message,
         // since error messages from e.g. startActivityAndWait may be less clear
         try {
-            val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
+            val pm = instrumentation.context.packageManager
             pm.getApplicationInfo(Packages.TARGET, 0)
         } catch (notFoundException: PackageManager.NameNotFoundException) {
             throw IllegalStateException(
@@ -58,11 +63,12 @@ class MacrobenchmarkScopeTest {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         scope.pressHome()
         scope.startActivityAndWait()
-        assertTrue(isProcessAlive(Packages.TARGET))
+        assertTrue(device.isPackageAlive(Packages.TARGET))
         scope.killProcess()
-        assertFalse(isProcessAlive(Packages.TARGET))
+        assertFalse(device.isPackageAlive(Packages.TARGET))
     }
 
+    @SdkSuppress(minSdkVersion = 24) // TODO: define behavior for older platforms
     @Test
     fun compile_speedProfile() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
@@ -77,6 +83,7 @@ class MacrobenchmarkScopeTest {
         assertEquals(iterations, executions)
     }
 
+    @SdkSuppress(minSdkVersion = 24) // TODO: define behavior for older platforms
     @Test
     fun compile_speed() {
         val compilation = CompilationMode.Speed
@@ -95,9 +102,12 @@ class MacrobenchmarkScopeTest {
         intent.action = "${Packages.TARGET}.NOT_EXPORTED_ACTIVITY"
 
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        if (device.isShellSessionRooted()) {
+        if (device.isShellSessionRooted() || Build.VERSION.SDK_INT <= 23) {
             // while device and adb session are both rooted, doesn't throw
+            // TODO: verify whether pre-23 behavior requires userdebug device, only tested with
+            //  emulator so far
             scope.startActivityAndWait(intent)
+            assertTrue(device.hasObject(By.text("NOT EXPORTED ACTIVITY")))
         } else {
             // should throw, warning to set exported = true
             // Note: rooted device will hit this path, unless `adb root` is invoked
@@ -151,16 +161,5 @@ class MacrobenchmarkScopeTest {
             )
         )
         assertTrue(device.hasObject(By.text("UpdatedText")))
-    }
-
-    private fun processes(): List<String> {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        // Note: ps -A doesn't work on API 25 (does on API 27)
-        val output = instrumentation.device().executeShellCommand("ps -A")
-        return output.split("\r?\n".toRegex())
-    }
-
-    private fun isProcessAlive(packageName: String): Boolean {
-        return processes().any { it.contains(packageName) }
     }
 }

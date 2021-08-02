@@ -53,7 +53,10 @@ class PerfettoCaptureTest {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED - 1)
+    @SdkSuppress(
+        minSdkVersion = 28, // must redeclare, or minSdkVersion from this annotation (unset) wins
+        maxSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED - 1
+    )
     @SmallTest
     @Test
     fun bundledNotSupported() {
