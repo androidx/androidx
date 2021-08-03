@@ -21,7 +21,6 @@ import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
@@ -138,9 +137,9 @@ internal class CameraGraphSessionImpl(
         )
     }
 
-    override fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<FrameNumber> {
+    override suspend fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<Result3A> {
         check(!closed.value) { "Cannot call unlock3A on $this after close." }
-        throw UnsupportedOperationException()
+        return controller3A.unlock3A(ae, af, awb)
     }
 
     override suspend fun lock3AForCapture(
