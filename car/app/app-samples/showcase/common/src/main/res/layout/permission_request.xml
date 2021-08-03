@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +14,17 @@
   limitations under the License.
   -->
 
-<resources>
-    <public name="carColorPrimary" type="attr" />
-    <public name="carColorPrimaryDark" type="attr" />
-    <public name="carColorSecondary" type="attr" />
-    <public name="carColorSecondaryDark" type="attr" />
-    <public name="carPermissionActivityLayout" type="attr" />
-</resources>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1E1D1D">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="158dp"
+        android:layout_height="123dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/ic_launcher" />
+</RelativeLayout>
