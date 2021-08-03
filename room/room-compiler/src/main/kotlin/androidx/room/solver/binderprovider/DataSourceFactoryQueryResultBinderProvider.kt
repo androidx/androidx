@@ -49,7 +49,6 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
         val countedBinder = PositionalDataSourceQueryResultBinder(
             listAdapter = adapter,
             tableNames = tableNames,
-            forPaging3 = false
         )
         return DataSourceFactoryQueryResultBinder(countedBinder)
     }

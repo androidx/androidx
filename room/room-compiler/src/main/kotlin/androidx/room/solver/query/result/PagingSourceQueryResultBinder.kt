@@ -20,7 +20,7 @@ import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomPagingTypeNames
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
@@ -41,7 +41,7 @@ class PagingSourceQueryResultBinder(
     private val itemTypeName: TypeName =
         listAdapter?.rowAdapters?.firstOrNull()?.out?.typeName ?: TypeName.OBJECT
     private val limitOffsetPagingSourceTypeNam: ParameterizedTypeName = ParameterizedTypeName.get(
-        RoomTypeNames.LIMIT_OFFSET_PAGING_SOURCE, itemTypeName
+        RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE, itemTypeName
     )
 
     override fun convertAndReturn(
@@ -81,14 +81,4 @@ class PagingSourceQueryResultBinder(
             addStatement("return $L", resultVar)
         }.build()
     }
-}
-
-/**
- * A compatibility Paging3 binder that uses `LimitOffsetDataSource` along with
- * `DataSource.Factory.asPagingSourceFactory()` to bind queries to Paging3 PagingSource.
- */
-class CompatPagingSourceQueryResultBinder(
-    positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder
-) : PagingQueryResultBinder(positionalDataSourceQueryResultBinder) {
-    override fun returnStatementTemplate() = "return $L.asPagingSourceFactory().invoke()"
 }

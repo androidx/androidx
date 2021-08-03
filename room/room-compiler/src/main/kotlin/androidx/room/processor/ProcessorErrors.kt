@@ -585,6 +585,9 @@ object ProcessorErrors {
     val MISSING_ROOM_RXJAVA3_ARTIFACT = "To use RxJava3 features, you must add `rxjava3`" +
         " artifact from Room as a dependency. androidx.room:room-rxjava3:<version>"
 
+    val MISSING_ROOM_PAGING_ARTIFACT = "To use PagingSource, you must add `room-paging`" +
+        " artifact from Room as a dependency. androidx.room:room-paging:<version>"
+
     val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
         " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
 
