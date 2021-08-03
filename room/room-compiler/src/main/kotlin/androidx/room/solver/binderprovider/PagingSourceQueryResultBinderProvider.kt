@@ -19,18 +19,29 @@ package androidx.room.solver.binderprovider
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.PagingTypeNames
+import androidx.room.ext.RoomPagingTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.ListQueryResultAdapter
-import androidx.room.solver.query.result.CompatPagingSourceQueryResultBinder
 import androidx.room.solver.query.result.PagingSourceQueryResultBinder
-import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import com.squareup.javapoet.TypeName
 
-class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
+@Suppress("FunctionName")
+fun PagingSourceQueryResultBinderProvider(context: Context): QueryResultBinderProvider =
+    PagingSourceQueryResultBinderProviderImpl(
+        context = context
+    ).requireArtifact(
+        context = context,
+        requiredType = RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE,
+        missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_PAGING_ARTIFACT
+    )
+
+private class PagingSourceQueryResultBinderProviderImpl(
+    val context: Context
+) : QueryResultBinderProvider {
     private val pagingSourceType: XRawType? by lazy {
         context.processingEnv.findType(PagingTypeNames.PAGING_SOURCE)?.rawType
     }
@@ -48,24 +59,10 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
                 query.tables.map { it.name }
             ).toSet()
 
-        // If limitOffsetPagingSource is null, then it is not in the compile classpath
-        val limitOffsetPagingSource = context.processingEnv.findType(
-            "androidx.room.paging.LimitOffsetPagingSource"
+        return PagingSourceQueryResultBinder(
+            listAdapter = listAdapter,
+            tableNames = tableNames,
         )
-        return if (limitOffsetPagingSource != null) {
-            PagingSourceQueryResultBinder(
-                listAdapter = listAdapter,
-                tableNames = tableNames,
-            )
-        } else {
-            CompatPagingSourceQueryResultBinder(
-                PositionalDataSourceQueryResultBinder(
-                    listAdapter = listAdapter,
-                    tableNames = tableNames,
-                    forPaging3 = true
-                )
-            )
-        }
     }
 
     override fun matches(declared: XType): Boolean {

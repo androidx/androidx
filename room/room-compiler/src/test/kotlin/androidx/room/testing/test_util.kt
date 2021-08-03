@@ -28,9 +28,9 @@ import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
+import androidx.room.ext.RoomPagingTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
-import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.DatabaseViewProcessor
@@ -192,7 +192,7 @@ object COMMON {
     val LIMIT_OFFSET_PAGING_SOURCE by lazy {
         loadJavaCode(
             "common/input/LimitOffsetPagingSource.java",
-            RoomTypeNames.LIMIT_OFFSET_PAGING_SOURCE.toString()
+            RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE.toString()
         )
     }
 
