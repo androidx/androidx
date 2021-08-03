@@ -21,12 +21,14 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -34,6 +36,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
+import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.Charset
@@ -61,12 +64,15 @@ abstract class DexInspectorTask : DefaultTask() {
     @get:Input
     abstract var minSdkVersion: Int
 
+    @get:javax.inject.Inject
+    abstract val execOperations: ExecOperations
+
     @TaskAction
     fun exec() {
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
         val errorStream = ByteArrayOutputStream()
-        val executionResult = project.exec {
+        val executionResult = execOperations.exec {
             it.executable = d8Executable.get().asFile.absolutePath
             val filesToDex = jars.map { file -> file.absolutePath }
 
@@ -116,11 +122,39 @@ abstract class DexInspectorTask : DefaultTask() {
 @Suppress("DEPRECATION") // LibraryVariant
 fun Project.registerUnzipTask(
     variant: com.android.build.gradle.api.LibraryVariant
-): TaskProvider<Copy> {
-    return tasks.register(variant.taskName("unpackInspectorAAR"), Copy::class.java) {
-        it.from(zipTree(variant.packageLibraryProvider!!.get().archiveFile))
-        it.into(taskWorkingDir(variant, "unpackedInspectorAAR"))
+): TaskProvider<CopyFixed> {
+    return tasks.register(variant.taskName("unpackInspectorAAR"), CopyFixed::class.java) {
+        it.inputJar.set(variant.packageLibraryProvider!!.get().archiveFile)
+        it.outputDir.set(taskWorkingDir(variant, "unpackedInspectorAAR"))
         it.dependsOn(variant.assembleProvider)
+    }
+}
+
+// Working around Gradle issue https://github.com/gradle/gradle/issues/17936
+abstract class CopyFixed : DefaultTask() {
+    @get:InputFile
+    abstract val inputJar: RegularFileProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @get:javax.inject.Inject
+    abstract val archiveOps: ArchiveOperations
+
+    @TaskAction
+    fun runTask() {
+        val outputLocation = outputDir.get().asFile
+        outputLocation.deleteRecursively()
+        outputLocation.mkdirs()
+        archiveOps.zipTree(inputJar.get().asFile).visit {
+            val targetLocation = outputLocation.resolve(it.relativePath.toString())
+            if (it.isDirectory()) {
+                targetLocation.mkdirs()
+            } else {
+                targetLocation.parentFile.mkdirs()
+                it.copyTo(targetLocation)
+            }
+        }
     }
 }
 
@@ -156,7 +190,7 @@ fun Project.registerBundleInspectorTask(
     }
 
     return tasks.register(variant.taskName("assembleInspectorJar"), Zip::class.java) {
-        it.from(zipTree(jar.get().archiveFile))
+        it.from(zipTree(jar.map { it.archiveFile }))
         it.from(zipTree(out))
         it.exclude("**/*.class")
         it.archiveFileName.set(name)

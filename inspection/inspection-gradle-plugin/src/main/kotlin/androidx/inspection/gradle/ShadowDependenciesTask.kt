@@ -24,7 +24,6 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.FileTreeElement
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import shadow.org.apache.tools.zip.ZipEntry
@@ -38,7 +37,7 @@ import java.util.jar.JarFile
 fun Project.registerShadowDependenciesTask(
     variant: com.android.build.gradle.api.BaseVariant,
     jarName: String?,
-    zipTask: TaskProvider<Copy>
+    zipTask: TaskProvider<CopyFixed>
 ): TaskProvider<ShadowJar> {
     val uberJar = registerUberJarTask(variant)
     val versionTask = project.registerGenerateInspectionPlatformVersionTask(variant)
@@ -48,7 +47,7 @@ fun Project.registerShadowDependenciesTask(
     ) {
         it.dependsOn(uberJar)
         it.dependsOn(versionTask)
-        val fileTree = project.fileTree(zipTask.get().destinationDir)
+        val fileTree = project.fileTree(zipTask.get().outputDir)
         fileTree.include("**/*.jar", "**/*.so")
         it.from(fileTree)
         it.from(versionTask.get().outputDir)
