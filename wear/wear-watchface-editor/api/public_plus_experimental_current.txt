@@ -61,12 +61,14 @@ package androidx.wear.watchface.editor {
     property public abstract android.content.ComponentName watchFaceComponentName;
     property @RequiresApi(android.os.Build.VERSION_CODES.R) public abstract androidx.wear.watchface.client.WatchFaceId watchFaceId;
     field public static final androidx.wear.watchface.editor.EditorSession.Companion Companion;
+    field public static final long DEFAULT_PREVIEW_TIME_MILLIS = -1L; // 0xffffffffffffffffL
     field public static final long EDITING_SESSION_TIMEOUT_MILLIS = 4000L; // 0xfa0L
   }
 
   public static final class EditorSession.Companion {
     method @RequiresApi(27) @UiThread public androidx.wear.watchface.editor.EditorSession createHeadlessEditorSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
     method @UiThread @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public suspend Object? createOnWatchEditorSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession> p) throws kotlinx.coroutines.TimeoutCancellationException;
+    field public static final long DEFAULT_PREVIEW_TIME_MILLIS = -1L; // 0xffffffffffffffffL
     field public static final long EDITING_SESSION_TIMEOUT_MILLIS = 4000L; // 0xfa0L
   }
 
