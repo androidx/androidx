@@ -276,9 +276,13 @@ public interface CameraGraph : Closeable {
          * is provided or the parameter is not specified then it will have no effect on the lock of
          * that component, i.e if it was locked earlier it will stay locked and if it was already
          * unlocked, it will stay unlocked.
+         *
+         * @return [Result3A], which will contain the latest frame number at which the auto-focus,
+         * auto-exposure, auto-white balance were unlocked as per the method arguments.
+         *
          */
-        public fun unlock3A(ae: Boolean? = null, af: Boolean? = null, awb: Boolean? = null):
-            Deferred<FrameNumber>
+        public suspend fun unlock3A(ae: Boolean? = null, af: Boolean? = null, awb: Boolean? = null):
+            Deferred<Result3A>
 
         /**
          * This methods does pre-capture metering sequence and locks auto-focus. Once the
