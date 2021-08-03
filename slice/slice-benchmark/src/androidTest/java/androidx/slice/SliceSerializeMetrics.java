@@ -24,6 +24,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -68,6 +69,7 @@ public class SliceSerializeMetrics {
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Test
+    @SuppressLint("NewApi")
     public void testSerialization() throws Exception {
         final BenchmarkState state = mBenchmarkRule.getState();
         // Create a slice containing all the types in a hierarchy.
