@@ -148,7 +148,11 @@ private fun macrobenchmark(
             }
             isFirstRun = false
 
-            val tracePath = perfettoCollector.record(uniqueName, iteration) {
+            val tracePath = perfettoCollector.record(
+                benchmarkName = uniqueName,
+                iteration = iteration,
+                packages = listOf(packageName)
+            ) {
                 try {
                     userspaceTrace("start metrics") {
                         metrics.forEach {

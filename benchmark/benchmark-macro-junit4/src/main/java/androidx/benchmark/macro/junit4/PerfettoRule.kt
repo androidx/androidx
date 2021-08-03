@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.macro.perfetto.PerfettoCapture
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -79,7 +80,11 @@ public class PerfettoRule : TestRule {
 internal fun PerfettoCapture.recordAndReportFile(traceName: String, block: () -> Unit) {
     try {
         Log.d(PerfettoRule.TAG, "Recording perfetto trace $traceName")
-        start()
+        val targetPackage = InstrumentationRegistry
+            .getInstrumentation()
+            .targetContext
+            .packageName
+        start(packages = listOf(targetPackage))
         block()
         Outputs.writeFile(fileName = traceName, reportKey = "perfetto_trace") {
             val destinationPath = it.absolutePath

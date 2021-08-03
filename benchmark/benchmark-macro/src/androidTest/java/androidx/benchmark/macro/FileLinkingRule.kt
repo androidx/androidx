@@ -84,8 +84,9 @@ class FileLinkingRule : TestRule {
 
     private fun applyInternal(base: Statement, description: Description) = object : Statement() {
         override fun evaluate() {
-            require(Outputs.outputDirectory == Outputs.dirUsableByAppAndShell) {
-                "FileLinkingRule may only be used when outputDirectory == dirUsableByAppAndShell"
+            if (Outputs.outputDirectory != Outputs.dirUsableByAppAndShell) {
+                summaryString = "Warning: FileLinkingRule won't work when outputDirectory != " +
+                    "dirUsableByAppAndShell" + summaryString
             }
 
             currentDescription = description

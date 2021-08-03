@@ -92,7 +92,7 @@ internal object PerfettoTraceProcessor {
         vararg sliceNames: String
     ): List<Slice> {
         val whereClause = sliceNames
-            .joinToString(separator = " AND ") {
+            .joinToString(separator = " OR ") {
                 "slice.name = '$it'"
             }
 
