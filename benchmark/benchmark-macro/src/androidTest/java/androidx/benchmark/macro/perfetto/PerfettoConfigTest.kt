@@ -16,7 +16,9 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.macro.Packages
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,15 +36,17 @@ import kotlin.test.assertNotNull
 class PerfettoConfigTest {
     @Test
     fun ftraceBasics() {
-        val ftraceDataSource =
-            PERFETTO_CONFIG.data_sources.first { it.config?.name == "linux.ftrace" }
+        val atraceApps = listOf(Packages.TEST)
+        val ftraceDataSource = perfettoConfig(atraceApps)
+            .data_sources
+            .first { it.config?.name == "linux.ftrace" }
 
         assertNotNull(ftraceDataSource)
 
         val ftraceConfig = ftraceDataSource.config?.ftrace_config
         assertNotNull(ftraceConfig)
 
-        assertEquals(listOf("*"), ftraceConfig.atrace_apps)
+        assertEquals(listOf(Packages.TEST), ftraceConfig.atrace_apps)
 
         assertTrue(ftraceConfig.atrace_categories.contains("view"))
         assertFalse(ftraceConfig.atrace_categories.contains("webview"))
@@ -52,7 +56,7 @@ class PerfettoConfigTest {
     @Test
     fun validateAndEncode() {
         // default config shouldn't throw
-        PERFETTO_CONFIG.validateAndEncode()
+        perfettoConfig(listOf(Packages.TEST)).validateAndEncode()
     }
 
     @Test
@@ -80,5 +84,37 @@ class PerfettoConfigTest {
             invalidConfig.validateAndEncode()
         }
         assertTrue(exception.message!!.contains("bad_category"))
+    }
+
+    @SdkSuppress(maxSdkVersion = 27)
+    @Test
+    fun validateAndEncode_invalidWildcard() {
+        val invalidConfig = TraceConfig(
+            buffers = listOf(
+                TraceConfig.BufferConfig(
+                    size_kb = 16384,
+                    fill_policy = TraceConfig.BufferConfig.FillPolicy.RING_BUFFER
+                )
+            ),
+            data_sources = listOf(
+                TraceConfig.DataSource(
+                    config = DataSourceConfig(
+                        name = "linux.ftrace",
+                        target_buffer = 0,
+                        ftrace_config = FtraceConfig(
+                            atrace_categories = listOf("view"),
+                            atrace_apps = listOf("*")
+                        ),
+                    )
+                )
+            )
+        )
+        val exception = assertFailsWith<IllegalStateException> {
+            invalidConfig.validateAndEncode()
+        }
+        assertEquals(
+            expected = "Support for wildcard (*) app matching in atrace added in API 28",
+            actual = exception.message
+        )
     }
 }

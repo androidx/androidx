@@ -38,10 +38,10 @@ internal class PerfettoCaptureWrapper {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun start(): Boolean {
+    private fun start(packages: List<String>): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Log.d(PerfettoHelper.LOG_TAG, "Recording perfetto trace")
-            capture?.start()
+            capture?.start(packages)
         }
         return true
     }
@@ -58,6 +58,7 @@ internal class PerfettoCaptureWrapper {
     fun record(
         benchmarkName: String,
         iteration: Int,
+        packages: List<String>,
         block: () -> Unit
     ): String? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -82,7 +83,7 @@ internal class PerfettoCaptureWrapper {
                 }
             }
 
-            start()
+            start(packages)
             block()
             return stop(benchmarkName, iteration)
         } finally {

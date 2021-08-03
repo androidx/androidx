@@ -74,9 +74,9 @@ class PerfettoTraceProcessorTest {
 
     @Test
     fun querySlices() {
+        // check known slice content is queryable
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("WarmStartup", ".trace")
-        // check known slice content is queryable
         assertEquals(
             expected = listOf(
                 PerfettoTraceProcessor.Slice(
@@ -86,6 +86,25 @@ class PerfettoTraceProcessorTest {
                 )
             ),
             actual = PerfettoTraceProcessor.querySlices(traceFile.absolutePath, "activityStart")
+        )
+        assertEquals(
+            expected = listOf(
+                PerfettoTraceProcessor.Slice(
+                    name = "activityStart",
+                    ts = 4131162160602,
+                    dur = 17779012
+                ),
+                PerfettoTraceProcessor.Slice(
+                    name = "activityResume",
+                    ts = 4131180586020,
+                    dur = 3398750
+                )
+            ),
+            actual = PerfettoTraceProcessor.querySlices(
+                traceFile.absolutePath,
+                "activityStart",
+                "activityResume"
+            ).sortedBy { it.ts }
         )
     }
 
