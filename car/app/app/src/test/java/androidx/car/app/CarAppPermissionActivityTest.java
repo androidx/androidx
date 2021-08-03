@@ -44,16 +44,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** Tests for {@link CarAppInternalActivity}. */
+/** Tests for {@link CarAppPermissionActivity}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-public class CarAppInternalActivityTest {
+public class CarAppPermissionActivityTest {
     @Mock
     private OnRequestPermissionsListener mMockListener;
 
     private final List<String> mPermisssionsRequested = new ArrayList<>();
 
-    private ActivityScenario<CarAppInternalActivity> mActivity;
+    private ActivityScenario<CarAppPermissionActivity> mActivity;
     private Application mApplication;
 
     @Before
@@ -101,7 +101,7 @@ public class CarAppInternalActivityTest {
                 }.asBinder());
 
         return new Intent(action).setComponent(
-                new ComponentName(mApplication, CarAppInternalActivity.class)).putExtras(extras);
+                new ComponentName(mApplication, CarAppPermissionActivity.class)).putExtras(extras);
     }
 
     private void setupActivity(String action) {

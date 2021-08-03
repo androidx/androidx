@@ -16,6 +16,8 @@
 
 package androidx.car.app.sample.showcase.common.misc;
 
+import static android.content.pm.PackageManager.FEATURE_AUTOMOTIVE;
+
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
@@ -131,6 +133,10 @@ public class RequestPermissionScreen extends Screen {
                                 CarToast.LENGTH_LONG).show();
                         finish();
                     });
+            if (!getCarContext().getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
+                CarToast.makeText(getCarContext(), "Grant Permission on the phone",
+                        CarToast.LENGTH_LONG).show();
+            }
         });
 
         Action action = new Action.Builder()

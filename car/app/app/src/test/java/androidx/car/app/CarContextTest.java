@@ -455,7 +455,7 @@ public class CarContextTest {
         assertThat(startActivityIntent.getAction()).isEqualTo(
                 CarContext.REQUEST_PERMISSIONS_ACTION);
         assertThat(startActivityIntent.getComponent()).isEqualTo(new ComponentName(mCarContext,
-                CarAppInternalActivity.class));
+                CarAppPermissionActivity.class));
 
         Bundle extras = startActivityIntent.getExtras();
 

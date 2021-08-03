@@ -18,7 +18,12 @@ package androidx.car.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -29,6 +34,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.StyleRes;
 import androidx.car.app.utils.LogTags;
 
 import java.util.ArrayList;
@@ -36,16 +42,55 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An activity for use by the car app library to perform actions such as requesting permissions.
+ * An activity for use by the car app library to request a permission.
  *
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class CarAppInternalActivity extends ComponentActivity {
+public class CarAppPermissionActivity extends ComponentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        maybeSetCustomBackground();
         processInternal(getIntent());
+    }
+
+    private void maybeSetCustomBackground() {
+        @StyleRes int themeId = Resources.ID_NULL;
+        ApplicationInfo applicationInfo;
+        try {
+            applicationInfo = getPackageManager()
+                    .getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+        } catch (PackageManager.NameNotFoundException e) {
+            return;
+        }
+
+        if (applicationInfo.metaData != null) {
+            themeId = applicationInfo.metaData.getInt("androidx.car.app.theme");
+        }
+
+        Context themeableContext = createConfigurationContext(getResources().getConfiguration());
+
+        if (themeId != Resources.ID_NULL) {
+            themeableContext.setTheme(themeId);
+        }
+
+        int layoutAttr = themeableContext.getResources().getIdentifier(
+                "carPermissionActivityLayout", "attr", getPackageName());
+
+        if (layoutAttr == Resources.ID_NULL) {
+            return;
+        }
+
+        int[] attr = {layoutAttr};
+        TypedArray ta = themeableContext.getTheme().obtainStyledAttributes(attr);
+        int layoutId = ta.getResourceId(0, Resources.ID_NULL);
+
+        if (layoutId == Resources.ID_NULL) {
+            return;
+        }
+
+        setContentView(layoutId);
     }
 
     private void processInternal(@Nullable Intent intent) {
@@ -53,7 +98,7 @@ public class CarAppInternalActivity extends ComponentActivity {
             requestPermissions(intent);
         } else {
             Log.e(LogTags.TAG,
-                    "Unexpected intent action for CarAppInternalActivity: " + (intent == null
+                    "Unexpected intent action for CarAppPermissionActivity: " + (intent == null
                             ? "null Intent" : intent.getAction()));
             finish();
         }
