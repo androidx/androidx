@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
@@ -35,6 +36,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -76,6 +78,18 @@ class PerfettoCaptureTest {
     @Test
     fun captureAndValidateTrace_unbundled() = captureAndValidateTrace(unbundled = true)
 
+    /** Trigger tracing that doesn't require app tracing tag enabled */
+    private fun triggerBitmapTraceSection() {
+        val outFile = File.createTempFile("tempJpg", "jpg")
+        try {
+            Bitmap
+                .createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+                .compress(Bitmap.CompressFormat.JPEG, 100, outFile.outputStream())
+        } finally {
+            outFile.delete()
+        }
+    }
+
     private fun captureAndValidateTrace(unbundled: Boolean) {
         assumeTrue(isAbiSupported())
 
@@ -84,14 +98,15 @@ class PerfettoCaptureTest {
 
         verifyTraceEnable(false)
 
-        perfettoCapture.start()
+        perfettoCapture.start(listOf(Packages.TEST))
 
         verifyTraceEnable(true)
 
         // TODO: figure out why this sleep (200ms+) is needed - possibly related to b/194105203
         Thread.sleep(500)
 
-        trace(TRACE_SECTION_LABEL) {
+        triggerBitmapTraceSection()
+        trace(CUSTOM_TRACE_SECTION_LABEL) {
             // Tracing non-trivial duration for manual debugging/verification
             Thread.sleep(20)
         }
@@ -100,18 +115,29 @@ class PerfettoCaptureTest {
 
         val matchingSlices = PerfettoTraceProcessor.querySlices(
             absoluteTracePath = traceFilePath,
-            TRACE_SECTION_LABEL
+            CUSTOM_TRACE_SECTION_LABEL,
+            BITMAP_TRACE_SECTION_LABEL
         )
 
-        assertEquals(1, matchingSlices.size)
+        // We trigger and verify both bitmap trace section (res-tag), and then custom trace
+        // section (app-tag) which makes it easier to identify when app-tag-specific issues arise
+        assertEquals(
+            expected = 2,
+            actual = matchingSlices.size,
+            message = "Expect two matching slices, found " + matchingSlices.map { it.name }
+        )
         matchingSlices.first().apply {
-            assertEquals(TRACE_SECTION_LABEL, name)
+            assertEquals(BITMAP_TRACE_SECTION_LABEL, name)
+        }
+        matchingSlices.last().apply {
+            assertEquals(CUSTOM_TRACE_SECTION_LABEL, name)
             assertTrue(dur > 15_000_000) // should be at least 15ms
         }
     }
 
     companion object {
-        const val TRACE_SECTION_LABEL = "PerfettoCaptureTest"
+        const val CUSTOM_TRACE_SECTION_LABEL = "PerfettoCaptureTest"
+        const val BITMAP_TRACE_SECTION_LABEL = "Bitmap.compress"
     }
 }
 

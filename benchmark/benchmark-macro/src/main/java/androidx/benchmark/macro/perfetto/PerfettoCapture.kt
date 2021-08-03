@@ -36,7 +36,9 @@ import java.io.File
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21)
-public class PerfettoCapture(private val unbundled: Boolean = Build.VERSION.SDK_INT in 21..28) {
+public class PerfettoCapture(
+    unbundled: Boolean = Build.VERSION.SDK_INT in 21..28
+) {
 
     private val helper: PerfettoHelper = PerfettoHelper(unbundled)
 
@@ -54,13 +56,18 @@ public class PerfettoCapture(private val unbundled: Boolean = Build.VERSION.SDK_
      *
      * TODO: provide configuration options
      */
-    public fun start() = userspaceTrace("start perfetto") {
+    public fun start(packages: List<String>) = userspaceTrace("start perfetto") {
         // Write binary proto to dir that shell can read
         // TODO: cache on disk
         val configProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.pb")
         try {
             userspaceTrace("write config") {
-                configProtoFile.writeBytes(PERFETTO_CONFIG.validateAndEncode())
+                val atraceApps = if (Build.VERSION.SDK_INT <= 28) {
+                    packages
+                } else {
+                    listOf("*")
+                }
+                configProtoFile.writeBytes(perfettoConfig(atraceApps).validateAndEncode())
             }
             userspaceTrace("start perfetto process") {
                 helper.startCollecting(configProtoFile.absolutePath, false)

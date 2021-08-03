@@ -28,7 +28,9 @@ import perfetto.protos.TraceConfig
 import perfetto.protos.TraceConfig.BufferConfig
 import perfetto.protos.TraceConfig.BufferConfig.FillPolicy
 
-private val FTRACE_DATA_SOURCE = TraceConfig.DataSource(
+private fun ftraceDataSource(
+    atraceApps: List<String>
+) = TraceConfig.DataSource(
     config = DataSourceConfig(
         name = "linux.ftrace",
         target_buffer = 0,
@@ -82,8 +84,7 @@ private val FTRACE_DATA_SOURCE = TraceConfig.DataSource(
             }.map {
                 it.tag
             },
-            // Trace all apps for now
-            atrace_apps = listOf("*")
+            atrace_apps = atraceApps
         )
     )
 )
@@ -135,13 +136,15 @@ private val LINUX_SYS_STATS_DATASOURCE = TraceConfig.DataSource(
  *
  * Eventually, this should be configurable.
  */
-internal val PERFETTO_CONFIG = TraceConfig(
+internal fun perfettoConfig(
+    atraceApps: List<String>
+) = TraceConfig(
     buffers = listOf(
         BufferConfig(size_kb = 16384, FillPolicy.RING_BUFFER),
         BufferConfig(size_kb = 16384, FillPolicy.RING_BUFFER)
     ),
     data_sources = listOf(
-        FTRACE_DATA_SOURCE,
+        ftraceDataSource(atraceApps),
         PROCESS_STATS_DATASOURCE,
         LINUX_SYS_STATS_DATASOURCE,
     ),
@@ -162,6 +165,12 @@ internal fun TraceConfig.validateAndEncode(): ByteArray {
     val unsupportedTags = (ftraceConfig.atrace_categories - supportedTags)
     check(unsupportedTags.isEmpty()) {
         "Error - attempted to use unsupported atrace tags: $unsupportedTags"
+    }
+
+    if (Build.VERSION.SDK_INT < 28) {
+        check(!ftraceConfig.atrace_apps.contains("*")) {
+            "Support for wildcard (*) app matching in atrace added in API 28"
+        }
     }
     return encode()
 }

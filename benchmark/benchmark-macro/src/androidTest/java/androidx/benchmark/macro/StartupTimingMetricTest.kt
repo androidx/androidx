@@ -145,6 +145,11 @@ internal fun measureStartup(packageName: String, measureBlock: () -> Unit): Metr
     val wrapper = PerfettoCaptureWrapper()
     val metric = StartupTimingMetric()
     metric.configure(packageName)
-    val tracePath = wrapper.record(packageName, 1, measureBlock)!!
+    val tracePath = wrapper.record(
+        benchmarkName = packageName,
+        iteration = 1,
+        packages = listOf(packageName),
+        block = measureBlock
+    )!!
     return metric.getMetrics(packageName, tracePath)
 }
