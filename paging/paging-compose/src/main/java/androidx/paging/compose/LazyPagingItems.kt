@@ -23,11 +23,9 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.paging.CombinedLoadStates
 import androidx.paging.DifferCallback
@@ -35,7 +33,6 @@ import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.NullPaddedList
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingDataDiffer
 import kotlinx.coroutines.Dispatchers
@@ -123,23 +120,6 @@ public class LazyPagingItems<T : Any> internal constructor(
     operator fun get(index: Int): T? {
         pagingDataDiffer[index] // this registers the value load
         return itemSnapshotList[index]
-    }
-
-    /**
-     * Returns the state containing the item specified at [index] and notifies Paging of the item
-     * accessed in order to trigger any loads necessary to fulfill [PagingConfig.prefetchDistance].
-     *
-     * @param index the index of the item which should be returned.
-     * @return the state containing the item specified at [index] or null if the item is a
-     * placeholder or [index] is not within the correct bounds.
-     */
-    @Composable
-    @Deprecated(
-        "Use get() instead. It will return you the value not wrapped into a State",
-        ReplaceWith("this[index]")
-    )
-    fun getAsState(index: Int): State<T?> {
-        return rememberUpdatedState(get(index))
     }
 
     /**
