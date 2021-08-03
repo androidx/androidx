@@ -69,7 +69,6 @@ public class LazyPagingItems<T : Any> internal constructor(
      */
     val itemCount: Int get() = itemSnapshotList.size
 
-    @SuppressLint("RestrictedApi")
     private val differCallback: DifferCallback = object : DifferCallback {
         override fun onChanged(position: Int, count: Int) {
             if (count > 0) {
