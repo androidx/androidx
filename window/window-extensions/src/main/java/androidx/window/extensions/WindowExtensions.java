@@ -17,6 +17,7 @@
 package androidx.window.extensions;
 
 import androidx.annotation.NonNull;
+import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
 import androidx.window.extensions.layout.WindowLayoutComponent;
 
 /**
@@ -57,4 +58,27 @@ public interface WindowExtensions {
      */
     @NonNull
     WindowLayoutComponent getWindowLayoutComponent();
+
+
+    /**
+     * Returns {@code true} if {@link ActivityEmbeddingComponent} is present on the device,
+     * {@code false} otherwise. If the component is not available the developer will receive a
+     * single callback with empty data or default values where possible.
+     */
+    @ExperimentalWindowExtensionsApi
+    boolean isEmbeddingComponentAvailable();
+
+    /**
+     * Returns the OEM implementation of {@link ActivityEmbeddingComponent} if it is supported on
+     * the device. The implementation must match the API level reported in
+     * {@link WindowExtensions}. An
+     * {@link UnsupportedOperationException} will be thrown if the device does not support
+     * Activity Embedding. Use
+     * {@link WindowExtensions#isEmbeddingComponentAvailable()} to determine if
+     * {@link ActivityEmbeddingComponent} is present.
+     * @return the OEM implementation of {@link ActivityEmbeddingComponent}
+     */
+    @NonNull
+    @ExperimentalWindowExtensionsApi
+    ActivityEmbeddingComponent getActivityEmbeddingComponent();
 }
