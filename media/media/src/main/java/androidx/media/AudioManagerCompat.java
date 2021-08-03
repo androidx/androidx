@@ -162,7 +162,8 @@ public final class AudioManagerCompat {
      * enable muting or changing the volume of audio streams. This method will return {@code true}
      * on such devices.
      *
-     * <p>Compatibility: It returns {@code false} on API level below 21.
+     * <p>Compatibility: It returns {@code false} on API level below 21 even if the device has
+     * fixed volume.
      */
     public static boolean isVolumeFixed(@NonNull AudioManager audioManager) {
         if (Build.VERSION.SDK_INT >= 21) {
