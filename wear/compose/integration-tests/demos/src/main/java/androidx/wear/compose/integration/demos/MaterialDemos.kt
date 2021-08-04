@@ -16,11 +16,31 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.integration.demos.common.ComposableDemo
-import androidx.compose.integration.demos.common.DemoCategory
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
+import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 
+// Declare the swipe to dismiss demos so that we can use this variable as the background composable
+// for the SwipeToDismissDemo itself.
+@ExperimentalWearMaterialApi
+internal val SwipeToDismissDemos =
+    DemoCategory(
+        "Swipe to Dismiss",
+        listOf(
+            ComposableDemo("Sample") { navigateBack ->
+                SimpleSwipeToDismissBox(navigateBack = navigateBack)
+            },
+            ComposableDemo("Demo") { navigateBack ->
+                val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
+                SwipeToDismissDemo(navigateBack = navigateBack, demoState = state)
+            },
+        )
+    )
+
+@ExperimentalWearMaterialApi
 val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
@@ -51,6 +71,7 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Card") { CardDemo() },
+        SwipeToDismissDemos,
         ComposableDemo("Scaling Lazy Column") { SimpleScalingLazyColumn() },
         ComposableDemo("List Headers") { ScalingLazyColumnWithHeaders() },
     ),

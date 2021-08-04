@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.integration.demos
 
+import android.app.Activity
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -36,6 +38,42 @@ import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
+import kotlin.reflect.KClass
+
+/**
+ * Generic demo with a [title] that will be displayed in the list of demos.
+ */
+sealed class Demo(val title: String) {
+    override fun toString() = title
+}
+
+/**
+ * Demo that launches an [Activity] when selected.
+ *
+ * This should only be used for demos that need to customize the activity, the large majority of
+ * demos should just use [ComposableDemo] instead.
+ *
+ * @property activityClass the KClass (Foo::class) of the activity that will be launched when
+ * this demo is selected.
+ */
+class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) : Demo(title)
+
+/**
+ * A category of [Demo]s, that will display a list of [demos] when selected.
+ */
+class DemoCategory(
+    title: String,
+    val demos: List<Demo>
+) : Demo(title)
+
+/**
+ * Demo that displays [Composable] [content] when selected,
+ * with a method to navigate back to the parent.
+ */
+class ComposableDemo(
+    title: String,
+    val content: @Composable (navigateBack: () -> Unit) -> Unit,
+) : Demo(title)
 
 /**
  * A simple [Icon] with default size

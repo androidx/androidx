@@ -39,6 +39,7 @@ dependencies {
         implementation(libs.kotlinStdlib)
         implementation("androidx.compose.material:material:1.0.0-rc02")
         implementation("androidx.compose.material:material-ripple:1.0.0-rc02")
+        implementation(project(":compose:ui:ui-util"))
 
         androidTestImplementation project(path: ':compose:ui:ui-test')
         androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
@@ -65,9 +66,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api(project(":compose:ui:ui"))
                 api(project(":compose:ui:ui-text"))
                 api(project(":compose:runtime:runtime"))
+                api("androidx.annotation:annotation:1.1.0")
 
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:material:material-ripple"))
+                implementation(project(":compose:ui:ui-util"))
             }
             jvmMain.dependencies {
                 implementation(libs.kotlinStdlib)
@@ -87,6 +90,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.truth)
+                implementation(project(":compose:ui:ui-util"))
                 implementation(project(path: ':compose:ui:ui-test'))
                 implementation(project(path: ':compose:ui:ui-test-junit4'))
                 implementation(project(path: ':compose:test-utils'))
