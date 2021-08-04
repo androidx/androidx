@@ -194,6 +194,7 @@ public object SwipeToDismissBoxDefaults {
 /**
  * States used as targets for the anchor points for swipe-to-dismiss.
  */
+@ExperimentalWearMaterialApi
 public enum class SwipeDismissTarget {
     /**
      * The state of the SwipeToDismissBox before the swipe started.

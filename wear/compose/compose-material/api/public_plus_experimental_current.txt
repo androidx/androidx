@@ -248,7 +248,7 @@ package androidx.wear.compose.material {
   public final class ShapesKt {
   }
 
-  public enum SwipeDismissTarget {
+  @androidx.wear.compose.material.ExperimentalWearMaterialApi public enum SwipeDismissTarget {
     enum_constant public static final androidx.wear.compose.material.SwipeDismissTarget Dismissal;
     enum_constant public static final androidx.wear.compose.material.SwipeDismissTarget Original;
   }
