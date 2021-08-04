@@ -93,7 +93,7 @@ def selectProjectsFromAndroidX(filter) {
     // Multiline matcher for anything of the form:
     //  includeProject(name, path, ...)
     // where '...' is anything except the ')' character.
-    def includeProjectPattern = ~/(?m)^[\n\r\s]*includeProject\("(?<name>[a-z-:]*)",[\n\r\s]*"(?<path>[a-z-\/]+)[^)]+\)$/
+    def includeProjectPattern = ~/(?m)^[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)",[\n\r\s]*"(?<path>[a-z0-9-\/]+)[^)]+\)$/
     def supportSettingsFile = new File(ext.supportRootDir, "settings.gradle")
     def matcher = includeProjectPattern.matcher(supportSettingsFile.text)
 
