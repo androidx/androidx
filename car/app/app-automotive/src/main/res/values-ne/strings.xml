@@ -27,6 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"सिस्टम अपडेट गर्नु पर्ने भएको छ"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"सिस्टम मिल्दो छैन"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"अज्ञात त्रुटि"</string>
-    <!-- no translation found for error_message_no_vending (5866202078252905802) -->
-    <skip />
+    <string name="error_message_no_vending" msgid="5866202078252905802">"कृपया कारको सेवा विभागमा सम्पर्क गर्नुहोस्"</string>
 </resources>

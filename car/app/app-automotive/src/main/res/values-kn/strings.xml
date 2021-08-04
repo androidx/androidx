@@ -27,6 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"ಸಿಸ್ಟಂಗೆ ಅಪ್‌ಡೇಟ್ ಅಗತ್ಯವಿದೆ"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"ಹೊಂದಾಣಿಕೆಯಾಗದ ಸಿಸ್ಟಂ"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"ಅಪರಿಚಿತ ದೋಷ"</string>
-    <!-- no translation found for error_message_no_vending (5866202078252905802) -->
-    <skip />
+    <string name="error_message_no_vending" msgid="5866202078252905802">"ಕಾರ್ ಸೇವೆಗಳನ್ನು ಸಂಪರ್ಕಿಸಿ"</string>
 </resources>
