@@ -156,14 +156,15 @@ fun packageInspector(libraryProject: Project, inspectorProject: Project) {
     libraryProject.dependencies {
         add(consumeInspector.name, inspectorProject)
     }
+    val consumeInspectorFiles = libraryProject.files(consumeInspector)
 
     generateProguardDetectionFile(libraryProject)
     val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
     libExtension.libraryVariants.all { variant ->
         variant.packageLibraryProvider.configure { zip ->
-            zip.from(consumeInspector)
+            zip.from(consumeInspectorFiles)
             zip.rename {
-                if (it == consumeInspector.asFileTree.singleFile.name) {
+                if (it == consumeInspectorFiles.asFileTree.singleFile.name) {
                     "inspector.jar"
                 } else it
             }
