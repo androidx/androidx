@@ -131,7 +131,7 @@ internal actual class CurvedTextDelegate {
     actual fun doDraw(canvas: Canvas, size: Size, color: Color, background: Color) {
         updatePathsIfNeeded(size)
 
-        if (background.isSpecified) {
+        if (background.isSpecified && background != Color.Transparent) {
             paint.color = background.toArgb()
             canvas.nativeCanvas.drawPath(backgroundPath, paint)
         }
