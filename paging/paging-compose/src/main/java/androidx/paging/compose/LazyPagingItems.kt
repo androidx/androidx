@@ -58,11 +58,12 @@ public class LazyPagingItems<T : Any> internal constructor(
     private val mainDispatcher = Dispatchers.Main
 
     /**
-     * Contains the latest items list snapshot collected from the [flow].
+     * Contains the currently presented items, including any placeholders if they are enabled.
      */
-    private var itemSnapshotList by mutableStateOf(
+    var itemSnapshotList by mutableStateOf(
         ItemSnapshotList<T>(0, 0, emptyList())
     )
+        private set
 
     /**
      * The number of items which can be accessed.
@@ -130,14 +131,6 @@ public class LazyPagingItems<T : Any> internal constructor(
      */
     fun peek(index: Int): T? {
         return itemSnapshotList[index]
-    }
-
-    /**
-     * Returns a new [ItemSnapshotList] representing the currently presented items, including any
-     * placeholders if they are enabled.
-     */
-    fun snapshot(): ItemSnapshotList<T> {
-        return itemSnapshotList
     }
 
     /**

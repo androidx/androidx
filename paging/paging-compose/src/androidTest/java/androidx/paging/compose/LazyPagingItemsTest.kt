@@ -181,7 +181,7 @@ class LazyPagingItemsTest {
     }
 
     @Test
-    fun snapshot() {
+    fun itemSnapshotList() {
         lateinit var lazyPagingItems: LazyPagingItems<Int>
         val pager = createPager()
         var composedCount = 0
@@ -198,7 +198,7 @@ class LazyPagingItemsTest {
             composedCount == items.size
         }
 
-        assertThat(lazyPagingItems.snapshot()).isEqualTo(items)
+        assertThat(lazyPagingItems.itemSnapshotList).isEqualTo(items)
     }
 
     @Test
@@ -251,12 +251,12 @@ class LazyPagingItemsTest {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
         }
 
-        assertThat(lazyPagingItems.snapshot()).isEmpty()
+        assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
 
         lazyPagingItems.retry()
         rule.waitForIdle()
 
-        assertThat(lazyPagingItems.snapshot()).isNotEmpty()
+        assertThat(lazyPagingItems.itemSnapshotList).isNotEmpty()
         // Verify retry does not invalidate.
         assertThat(factoryCallCount).isEqualTo(1)
     }
@@ -279,12 +279,12 @@ class LazyPagingItemsTest {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
         }
 
-        assertThat(lazyPagingItems.snapshot()).isEmpty()
+        assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
 
         lazyPagingItems.refresh()
         rule.waitForIdle()
 
-        assertThat(lazyPagingItems.snapshot()).isNotEmpty()
+        assertThat(lazyPagingItems.itemSnapshotList).isNotEmpty()
         assertThat(factoryCallCount).isEqualTo(2)
     }
 
