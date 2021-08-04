@@ -18,9 +18,11 @@ package androidx.media2.player;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.system.ErrnoException;
 import android.system.Os;
 import android.system.OsConstants;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -81,7 +83,7 @@ import java.lang.reflect.Method;
     @RequiresApi(21)
     private static FileDescriptor dupV21(FileDescriptor fileDescriptor) throws IOException {
         try {
-            return Os.dup(fileDescriptor);
+            return Api21Impl.dup(fileDescriptor);
         } catch (Exception e) {
             throw new IOException("Failed to dup the file descriptor", e);
         }
@@ -106,7 +108,7 @@ import java.lang.reflect.Method;
     @RequiresApi(21)
     private static void seekV21(FileDescriptor fileDescriptor, long position) throws IOException {
         try {
-            Os.lseek(fileDescriptor, position, /* whence= */ OsConstants.SEEK_SET);
+            Api21Impl.lseek(fileDescriptor, position, /* whence= */ OsConstants.SEEK_SET);
         } catch (Exception e) {
             throw new IOException("Failed to seek the file descriptor", e);
         }
@@ -131,7 +133,7 @@ import java.lang.reflect.Method;
     @RequiresApi(21)
     private static void closeV21(FileDescriptor fileDescriptor) throws IOException {
         try {
-            Os.close(fileDescriptor);
+            Api21Impl.close(fileDescriptor);
         } catch (Exception e) {
             throw new IOException("Failed to close the file descriptor", e);
         }
@@ -169,8 +171,26 @@ import java.lang.reflect.Method;
         }
     }
 
-    private FileDescriptorUtil() {
-        // Prevent instantiation.
+    @RequiresApi(21)
+    static class Api21Impl {
+
+        @DoNotInline
+        static FileDescriptor dup(FileDescriptor fileDescriptor) throws ErrnoException {
+            return Os.dup(fileDescriptor);
+        }
+
+        @DoNotInline
+        static long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException {
+            return Os.lseek(fd, offset, whence);
+        }
+
+        @DoNotInline
+        static void close(FileDescriptor fd) throws ErrnoException {
+            Os.close(fd);
+        }
+
+        private Api21Impl() {}
     }
 
+    private FileDescriptorUtil() {}
 }
