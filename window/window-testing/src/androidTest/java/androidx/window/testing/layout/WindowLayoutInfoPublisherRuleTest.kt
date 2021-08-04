@@ -17,10 +17,12 @@
 package androidx.window.testing.layout
 
 import android.graphics.Rect
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.window.layout.DisplayFeature
+import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.testing.TestActivity
@@ -36,7 +38,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
+import org.junit.runner.Description
 import org.junit.runner.RunWith
+import org.junit.runners.model.Statement
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -72,6 +76,28 @@ public class WindowLayoutInfoPublisherRuleTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
+    public fun testException_resetsFactoryMethod() {
+        ActivityScenario.launch(TestActivity::class.java).onActivity { activity ->
+            WindowInfoRepository.reset()
+            val expected = activity.windowInfoRepository()
+            try {
+                WindowLayoutInfoPublisherRule().apply(
+                    object : Statement() {
+                        override fun evaluate() {
+                            throw TestException
+                        }
+                    },
+                    Description.EMPTY
+                ).evaluate()
+            } catch (e: TestException) {
+                // Throw unexpected exceptions.
+            }
+            assertEquals(expected, activity.windowInfoRepository())
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
     public fun testWindowLayoutInfo_multipleValues(): Unit = testScope.runBlockingTest {
         val feature1 = object : DisplayFeature {
             override val bounds: Rect
@@ -100,4 +126,6 @@ public class WindowLayoutInfoPublisherRuleTest {
             }
         }
     }
+
+    private object TestException : Exception("TEST EXCEPTION")
 }
