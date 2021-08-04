@@ -85,7 +85,7 @@ private typealias WireComplicationProviderInfo =
  * instance and it's up to the system to apply them. For EditorSessions backed by an
  * interactive instance style changes are applied immediately. Its possible the system might fail to
  * persist the style changes (e.g. to data base write failure or a crash) and if this happens its
- * the responsibiltiy of the system to revert the style change.
+ * the responsibility of the system to revert the style change.
  */
 public interface EditorSession : AutoCloseable {
     /** The [ComponentName] of the watch face being edited. */
@@ -173,7 +173,9 @@ public interface EditorSession : AutoCloseable {
      * Renders the watch face to a [Bitmap] using the current [userStyle].
      *
      * @param renderParameters The [RenderParameters] to render with. Must be [DrawMode.INTERACTIVE]
-     * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with
+     * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with. If
+     * [DEFAULT_PREVIEW_TIME_MILLIS] is passed then the watch face's default preview time will be
+     * used.
      * @param slotIdToComplicationData The [ComplicationData] for each
      * [androidx.wear.watchface.ComplicationSlot] to render with
      */
@@ -205,6 +207,12 @@ public interface EditorSession : AutoCloseable {
         ChosenComplicationDataSource?
 
     public companion object {
+        /**
+         * If passed [renderWatchFaceToBitmap] this will signal that the watch face's default
+         * preview time should be used.
+         */
+        const val DEFAULT_PREVIEW_TIME_MILLIS = -1L
+
         /**
          * Constructs an [EditorSession] for an on watch face editor. This registers an activity
          * result handler and so it must be called during an Activity or Fragment initialization
@@ -629,11 +637,13 @@ public abstract class BaseEditorSession internal constructor(
                         EditorStateWireFormat(
                             watchFaceId.id,
                             userStyle.toWireFormat(),
-                            getComplicationsPreviewData().map {
-                                IdAndComplicationDataWireFormat(
-                                    it.key,
-                                    it.value.asWireComplicationData()
-                                )
+                            getComplicationsPreviewData().mapNotNull {
+                                if (complicationSlotsState[it.key]!!.isEnabled) {
+                                    IdAndComplicationDataWireFormat(
+                                        it.key,
+                                        it.value.asWireComplicationData()
+                                    )
+                                } else null
                             },
                             commitChangesOnClose,
                             previewImage
@@ -747,7 +757,11 @@ internal class OnWatchFaceEditorSessionImpl(
         }
         return editorDelegate.renderWatchFaceToBitmap(
             renderParameters,
-            calendarTimeMillis,
+            if (calendarTimeMillis == EditorSession.DEFAULT_PREVIEW_TIME_MILLIS) {
+                editorDelegate.previewReferenceTimeMillis
+            } else {
+                calendarTimeMillis
+            },
             slotIdToComplicationData
         )
     }
@@ -834,7 +848,11 @@ internal class HeadlessEditorSession(
         requireNotClosed()
         return headlessWatchFaceClient.renderWatchFaceToBitmap(
             renderParameters,
-            calendarTimeMillis,
+            if (calendarTimeMillis == EditorSession.DEFAULT_PREVIEW_TIME_MILLIS) {
+                headlessWatchFaceClient.previewReferenceTimeMillis
+            } else {
+                calendarTimeMillis
+            },
             userStyle,
             slotIdToComplicationData
         )

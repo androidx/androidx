@@ -169,48 +169,11 @@ private val mockLeftCanvasComplication = CanvasComplicationDrawable(
     placeholderWatchState,
     mockInvalidateCallback
 )
-private val leftComplication =
-    ComplicationSlot.createRoundRectComplicationSlotBuilder(
-        LEFT_COMPLICATION_ID,
-        { _, _ -> mockLeftCanvasComplication },
-        listOf(
-            ComplicationType.RANGED_VALUE,
-            ComplicationType.LONG_TEXT,
-            ComplicationType.SHORT_TEXT,
-            ComplicationType.MONOCHROMATIC_IMAGE,
-            ComplicationType.SMALL_IMAGE
-        ),
-        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
-        ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-        .build()
-
 private val mockRightCanvasComplication = CanvasComplicationDrawable(
     ComplicationDrawable(),
     placeholderWatchState,
     mockInvalidateCallback
 )
-private val rightComplication =
-    ComplicationSlot.createRoundRectComplicationSlotBuilder(
-        RIGHT_COMPLICATION_ID,
-        { _, _ -> mockRightCanvasComplication },
-        listOf(
-            ComplicationType.RANGED_VALUE,
-            ComplicationType.LONG_TEXT,
-            ComplicationType.SHORT_TEXT,
-            ComplicationType.MONOCHROMATIC_IMAGE,
-            ComplicationType.SMALL_IMAGE
-        ),
-        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
-        ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-        .setConfigExtras(
-            Bundle().apply {
-                putString(PROVIDER_CHOOSER_EXTRA_KEY, PROVIDER_CHOOSER_EXTRA_VALUE)
-            }
-        )
-        .build()
-
 private val mockBackgroundCanvasComplication =
     CanvasComplicationDrawable(
         ComplicationDrawable(),
@@ -224,6 +187,49 @@ private val backgroundComplication =
         emptyList(),
         DefaultComplicationDataSourcePolicy()
     ).setEnabled(false).build()
+
+private val bothComplicationsOption =
+    UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+        Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
+        "Left And Right",
+        null,
+        // An empty list means use the initial config.
+        emptyList()
+    )
+private val leftOnlyComplicationsOption =
+    UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+        Option.Id("LEFT_COMPLICATION"),
+        "Left",
+        null,
+        listOf(
+            UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder(
+                RIGHT_COMPLICATION_ID
+            ).setEnabled(false).build()
+        )
+    )
+private val rightOnlyComplicationsOption =
+    UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+        Option.Id("RIGHT_COMPLICATION"),
+        "Right",
+        null,
+        listOf(
+            UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder(
+                LEFT_COMPLICATION_ID
+            ).setEnabled(false).build()
+        )
+    )
+private val complicationsStyleSetting = UserStyleSetting.ComplicationSlotsUserStyleSetting(
+    UserStyleSetting.Id("complications_style_setting"),
+    "AllComplicationSlots",
+    "Number and position",
+    icon = null,
+    complicationConfig = listOf(
+        bothComplicationsOption,
+        leftOnlyComplicationsOption,
+        rightOnlyComplicationsOption
+    ),
+    affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+)
 
 /** A trivial [WatchFaceService] used for testing headless editor instances. */
 public class TestHeadlessWatchFaceService : WatchFaceService() {
@@ -453,6 +459,43 @@ public class EditorSessionTest {
     private val dataSourceIcon =
         Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
     private val dataSourceComponentName = ComponentName("test.package", "test.class")
+
+    private val leftComplication =
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
+            LEFT_COMPLICATION_ID,
+            { _, _ -> mockLeftCanvasComplication },
+            listOf(
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.LONG_TEXT,
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.MONOCHROMATIC_IMAGE,
+                ComplicationType.SMALL_IMAGE
+            ),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
+            ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+            .build()
+
+    private val rightComplication =
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
+            RIGHT_COMPLICATION_ID,
+            { _, _ -> mockRightCanvasComplication },
+            listOf(
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.LONG_TEXT,
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.MONOCHROMATIC_IMAGE,
+                ComplicationType.SMALL_IMAGE
+            ),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
+            ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+            .setConfigExtras(
+                Bundle().apply {
+                    putString(PROVIDER_CHOOSER_EXTRA_KEY, PROVIDER_CHOOSER_EXTRA_VALUE)
+                }
+            )
+            .build()
 
     @SuppressLint("NewApi") // EditorRequest
     private fun createOnWatchFaceEditingTestActivity(
@@ -1444,6 +1487,36 @@ public class EditorSessionTest {
             )
         ).isEqualTo("Right")
 
+        EditorService.globalEditorService.unregisterObserver(observerId)
+    }
+
+    @Suppress("NewApi") // result.watchFaceId
+    @Test
+    public fun editorStatePreviewComplicationData_onlyContainsEnabledComplications() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(complicationsStyleSetting),
+            listOf(leftComplication, rightComplication)
+        )
+
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+
+        scenario.onActivity { activity ->
+            // Hide the left complication.
+            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
+            mutableUserStyle[complicationsStyleSetting] = rightOnlyComplicationsOption
+            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
+            activity.editorSession.close()
+            activity.finish()
+        }
+
+        val result = editorObserver.awaitEditorStateChange(
+            TIMEOUT_MILLIS,
+            TimeUnit.MILLISECONDS
+        ).asApiEditorState()
+
+        assertThat(result.previewComplicationsData.size).isEqualTo(1)
+        assertThat(result.previewComplicationsData[RIGHT_COMPLICATION_ID]).isNotNull()
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
 
