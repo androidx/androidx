@@ -54,12 +54,14 @@ final class ImageYuvToRgbConverter {
      *
      * @param imageProxy input image proxy in YUV.
      * @param rgbImageReaderProxy output image reader proxy in RGB.
+     * @param onePixelShiftEnabled true if one pixel shift should be applied, otherwise false.
      * @return output image proxy in RGB.
      */
     @Nullable
     public static ImageProxy convertYUVToRGB(
-            ImageProxy imageProxy,
-            ImageReaderProxy rgbImageReaderProxy) {
+            @NonNull ImageProxy imageProxy,
+            @NonNull ImageReaderProxy rgbImageReaderProxy,
+            boolean onePixelShiftEnabled) {
         if (!ImageYuvToRgbConverter.isSupportedYUVFormat(imageProxy)) {
             Logger.e(TAG, "Unsupported format for YUV to RGB");
             return null;
@@ -67,7 +69,7 @@ final class ImageYuvToRgbConverter {
 
         // Convert YUV To RGB and write data to surface
         ImageYuvToRgbConverter.Result result = convertYUVToRGBInternal(
-                imageProxy, rgbImageReaderProxy.getSurface());
+                imageProxy, rgbImageReaderProxy.getSurface(), onePixelShiftEnabled);
 
         if (result == Result.ERROR_CONVERSION) {
             Logger.e(TAG, "YUV to RGB conversion failure");
@@ -105,23 +107,29 @@ final class ImageYuvToRgbConverter {
      *
      * @param imageProxy input image proxy in YUV.
      * @param surface output surface for RGB data.
+     * @param onePixelShiftEnabled true if one pixel shift should be applied, otherwise false.
      * @return {@link Result}.
      */
     @NonNull
     private static Result convertYUVToRGBInternal(
             @NonNull ImageProxy imageProxy,
-            @NonNull Surface surface) {
+            @NonNull Surface surface,
+            boolean onePixelShiftEnabled) {
         if (!isSupportedYUVFormat(imageProxy)) {
             return Result.ERROR_FORMAT;
         }
 
         int imageWidth = imageProxy.getWidth();
         int imageHeight = imageProxy.getHeight();
-        int startOffset = 0;
         int srcStrideY = imageProxy.getPlanes()[0].getRowStride();
         int srcStrideU = imageProxy.getPlanes()[1].getRowStride();
         int srcStrideV = imageProxy.getPlanes()[2].getRowStride();
+        int srcPixelStrideY = imageProxy.getPlanes()[0].getPixelStride();
         int srcPixelStrideUV = imageProxy.getPlanes()[1].getPixelStride();
+
+        int startOffsetY = onePixelShiftEnabled ? srcPixelStrideY : 0;
+        int startOffsetU = onePixelShiftEnabled ? srcPixelStrideUV : 0;
+        int startOffsetV = onePixelShiftEnabled ? srcPixelStrideUV : 0;
 
         int result = convertAndroid420ToABGR(
                 imageProxy.getPlanes()[0].getBuffer(),
@@ -130,11 +138,14 @@ final class ImageYuvToRgbConverter {
                 srcStrideU,
                 imageProxy.getPlanes()[2].getBuffer(),
                 srcStrideV,
+                srcPixelStrideY,
                 srcPixelStrideUV,
                 surface,
                 imageWidth,
                 imageHeight,
-                startOffset);
+                startOffsetY,
+                startOffsetU,
+                startOffsetV);
         if (result != 0) {
             return Result.ERROR_CONVERSION;
         }
@@ -150,11 +161,14 @@ final class ImageYuvToRgbConverter {
      * @param srcStrideU Source U row stride.
      * @param srcByteBufferV Source V data.
      * @param srcStrideV Source V row stride.
+     * @param srcPixelStrideY Pixel stride for Y.
      * @param srcPixelStrideUV Pixel stride for UV.
      * @param surface Destination surface for ABGR data.
      * @param width Destination image width.
      * @param height Destination image height.
-     * @param startOffset Position in source data to begin reading from.
+     * @param startOffsetY Position in Y source data to begin reading from.
+     * @param startOffsetU Position in U source data to begin reading from.
+     * @param startOffsetV Position in V source data to begin reading from.
      * @return zero if succeeded, otherwise non-zero.
      */
     private static native int convertAndroid420ToABGR(
@@ -164,10 +178,13 @@ final class ImageYuvToRgbConverter {
             int srcStrideU,
             @NonNull ByteBuffer srcByteBufferV,
             int srcStrideV,
+            int srcPixelStrideY,
             int srcPixelStrideUV,
             @NonNull Surface surface,
             int width,
             int height,
-            int startOffset);
+            int startOffsetY,
+            int startOffsetU,
+            int startOffsetV);
 
 }
