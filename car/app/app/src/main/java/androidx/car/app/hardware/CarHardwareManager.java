@@ -15,13 +15,15 @@
  */
 package androidx.car.app.hardware;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.CarAppMetadataHolderService;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.HostException;
@@ -65,7 +67,7 @@ public interface CarHardwareManager extends Manager {
      *                               {@link CarAppApiLevels#LEVEL_3}
      * @hide
      */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP)
     @NonNull
     static CarHardwareManager create(@NonNull CarContext context,
             @NonNull HostDispatcher hostDispatcher) {
@@ -75,32 +77,24 @@ public interface CarHardwareManager extends Manager {
                             + "service, but the host is less than " + CarAppApiLevels.LEVEL_3));
         }
 
-        try { // Check for automotive library first.
-            Class<?> c = Class.forName("androidx.car.app.hardware.AutomotiveCarHardwareManager");
-            Constructor<?> ctor = c.getConstructor(Context.class);
-            Object object = ctor.newInstance(context);
-            return (CarHardwareManager) object;
-        } catch (ClassNotFoundException e) {
-            // No Automotive. Fall through.
-        } catch (ReflectiveOperationException e) {
-            // Something went wrong with accessing the constructor or calling newInstance().
-            throw new IllegalStateException("Mismatch with app-automotive artifact", e);
-        }
+        try {
+            ServiceInfo serviceInfo = CarAppMetadataHolderService.getServiceInfo(context);
+            String managerClassName = null;
+            if (serviceInfo.metaData != null) {
+                managerClassName = serviceInfo.metaData.getString(
+                        "androidx.car.app.CarAppMetadataHolderService.CAR_HARDWARE_MANAGER");
+            }
+            if (managerClassName == null) {
+                throw new ClassNotFoundException("CarHardwareManager metadata could not be found");
+            }
 
-        try { // Check for projected library.
-            Class<?> c = Class.forName("androidx.car.app.hardware.ProjectedCarHardwareManager");
-            Constructor<?> ctor = c.getConstructor(HostDispatcher.class);
-            Object object = ctor.newInstance(hostDispatcher);
-            return (CarHardwareManager) object;
-        } catch (ClassNotFoundException e) {
-            // No Projected. Fall through.
-        } catch (ReflectiveOperationException e) {
-            // Something went wrong with accessing the constructor or calling newInstance().
-            throw new IllegalStateException("Mismatch with app-projected artifact", e);
+            Class<?> managerClass = Class.forName(managerClassName);
+            Constructor<?> ctor = managerClass.getConstructor(CarContext.class,
+                    HostDispatcher.class);
+            return (CarHardwareManager) ctor.newInstance(context, hostDispatcher);
+        } catch (PackageManager.NameNotFoundException | ReflectiveOperationException e) {
+            throw new IllegalStateException("CarHardwareManager not configured. Did you forget "
+                    + "to add a dependency on app-automotive or app-projected artifacts?");
         }
-
-        throw new IllegalStateException("Vehicle Manager not "
-                + "configured. Did you forget to add a dependency on app-automotive or "
-                + "app-projected artifacts?");
     }
 }
