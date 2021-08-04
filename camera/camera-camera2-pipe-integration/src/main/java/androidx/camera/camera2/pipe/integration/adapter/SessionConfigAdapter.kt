@@ -47,8 +47,7 @@ class SessionConfigAdapter(
     private val validatingBuilder: SessionConfig.ValidatingBuilder by lazy {
         val validatingBuilder = SessionConfig.ValidatingBuilder()
         useCases.forEach {
-            it.sessionConfig?.let { sessionConfig -> validatingBuilder.add(sessionConfig) }
-                ?: Log.debug { "Failed to add use case: $it" }
+            validatingBuilder.add(it.sessionConfig)
         }
         validatingBuilder
     }
@@ -104,7 +103,7 @@ class SessionConfigAdapter(
                 val deferrableSurface = deferrableSurfaces[surfaces.indexOf(null)]
                 val sessionConfig =
                     useCases.firstOrNull { useCase ->
-                        useCase.sessionConfig?.surfaces?.contains(deferrableSurface) ?: false
+                        useCase.sessionConfig.surfaces.contains(deferrableSurface)
                     }?.sessionConfig
 
                 withContext(Dispatchers.Main) {

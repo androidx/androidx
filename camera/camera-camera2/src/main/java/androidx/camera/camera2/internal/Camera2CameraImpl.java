@@ -61,6 +61,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
@@ -543,21 +544,14 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void onUseCaseActive(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
+        String useCaseId = getUseCaseId(useCase);
+        SessionConfig sessionConfig = useCase.getSessionConfig();
         mExecutor.execute(() -> {
-            debugLog("Use case " + useCase + " ACTIVE");
+            debugLog("Use case " + useCaseId + " ACTIVE");
 
-            // TODO(b/150208070)Race condition where onUseCaseActive can be called, even after a
-            //  UseCase has been unbound. The try-catch is to retain existing behavior where an
-            //  unbound UseCase is silently ignored.
-            try {
-                mUseCaseAttachState.setUseCaseActive(useCase.getName() + useCase.hashCode(),
-                        useCase.getSessionConfig());
-                mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
-                        useCase.getSessionConfig());
-                updateCaptureSessionConfig();
-            } catch (NullPointerException e) {
-                debugLog("Failed to set already detached use case active");
-            }
+            mUseCaseAttachState.setUseCaseActive(useCaseId, sessionConfig);
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig);
+            updateCaptureSessionConfig();
         });
     }
 
@@ -566,9 +560,10 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void onUseCaseInactive(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
+        String useCaseId = getUseCaseId(useCase);
         mExecutor.execute(() -> {
-            debugLog("Use case " + useCase + " INACTIVE");
-            mUseCaseAttachState.setUseCaseInactive(useCase.getName() + useCase.hashCode());
+            debugLog("Use case " + useCaseId + " INACTIVE");
+            mUseCaseAttachState.setUseCaseInactive(useCaseId);
             updateCaptureSessionConfig();
         });
     }
@@ -577,10 +572,11 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void onUseCaseUpdated(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
+        String useCaseId = getUseCaseId(useCase);
+        SessionConfig sessionConfig = useCase.getSessionConfig();
         mExecutor.execute(() -> {
-            debugLog("Use case " + useCase + " UPDATED");
-            mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
-                    useCase.getSessionConfig());
+            debugLog("Use case " + useCaseId + " UPDATED");
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig);
             updateCaptureSessionConfig();
         });
     }
@@ -588,10 +584,11 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void onUseCaseReset(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
+        String useCaseId = getUseCaseId(useCase);
+        SessionConfig sessionConfig = useCase.getSessionConfig();
         mExecutor.execute(() -> {
-            debugLog("Use case " + useCase + " RESET");
-            mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
-                    useCase.getSessionConfig());
+            debugLog("Use case " + useCaseId + " RESET");
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig);
 
             resetCaptureSession(/*abortInFlightCaptures=*/false);
             updateCaptureSessionConfig();
@@ -616,12 +613,12 @@ final class Camera2CameraImpl implements CameraInternal {
     @RestrictTo(RestrictTo.Scope.TESTS)
     boolean isUseCaseAttached(@NonNull UseCase useCase) {
         try {
+            String useCaseId = getUseCaseId(useCase);
+
             return CallbackToFutureAdapter.<Boolean>getFuture(completer -> {
                 try {
                     mExecutor.execute(
-                            () -> completer.set(
-                                    mUseCaseAttachState.isUseCaseAttached(
-                                            useCase.getName() + useCase.hashCode())));
+                            () -> completer.set(mUseCaseAttachState.isUseCaseAttached(useCaseId)));
                 } catch (RejectedExecutionException e) {
                     completer.setException(new RuntimeException("Unable to check if use case is "
                             + "attached. Camera executor shut down."));
@@ -642,58 +639,65 @@ final class Camera2CameraImpl implements CameraInternal {
         // Defensively copy the inputUseCases to prevent from being changed.
         Collection<UseCase> useCases = new ArrayList<>(inputUseCases);
 
-        if (!useCases.isEmpty()) {
-            /*
-             * Increase the camera control use count so that camera control can accept requests
-             * immediately before posting to the executor. The use count should be increased
-             * again during the posted tryAttachUseCases task. After the posted task, decrease the
-             * use count to recover the additional increment here.
-             */
-            mCameraControlInternal.incrementUseCount();
-            notifyStateAttachedToUseCases(new ArrayList<>(useCases));
-            try {
-                mExecutor.execute(() -> {
-                    try {
-                        tryAttachUseCases(useCases);
-                    } finally {
-                        mCameraControlInternal.decrementUseCount();
-                    }
-                });
-            } catch (RejectedExecutionException e) {
-                debugLog("Unable to attach use cases.", e);
-                mCameraControlInternal.decrementUseCount();
-            }
+        if (useCases.isEmpty()) {
+            return;
+        }
+
+
+        /*
+         * Increase the camera control use count so that camera control can accept requests
+         * immediately before posting to the executor. The use count should be increased
+         * again during the posted tryAttachUseCases task. After the posted task, decrease the
+         * use count to recover the additional increment here.
+         */
+        mCameraControlInternal.incrementUseCount();
+        notifyStateAttachedToUseCases(new ArrayList<>(useCases));
+        List<UseCaseInfo> useCaseInfos = new ArrayList<>(toUseCaseInfos(useCases));
+        try {
+            mExecutor.execute(() -> {
+                try {
+                    tryAttachUseCases(useCaseInfos);
+                } finally {
+                    mCameraControlInternal.decrementUseCount();
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            debugLog("Unable to attach use cases.", e);
+            mCameraControlInternal.decrementUseCount();
         }
     }
 
     /** Attempts to attach use cases if they are not already attached. */
     @ExecutedBy("mExecutor")
-    private void tryAttachUseCases(@NonNull Collection<UseCase> toAdd) {
+    private void tryAttachUseCases(@NonNull Collection<UseCaseInfo> useCaseInfos) {
         final boolean attachUseCaseFromEmpty =
                 mUseCaseAttachState.getAttachedSessionConfigs().isEmpty();
         // Figure out which use cases are not already attached and add them.
-        List<UseCase> useCasesToAttach = new ArrayList<>();
-        for (UseCase useCase : toAdd) {
-            if (!mUseCaseAttachState.isUseCaseAttached(useCase.getName() + useCase.hashCode())) {
-                // TODO(b/150208070): Race condition where onUseCaseActive can be called, even
-                //  after a UseCase has been unbound. The try-catch is to retain existing behavior
-                //  where an unbound UseCase is silently ignored.
-                try {
-                    mUseCaseAttachState.setUseCaseAttached(useCase.getName() + useCase.hashCode(),
-                            useCase.getSessionConfig());
+        List<String> useCaseIdsToAttach = new ArrayList<>();
+        Rational previewAspectRatio = null;
 
-                    useCasesToAttach.add(useCase);
-                } catch (NullPointerException e) {
-                    debugLog("Failed to attach a detached use case");
+        for (UseCaseInfo useCaseInfo : useCaseInfos) {
+            if (!mUseCaseAttachState.isUseCaseAttached(useCaseInfo.getUseCaseId())) {
+                mUseCaseAttachState.setUseCaseAttached(useCaseInfo.getUseCaseId(),
+                        useCaseInfo.getSessionConfig());
+
+                useCaseIdsToAttach.add(useCaseInfo.getUseCaseId());
+
+                if (useCaseInfo.getUseCaseType() == Preview.class) {
+                    Size resolution = useCaseInfo.getSurfaceResolution();
+                    if (resolution != null) {
+                        previewAspectRatio = new Rational(resolution.getWidth(),
+                                resolution.getHeight());
+                    }
                 }
             }
         }
 
-        if (useCasesToAttach.isEmpty()) {
+        if (useCaseIdsToAttach.isEmpty()) {
             return;
         }
 
-        debugLog("Use cases [" + TextUtils.join(", ", useCasesToAttach) + "] now ATTACHED");
+        debugLog("Use cases [" + TextUtils.join(", ", useCaseIdsToAttach) + "] now ATTACHED");
 
         if (attachUseCaseFromEmpty) {
             // Notify camera control when first use case is attached
@@ -713,56 +717,44 @@ final class Camera2CameraImpl implements CameraInternal {
             openInternal();
         }
 
-        updateCameraControlPreviewAspectRatio(useCasesToAttach);
+        // Sets camera control preview aspect ratio if the attached use cases include a preview.
+        if (previewAspectRatio != null) {
+            mCameraControlInternal.setPreviewAspectRatio(previewAspectRatio);
+        }
+    }
+
+    @NonNull
+    private Collection<UseCaseInfo> toUseCaseInfos(@NonNull Collection<UseCase> useCases) {
+        List<UseCaseInfo> useCaseInfos = new ArrayList<>();
+
+        for (UseCase useCase : useCases) {
+            useCaseInfos.add(UseCaseInfo.from(useCase));
+        }
+
+        return useCaseInfos;
     }
 
     private void notifyStateAttachedToUseCases(List<UseCase> useCases) {
         for (UseCase useCase : useCases) {
-            if (mNotifyStateAttachedSet.contains(useCase.getName() + useCase.hashCode())) {
+            String useCaseId = getUseCaseId(useCase);
+            if (mNotifyStateAttachedSet.contains(useCaseId)) {
                 continue;
             }
 
-            mNotifyStateAttachedSet.add(useCase.getName() + useCase.hashCode());
+            mNotifyStateAttachedSet.add(useCaseId);
             useCase.onStateAttached();
         }
     }
 
     private void notifyStateDetachedToUseCases(List<UseCase> useCases) {
         for (UseCase useCase : useCases) {
-            if (!mNotifyStateAttachedSet.contains(useCase.getName() + useCase.hashCode())) {
+            String useCaseId = getUseCaseId(useCase);
+            if (!mNotifyStateAttachedSet.contains(useCaseId)) {
                 continue;
             }
 
             useCase.onStateDetached();
-            mNotifyStateAttachedSet.remove(useCase.getName() + useCase.hashCode());
-        }
-    }
-
-    @ExecutedBy("mExecutor")
-    private void updateCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
-        for (UseCase useCase : useCases) {
-            if (useCase instanceof Preview) {
-                Size resolution = useCase.getAttachedSurfaceResolution();
-                // The resolution might be null if the use case has been detached. It may happen
-                // in the case of switching cameras extremely quickly.
-                if (resolution != null) {
-                    Rational aspectRatio = new Rational(resolution.getWidth(),
-                            resolution.getHeight());
-                    mCameraControlInternal.setPreviewAspectRatio(aspectRatio);
-                }
-
-                return;
-            }
-        }
-    }
-
-    @ExecutedBy("mExecutor")
-    private void clearCameraControlPreviewAspectRatio(Collection<UseCase> removedUseCases) {
-        for (UseCase useCase : removedUseCases) {
-            if (useCase instanceof Preview) {
-                mCameraControlInternal.setPreviewAspectRatio(null);
-                return;
-            }
+            mNotifyStateAttachedSet.remove(useCaseId);
         }
     }
 
@@ -774,30 +766,44 @@ final class Camera2CameraImpl implements CameraInternal {
     public void detachUseCases(@NonNull Collection<UseCase> inputUseCases) {
         // Defensively copy the inputUseCases to prevent from being changed.
         Collection<UseCase> useCases = new ArrayList<>(inputUseCases);
-        if (!useCases.isEmpty()) {
-            notifyStateDetachedToUseCases(new ArrayList<>(useCases));
-            mExecutor.execute(() -> tryDetachUseCases(useCases));
+
+        if (useCases.isEmpty()) {
+            return;
         }
+
+        List<UseCaseInfo> useCaseInfos = new ArrayList<>(toUseCaseInfos(useCases));
+        notifyStateDetachedToUseCases(new ArrayList<>(useCases));
+        mExecutor.execute(() -> tryDetachUseCases(useCaseInfos));
     }
 
     // Attempts to make detach UseCases if they are attached.
     @ExecutedBy("mExecutor")
-    private void tryDetachUseCases(@NonNull Collection<UseCase> toRemove) {
-        List<UseCase> useCasesToDetach = new ArrayList<>();
-        for (UseCase useCase : toRemove) {
-            if (mUseCaseAttachState.isUseCaseAttached(useCase.getName() + useCase.hashCode())) {
-                mUseCaseAttachState.removeUseCase(useCase.getName() + useCase.hashCode());
-                useCasesToDetach.add(useCase);
+    private void tryDetachUseCases(@NonNull Collection<UseCaseInfo> useCaseInfos) {
+        List<String> useCaseIdsToDetach = new ArrayList<>();
+        boolean clearPreviewAspectRatio = false;
+
+        for (UseCaseInfo useCaseInfo : useCaseInfos) {
+            if (mUseCaseAttachState.isUseCaseAttached(useCaseInfo.getUseCaseId())) {
+                mUseCaseAttachState.removeUseCase(useCaseInfo.getUseCaseId());
+                useCaseIdsToDetach.add(useCaseInfo.getUseCaseId());
+
+                if (useCaseInfo.getUseCaseType() == Preview.class) {
+                    clearPreviewAspectRatio = true;
+                }
             }
         }
 
-        if (useCasesToDetach.isEmpty()) {
+        if (useCaseIdsToDetach.isEmpty()) {
             return;
         }
 
-        debugLog("Use cases [" + TextUtils.join(", ", useCasesToDetach)
+        debugLog("Use cases [" + TextUtils.join(", ", useCaseIdsToDetach)
                 + "] now DETACHED for camera");
-        clearCameraControlPreviewAspectRatio(useCasesToDetach);
+
+        // Clear camera control preview aspect ratio if the detached use cases include a preview.
+        if (clearPreviewAspectRatio) {
+            mCameraControlInternal.setPreviewAspectRatio(null);
+        }
 
         // Check if need to add or remove MeetingRepeatingUseCase.
         addOrRemoveMeteringRepeatingUseCase();
@@ -1219,6 +1225,11 @@ final class Camera2CameraImpl implements CameraInternal {
                 mCameraInfoInternal.getCameraId());
     }
 
+    @NonNull
+    static String getUseCaseId(@NonNull UseCase useCase) {
+        return useCase.getName() + useCase.hashCode();
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void debugLog(@NonNull String msg) {
         debugLog(msg, null);
@@ -1372,6 +1383,40 @@ final class Camera2CameraImpl implements CameraInternal {
             default: // fall out
         }
         return "UNKNOWN ERROR";
+    }
+
+    /**
+     * Create a {@link UseCaseInfo} object which can provide the immutable use case information.
+     *
+     * <p>{@link UseCaseInfo} should only contain immutable class to avoid race condition between
+     * caller thread and camera thread.
+     */
+    @AutoValue
+    abstract static class UseCaseInfo {
+        @NonNull
+        static UseCaseInfo create(@NonNull String useCaseId, @NonNull Class<?> useCaseType,
+                @NonNull SessionConfig sessionConfig, @Nullable Size surfaceResolution) {
+            return new AutoValue_Camera2CameraImpl_UseCaseInfo(useCaseId, useCaseType,
+                    sessionConfig, surfaceResolution);
+        }
+
+        @NonNull
+        static UseCaseInfo from(@NonNull UseCase useCase) {
+            return create(Camera2CameraImpl.getUseCaseId(useCase), useCase.getClass(),
+                    useCase.getSessionConfig(), useCase.getAttachedSurfaceResolution());
+        }
+
+        @NonNull
+        abstract String getUseCaseId();
+
+        @NonNull
+        abstract Class<?> getUseCaseType();
+
+        @NonNull
+        abstract SessionConfig getSessionConfig();
+
+        @Nullable
+        abstract Size getSurfaceResolution();
     }
 
     final class StateCallback extends CameraDevice.StateCallback {
