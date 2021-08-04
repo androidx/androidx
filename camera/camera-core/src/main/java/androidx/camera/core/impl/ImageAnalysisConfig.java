@@ -47,6 +47,9 @@ public final class ImageAnalysisConfig
     public static final Option<ImageReaderProxyProvider> OPTION_IMAGE_READER_PROXY_PROVIDER =
             Option.create("camerax.core.imageAnalysis.imageReaderProxyProvider",
                     ImageReaderProxyProvider.class);
+    public static final Option<Integer> OPTION_OUTPUT_IMAGE_FORMAT =
+            Option.create("camerax.core.imageAnalysis.outputImageFormat",
+                    ImageAnalysis.OutputImageFormat.class);
 
     // *********************************************************************************************
 
@@ -120,6 +123,22 @@ public final class ImageAnalysisConfig
      */
     public int getImageQueueDepth() {
         return retrieveOption(OPTION_IMAGE_QUEUE_DEPTH);
+    }
+
+    /**
+     * Returns the output image format for image analysis.
+     *
+     * <p>The supported output image format
+     * is {@link ImageAnalysis.OutputImageFormat#OUTPUT_IMAGE_FORMAT_YUV_420_888} and
+     * {@link ImageAnalysis.OutputImageFormat#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     *      configuration.
+     */
+    @ImageAnalysis.OutputImageFormat
+    public int getOutputImageFormat(int valueIfMissing) {
+        return retrieveOption(OPTION_OUTPUT_IMAGE_FORMAT, valueIfMissing);
     }
 
     /**
