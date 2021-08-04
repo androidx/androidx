@@ -39,6 +39,10 @@ dependencies {
         implementation(libs.kotlinStdlib)
         implementation("androidx.compose.foundation:foundation-layout:1.0.0-rc02")
 
+        testImplementation(libs.testRules)
+        testImplementation(libs.testRunner)
+        testImplementation(libs.junit)
+
         androidTestImplementation project(path: ':compose:ui:ui-test')
         androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
         androidTestImplementation project(path: ':compose:test-utils')
