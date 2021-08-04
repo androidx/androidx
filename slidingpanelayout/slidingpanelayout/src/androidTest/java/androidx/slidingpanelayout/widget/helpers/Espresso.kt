@@ -26,9 +26,11 @@ import androidx.test.espresso.action.Press
 import androidx.test.espresso.action.Swipe
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
+import org.hamcrest.Description
 import org.hamcrest.Matcher
+import org.hamcrest.TypeSafeMatcher
 
-public fun slideClose(): ViewAction? {
+fun slideClose(): ViewAction? {
     return ViewActions.actionWithAssertions(
         GeneralSwipeAction(
             Swipe.FAST,
@@ -39,7 +41,7 @@ public fun slideClose(): ViewAction? {
     )
 }
 
-public fun slideOpen(): ViewAction? {
+fun slideOpen(): ViewAction? {
     return ViewActions.actionWithAssertions(
         GeneralSwipeAction(
             Swipe.FAST,
@@ -50,7 +52,7 @@ public fun slideOpen(): ViewAction? {
     )
 }
 
-public fun openPane(): ViewAction {
+fun openPane(): ViewAction {
     return object : ViewAction {
         override fun getConstraints(): Matcher<View> {
             return ViewMatchers.isAssignableFrom(SlidingPaneLayout::class.java)
@@ -66,6 +68,18 @@ public fun openPane(): ViewAction {
             uiController.loopMainThreadUntilIdle()
             slidingPaneLayout.openPane()
             uiController.loopMainThreadUntilIdle()
+        }
+    }
+}
+
+fun isTwoPane(): Matcher<View> {
+    return object : TypeSafeMatcher<View>() {
+        override fun describeTo(description: Description) {
+            description.appendText("SlidingPaneLayout should be in two-pane")
+        }
+
+        override fun matchesSafely(item: View?): Boolean {
+            return !(item as SlidingPaneLayout).isSlideable
         }
     }
 }
