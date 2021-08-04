@@ -76,7 +76,7 @@ def setupPlayground(settings, String relativePathToRoot) {
     settings.includeProject(":lint-checks", new File(supportRoot, "lint-checks"))
     settings.includeProject(":lint-checks:integration-tests",
             new File(supportRoot, "lint-checks/integration-tests"))
-    settings.includeProject(":fakeannotations", new File(supportRoot,"fakeannotations"))
+    settings.includeProject(":fakeannotations", new File(supportRoot, "fakeannotations"))
     settings.includeProject(":internal-testutils-common",
             new File(supportRoot, "testutils/testutils-common"))
     settings.includeProject(":internal-testutils-gradle-plugin",
@@ -90,19 +90,21 @@ def setupPlayground(settings, String relativePathToRoot) {
  *               If filter returns true, it will be included in the build.
  */
 def selectProjectsFromAndroidX(filter) {
-    def includeProjectPattern = ~/.*includeProject\("(?<name>.*)", "(?<path>.*)"(.*)\).*/
+    // Multiline matcher for anything of the form:
+    //  includeProject(name, path, ...)
+    // where '...' is anything except the ')' character.
+    def includeProjectPattern = ~/(?m)^[\n\r\s]*includeProject\("(?<name>[a-z-:]*)",[\n\r\s]*"(?<path>[a-z-\/]+)[^)]+\)$/
     def supportSettingsFile = new File(ext.supportRootDir, "settings.gradle")
-    supportSettingsFile.eachLine { line ->
-        def matcher = (line =~ includeProjectPattern)
+    def matcher = includeProjectPattern.matcher(supportSettingsFile.text)
+
+    while (matcher.find()) {
         // check if is an include project line, if so, extract project gradle path and
         // file system path and call the filter
-        if (matcher.matches()) {
-            def projectGradlePath = matcher.group("name")
-            def projectFilePath = matcher.group("path")
-            if (filter(projectGradlePath)) {
-                settings.includeProject(projectGradlePath,
-                        new File(ext.supportRootDir, projectFilePath))
-            }
+        def projectGradlePath = matcher.group("name")
+        def projectFilePath = matcher.group("path")
+        if (filter(projectGradlePath)) {
+            settings.includeProject(projectGradlePath,
+                    new File(ext.supportRootDir, projectFilePath))
         }
     }
 }
@@ -132,7 +134,7 @@ if (jvmVersion != "11") {
     def guidance;
     if (startParameter.projectProperties.containsKey("android.injected.invoked.from.ide")) {
         guidance = "Make sure to set the gradle JDK to JDK 11 in the project settings." +
-                   "(File -> Other Settings -> Default Project Structure)"
+                "(File -> Other Settings -> Default Project Structure)"
     } else {
         guidance = "Make sure your JAVA_HOME environment variable points to Java 11 JDK."
     }
