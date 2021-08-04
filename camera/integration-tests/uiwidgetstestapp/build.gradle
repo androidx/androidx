@@ -59,6 +59,9 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.2.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0-alpha01")
 
+    // Guava
+    implementation(libs.guavaAndroid)
+
     // Testing framework
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
