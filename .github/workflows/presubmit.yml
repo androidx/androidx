@@ -101,7 +101,7 @@ jobs:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
           arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
-          build-root-directory: room
+          build-root-directory: activity
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
           gradle-executable: activity/gradlew
