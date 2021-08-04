@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888;
+import static androidx.camera.core.ImageYuvToRgbConverter.convertYUVToRGB;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,8 +46,14 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
     @GuardedBy("mAnalyzerLock")
     private ImageAnalysis.Analyzer mSubscribedAnalyzer;
     private volatile int mRelativeRotation;
+    @ImageAnalysis.OutputImageFormat
+    private volatile int mOutputImageFormat = ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888;
     @GuardedBy("mAnalyzerLock")
     private Executor mUserExecutor;
+
+    @GuardedBy("mAnalyzerLock")
+    @Nullable
+    private ImageReaderProxy mRGBImageReaderProxy;
 
     // Lock that synchronizes the access to mSubscribedAnalyzer/mUserExecutor to prevent mismatch.
     private final Object mAnalyzerLock = new Object();
@@ -97,17 +106,24 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
      *
      * @return The future which will complete once analysis has finished or it failed.
      */
-    ListenableFuture<Void> analyzeImage(ImageProxy imageProxy) {
+    ListenableFuture<Void> analyzeImage(@NonNull ImageProxy imageProxy) {
         Executor executor;
         ImageAnalysis.Analyzer analyzer;
+        ImageReaderProxy rgbImageReaderProxy;
         synchronized (mAnalyzerLock) {
             executor = mUserExecutor;
             analyzer = mSubscribedAnalyzer;
+            rgbImageReaderProxy = mRGBImageReaderProxy;
         }
 
         ListenableFuture<Void> future;
 
-        if (analyzer != null && executor != null) {
+        if (analyzer != null && executor != null && mIsAttached) {
+            final ImageProxy rgbImageProxy =
+                    (mOutputImageFormat == OUTPUT_IMAGE_FORMAT_RGBA_8888
+                            && rgbImageReaderProxy != null)
+                            ? convertYUVToRGB(imageProxy, rgbImageReaderProxy) : null;
+
             // When the analyzer exists and ImageAnalysis is active.
             future = CallbackToFutureAdapter.getFuture(
                     completer -> {
@@ -118,7 +134,8 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
                                         imageProxy.getImageInfo().getTimestamp(),
                                         mRelativeRotation);
 
-                                analyzer.analyze(new SettableImageProxy(imageProxy, imageInfo));
+                                analyzer.analyze(new SettableImageProxy(rgbImageProxy == null
+                                        ? imageProxy : rgbImageProxy, imageInfo));
                                 completer.set(null);
                             } else {
                                 completer.setException(new OperationCanceledException(
@@ -137,6 +154,16 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
 
     void setRelativeRotation(int relativeRotation) {
         mRelativeRotation = relativeRotation;
+    }
+
+    void setOutputImageFormat(@ImageAnalysis.OutputImageFormat int outputImageFormat) {
+        mOutputImageFormat = outputImageFormat;
+    }
+
+    void setRGBImageReaderProxy(@NonNull ImageReaderProxy rgbImageReaderProxy) {
+        synchronized (mAnalyzerLock) {
+            mRGBImageReaderProxy = rgbImageReaderProxy;
+        }
     }
 
     void setAnalyzer(@Nullable Executor userExecutor,

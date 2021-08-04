@@ -183,10 +183,13 @@ package androidx.camera.core {
     method public void clearAnalyzer();
     method public int getBackpressureStrategy();
     method public int getImageQueueDepth();
+    method public int getOutputImageFormat();
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public int getTargetRotation();
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);
+    field public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 8; // 0x8
+    field public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 7; // 0x7
     field public static final int STRATEGY_BLOCK_PRODUCER = 1; // 0x1
     field public static final int STRATEGY_KEEP_ONLY_LATEST = 0; // 0x0
   }
@@ -201,6 +204,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageAnalysis.Builder setBackgroundExecutor(java.util.concurrent.Executor);
     method public androidx.camera.core.ImageAnalysis.Builder setBackpressureStrategy(int);
     method public androidx.camera.core.ImageAnalysis.Builder setImageQueueDepth(int);
+    method public androidx.camera.core.ImageAnalysis.Builder setOutputImageFormat(int);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetAspectRatio(int);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetName(String);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetResolution(android.util.Size);
