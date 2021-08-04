@@ -40,6 +40,7 @@ import javax.crypto.KeyGenerator;
  * @deprecated Use {@link MasterKey.Builder} to work with master keys.
  */
 @Deprecated
+@RequiresApi(Build.VERSION_CODES.M)
 public final class MasterKeys {
     private MasterKeys() {
     }
@@ -50,7 +51,6 @@ public final class MasterKeys {
     private static final String ANDROID_KEYSTORE = "AndroidKeyStore";
 
     @NonNull
-    @RequiresApi(Build.VERSION_CODES.M)
     public static final KeyGenParameterSpec AES256_GCM_SPEC =
             createAES256GCMKeyGenParameterSpec(MASTER_KEY_ALIAS);
 
@@ -65,7 +65,6 @@ public final class MasterKeys {
      * @return The spec for the master key with the specified keyAlias
      */
     @NonNull
-    @RequiresApi(Build.VERSION_CODES.M)
     @SuppressWarnings("SameParameterValue")
     private static KeyGenParameterSpec createAES256GCMKeyGenParameterSpec(
             @NonNull String keyAlias) {
@@ -88,7 +87,7 @@ public final class MasterKeys {
      * @return The key alias for the master key
      */
     @NonNull
-    @RequiresApi(Build.VERSION_CODES.M)
+    @SuppressWarnings("deprecation")
     public static String getOrCreate(
             @NonNull KeyGenParameterSpec keyGenParameterSpec)
             throws GeneralSecurityException, IOException {
@@ -100,7 +99,6 @@ public final class MasterKeys {
     }
 
     @VisibleForTesting
-    @RequiresApi(Build.VERSION_CODES.M)
     static void validate(KeyGenParameterSpec spec) {
         if (spec.getKeySize() != KEY_SIZE) {
             throw new IllegalArgumentException(
@@ -131,7 +129,6 @@ public final class MasterKeys {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private static void generateKey(@NonNull KeyGenParameterSpec keyGenParameterSpec)
             throws GeneralSecurityException {
         try {

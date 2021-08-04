@@ -45,6 +45,7 @@ import java.security.KeyStore;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 public class MasterKeySecureTest {
     private static final String PREFS_FILE = "test_shared_prefs";
     private static final int KEY_SIZE = 256;

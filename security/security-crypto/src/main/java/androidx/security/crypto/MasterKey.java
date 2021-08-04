@@ -16,6 +16,9 @@
 
 package androidx.security.crypto;
 
+import static android.security.keystore.KeyProperties.AUTH_BIOMETRIC_STRONG;
+import static android.security.keystore.KeyProperties.AUTH_DEVICE_CREDENTIAL;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -23,6 +26,7 @@ import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -116,7 +120,8 @@ public final class MasterKey {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return false;
         }
-        return mKeyGenParameterSpec != null && mKeyGenParameterSpec.isUserAuthenticationRequired();
+        return mKeyGenParameterSpec != null
+                && Api23Impl.isUserAuthenticationRequired(mKeyGenParameterSpec);
     }
 
     /**
@@ -133,7 +138,7 @@ public final class MasterKey {
             return 0;
         }
         return mKeyGenParameterSpec == null ? 0 :
-                mKeyGenParameterSpec.getUserAuthenticationValidityDurationSeconds();
+                Api23Impl.getUserAuthenticationValidityDurationSeconds(mKeyGenParameterSpec);
     }
 
     /**
@@ -143,7 +148,7 @@ public final class MasterKey {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P || mKeyGenParameterSpec == null) {
             return false;
         }
-        return mKeyGenParameterSpec.isStrongBoxBacked();
+        return Api28Impl.isStrongBoxBacked(mKeyGenParameterSpec);
     }
 
     @NonNull
@@ -154,7 +159,8 @@ public final class MasterKey {
                 + "}";
     }
 
-    @NonNull/* package */ String getKeyAlias() {
+    @NonNull
+    /* package */ String getKeyAlias() {
         return mKeyAlias;
     }
 
@@ -163,18 +169,18 @@ public final class MasterKey {
      */
     public static final class Builder {
         @NonNull
-        private final String mKeyAlias;
+        final String mKeyAlias;
 
         @Nullable
-        private KeyGenParameterSpec mKeyGenParameterSpec;
+        KeyGenParameterSpec mKeyGenParameterSpec;
         @Nullable
-        private KeyScheme mKeyScheme;
+        KeyScheme mKeyScheme;
 
-        private boolean mAuthenticationRequired;
-        private int mUserAuthenticationValidityDurationSeconds;
-        private boolean mRequestStrongBoxBacked;
+        boolean mAuthenticationRequired;
+        int mUserAuthenticationValidityDurationSeconds;
+        boolean mRequestStrongBoxBacked;
 
-        private final Context mContext;
+        final Context mContext;
 
         /**
          * Creates a builder for a {@link MasterKey} using the default alias of
@@ -294,10 +300,10 @@ public final class MasterKey {
                 throw new IllegalArgumentException("KeyGenParamSpec set after setting a "
                         + "KeyScheme");
             }
-            if (!mKeyAlias.equals(keyGenParameterSpec.getKeystoreAlias())) {
+            if (!mKeyAlias.equals(Api23Impl.getKeystoreAlias(keyGenParameterSpec))) {
                 throw new IllegalArgumentException("KeyGenParamSpec's key alias does not match "
                         + "provided alias (" + mKeyAlias + " vs "
-                        + keyGenParameterSpec.getKeystoreAlias());
+                        + Api23Impl.getKeystoreAlias(keyGenParameterSpec));
             }
             mKeyGenParameterSpec = keyGenParameterSpec;
             return this;
@@ -311,51 +317,127 @@ public final class MasterKey {
         @NonNull
         public MasterKey build() throws GeneralSecurityException, IOException {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                return buildOnM();
+                return Api23Impl.build(this);
             } else {
                 return new MasterKey(mKeyAlias, null);
             }
         }
 
-        @SuppressWarnings("deprecation")
-        @RequiresApi(Build.VERSION_CODES.M)
-        private MasterKey buildOnM() throws GeneralSecurityException, IOException {
-            if (mKeyScheme == null && mKeyGenParameterSpec == null) {
-                throw new IllegalArgumentException("build() called before "
-                        + "setKeyGenParameterSpec or setKeyScheme.");
+        @RequiresApi(23)
+        static class Api23Impl {
+            private Api23Impl() {
+                // This class is not instantiable.
             }
 
-            if (mKeyScheme == KeyScheme.AES256_GCM) {
-                KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(
-                        mKeyAlias,
-                        KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                        .setKeySize(DEFAULT_AES_GCM_MASTER_KEY_SIZE);
-
-                if (mAuthenticationRequired) {
-                    builder.setUserAuthenticationRequired(true)
-                            .setUserAuthenticationValidityDurationSeconds(
-                                    mUserAuthenticationValidityDurationSeconds);
-                }
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && mRequestStrongBoxBacked) {
-                    if (mContext.getPackageManager().hasSystemFeature(
-                            PackageManager.FEATURE_STRONGBOX_KEYSTORE)) {
-                        builder.setIsStrongBoxBacked(true);
-                    }
-                }
-
-                mKeyGenParameterSpec = builder.build();
-            }
-            if (mKeyGenParameterSpec == null) {
-                // This really should not happen.
-                throw new NullPointerException("KeyGenParameterSpec was null after build() check");
+            @DoNotInline
+            static String getKeystoreAlias(KeyGenParameterSpec keyGenParameterSpec) {
+                return keyGenParameterSpec.getKeystoreAlias();
             }
 
             @SuppressWarnings("deprecation")
-            String keyAlias = MasterKeys.getOrCreate(mKeyGenParameterSpec);
-            return new MasterKey(keyAlias, mKeyGenParameterSpec);
+            static MasterKey build(Builder builder) throws GeneralSecurityException, IOException {
+                if (builder.mKeyScheme == null && builder.mKeyGenParameterSpec == null) {
+                    throw new IllegalArgumentException("build() called before "
+                            + "setKeyGenParameterSpec or setKeyScheme.");
+                }
+
+                if (builder.mKeyScheme == KeyScheme.AES256_GCM) {
+                    KeyGenParameterSpec.Builder keyGenBuilder = new KeyGenParameterSpec.Builder(
+                            builder.mKeyAlias,
+                            KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                            .setKeySize(DEFAULT_AES_GCM_MASTER_KEY_SIZE);
+
+                    if (builder.mAuthenticationRequired) {
+                        keyGenBuilder.setUserAuthenticationRequired(true);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            Api30Impl.setUserAuthenticationParameters(keyGenBuilder,
+                                    builder.mUserAuthenticationValidityDurationSeconds,
+                                    AUTH_DEVICE_CREDENTIAL | AUTH_BIOMETRIC_STRONG);
+                        } else {
+                            keyGenBuilder.setUserAuthenticationValidityDurationSeconds(
+                                    builder.mUserAuthenticationValidityDurationSeconds);
+                        }
+                    }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                            && builder.mRequestStrongBoxBacked) {
+                        if (builder.mContext.getPackageManager().hasSystemFeature(
+                                PackageManager.FEATURE_STRONGBOX_KEYSTORE)) {
+                            Api28Impl.setIsStrongBoxBacked(keyGenBuilder);
+                        }
+                    }
+
+                    builder.mKeyGenParameterSpec = keyGenBuilder.build();
+                }
+                if (builder.mKeyGenParameterSpec == null) {
+                    // This really should not happen.
+                    throw new NullPointerException(
+                            "KeyGenParameterSpec was null after build() check");
+                }
+
+                String keyAlias = MasterKeys.getOrCreate(builder.mKeyGenParameterSpec);
+                return new MasterKey(keyAlias, builder.mKeyGenParameterSpec);
+            }
+
+            @RequiresApi(28)
+            static class Api28Impl {
+                private Api28Impl() {
+                    // This class is not instantiable.
+                }
+
+                @DoNotInline
+                static void setIsStrongBoxBacked(KeyGenParameterSpec.Builder builder) {
+                    builder.setIsStrongBoxBacked(true);
+                }
+            }
+
+            @RequiresApi(30)
+            static class Api30Impl {
+                private Api30Impl() {
+                    // This class is not instantiable.
+                }
+
+                @DoNotInline
+                static void setUserAuthenticationParameters(KeyGenParameterSpec.Builder builder,
+                        int timeout,
+                        int type) {
+                    builder.setUserAuthenticationParameters(timeout, type);
+                }
+
+            }
         }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isUserAuthenticationRequired(KeyGenParameterSpec keyGenParameterSpec) {
+            return keyGenParameterSpec.isUserAuthenticationRequired();
+        }
+
+        @DoNotInline
+        static int getUserAuthenticationValidityDurationSeconds(
+                KeyGenParameterSpec keyGenParameterSpec) {
+            return keyGenParameterSpec.getUserAuthenticationValidityDurationSeconds();
+        }
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isStrongBoxBacked(KeyGenParameterSpec keyGenParameterSpec) {
+            return keyGenParameterSpec.isStrongBoxBacked();
+        }
+
     }
 }

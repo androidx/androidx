@@ -67,9 +67,9 @@ package androidx.security.crypto {
     enum_constant public static final androidx.security.crypto.MasterKey.KeyScheme AES256_GCM;
   }
 
-  @Deprecated public final class MasterKeys {
-    method @Deprecated @RequiresApi(android.os.Build.VERSION_CODES.M) public static String getOrCreate(android.security.keystore.KeyGenParameterSpec) throws java.security.GeneralSecurityException, java.io.IOException;
-    field @Deprecated @RequiresApi(android.os.Build.VERSION_CODES.M) public static final android.security.keystore.KeyGenParameterSpec AES256_GCM_SPEC;
+  @Deprecated @RequiresApi(android.os.Build.VERSION_CODES.M) public final class MasterKeys {
+    method @Deprecated public static String getOrCreate(android.security.keystore.KeyGenParameterSpec) throws java.security.GeneralSecurityException, java.io.IOException;
+    field @Deprecated public static final android.security.keystore.KeyGenParameterSpec AES256_GCM_SPEC;
   }
 
 }
