@@ -59,8 +59,11 @@ public class WindowLayoutInfoPublisherRule() : TestRule {
         return object : Statement() {
             override fun evaluate() {
                 WindowInfoRepository.overrideDecorator(overrideServices)
-                base.evaluate()
-                WindowInfoRepository.reset()
+                try {
+                    base.evaluate()
+                } finally {
+                    WindowInfoRepository.reset()
+                }
             }
         }
     }
