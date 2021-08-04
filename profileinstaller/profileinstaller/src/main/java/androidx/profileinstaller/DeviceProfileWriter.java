@@ -33,7 +33,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -71,6 +70,8 @@ public class DeviceProfileWriter {
     @NonNull
     private final File mCurProfile;
     @NonNull
+    private final String mApkName;
+    @NonNull
     private final String mProfileSourceLocation;
     @NonNull
     private final File mRefProfile;
@@ -91,12 +92,14 @@ public class DeviceProfileWriter {
     public DeviceProfileWriter(@NonNull AssetManager assetManager,
             @NonNull Executor executor,
             @NonNull ProfileInstaller.DiagnosticsCallback diagnosticsCallback,
+            @NonNull String apkName,
             @NonNull String profileSourceLocation,
             @NonNull File curProfile,
             @NonNull File refProfile) {
         mAssetManager = assetManager;
         mExecutor = executor;
         mDiagnostics = diagnosticsCallback;
+        mApkName = apkName;
         mProfileSourceLocation = profileSourceLocation;
         mCurProfile = curProfile;
         mRefProfile = refProfile;
@@ -158,30 +161,8 @@ public class DeviceProfileWriter {
         try (AssetFileDescriptor fd = mAssetManager.openFd(mProfileSourceLocation)) {
             try (InputStream is = fd.createInputStream()) {
                 byte[] baselineVersion = ProfileTranscoder.readHeader(is);
-                // TODO: this is assuming that the baseline version is the P format. We should
-                //  consider whether or not we want to also check for "future" formats, and
-                //  assume that if a future format ended up in this file location, that the
-                //  platform probably supports it and go ahead and move it to the cur profile
-                //  location without parsing anything. For now, a "future" format will just fail
-                //  below in the readProfile step.
-                boolean transcodingNeeded = !Arrays.equals(desiredVersion, baselineVersion);
-                if (transcodingNeeded) {
-                    mProfile = ProfileTranscoder.readProfile(is, baselineVersion);
-                    return this;
-                } else {
-                    if (!skipStrategy.shouldSkip(fd.getLength(),
-                            generateExistingProfileStateFromFileSystem())) {
-                        // just do the copy
-                        try (OutputStream os = new FileOutputStream(mCurProfile)) {
-                            ProfileTranscoder.writeHeader(os, desiredVersion);
-                            Encoding.writeAll(is, os);
-                        }
-                        mDiagnostics.onResultReceived(
-                                ProfileInstaller.RESULT_INSTALL_SUCCESS,
-                                null
-                        );
-                    }
-                }
+                mProfile = ProfileTranscoder.readProfile(is, baselineVersion, mApkName);
+                return this;
             }
         }  catch (FileNotFoundException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);

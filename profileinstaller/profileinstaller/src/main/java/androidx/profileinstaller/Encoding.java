@@ -20,11 +20,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 
 /**
@@ -153,6 +156,18 @@ class Encoding {
             throw error("Inflater did not finish");
         }
         return result;
+    }
+
+    static void writeCompressed(@NonNull OutputStream os, byte[] data) throws IOException {
+        writeUInt32(os, data.length); // uncompressed size
+        Deflater deflater = new Deflater(Deflater.BEST_SPEED);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try(DeflaterOutputStream dos = new DeflaterOutputStream(bos, deflater)) {
+            dos.write(data);
+        }
+        byte[] outputData = bos.toByteArray();
+        writeUInt32(os, outputData.length); // compressed size
+        os.write(outputData); // compressed body
     }
 
     static void writeAll(@NonNull InputStream is, @NonNull OutputStream os) throws IOException {
