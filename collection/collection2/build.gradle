@@ -23,8 +23,8 @@ import androidx.build.RunApiTasks
 
 buildscript {
     dependencies {
-        classpath(libs.japicmpPlugin)
-        classpath(libs.atomicFuPlugin)
+        classpath(libs.japicmpPluginz)
+        classpath(libs.atomicFuPluginz)
     }
 }
 
