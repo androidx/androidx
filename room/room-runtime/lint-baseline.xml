@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha06)" variant="all" version="7.1.0-alpha06">
 
     <issue
         id="NewApi"
@@ -371,7 +371,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/DBUtil.java"
-            line="64"
+            line="66"
             column="32"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/DBUtil.java"
-            line="64"
+            line="66"
             column="49"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/DBUtil.java"
-            line="110"
+            line="112"
             column="44"/>
     </issue>
 
@@ -1394,7 +1394,7 @@
         errorLine2="                      ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="391"
+            line="399"
             column="23"/>
     </issue>
 
@@ -1405,7 +1405,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="391"
+            line="399"
             column="36"/>
     </issue>
 
@@ -1416,7 +1416,7 @@
         errorLine2="                      ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="396"
+            line="404"
             column="23"/>
     </issue>
 
@@ -1427,7 +1427,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="396"
+            line="404"
             column="36"/>
     </issue>
 
@@ -1438,7 +1438,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="397"
+            line="405"
             column="17"/>
     </issue>
 
@@ -1449,7 +1449,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="672"
+            line="684"
             column="22"/>
     </issue>
 
@@ -1460,8 +1460,41 @@
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="672"
+            line="684"
             column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Index(String name, boolean unique, List&lt;String> columns, List&lt;String> orders) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="688"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Index(String name, boolean unique, List&lt;String> columns, List&lt;String> orders) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="688"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Index(String name, boolean unique, List&lt;String> columns, List&lt;String> orders) {"
+        errorLine2="                                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="688"
+            column="73"/>
     </issue>
 
     <issue
