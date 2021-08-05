@@ -201,7 +201,7 @@ private class InternalQueryProcessor(
         returnType: XType,
         query: ParsedQuery
     ): QueryMethod {
-        val resultBinder = delegate.findResultBinder(returnType, query)
+        val resultBinder = delegate.findResultBinder(returnType, query) { }
         context.checker.check(
             resultBinder.adapter != null,
             executableElement,
