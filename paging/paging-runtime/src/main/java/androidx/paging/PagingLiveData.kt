@@ -30,6 +30,12 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * A [LiveData] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes it
  * as a [LiveData].
+ *
+ * NOTE: Instances of [PagingData] emitted by this [LiveData] are not re-usable and cannot be
+ * submitted multiple times. This is especially relevant because [LiveData] will replays the latest
+ * value downstream. To ensure you get a new instance of [PagingData] for each downstream
+ * observer, you should use the [cachedIn] operator which multicasts the [LiveData] in a way that
+ * returns a new instance of [PagingData] with cached data pre-loaded.
  */
 val <Key : Any, Value : Any> Pager<Key, Value>.liveData: LiveData<PagingData<Value>>
     get() = flow.asLiveData()

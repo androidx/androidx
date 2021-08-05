@@ -35,6 +35,12 @@ import kotlinx.coroutines.rx3.asObservable
 /**
  * An [Observable] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes
  * it as an [Observable].
+ *
+ * NOTE: Instances of [PagingData] emitted by this [Observable] are not re-usable and cannot be
+ * submitted multiple times. This is especially relevant for transforms, which would replay the
+ * latest value downstream. To ensure you get a new instance of [PagingData] for each downstream
+ * observer, you should use the [cachedIn] operator which multicasts the [Observable] in a way that
+ * returns a new instance of [PagingData] with cached data pre-loaded.
  */
 // Both annotations are needed here see: https://youtrack.jetbrains.com/issue/KT-45227
 @ExperimentalCoroutinesApi
@@ -47,6 +53,12 @@ val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData
 /**
  * A [Flowable] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes
  * it as a [Flowable].
+ *
+ * NOTE: Instances of [PagingData] emitted by this [Flowable] are not re-usable and cannot be
+ * submitted multiple times. This is especially relevant for transforms, which would replay the
+ * latest value downstream. To ensure you get a new instance of [PagingData] for each downstream
+ * observer, you should use the [cachedIn] operator which multicasts the [Flowable] in a way that
+ * returns a new instance of [PagingData] with cached data pre-loaded.
  */
 // Both annotations are needed here see: https://youtrack.jetbrains.com/issue/KT-45227
 @ExperimentalCoroutinesApi
