@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha06)" variant="all" version="7.1.0-alpha06">
 
     <issue
         id="NewApi"
@@ -74,7 +74,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="383"
+            line="384"
             column="48"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="386"
+            line="387"
             column="70"/>
     </issue>
 
@@ -96,8 +96,19 @@
         errorLine2="                                                       ~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="392"
+            line="393"
             column="56"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    : mRoutingController.getId();"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="488"
+            column="42"/>
     </issue>
 
     <issue
@@ -107,7 +118,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="488"
+            line="496"
             column="32"/>
     </issue>
 
@@ -118,7 +129,7 @@
         errorLine2="                                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="498"
+            line="506"
             column="75"/>
     </issue>
 
@@ -129,7 +140,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="501"
+            line="509"
             column="40"/>
     </issue>
 
@@ -140,7 +151,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="502"
+            line="510"
             column="32"/>
     </issue>
 
@@ -151,7 +162,7 @@
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="508"
+            line="516"
             column="66"/>
     </issue>
 
@@ -162,7 +173,7 @@
         errorLine2="                               ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="536"
+            line="544"
             column="32"/>
     </issue>
 
@@ -173,7 +184,7 @@
         errorLine2="                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="554"
+            line="562"
             column="27"/>
     </issue>
 
@@ -184,7 +195,7 @@
         errorLine2="                               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="570"
+            line="578"
             column="32"/>
     </issue>
 
@@ -195,305 +206,30 @@
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="586"
+            line="594"
             column="32"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            RoutingSessionInfo.Builder builder = new RoutingSessionInfo.Builder(sessionInfo);"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mRoutingController == null || mRoutingController.isReleased()"
+        errorLine2="                                                                 ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="684"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    sessionInfo.getName() != null ? sessionInfo.getName().toString() : null);"
-        errorLine2="                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="689"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    sessionInfo.getName() != null ? sessionInfo.getName().toString() : null);"
-        errorLine2="                                                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="689"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mSessionInfo = builder.setControlHints(controlHints).build();"
-        errorLine2="                                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="691"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mSessionInfo = builder.setControlHints(controlHints).build();"
-        errorLine2="                                                                 ~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="691"
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="604"
             column="66"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            RoutingSessionInfo.Builder builder = new RoutingSessionInfo.Builder(sessionInfo);"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mRoutingController == null || mRoutingController.isReleased()"
+        errorLine2="                                                                 ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="708"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.setName(groupRoute.getName())"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="711"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        .setVolume(groupRoute.getVolume())"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="712"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        .setVolumeMax(groupRoute.getVolumeMax())"
-        errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="713"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        .setVolumeHandling(groupRoute.getVolumeHandling());"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="714"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                Bundle controlHints = sessionInfo.getControlHints();"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="716"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.setControlHints(controlHints);"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="724"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mSessionInfo = builder.build();"
-        errorLine2="                                   ~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="727"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.clearSelectedRoutes();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="732"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.clearSelectableRoutes();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="733"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.clearDeselectableRoutes();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="734"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.clearTransferableRoutes();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="735"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        builder.addSelectedRoute(routeId);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="741"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        builder.addSelectableRoute(routeId);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="745"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        builder.addDeselectableRoute(routeId);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="748"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        builder.addTransferableRoute(routeId);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="751"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mSessionInfo = builder.build();"
-        errorLine2="                                           ~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="757"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                notifySessionUpdated(mSessionInfo);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="769"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                notifySessionReleased(mSessionId);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="797"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    oldSession.getSelectedRoutes();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="804"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    newSession.getSelectedRoutes();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="806"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            MediaRoute2ProviderServiceAdapter.this.notifySessionCreated(mRequestId, mSessionInfo);"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="828"
-            column="52"/>
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="630"
+            column="66"/>
     </issue>
 
     <issue
@@ -503,7 +239,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="662"
+            line="664"
             column="62"/>
     </issue>
 
@@ -514,7 +250,7 @@
         errorLine2="                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="663"
+            line="665"
             column="20"/>
     </issue>
 
@@ -525,7 +261,7 @@
         errorLine2="                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="664"
+            line="666"
             column="20"/>
     </issue>
 
@@ -536,7 +272,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="665"
+            line="667"
             column="20"/>
     </issue>
 
