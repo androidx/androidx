@@ -80,9 +80,9 @@ public class ProfileSession {
     }
 
     private State mState = State.NOT_YET_STARTED;
-    private String mAppDataDir;
+    private final String mAppDataDir;
     private String mSimpleperfPath;
-    private String mSimpleperfDataDir;
+    private final String mSimpleperfDataDir;
     private Process mSimpleperfProcess;
     private boolean mTraceOffCpu = false;
 
@@ -135,15 +135,11 @@ public class ProfileSession {
         if (mState != State.NOT_YET_STARTED) {
             throw new AssertionError("startRecording: session in wrong state " + mState);
         }
-        for (String arg : args) {
-            if (arg.equals("--trace-offcpu")) {
-                mTraceOffCpu = true;
-            }
-        }
+        mTraceOffCpu = args.contains("--trace-offcpu");
         mSimpleperfPath = findSimpleperf();
         checkIfPerfEnabled();
         createSimpleperfDataDir();
-        createSimpleperfProcess(mSimpleperfPath, args);
+        startSimpleperfRecording(args);
         mState = State.STARTED;
     }
 
@@ -188,14 +184,7 @@ public class ProfileSession {
         } else {
             mSimpleperfProcess.destroy();
         }
-        try {
-            int exitCode = mSimpleperfProcess.waitFor();
-            if (exitCode != 0) {
-                throw new AssertionError("simpleperf exited with error: " + exitCode);
-            }
-        } catch (InterruptedException e) {
-        }
-        mSimpleperfProcess = null;
+        waitForSimpleperfProcess();
         mState = State.STOPPED;
     }
 
@@ -225,7 +214,10 @@ public class ProfileSession {
         return result;
     }
 
-    private String findSimpleperf() {
+    /**
+     * @return absolute path to simpleperf executable, preferring unbundled version if present
+     */
+    public @NonNull String findSimpleperf() {
         // 1. Try /data/local/tmp/simpleperf. Probably it's newer than /system/bin/simpleperf.
         String simpleperfPath = findSimpleperfInTempDir();
         if (simpleperfPath != null) {
@@ -307,10 +299,56 @@ public class ProfileSession {
         }
     }
 
-    private void createSimpleperfProcess(String simpleperfPath, List<String> recordArgs) {
+    private void createSimpleperfProcess(List<String> args) {
+        ProcessBuilder pb = new ProcessBuilder(args).directory(new File(mSimpleperfDataDir));
+        try {
+            mSimpleperfProcess = pb.start();
+        } catch (IOException e) {
+            throw new Error("failed to create simpleperf process: " + e.getMessage());
+        }
+    }
+
+    private void waitForSimpleperfProcess() {
+        try {
+            int exitCode = mSimpleperfProcess.waitFor();
+            if (exitCode != 0) {
+                throw new AssertionError("simpleperf exited with error: " + exitCode);
+            }
+        } catch (InterruptedException e) {
+        }
+        mSimpleperfProcess = null;
+    }
+
+    /**
+     * Convert a .data simpleperf file to the .trace proto format.
+     *
+     * Paths may be relative to the simpleperf data dir.
+     *
+     * @param inputPath Path of the .data file within the simpleperf output directory
+     * @param outputPath Path to write the .trace proto format to.
+     */
+    public void convertSimpleperfOutputToProto(
+            @NonNull String inputPath,
+            @NonNull String outputPath
+    ) {
+        ArrayList<String> args = new ArrayList<>();
+        args.add(mSimpleperfPath);
+        args.add("report-sample");
+        args.add("--protobuf");
+        args.add("--show-callchain");
+        args.add("-i");
+        args.add(inputPath);
+        args.add("-o");
+        args.add(outputPath);
+
+        createSimpleperfProcess(args);
+        waitForSimpleperfProcess();
+    }
+
+    private void startSimpleperfRecording(List<String> recordArgs) {
         // 1. Prepare simpleperf arguments.
         ArrayList<String> args = new ArrayList<>();
-        args.add(simpleperfPath);
+        args.add(mSimpleperfPath);
         args.add("record");
         args.add("--log-to-android-buffer");
         args.add("--log");
@@ -322,12 +360,7 @@ public class ProfileSession {
         args.addAll(recordArgs);
 
         // 2. Create the simpleperf process.
-        ProcessBuilder pb = new ProcessBuilder(args).directory(new File(mSimpleperfDataDir));
-        try {
-            mSimpleperfProcess = pb.start();
-        } catch (IOException e) {
-            throw new Error("failed to create simpleperf process: " + e.getMessage());
-        }
+        createSimpleperfProcess(args);
 
         // 3. Wait until simpleperf starts recording.
         String startFlag = readReply();

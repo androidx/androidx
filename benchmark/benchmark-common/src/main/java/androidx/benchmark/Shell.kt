@@ -46,10 +46,15 @@ object Shell {
      */
     fun optionalCommand(command: String): String? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ShellImpl.executeShellCommand(command)
+            executeCommand(command)
         } else {
             null
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun executeCommand(command: String): String {
+        return ShellImpl.executeShellCommand(command)
     }
 
     /**

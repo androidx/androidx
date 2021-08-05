@@ -53,7 +53,6 @@ import java.util.List;
 @RequiresApi(28)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RecordOptions {
-
     /**
      * Set output filename. Default is perf-<month>-<day>-<hour>-<minute>-<second>.data.
      * The file will be generated under simpleperf_data/.
