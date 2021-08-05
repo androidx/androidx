@@ -4,6 +4,7 @@
 
 ## Introduction {#introduction}
 
+This guide is an addendum to
 s.android.com/api-guidelines,
 which covers standard and practices for designing platform APIs.
 
@@ -22,17 +23,24 @@ classes within a feature's artifact must reside within this package, and may
 further subdivide into `androidx.<feature-name>.<layer>` using standard Android
 layers (app, widget, etc.) or layers specific to the feature.
 
-Maven artifacts use the groupId format `androidx.<feature-name>` and artifactId
-format `<feature-name>` to match the Java package.
+Maven specifications use the groupId format `androidx.<feature-name>` and
+artifactId format `<feature-name>` to match the Java package. For example,
+`androidx.core.role` uses the Maven spec `androidx.core:role`.
 
-Sub-features that can be separated into their own artifact should use the
-following formats:
+Sub-features that can be separated into their own artifact are recommended to
+use the following formats:
 
-Java package: `androidx.<feature-name>.<sub-feature>.<layer>`
+-   Java package: `androidx.<feature-name>.<sub-feature>.<layer>`
+-   Maven groupId: `androidx.<feature-name>`
+-   Maven artifactId: `<feature-name>-<sub-feature>`
 
-Maven groupId: `androidx.<feature-name>`
+Gradle project names and directories follow the Maven spec format, substituting
+the project name separator `:` or directory separator `/` for the Maven
+separators `.` or `:`. For example, `androidx.core:core-role` would use project
+name `:core:core-role` and directory `/core/core-role`.
 
-Maven artifactId: `<feature-name>-<sub-feature>`
+New modules in androidx can be created using the
+[project creator script](/company/teams/androidx/policies.md#project-creator).
 
 #### Common sub-feature names {#module-naming-subfeature}
 
@@ -152,14 +160,14 @@ library in this situation to skip versions, e.g. move directly from
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 
 The recommended minimum SDK version for new Jetpack libraries is currently
-**17** (Android 4.2, Jelly Bean). This SDK was chosen to represent 99% of active
+**19** (Android 4.4, KitKat). This SDK was chosen to represent 99% of active
 devices based on Play Store check-ins (see Android Studio
 [distribution metadata](https://dl.google.com/android/studio/metadata/distributions.json)
 for current statistics). This maximizes potential users for external developers
 while minimizing the amount of overhead necessary to support legacy versions.
 
 However, if no explicit minimum SDK version is specified for a library, the
-default is 14.
+default is **14** (Android 4.0, Ice Cream Sandwich).
 
 Note that a library **must not** depend on another library with a higher
 `minSdkVersion` that its own, so it may be necessary for a new library to match
@@ -806,6 +814,9 @@ Deprecating an artifact provides developers with a migration path and strongly
 encourages them -- through Lint warnings -- to migrate elsewhere. This is
 accomplished by adding a `@Deprecated` and `@deprecated` (with migration
 comment) annotation pair to *every* class and interface in the artifact.
+
+Entire packages (including Kotlin) can be deprecated by using a
+`package-info.java` file and applying the `@Deprecated` annotation there.
 
 The fully-deprecated artifact will be released as a deprecation release -- it
 will ship normally with accompanying release notes indicating the reason for

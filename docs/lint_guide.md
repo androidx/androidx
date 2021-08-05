@@ -40,6 +40,7 @@ and a `build.gradle` file containing the needed dependencies.
 build.gradle
 
 ```
+import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.AndroidXExtension
 import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
@@ -53,12 +54,18 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.androidLintMin)
-    compileOnly(libs.kotlinStdlib)
+    // compileOnly because lint runtime is provided when checks are run
+    // Use latest lint for running from IDE to make sure checks always run
+    if (rootProject.hasProperty("android.injected.invoked.from.ide")) {
+        compileOnly LINT_API_LATEST
+    } else {
+        compileOnly LINT_API_MIN
+    }
+    compileOnly KOTLIN_STDLIB
 
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.androidLint)
-    testImplementation(libs.androidLintTests)
+    testImplementation KOTLIN_STDLIB
+    testImplementation LINT_CORE
+    testImplementation LINT_TESTS
 }
 
 androidx {
@@ -103,7 +110,7 @@ where versions 0-6 correspond to Lint/Studio versions 3.0-3.6.
 `CURRENT_API` is defined by the Lint API version against which your project is
 compiled, as defined in the module's `build.gradle` file. Jetpack Lint modules
 should compile using Lint API version 3.3 defined in
-[gradle/libs.versions.toml](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml).
+[Dependencies.kt](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt;l=176).
 
 We guarantee that our Lint checks work with versions 3.3-3.6 by running our
 tests with both versions 3.3 and 3.6. For newer versions of Android Studio (and
@@ -627,6 +634,8 @@ Contains most of the canonical names for android core library classes, as well
 as XML tag names.
 
 ## Helpful links
+
+[Writing Custom Lint Rules](https://googlesamples.github.io/android-custom-lint-rules/)
 
 [Studio Lint Rules](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks/)
 

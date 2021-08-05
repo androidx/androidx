@@ -24,6 +24,10 @@ The currently allowed test runners for on-device tests are
 and
 [`Parameterized`](https://junit.org/junit4/javadoc/4.12/org/junit/runners/Parameterized.html).
 
+NOTE All package/class/method combinations must be unique. Multiple copies of
+the same class/method can be included e.g. under different directories, but must
+be distinguishable by their packages.
+
 NOTE For best practices on writing libraries in a way that makes it easy for end
 users -- and library developers -- to write tests, see the
 [Testability](testability.md) guide.
@@ -48,7 +52,7 @@ device tests are run for all modules.
 
 ### Test annotations
 
-#### Test size
+#### Test size and runners
 
 All device tests *should* be given a size annotation, which is one of:
 
@@ -56,32 +60,17 @@ All device tests *should* be given a size annotation, which is one of:
 *   [`@MediumTest`](https://developer.android.com/reference/androidx/test/filters/MediumTest)
 *   [`@LargeTest`](https://developer.android.com/reference/androidx/test/filters/LargeTest)
 
-If a device test is _not_ annotated with its size, it will be considered a
+If a device test is _not_ annotated with its size, it will be run as if it were
 `@LargeTest` by default. Host tests do not need to be annotated with their size,
 as all host tests are run regardless of size.
 
 This annotation can occur at either the class level or individual test level.
-After API level 27, timeouts are enforced based on this annotation.
 
-Annotation    | Max duration | Timeout after
-------------- | ------------ | -------------
-`@SmallTest`  | 200ms        | 300ms
-`@MediumTest` | 1000ms       | 1500ms
-`@LargeTest`  | 100000ms     | 120000ms
-
-Small tests should be less than 200ms, and the timeout is set to 300ms. Medium
-tests should be less than 1000ms, and the timeout is set to 1500ms. Large tests
-have a timeout of 120000ms, which should cover any remaining tests.
-
-The exception to this rule is when using a runner other than
-[`AndroidJUnitRunner`](https://developer.android.com/training/testing/junit-runner).
-Since these runners do not enforce timeouts, tests that use them must not use a
-size annotation. They will run whenever large tests would run.
-
-Currently the only allowed alternative is the
-[`Parameterized`](https://junit.org/junit4/javadoc/4.12/org/junit/runners/Parameterized.html)
-runner. If you need to use a different runner for some reason, please reach out
-to the team and we can review/approve the use.
+Annotation    | Max duration
+------------- | ------------
+`@SmallTest`  | 200ms
+`@MediumTest` | 1000ms
+`@LargeTest`  | 100000ms
 
 #### Disabling tests
 
