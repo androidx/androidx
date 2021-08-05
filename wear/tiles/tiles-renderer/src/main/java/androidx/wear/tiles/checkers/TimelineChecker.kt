@@ -17,18 +17,27 @@
 package androidx.wear.tiles.checkers
 
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.wear.tiles.TimelineBuilders.Timeline
 import androidx.wear.tiles.TimelineBuilders.TimelineEntry
 import kotlin.jvm.Throws
 
-/** Exception thrown when a TimelineEntryChecker fails. */
+/**
+ * Exception thrown when a TimelineEntryChecker fails.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CheckerException(message: String) : Exception(message)
 
 /**
  * Checker for a Tile's TimelineEntries. Instances of this interface should check for a certain
  * condition on the given [TimelineEntry], and throw an instance of [CheckerException] if there
  * is a problem with that [TimelineEntry].
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface TimelineEntryChecker {
     /** The name of this TimelineEntryChecker. This will be printed in any error output. */
     val name: String
@@ -47,7 +56,10 @@ public interface TimelineEntryChecker {
  * given [Timeline], and if any fail, log an error to logcat.
  *
  * @param entryCheckers The list of checkers to use. Defaults to all built in checks.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TimelineChecker(
     private val entryCheckers: List<TimelineEntryChecker> = listOf(CheckAccessibilityAvailable()),
 ) {

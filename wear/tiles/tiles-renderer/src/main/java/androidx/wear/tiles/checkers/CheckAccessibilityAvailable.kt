@@ -16,6 +16,7 @@
 
 package androidx.wear.tiles.checkers
 
+import androidx.annotation.RestrictTo
 import androidx.wear.tiles.LayoutElementBuilders.Arc
 import androidx.wear.tiles.LayoutElementBuilders.ArcAdapter
 import androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement
@@ -40,8 +41,11 @@ import kotlin.jvm.Throws
  *
  * At least one element on each tile should have a machine-readable content description
  * associated with it, which can be read out using screen readers.
+ *
+ * @hide
  */
-public class CheckAccessibilityAvailable : TimelineEntryChecker {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+class CheckAccessibilityAvailable : TimelineEntryChecker {
     override val name: String
         get() = "CheckAccessibilityAvailable"
 
