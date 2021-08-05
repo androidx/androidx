@@ -64,7 +64,7 @@ import java.security.InvalidParameterException
 import kotlin.math.max
 
 // Human reaction time is limited to ~100ms.
-private const val MIN_PERCEPTABLE_DELAY_MILLIS = 100
+private const val MIN_PERCEPTIBLE_DELAY_MILLIS = 100
 
 // Zero is a special value meaning we will accept the system's choice for the
 // display frame rate, which is the default behavior if this function isn't called.
@@ -628,19 +628,16 @@ public class WatchFaceImpl @UiThread constructor(
     }
 
     internal fun invalidateIfNotAnimating() {
-        // Ensure we render a frame if the ComplicationSlot needs rendering, e.g.
-        // because it loaded an image. However if we're animating there's no need
-        // to trigger an extra invalidation.
+        // Ensure we render a frame if the ComplicationSlot needs rendering, e.g. because it loaded
+        // an image. However if we're animating there's no need to trigger an extra invalidation.
         if (!renderer.shouldAnimate() || computeDelayTillNextFrame(
                 nextDrawTimeMillis,
                 systemTimeProvider.getSystemTimeMillis()
-            ) > MIN_PERCEPTABLE_DELAY_MILLIS
+            ) > MIN_PERCEPTIBLE_DELAY_MILLIS
         ) {
             watchFaceHostApi.invalidate()
         }
     }
-
-    internal fun createWFEditorDelegate() = WFEditorDelegate() as WatchFace.EditorDelegate
 
     internal inner class WFEditorDelegate : WatchFace.EditorDelegate {
         override val userStyleSchema: UserStyleSchema
@@ -716,9 +713,8 @@ public class WatchFaceImpl @UiThread constructor(
             (batteryPercent < INITIAL_LOW_BATTERY_THRESHOLD) && !isCharging
     }
 
-    /**
-     * Called by the system in response to remote configuration, on the main thread.
-     */
+    /** Called by the system in response to remote configuration. */
+    @UiThread
     internal fun onSetStyleInternal(style: UserStyle) {
         // No need to echo the userStyle back.
         inOnSetStyle = true
@@ -778,9 +774,8 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    /**
-     * Sets the calendar's time in milliseconds adjusted by the mock time controls.
-     */
+    /** Sets the calendar's time in milliseconds adjusted by the mock time controls. */
+    @UiThread
     private fun setCalendarTime(timeMillis: Long) {
         // This adjustment allows time to be sped up or slowed down and to wrap between two
         // instants. This is useful when developing animations that occur infrequently (e.g.
@@ -860,7 +855,7 @@ public class WatchFaceImpl @UiThread constructor(
         // Drop frames if needed (happens when onDraw is slow).
         if (nextFrameTimeMillis <= currentTimeMillis) {
             // Compute the next runtime after currentTimeMillis with the same phase as
-            //  beginFrameTimeMillis to keep the animation smooth.
+            // beginFrameTimeMillis to keep the animation smooth.
             val phaseAdjust =
                 updateRateMillis +
                     ((nextFrameTimeMillis - currentTimeMillis) % updateRateMillis)

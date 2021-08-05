@@ -523,6 +523,8 @@ in DClass ComplicationSlot
 @param bounds,
 \@param defaultPolicy
 @param complicationTapFilter
+in DClass UserStyle
+@param copySelectedOptions
 in DClass Builder
 Did you make a typo\? Are you trying to refer to something not visible to users\?
 # Wire proto generation, task :generateDebugProtos

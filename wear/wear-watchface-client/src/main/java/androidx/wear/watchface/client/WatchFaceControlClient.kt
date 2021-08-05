@@ -38,7 +38,6 @@ import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
@@ -168,8 +167,9 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param id The ID for the requested [InteractiveWatchFaceClient].
      * @param deviceConfig The [DeviceConfig] for the wearable.
      * @param watchUiState The initial [WatchUiState] for the wearable.
-     * @param userStyle The initial style map encoded as [UserStyleData] (see [UserStyle]), or
-     * `null` if the default should be used.
+     * @param userStyle Optional [UserStyleData] to apply to the instance (whether or not it's
+     * created). If `null` then the pre-existing user style is preserved (if the instance is created
+     * this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
      * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
      * or `null` if unavailable.
      * @return The [InteractiveWatchFaceClient], this should be closed when finished.

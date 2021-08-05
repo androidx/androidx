@@ -82,10 +82,10 @@ private typealias WireComplicationProviderInfo =
  *
  * For EditorSessions backed by a headless instance (see [createHeadlessEditorSession] and
  * [EditorRequest.headlessDeviceConfig]), style changes are not applied to the interactive
- * instance and it's up to the system to apply them. For EditorSessions backed by an
- * interactive instance style changes are applied immediately. Its possible the system might fail to
- * persist the style changes (e.g. to data base write failure or a crash) and if this happens its
- * the responsibility of the system to revert the style change.
+ * instance and it's up to the system to apply them. For EditorSessions backed by an interactive
+ * instance style changes are applied immediately. Its possible the system might fail to persist
+ * the style changes (e.g. to data base write failure or a crash) and if this happens it's the
+ * responsibility of the system to revert the style change.
  */
 public interface EditorSession : AutoCloseable {
     /** The [ComponentName] of the watch face being edited. */
@@ -99,8 +99,10 @@ public interface EditorSession : AutoCloseable {
     @get:RequiresApi(Build.VERSION_CODES.R)
     public val watchFaceId: WatchFaceId
 
-    /** The current [UserStyle]. Assigning to this will cause the style to update. However, styling
-     * changes to the watch face will be reverted upon exit. */
+    /**
+     * The current [UserStyle]. Assigning to this will cause the style to update. However, styling
+     * changes to the watch face will be reverted upon exit.
+     */
     public var userStyle: UserStyle
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
