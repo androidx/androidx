@@ -397,10 +397,22 @@ class TypeAdapterStore private constructor(
         }.provide(typeMirror, params)
     }
 
-    fun findQueryResultBinder(typeMirror: XType, query: ParsedQuery): QueryResultBinder {
+    fun findQueryResultBinder(
+        typeMirror: XType,
+        query: ParsedQuery,
+        extrasCreator: TypeAdapterExtras.() -> Unit = { }
+    ): QueryResultBinder {
+        return findQueryResultBinder(typeMirror, query, TypeAdapterExtras().apply(extrasCreator))
+    }
+
+    fun findQueryResultBinder(
+        typeMirror: XType,
+        query: ParsedQuery,
+        extras: TypeAdapterExtras
+    ): QueryResultBinder {
         return queryResultBinderProviders.first {
             it.matches(typeMirror)
-        }.provide(typeMirror, query)
+        }.provide(typeMirror, query, extras)
     }
 
     fun findPreparedQueryResultBinder(
@@ -426,7 +438,19 @@ class TypeAdapterStore private constructor(
         return InsertMethodAdapter.create(typeMirror, params)
     }
 
-    fun findQueryResultAdapter(typeMirror: XType, query: ParsedQuery): QueryResultAdapter? {
+    fun findQueryResultAdapter(
+        typeMirror: XType,
+        query: ParsedQuery,
+        extrasCreator: TypeAdapterExtras.() -> Unit = { }
+    ): QueryResultAdapter? {
+        return findQueryResultAdapter(typeMirror, query, TypeAdapterExtras().apply(extrasCreator))
+    }
+
+    fun findQueryResultAdapter(
+        typeMirror: XType,
+        query: ParsedQuery,
+        extras: TypeAdapterExtras
+    ): QueryResultAdapter? {
         if (typeMirror.isError()) {
             return null
         }
@@ -485,7 +509,7 @@ class TypeAdapterStore private constructor(
                 keyTypeArg,
                 valueTypeArg
             )
-            val resultAdapter = findQueryResultAdapter(mapType, query = query) ?: return null
+            val resultAdapter = findQueryResultAdapter(mapType, query, extras) ?: return null
             return ImmutableMapQueryResultAdapter(
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,

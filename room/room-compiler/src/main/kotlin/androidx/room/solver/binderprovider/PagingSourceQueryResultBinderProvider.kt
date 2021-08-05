@@ -24,6 +24,7 @@ import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
+import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.PagingSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
@@ -46,7 +47,11 @@ private class PagingSourceQueryResultBinderProviderImpl(
         context.processingEnv.findType(PagingTypeNames.PAGING_SOURCE)?.rawType
     }
 
-    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(
+        declared: XType,
+        query: ParsedQuery,
+        extras: TypeAdapterExtras
+    ): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
