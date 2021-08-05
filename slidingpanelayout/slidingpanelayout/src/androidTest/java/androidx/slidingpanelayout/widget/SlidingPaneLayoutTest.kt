@@ -16,6 +16,7 @@
 
 package androidx.slidingpanelayout.widget
 
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -32,6 +33,8 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertThat
 import org.hamcrest.core.IsNot.not
 import org.junit.After
 import org.junit.Test
@@ -185,6 +188,21 @@ class SlidingPaneLayoutTest {
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
             Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_layout))
                 .check(ViewAssertions.matches(not(isTwoPane())))
+        }
+    }
+
+    @Test
+    fun testRemoveDetailView() {
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            withActivity {
+                val slidingPaneLayout = findViewById<SlidingPaneLayout>(R.id.sliding_pane_layout)
+                assertThat(slidingPaneLayout.childCount).isEqualTo(2)
+                val detailView = findViewById<View>(R.id.detail_pane)
+                runOnUiThread {
+                    slidingPaneLayout.removeView(detailView)
+                }
+                assertThat(slidingPaneLayout.childCount).isEqualTo(1)
+            }
         }
     }
 }
