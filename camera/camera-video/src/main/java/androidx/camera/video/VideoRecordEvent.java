@@ -16,6 +16,9 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
+import static androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -64,11 +67,11 @@ import java.util.concurrent.Executor;
  *
  * <p>When a video recording is requested, {@link Start} event will be reported at first and
  * {@link Finalize} event will be reported when the recording is finished. The stop reason can be
- * obtained via {@link Finalize#getError()}. {@link #ERROR_NONE} means that the video was recorded
- * successfully, and other error code indicate the recording is failed or stopped due to a certain
- * reason. Please note that a failed result does not mean that the video file has not been
- * generated. In some cases, the file can still be successfully generated. For example,
- * the result {@link #ERROR_INSUFFICIENT_DISK} will still have video file.
+ * obtained via {@link Finalize#getError()}. {@link Finalize#ERROR_NONE} means that the video was
+ * recorded successfully, and other error code indicate the recording is failed or stopped due to
+ * a certain reason. Please note that a failed result does not mean that the video file has not been
+ * generated. In some cases, the file can still be successfully generated. For example, the
+ * result {@link Finalize#ERROR_INSUFFICIENT_DISK} will still have video file.
  *
  * <p>The {@link Status} event will be triggered continuously during the recording process,
  * {@link #getRecordingStats} can be used to get the recording state such as total recorded bytes
@@ -117,95 +120,6 @@ public abstract class VideoRecordEvent {
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY)
     public @interface EventType {
-    }
-
-    /**
-     * The recording succeeded with no error.
-     */
-    public static final int ERROR_NONE = 0;
-
-    /**
-     * An unknown error occurred.
-     */
-    public static final int ERROR_UNKNOWN = 1;
-
-    /**
-     * The recording failed due to file size limitation.
-     *
-     * <p>The file size limitation will refer to {@link OutputOptions#getFileSizeLimit()}.
-     */
-    // TODO(b/167481981): add more descriptions about the restrictions after getting into more
-    //  details.
-    public static final int ERROR_FILE_SIZE_LIMIT_REACHED = 2;
-
-    /**
-     * The recording failed due to insufficient disk space.
-     */
-    // TODO(b/167484136): add more descriptions about the restrictions after getting into more
-    //  details.
-    public static final int ERROR_INSUFFICIENT_DISK = 3;
-
-    /**
-     * The recording failed because the source becomes inactive and stops sending frames.
-     *
-     * <p>One case is that if camera is closed due to lifecycle stopped, the active recording
-     * will be finalized with this error, and the output will be generated, containing the frames
-     * produced before camera closing. Attempting to start a new recording will be finalized
-     * immediately if the source remains inactive.
-     */
-    public static final int ERROR_SOURCE_INACTIVE = 4;
-
-    /**
-     * The recording failed due to invalid output options.
-     *
-     * <p>This error is generated when invalid output options have been used while preparing a
-     * recording, such as with the {@link Recorder#prepareRecording(MediaStoreOutputOptions)}
-     * method. The error will depend on the {@linkplain OutputOptions#getType() type} of options
-     * used, and more information about the error can be retrieved from {@link Finalize#getCause()}.
-     */
-    public static final int ERROR_INVALID_OUTPUT_OPTIONS = 5;
-
-    /**
-     * The recording failed while encoding.
-     *
-     * <p>This error may be generated when the video or audio codec encounters an error during
-     * encoding. See {@link Finalize#getCause()} for more information about the error encountered
-     * by the codec.
-     */
-    public static final int ERROR_ENCODING_FAILED = 6;
-
-    /**
-     * The recording failed because the {@link Recorder} is in an unrecoverable error state.
-     *
-     * <p>More information about the error can be retrieved from {@link Finalize#getCause()}.
-     * Such an error will usually require creating a new {@link Recorder} object to start a
-     * new recording.
-     */
-    public static final int ERROR_RECORDER_ERROR = 7;
-
-    /**
-     * The recording failed because no valid data was produced to be recorded.
-     *
-     * <p>This error is generated when the essential data for a recording to be played correctly
-     * is missing, for example, a recording must contain at least one key frame. See
-     * {@link Finalize#getCause()} for more information.
-     */
-    public static final int ERROR_NO_VALID_DATA = 8;
-
-    /**
-     * Describes the error that occurred during a video recording.
-     *
-     * <p>This is the error code returning from {@link Finalize#getError()}.
-     *
-     * @hide
-     */
-    // TODO(b/193575052): Uncomment ERROR_CAMERA_CLOSED if/when it is used.
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef(value = {ERROR_NONE, ERROR_UNKNOWN, ERROR_FILE_SIZE_LIMIT_REACHED,
-            ERROR_INSUFFICIENT_DISK, ERROR_INVALID_OUTPUT_OPTIONS, ERROR_ENCODING_FAILED,
-            ERROR_RECORDER_ERROR, ERROR_NO_VALID_DATA, ERROR_SOURCE_INACTIVE})
-    public @interface VideoRecordError {
     }
 
     private final OutputOptions mOutputOptions;
@@ -305,6 +219,95 @@ public abstract class VideoRecordEvent {
      * safely after receiving the finalize event.
      */
     public static final class Finalize extends VideoRecordEvent {
+        /**
+         * The recording succeeded with no error.
+         */
+        public static final int ERROR_NONE = 0;
+
+        /**
+         * An unknown error occurred.
+         */
+        public static final int ERROR_UNKNOWN = 1;
+
+        /**
+         * The recording failed due to file size limitation.
+         *
+         * <p>The file size limitation will refer to {@link OutputOptions#getFileSizeLimit()}.
+         */
+        // TODO(b/167481981): add more descriptions about the restrictions after getting into more
+        //  details.
+        public static final int ERROR_FILE_SIZE_LIMIT_REACHED = 2;
+
+        /**
+         * The recording failed due to insufficient storage space.
+         */
+        // TODO(b/167484136): add more descriptions about the restrictions after getting into more
+        //  details.
+        public static final int ERROR_INSUFFICIENT_DISK = 3;
+
+        /**
+         * The recording failed because the source becomes inactive and stops sending frames.
+         *
+         * <p>One case is that if camera is closed due to lifecycle stopped, the active recording
+         * will be finalized with this error, and the output will be generated, containing the
+         * frames produced before camera closing. Attempting to start a new recording will be
+         * finalized immediately if the source remains inactive.
+         */
+        public static final int ERROR_SOURCE_INACTIVE = 4;
+
+        /**
+         * The recording failed due to invalid output options.
+         *
+         * <p>This error is generated when invalid output options have been used while preparing a
+         * recording, such as with the {@link Recorder#prepareRecording(MediaStoreOutputOptions)}
+         * method. The error will depend on the {@linkplain OutputOptions#getType() type} of options
+         * used, and more information about the error can be retrieved from
+         * {@link Finalize#getCause()}.
+         */
+        public static final int ERROR_INVALID_OUTPUT_OPTIONS = 5;
+
+        /**
+         * The recording failed while encoding.
+         *
+         * <p>This error may be generated when the video or audio codec encounters an error during
+         * encoding. See {@link Finalize#getCause()} for more information about the error
+         * encountered by the codec.
+         */
+        public static final int ERROR_ENCODING_FAILED = 6;
+
+        /**
+         * The recording failed because the {@link Recorder} is in an unrecoverable error state.
+         *
+         * <p>More information about the error can be retrieved from {@link Finalize#getCause()}.
+         * Such an error will usually require creating a new {@link Recorder} object to start a
+         * new recording.
+         */
+        public static final int ERROR_RECORDER_ERROR = 7;
+
+        /**
+         * The recording failed because no valid data was produced to be recorded.
+         *
+         * <p>This error is generated when the essential data for a recording to be played correctly
+         * is missing, for example, a recording must contain at least one key frame. See
+         * {@link Finalize#getCause()} for more information.
+         */
+        public static final int ERROR_NO_VALID_DATA = 8;
+
+        /**
+         * Describes the error that occurred during a video recording.
+         *
+         * <p>This is the error code returning from {@link Finalize#getError()}.
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Retention(RetentionPolicy.SOURCE)
+        @IntDef(value = {ERROR_NONE, ERROR_UNKNOWN, ERROR_FILE_SIZE_LIMIT_REACHED,
+                ERROR_INSUFFICIENT_DISK, ERROR_INVALID_OUTPUT_OPTIONS, ERROR_ENCODING_FAILED,
+                ERROR_RECORDER_ERROR, ERROR_NO_VALID_DATA, ERROR_SOURCE_INACTIVE})
+        public @interface VideoRecordError {
+        }
+
         private final OutputResults mOutputResults;
         @VideoRecordError
         private final int mError;
@@ -353,9 +356,9 @@ public abstract class VideoRecordEvent {
          * <p>Possible values are {@link #ERROR_NONE}, {@link #ERROR_UNKNOWN},
          * {@link #ERROR_FILE_SIZE_LIMIT_REACHED}, {@link #ERROR_INSUFFICIENT_DISK},
          * {@link #ERROR_INVALID_OUTPUT_OPTIONS}, {@link #ERROR_ENCODING_FAILED},
-         * {@link #ERROR_RECORDER_ERROR} and {@link #ERROR_NO_VALID_DATA}.
+         * {@link #ERROR_RECORDER_ERROR}, {@link #ERROR_NO_VALID_DATA} and
+         * {@link #ERROR_SOURCE_INACTIVE}.
          */
-        // TODO(b/193575052): Add ERROR_CAMERA_CLOSED to the above list if/when it is used.
         @VideoRecordError
         public int getError() {
             return mError;

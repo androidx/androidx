@@ -19,6 +19,10 @@ package androidx.camera.integration.core;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_DISK;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -410,12 +414,13 @@ public class CameraXActivity extends AppCompatActivity {
                 VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
 
                 switch (finalize.getError()) {
-                    case VideoRecordEvent.ERROR_NONE:
-                    case VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED:
-                    case VideoRecordEvent.ERROR_INSUFFICIENT_DISK:
+                    case ERROR_NONE:
+                    case ERROR_FILE_SIZE_LIMIT_REACHED:
+                    case ERROR_INSUFFICIENT_DISK:
+                    case ERROR_SOURCE_INACTIVE:
                         Uri uri = finalize.getOutputResults().getOutputUri();
                         String msg = "Saved uri " + uri;
-                        if (finalize.getError() != VideoRecordEvent.ERROR_NONE) {
+                        if (finalize.getError() != ERROR_NONE) {
                             msg += " with error (" + finalize.getError() + ")";
                         }
                         // The video file path is used in tracing e2e test log. Don't remove it.
