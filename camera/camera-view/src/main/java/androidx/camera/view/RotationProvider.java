@@ -22,14 +22,19 @@ import android.hardware.SensorManager;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 
+import androidx.annotation.CheckResult;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.ImageOutputConfig;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Provider for receiving rotation updates from the {@link SensorManager} when the rotation of
@@ -65,14 +70,8 @@ public final class RotationProvider {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     @GuardedBy("mLock")
-    @Nullable
-    Executor mExecutor;
-
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    @GuardedBy("mLock")
-    @Nullable
-    Listener mListener;
+    @NonNull
+    final Map<Listener, ListenerWrapper> mListeners = new HashMap<>();
 
     // Set this value to true to test adding listener in unit tests.
     @VisibleForTesting
@@ -98,29 +97,19 @@ public final class RotationProvider {
                 int newRotation = orientationToSurfaceRotation(orientation);
                 if (mRotation != newRotation) {
                     mRotation = newRotation;
-                    Executor executor;
-                    Listener listener;
+                    List<ListenerWrapper> listeners;
+                    // Take a snapshot for thread safety.
                     synchronized (mLock) {
-                        executor = mExecutor;
-                        listener = mListener;
+                        listeners = new ArrayList<>(mListeners.values());
                     }
-                    if (executor != null && listener != null) {
-                        executor.execute(() -> listener.onRotationChanged(newRotation));
+                    if (!listeners.isEmpty()) {
+                        for (ListenerWrapper listenerWrapper : listeners) {
+                            listenerWrapper.onRotationChanged(newRotation);
+                        }
                     }
                 }
             }
         };
-    }
-
-    /**
-     * Sets a {@link Listener} that listens for rotation changes.
-     *
-     * <p> The {@link Listener#onRotationChanged(int)} method will be invoked on the main thread.
-     *
-     * @return false if the device cannot detection rotation changes.
-     */
-    public boolean setListener(@NonNull Listener listener) {
-        return setListener(CameraXExecutors.mainThreadExecutor(), listener);
     }
 
     /**
@@ -131,26 +120,43 @@ public final class RotationProvider {
      * @return false if the device cannot detection rotation changes. In that case, the listener
      * will not be set.
      */
-    public boolean setListener(@NonNull Executor executor, @NonNull Listener listener) {
+    @CheckResult
+    public boolean addListener(@NonNull Executor executor, @NonNull Listener listener) {
         synchronized (mLock) {
             if (!mOrientationListener.canDetectOrientation() && !mIgnoreCanDetectForTest) {
                 return false;
             }
-            mExecutor = executor;
-            mListener = listener;
+            mListeners.put(listener, new ListenerWrapper(listener, executor));
             mOrientationListener.enable();
         }
         return true;
     }
 
     /**
-     * Clears the previously set {@link Listener}.
+     * Removes the given {@link Listener} from this object.
+     *
+     * <p> The removed listener will no longer receive rotation updates.
      */
-    public void clearListener() {
+    public void removeListener(@NonNull Listener listener) {
+        synchronized (mLock) {
+            ListenerWrapper listenerWrapper = mListeners.get(listener);
+            if (listenerWrapper != null) {
+                listenerWrapper.disable();
+                mListeners.remove(listener);
+            }
+            if (mListeners.isEmpty()) {
+                mOrientationListener.disable();
+            }
+        }
+    }
+
+    /**
+     * Removes all {@link Listener} from this object.
+     */
+    public void removeAllListeners() {
         synchronized (mLock) {
             mOrientationListener.disable();
-            mExecutor = null;
-            mListener = null;
+            mListeners.clear();
         }
     }
 
@@ -158,7 +164,7 @@ public final class RotationProvider {
      * Converts orientation degrees to {@link Surface} rotation.
      */
     @VisibleForTesting
-    static int orientationToSurfaceRotation(int orientation) {
+    static int orientationToSurfaceRotation(@ImageOutputConfig.RotationValue int orientation) {
         if (orientation >= 315 || orientation < 45) {
             return Surface.ROTATION_0;
         } else if (orientation >= 225) {
@@ -167,6 +173,37 @@ public final class RotationProvider {
             return Surface.ROTATION_180;
         } else {
             return Surface.ROTATION_270;
+        }
+    }
+
+    /**
+     * Wrapper of {@link Listener} with the executor and a tombstone flag.
+     */
+    private static class ListenerWrapper {
+        private final Listener mListener;
+        private final Executor mExecutor;
+        private final AtomicBoolean mEnabled;
+
+        ListenerWrapper(Listener listener, Executor executor) {
+            mListener = listener;
+            mExecutor = executor;
+            mEnabled = new AtomicBoolean(true);
+        }
+
+        void onRotationChanged(@ImageOutputConfig.RotationValue int rotation) {
+            mExecutor.execute(() -> {
+                if (mEnabled.get()) {
+                    mListener.onRotationChanged(rotation);
+                }
+            });
+        }
+
+        /**
+         * Once disabled, the app will not receive callback even if it has already been posted on
+         * the callback thread.
+         */
+        void disable() {
+            mEnabled.set(false);
         }
     }
 
@@ -189,6 +226,6 @@ public final class RotationProvider {
          * <tr><td>[225°, 315°)</td><td>{@link Surface#ROTATION_90}</td></tr>
          * </table>
          */
-        void onRotationChanged(int rotation);
+        void onRotationChanged(@ImageOutputConfig.RotationValue int rotation);
     }
 }
