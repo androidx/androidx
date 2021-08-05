@@ -524,12 +524,19 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
             @Override
             public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
-                return new ControllerDialogFragment(mUseDefaultControlCheckBox);
+                return new ControllerDialogFragment(
+                        SampleMediaRouterActivity.this, mUseDefaultControlCheckBox);
             }
         });
 
         // Return true to show the menu.
         return true;
+    }
+
+    void updateStatusFromSessionManager() {
+        if (mPlayer != null && mSessionManager != null) {
+            mSessionManager.updateStatus();
+        }
     }
 
     private void updateProgress() {
@@ -774,6 +781,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     }
 
     public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
+        private SampleMediaRouterActivity mSampleMediaRouterActivity;
         private MediaRouteControllerDialog mControllerDialog;
         private CheckBox mUseDefaultControlCheckBox;
 
@@ -781,13 +789,16 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             super();
         }
 
-        public ControllerDialogFragment(CheckBox customControlViewCheckBox) {
-            this.mUseDefaultControlCheckBox = customControlViewCheckBox;
+        public ControllerDialogFragment(SampleMediaRouterActivity activity,
+                CheckBox customControlViewCheckBox) {
+            mSampleMediaRouterActivity = activity;
+            mUseDefaultControlCheckBox = customControlViewCheckBox;
         }
 
         @Override
         public MediaRouteControllerDialog onCreateControllerDialog(
                 Context context, Bundle savedInstanceState) {
+            mSampleMediaRouterActivity.updateStatusFromSessionManager();
             mControllerDialog = this.mUseDefaultControlCheckBox.isChecked()
                     ? super.onCreateControllerDialog(context, savedInstanceState)
                     : new MyMediaRouteControllerDialog(context);
