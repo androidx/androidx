@@ -58,7 +58,10 @@ public class LazyPagingItems<T : Any> internal constructor(
     private val mainDispatcher = Dispatchers.Main
 
     /**
-     * Contains the currently presented items, including any placeholders if they are enabled.
+     * Contains the immutable [ItemSnapshotList] of currently presented items, including any
+     * placeholders if they are enabled.
+     * Note that similarly to [peek] accessing the items in a list will not trigger any loads.
+     * Use [get] to achieve such behavior.
      */
     var itemSnapshotList by mutableStateOf(
         ItemSnapshotList<T>(0, 0, emptyList())
