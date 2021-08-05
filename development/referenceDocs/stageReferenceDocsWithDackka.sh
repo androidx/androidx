@@ -181,9 +181,9 @@ printf "=================================================================== \n"
 cd third_party/devsite/android/en/reference
 
 cd kotlin/androidx
-ls | grep -v "package\|class\|book\|toc\|constraint\|test\|index" | xargs -I {} rm -rf {}
+ls | grep -v "package\|class\|book\|toc\|constraint\|test\|index\|redirects" | xargs -I {} rm -rf {}
 cd ../../androidx
-ls | grep -v "package\|class\|book\|toc\|constraint\|test\|index" | xargs -I {} rm -rf {}
+ls | grep -v "package\|class\|book\|toc\|constraint\|test\|index\|redirects" | xargs -I {} rm -rf {}
 cd ..
 
 cp -r $outDir/$newDir/reference/* .
