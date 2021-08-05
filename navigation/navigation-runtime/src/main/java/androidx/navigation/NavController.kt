@@ -958,6 +958,31 @@ public open class NavController(
 
     @MainThread
     private fun onGraphCreated(startDestinationArgs: Bundle?) {
+        backStackToRestore?.let { backStackToRestore ->
+            for (parcelable in backStackToRestore) {
+                val state = parcelable as NavBackStackEntryState
+                val node = findDestination(state.destinationId)
+                if (node == null) {
+                    val dest = NavDestination.getDisplayName(
+                        context,
+                        state.destinationId
+                    )
+                    throw IllegalStateException(
+                        "Restoring the Navigation back stack failed: destination $dest cannot be " +
+                            "found from the current destination $currentDestination"
+                    )
+                }
+                val entry = state.instantiate(context, node, lifecycleOwner, viewModel)
+                val navigator = _navigatorProvider.getNavigator<Navigator<*>>(node.navigatorName)
+                val navigatorBackStack = navigatorState.getOrPut(navigator) {
+                    NavControllerNavigatorState(navigator)
+                }
+                backQueue.add(entry)
+                navigatorBackStack.addInternal(entry)
+            }
+            updateOnBackPressedCallbackEnabled()
+            this.backStackToRestore = null
+        }
         navigatorStateToRestore?.let { navigatorStateToRestore ->
             val navigatorNames = navigatorStateToRestore.getStringArrayList(
                 KEY_NAVIGATOR_STATE_NAMES
@@ -982,31 +1007,6 @@ public open class NavController(
                 NavControllerNavigatorState(navigator)
             }
             navigator.onAttach(navigatorBackStack)
-        }
-        backStackToRestore?.let { backStackToRestore ->
-            for (parcelable in backStackToRestore) {
-                val state = parcelable as NavBackStackEntryState
-                val node = findDestination(state.destinationId)
-                if (node == null) {
-                    val dest = NavDestination.getDisplayName(
-                        context,
-                        state.destinationId
-                    )
-                    throw IllegalStateException(
-                        "Restoring the Navigation back stack failed: destination $dest cannot be " +
-                            "found from the current destination $currentDestination"
-                    )
-                }
-                val entry = state.instantiate(context, node, lifecycleOwner, viewModel)
-                val navigator = _navigatorProvider.getNavigator<Navigator<*>>(node.navigatorName)
-                val navigatorBackStack = checkNotNull(navigatorState[navigator]) {
-                    "NavigatorBackStack for ${node.navigatorName} should already be created"
-                }
-                backQueue.add(entry)
-                navigatorBackStack.addInternal(entry)
-            }
-            updateOnBackPressedCallbackEnabled()
-            this.backStackToRestore = null
         }
         if (_graph != null && backQueue.isEmpty()) {
             val deepLinked =
