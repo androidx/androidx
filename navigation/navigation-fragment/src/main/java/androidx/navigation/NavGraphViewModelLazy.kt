@@ -30,7 +30,7 @@ import androidx.navigation.fragment.findNavController
  * {@link NavController} back stack:
  * ```
  * class MyFragment : Fragment() {
- *     val viewmodel: MainViewModel by navGraphViewModels(R.navigation.main)
+ *     val viewmodel: MainViewModel by navGraphViewModels(R.id.main)
  * }
  * ```
  *
@@ -45,7 +45,7 @@ import androidx.navigation.fragment.findNavController
  * This property can be accessed only after this NavGraph is on the NavController back stack,
  * and an attempt access prior to that will result in an IllegalArgumentException.
  *
- * @param navGraphId ID of a NavGraph that exists on the {@link NavController} back stack
+ * @param navGraphId ID of a NavGraph that exists on the [NavController] back stack
  */
 @MainThread
 public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
