@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
@@ -49,9 +50,13 @@ import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.animation.PathInterpolatorCompat;
 import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
+import androidx.transition.ChangeBounds;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 import androidx.window.layout.FoldingFeature;
 import androidx.window.layout.WindowInfoRepository;
 
@@ -239,7 +244,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     /**
      * Get the lock mode used to control over the swipe behavior.
      *
-     * @return
      * @see #setLockMode(int)
      */
     @LockMode
@@ -295,9 +299,13 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     private FoldingFeatureObserver.OnFoldingFeatureChangeListener mOnFoldingFeatureChangeListener =
             new FoldingFeatureObserver.OnFoldingFeatureChangeListener() {
                 @Override
-                public void onFoldingFeatureChange(
-                        @NonNull FoldingFeature foldingFeature) {
+                public void onFoldingFeatureChange(@NonNull FoldingFeature foldingFeature) {
                     mFoldingFeature = foldingFeature;
+                    // Start transition animation when folding feature changed
+                    Transition changeBounds = new ChangeBounds();
+                    changeBounds.setDuration(300L);
+                    changeBounds.setInterpolator(PathInterpolatorCompat.create(0.2f, 0, 0, 1));
+                    TransitionManager.beginDelayedTransition(SlidingPaneLayout.this, changeBounds);
                     requestLayout();
                 }
             };
@@ -380,7 +388,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     /**
      * @return The ARGB-packed color value used to fade the sliding pane
-     *
      * @deprecated This field is no longer populated by SlidingPaneLayout.
      */
     @Deprecated
@@ -403,7 +410,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     /**
      * @return The ARGB-packed color value used to fade the fixed pane
-     *
      * @deprecated This field is no longer populated by SlidingPaneLayout
      */
     @Deprecated
@@ -418,10 +424,10 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * {@link #removePanelSlideListener(PanelSlideListener)} to remove a registered listener.
      *
      * @param listener Listener to notify when drawer events occur
-     * @deprecated Use {@link #addPanelSlideListener(PanelSlideListener)}
      * @see PanelSlideListener
      * @see #addPanelSlideListener(PanelSlideListener)
      * @see #removePanelSlideListener(PanelSlideListener)
+     * @deprecated Use {@link #addPanelSlideListener(PanelSlideListener)}
      */
     @Deprecated
     public void setPanelSlideListener(@Nullable PanelSlideListener listener) {
@@ -554,6 +560,26 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             return bg.getOpacity() == PixelFormat.OPAQUE;
         }
         return false;
+    }
+
+    @Override
+    public void addView(@NonNull View child, int index, @Nullable ViewGroup.LayoutParams params) {
+        if (getChildCount() == 1) {
+            // Wrap detail view inside a touch blocker container
+            View detailView = new TouchBlocker(child);
+            super.addView(detailView, index, params);
+            return;
+        }
+        super.addView(child, index, params);
+    }
+
+    @Override
+    public void removeView(@NonNull View view) {
+        if (view.getParent() instanceof TouchBlocker) {
+            super.removeView((View) view.getParent());
+            return;
+        }
+        super.removeView(view);
     }
 
     @Override
@@ -739,8 +765,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
                         MeasureSpec.AT_MOST);
                 child.measure(childWidthSpec, childHeightSpec);
                 if ((child.getMeasuredWidthAndState() & MEASURED_STATE_TOO_SMALL) == 1 || (
-                        ViewCompat.getMinimumWidth(child) != 0
-                                && splitView.width() < ViewCompat.getMinimumWidth(child))) {
+                        getMinimumWidth(child) != 0
+                                && splitView.width() < getMinimumWidth(child))) {
                     childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
                             MeasureSpec.EXACTLY);
                     child.measure(childWidthSpec, childHeightSpec);
@@ -768,6 +794,13 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             // Cancel scrolling in progress, it's no longer relevant.
             mDragHelper.abort();
         }
+    }
+
+    private static int getMinimumWidth(View child) {
+        if (child instanceof TouchBlocker) {
+            return ViewCompat.getMinimumWidth(((TouchBlocker) child).getChildAt(0));
+        }
+        return ViewCompat.getMinimumWidth(child);
     }
 
     private static int measureChildHeight(@NonNull View child,
@@ -1663,7 +1696,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     static class SavedState extends AbsSavedState {
         boolean isOpen;
-        @LockMode int mLockMode;
+        @LockMode
+        int mLockMode;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -1780,6 +1814,23 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             dest.addAction(src.getActions());
 
             dest.setMovementGranularities(src.getMovementGranularities());
+        }
+    }
+
+    private static class TouchBlocker extends FrameLayout {
+        TouchBlocker(View view) {
+            super(view.getContext());
+            addView(view);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            return true;
+        }
+
+        @Override
+        public boolean onGenericMotionEvent(MotionEvent event) {
+            return true;
         }
     }
 
