@@ -2728,12 +2728,20 @@ public final class MediaRouter {
                 return true;
             }
 
+            boolean useOutputSwitcher = mRouterParams != null
+                    && mRouterParams.isOutputSwitcherEnabled()
+                    && isMediaTransferEnabled();
             // Check whether any existing routes match the selector.
             final int routeCount = mRoutes.size();
             for (int i = 0; i < routeCount; i++) {
                 RouteInfo route = mRoutes.get(i);
                 if ((flags & AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE) != 0
                         && route.isDefaultOrBluetooth()) {
+                    continue;
+                }
+                // When using the output switcher, we only care about MR2 routes and system routes.
+                if (useOutputSwitcher && !route.isDefaultOrBluetooth()
+                        && route.getProviderInstance() != mMr2Provider) {
                     continue;
                 }
                 if (route.matchesSelector(selector)) {
