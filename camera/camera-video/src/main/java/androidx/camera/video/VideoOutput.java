@@ -39,6 +39,22 @@ import java.util.concurrent.Executor;
  */
 public interface VideoOutput {
     /**
+     * A state which represents whether the video frame producer is producing frames to the
+     * provided {@link Surface}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    enum SourceState {
+        /** The video frame producer is active and is producing frames.
+         */
+        ACTIVE,
+        /** The video frame producer is inactive and is not producing frames.
+         */
+        INACTIVE
+    }
+
+    /**
      * A state which represents whether the video output is ready for frame streaming.
      *
      * <p>This is used in the observable returned by {@link #getStreamState()} to inform producers
@@ -128,5 +144,15 @@ public interface VideoOutput {
     @NonNull
     default Observable<MediaSpec> getMediaSpec() {
         return ConstantObservable.withValue(null);
+    }
+
+    /**
+     * Called when the state of the video frame producer is changed.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    default void onSourceStateChanged(@NonNull SourceState sourceState) {
+
     }
 }
