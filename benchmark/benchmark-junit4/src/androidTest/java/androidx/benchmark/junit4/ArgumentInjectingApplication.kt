@@ -19,6 +19,7 @@ package androidx.benchmark.junit4
 import android.app.Application
 import android.os.Bundle
 import androidx.benchmark.argumentSource
+import androidx.test.platform.app.InstrumentationRegistry
 
 /**
  * Hack to enable overriding benchmark arguments (since we can't easily do this in CI, per apk)
@@ -39,7 +40,8 @@ class ArgumentInjectingApplication : Application() {
         super.onCreate()
 
         argumentSource = Bundle().apply {
-            putString("androidx.benchmark.output.enable", "true")
+            // allow cli args to pass through
+            putAll(InstrumentationRegistry.getArguments())
 
             // Since these benchmark correctness tests run as part of the regular
             // (non-performance-test) suite, they will have debuggable=true, won't be clock-locked,
