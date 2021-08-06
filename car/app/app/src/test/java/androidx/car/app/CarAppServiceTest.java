@@ -81,6 +81,7 @@ public final class CarAppServiceTest {
 
     private CarAppService mCarAppService;
     private Intent mIntentSet;
+    private SessionController mSessionController;
     @Captor
     ArgumentCaptor<Bundleable> mBundleableArgumentCaptor;
 
@@ -103,8 +104,8 @@ public final class CarAppServiceTest {
                         mCarContext = TestCarContext.createCarContext(
                                 ApplicationProvider.getApplicationContext());
                         Session session = createTestSession();
-                        // Injects the TestCarContext into the test session.
-                        new SessionController(session, mCarContext, new Intent());
+                        mSessionController = new SessionController(session, mCarContext,
+                                new Intent());
                         return session;
                     }
                 };

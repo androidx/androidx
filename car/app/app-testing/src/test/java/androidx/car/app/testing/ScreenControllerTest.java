@@ -47,16 +47,7 @@ public class ScreenControllerTest {
     private final Template mTemplate = new Template() {
     };
 
-    private final Screen mTestScreen =
-            new Screen(
-                    TestCarContext.createCarContext(ApplicationProvider.getApplicationContext())) {
-                @NonNull
-                @Override
-                public Template onGetTemplate() {
-                    return mTemplate;
-                }
-            };
-
+    private Screen mTestScreen;
     private ScreenController mScreenController;
     private TestCarContext mCarContext;
 
@@ -65,7 +56,14 @@ public class ScreenControllerTest {
         MockitoAnnotations.initMocks(this);
 
         mCarContext = TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
-        mScreenController = new ScreenController(mCarContext, mTestScreen);
+        mTestScreen = new Screen(mCarContext) {
+            @NonNull
+            @Override
+            public Template onGetTemplate() {
+                return mTemplate;
+            }
+        };
+        mScreenController = new ScreenController(mTestScreen);
 
         mTestScreen.getLifecycle().addObserver(mMockObserver);
     }
@@ -157,16 +155,6 @@ public class ScreenControllerTest {
 
         assertThat(mScreenController.getTemplatesReturned())
                 .containsExactly(mTemplate, mTemplate, mTemplate);
-    }
-
-    @Test
-    public void getScreenResult() {
-        Screen screen = mScreenController.getScreen();
-        String result = "this is the result";
-
-        screen.setResult(result);
-
-        assertThat(mScreenController.getScreenResult()).isEqualTo(result);
     }
 
     @Test

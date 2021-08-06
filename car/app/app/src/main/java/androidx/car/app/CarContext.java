@@ -488,6 +488,9 @@ public class CarContext extends ContextWrapper {
     /**
      * Returns information about the host attached to this service.
      *
+     * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
+     * {@link Session} is at least {@link Lifecycle.State#CREATED}</b>.
+     *
      * @return The {@link HostInfo} of the connected host, or {@code null} if it is not available.
      * @see HostInfo
      */
@@ -599,6 +602,14 @@ public class CarContext extends ContextWrapper {
         startActivity(intent);
     }
 
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
+    @MainThread
+    public void setCarHost(@NonNull ICarHost carHost) {
+        ThreadUtils.checkMainThread();
+        mHostDispatcher.setCarHost(requireNonNull(carHost));
+    }
+
     /**
      * Copies the fields from the provided {@link Configuration} into the {@link Configuration}
      * contained in this object.
@@ -684,14 +695,6 @@ public class CarContext extends ContextWrapper {
         }
 
         onCarConfigurationChanged(configuration);
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
-    @MainThread
-    void setCarHost(@NonNull ICarHost carHost) {
-        ThreadUtils.checkMainThread();
-        mHostDispatcher.setCarHost(requireNonNull(carHost));
     }
 
     /** @hide */
