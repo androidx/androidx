@@ -66,8 +66,7 @@ class ProfileInstallerTranscodeBenchmark {
                 Diagnostics(),
                 APK_NAME,
                 PROFILE_LOCATION,
-                mTempCurFile!!,
-                File("")
+                mTempCurFile!!
             ).also(block)
         }
         return transcoder!!
@@ -81,8 +80,7 @@ class ProfileInstallerTranscodeBenchmark {
             Diagnostics(),
             APK_NAME,
             PROFILE_LOCATION,
-            mTempCurFile!!,
-            File("")
+            mTempCurFile!!
         )
         assumeTrue(
             "Device must support AOT to run this benchmark",
@@ -99,8 +97,7 @@ class ProfileInstallerTranscodeBenchmark {
             Diagnostics(),
             APK_NAME,
             PROFILE_LOCATION,
-            mTempCurFile!!,
-            File("")
+            mTempCurFile!!
         )
         benchmarkRule.measureRepeated {
             transcoder.deviceAllowsProfileInstallerAotWrites()
@@ -114,7 +111,7 @@ class ProfileInstallerTranscodeBenchmark {
         benchmarkRule.measureRepeated {
             newTranscoderUntimed {
                 it.deviceAllowsProfileInstallerAotWrites()
-            }.copyProfileOrRead(NeverSkip)
+            }.read()
         }
     }
 
@@ -125,7 +122,7 @@ class ProfileInstallerTranscodeBenchmark {
         benchmarkRule.measureRepeated {
             val transcoder = newTranscoderUntimed {
                 it.deviceAllowsProfileInstallerAotWrites()
-                it.copyProfileOrRead(NeverSkip)
+                it.read()
             }
             transcoder.transcodeIfNeeded()
         }
@@ -138,10 +135,10 @@ class ProfileInstallerTranscodeBenchmark {
         benchmarkRule.measureRepeated {
             val transcoder = newTranscoderUntimed {
                 it.deviceAllowsProfileInstallerAotWrites()
-                it.copyProfileOrRead(NeverSkip)
+                it.read()
                 it.transcodeIfNeeded()
             }
-            transcoder.writeIfNeeded(NeverSkip)
+            transcoder.write()
         }
     }
 
@@ -156,14 +153,13 @@ class ProfileInstallerTranscodeBenchmark {
                 Diagnostics(),
                 APK_NAME,
                 PROFILE_LOCATION,
-                mTempCurFile!!,
-                File("")
+                mTempCurFile!!
             )
             transcoder.deviceAllowsProfileInstallerAotWrites()
 
-            transcoder.copyProfileOrRead(NeverSkip)
+            transcoder.read()
                 .transcodeIfNeeded()
-                .writeIfNeeded(NeverSkip)
+                .write()
         }
     }
 
@@ -179,12 +175,5 @@ class ProfileInstallerTranscodeBenchmark {
         override fun onResultReceived(code: Int, data: Any?) {
             /* no-op */
         }
-    }
-
-    object NeverSkip : DeviceProfileWriter.SkipStrategy {
-        override fun shouldSkip(
-            newProfileLength: Long,
-            existingProfileState: DeviceProfileWriter.ExistingProfileState
-        ) = false
     }
 }
