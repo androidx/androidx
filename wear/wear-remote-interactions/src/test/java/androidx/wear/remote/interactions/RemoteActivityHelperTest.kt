@@ -25,16 +25,13 @@ import android.net.Uri
 import android.os.Looper
 import android.os.ResultReceiver
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.remote.interactions.RemoteIntentHelper.Companion.ACTION_REMOTE_INTENT
-import androidx.wear.remote.interactions.RemoteIntentHelper.Companion.DEFAULT_PACKAGE
-import androidx.wear.remote.interactions.RemoteIntentHelper.Companion.RESULT_FAILED
-import androidx.wear.remote.interactions.RemoteIntentHelper.Companion.RESULT_OK
-import androidx.wear.remote.interactions.RemoteIntentHelper.Companion.createActionRemoteIntentFilter
-import androidx.wear.remote.interactions.RemoteIntentHelper.Companion.getRemoteIntentExtraIntent
-import androidx.wear.remote.interactions.RemoteIntentHelper.Companion.getRemoteIntentNodeId
-import androidx.wear.remote.interactions.RemoteIntentHelper.Companion.getRemoteIntentResultReceiver
-import androidx.wear.remote.interactions.RemoteIntentHelper.Companion.hasActionRemoteIntent
-import androidx.wear.remote.interactions.RemoteIntentHelper.Companion.isActionRemoteIntent
+import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.ACTION_REMOTE_INTENT
+import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.DEFAULT_PACKAGE
+import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.RESULT_FAILED
+import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.RESULT_OK
+import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.getTargetIntent
+import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.getTargetNodeId
+import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.getRemoteIntentResultReceiver
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.NodeClient
@@ -55,8 +52,8 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 
 @RunWith(WearRemoteInteractionsTestRunner::class)
-@Config(shadows = [RemoteIntentHelperTest.ActualResultReceiver::class])
-class RemoteIntentHelperTest {
+@Config(shadows = [RemoteActivityHelperTest.ActualResultReceiver::class])
+class RemoteActivityHelperTest {
     @Implements(ResultReceiver::class)
     class ActualResultReceiver {
         // Robolectric stubs out ResultReceiver. The stubbed version just calls onReceiveResult
@@ -99,7 +96,7 @@ class RemoteIntentHelperTest {
     private val testExtraIntent = Intent(Intent.ACTION_VIEW)
         .addCategory(Intent.CATEGORY_BROWSABLE)
         .setData(testUri)
-    private lateinit var remoteIntentHelper: RemoteIntentHelper
+    private lateinit var mRemoteActivityHelper: RemoteActivityHelper
 
     @Mock private var mockNodeClient: NodeClient = mock()
     @Mock private val mockTestNode: Node = mock()
@@ -107,8 +104,8 @@ class RemoteIntentHelperTest {
 
     @Before
     fun setUp() {
-        remoteIntentHelper = RemoteIntentHelper(context, SyncExecutor())
-        remoteIntentHelper.nodeClient = mockNodeClient
+        mRemoteActivityHelper = RemoteActivityHelper(context, SyncExecutor())
+        mRemoteActivityHelper.nodeClient = mockNodeClient
     }
 
     private fun setSystemFeatureWatch(isWatch: Boolean) {
@@ -134,14 +131,16 @@ class RemoteIntentHelperTest {
     fun testStartRemoteActivity_notActionViewIntent() {
         assertThrows(
             ExecutionException::class.java
-        ) { remoteIntentHelper.startRemoteActivity(Intent(), testNodeId).get() }
+        ) { mRemoteActivityHelper.startRemoteActivity(Intent(), testNodeId).get() }
     }
 
     @Test
     fun testStartRemoteActivity_dataNull() {
         assertThrows(
             ExecutionException::class.java
-        ) { remoteIntentHelper.startRemoteActivity(Intent(Intent.ACTION_VIEW), testNodeId).get() }
+        ) {
+            mRemoteActivityHelper.startRemoteActivity(Intent(Intent.ACTION_VIEW), testNodeId).get()
+        }
     }
 
     @Test
@@ -149,7 +148,7 @@ class RemoteIntentHelperTest {
         assertThrows(
             ExecutionException::class.java
         ) {
-            remoteIntentHelper.startRemoteActivity(
+            mRemoteActivityHelper.startRemoteActivity(
                 Intent(Intent.ACTION_VIEW).setData(Uri.EMPTY), testNodeId
             ).get()
         }
@@ -162,7 +161,7 @@ class RemoteIntentHelperTest {
         context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))
 
         try {
-            val future = remoteIntentHelper.startRemoteActivity(testExtraIntent, testNodeId)
+            val future = mRemoteActivityHelper.startRemoteActivity(testExtraIntent, testNodeId)
             shadowOf(Looper.getMainLooper()).idle()
             assertTrue(future.isDone)
             future.get()
@@ -177,8 +176,8 @@ class RemoteIntentHelperTest {
                 .broadcastIntents
         assertEquals(1, broadcastIntents.size)
         val intent = broadcastIntents[0]
-        assertEquals(testExtraIntent, getRemoteIntentExtraIntent(intent))
-        assertEquals(testNodeId, getRemoteIntentNodeId(intent))
+        assertEquals(testExtraIntent, getTargetIntent(intent))
+        assertEquals(testNodeId, getTargetNodeId(intent))
         assertEquals(DEFAULT_PACKAGE, intent.`package`)
     }
 
@@ -189,7 +188,7 @@ class RemoteIntentHelperTest {
         context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))
 
         try {
-            val future = remoteIntentHelper.startRemoteActivity(testExtraIntent, testNodeId)
+            val future = mRemoteActivityHelper.startRemoteActivity(testExtraIntent, testNodeId)
             shadowOf(Looper.getMainLooper()).idle()
             assertTrue(future.isDone)
             assertThrows(ExecutionException::class.java) { future.get() }
@@ -206,7 +205,7 @@ class RemoteIntentHelperTest {
         context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))
 
         try {
-            val future = remoteIntentHelper.startRemoteActivity(testExtraIntent, testNodeId)
+            val future = mRemoteActivityHelper.startRemoteActivity(testExtraIntent, testNodeId)
             shadowOf(Looper.getMainLooper()).idle()
             assertTrue(future.isDone)
             future.get()
@@ -231,7 +230,7 @@ class RemoteIntentHelperTest {
         context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))
 
         try {
-            val future = remoteIntentHelper.startRemoteActivity(testExtraIntent, testNodeId)
+            val future = mRemoteActivityHelper.startRemoteActivity(testExtraIntent, testNodeId)
             shadowOf(Looper.getMainLooper()).idle()
             assertTrue(future.isDone)
             future.get()
@@ -246,8 +245,8 @@ class RemoteIntentHelperTest {
                 .broadcastIntents
         assertEquals(1, broadcastIntents.size)
         val intent = broadcastIntents[0]
-        assertEquals(testExtraIntent, getRemoteIntentExtraIntent(intent))
-        assertEquals(testNodeId, getRemoteIntentNodeId(intent))
+        assertEquals(testExtraIntent, getTargetIntent(intent))
+        assertEquals(testNodeId, getTargetNodeId(intent))
         assertEquals(DEFAULT_PACKAGE, intent.`package`)
     }
 
@@ -261,7 +260,9 @@ class RemoteIntentHelperTest {
         context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))
 
         try {
-            val future = remoteIntentHelper.startRemoteActivity(testExtraIntent, nodeId = null)
+            val future = mRemoteActivityHelper.startRemoteActivity(
+                testExtraIntent, targetNodeId = null
+            )
             shadowOf(Looper.getMainLooper()).idle()
             assertTrue(future.isDone)
             future.get()
@@ -291,7 +292,9 @@ class RemoteIntentHelperTest {
         context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))
 
         assertThrows(ExecutionException::class.java) {
-            val future = remoteIntentHelper.startRemoteActivity(testExtraIntent, nodeId = null)
+            val future = mRemoteActivityHelper.startRemoteActivity(
+                testExtraIntent, targetNodeId = null
+            )
             shadowOf(Looper.getMainLooper()).idle()
             assertTrue(future.isDone)
             future.get()
@@ -317,7 +320,9 @@ class RemoteIntentHelperTest {
         context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))
 
         assertThrows(ExecutionException::class.java) {
-            val future = remoteIntentHelper.startRemoteActivity(testExtraIntent, nodeId = null)
+            val future = mRemoteActivityHelper.startRemoteActivity(
+                testExtraIntent, targetNodeId = null
+            )
             shadowOf(Looper.getMainLooper()).idle()
             assertTrue(future.isDone)
             future.get()
@@ -339,24 +344,18 @@ class RemoteIntentHelperTest {
         expectedPackageName: String,
         actualIntent: Intent
     ) {
-        assertEquals(expectedExtraIntent, getRemoteIntentExtraIntent(actualIntent))
-        assertEquals(expectedNodeId, getRemoteIntentNodeId(actualIntent))
+        assertEquals(expectedExtraIntent, getTargetIntent(actualIntent))
+        assertEquals(expectedNodeId, getTargetNodeId(actualIntent))
         assertEquals(expectedPackageName, actualIntent.`package`)
     }
 
     @Test
     fun testActionRemoteIntentWithExtras() {
-        val intent = remoteIntentHelper.createIntent(testExtraIntent, null, testNodeId)
+        val intent = mRemoteActivityHelper.createIntent(testExtraIntent, null, testNodeId)
 
-        assertTrue(isActionRemoteIntent(intent))
-        assertEquals(testExtraIntent, getRemoteIntentExtraIntent(intent))
-        assertEquals(testNodeId, getRemoteIntentNodeId(intent))
-    }
-
-    @Test
-    fun testHasActionRemoteIntent() {
-        val intentFilter = createActionRemoteIntentFilter()
-        assertTrue(hasActionRemoteIntent(intentFilter))
+        assertTrue(intent.action == ACTION_REMOTE_INTENT)
+        assertEquals(testExtraIntent, getTargetIntent(intent))
+        assertEquals(testNodeId, getTargetNodeId(intent))
     }
 }
 
