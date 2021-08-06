@@ -41,10 +41,17 @@ internal class KspProcessingEnv(
     override val options: Map<String, String>,
     codeGenerator: CodeGenerator,
     logger: KSPLogger,
-    val resolver: Resolver
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.KSP
     private val ksFileMemberContainers = mutableMapOf<KSFile, KspFileMemberContainer>()
+
+    private var _resolver: Resolver? = null
+
+    var resolver
+        get() = _resolver!!
+        internal set(value) {
+            _resolver = value
+        }
 
     private val typeElementStore =
         XTypeElementStore(
@@ -65,19 +72,20 @@ internal class KspProcessingEnv(
 
     override val messager: XMessager = KspMessager(logger)
 
-    private val arrayTypeFactory = KspArrayType.Factory(this)
+    private val arrayTypeFactory
+        get() = KspArrayType.Factory(this)
 
     override val filer: XFiler = KspFiler(codeGenerator, messager)
 
-    val commonTypes = CommonTypes(resolver)
+    val commonTypes
+        get() = CommonTypes(resolver)
 
-    val voidType by lazy {
-        KspVoidType(
+    val voidType
+        get() = KspVoidType(
             env = this,
             ksType = resolver.builtIns.unitType,
             boxed = false
         )
-    }
 
     override fun findTypeElement(qName: String): KspTypeElement? {
         return typeElementStore[qName]
@@ -230,6 +238,11 @@ internal class KspProcessingEnv(
                 ksFile = file
             )
         }
+    }
+
+    internal fun clearCache() {
+        _resolver = null
+        typeElementStore.clear()
     }
 
     class CommonTypes(resolver: Resolver) {
