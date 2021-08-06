@@ -43,7 +43,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -346,8 +345,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         }
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    void setFoldingFeatureObserver(
+    private void setFoldingFeatureObserver(
             FoldingFeatureObserver foldingFeatureObserver) {
         mFoldingFeatureObserver = foldingFeatureObserver;
         mFoldingFeatureObserver.setOnFoldingFeatureChangeListener(
