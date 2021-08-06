@@ -45,4 +45,22 @@ public class ParcelableUsageJava implements Parcelable {
 
         check(*input).expect(expected)
     }
+
+    @Test
+    fun `Detection of Parcelable usage in Kotlin sources`() {
+        val input = arrayOf(
+            ktSample("androidx.ParcelableUsageKotlin"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/ParcelableUsageKotlin.kt:23: Error: Class implements android.os.Parcelable [BanParcelableUsage]
+open class ParcelableUsageKotlin protected constructor(parcel: Parcel) : Parcelable {
+           ~~~~~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
 }

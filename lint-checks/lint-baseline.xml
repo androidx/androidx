@@ -18,6 +18,17 @@
         errorLine1="import java.util.concurrent.ConcurrentHashMap;"
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
+            file="integration-tests/src/main/java/androidx/ConcurrentHashMapUsageKotlin.kt"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="BanConcurrentHashMap"
+        message="Detected ConcurrentHashMap usage."
+        errorLine1="import java.util.concurrent.ConcurrentHashMap;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
             file="integration-tests/src/main/java/androidx/Sample.java"
             line="19"
             column="1"/>
@@ -42,6 +53,17 @@
         <location
             file="integration-tests/src/main/java/androidx/IdeaSuppressionJava.java"
             line="29"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="IdeaSuppression"
+        message="Uses IntelliJ-specific suppression, should use `@SuppressWarnings(&quot;deprecation&quot;)`"
+        errorLine1="        //noinspection deprecation"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="integration-tests/src/main/java/androidx/IdeaSuppressionKotlin.kt"
+            line="25"
             column="9"/>
     </issue>
 

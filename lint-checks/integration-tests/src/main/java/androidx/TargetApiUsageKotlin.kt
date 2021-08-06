@@ -14,35 +14,15 @@
  * limitations under the License.
  */
 
-package androidx;
+package androidx
 
-/**
- * Java usage of inline suppression.
- */
-@SuppressWarnings("unused")
-public class IdeaSuppressionJava {
+import android.annotation.TargetApi
 
-    /**
-     * Call to a deprecated method with an inline suppression.
-     */
-    public void callDeprecatedMethod() {
-        //noinspection deprecation
-        deprecatedMethod();
+@Suppress("unused")
+@TargetApi(29)
+class TargetApiUsageKotlin {
 
-        notDeprecatedMethod();
+    @TargetApi(30)
+    fun someMethod() {
     }
-
-    /**
-     * This method is deprecated.
-     *
-     * @deprecated Replaced with {@link #notDeprecatedMethod()}
-     */
-    @Deprecated
-    public void deprecatedMethod() {}
-
-    /**
-     * This method is not deprecated.
-     */
-    public void notDeprecatedMethod() {}
-
 }

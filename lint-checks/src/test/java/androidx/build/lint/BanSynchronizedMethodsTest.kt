@@ -45,4 +45,22 @@ src/androidx/SynchronizedMethodJava.java:22: Error: Use of synchronized methods 
 
         check(*input).expect(expected)
     }
+
+    @Test
+    fun `Detection of synchronized methods in Kotlin sources`() {
+        val input = arrayOf(
+            ktSample("androidx.SynchronizedMethodKotlin"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/SynchronizedMethodKotlin.kt:22: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
+    @Synchronized
+    ^
+1 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
 }
