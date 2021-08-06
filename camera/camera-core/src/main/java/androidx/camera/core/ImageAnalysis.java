@@ -142,14 +142,24 @@ public final class ImageAnalysis extends UseCase {
     public static final int STRATEGY_BLOCK_PRODUCER = 1;
 
     /**
-     * {@link android.graphics.ImageFormat#YUV_420_888}
+     * Images sent to the analyzer will have YUV format.
+     *
+     * <p>All {@link ImageProxy} sent to {@link Analyzer#analyze(ImageProxy)} will have
+     * format {@link android.graphics.ImageFormat#YUV_420_888}
+     *
+     * @see Builder#setOutputImageFormat(int)
      */
-    public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 7;
+    public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 1;
 
     /**
-     * {@link android.graphics.PixelFormat#RGBA_8888}
+     * Images sent to the analyzer will have RGBA format.
+     *
+     * <p>All {@link ImageProxy} sent to {@link Analyzer#analyze(ImageProxy)} will have
+     * format {@link android.graphics.PixelFormat#RGBA_8888}
+     *
+     * @see Builder#setOutputImageFormat(int)
      */
-    public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 8;
+    public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2;
 
     /**
      * Provides a static configuration with implementation-agnostic options.
@@ -459,8 +469,8 @@ public final class ImageAnalysis extends UseCase {
      * Gets output image format.
      *
      * <p>The returned image format will be
-     * {@link OutputImageFormat#OUTPUT_IMAGE_FORMAT_YUV_420_888} or
-     * {@link OutputImageFormat#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
+     * {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_YUV_420_888} or
+     * {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
      *
      * @return output image format.
      */
@@ -605,10 +615,10 @@ public final class ImageAnalysis extends UseCase {
      * Supported output image format for image analysis.
      *
      * <p>The supported output image format
-     * is {@link OutputImageFormat#OUTPUT_IMAGE_FORMAT_YUV_420_888} and
-     * {@link OutputImageFormat#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
+     * is {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_YUV_420_888} and
+     * {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
      *
-     * <p>By default, {@link OutputImageFormat#OUTPUT_IMAGE_FORMAT_YUV_420_888} will be used.
+     * <p>By default, {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_YUV_420_888} will be used.
      *
      * @hide
      * @see Builder#setOutputImageFormat(int)
