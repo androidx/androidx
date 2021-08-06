@@ -17,9 +17,6 @@
 package androidx.paging
 
 import androidx.annotation.VisibleForTesting
-import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -119,76 +116,59 @@ internal class PageFetcher<Key : Any, Value : Any>(
             .collect { send(it) }
     }
 
+    // TODO(b/195028524) add logic to inject the correct source states upon new generation
     private fun PageFetcherSnapshot<Key, Value>.injectRemoteEvents(
         accessor: RemoteMediatorAccessor<Key, Value>?
     ): Flow<PageEvent<Value>> {
         if (accessor == null) return pageEventFlow
 
-        return simpleChannelFlow {
-            val loadStates = MutableLoadStateCollection()
-
-            suspend fun dispatchIfValid(type: LoadType, state: LoadState) {
-                // not loading events are sent w/ insert-drop events.
-                if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(
-                        state,
-                        fromMediator = true
-                    )
-                ) {
-                    send(
-                        PageEvent.LoadStateUpdate<Value>(
-                            loadType = type,
-                            fromMediator = true,
-                            loadState = state
-                        )
-                    )
-                } else {
-                    // Wait for invalidation to set state to NotLoading via Insert to prevent any
-                    // potential for flickering.
-                }
-            }
+        return simpleChannelFlow<PageEvent<Value>> {
+            val sourceStates = MutableLoadStateCollection()
+            var mediatorStates = LoadStates.IDLE
 
             launch {
                 var prev = LoadStates.IDLE
-                accessor.state.collect {
-                    if (prev.refresh != it.refresh) {
-                        loadStates.set(REFRESH, true, it.refresh)
-                        dispatchIfValid(REFRESH, it.refresh)
+                accessor.state.collect { newStates ->
+                    if (prev != newStates) {
+                        mediatorStates = newStates
+                        send(
+                            PageEvent.LoadStateUpdate(
+                                source = sourceStates.snapshot(),
+                                mediator = mediatorStates
+                            )
+                        )
                     }
-                    if (prev.prepend != it.prepend) {
-                        loadStates.set(PREPEND, true, it.prepend)
-                        dispatchIfValid(PREPEND, it.prepend)
-                    }
-                    if (prev.append != it.append) {
-                        loadStates.set(APPEND, true, it.append)
-                        dispatchIfValid(APPEND, it.append)
-                    }
-                    prev = it
+                    prev = newStates
                 }
             }
+
             this@injectRemoteEvents.pageEventFlow.collect { event ->
                 when (event) {
                     is PageEvent.Insert -> {
-                        loadStates.set(
-                            sourceLoadStates = event.combinedLoadStates.source,
-                            remoteLoadStates = accessor.state.value
+                        sourceStates.set(event.sourceLoadStates)
+                        mediatorStates = accessor.state.value
+                        send(
+                            event.copy(
+                                sourceLoadStates = event.sourceLoadStates,
+                                mediatorLoadStates = mediatorStates
+                            )
                         )
-                        send(event.copy(combinedLoadStates = loadStates.snapshot()))
                     }
                     is PageEvent.Drop -> {
-                        loadStates.set(
+                        sourceStates.set(
                             type = event.loadType,
-                            remote = false,
                             state = LoadState.NotLoading.Incomplete
                         )
                         send(event)
                     }
                     is PageEvent.LoadStateUpdate -> {
-                        loadStates.set(
-                            type = event.loadType,
-                            remote = event.fromMediator,
-                            state = event.loadState
+                        sourceStates.set(event.source)
+                        send(
+                            PageEvent.LoadStateUpdate(
+                                source = event.source,
+                                mediator = mediatorStates
+                            )
                         )
-                        send(event)
                     }
                 }
             }

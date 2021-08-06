@@ -27,6 +27,10 @@ data class StateEvent(
     val fromMediator: Boolean,
     val loadState: LoadState
 ) : PresenterEvent()
+data class CombinedStateEvent(
+    val source: LoadStates,
+    val mediator: LoadStates?,
+) : PresenterEvent()
 
 class ProcessPageEventCallbackCapture : ProcessPageEventCallback {
     private val list = mutableListOf<PresenterEvent>()
@@ -52,6 +56,10 @@ class ProcessPageEventCallbackCapture : ProcessPageEventCallback {
 
     override fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState) {
         list.add(StateEvent(loadType, fromMediator, loadState))
+    }
+
+    override fun onStateUpdate(source: LoadStates, mediator: LoadStates?) {
+        list.add(CombinedStateEvent(source, mediator))
     }
 }
 

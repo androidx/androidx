@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.LoadStateUpdate
@@ -201,7 +200,8 @@ private class SeparatorState<R : Any, T : R>(
     var endTerminalSeparatorDeferred = false
     var startTerminalSeparatorDeferred = false
 
-    val loadStates = MutableLoadStateCollection()
+    val sourceStates = MutableLoadStateCollection()
+    var mediatorStates: LoadStates? = null
     var placeholdersBefore = 0
     var placeholdersAfter = 0
 
@@ -235,10 +235,10 @@ private class SeparatorState<R : Any, T : R>(
 
         return when (terminalSeparatorType) {
             FULLY_COMPLETE -> {
-                combinedLoadStates.source.prepend.endOfPaginationReached &&
-                    combinedLoadStates.mediator?.prepend?.endOfPaginationReached != false
+                sourceLoadStates.prepend.endOfPaginationReached &&
+                    mediatorLoadStates?.prepend?.endOfPaginationReached != false
             }
-            SOURCE_COMPLETE -> combinedLoadStates.source.prepend.endOfPaginationReached
+            SOURCE_COMPLETE -> sourceLoadStates.prepend.endOfPaginationReached
         }
     }
 
@@ -249,10 +249,10 @@ private class SeparatorState<R : Any, T : R>(
 
         return when (terminalSeparatorType) {
             FULLY_COMPLETE -> {
-                combinedLoadStates.source.append.endOfPaginationReached &&
-                    combinedLoadStates.mediator?.append?.endOfPaginationReached != false
+                sourceLoadStates.append.endOfPaginationReached &&
+                    mediatorLoadStates?.append?.endOfPaginationReached != false
             }
-            SOURCE_COMPLETE -> combinedLoadStates.source.append.endOfPaginationReached
+            SOURCE_COMPLETE -> sourceLoadStates.append.endOfPaginationReached
         }
     }
 
@@ -269,7 +269,9 @@ private class SeparatorState<R : Any, T : R>(
         }
 
         // Update SeparatorState before we do any real work.
-        loadStates.set(event.combinedLoadStates)
+        sourceStates.set(event.sourceLoadStates)
+        mediatorStates = event.mediatorLoadStates
+
         // Append insert has placeholdersBefore = -1 as a placeholder value.
         if (event.loadType != APPEND) {
             placeholdersBefore = event.placeholdersBefore
@@ -481,7 +483,7 @@ private class SeparatorState<R : Any, T : R>(
      * Process a [Drop] event to update [pageStash] stage.
      */
     fun onDrop(event: Drop<T>): Drop<R> {
-        loadStates.set(type = event.loadType, remote = false, state = NotLoading.Incomplete)
+        sourceStates.set(type = event.loadType, state = NotLoading.Incomplete)
         if (event.loadType == PREPEND) {
             placeholdersBefore = event.placeholdersRemaining
             headerAdded = false
@@ -509,14 +511,16 @@ private class SeparatorState<R : Any, T : R>(
     }
 
     suspend fun onLoadStateUpdate(event: LoadStateUpdate<T>): PageEvent<R> {
+        val prevMediator = mediatorStates
         // Check for redundant LoadStateUpdate events to avoid unnecessary mapping to empty inserts
         // that might cause terminal separators to get added out of place.
-        if (loadStates.get(event.loadType, event.fromMediator) == event.loadState) {
+        if (sourceStates.snapshot() == event.source && prevMediator == event.mediator) {
             @Suppress("UNCHECKED_CAST")
             return event as PageEvent<R>
         }
 
-        loadStates.set(type = event.loadType, remote = event.fromMediator, state = event.loadState)
+        sourceStates.set(event.source)
+        mediatorStates = event.mediator
 
         // Transform terminal load state updates into empty inserts for header + footer support
         // when used with RemoteMediator. In cases where we defer adding a terminal separator,
@@ -524,26 +528,27 @@ private class SeparatorState<R : Any, T : R>(
         // isn't possible to add a separator to. Note: Adding a separate insert event also
         // doesn't work in the case where .insertSeparators() is called multiple times on the
         // same page event stream - we have to transform the terminating LoadStateUpdate event.
-        if (event.loadType != REFRESH && event.fromMediator &&
-            event.loadState.endOfPaginationReached
+        if (event.mediator != null && event.mediator.prepend.endOfPaginationReached &&
+            prevMediator?.prepend != event.mediator.prepend
         ) {
-            val emptyTerminalInsert: Insert<T> = if (event.loadType == PREPEND) {
-                Insert.Prepend(
-                    pages = emptyList(),
-                    placeholdersBefore = placeholdersBefore,
-                    combinedLoadStates = loadStates.snapshot(),
-                )
-            } else {
-                Insert.Append(
-                    pages = emptyList(),
-                    placeholdersAfter = placeholdersAfter,
-                    combinedLoadStates = loadStates.snapshot(),
-                )
-            }
-
-            return onInsert(emptyTerminalInsert)
+            val prependTerminalInsert: Insert<T> = Insert.Prepend(
+                pages = emptyList(),
+                placeholdersBefore = placeholdersBefore,
+                sourceLoadStates = event.source,
+                mediatorLoadStates = event.mediator,
+            )
+            return onInsert(prependTerminalInsert)
+        } else if (event.mediator != null && event.mediator.append.endOfPaginationReached &&
+            prevMediator?.append != event.mediator.append
+        ) {
+            val appendTerminalInsert: Insert<T> = Insert.Append(
+                pages = emptyList(),
+                placeholdersAfter = placeholdersAfter,
+                sourceLoadStates = event.source,
+                mediatorLoadStates = event.mediator,
+            )
+            return onInsert(appendTerminalInsert)
         }
-
         @Suppress("UNCHECKED_CAST")
         return event as PageEvent<R>
     }

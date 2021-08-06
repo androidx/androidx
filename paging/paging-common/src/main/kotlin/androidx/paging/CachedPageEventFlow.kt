@@ -36,7 +36,6 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.ArrayDeque
 
 /**
  * An intermediate flow producer that flattens previous page events and gives any new downstream
@@ -237,7 +236,8 @@ internal class FlattenedPageEventStorage<T : Any> {
      * data once we start getting events. This is fine, since downstream needs to handle this
      * anyway - remote state being added after initial, empty, PagingData.
      */
-    private val loadStates = MutableLoadStateCollection()
+    private val sourceStates = MutableLoadStateCollection()
+    private var mediatorStates: LoadStates? = null
     fun add(event: PageEvent<T>) {
         when (event) {
             is PageEvent.Insert<T> -> handleInsert(event)
@@ -250,7 +250,7 @@ internal class FlattenedPageEventStorage<T : Any> {
         // TODO: include state in drop event for simplicity, instead of reconstructing behavior.
         //  This allows upstream to control how drop affects states (e.g. letting drop affect both
         //  remote and local)
-        loadStates.set(event.loadType, false, LoadState.NotLoading.Incomplete)
+        sourceStates.set(event.loadType, LoadState.NotLoading.Incomplete)
 
         when (event.loadType) {
             LoadType.PREPEND -> {
@@ -266,7 +266,9 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handleInsert(event: PageEvent.Insert<T>) {
-        loadStates.set(event.combinedLoadStates)
+        sourceStates.set(event.sourceLoadStates)
+        mediatorStates = event.mediatorLoadStates
+
         when (event.loadType) {
             LoadType.REFRESH -> {
                 pages.clear()
@@ -288,26 +290,30 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handleLoadStateUpdate(event: PageEvent.LoadStateUpdate<T>) {
-        loadStates.set(event.loadType, event.fromMediator, event.loadState)
+        sourceStates.set(event.source)
+        mediatorStates = event.mediator
     }
 
     fun getAsEvents(): List<PageEvent<T>> {
         val events = mutableListOf<PageEvent<T>>()
+        val source = sourceStates.snapshot()
         if (pages.isNotEmpty()) {
             events.add(
                 PageEvent.Insert.Refresh(
                     pages = pages.toList(),
                     placeholdersBefore = placeholdersBefore,
                     placeholdersAfter = placeholdersAfter,
-                    combinedLoadStates = loadStates.snapshot()
+                    sourceLoadStates = source,
+                    mediatorLoadStates = mediatorStates
                 )
             )
         } else {
-            loadStates.forEach { type, fromMediator, state ->
-                if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(state, fromMediator)) {
-                    events.add(PageEvent.LoadStateUpdate(type, fromMediator, state))
-                }
-            }
+            events.add(
+                PageEvent.LoadStateUpdate(
+                    source = source,
+                    mediator = mediatorStates
+                )
+            )
         }
 
         return events

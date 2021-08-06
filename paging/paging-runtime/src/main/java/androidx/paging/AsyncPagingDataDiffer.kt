@@ -79,7 +79,6 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
         override suspend fun presentNewList(
             previousList: NullPaddedList<T>,
             newList: NullPaddedList<T>,
-            newCombinedLoadStates: CombinedLoadStates,
             lastAccessedIndex: Int,
             onListPresentable: () -> Unit,
         ) = when {

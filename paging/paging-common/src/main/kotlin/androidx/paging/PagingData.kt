@@ -66,15 +66,10 @@ public class PagingData<T : Any> internal constructor(
                     pages = listOf(TransformablePage(originalPageOffset = 0, data = data)),
                     placeholdersBefore = 0,
                     placeholdersAfter = 0,
-                    combinedLoadStates = CombinedLoadStates(
+                    sourceLoadStates = LoadStates(
                         refresh = LoadState.NotLoading.Incomplete,
                         prepend = LoadState.NotLoading.Complete,
-                        append = LoadState.NotLoading.Complete,
-                        source = LoadStates(
-                            refresh = LoadState.NotLoading.Incomplete,
-                            prepend = LoadState.NotLoading.Complete,
-                            append = LoadState.NotLoading.Complete
-                        )
+                        append = LoadState.NotLoading.Complete
                     )
                 )
             ),

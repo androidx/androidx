@@ -98,9 +98,8 @@ internal class PagePresenter<T : Any>(
             is PageEvent.Drop -> dropPages(pageEvent, callback)
             is PageEvent.LoadStateUpdate -> {
                 callback.onStateUpdate(
-                    loadType = pageEvent.loadType,
-                    fromMediator = pageEvent.fromMediator,
-                    loadState = pageEvent.loadState
+                    source = pageEvent.source,
+                    mediator = pageEvent.mediator,
                 )
             }
         }
@@ -205,9 +204,10 @@ internal class PagePresenter<T : Any>(
                 }
             }
         }
-        insert.combinedLoadStates.forEach { type, fromMediator, state ->
-            callback.onStateUpdate(type, fromMediator, state)
-        }
+        callback.onStateUpdate(
+            source = insert.sourceLoadStates,
+            mediator = insert.mediatorLoadStates
+        )
     }
 
     /**
@@ -340,5 +340,6 @@ internal class PagePresenter<T : Any>(
         fun onInserted(position: Int, count: Int)
         fun onRemoved(position: Int, count: Int)
         fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState)
+        fun onStateUpdate(source: LoadStates, mediator: LoadStates?)
     }
 }

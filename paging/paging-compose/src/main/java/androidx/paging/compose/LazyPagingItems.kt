@@ -100,7 +100,6 @@ public class LazyPagingItems<T : Any> internal constructor(
         override suspend fun presentNewList(
             previousList: NullPaddedList<T>,
             newList: NullPaddedList<T>,
-            newCombinedLoadStates: CombinedLoadStates,
             lastAccessedIndex: Int,
             onListPresentable: () -> Unit
         ): Int? {
