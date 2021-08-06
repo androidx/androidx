@@ -57,11 +57,7 @@ public class WindowInfoRepositoryRxTest {
 
     @Test
     public fun testWindowLayoutInfoObservable() {
-        val feature = FoldingFeature(
-            Rect(0, 100, 100, 100),
-            FoldingFeature.Type.HINGE,
-            FoldingFeature.State.HALF_OPENED
-        )
+        val feature = mock<FoldingFeature>()
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
@@ -73,11 +69,7 @@ public class WindowInfoRepositoryRxTest {
 
     @Test
     public fun testWindowLayoutInfoFlowable() {
-        val feature = FoldingFeature(
-            Rect(0, 100, 100, 100),
-            FoldingFeature.Type.HINGE,
-            FoldingFeature.State.HALF_OPENED
-        )
+        val feature = mock<FoldingFeature>()
         val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
         val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))

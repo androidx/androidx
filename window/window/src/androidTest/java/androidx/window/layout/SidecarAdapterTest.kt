@@ -21,7 +21,7 @@ package androidx.window.layout
 import android.graphics.Rect
 import androidx.window.core.Bounds
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
-import androidx.window.layout.FoldingFeature.Type.Companion.FOLD
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarWindowLayoutInfo
@@ -41,7 +41,7 @@ public class SidecarAdapterTest : TranslatorTestInterface {
         val sidecarDisplayFeatures = listOf(foldFeature)
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
-        val expectedFeatures = listOf(FoldingFeature(Bounds(foldFeature.rect), FOLD, FLAT))
+        val expectedFeatures = listOf(HardwareFoldingFeature(Bounds(foldFeature.rect), FOLD, FLAT))
         val expected = WindowLayoutInfo(expectedFeatures)
         val sidecarAdapter = SidecarAdapter()
         val actual = sidecarAdapter.translate(windowLayoutInfo, state)

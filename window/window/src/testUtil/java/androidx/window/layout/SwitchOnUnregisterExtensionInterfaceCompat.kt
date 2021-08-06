@@ -18,11 +18,12 @@ package androidx.window.layout
 import android.app.Activity
 import android.graphics.Rect
 import androidx.annotation.GuardedBy
+import androidx.window.core.Bounds
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.FoldingFeature.State
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
-import androidx.window.layout.FoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -61,7 +62,7 @@ internal class SwitchOnUnregisterExtensionInterfaceCompat : ExtensionInterfaceCo
     }
 
     fun currentFoldingFeature(): FoldingFeature {
-        return FoldingFeature(foldBounds, HINGE, state)
+        return HardwareFoldingFeature(Bounds(foldBounds), HINGE, state)
     }
 
     internal companion object {

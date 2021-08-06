@@ -18,16 +18,17 @@ package androidx.window.testing.layout
 
 import android.graphics.Rect
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.window.layout.FoldingFeature
+import androidx.window.layout.FoldingFeature.OcclusionType.Companion.FULL
+import androidx.window.layout.FoldingFeature.OcclusionType.Companion.NONE
 import androidx.window.layout.FoldingFeature.Orientation.Companion.HORIZONTAL
 import androidx.window.layout.FoldingFeature.Orientation.Companion.VERTICAL
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
-import androidx.window.layout.FoldingFeature.Type.Companion.FOLD
-import androidx.window.layout.FoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.testing.TestActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -46,8 +47,15 @@ public class DisplayFeatureTestingTest {
             val bounds = metrics.bounds
             val center = bounds.centerX()
             val actual = FoldingFeature(activity = activity, state = FLAT, orientation = VERTICAL)
-            val expected = FoldingFeature(Rect(center, 0, center, bounds.height()), FOLD, FLAT)
-            assertEquals(expected, actual)
+            val expectedBounds = Rect(center, 0, center, bounds.height())
+            assertEquals(expectedBounds.left, actual.bounds.left)
+            assertEquals(expectedBounds.right, actual.bounds.right)
+            assertEquals(expectedBounds.top, actual.bounds.top)
+            assertEquals(expectedBounds.bottom, actual.bounds.bottom)
+            assertFalse(actual.isSeparating)
+            assertEquals(NONE, actual.occlusionType)
+            assertEquals(VERTICAL, actual.orientation)
+            assertEquals(FLAT, actual.state)
         }
     }
 
@@ -58,10 +66,55 @@ public class DisplayFeatureTestingTest {
             val metrics = WindowMetricsCalculator.getOrCreate()
                 .computeCurrentWindowMetrics(activity)
             val bounds = metrics.bounds
-            val center = bounds.centerX()
+            val center = bounds.centerY()
             val actual = FoldingFeature(activity = activity, state = FLAT, orientation = HORIZONTAL)
-            val expected = FoldingFeature(Rect(0, center, bounds.width(), center), FOLD, FLAT)
-            assertEquals(expected, actual)
+            val expectedBounds = Rect(0, center, bounds.width(), center)
+            assertEquals(expectedBounds.left, actual.bounds.left)
+            assertEquals(expectedBounds.right, actual.bounds.right)
+            assertEquals(expectedBounds.top, actual.bounds.top)
+            assertEquals(expectedBounds.bottom, actual.bounds.bottom)
+            assertFalse(actual.isSeparating)
+            assertEquals(NONE, actual.occlusionType)
+            assertEquals(HORIZONTAL, actual.orientation)
+            assertEquals(FLAT, actual.state)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    public fun testFold_centerMatchOrientation_vertical() {
+        activityRule.scenario.onActivity { activity ->
+            val metrics = WindowMetricsCalculator.getOrCreate()
+                .computeCurrentWindowMetrics(activity)
+            val bounds = metrics.bounds
+            val center = bounds.centerX()
+            val actual = FoldingFeature(activity = activity, orientation = VERTICAL)
+            val expectedBounds = Rect(center, 0, center, bounds.height())
+            assertEquals(expectedBounds.left, actual.bounds.left)
+            assertEquals(expectedBounds.right, actual.bounds.right)
+            assertEquals(expectedBounds.top, actual.bounds.top)
+            assertEquals(expectedBounds.bottom, actual.bounds.bottom)
+            assertEquals(NONE, actual.occlusionType)
+            assertEquals(VERTICAL, actual.orientation)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    public fun testFold_centerMatchOrientation_horizontal() {
+        activityRule.scenario.onActivity { activity ->
+            val metrics = WindowMetricsCalculator.getOrCreate()
+                .computeCurrentWindowMetrics(activity)
+            val bounds = metrics.bounds
+            val center = bounds.centerY()
+            val actual = FoldingFeature(activity = activity, orientation = HORIZONTAL)
+            val expectedBounds = Rect(0, center, bounds.width(), center)
+            assertEquals(expectedBounds.left, actual.bounds.left)
+            assertEquals(expectedBounds.right, actual.bounds.right)
+            assertEquals(expectedBounds.top, actual.bounds.top)
+            assertEquals(expectedBounds.bottom, actual.bounds.bottom)
+            assertEquals(NONE, actual.occlusionType)
+            assertEquals(HORIZONTAL, actual.orientation)
         }
     }
 
@@ -80,12 +133,15 @@ public class DisplayFeatureTestingTest {
                 state = FLAT,
                 orientation = VERTICAL
             )
-            val expected = FoldingFeature(
-                Rect(center - width / 2, 0, center + width / 2, bounds.height()),
-                HINGE,
-                FLAT
-            )
-            assertEquals(expected, actual)
+            val expectedBounds = Rect(center - width / 2, 0, center + width / 2, bounds.height())
+            assertEquals(expectedBounds.left, actual.bounds.left)
+            assertEquals(expectedBounds.right, actual.bounds.right)
+            assertEquals(expectedBounds.top, actual.bounds.top)
+            assertEquals(expectedBounds.bottom, actual.bounds.bottom)
+            assertTrue(actual.isSeparating)
+            assertEquals(FULL, actual.occlusionType)
+            assertEquals(VERTICAL, actual.orientation)
+            assertEquals(FLAT, actual.state)
         }
     }
 }
