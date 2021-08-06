@@ -131,6 +131,7 @@ dependencies {
     docs(project(":fragment:fragment"))
     docs(project(":fragment:fragment-ktx"))
     docs(project(":fragment:fragment-testing"))
+    docs(project(":glance:glance"))
     docs(project(":gridlayout:gridlayout"))
     docs(project(":health:health-services-client"))
     docs(project(":heifwriter:heifwriter"))

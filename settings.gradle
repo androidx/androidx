@@ -444,6 +444,7 @@ includeProject(":fragment:fragment-testing", "fragment/fragment-testing", [Build
 includeProject(":fragment:fragment-testing-lint", "fragment/fragment-testing-lint", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:fragment-truth", "fragment/fragment-truth", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:integration-tests:testapp", "fragment/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":glance:glance", "glance/glance", [BuildType.MAIN])
 includeProject(":gridlayout:gridlayout", "gridlayout/gridlayout", [BuildType.MAIN])
 includeProject(":health:health-services-client", "health/health-services-client", [BuildType.MAIN])
 includeProject(":heifwriter:heifwriter", "heifwriter/heifwriter", [BuildType.MAIN])
