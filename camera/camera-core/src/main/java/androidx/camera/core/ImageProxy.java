@@ -53,6 +53,9 @@ public interface ImageProxy extends AutoCloseable {
     /**
      * Returns the image format.
      *
+     * <p> The image format can be one of the {@link android.graphics.ImageFormat} or
+     * {@link android.graphics.PixelFormat} constants.
+     *
      * @see android.media.Image#getFormat()
      */
     int getFormat();

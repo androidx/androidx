@@ -188,8 +188,8 @@ package androidx.camera.core {
     method public int getTargetRotation();
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);
-    field public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 8; // 0x8
-    field public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 7; // 0x7
+    field public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2; // 0x2
+    field public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 1; // 0x1
     field public static final int STRATEGY_BLOCK_PRODUCER = 1; // 0x1
     field public static final int STRATEGY_KEEP_ONLY_LATEST = 0; // 0x0
   }
