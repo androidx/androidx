@@ -16,14 +16,11 @@
 
 package androidx.room.compiler.processing
 
-<<<<<<< HEAD
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.compat.XConverters.toJavac
-=======
->>>>>>> 65af8188878 (Fixed lint issues)
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.XTestInvocation
 import javax.lang.model.SourceVersion
@@ -35,27 +32,13 @@ class SyntheticJavacProcessor private constructor(
 ) : JavacBasicAnnotationProcessor(), SyntheticProcessor by impl {
     constructor(handlers: List<(XTestInvocation) -> Unit>) : this(SyntheticProcessorImpl(handlers))
 
-<<<<<<< HEAD
     override fun processingSteps(): Iterable<XProcessingStep> = impl.processingSteps()
 
-<<<<<<< HEAD
     override fun postRound(env: XProcessingEnv, round: XRoundEnv) {
         if (!round.toJavac().processingOver()) {
             impl.postRound(env, round)
         }
-=======
-    // TODO: Figure out why the compiler forces us to implement this method.
-    override fun initSteps(): Iterable<ProcessingStep> {
-        throw AssertionError("If steps() is not implemented, initSteps() must be.")
->>>>>>> 65af8188878 (Fixed lint issues)
     }
 
     override fun getSupportedSourceVersion() = SourceVersion.latest()
-=======
-    override fun getSupportedSourceVersion() = SourceVersion.latest()
-
-    override fun processingSteps() = impl.processingSteps()
-
-    override fun postRound(env: XProcessingEnv, round: XRoundEnv) = impl.postRound(env, round)
->>>>>>> 2e9f6f254cc (Move initSteps() into JavacBasicAnnotationProcessor and make final)
 }
