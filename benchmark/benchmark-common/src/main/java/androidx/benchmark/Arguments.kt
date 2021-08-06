@@ -42,6 +42,7 @@ public object Arguments {
     internal val outputEnable: Boolean
     internal val startupMode: Boolean
     internal val dryRunMode: Boolean
+    internal val iterations: Int?
     internal val profiler: Profiler?
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
@@ -80,6 +81,9 @@ public object Arguments {
 
         outputEnable = !dryRunMode &&
             (arguments.getBenchmarkArgument("output.enable")?.toBoolean() ?: true)
+
+        iterations =
+            arguments.getBenchmarkArgument("iterations")?.toInt()
 
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")

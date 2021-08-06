@@ -17,7 +17,6 @@
 package androidx.benchmark
 
 import android.Manifest
-import android.util.Log
 import androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
@@ -29,6 +28,7 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -166,6 +166,10 @@ public class BenchmarkStateTest {
         val expectedCount = report.warmupIterations + report.repeatIterations * expectedRepeatCount
         assertEquals(expectedCount, total)
 
+        if (Arguments.iterations != null) {
+            assertEquals(Arguments.iterations, report.repeatIterations)
+        }
+
         // verify we're not in warmup mode
         assertTrue(report.warmupIterations > 0)
         assertTrue(report.repeatIterations > 1)
@@ -180,16 +184,14 @@ public class BenchmarkStateTest {
 
     @Test
     public fun iterationCheck_withAllocations() {
-        if (CpuInfo.locked ||
-            IsolationActivity.sustainedPerformanceModeInUse ||
-            Errors.isEmulator
-        ) {
-            // In any of these conditions, it's known that throttling won't happen, so it's safe
-            // to check for allocation count, by setting checkingForThermalThrottling = false
-            iterationCheck(checkingForThermalThrottling = false)
-        } else {
-            Log.d(BenchmarkState.TAG, "Warning - bypassing iterationCheck_withAllocations")
-        }
+        // In any of these conditions, it's known that throttling won't happen, so it's safe
+        // to check for allocation count, by setting checkingForThermalThrottling = false
+        assumeTrue(
+            CpuInfo.locked ||
+                IsolationActivity.sustainedPerformanceModeInUse ||
+                Errors.isEmulator
+        )
+        iterationCheck(checkingForThermalThrottling = false)
     }
 
     @Test
