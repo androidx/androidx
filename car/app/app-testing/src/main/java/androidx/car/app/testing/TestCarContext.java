@@ -81,7 +81,7 @@ public class TestCarContext extends CarContext {
 
     @NonNull
     @Override
-    public <T extends Manager> T getCarService(@NonNull Class<T> serviceClass) {
+    public <T> T getCarService(@NonNull Class<T> serviceClass) {
         String serviceName;
 
         if (serviceClass.isInstance(mTestAppManager)) {
