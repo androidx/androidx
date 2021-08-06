@@ -36,6 +36,9 @@ abstract class KspBasicAnnotationProcessor(
     val symbolProcessorEnvironment: SymbolProcessorEnvironment
 ) : SymbolProcessor, XBasicAnnotationProcessor {
 
+    // Cache and lazily get steps during the initial process() so steps initialization is done once.
+    private val steps by lazy { processingSteps() }
+
     final override fun process(resolver: Resolver): List<KSAnnotated> {
         val processingEnv = XProcessingEnv.create(
             symbolProcessorEnvironment.options,
@@ -44,7 +47,7 @@ abstract class KspBasicAnnotationProcessor(
             symbolProcessorEnvironment.logger
         )
         val round = XRoundEnv.create(processingEnv)
-        val deferredElements = processingSteps().flatMap { step ->
+        val deferredElements = steps.flatMap { step ->
             val invalidElements = mutableSetOf<XElement>()
             val elementsByAnnotation = step.annotations().mapNotNull { annotation ->
                 val annotatedElements = round.getElementsAnnotatedWith(annotation)

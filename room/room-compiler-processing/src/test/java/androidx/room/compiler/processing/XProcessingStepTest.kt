@@ -491,18 +491,25 @@ class XProcessingStepTest {
                 return deferredElements
             }
         }
+        var invokedProcessingSteps = 0
         assertAbout(
             JavaSourcesSubjectFactory.javaSources()
         ).that(
             listOf(main)
         ).processedWith(
             object : JavacBasicAnnotationProcessor() {
-                override fun processingSteps() = listOf(mainStep)
+                override fun processingSteps(): List<XProcessingStep> {
+                    invokedProcessingSteps++
+                    return listOf(mainStep)
+                }
             }
         ).compilesWithoutError()
 
         // Assert that mainStep was processed twice due to deferring
         assertThat(stepsProcessed).containsExactly(mainStep, mainStep)
+
+        // Assert processingSteps() was only called once
+        assertThat(invokedProcessingSteps).isEqualTo(1)
     }
 
     @Test
@@ -660,11 +667,14 @@ class XProcessingStepTest {
                 return deferredElements
             }
         }
-
+        var invokedProcessingSteps = 0
         val processorProvider = object : SymbolProcessorProvider {
             override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
                 return object : KspBasicAnnotationProcessor(environment) {
-                    override fun processingSteps() = listOf(mainStep)
+                    override fun processingSteps(): List<XProcessingStep> {
+                        invokedProcessingSteps++
+                        return listOf(mainStep)
+                    }
                 }
             }
         }
@@ -678,6 +688,9 @@ class XProcessingStepTest {
 
         // Assert that mainStep was processed twice due to deferring
         assertThat(stepsProcessed).containsExactly(mainStep, mainStep)
+
+        // Assert processingSteps() was only called once
+        assertThat(invokedProcessingSteps).isEqualTo(1)
     }
 
     @Test
