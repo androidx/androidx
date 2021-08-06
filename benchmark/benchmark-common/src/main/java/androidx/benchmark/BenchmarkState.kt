@@ -440,11 +440,9 @@ public class BenchmarkState {
     }
 
     private fun computeMaxIterations(): Int {
-        var idealIterations =
-            (REPEAT_DURATION_TARGET_NS / warmupManager.estimatedIterationTimeNs).toInt()
-        idealIterations = idealIterations.coerceIn(MIN_TEST_ITERATIONS, MAX_TEST_ITERATIONS)
-        OVERRIDE_ITERATIONS?.let { idealIterations = OVERRIDE_ITERATIONS }
-        return idealIterations
+        return OVERRIDE_ITERATIONS
+            ?: (REPEAT_DURATION_TARGET_NS / warmupManager.estimatedIterationTimeNs).toInt()
+                .coerceIn(MIN_TEST_ITERATIONS, MAX_TEST_ITERATIONS)
     }
 
     private fun throwIfPaused() = check(!paused) {
@@ -547,11 +545,13 @@ public class BenchmarkState {
 
         internal const val REPEAT_COUNT_ALLOCATION = 5
 
-        private val OVERRIDE_ITERATIONS = if (
+        private val OVERRIDE_ITERATIONS = when {
             Arguments.dryRunMode ||
-            Arguments.startupMode ||
-            Arguments.profiler?.requiresSingleMeasurementIteration == true
-        ) 1 else null
+                Arguments.startupMode ||
+                Arguments.profiler?.requiresSingleMeasurementIteration == true -> 1
+            Arguments.iterations != null -> Arguments.iterations
+            else -> null
+        }
 
         internal val REPEAT_DURATION_TARGET_NS = when (Arguments.profiler?.requiresExtraRuntime) {
             // longer measurements while profiling to ensure we have enough data
