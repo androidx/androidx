@@ -24,8 +24,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.ArraySet;
 
+import androidx.collection.ArraySet;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
