@@ -16,10 +16,6 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.XProcessingStep
-import androidx.room.compiler.processing.XRoundEnv
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.compat.XConverters.toJavac
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.XTestInvocation
