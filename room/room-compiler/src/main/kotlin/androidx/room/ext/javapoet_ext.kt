@@ -97,6 +97,8 @@ object RoomTypeNames {
         "$ROOM_PACKAGE.migration",
         "AutoMigrationSpec"
     )
+    val UUID_UTIL: ClassName =
+        ClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
 }
 
 object PagingTypeNames {
@@ -140,6 +142,7 @@ object CommonTypeNames {
     val ILLEGAL_ARG_EXCEPTION = ClassName.get(
         "java.lang", "IllegalArgumentException"
     )
+    val UUID = ClassName.get("java.util", "UUID")
 }
 
 object GuavaBaseTypeNames {

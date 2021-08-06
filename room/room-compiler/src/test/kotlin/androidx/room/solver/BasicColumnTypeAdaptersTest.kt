@@ -106,7 +106,7 @@ class BasicColumnTypeAdaptersTest(
                 .findColumnTypeAdapter(
                     out = type,
                     affinity = null,
-                    skipEnumConverter = false
+                    skipDefaultConverter = false
                 )!!
             val expected = if (input.isAlwaysCheckedForNull()) {
                 """
@@ -134,7 +134,7 @@ class BasicColumnTypeAdaptersTest(
                 .findColumnTypeAdapter(
                     out = boxedType,
                     affinity = null,
-                    skipEnumConverter = false
+                    skipDefaultConverter = false
                 )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             val expected = if (invocation.isKsp && !input.isAlwaysCheckedForNull()) {
@@ -167,7 +167,7 @@ class BasicColumnTypeAdaptersTest(
                 .findColumnTypeAdapter(
                     out = nullableType,
                     affinity = null,
-                    skipEnumConverter = false
+                    skipDefaultConverter = false
                 )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(
@@ -216,7 +216,7 @@ class BasicColumnTypeAdaptersTest(
                 .findColumnTypeAdapter(
                     out = type,
                     affinity = null,
-                    skipEnumConverter = false
+                    skipDefaultConverter = false
                 )!!
             val expected = if (input.isAlwaysCheckedForNull()) {
                 """
@@ -244,7 +244,7 @@ class BasicColumnTypeAdaptersTest(
                 .findColumnTypeAdapter(
                     out = boxedType,
                     affinity = null,
-                    skipEnumConverter = false
+                    skipDefaultConverter = false
                 )!!
             adapter.readFromCursor("out", "crs", "9", scope)
             val expected = if (invocation.isKsp && !input.isAlwaysCheckedForNull()) {

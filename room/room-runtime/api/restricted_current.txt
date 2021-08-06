@@ -339,6 +339,11 @@ package androidx.room.util {
     field public final boolean unique;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class UUIDUtil {
+    method public static java.util.UUID convertByteToUUID(byte[]);
+    method public static byte[] convertUUIDToByte(java.util.UUID);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ViewInfo {
     ctor public ViewInfo(String!, String!);
     method public static androidx.room.util.ViewInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
