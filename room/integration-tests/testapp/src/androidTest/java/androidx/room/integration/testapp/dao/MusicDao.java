@@ -19,13 +19,17 @@ package androidx.room.integration.testapp.dao;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.MapInfo;
 import androidx.room.Query;
 import androidx.room.RawQuery;
+import androidx.room.RewriteQueriesToDropUnusedColumns;
 import androidx.room.Transaction;
 import androidx.room.integration.testapp.vo.Album;
 import androidx.room.integration.testapp.vo.AlbumNameAndBandName;
 import androidx.room.integration.testapp.vo.AlbumWithSongs;
 import androidx.room.integration.testapp.vo.Artist;
+import androidx.room.integration.testapp.vo.Image;
+import androidx.room.integration.testapp.vo.ImageFormat;
 import androidx.room.integration.testapp.vo.MultiSongPlaylistWithSongs;
 import androidx.room.integration.testapp.vo.Playlist;
 import androidx.room.integration.testapp.vo.PlaylistSongXRef;
@@ -39,6 +43,8 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSetMultimap;
 
+import java.nio.ByteBuffer;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +52,7 @@ import java.util.Set;
 import io.reactivex.Flowable;
 
 @Dao
+@SuppressWarnings("ROOM_EXPAND_PROJECTION_WITH_UNUSED_COLUMNS")
 public interface MusicDao {
 
     @Insert
@@ -62,6 +69,9 @@ public interface MusicDao {
 
     @Insert
     void addPlaylistSongRelation(PlaylistSongXRef... relations);
+
+    @Insert
+    void addImages(Image... images);
 
     @Transaction
     @Query("SELECT * FROM Playlist")
@@ -183,4 +193,97 @@ public interface MusicDao {
     @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
     LiveData<ImmutableListMultimap<Artist, Song>>
             getAllArtistAndTheirSongsAsLiveDataGuavaImmutableListMultimap();
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(keyColumn = "mArtistName")
+    @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
+    Map<String, List<Song>> getArtistNameToSongs();
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(keyColumn = "mReleasedYear", valueColumn = "mReleasedYear")
+    @Query("SELECT * FROM Album JOIN Song ON Song.mReleasedYear = Album.mAlbumReleaseYear")
+    Map<Integer, List<Song>> getReleaseYearToAlbums();
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(keyColumn = "mReleasedYear", valueColumn = "mTitle")
+    @Query("SELECT * FROM Album JOIN Song ON Song.mReleasedYear = Album.mAlbumReleaseYear")
+    Map<Integer, List<String>> getReleaseYearToSongNames();
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(keyColumn = "mArtistName", valueColumn = "mArtist")
+    @RawQuery
+    Map<String, List<Song>> getArtistNameToSongsRawQuery(SupportSQLiteQuery query);
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(keyColumn = "mReleasedYear", valueColumn = "mReleasedYear")
+    @RawQuery
+    Map<Integer, List<Song>> getReleaseYearToAlbumsRawQuery(SupportSQLiteQuery query);
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(keyColumn = "mReleasedYear", valueColumn = "mTitle")
+    @RawQuery
+    Map<Integer, List<String>> getReleaseYearToSongNamesRawQuery(SupportSQLiteQuery query);
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(valueColumn = "songCount")
+    @Query("SELECT *, COUNT(mSongId) as songCount FROM Artist JOIN Song ON Artist.mArtistName = "
+            + "Song.mArtist GROUP BY mArtistName")
+    Map<Artist, Integer> getArtistAndSongCountMap();
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(valueColumn = "songCount")
+    @RawQuery
+    Map<Artist, Integer> getArtistAndSongCountMapRawQuery(SupportSQLiteQuery query);
+
+    // Other Map Key/Value Types
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(valueColumn = "mAlbumCover")
+    @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+    ImmutableMap<Artist, ByteBuffer> getAllArtistsWithAlbumCovers();
+
+    @MapInfo(valueColumn = "mAlbumCover")
+    @RawQuery
+    ImmutableMap<Artist, ByteBuffer> getAllArtistsWithAlbumCoversRawQuery(SupportSQLiteQuery query);
+
+    @RewriteQueriesToDropUnusedColumns
+
+    @MapInfo(valueColumn = "mImageYear")
+    @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+    ImmutableMap<Artist, Long> getAllArtistsWithAlbumCoverYear();
+
+    @MapInfo(keyColumn = "mImageYear")
+    @RawQuery
+    ImmutableMap<Long, Artist> getAllAlbumCoverYearToArtistsWithRawQuery(SupportSQLiteQuery query);
+
+    @MapInfo(keyColumn = "mAlbumCover", valueColumn = "mIsActive")
+    @Query("SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image.mArtistInImage")
+    ImmutableMap<ByteBuffer, Boolean> getAlbumCoversWithBandActivity();
+
+    @MapInfo(keyColumn = "mAlbumCover", valueColumn = "mIsActive")
+    @RawQuery
+    ImmutableMap<ByteBuffer, Boolean> getAlbumCoversWithBandActivityRawQuery(
+            SupportSQLiteQuery query
+    );
+
+    @MapInfo(keyColumn = "mDateReleased", valueColumn = "mIsActive")
+    @Query("SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image.mArtistInImage")
+    ImmutableMap<Date, Boolean> getAlbumDateWithBandActivity();
+
+    @MapInfo(keyColumn = "mDateReleased", valueColumn = "mIsActive")
+    @RawQuery
+    ImmutableMap<Date, Boolean> getAlbumDateWithBandActivityRawQuery(SupportSQLiteQuery query);
+
+    @MapInfo(keyColumn = "mFormat", valueColumn = "mIsActive")
+    @Query("SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image.mArtistInImage")
+    ImmutableMap<ImageFormat, Boolean> getImageFormatWithBandActivity();
+
+    @MapInfo(keyColumn = "mFormat", valueColumn = "mIsActive")
+    @RawQuery
+    ImmutableMap<ImageFormat, Boolean> getImageFormatWithBandActivityRawQuery(
+            SupportSQLiteQuery query
+    );
+
+    @MapInfo(keyColumn = "dog", valueColumn = "cat")
+    @RawQuery
+    Map<Artist, Integer> getMapWithInvalidColumnRawQuery(SupportSQLiteQuery query);
 }

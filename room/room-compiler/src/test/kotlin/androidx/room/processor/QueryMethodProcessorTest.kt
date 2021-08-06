@@ -32,6 +32,7 @@ import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
 import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
+import androidx.room.processor.ProcessorErrors.MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
@@ -1303,7 +1304,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         )
         val commonSources = listOf(
             COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK,
-            COMMON.NOT_AN_ENTITY
+            COMMON.NOT_AN_ENTITY, COMMON.ARTIST, COMMON.SONG
         )
         runProcessorTest(
             sources = additionalSources + commonSources + inputSource,
@@ -1368,6 +1369,78 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 hasErrorCount(2)
                 hasError(DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP)
                 hasErrorContaining("Not sure how to convert a Cursor to this method's return type")
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapInfoWithBothEmptyColumnsProvided() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @MapInfo
+                @Query("select * from User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<User, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED)
+            }
+        }
+    }
+
+    @Test
+    fun testDoesNotImplementEqualsAndHashcodeQuery() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("select * from User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<User, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarningCount(1)
+                hasWarningContaining(
+                    ProcessorErrors.classMustImplementEqualsAndHashCode(
+                        "java.util.Map<foo.bar.User, foo.bar.Book>",
+                        "foo.bar.User"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapInfoWithColumnsNotInQuery() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @MapInfo(keyColumn="cat", valueColumn="dog")
+                @Query("select * from User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<User, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarningCount(1)
+                hasWarningContaining(
+                    ProcessorErrors.classMustImplementEqualsAndHashCode(
+                        "java.util.Map<foo.bar.User, foo.bar.Book>",
+                        "foo.bar.User"
+                    )
+                )
+                hasErrorCount(2)
+                hasErrorContaining(
+                    "Column(s) specified in the provided @MapInfo annotation must " +
+                        "be present in the query. Provided: cat."
+                )
+                hasErrorContaining(
+                    "Column(s) specified in the provided @MapInfo annotation must " +
+                        "be present in the query. Provided: dog."
+                )
             }
         }
     }

@@ -17,7 +17,9 @@
 package androidx.room.ext
 
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isByte
+import androidx.room.compiler.processing.isEnum
 import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
@@ -56,15 +58,23 @@ fun XType.isNotByte() = !isByte()
 
 /**
  * Checks if the class of the provided type has the equals() and hashCode() methods declared.
+ *
+ * Certain Room types and database primitive types are considered to implements equals and
+ * hashcode.
+ *
  * If they are not found at the current class level, the method recursively moves on to the
  * super class level and continues to look for these declared methods.
  */
 fun XType.implementsEqualsAndHashcode(): Boolean {
-    if (this.typeName.isPrimitive || this.typeName.isBoxedPrimitive) {
-        return true
-    }
+    if (this.typeName.isPrimitive) return true
+    if (this.typeName.isBoxedPrimitive) return true
+    if (this.typeName == CommonTypeNames.STRING) return true
+    if (this.isTypeOf(ByteArray::class)) return true
+    if (this.isArray() && this.isByte()) return true
+
     val typeElement = this.typeElement ?: return false
 
+    if (this.typeElement!!.isEnum()) return true
     if (typeElement.className == ClassName.OBJECT) {
         return false
     }

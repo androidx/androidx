@@ -24,12 +24,12 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 
 class MapQueryResultAdapter(
-    private val keyTypeArg: XType,
-    private val valueTypeArg: XType,
+    override val keyTypeArg: XType,
+    override val valueTypeArg: XType,
     private val keyRowAdapter: RowAdapter,
     private val valueRowAdapter: RowAdapter,
     private val valueCollectionType: XType?
-) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)) {
+) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)), MultimapQueryResultAdapter {
     private val declaredToConcreteCollection = mapOf<ClassName, ClassName>(
         ClassName.get(List::class.java) to ClassName.get(ArrayList::class.java),
         ClassName.get(Set::class.java) to ClassName.get(HashSet::class.java)

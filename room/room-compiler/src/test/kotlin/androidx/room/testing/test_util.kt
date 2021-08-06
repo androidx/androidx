@@ -45,6 +45,14 @@ import org.mockito.Mockito.mock
 import java.io.File
 
 object COMMON {
+    val ARTIST by lazy {
+        loadJavaCode("common/input/Artist.java", "foo.bar.Artist")
+    }
+
+    val SONG by lazy {
+        loadJavaCode("common/input/Song.java", "foo.bar.Song")
+    }
+
     val USER by lazy {
         loadJavaCode("common/input/User.java", "foo.bar.User")
     }
