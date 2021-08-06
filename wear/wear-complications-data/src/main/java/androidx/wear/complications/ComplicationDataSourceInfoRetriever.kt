@@ -25,6 +25,7 @@ import android.os.Build
 import android.os.IBinder
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -47,6 +48,7 @@ import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.TraceEvent
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.lang.IllegalArgumentException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -85,7 +87,18 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
         }
 
         @SuppressLint("SyntheticAccessor")
+        override fun onBindingDied(name: ComponentName?) {
+            synchronized(lock) {
+                closed = true
+            }
+            deferredService.completeExceptionally(ServiceDisconnectedException())
+        }
+
+        @SuppressLint("SyntheticAccessor")
         override fun onServiceDisconnected(name: ComponentName) {
+            synchronized(lock) {
+                closed = true
+            }
             deferredService.completeExceptionally(ServiceDisconnectedException())
         }
     }
@@ -94,6 +107,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     private val serviceConnection: ServiceConnection = ProviderInfoServiceConnection()
     private var context: Context? = null
     private val deferredService = CompletableDeferred<IProviderInfoService>()
+    private val lock = Any()
 
     /**
      * @hide
@@ -103,13 +117,16 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     public var closed: Boolean = false
         private set
 
-    /** @param context the current context */
-    public constructor(context: Context) {
+    internal constructor(context: Context, intent: Intent) {
         this.context = context
-        val intent = Intent(ACTION_GET_COMPLICATION_CONFIG)
-        intent.setPackage(PROVIDER_INFO_SERVICE_PACKAGE)
         context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
+
+    /** @param context the current context */
+    public constructor(context: Context) : this(
+        context,
+        Intent(ACTION_GET_COMPLICATION_CONFIG).apply { setPackage(PROVIDER_INFO_SERVICE_PACKAGE) }
+    )
 
     /** Exception thrown if the service disconnects. */
     public class ServiceDisconnectedException : Exception()
@@ -144,8 +161,10 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
         watchFaceComplicationIds: IntArray
     ): Array<Result>? =
         TraceEvent("ComplicationDataSourceInfoRetriever.retrieveComplicationDataSourceInfo").use {
-            require(!closed) {
-                "retrieveComplicationDataSourceInfo called after close"
+            synchronized(lock) {
+                require(!closed) {
+                    "retrieveComplicationDataSourceInfo called after close"
+                }
             }
             awaitDeferredService().getProviderInfos(
                 watchFaceComponent, watchFaceComplicationIds
@@ -179,8 +198,10 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     ): ComplicationData? = TraceEvent(
         "ComplicationDataSourceInfoRetriever.requestPreviewComplicationData"
     ).use {
-        require(!closed) {
-            "retrievePreviewComplicationData called after close"
+        synchronized(lock) {
+            require(!closed) {
+                "retrievePreviewComplicationData called after close"
+            }
         }
         val service = awaitDeferredService()
         if (service.apiVersion < 1) {
@@ -234,11 +255,27 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
      * may be used with try-with-resources.
      */
     override fun close() {
-        closed = true
-        context?.unbindService(serviceConnection)
+        synchronized(lock) {
+            if (closed) {
+                Log.e(
+                    TAG,
+                    "Error ComplicationDataSourceInfoRetriever.close called when already closed",
+                    Throwable()
+                )
+            } else {
+                closed = true
+                try {
+                    context?.unbindService(serviceConnection)
+                } catch (e: IllegalArgumentException) {
+                    Log.e(TAG, "unbindService failed", e)
+                }
+            }
+        }
     }
 
     private companion object {
+        private const val TAG = "ComplicationDataS"
+
         /** The package of the service that supplies complication data source info.  */
         private const val PROVIDER_INFO_SERVICE_PACKAGE = "com.google.android.wearable.app"
         private const val ACTION_GET_COMPLICATION_CONFIG =
