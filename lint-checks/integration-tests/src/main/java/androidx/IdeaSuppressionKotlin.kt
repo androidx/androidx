@@ -14,35 +14,31 @@
  * limitations under the License.
  */
 
-package androidx;
+package androidx
 
-/**
- * Java usage of inline suppression.
- */
-@SuppressWarnings("unused")
-public class IdeaSuppressionJava {
-
+// Suppress deprecation warning as it generates false positives when running project lint checks.
+// This is OK as the tests check for usage of `//noinspection deprecation`.
+@Suppress("unused", "DEPRECATION")
+class IdeaSuppressionKotlin {
     /**
      * Call to a deprecated method with an inline suppression.
      */
-    public void callDeprecatedMethod() {
+    fun callDeprecatedMethod() {
         //noinspection deprecation
-        deprecatedMethod();
+        deprecatedMethod()
 
-        notDeprecatedMethod();
+        notDeprecatedMethod()
     }
 
     /**
      * This method is deprecated.
-     *
-     * @deprecated Replaced with {@link #notDeprecatedMethod()}
      */
-    @Deprecated
-    public void deprecatedMethod() {}
+    @Deprecated("Replaced with {@link #notDeprecatedMethod()}")
+    fun deprecatedMethod() {
+    }
 
     /**
      * This method is not deprecated.
      */
-    public void notDeprecatedMethod() {}
-
+    fun notDeprecatedMethod() {}
 }

@@ -14,35 +14,14 @@
  * limitations under the License.
  */
 
-package androidx;
+package androidx
 
-/**
- * Java usage of inline suppression.
- */
-@SuppressWarnings("unused")
-public class IdeaSuppressionJava {
+import java.util.concurrent.ConcurrentHashMap
 
-    /**
-     * Call to a deprecated method with an inline suppression.
-     */
-    public void callDeprecatedMethod() {
-        //noinspection deprecation
-        deprecatedMethod();
-
-        notDeprecatedMethod();
+@Suppress("unused")
+class ConcurrentHashMapUsageKotlin {
+    private val mMap: ConcurrentHashMap<*, *> = ConcurrentHashMap<Any, Any>()
+    fun <V, K> createMap(): Map<V, K> {
+        return ConcurrentHashMap()
     }
-
-    /**
-     * This method is deprecated.
-     *
-     * @deprecated Replaced with {@link #notDeprecatedMethod()}
-     */
-    @Deprecated
-    public void deprecatedMethod() {}
-
-    /**
-     * This method is not deprecated.
-     */
-    public void notDeprecatedMethod() {}
-
 }

@@ -14,35 +14,12 @@
  * limitations under the License.
  */
 
-package androidx;
+package androidx
 
-/**
- * Java usage of inline suppression.
- */
-@SuppressWarnings("unused")
-public class IdeaSuppressionJava {
+@Suppress("unused")
+class SynchronizedMethodKotlin {
 
-    /**
-     * Call to a deprecated method with an inline suppression.
-     */
-    public void callDeprecatedMethod() {
-        //noinspection deprecation
-        deprecatedMethod();
-
-        notDeprecatedMethod();
+    @Synchronized
+    fun someMethod() {
     }
-
-    /**
-     * This method is deprecated.
-     *
-     * @deprecated Replaced with {@link #notDeprecatedMethod()}
-     */
-    @Deprecated
-    public void deprecatedMethod() {}
-
-    /**
-     * This method is not deprecated.
-     */
-    public void notDeprecatedMethod() {}
-
 }

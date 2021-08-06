@@ -45,4 +45,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
         check(*input).expect(expected)
     }
+
+    @Test
+    fun `Detection of ConcurrentHashMap usage in Kotlin sources`() {
+        val input = arrayOf(
+            ktSample("androidx.ConcurrentHashMapUsageKotlin"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/ConcurrentHashMapUsageKotlin.kt:19: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+import java.util.concurrent.ConcurrentHashMap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
 }
