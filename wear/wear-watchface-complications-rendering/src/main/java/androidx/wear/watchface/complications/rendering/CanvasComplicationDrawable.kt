@@ -53,7 +53,10 @@ constructor(
     private val invalidateCallback: CanvasComplication.InvalidateCallback
 ) : CanvasComplication {
 
-    private companion object {
+    internal companion object {
+        // Complications are highlighted when tapped and after this delay the highlight is removed.
+        internal const val COMPLICATION_HIGHLIGHT_DURATION_MS = 300L
+
         internal const val EXPANSION_DP = 6.0f
         internal const val STROKE_WIDTH_DP = 3.0f
     }
@@ -112,7 +115,11 @@ constructor(
         drawable.isInAmbientMode = renderParameters.drawMode == DrawMode.AMBIENT
         drawable.bounds = bounds
         drawable.currentTimeMillis = calendar.timeInMillis
-        drawable.isHighlighted = renderParameters.pressedComplicationSlotIds.contains(slotId)
+        drawable.isHighlighted = renderParameters.lastComplicationTapDownEvents[slotId]?.let {
+            val startTime = it.tapTimeMillis
+            val endTime = it.tapTimeMillis + COMPLICATION_HIGHLIGHT_DURATION_MS
+            calendar.timeInMillis in startTime until endTime
+        } ?: false
         drawable.draw(canvas)
     }
 

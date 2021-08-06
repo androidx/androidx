@@ -278,6 +278,17 @@ package androidx.wear.watchface.data {
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.IdAndComplicationStateWireFormat!>! CREATOR;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public final class IdAndTapEventWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public IdAndTapEventWireFormat(int, int, int, long);
+    method public int describeContents();
+    method public long getCalendarTapTimeMillis();
+    method public int getId();
+    method public int getX();
+    method public int getY();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.IdAndTapEventWireFormat!>! CREATOR;
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class LayerParameterWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
     ctor public LayerParameterWireFormat(int, int);
     method public int describeContents();
@@ -288,7 +299,7 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class RenderParametersWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public RenderParametersWireFormat(int, int, int, int, String?, @ColorInt int, @ColorInt int, int[]);
+    ctor public RenderParametersWireFormat(int, int, int, int, String?, @ColorInt int, @ColorInt int, java.util.List<androidx.wear.watchface.data.IdAndTapEventWireFormat!>);
     method public int describeContents();
     method @ColorInt public int getBackgroundTint();
     method public int getDrawMode();
@@ -296,7 +307,7 @@ package androidx.wear.watchface.data {
     method public int getElementType();
     method public String? getElementUserStyleSettingId();
     method @ColorInt public int getHighlightTint();
-    method public int[] getPressedComplicationSlotIds();
+    method public java.util.List<androidx.wear.watchface.data.IdAndTapEventWireFormat!>? getIdAndTapEventWireFormat();
     method public int getWatchFaceLayerSetBitfield();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.RenderParametersWireFormat!>! CREATOR;

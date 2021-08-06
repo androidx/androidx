@@ -38,7 +38,6 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
-import java.lang.ref.WeakReference
 
 private fun getComponentName(context: Context) = ComponentName(
     context.packageName,
@@ -90,8 +89,11 @@ public class ComplicationSlotsManager(
     public val complicationSlots: Map<Int, ComplicationSlot> =
         complicationSlotCollection.associateBy(ComplicationSlot::id)
 
-    /** The set of slot ids that are rendered as pressed. */
-    public val pressedSlotIds: Set<Int> = HashSet()
+    /**
+     * Map of [ComplicationSlot] id to the latest [TapType.DOWN] [TapEvent] that the
+     * ComplicationSlot received, if any.
+     */
+    public val lastComplicationTapDownEvents: Map<Int, TapEvent> = HashMap()
 
     private class InitialComplicationConfig(
         val complicationSlotBounds: ComplicationSlotBounds,
@@ -278,31 +280,6 @@ public class ComplicationSlotsManager(
     }
 
     /**
-     * Starts a short animation, briefly highlighting the complication to provide visual feedback
-     * when the user has tapped on it.
-     *
-     * @param complicationSlotId The ID of the complication slot to briefly highlight
-     */
-    @UiThread
-    public fun displayPressedAnimation(complicationSlotId: Int) {
-        requireNotNull(complicationSlots[complicationSlotId]) {
-            "No complication found with ID $complicationSlotId"
-        }
-        (pressedSlotIds as HashSet<Int>).add(complicationSlotId)
-
-        val weakRef = WeakReference(this)
-        watchFaceHostApi.getUiThreadHandler().postDelayed(
-            {
-                // The watch face might go away before this can run.
-                if (weakRef.get() != null) {
-                    pressedSlotIds.remove(complicationSlotId)
-                }
-            },
-            WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS
-        )
-    }
-
-    /**
      * Returns the id of the complication slot at coordinates x, y or `null` if there isn't one.
      *
      * @param x The x coordinate of the point to perform a hit test
@@ -361,6 +338,11 @@ public class ComplicationSlotsManager(
         }
     }
 
+    @UiThread
+    internal fun onTapDown(complicationSlotId: Int, tapEvent: TapEvent) {
+        (lastComplicationTapDownEvents as HashMap)[complicationSlotId] = tapEvent
+    }
+
     /**
      * Adds a [TapCallback] which is called whenever the user interacts with a complication slot.
      */
@@ -381,7 +363,11 @@ public class ComplicationSlotsManager(
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("ComplicationSlotsManager:")
-        writer.println("renderer.pressedSlotIds=${pressedSlotIds.joinToString()}")
+        writer.println(
+            "lastComplicationTapDownEvents=" + lastComplicationTapDownEvents.map {
+                it.key.toString() + "->" + it.value
+            }.joinToString(", ")
+        )
         writer.increaseIndent()
         for ((_, complication) in complicationSlots) {
             complication.dump(writer)

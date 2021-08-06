@@ -141,13 +141,6 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
             }
         }?.key
 
-    /**
-     * Requests that [ComplicationSlotsManager.displayPressedAnimation] is called for
-     * [complicationSlotId].
-     */
-    @Throws(RemoteException::class)
-    public fun displayPressedAnimation(complicationSlotId: Int)
-
     public companion object {
         /** Indicates a "down" touch event on the watch face. */
         public const val TAP_TYPE_DOWN: Int = IInteractiveWatchFace.TAP_TYPE_DOWN
@@ -311,12 +304,6 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
     override fun close() = TraceEvent("InteractiveWatchFaceClientImpl.close").use {
         iInteractiveWatchFace.release()
-    }
-
-    override fun displayPressedAnimation(complicationSlotId: Int) = TraceEvent(
-        "InteractiveWatchFaceClientImpl.bringAttentionToComplication"
-    ).use {
-        iInteractiveWatchFace.bringAttentionToComplication(complicationSlotId)
     }
 
     override fun sendTouchEvent(

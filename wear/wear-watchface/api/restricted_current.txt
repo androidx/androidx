@@ -143,15 +143,14 @@ package androidx.wear.watchface {
   public final class ComplicationSlotsManager {
     ctor public ComplicationSlotsManager(java.util.Collection<androidx.wear.watchface.ComplicationSlot> complicationSlotCollection, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
     method @UiThread public void addTapListener(androidx.wear.watchface.ComplicationSlotsManager.TapCallback tapCallback);
-    method @UiThread public void displayPressedAnimation(int complicationSlotId);
     method public operator androidx.wear.watchface.ComplicationSlot? get(int id);
     method public androidx.wear.watchface.ComplicationSlot? getBackgroundComplicationSlot();
     method public androidx.wear.watchface.ComplicationSlot? getComplicationSlotAt(@Px int x, @Px int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> getComplicationSlots();
-    method public java.util.Set<java.lang.Integer> getPressedSlotIds();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> getLastComplicationTapDownEvents();
     method @UiThread public void removeTapListener(androidx.wear.watchface.ComplicationSlotsManager.TapCallback tapCallback);
     property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> complicationSlots;
-    property public final java.util.Set<java.lang.Integer> pressedSlotIds;
+    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @VisibleForTesting public androidx.wear.watchface.WatchState watchState;
   }
 
@@ -240,18 +239,18 @@ package androidx.wear.watchface {
   }
 
   public final class RenderParameters {
-    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer, optional java.util.Set<java.lang.Integer> pressedComplicationSlotIds);
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer, optional java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents);
     ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer);
     ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RenderParameters(androidx.wear.watchface.data.RenderParametersWireFormat wireFormat);
     method public androidx.wear.watchface.DrawMode getDrawMode();
     method public androidx.wear.watchface.RenderParameters.HighlightLayer? getHighlightLayer();
-    method public java.util.Set<java.lang.Integer> getPressedComplicationSlotIds();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> getLastComplicationTapDownEvents();
     method public java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> getWatchFaceLayers();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.data.RenderParametersWireFormat toWireFormat();
     property public final androidx.wear.watchface.DrawMode drawMode;
     property public final androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer;
-    property public final java.util.Set<java.lang.Integer> pressedComplicationSlotIds;
+    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents;
     property public final java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers;
     field public static final androidx.wear.watchface.RenderParameters.Companion Companion;
     field public static final androidx.wear.watchface.RenderParameters DEFAULT_INTERACTIVE;
@@ -356,6 +355,16 @@ package androidx.wear.watchface {
     method public boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
   }
 
+  public final class TapEvent {
+    ctor public TapEvent(@Px int xPos, @Px int yPos, long tapTimeMillis);
+    method public long getTapTimeMillis();
+    method public int getXPos();
+    method public int getYPos();
+    property public final long tapTimeMillis;
+    property public final int xPos;
+    property public final int yPos;
+  }
+
   public final class WatchFace {
     ctor public WatchFace(int watchFaceType, androidx.wear.watchface.Renderer renderer);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread @VisibleForTesting public static void clearAllEditorDelegates();
@@ -423,7 +432,7 @@ package androidx.wear.watchface {
   }
 
   public static interface WatchFace.TapListener {
-    method @UiThread public void onTap(int tapType, @Px int xPos, @Px int yPos);
+    method @UiThread public void onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WatchFaceHostApi {
