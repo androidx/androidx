@@ -17,7 +17,6 @@
 package androidx.media2.player;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
  * An immutable object that represents the linear correlation between the media time
@@ -77,13 +76,6 @@ public final class MediaTimestamp {
         mMediaTimeUs = mediaUs;
         mNanoTime = systemNs;
         mClockRate = rate;
-    }
-
-    @RequiresApi(23)
-    /* package */ MediaTimestamp(android.media.MediaTimestamp timestamp) {
-        mMediaTimeUs = timestamp.getAnchorMediaTimeUs();
-        mNanoTime = timestamp.getAnchorSytemNanoTime();
-        mClockRate = timestamp.getMediaClockRate();
     }
 
     /* package */ MediaTimestamp() {
