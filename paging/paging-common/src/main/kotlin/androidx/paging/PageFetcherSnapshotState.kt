@@ -105,7 +105,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
     internal val failedHintsByLoadType = mutableMapOf<LoadType, ViewportHint>()
 
     // only the local load states
-    internal var sourceLoadStates = LoadStates.IDLE
+    internal var sourceLoadStates = MutableLoadStateCollection()
         private set
 
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {
@@ -116,14 +116,6 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
     fun consumeAppendGenerationIdAsFlow(): Flow<Int> {
         return appendGenerationIdCh.consumeAsFlow()
             .onStart { appendGenerationIdCh.trySend(appendGenerationId) }
-    }
-
-    fun setSourceLoadState(type: LoadType, newState: LoadState): Boolean {
-        if (sourceLoadStates.get(type) == newState) {
-            return false
-        }
-        sourceLoadStates = sourceLoadStates.modifyState(type, newState)
-        return true
     }
 
     /**
@@ -148,35 +140,20 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
                 pages = pages,
                 placeholdersBefore = placeholdersBefore,
                 placeholdersAfter = placeholdersAfter,
-                combinedLoadStates = CombinedLoadStates(
-                    refresh = sourceLoadStates.refresh,
-                    prepend = sourceLoadStates.prepend,
-                    append = sourceLoadStates.append,
-                    source = sourceLoadStates,
-                    mediator = null,
-                )
+                sourceLoadStates = sourceLoadStates.snapshot(),
+                mediatorLoadStates = null,
             )
             PREPEND -> Prepend(
                 pages = pages,
                 placeholdersBefore = placeholdersBefore,
-                combinedLoadStates = CombinedLoadStates(
-                    refresh = sourceLoadStates.refresh,
-                    prepend = sourceLoadStates.prepend,
-                    append = sourceLoadStates.append,
-                    source = sourceLoadStates,
-                    mediator = null,
-                )
+                sourceLoadStates = sourceLoadStates.snapshot(),
+                mediatorLoadStates = null,
             )
             APPEND -> Append(
                 pages = pages,
                 placeholdersAfter = placeholdersAfter,
-                combinedLoadStates = CombinedLoadStates(
-                    refresh = sourceLoadStates.refresh,
-                    prepend = sourceLoadStates.prepend,
-                    append = sourceLoadStates.append,
-                    source = sourceLoadStates,
-                    mediator = null,
-                )
+                sourceLoadStates = sourceLoadStates.snapshot(),
+                mediatorLoadStates = null,
             )
         }
     }
@@ -241,7 +218,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
 
         // Reset load state to NotLoading(endOfPaginationReached = false).
         failedHintsByLoadType.remove(event.loadType)
-        sourceLoadStates = sourceLoadStates.modifyState(event.loadType, NotLoading.Incomplete)
+        sourceLoadStates.set(event.loadType, NotLoading.Incomplete)
 
         when (event.loadType) {
             PREPEND -> {

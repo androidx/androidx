@@ -19,8 +19,6 @@ package androidx.paging
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
-import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import com.google.common.truth.Truth.assertThat
@@ -38,7 +36,7 @@ internal fun <T : Any> PagePresenter(
     trailingNullCount: Int = COUNT_UNDEFINED,
     indexOfInitialPage: Int = 0
 ) = PagePresenter(
-    Refresh(
+    localRefresh(
         pages = pages.mapIndexed { index, list ->
             TransformablePage(
                 originalPageOffset = index - indexOfInitialPage,
@@ -47,7 +45,6 @@ internal fun <T : Any> PagePresenter(
         },
         placeholdersBefore = leadingNullCount,
         placeholdersAfter = trailingNullCount,
-        combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
     )
 )
 
@@ -522,11 +519,8 @@ class PagePresenterTest {
     @Test
     fun snapshot_uncounted() {
         val pagePresenter = PagePresenter(
-            insertEvent = Refresh(
+            insertEvent = localRefresh(
                 pages = listOf(TransformablePage(listOf('a'))),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
 
@@ -536,11 +530,10 @@ class PagePresenterTest {
     @Test
     fun snapshot_counted() {
         val pagePresenter = PagePresenter(
-            insertEvent = Refresh(
+            insertEvent = localRefresh(
                 pages = listOf(TransformablePage(listOf('a'))),
                 placeholdersBefore = 1,
                 placeholdersAfter = 3,
-                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
             )
         )
 
@@ -549,9 +542,7 @@ class PagePresenterTest {
 
     companion object {
         val IDLE_EVENTS = listOf<PresenterEvent>(
-            StateEvent(REFRESH, false, NotLoading.Incomplete),
-            StateEvent(PREPEND, false, NotLoading.Incomplete),
-            StateEvent(APPEND, false, NotLoading.Incomplete)
+            CombinedStateEvent(LoadStates.IDLE, null)
         )
     }
 }

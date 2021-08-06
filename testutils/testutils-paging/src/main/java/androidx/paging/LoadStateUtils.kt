@@ -66,3 +66,17 @@ fun remoteLoadStatesOf(
         append = appendRemote,
     ),
 )
+
+/**
+ * Test-only LoadStates builder which defaults each state to [NotLoading], with
+ * [LoadState.endOfPaginationReached] = `false`
+ */
+fun loadStates(
+    refresh: LoadState = NotLoading(endOfPaginationReached = false),
+    prepend: LoadState = NotLoading(endOfPaginationReached = false),
+    append: LoadState = NotLoading(endOfPaginationReached = false),
+) = LoadStates(
+    refresh = refresh,
+    prepend = prepend,
+    append = append,
+)
