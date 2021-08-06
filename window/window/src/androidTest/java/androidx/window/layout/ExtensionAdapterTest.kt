@@ -25,7 +25,7 @@ import androidx.window.extensions.ExtensionFoldingFeature.TYPE_FOLD
 import androidx.window.extensions.ExtensionFoldingFeature.TYPE_HINGE
 import androidx.window.extensions.ExtensionWindowLayoutInfo
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
-import androidx.window.layout.FoldingFeature.Type.Companion.FOLD
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -64,7 +64,9 @@ public class ExtensionAdapterTest : TranslatorTestInterface {
             ExtensionWindowLayoutInfo(
                 extensionDisplayFeatures
             )
-        val expectedFeatures = listOf(FoldingFeature(Bounds(foldFeature.bounds), FOLD, FLAT))
+        val expectedFeatures = listOf(
+            HardwareFoldingFeature(Bounds(foldFeature.bounds), FOLD, FLAT)
+        )
         val expected = WindowLayoutInfo(expectedFeatures)
         val adapter = ExtensionAdapter(windowBoundsCalculator)
         val actual = adapter.translate(mockActivity, windowLayoutInfo)

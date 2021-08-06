@@ -20,13 +20,13 @@ package androidx.window.testing.layout
 import android.app.Activity
 import android.graphics.Rect
 import androidx.window.layout.FoldingFeature
+import androidx.window.layout.FoldingFeature.OcclusionType.Companion.FULL
+import androidx.window.layout.FoldingFeature.OcclusionType.Companion.NONE
 import androidx.window.layout.FoldingFeature.Orientation
 import androidx.window.layout.FoldingFeature.Orientation.Companion.HORIZONTAL
 import androidx.window.layout.FoldingFeature.Orientation.Companion.VERTICAL
 import androidx.window.layout.FoldingFeature.State
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
-import androidx.window.layout.FoldingFeature.Type.Companion.FOLD
-import androidx.window.layout.FoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.WindowMetricsCalculator
 
 /**
@@ -54,20 +54,27 @@ import androidx.window.layout.WindowMetricsCalculator
 @JvmName("createFoldingFeature")
 fun FoldingFeature(
     activity: Activity,
-    center: Int = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(activity).bounds
-        .centerX(),
+    center: Int = -1,
     size: Int = 0,
     state: State = HALF_OPENED,
     orientation: Orientation = HORIZONTAL
 ): FoldingFeature {
-    val type = if (size == 0) {
-        FOLD
-    } else {
-        HINGE
-    }
+    val shouldTreatAsHinge = size != 0
+    val isSeparating = shouldTreatAsHinge || state == HALF_OPENED
     val offset = size / 2
-    val start = center - offset
-    val end = center + offset
+    val metricsCalculator = WindowMetricsCalculator.getOrCreate()
+    val windowBounds = metricsCalculator.computeCurrentWindowMetrics(activity).bounds
+    val actualCenter = if (center < 0) {
+        when (orientation) {
+            HORIZONTAL -> windowBounds.centerY()
+            VERTICAL -> windowBounds.centerX()
+            else -> windowBounds.centerX()
+        }
+    } else {
+        center
+    }
+    val start = actualCenter - offset
+    val end = actualCenter + offset
     val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(activity)
     val bounds = if (orientation == VERTICAL) {
         val windowHeight = metrics.bounds.height()
@@ -76,5 +83,31 @@ fun FoldingFeature(
         val windowWidth = metrics.bounds.width()
         Rect(0, start, windowWidth, end)
     }
-    return FoldingFeature(bounds, type, state)
+    val occlusionType = if (shouldTreatAsHinge) {
+        FULL
+    } else {
+        NONE
+    }
+    return FakeFoldingFeature2(
+        bounds = bounds,
+        isSeparating = isSeparating,
+        occlusionType = occlusionType,
+        orientation = orientation,
+        state = state
+    )
+}
+
+private class FakeFoldingFeature2(
+    override val bounds: Rect,
+    override val isSeparating: Boolean,
+    override val occlusionType: FoldingFeature.OcclusionType,
+    override val orientation: Orientation,
+    override val state: State
+) : FoldingFeature {
+    init {
+        require(!(bounds.width() == 0 && bounds.height() == 0)) { "Bounds must be non zero" }
+        require(!(bounds.left != 0 && bounds.top != 0)) {
+            "Bounding rectangle must start at the top or left window edge for folding features"
+        }
+    }
 }

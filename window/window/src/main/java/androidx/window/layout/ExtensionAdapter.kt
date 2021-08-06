@@ -62,8 +62,8 @@ internal class ExtensionAdapter(private val windowMetricsCalculator: WindowMetri
                 return null
             }
             val type = when (feature.type) {
-                ExtensionFoldingFeature.TYPE_FOLD -> FoldingFeature.Type.FOLD
-                ExtensionFoldingFeature.TYPE_HINGE -> FoldingFeature.Type.HINGE
+                ExtensionFoldingFeature.TYPE_FOLD -> HardwareFoldingFeature.Type.FOLD
+                ExtensionFoldingFeature.TYPE_HINGE -> HardwareFoldingFeature.Type.HINGE
                 else -> {
                     if (ExtensionCompat.DEBUG) {
                         Log.d(TAG, "Unknown feature type: ${feature.type}, skipping feature.")
@@ -81,7 +81,7 @@ internal class ExtensionAdapter(private val windowMetricsCalculator: WindowMetri
                     return null
                 }
             }
-            return FoldingFeature(Bounds(feature.bounds), type, state)
+            return HardwareFoldingFeature(Bounds(feature.bounds), type, state)
         }
 
         private fun isValid(windowBounds: Rect, feature: ExtensionFoldingFeature): Boolean {

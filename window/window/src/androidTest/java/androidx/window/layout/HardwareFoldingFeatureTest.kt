@@ -22,8 +22,8 @@ import androidx.window.layout.FoldingFeature.OcclusionType
 import androidx.window.layout.FoldingFeature.Orientation
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
-import androidx.window.layout.FoldingFeature.Type.Companion.FOLD
-import androidx.window.layout.FoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.TestFoldingFeatureUtil.allFoldStates
 import androidx.window.layout.TestFoldingFeatureUtil.allFoldingFeatureTypeAndStates
 import org.junit.Assert.assertEquals
@@ -36,31 +36,31 @@ import org.junit.runner.RunWith
 /** Tests for [FoldingFeature] class.  */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-public class FoldingFeatureTest {
+public class HardwareFoldingFeatureTest {
 
     @Test(expected = IllegalArgumentException::class)
     public fun tesEmptyRect() {
-        FoldingFeature(Bounds(0, 0, 0, 0), HINGE, HALF_OPENED)
+        HardwareFoldingFeature(Bounds(0, 0, 0, 0), HINGE, HALF_OPENED)
     }
 
     @Test(expected = IllegalArgumentException::class)
     public fun testHorizontalHingeWithNonZeroOrigin() {
-        FoldingFeature(Bounds(1, 10, 20, 10), HINGE, HALF_OPENED)
+        HardwareFoldingFeature(Bounds(1, 10, 20, 10), HINGE, HALF_OPENED)
     }
 
     @Test(expected = IllegalArgumentException::class)
     public fun testVerticalHingeWithNonZeroOrigin() {
-        FoldingFeature(Bounds(10, 1, 19, 29), HINGE, HALF_OPENED)
+        HardwareFoldingFeature(Bounds(10, 1, 19, 29), HINGE, HALF_OPENED)
     }
 
     @Test(expected = IllegalArgumentException::class)
     public fun testHorizontalFoldWithNonZeroOrigin() {
-        FoldingFeature(Bounds(1, 10, 20, 10), FOLD, HALF_OPENED)
+        HardwareFoldingFeature(Bounds(1, 10, 20, 10), FOLD, HALF_OPENED)
     }
 
     @Test(expected = IllegalArgumentException::class)
     public fun testVerticalFoldWithNonZeroOrigin() {
-        FoldingFeature(Bounds(10, 1, 10, 20), FOLD, HALF_OPENED)
+        HardwareFoldingFeature(Bounds(10, 1, 10, 20), FOLD, HALF_OPENED)
     }
 
     @Test // TODO(b/173739071) remove when getType is package private
@@ -68,7 +68,7 @@ public class FoldingFeatureTest {
         val bounds = Bounds(0, 10, 30, 10)
         val type = HINGE
         val state = HALF_OPENED
-        val feature = FoldingFeature(bounds, type, state)
+        val feature = HardwareFoldingFeature(bounds, type, state)
         assertEquals(bounds.toRect(), feature.bounds)
         assertEquals(type, feature.type)
         assertEquals(state, feature.state)
@@ -79,8 +79,8 @@ public class FoldingFeatureTest {
         val bounds = Bounds(1, 0, 1, 10)
         val type = FOLD
         val state = FLAT
-        val original = FoldingFeature(bounds, type, state)
-        val copy = FoldingFeature(bounds, type, state)
+        val original = HardwareFoldingFeature(bounds, type, state)
+        val copy = HardwareFoldingFeature(bounds, type, state)
         assertEquals(original, copy)
     }
 
@@ -90,8 +90,8 @@ public class FoldingFeatureTest {
         val otherRect = Bounds(2, 0, 2, 10)
         val type = FOLD
         val state = FLAT
-        val original = FoldingFeature(originalRect, type, state)
-        val other = FoldingFeature(otherRect, type, state)
+        val original = HardwareFoldingFeature(originalRect, type, state)
+        val other = HardwareFoldingFeature(otherRect, type, state)
         assertNotEquals(original, other)
     }
 
@@ -101,8 +101,8 @@ public class FoldingFeatureTest {
         val originalType = FOLD
         val otherType = HINGE
         val state = FLAT
-        val original = FoldingFeature(rect, originalType, state)
-        val other = FoldingFeature(rect, otherType, state)
+        val original = HardwareFoldingFeature(rect, originalType, state)
+        val other = HardwareFoldingFeature(rect, otherType, state)
         assertNotEquals(original, other)
     }
 
@@ -112,8 +112,8 @@ public class FoldingFeatureTest {
         val type = FOLD
         val originalState = FLAT
         val otherState = HALF_OPENED
-        val original = FoldingFeature(rect, type, originalState)
-        val other = FoldingFeature(rect, type, otherState)
+        val original = HardwareFoldingFeature(rect, type, originalState)
+        val other = HardwareFoldingFeature(rect, type, otherState)
         assertNotEquals(original, other)
     }
 
@@ -123,8 +123,8 @@ public class FoldingFeatureTest {
         val matchingRect = Bounds(1, 0, 1, 10)
         val type = FOLD
         val state = FLAT
-        val original = FoldingFeature(originalRect, type, state)
-        val matching = FoldingFeature(matchingRect, type, state)
+        val original = HardwareFoldingFeature(originalRect, type, state)
+        val matching = HardwareFoldingFeature(matchingRect, type, state)
         assertEquals(original, matching)
         assertEquals(original.hashCode().toLong(), matching.hashCode().toLong())
     }
@@ -140,7 +140,7 @@ public class FoldingFeatureTest {
     @Test
     public fun testIsSeparating_falseForFlatFold() {
         val bounds = Bounds(1, 0, 1, 10)
-        val feature = FoldingFeature(bounds, FOLD, FLAT)
+        val feature = HardwareFoldingFeature(bounds, FOLD, FLAT)
         assertFalse(feature.isSeparating)
     }
 
