@@ -46,7 +46,6 @@ import androidx.annotation.StringDef;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.hardware.CarHardwareManager;
-import androidx.car.app.managers.Manager;
 import androidx.car.app.managers.ManagerCache;
 import androidx.car.app.managers.ResultManager;
 import androidx.car.app.navigation.NavigationManager;
@@ -195,6 +194,10 @@ public class CarContext extends ContextWrapper {
      *   <dd>A {@link NavigationManager} for management of navigation updates.
      *   <dt>{@link #SCREEN_SERVICE}
      *   <dd>A {@link ScreenManager} for management of {@link Screen}s.
+     *   <dt>{@link #CONSTRAINT_SERVICE}
+     *   <dd>A {@link ConstraintManager} for management of content limits.
+     *   <dt>{@link #HARDWARE_SERVICE}
+     *   <dd>A {@link CarHardwareManager} for interacting with car hardware (e.g. sensors) data.
      * </dl>
      *
      * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
@@ -216,10 +219,9 @@ public class CarContext extends ContextWrapper {
     }
 
     /**
-     * Returns the a car service, by class.
+     * Returns a car service by class.
      *
-     * <p>Currently supported classes are: {@link AppManager}, {@link NavigationManager}, {@link
-     * ScreenManager}.
+     * <p>See {@link #getCarService(String)} for a list of the supported car services.
      *
      * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
      * {@link Session} is at least {@link Lifecycle.State#CREATED}</b>.
@@ -232,7 +234,7 @@ public class CarContext extends ContextWrapper {
      * @throws NullPointerException     if {@code serviceClass} is {@code null}
      */
     @NonNull
-    public <T extends Manager> T getCarService(@NonNull Class<T> serviceClass) {
+    public <T> T getCarService(@NonNull Class<T> serviceClass) {
         requireNonNull(serviceClass);
         return mManagers.getOrCreate(serviceClass);
     }
@@ -252,7 +254,7 @@ public class CarContext extends ContextWrapper {
      */
     @NonNull
     @CarServiceType
-    public String getCarServiceName(@NonNull Class<? extends Manager> serviceClass) {
+    public String getCarServiceName(@NonNull Class<?> serviceClass) {
         requireNonNull(serviceClass);
         return mManagers.getName(serviceClass);
     }
