@@ -43,8 +43,8 @@ package androidx.car.app {
     method @androidx.car.app.annotations.RequiresCarApi(2) public android.content.ComponentName? getCallingComponent();
     method public int getCarAppApiLevel();
     method public Object getCarService(String);
-    method public <T extends androidx.car.app.managers.Manager> T getCarService(Class<T!>);
-    method public String getCarServiceName(Class<? extends androidx.car.app.managers.Manager>);
+    method public <T> T getCarService(Class<T!>);
+    method public String getCarServiceName(Class<?>);
     method public androidx.car.app.HostInfo? getHostInfo();
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public boolean isDarkMode();
