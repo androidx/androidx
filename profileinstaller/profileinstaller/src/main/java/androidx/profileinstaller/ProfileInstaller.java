@@ -18,6 +18,8 @@ package androidx.profileinstaller;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.util.Log;
@@ -28,7 +30,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
@@ -47,16 +54,10 @@ public class ProfileInstaller {
     private ProfileInstaller() {}
 
     private static final String PROFILE_BASE_DIR = "/data/misc/profiles/cur/0";
-    private static final String PROFILE_REF_BASE_DIR = "/data/misc/profiles/ref";
     private static final String PROFILE_FILE = "primary.prof";
     private static final String PROFILE_SOURCE_LOCATION = "dexopt/baseline.prof";
-
-    /**
-     * ART may generate an empty profile automatically, and so we use this number to determine a
-     * minimum length/size that is indicative of the profile being non-empty. This is a number of
-     * bytes.
-     */
-    private static final int MIN_MEANINGFUL_LENGTH = 10;
+    private static final String PROFILE_INSTALLER_SKIP_FILE_NAME =
+            "profileinstaller_profileWrittenFor_lastUpdateTime.dat";
 
     /**
      * An object which can be passed to the ProfileInstaller which will receive information
@@ -278,73 +279,68 @@ public class ProfileInstaller {
      */
     @ResultCode public static final int RESULT_PARSE_EXCEPTION = 8;
 
-    static boolean shouldSkipInstall(
-            @NonNull Executor executor,
-            @NonNull DiagnosticsCallback diagnostics,
-            long baselineLength,
-            boolean curExists,
-            long curLength,
-            boolean refExists,
-            long refLength
-    ) {
-        if (curExists && curLength > MIN_MEANINGFUL_LENGTH) {
-            // There's a non-empty profile sitting in this directory
-            diagnostic(executor, diagnostics, DIAGNOSTIC_CURRENT_PROFILE_EXISTS, null);
-        } else {
-            diagnostic(executor, diagnostics, DIAGNOSTIC_CURRENT_PROFILE_DOES_NOT_EXIST, null);
+    /**
+     * Check if we've already installed a profile for this app installation.
+     *
+     * @hide
+     *
+     * @param packageInfo used to lookup the last install time for this apk
+     * @param appFilesDir directory to store a file to note prior installation
+     * @param diagnostics for noting IO errors
+     * @return true every time the APK is installed or upgraded until markProfileWritten is called.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @WorkerThread
+    static boolean hasAlreadyWrittenProfileForThisInstall(PackageInfo packageInfo,
+            File appFilesDir,
+            DiagnosticsCallback diagnostics) {
+        File skipFile = new File(appFilesDir, PROFILE_INSTALLER_SKIP_FILE_NAME);
+        if (!skipFile.exists()) {
+            /* We've never saved a skip file, fastest path */
+            return false;
         }
 
-        if (refExists && refLength > MIN_MEANINGFUL_LENGTH) {
-            diagnostic(executor, diagnostics, DIAGNOSTIC_REF_PROFILE_EXISTS, null);
-        } else {
-            diagnostic(executor, diagnostics, DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST, null);
+        long lastProfileWritePackageUpdateTime;
+        try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(skipFile))) {
+            lastProfileWritePackageUpdateTime = dataInputStream.readLong();
+        } catch (IOException e) {
+            /* Consider the file as not a valid match */
+            return false;
         }
 
-        if (baselineLength > 0 && baselineLength == curLength) {
-            // If the profiles are exactly the same size, we make the assumption that
-            // they are in fact the same profile. In this case, there is no work for
-            // us to do and we can exit early.
-            result(executor, diagnostics, RESULT_ALREADY_INSTALLED, null);
-            return true;
+        // check if the last write package update time matches the current install
+        boolean result = lastProfileWritePackageUpdateTime == packageInfo.lastUpdateTime;
+        if (result) {
+            diagnostics.onResultReceived(RESULT_ALREADY_INSTALLED, null);
         }
+        return result;
+    }
 
-        if (baselineLength > 0 && baselineLength == refLength) {
-            // If the profiles are exactly the same size, we make the assumption that
-            // they are in fact the same profile. In this case, there is no work for
-            // us to do and we can exit early.
-            result(executor, diagnostics, RESULT_ALREADY_INSTALLED, null);
-            return true;
+    static void noteProfileWrittenFor(PackageInfo packageInfo, File appFilesDir) {
+        File skipFile = new File(appFilesDir, PROFILE_INSTALLER_SKIP_FILE_NAME);
+        try (DataOutputStream os = new DataOutputStream(new FileOutputStream(skipFile))) {
+            os.writeLong(packageInfo.lastUpdateTime);
+        } catch (IOException e) {
+            /* nothing */
         }
-
-        if (
-                baselineLength > 0 &&
-                        (baselineLength < curLength || baselineLength < refLength)
-        ) {
-            // if the baseline profile is smaller than the current profile or
-            // reference profile, then we assume that it already has the baseline
-            // profile in it. We avoid doing anything in this case as we don't want
-            // to introduce unnecessary work on the app or ART every time the app runs.
-            // TODO: we could do something a bit smarter here to indicate that we've
-            //  already written the profile. For instance, we could save a file marking the
-            //  install and look at that.
-            result(executor, diagnostics, RESULT_ALREADY_INSTALLED, null);
-            return true;
-        }
-        return false;
     }
 
     /**
      * Transcode the source file to an appropriate destination format for this OS version, and
      * write it to the ART aot directory.
-     *
      * @param assets the asset manager to read source file from dexopt/baseline.prof
      * @param packageName package name of the current apk
+     * @param packageInfo for noting successful installation
+     * @param filesDir for noting successful installation
      * @param apkName The apk file name the profile is targeting
      * @param diagnostics The diagnostics callback to pass diagnostics to
+     * @return true iff the profile was successfully written
      */
     private static void transcodeAndWrite(
             @NonNull AssetManager assets,
             @NonNull String packageName,
+            @NonNull PackageInfo packageInfo,
+            @NonNull File filesDir,
             @NonNull String apkName,
             @NonNull Executor executor,
             @NonNull DiagnosticsCallback diagnostics
@@ -354,35 +350,21 @@ public class ProfileInstaller {
             return;
         }
         File curProfile = new File(new File(PROFILE_BASE_DIR, packageName), PROFILE_FILE);
-        File refProfile = new File(new File(PROFILE_REF_BASE_DIR, packageName), PROFILE_FILE);
 
-        DeviceProfileWriter deviceProfileWriter = new DeviceProfileWriter(assets,
-                executor,
-                diagnostics,
-                apkName,
-                PROFILE_SOURCE_LOCATION,
-                curProfile,
-                refProfile
-        );
+        DeviceProfileWriter deviceProfileWriter = new DeviceProfileWriter(assets, executor,
+                diagnostics, apkName, PROFILE_SOURCE_LOCATION, curProfile);
 
         if (!deviceProfileWriter.deviceAllowsProfileInstallerAotWrites()) {
             return; /* nothing else to do here */
         }
 
-        DeviceProfileWriter.SkipStrategy skipStrategy =
-                (newProfileLength, existingProfileState) -> shouldSkipInstall(
-                        executor,
-                        diagnostics,
-                        newProfileLength,
-                        existingProfileState.hasCurFile(),
-                        existingProfileState.getCurLength(),
-                        existingProfileState.hasRefFile(),
-                        existingProfileState.getRefLength()
-                );
-
-        deviceProfileWriter.copyProfileOrRead(skipStrategy)
+        boolean success = deviceProfileWriter.read()
                 .transcodeIfNeeded()
-                .writeIfNeeded(skipStrategy);
+                .write();
+
+        if (success) {
+            noteProfileWrittenFor(packageInfo, filesDir);
+        }
     }
 
     /**
@@ -451,6 +433,19 @@ public class ProfileInstaller {
         ApplicationInfo appInfo = appContext.getApplicationInfo();
         AssetManager assetManager = appContext.getAssets();
         String apkName = new File(appInfo.sourceDir).getName();
-        transcodeAndWrite(assetManager, packageName, apkName, executor, diagnostics);
+        PackageManager packageManager = context.getPackageManager();
+        PackageInfo packageInfo;
+        try {
+            packageInfo = packageManager.getPackageInfo(packageName, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            diagnostics.onResultReceived(RESULT_IO_EXCEPTION, e);
+            return;
+        }
+        File filesDir = context.getFilesDir();
+
+        if (!hasAlreadyWrittenProfileForThisInstall(packageInfo, filesDir, diagnostics)) {
+            transcodeAndWrite(assetManager, packageName, packageInfo, filesDir, apkName, executor,
+                    diagnostics);
+        }
     }
 }
