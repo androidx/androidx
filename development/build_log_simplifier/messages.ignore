@@ -126,11 +126,12 @@ CHECKOUT=\$CHECKOUT
 GRADLE_USER_HOME=\$GRADLE_USER_HOME
 To honour the JVM settings for this build a single\-use Daemon process will be forked\. See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\#sec:disabling_the_daemon\.
 Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
-\.\.\.\.\.\.\.\.\.\.10%\.\.\.\.\.\.\.\.\.\.\.20%\.\.\.\.\.\.\.\.\.\.\.30%\.\.\.\.\.\.\.\.\.\.40%\.\.\.\.\.\.\.\.\.\.\.50%\.\.\.\.\.\.\.\.\.\.\.60%\.\.\.\.\.\.\.\.\.\.70%\.\.\.\.\.\.\.\.\.\.\.80%\.\.\.\.\.\.\.\.\.\.\.90%\.\.\.\.\.\.\.\.\.\.\.100%
+\.\.\.\.\.\.\.\.\.\.10%\.\.\.\.\.\.\.\.\.\.\.20%\.\.\.\.\.\.\.\.\.\.\.30%\.\.\.\.\.\.\.\.\.\.\.40%\.\.\.\.\.\.\.\.\.\.\.50%\.\.\.\.\.\.\.\.\.\.\.60%\.\.\.\.\.\.\.\.\.\.\.70%\.\.\.\.\.\.\.\.\.\.\.80%\.\.\.\.\.\.\.\.\.\.\.90%\.\.\.\.\.\.\.\.\.\.\.100%
 Welcome to Gradle .*
 Here are the highlights of this release:
-\- Faster incremental Java compilation
-\- Easier source set configuration in the Kotlin DSL
+\- Toolchain support for Scala
+\- More cache hits when Java source files have platform-specific line endings
+\- More resilient remote HTTP build cache behavior
 For more details see .*
 Daemon will be stopped at the end of the build
 # > Task :buildSrc:build
@@ -592,6 +593,7 @@ WARNING\:The option setting \'android\.experimental\.enableArtProfiles\=true\' i
 The current default is \'false\'\.
 # ./gradlew tasks warns as we have warnings present
 You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
+See https://docs.gradle.org/.*/userguide/command_line_interface\.html#sec:command_line_warnings
 # > Task :emoji2:emoji2-bundled:processDebugAndroidTestManifest
 \$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
@@ -603,3 +605,7 @@ WARNING:The option setting 'android\.disableAutomaticComponentCreation=true' is 
 \$SUPPORT/navigation/navigation\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Configure project :buildSrc-tests
 WARNING\:The option setting \'android\.dependencyResolutionAtConfigurationTime\.disallow\=true\' is experimental\.
+# b/195025261
+Unable to detect AGP versions for included builds\. All projects in the build should use the same AGP version\. Class name for the included build .*
+\- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/benchmark/benchmark-macro/build/generated/source/wire'\. Reason: Task ':benchmark:benchmark-macro:.*' uses this output of task ':benchmark:benchmark-macro:generate(Debug|Release)Protos' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed. Please refer to .*
+To honour the JVM settings for this build a single\-use Daemon process will be forked.*

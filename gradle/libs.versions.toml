@@ -35,7 +35,7 @@ sqldelight = "1.3.0"
 wire = "3.6.0"
 
 [libraries]
-androidGradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
+androidGradlePluginz = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
 androidLint = { module = "com.android.tools.lint:lint", version.ref = "androidLint" }
 androidLintMin = { module = "com.android.tools.lint:lint", version.ref = "androidLintMin" }
 androidLintApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLint" }
@@ -45,7 +45,7 @@ androidLintChecks = { module = "com.android.tools.lint:lint-checks", version.ref
 androidLintTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLint" }
 autoCommon = { module = "com.google.auto:auto-common", version = "0.11" }
 atomicFu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicFu" }
-atomicFuPlugin = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "atomicFu" }
+atomicFuPluginz = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "atomicFu" }
 autoServiceAnnotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "autoService" }
 autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
 autoValue = { module = "com.google.auto.value:auto-value", version.ref = "autoValue" }
@@ -61,7 +61,7 @@ daggerCompiler = { module = "com.google.dagger:dagger-compiler", version.ref = "
 dexmakerMockito = { module = "com.linkedin.dexmaker:dexmaker-mockito", version.ref = "dexmaker" }
 dexmakerMockitoInline = { module = "com.linkedin.dexmaker:dexmaker-mockito-inline", version.ref = "dexmaker" }
 dexMemberList = { module = "com.jakewharton.dex:dex-member-list", version = "4.1.1" }
-dokkaGradlePlugin = { module = "org.jetbrains.dokka:dokka-android-gradle-plugin", version = "0.9.17-g014" }
+dokkaGradlePluginz = { module = "org.jetbrains.dokka:dokka-android-gradle-plugin", version = "0.9.17-g014" }
 espressoContrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
 espressoCore = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
 espressoIdlingNet = { module = "androidx.test.espresso.idling:idling-net", version.ref = "espresso" }
@@ -72,11 +72,11 @@ findbugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.2" }
 firebaseAppindexing = { module = "com.google.firebase:firebase-appindexing", version = "19.2.0" }
 hiltAndroid = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hiltAndroidTesting = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
-hiltAndroidGradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
+hiltAndroidGradlePluginz = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 hiltCompiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 hiltCore = { module = "com.google.dagger:hilt-core", version.ref = "hilt" }
 intellijAnnotations = { module = "com.intellij:annotations", version = "12.0" }
-japicmpPlugin = { module = "me.champeau.gradle:japicmp-gradle-plugin", version = "0.2.8" }
+japicmpPluginz = { module = "me.champeau.gradle:japicmp-gradle-plugin", version = "0.2.8" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version = "3.1" }
 jsr250 = { module = "javax.annotation:javax.annotation-api", version = "1.2" }
@@ -107,7 +107,7 @@ kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "k
 kotlinStdlibCommon = { module = "org.jetbrains.kotlin:kotlin-stdlib-common", version.ref = "kotlin" }
 kotlinStdlibJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
 kotlinStdlibJs = { module = "org.jetbrains.kotlin:kotlin-stdlib-js", version.ref = "kotlin" }
-kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlinGradlePluginz = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinTestAnnotationsCommon = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common", version.ref = "kotlin" }
 kotlinTestCommon = { module = "org.jetbrains.kotlin:kotlin-test-common", version.ref = "kotlin" }
@@ -117,7 +117,7 @@ kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = 
 kotlinPoet = { module = "com.squareup:kotlinpoet", version = "1.8.0" }
 ksp = { module = "com.google.devtools.ksp:symbol-processing", version.ref = "ksp" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
-kspGradlePlugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
+kspGradlePluginz = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 leakcanaryInstrumentation = { module = "com.squareup.leakcanary:leakcanary-android-instrumentation", version.ref = "leakcanary" }
 material = { module = "com.google.android.material:material", version = "1.2.1" }
@@ -135,7 +135,7 @@ playServicesBasement = { module = "com.google.android.gms:play-services-basement
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "17.1.0" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version = "3.4.0" }
 protobufCompiler = { module = "com.google.protobuf:protoc", version = "3.10.0" }
-protobufGradlePlugin = { module = "com.google.protobuf:protobuf-gradle-plugin", version = "0.8.16" }
+protobufGradlePluginz = { module = "com.google.protobuf:protobuf-gradle-plugin", version = "0.8.16" }
 protobufLite = { module = "com.google.protobuf:protobuf-javalite", version = "3.10.0" }
 reactiveStreams = { module = "org.reactivestreams:reactive-streams", version = "1.0.0" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version = "2.7.2" }
@@ -162,7 +162,7 @@ testRunner = { module = "androidx.test:runner", version.ref = "androidxTest" }
 testUiautomator = { module = "androidx.test.uiautomator:uiautomator", version = "2.2.0" }
 truth = { module = "com.google.truth:truth", version = "1.0.1" }
 viewBinding = { module = "androidx.databinding:viewbinding", version = "4.1.2" }
-wireGradlePlugin = { module = "com.squareup.wire:wire-gradle-plugin", version.ref = "wire" }
+wireGradlePluginz = { module = "com.squareup.wire:wire-gradle-plugin", version.ref = "wire" }
 wireRuntime = { module = "com.squareup.wire:wire-runtime", version.ref = "wire" }
 xpp3 = { module = "xpp3:xpp3", version = "1.1.4c" }
 xmlpull = { module = "xmlpull:xmlpull", version = "1.1.3.1" }
