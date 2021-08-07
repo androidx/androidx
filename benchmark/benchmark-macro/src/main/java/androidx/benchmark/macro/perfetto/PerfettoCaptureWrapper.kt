@@ -21,8 +21,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
-import androidx.benchmark.macro.device
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.benchmark.PropOverride
 
 /**
  * Wrapper for [PerfettoCapture] which does nothing below L.
@@ -65,37 +64,18 @@ internal class PerfettoCaptureWrapper {
             return null // tracing currently not supported on this version
         }
 
-        val device = InstrumentationRegistry.getInstrumentation().device()
-
-        var resetTracedEnabledString: String? = null
+        // Prior to Android 11 (R), a shell property must be set to enable perfetto tracing, see
+        // https://perfetto.dev/docs/quickstart/android-tracing#starting-the-tracing-services
+        val propOverride = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            PropOverride(TRACE_ENABLE_PROP, "1")
+        } else null
         try {
-            // Prior to Android 11 (R), a shell property must be set to enable perfetto tracing, see
-            // https://perfetto.dev/docs/quickstart/android-tracing#starting-the-tracing-services
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-                val currentPropVal = device.executeShellCommand("getprop $TRACE_ENABLE_PROP")
-                if (currentPropVal != "1") {
-                    Log.d(
-                        PerfettoHelper.LOG_TAG,
-                        "set $TRACE_ENABLE_PROP to 1 (was $currentPropVal"
-                    )
-                    device.executeShellCommand("setprop $TRACE_ENABLE_PROP 1")
-                    resetTracedEnabledString = currentPropVal
-                }
-            }
-
+            propOverride?.forceValue()
             start(packages)
             block()
             return stop(benchmarkName, iteration)
         } finally {
-            if (resetTracedEnabledString != null) {
-                Log.d(
-                    PerfettoHelper.LOG_TAG,
-                    "resetting $TRACE_ENABLE_PROP to $resetTracedEnabledString"
-                )
-                device.executeShellCommand(
-                    "setprop persist.traced.enable $resetTracedEnabledString"
-                )
-            }
+            propOverride?.resetIfOverridden()
         }
     }
 }

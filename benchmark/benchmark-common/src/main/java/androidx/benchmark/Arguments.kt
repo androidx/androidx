@@ -97,7 +97,7 @@ public object Arguments {
         profilerSampleFrequency =
             arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
             ?.toInt()
-            ?: 10000
+            ?: 1000
         profilerSampleDurationSeconds =
             arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
             ?.toLong()

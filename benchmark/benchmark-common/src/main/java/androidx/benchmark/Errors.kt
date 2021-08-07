@@ -179,7 +179,7 @@ internal object Errors {
                 |            = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
             """.trimMarginWrapNewlines()
         }
-        if (Arguments.profiler == MethodSamplingSimpleperf) {
+        if (Arguments.profiler == StackSamplingSimpleperf) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
                 warningPrefix += "SIMPLEPERF_"
                 warningString += """

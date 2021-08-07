@@ -21,7 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Assume
-import org.junit.Ignore
+import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -31,18 +31,22 @@ import kotlin.test.assertTrue
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-public class ProfilerTest {
+class ProfilerTest {
     @Test
-    public fun getByName() {
-        assertSame(MethodSampling, Profiler.getByName("MethodSampling"))
+    fun getByName() {
+        assertSame(
+            if (Build.VERSION.SDK_INT >= 29) StackSamplingSimpleperf else StackSamplingLegacy,
+            Profiler.getByName("StackSampling")
+        )
         assertSame(MethodTracing, Profiler.getByName("MethodTracing"))
         assertSame(ConnectedAllocation, Profiler.getByName("ConnectedAllocation"))
         assertSame(ConnectedSampling, Profiler.getByName("ConnectedSampling"))
-        assertSame(MethodSamplingSimpleperf, Profiler.getByName("MethodSamplingSimpleperf"))
 
         // Compat names
+        assertSame(StackSamplingLegacy, Profiler.getByName("MethodSampling"))
+        assertSame(StackSamplingSimpleperf, Profiler.getByName("MethodSamplingSimpleperf"))
         assertSame(MethodTracing, Profiler.getByName("Method"))
-        assertSame(MethodSampling, Profiler.getByName("Sampled"))
+        assertSame(StackSamplingLegacy, Profiler.getByName("Sampled"))
         assertSame(ConnectedSampling, Profiler.getByName("ConnectedSampled"))
     }
 
@@ -54,40 +58,39 @@ public class ProfilerTest {
             "Workaround native crash on API 21 in CI, see b/173662168",
             profiler == MethodTracing && Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP,
         )
-        val deletedSuccessfully: Boolean
-        try {
-            file.delete() // clean up, if previous run left this behind
-            assertFalse(file.exists())
 
-            profiler.start("test")
-            profiler.stop()
-            assertTrue(file.exists(), "Profiler should create: ${file.absolutePath}")
-        } finally {
-            deletedSuccessfully = file.delete()
-        }
-        assertTrue(deletedSuccessfully, "File should exist, and be deleted")
+        file.delete() // clean up, if previous run left this behind
+        assertFalse(file.exists())
+
+        profiler.start("test")
+        profiler.stop()
+        assertTrue(file.exists(), "Profiler should create: ${file.absolutePath}")
+
+        // we don't delete the file to enable inspecting the file
+        // TODO: post the trace to the studio UI via FileLinkingRule or similar
     }
 
     @Test
-    public fun methodSampling(): Unit = verifyProfiler(
-        profiler = MethodSampling,
-        file = Outputs.testOutputFile("test-methodSampling.trace")
-    )
-
-    @Test
-    public fun methodTracing(): Unit = verifyProfiler(
+    fun methodTracing() = verifyProfiler(
         profiler = MethodTracing,
         file = Outputs.testOutputFile("test-methodTracing.trace")
     )
 
-    @Ignore(
-        "b/158303822 - Temporarily disabled in CI, since this currently requires " +
-            "external script setup"
-    )
-    @SdkSuppress(minSdkVersion = 28)
     @Test
-    public fun methodSamplingSimpleperf(): Unit = verifyProfiler(
-        profiler = MethodSamplingSimpleperf,
-        file = File("/data/data/androidx.benchmark.test/simpleperf_data/test.data")
+    fun stackSamplingLegacy() = verifyProfiler(
+        profiler = StackSamplingLegacy,
+        file = Outputs.testOutputFile("test-stackSamplingLegacy.trace")
     )
+
+    @SdkSuppress(minSdkVersion = 29) // simpleperf on system image starting API 29
+    @Test
+    fun stackSamplingSimpleperf() {
+        // TODO: Investigate cuttlefish API 29 failure
+        assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
+
+        verifyProfiler(
+            profiler = StackSamplingSimpleperf,
+            file = Outputs.testOutputFile("test-stackSampling.trace")
+        )
+    }
 }
