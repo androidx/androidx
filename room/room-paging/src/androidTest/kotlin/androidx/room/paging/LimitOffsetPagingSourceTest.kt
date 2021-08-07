@@ -172,11 +172,15 @@ class LimitOffsetPagingSourceTest {
             // now add items
             dao.addAllItems(itemsList)
 
-            // the db write should cause pagingSource to realize it is invalid
+            // invalidate pagingSource to imitate invalidation from running refreshVersionSync
+            pagingSource.invalidate()
+            assertTrue(pagingSource.invalid)
+
+            // this refresh should check pagingSource's invalid status, realize it is invalid, and
+            // return a LoadResult.Invalid
             assertThat(pagingSource.refresh()).isInstanceOf(
                 LoadResult.Invalid::class.java
             )
-            assertTrue(pagingSource.invalid)
         }
     }
 
