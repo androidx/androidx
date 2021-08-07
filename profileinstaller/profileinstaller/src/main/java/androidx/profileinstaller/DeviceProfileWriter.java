@@ -73,8 +73,6 @@ public class DeviceProfileWriter {
     private final String mApkName;
     @NonNull
     private final String mProfileSourceLocation;
-    @NonNull
-    private final File mRefProfile;
     private boolean mDeviceSupportsAotProfile = false;
     @Nullable
     private Map<String, DexProfileData> mProfile;
@@ -82,7 +80,7 @@ public class DeviceProfileWriter {
     private byte[] mTranscodedProfile;
 
     private void result(@ProfileInstaller.ResultCode int code, @Nullable Object data) {
-        mExecutor.execute(() -> { mDiagnostics.onResultReceived(code, data); });
+        mExecutor.execute(() -> mDiagnostics.onResultReceived(code, data));
     }
 
     /**
@@ -94,15 +92,13 @@ public class DeviceProfileWriter {
             @NonNull ProfileInstaller.DiagnosticsCallback diagnosticsCallback,
             @NonNull String apkName,
             @NonNull String profileSourceLocation,
-            @NonNull File curProfile,
-            @NonNull File refProfile) {
+            @NonNull File curProfile) {
         mAssetManager = assetManager;
         mExecutor = executor;
         mDiagnostics = diagnosticsCallback;
         mApkName = apkName;
         mProfileSourceLocation = profileSourceLocation;
         mCurProfile = curProfile;
-        mRefProfile = refProfile;
         mDesiredVersion = desiredVersion();
     }
 
@@ -141,21 +137,19 @@ public class DeviceProfileWriter {
      * Always call this with transcodeIfNeeded and writeIfNeeded()
      *
      * <pre>
-     *     deviceProfileInstaller.copyProfileOrRead(skipStrategy)
+     *     deviceProfileInstaller.read()
      *         .transcodeIfNeeded()
-     *         .writeIfNeeded()
+     *         .write()
      * </pre>
      *
      * @hide
-     * @param skipStrategy decide if the profile should be written
      * @return this to chain call to transcodeIfNeeded
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public DeviceProfileWriter copyProfileOrRead(@NonNull SkipStrategy skipStrategy) {
+    public DeviceProfileWriter read() {
         assertDeviceAllowsProfileInstallerAotWritesCalled();
-        byte[] desiredVersion = mDesiredVersion;
-        if (desiredVersion == null) {
+        if (mDesiredVersion == null) {
             return this;
         }
         try (AssetFileDescriptor fd = mAssetManager.openFd(mProfileSourceLocation)) {
@@ -177,12 +171,12 @@ public class DeviceProfileWriter {
     /**
      * Attempt to transcode profile, or if it needs transcode it read it.
      *
-     * Always call this after copyProfileorRead
+     * Always call this after read
      *
      * <pre>
-     *     deviceProfileInstaller.copyProfileOrRead(skipStrategy)
+     *     deviceProfileInstaller.read()
      *         .transcodeIfNeeded()
-     *         .writeIfNeeded()
+     *         .write()
      * </pre>
      *
      * This method will always clear the profile read by copyProfileOrRead and may only be called
@@ -235,29 +229,28 @@ public class DeviceProfileWriter {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void writeIfNeeded(@NonNull SkipStrategy skipStrategy) {
+    public boolean write() {
         byte[] transcodedProfile = mTranscodedProfile;
         if (transcodedProfile == null) {
-            return;
+            return false;
         }
         assertDeviceAllowsProfileInstallerAotWritesCalled();
-        if (!skipStrategy.shouldSkip(transcodedProfile.length,
-                generateExistingProfileStateFromFileSystem())) {
-            try (
-                InputStream bis = new ByteArrayInputStream(transcodedProfile);
-                OutputStream os = new FileOutputStream(mCurProfile)
-            ) {
-                Encoding.writeAll(bis, os);
-                result(ProfileInstaller.RESULT_INSTALL_SUCCESS, null);
-            } catch (FileNotFoundException e) {
-                result(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);
-            } catch (IOException e) {
-                result(ProfileInstaller.RESULT_IO_EXCEPTION, e);
-            } finally {
-                mTranscodedProfile = null;
-                mProfile = null;
-            }
+        try (
+            InputStream bis = new ByteArrayInputStream(transcodedProfile);
+            OutputStream os = new FileOutputStream(mCurProfile)
+        ) {
+            Encoding.writeAll(bis, os);
+            result(ProfileInstaller.RESULT_INSTALL_SUCCESS, null);
+            return true;
+        } catch (FileNotFoundException e) {
+            result(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);
+        } catch (IOException e) {
+            result(ProfileInstaller.RESULT_IO_EXCEPTION, e);
+        } finally {
+            mTranscodedProfile = null;
+            mProfile = null;
         }
+        return false;
     }
 
     private static @Nullable byte[] desiredVersion() {
@@ -282,83 +275,6 @@ public class DeviceProfileWriter {
 
             default:
                 return null;
-        }
-    }
-
-    /**
-     * This is slow, only call it right before you need to pass it to SkipStrategy
-     */
-    @NonNull
-    private ExistingProfileState generateExistingProfileStateFromFileSystem() {
-        return new ExistingProfileState(
-                /* curLength */ mCurProfile.length(),
-                /* refLength */ mRefProfile.length(),
-                /* curExists */ mCurProfile.exists(),
-                /* refExists */mRefProfile.exists()
-        );
-    }
-
-    /**
-     * Provide a skip strategy to DeviceProfileWriter, to avoid writing profiles basod on any
-     * heuristic.
-     */
-    public interface SkipStrategy {
-
-        /**
-         * Return true if this profile write should be skipped.
-         *
-         * @param newProfileLength length of profile to write
-         * @param existingProfileState current on-disk profile information
-         * @return false to write profile, true to skip
-         */
-        boolean shouldSkip(long newProfileLength,
-                @NonNull ExistingProfileState existingProfileState);
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static class ExistingProfileState {
-        private final long mCurLength;
-        private final long mRefLength;
-        private final boolean mCurExists;
-        private final boolean mRefExists;
-
-        ExistingProfileState(long curLength, long refLength, boolean curExists,
-                boolean refExists) {
-            mCurLength = curLength;
-            mRefLength = refLength;
-            mCurExists = curExists;
-            mRefExists = refExists;
-        }
-
-        /**
-         * @return length of existing cur profile
-         */
-        public long getCurLength() {
-            return mCurLength;
-        }
-
-        /**
-         * @return length of existing ref profile
-         */
-        public long getRefLength() {
-            return mRefLength;
-        }
-
-        /**
-         * @return true if cur file exists
-         */
-        public boolean hasCurFile() {
-            return mCurExists;
-        }
-
-        /**
-         * @return true if ref file exists
-         */
-        public boolean hasRefFile() {
-            return mRefExists;
         }
     }
 }
