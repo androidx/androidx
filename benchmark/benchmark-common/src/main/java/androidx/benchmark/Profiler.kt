@@ -68,17 +68,23 @@ internal sealed class Profiler {
         const val CONNECTED_PROFILING_SLEEP_MS = 20_000L
 
         fun getByName(name: String): Profiler? = mapOf(
-            "MethodSampling" to MethodSampling,
             "MethodTracing" to MethodTracing,
+
+            "StackSampling" to if (Build.VERSION.SDK_INT >= 29) {
+                StackSamplingSimpleperf // only supported on 29+ without root/debug/sideload
+            } else {
+                StackSamplingLegacy
+            },
 
             "ConnectedAllocation" to ConnectedAllocation,
             "ConnectedSampling" to ConnectedSampling,
 
-            "MethodSamplingSimpleperf" to MethodSamplingSimpleperf,
-
             // Below are compat codepaths for old names. Remove before 1.1 stable.
+
+            "MethodSampling" to StackSamplingLegacy,
+            "MethodSamplingSimpleperf" to StackSamplingSimpleperf,
             "Method" to MethodTracing,
-            "Sampled" to MethodSampling,
+            "Sampled" to StackSamplingLegacy,
             "ConnectedSampled" to ConnectedSampling
         )
             .mapKeys { it.key.lowercase() }[name.lowercase()]
@@ -105,10 +111,10 @@ internal fun stopRuntimeMethodTracing() {
     Debug.stopMethodTracing()
 }
 
-internal object MethodSampling : Profiler() {
+internal object StackSamplingLegacy : Profiler() {
     override fun start(traceUniqueName: String) {
         startRuntimeMethodTracing(
-            traceFileName = "$traceUniqueName-methodSampling.trace",
+            traceFileName = "$traceUniqueName-stackSamplingLegacy.trace",
             sampled = true
         )
     }
@@ -162,28 +168,71 @@ internal object ConnectedSampling : Profiler() {
     override val requiresLibraryOutputDir: Boolean = false
 }
 
-internal object MethodSamplingSimpleperf : Profiler() {
-    @RequiresApi(28)
+/**
+ * Simpleperf profiler.
+ *
+ * API 29+ currently, since it relies on the platform system image simpleperf.
+ *
+ * Could potentially lower, but that would require root or debuggable.
+ */
+internal object StackSamplingSimpleperf : Profiler() {
+    @RequiresApi(29)
     private var session: ProfileSession? = null
 
-    @RequiresApi(28)
+    /** "security.perf_harden" must be set to "0" during simpleperf capture */
+    @RequiresApi(29)
+    private val securityPerfHarden = PropOverride("security.perf_harden", "0")
+
+    var traceUniqueName: String? = null
+
+    @RequiresApi(29)
     override fun start(traceUniqueName: String) {
         session?.stopRecording() // stop previous
+
+        // for security perf harden, enable temporarily
+        securityPerfHarden.forceValue()
+
+        // for all other properties, simply set the values, as these don't have defaults
+        Shell.executeCommand("setprop debug.perf_event_max_sample_rate 10000")
+        Shell.executeCommand("setprop debug.perf_cpu_time_max_percent 25")
+        Shell.executeCommand("setprop debug.perf_event_mlock_kb 32800")
+
+        this.traceUniqueName = traceUniqueName
         session = ProfileSession().also {
+            // prepare simpleperf must be done as shell user, so do this here with other shell setup
+            // NOTE: this is sticky across reboots, so missing this will cause tests or profiling to
+            // fail, but only on devices that have not run this command since flashing (e.g. in CI)
+            Shell.executeCommand(it.findSimpleperf() + " api-prepare")
             it.startRecording(
                 RecordOptions()
                     .setSampleFrequency(Arguments.profilerSampleFrequency)
                     .recordDwarfCallGraph() // enable Java/Kotlin callstacks
                     .traceOffCpu() // track time sleeping
-                    .setOutputFilename("$traceUniqueName.data")
+                    .setOutputFilename("simpleperf.data")
+                    .apply {
+                        if (Build.MODEL.contains("Cuttlefish")) {
+                            // Cuttlefish on cloud usually doesn't support hardware perf events like
+                            // cpu-cycles (the default event) so instead we use cpu-clock, which is
+                            // a software perf event using kernel hrtimer to generate interrupts
+                            setEvent("cpu-clock")
+                        }
+                    }
             )
         }
     }
 
-    @RequiresApi(28)
+    @RequiresApi(29)
     override fun stop() {
         session!!.stopRecording()
+        Outputs.writeFile(
+            fileName = "$traceUniqueName-stackSampling.trace",
+            reportKey = "simpleperf_trace"
+        ) {
+            session!!.convertSimpleperfOutputToProto("simpleperf.data", it.absolutePath)
+        }
+
         session = null
+        securityPerfHarden.resetIfOverridden()
     }
 
     override val requiresLibraryOutputDir: Boolean = false
