@@ -72,7 +72,7 @@ class Camera2CameraControl @Inject constructor(
                 requestListener.removeListener(compat)
                 requestListener.addListener(compat, threads.sequentialExecutor)
                 compat.applyAsync(it)
-            } ?: reset() // reset when _useCaseCamera == null
+            }
         }
 
     /**

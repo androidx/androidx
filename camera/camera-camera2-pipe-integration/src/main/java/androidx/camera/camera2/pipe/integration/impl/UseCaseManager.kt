@@ -132,6 +132,7 @@ class UseCaseManager @Inject constructor(
         if (useCases.isEmpty()) {
             for (control in controls) {
                 control.useCaseCamera = null
+                control.reset()
             }
             return
         }
