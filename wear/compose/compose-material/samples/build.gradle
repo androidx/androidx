@@ -39,6 +39,12 @@ dependencies {
     implementation(project(":wear:compose:compose-material"))
 }
 
+android {
+    defaultConfig {
+        minSdkVersion 25
+    }
+}
+
 androidx {
     name = "Android Wear Compose Material Samples"
     type = LibraryType.SAMPLES
