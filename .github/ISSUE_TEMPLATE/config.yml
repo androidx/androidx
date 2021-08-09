@@ -9,6 +9,9 @@ contact_links:
   - name: Compose Compiler
     url: https://issuetracker.google.com/issues/new?component=610764&template=1424126
     about: File a bug or feature request for Compose Compiler
+  - name: DataStore
+    url: https://issuetracker.google.com/issues/new?component=907884&template=1466542
+    about: File a bug or feature request for DataStore
   - name: Fragment
     url: https://issuetracker.google.com/issues/new?component=460964&template=1182267
     about: File a bug or feature request for Fragment
