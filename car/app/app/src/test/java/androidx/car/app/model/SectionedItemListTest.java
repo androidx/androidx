@@ -18,6 +18,10 @@ package androidx.car.app.model;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
+import androidx.car.app.TestUtils;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -27,6 +31,19 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class SectionedItemListTest {
+
+    @Test
+    public void createInstance_header_unsupportedSpans_throws() {
+        ItemList list = new ItemList.Builder().build();
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> SectionedItemList.create(list, title));
+
+        // DistanceSpan and DurationSpan are supported.
+        CharSequence title2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        SectionedItemList.create(list, title2);
+    }
 
     @Test
     public void createInstance() {
