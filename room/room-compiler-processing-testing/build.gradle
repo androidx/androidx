@@ -68,12 +68,20 @@ tasks.named("sourceJar").configure {
 tasks.named("processResources").configure {
     dependsOn(writeTestPropsTask)
 }
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+}
+
 // enable opt in only for tests so that we don't create non experimental APIs by mistake
 // in the source.
 tasks.named("compileTestKotlin", KotlinCompile.class).configure {
     it.kotlinOptions {
         freeCompilerArgs += [
-                "-Xjvm-default=all",
                 "-Xopt-in=kotlin.RequiresOptIn",
                 "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
         ]

@@ -16,44 +16,25 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.compat.XConverters.toJavac
+import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.XTestInvocation
-import javax.annotation.processing.AbstractProcessor
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
-import javax.lang.model.element.TypeElement
 
 @Suppress("VisibleForTests")
 @ExperimentalProcessingApi
 class SyntheticJavacProcessor private constructor(
     private val impl: SyntheticProcessorImpl
-) : AbstractProcessor(), SyntheticProcessor by impl {
-    constructor(handlers: List<(XTestInvocation) -> Unit>) : this(
-        SyntheticProcessorImpl(handlers)
-    )
+) : JavacBasicAnnotationProcessor(), SyntheticProcessor by impl {
+    constructor(handlers: List<(XTestInvocation) -> Unit>) : this(SyntheticProcessorImpl(handlers))
 
-    override fun process(
-        annotations: MutableSet<out TypeElement>,
-        roundEnv: RoundEnvironment
-    ): Boolean {
-        if (roundEnv.processingOver()) {
-            return true
+    override fun processingSteps(): Iterable<XProcessingStep> = impl.processingSteps()
+
+    override fun postRound(env: XProcessingEnv, round: XRoundEnv) {
+        if (!round.toJavac().processingOver()) {
+            impl.postRound(env, round)
         }
-        if (!impl.canRunAnotherRound()) {
-            return true
-        }
-        val xEnv = XProcessingEnv.create(processingEnv)
-        val xRoundEnv = XRoundEnv.create(xEnv, roundEnv)
-        val testInvocation = XTestInvocation(
-            processingEnv = xEnv,
-            roundEnv = xRoundEnv
-        )
-        impl.runNextRound(testInvocation)
-        return impl.expectsAnotherRound()
     }
 
-    override fun getSupportedSourceVersion(): SourceVersion {
-        return SourceVersion.latest()
-    }
-
-    override fun getSupportedAnnotationTypes() = setOf("*")
+    override fun getSupportedSourceVersion() = SourceVersion.latest()
 }

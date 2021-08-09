@@ -19,7 +19,6 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XBasicAnnotationProcessor
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.XRoundEnv
 import com.google.devtools.ksp.isLocal
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -36,21 +35,24 @@ abstract class KspBasicAnnotationProcessor(
     val symbolProcessorEnvironment: SymbolProcessorEnvironment
 ) : SymbolProcessor, XBasicAnnotationProcessor {
 
+    private val xEnv = KspProcessingEnv(
+        symbolProcessorEnvironment.options,
+        symbolProcessorEnvironment.codeGenerator,
+        symbolProcessorEnvironment.logger
+    )
+
+    final override val xProcessingEnv: XProcessingEnv get() = xEnv
+
     // Cache and lazily get steps during the initial process() so steps initialization is done once.
     private val steps by lazy { processingSteps() }
 
     final override fun process(resolver: Resolver): List<KSAnnotated> {
-        val processingEnv = XProcessingEnv.create(
-            symbolProcessorEnvironment.options,
-            resolver,
-            symbolProcessorEnvironment.codeGenerator,
-            symbolProcessorEnvironment.logger
-        )
-        val round = XRoundEnv.create(processingEnv)
+        xEnv.resolver = resolver // Set the resolver at the beginning of each round
+        val xRoundEnv = KspRoundEnv(xEnv)
         val deferredElements = steps.flatMap { step ->
             val invalidElements = mutableSetOf<XElement>()
             val elementsByAnnotation = step.annotations().mapNotNull { annotation ->
-                val annotatedElements = round.getElementsAnnotatedWith(annotation)
+                val annotatedElements = xRoundEnv.getElementsAnnotatedWith(annotation)
                 val validElements = annotatedElements
                     .filter { (it as KspElement).declaration.validateExceptLocals() }
                     .toSet()
@@ -63,12 +65,13 @@ abstract class KspBasicAnnotationProcessor(
             }.toMap()
             // Only process the step if there are annotated elements found for this step.
             if (elementsByAnnotation.isNotEmpty()) {
-                invalidElements + step.process(processingEnv, elementsByAnnotation)
+                invalidElements + step.process(xEnv, elementsByAnnotation)
             } else {
                 invalidElements
             }
         }
-        postRound(processingEnv, round)
+        postRound(xEnv, xRoundEnv)
+        xEnv.clearCache() // Reset cache after every round to avoid leaking elements across rounds
         return deferredElements.map { (it as KspElement).declaration }
     }
 }

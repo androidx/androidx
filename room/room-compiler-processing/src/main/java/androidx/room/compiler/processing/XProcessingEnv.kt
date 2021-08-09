@@ -148,8 +148,7 @@ interface XProcessingEnv {
             options = options,
             codeGenerator = codeGenerator,
             logger = logger,
-            resolver = resolver
-        )
+        ).also { it.resolver = resolver }
     }
 
     /**

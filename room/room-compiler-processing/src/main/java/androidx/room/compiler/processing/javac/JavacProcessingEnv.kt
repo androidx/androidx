@@ -260,6 +260,10 @@ internal class JavacProcessingEnv(
         }
     }
 
+    internal fun clearCache() {
+        typeElementStore.clear()
+    }
+
     companion object {
         val PRIMITIVE_TYPES = TypeKind.values().filter {
             it.isPrimitive
