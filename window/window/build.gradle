@@ -50,7 +50,6 @@ dependencies {
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.core:core:1.3.2")
 
-    compileOnly(project(":window:window-extensions"))
     compileOnly(project(":window:window-sidecar"))
 
     testImplementation(libs.testCore)
@@ -61,7 +60,6 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(compileOnly(project(":window:window-extensions")))
     testImplementation(compileOnly(project(":window:window-sidecar")))
 
     androidTestImplementation(libs.testCore)

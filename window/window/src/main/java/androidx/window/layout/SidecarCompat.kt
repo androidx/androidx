@@ -32,6 +32,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.window.core.Version
 import androidx.window.core.Version.Companion.parse
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
+import androidx.window.layout.ExtensionWindowBackend.Companion.DEBUG
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarInterface
@@ -216,7 +217,7 @@ internal class SidecarCompat @VisibleForTesting constructor(
             try {
                 tmpDeviceState.posture = SidecarDeviceState.POSTURE_OPENED
             } catch (error: NoSuchFieldError) {
-                if (ExtensionCompat.DEBUG) {
+                if (DEBUG) {
                     Log.w(
                         TAG,
                         "Sidecar implementation doesn't conform to primary interface version, " +
@@ -257,7 +258,7 @@ internal class SidecarCompat @VisibleForTesting constructor(
                 val tmpDisplayFeatures = windowLayoutInfo.displayFeatures
                 // TODO(b/172620880): Workaround for Sidecar API implementation issue.
             } catch (error: NoSuchFieldError) {
-                if (ExtensionCompat.DEBUG) {
+                if (DEBUG) {
                     Log.w(
                         TAG,
                         "Sidecar implementation doesn't conform to primary interface version, " +
@@ -283,7 +284,7 @@ internal class SidecarCompat @VisibleForTesting constructor(
             }
             true
         } catch (t: Throwable) {
-            if (ExtensionCompat.DEBUG) {
+            if (DEBUG) {
                 Log.e(
                     TAG,
                     "Sidecar implementation doesn't conform to interface version " +
@@ -308,13 +309,13 @@ internal class SidecarCompat @VisibleForTesting constructor(
             val activity = activityWeakReference.get()
             val token = getActivityWindowToken(activity)
             if (activity == null) {
-                if (ExtensionCompat.DEBUG) {
+                if (DEBUG) {
                     Log.d(TAG, "Unable to register activity since activity is missing")
                 }
                 return
             }
             if (token == null) {
-                if (ExtensionCompat.DEBUG) {
+                if (DEBUG) {
                     Log.w(TAG, "Unable to register activity since the window token is missing")
                 }
                 return
@@ -444,12 +445,12 @@ internal class SidecarCompat @VisibleForTesting constructor(
                 val vendorVersion = SidecarProvider.getApiVersion()
                 if (!TextUtils.isEmpty(vendorVersion)) parse(vendorVersion) else null
             } catch (e: NoClassDefFoundError) {
-                if (ExtensionCompat.DEBUG) {
+                if (DEBUG) {
                     Log.d(TAG, "Sidecar version not found")
                 }
                 null
             } catch (e: UnsupportedOperationException) {
-                if (ExtensionCompat.DEBUG) {
+                if (DEBUG) {
                     Log.d(TAG, "Stub Sidecar")
                 }
                 null

@@ -24,7 +24,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.core.Version
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
-import java.util.ArrayList
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
@@ -59,7 +58,7 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
         globalLock.withLock {
             val windowExtension = windowExtension
             if (windowExtension == null) {
-                if (ExtensionCompat.DEBUG) {
+                if (DEBUG) {
                     Log.v(TAG, "Extension not loaded, skipping callback registration.")
                 }
                 callback.accept(WindowLayoutInfo(emptyList()))
@@ -95,7 +94,7 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
     override fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>) {
         synchronized(globalLock) {
             if (windowExtension == null) {
-                if (ExtensionCompat.DEBUG) {
+                if (DEBUG) {
                     Log.v(TAG, "Extension not loaded, skipping callback un-registration.")
                 }
                 return
@@ -167,6 +166,8 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
     }
 
     companion object {
+        const val DEBUG = false
+
         @Volatile
         private var globalInstance: ExtensionWindowBackend? = null
         private val globalLock = ReentrantLock()
@@ -194,43 +195,25 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
          */
         fun initAndVerifyExtension(context: Context): ExtensionInterfaceCompat? {
             var impl: ExtensionInterfaceCompat? = null
+            // Falling back to Sidecar
             try {
-                if (isExtensionVersionSupported(ExtensionCompat.extensionVersion)) {
-                    impl = ExtensionCompat(context)
+                if (isExtensionVersionSupported(SidecarCompat.sidecarVersion)) {
+                    impl = SidecarCompat(context)
                     if (!impl.validateExtensionInterface()) {
-                        if (ExtensionCompat.DEBUG) {
-                            Log.d(TAG, "Loaded extension doesn't match the interface version")
+                        if (DEBUG) {
+                            Log.d(TAG, "Loaded Sidecar doesn't match the interface version")
                         }
                         impl = null
                     }
                 }
             } catch (t: Throwable) {
-                if (ExtensionCompat.DEBUG) {
-                    Log.d(TAG, "Failed to load extension: $t")
+                if (DEBUG) {
+                    Log.d(TAG, "Failed to load sidecar: $t")
                 }
                 impl = null
             }
             if (impl == null) {
-                // Falling back to Sidecar
-                try {
-                    if (isExtensionVersionSupported(SidecarCompat.sidecarVersion)) {
-                        impl = SidecarCompat(context)
-                        if (!impl.validateExtensionInterface()) {
-                            if (ExtensionCompat.DEBUG) {
-                                Log.d(TAG, "Loaded Sidecar doesn't match the interface version")
-                            }
-                            impl = null
-                        }
-                    }
-                } catch (t: Throwable) {
-                    if (ExtensionCompat.DEBUG) {
-                        Log.d(TAG, "Failed to load sidecar: $t")
-                    }
-                    impl = null
-                }
-            }
-            if (impl == null) {
-                if (ExtensionCompat.DEBUG) {
+                if (DEBUG) {
                     Log.d(TAG, "No supported extension or sidecar found")
                 }
             }
@@ -246,11 +229,7 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
             if (extensionVersion == null) {
                 return false
             }
-            return if (extensionVersion.major == 1) {
-                // Disable androidx.window.extensions support in release builds of the library
-                // until the extensions API is finalized.
-                ExtensionCompat.DEBUG
-            } else Version.CURRENT.major >= extensionVersion.major
+            return Version.VERSION_0_1 == extensionVersion
         }
 
         /**
