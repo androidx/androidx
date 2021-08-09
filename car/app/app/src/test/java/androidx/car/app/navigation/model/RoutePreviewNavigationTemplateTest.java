@@ -200,6 +200,45 @@ public class RoutePreviewNavigationTemplateTest {
     }
 
     @Test
+    public void createInstance_header_unsupportedSpans_throws() {
+        ItemList itemList = TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE);
+        Action navigationAction = new Action.Builder().setTitle("Navigate").setOnClickListener(
+                () -> {
+                }).build();
+
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        CarText title2 = TestUtils.getCarTextVariantsWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new RoutePreviewNavigationTemplate.Builder()
+                        .setItemList(itemList)
+                        .setTitle(title)
+                        .setNavigateAction(navigationAction)
+                        .build());
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new RoutePreviewNavigationTemplate.Builder()
+                        .setItemList(itemList)
+                        .setTitle(title2)
+                        .setNavigateAction(navigationAction)
+                        .build());
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title3 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        CarText title4 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        new RoutePreviewNavigationTemplate.Builder()
+                .setItemList(itemList)
+                .setTitle(title3)
+                .setNavigateAction(navigationAction)
+                .build();
+        new RoutePreviewNavigationTemplate.Builder()
+                .setItemList(itemList)
+                .setTitle(title4)
+                .setNavigateAction(navigationAction)
+                .build();
+    }
+
+    @Test
     public void setOnNavigateAction() {
         OnClickListener mockListener = mock(OnClickListener.class);
         RoutePreviewNavigationTemplate template =

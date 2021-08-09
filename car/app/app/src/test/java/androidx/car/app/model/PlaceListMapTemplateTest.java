@@ -302,6 +302,26 @@ public class PlaceListMapTemplateTest {
     }
 
     @Test
+    public void createInstance_header_unsupportedSpans_throws() {
+        ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
+
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        CarText title2 = TestUtils.getCarTextVariantsWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PlaceListMapTemplate.Builder().setItemList(itemList).setTitle(title));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PlaceListMapTemplate.Builder().setItemList(itemList).setTitle(title2));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title3 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        CarText title4 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        new PlaceListMapTemplate.Builder().setItemList(itemList).setTitle(title3).build();
+        new PlaceListMapTemplate.Builder().setItemList(itemList).setTitle(title4).build();
+    }
+
+    @Test
     public void equals() {
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "foo";

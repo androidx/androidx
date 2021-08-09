@@ -162,6 +162,28 @@ public class PlaceListNavigationTemplateTest {
     }
 
     @Test
+    public void createInstance_header_unsupportedSpans_throws() {
+        ItemList itemList = new ItemList.Builder().build();
+
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        CarText title2 = TestUtils.getCarTextVariantsWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PlaceListNavigationTemplate.Builder().setItemList(itemList).setTitle(
+                        title));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PlaceListNavigationTemplate.Builder().setItemList(itemList).setTitle(
+                        title2));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title3 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        CarText title4 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        new PlaceListNavigationTemplate.Builder().setItemList(itemList).setTitle(title3).build();
+        new PlaceListNavigationTemplate.Builder().setItemList(itemList).setTitle(title4).build();
+    }
+
+    @Test
     public void createEmpty() {
         PlaceListNavigationTemplate template =
                 new PlaceListNavigationTemplate.Builder()

@@ -24,7 +24,10 @@ import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
+import androidx.car.app.model.DistanceSpan;
+import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo;
 
 import java.util.Objects;
@@ -123,42 +126,51 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Sets the title of the message.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code message} is {@code null}
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
         }
 
         /**
          * Sets additional text on the message.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code text} is {@code null}
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setText(@NonNull CharSequence text) {
             mText = CarText.create(requireNonNull(text));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mText);
             return this;
         }
 
         /**
          * Sets additional text on the message, with support for multiple length variants.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code text} is {@code null}
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setText(@NonNull CarText text) {
             mText = requireNonNull(text);
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mText);
             return this;
         }
 
@@ -193,12 +205,15 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Returns a new instance of a {@link Builder}.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code title} is {@code null}
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
         public Builder(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
         }
 
         /**
