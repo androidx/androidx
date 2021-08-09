@@ -16,11 +16,11 @@
 
 package androidx.core.content;
 
-import static androidx.core.content.PackageManagerCompat.PERMISSION_REVOCATION_DISABLED;
-import static androidx.core.content.PackageManagerCompat.PERMISSION_REVOCATION_ENABLED;
-import static androidx.core.content.PackageManagerCompat.UNUSED_APP_RESTRICTION_STATUS_UNKNOWN;
 import static androidx.core.content.PackageManagerCompat.getPermissionRevocationVerifierApp;
 import static androidx.core.content.UnusedAppRestrictionsBackportService.ACTION_UNUSED_APP_RESTRICTIONS_BACKPORT_CONNECTION;
+import static androidx.core.content.UnusedAppRestrictionsConstants.API_30_BACKPORT;
+import static androidx.core.content.UnusedAppRestrictionsConstants.DISABLED;
+import static androidx.core.content.UnusedAppRestrictionsConstants.ERROR;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -86,7 +87,7 @@ class UnusedAppRestrictionsBackportServiceConnection implements ServiceConnectio
                     getBackportCallback());
         } catch (RemoteException e) {
             // Unable to call bound service's isPermissionRevocationEnabledForApp().
-            mResultFuture.set(UNUSED_APP_RESTRICTION_STATUS_UNKNOWN);
+            mResultFuture.set(ERROR);
         }
     }
 
@@ -124,12 +125,15 @@ class UnusedAppRestrictionsBackportServiceConnection implements ServiceConnectio
                     boolean isEnabled) throws RemoteException {
                 if (success) {
                     if (isEnabled) {
-                        mResultFuture.set(PERMISSION_REVOCATION_ENABLED);
+                        mResultFuture.set(API_30_BACKPORT);
                     } else {
-                        mResultFuture.set(PERMISSION_REVOCATION_DISABLED);
+                        mResultFuture.set(DISABLED);
                     }
                 } else {
-                    mResultFuture.set(UNUSED_APP_RESTRICTION_STATUS_UNKNOWN);
+                    // Unable to retrieve the permission revocation setting
+                    mResultFuture.set(ERROR);
+                    Log.e(PackageManagerCompat.LOG_TAG, "Unable to retrieve the permission "
+                            + "revocation setting from the backport");
                 }
             }
         };
