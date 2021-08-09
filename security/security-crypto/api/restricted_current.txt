@@ -2,7 +2,7 @@
 package androidx.security.crypto {
 
   public final class EncryptedFile {
-    method public java.io.FileInputStream openFileInput() throws java.security.GeneralSecurityException, java.io.IOException;
+    method public java.io.FileInputStream openFileInput() throws java.io.FileNotFoundException, java.security.GeneralSecurityException, java.io.IOException;
     method public java.io.FileOutputStream openFileOutput() throws java.security.GeneralSecurityException, java.io.IOException;
   }
 
