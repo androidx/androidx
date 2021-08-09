@@ -40,6 +40,8 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -451,7 +453,7 @@ class RecorderTest {
 
         assertThat(captor.value.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_FINALIZE)
         val finalize = captor.value as VideoRecordEvent.Finalize
-        assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED)
+        assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
         assertThat(file.length()).isGreaterThan(0)
         assertThat(file.length()).isLessThan(fileSizeLimit)
 
@@ -551,7 +553,7 @@ class RecorderTest {
         val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
         verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
         val finalize = captor.value as VideoRecordEvent.Finalize
-        assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_SOURCE_INACTIVE)
+        assertThat(finalize.error).isEqualTo(ERROR_SOURCE_INACTIVE)
 
         file.delete()
     }

@@ -18,6 +18,8 @@ package androidx.camera.video
 
 import android.net.Uri
 import android.os.Build
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_UNKNOWN
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
@@ -63,13 +65,13 @@ class VideoRecordEventTest {
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
         assertThat(event.outputResults).isEqualTo(TEST_OUTPUT_RESULT)
         assertThat(event.hasError()).isFalse()
-        assertThat(event.error).isEqualTo(VideoRecordEvent.ERROR_NONE)
+        assertThat(event.error).isEqualTo(ERROR_NONE)
         assertThat(event.cause).isNull()
     }
 
     @Test
     fun canCreateFinalizeWithError() {
-        val error = VideoRecordEvent.ERROR_UNKNOWN
+        val error = ERROR_UNKNOWN
         val cause = RuntimeException()
         val event = VideoRecordEvent.finalizeWithError(
             TEST_OUTPUT_OPTION,
@@ -95,7 +97,7 @@ class VideoRecordEventTest {
                 TEST_OUTPUT_OPTION,
                 TEST_RECORDING_STATE,
                 TEST_OUTPUT_RESULT,
-                VideoRecordEvent.ERROR_NONE,
+                ERROR_NONE,
                 RuntimeException()
             )
         }

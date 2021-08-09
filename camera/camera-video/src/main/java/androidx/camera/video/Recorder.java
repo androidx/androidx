@@ -20,6 +20,15 @@ import static androidx.camera.video.QualitySelector.FALLBACK_STRATEGY_HIGHER;
 import static androidx.camera.video.QualitySelector.QUALITY_FHD;
 import static androidx.camera.video.QualitySelector.QUALITY_HD;
 import static androidx.camera.video.QualitySelector.QUALITY_SD;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_ENCODING_FAILED;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_UNKNOWN;
+import static androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -283,8 +292,8 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @VideoRecordEvent.VideoRecordError
-    int mRecordingStopError = VideoRecordEvent.ERROR_UNKNOWN;
+    @VideoRecordError
+    int mRecordingStopError = ERROR_UNKNOWN;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     AudioState mCachedAudioState;
 
@@ -355,15 +364,14 @@ public final class Recorder implements VideoOutput {
                         // Fall-through
                     case PENDING_PAUSED:
                         mSequentialExecutor.execute(
-                                () -> finalizeRecording(VideoRecordEvent.ERROR_SOURCE_INACTIVE,
+                                () -> finalizeRecording(ERROR_SOURCE_INACTIVE,
                                         new IllegalStateException(
                                                 "The video frame producer is inactive.")));
                         break;
                     case RECORDING:
                         // Fall-through
                     case PAUSED:
-                        mSequentialExecutor.execute(
-                                () -> stopInternal(VideoRecordEvent.ERROR_SOURCE_INACTIVE));
+                        mSequentialExecutor.execute(() -> stopInternal(ERROR_SOURCE_INACTIVE));
                         break;
                     case IDLING:
                         // Fall-through
@@ -508,10 +516,10 @@ public final class Recorder implements VideoOutput {
      * completes. The recording will be considered active, so before it's finalized, an
      * {@link IllegalStateException} will be thrown if this method is called for a second time.
      *
-     * <p>The recording will be finalized with {@link VideoRecordEvent#ERROR_SOURCE_INACTIVE}
-     * when the video frame producer stops sending frames to the provided {@link Surface}, for
-     * example, when the {@link VideoCapture} this Recorder is associated with is detached from the
-     * camera.
+     * <p>The recording will be finalized with
+     * {@link VideoRecordEvent.Finalize#ERROR_SOURCE_INACTIVE} when the video frame producer
+     * stops sending frames to the provided {@link Surface}, for example, when the
+     * {@link VideoCapture} this Recorder is associated with is detached from the camera.
      *
      * @throws IllegalStateException if there's an active recording, or the audio is
      * {@link PendingRecording#withAudioEnabled() enabled} for the recording but
@@ -528,7 +536,7 @@ public final class Recorder implements VideoOutput {
                     activeRecording.getOutputOptions(),
                     getCurrentRecordingStats(),
                     OutputResults.of(Uri.EMPTY),
-                    VideoRecordEvent.ERROR_SOURCE_INACTIVE,
+                    ERROR_SOURCE_INACTIVE,
                     new IllegalStateException("The video frame producer is inactive.")));
         } else {
             synchronized (mLock) {
@@ -565,7 +573,7 @@ public final class Recorder implements VideoOutput {
                                 activeRecording.getOutputOptions(),
                                 getCurrentRecordingStats(),
                                 OutputResults.of(Uri.EMPTY),
-                                VideoRecordEvent.ERROR_RECORDER_ERROR,
+                                ERROR_RECORDER_ERROR,
                                 mErrorCause));
                         break;
                 }
@@ -600,8 +608,7 @@ public final class Recorder implements VideoOutput {
                     Logger.e(TAG, "Recording was paused when the Recorder had encountered error "
                             + mErrorCause);
                     mSequentialExecutor.execute(
-                            () -> finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR,
-                                    mErrorCause));
+                            () -> finalizeRecording(ERROR_RECORDER_ERROR, mErrorCause));
                     break;
             }
         }
@@ -633,8 +640,7 @@ public final class Recorder implements VideoOutput {
                     Logger.e(TAG, "Recording was resumed when the Recorder had encountered error "
                             + mErrorCause);
                     mSequentialExecutor.execute(
-                            () -> finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR,
-                                    mErrorCause));
+                            () -> finalizeRecording(ERROR_RECORDER_ERROR, mErrorCause));
                     break;
             }
         }
@@ -647,7 +653,7 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case PENDING_PAUSED:
                     mSequentialExecutor.execute(
-                            () -> finalizeRecording(VideoRecordEvent.ERROR_NO_VALID_DATA,
+                            () -> finalizeRecording(ERROR_NO_VALID_DATA,
                             new IllegalStateException("The Recorder hasn't been initialized.")));
                     break;
                 case INITIALIZING:
@@ -657,14 +663,13 @@ public final class Recorder implements VideoOutput {
                 case PAUSED:
                     // Fall-through
                 case RECORDING:
-                    mSequentialExecutor.execute(() -> stopInternal(VideoRecordEvent.ERROR_NONE));
+                    mSequentialExecutor.execute(() -> stopInternal(ERROR_NONE));
                     break;
                 case ERROR:
                     Logger.e(TAG, "Recording was stopped when the Recorder had encountered error "
                             + mErrorCause);
                     mSequentialExecutor.execute(
-                            () -> finalizeRecording(VideoRecordEvent.ERROR_RECORDER_ERROR,
-                                    mErrorCause));
+                            () -> finalizeRecording(ERROR_RECORDER_ERROR, mErrorCause));
                     break;
                 case RESETTING:
                     // No-Op, the Recorder is being resetting.
@@ -701,7 +706,7 @@ public final class Recorder implements VideoOutput {
                     setState(State.RESETTING);
                     // If there's an active recording, stop it first then release the resources
                     // at finalizeRecording().
-                    mSequentialExecutor.execute(() -> stopInternal(VideoRecordEvent.ERROR_NONE));
+                    mSequentialExecutor.execute(() -> stopInternal(ERROR_NONE));
                     break;
                 case RESETTING:
                     // No-Op, the Recorder is being reset.
@@ -913,7 +918,7 @@ public final class Recorder implements VideoOutput {
                                     String.format("Reach file size limit %d > %d",
                                             newRecordingBytes,
                                             mFileSizeLimitInBytes));
-                            stopInternal(VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED);
+                            stopInternal(ERROR_FILE_SIZE_LIMIT_REACHED);
                             return;
                         }
 
@@ -1093,7 +1098,7 @@ public final class Recorder implements VideoOutput {
                         Logger.d(TAG,
                                 String.format("Reach file size limit %d > %d", newRecordingBytes,
                                         mFileSizeLimitInBytes));
-                        stopInternal(VideoRecordEvent.ERROR_FILE_SIZE_LIMIT_REACHED);
+                        stopInternal(ERROR_FILE_SIZE_LIMIT_REACHED);
                         return;
                     }
 
@@ -1144,7 +1149,7 @@ public final class Recorder implements VideoOutput {
 
                     @Override
                     public void onFailure(Throwable t) {
-                        finalizeRecording(VideoRecordEvent.ERROR_ENCODING_FAILED, t);
+                        finalizeRecording(ERROR_ENCODING_FAILED, t);
                     }
                 }, mSequentialExecutor);
         Preconditions.checkNotNull(mMediaMuxer).start();
@@ -1187,7 +1192,7 @@ public final class Recorder implements VideoOutput {
                 mOutputUri = mediaStoreOutputOptions.getContentResolver().insert(
                         mediaStoreOutputOptions.getCollection(), contentValues);
                 if (mOutputUri == null) {
-                    finalizeRecording(VideoRecordEvent.ERROR_INVALID_OUTPUT_OPTIONS,
+                    finalizeRecording(ERROR_INVALID_OUTPUT_OPTIONS,
                             new IOException("Unable to create MediaStore entry."));
                     return;
                 }
@@ -1234,7 +1239,7 @@ public final class Recorder implements VideoOutput {
         try {
             setupMediaMuxer(Preconditions.checkNotNull(mRunningRecording).getOutputOptions());
         } catch (IOException e) {
-            finalizeRecording(VideoRecordEvent.ERROR_INVALID_OUTPUT_OPTIONS, e);
+            finalizeRecording(ERROR_INVALID_OUTPUT_OPTIONS, e);
             return;
         }
 
@@ -1285,7 +1290,7 @@ public final class Recorder implements VideoOutput {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    void stopInternal(@VideoRecordEvent.VideoRecordError int stopError) {
+    void stopInternal(@VideoRecordError int stopError) {
         mRecordingStopError = stopError;
         if (isAudioEnabled()) {
             mAudioEncoder.stop();
@@ -1337,16 +1342,15 @@ public final class Recorder implements VideoOutput {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    void finalizeRecording(@VideoRecordEvent.VideoRecordError int error,
-            @Nullable Throwable throwable) {
+    void finalizeRecording(@VideoRecordError int error, @Nullable Throwable throwable) {
         int errorToSend = error;
         if (mMediaMuxer != null) {
             try {
                 mMediaMuxer.stop();
             } catch (IllegalStateException e) {
                 Logger.e(TAG, "MediaMuxer failed to stop with error: " + e.getMessage());
-                if (errorToSend == VideoRecordEvent.ERROR_NONE) {
-                    errorToSend = VideoRecordEvent.ERROR_UNKNOWN;
+                if (errorToSend == ERROR_NONE) {
+                    errorToSend = ERROR_UNKNOWN;
                 }
             }
             mMediaMuxer.release();
@@ -1357,7 +1361,7 @@ public final class Recorder implements VideoOutput {
                 Preconditions.checkNotNull(mRunningRecording).getOutputOptions();
         RecordingStats stats = getCurrentRecordingStats();
         OutputResults outputResults = OutputResults.of(mOutputUri);
-        updateVideoRecordEvent(errorToSend == VideoRecordEvent.ERROR_NONE
+        updateVideoRecordEvent(errorToSend == ERROR_NONE
                 ? VideoRecordEvent.finalize(
                         outputOptions,
                         stats,
@@ -1378,7 +1382,7 @@ public final class Recorder implements VideoOutput {
         mRecordingBytes = 0L;
         mRecordingDurationNs = 0L;
         mFirstRecordingVideoDataTimeUs = 0L;
-        mRecordingStopError = VideoRecordEvent.ERROR_UNKNOWN;
+        mRecordingStopError = ERROR_UNKNOWN;
         mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
 
         synchronized (mLock) {
@@ -1400,7 +1404,7 @@ public final class Recorder implements VideoOutput {
                 case ERROR:
                     // Reset the internal state, except when the error is an recorder error,
                     // which can't be recovered without reinitializing the recorder.
-                    if (error != VideoRecordEvent.ERROR_RECORDER_ERROR) {
+                    if (error != ERROR_RECORDER_ERROR) {
                         setState(State.IDLING);
                     }
                     break;

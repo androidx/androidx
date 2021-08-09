@@ -40,6 +40,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -254,7 +255,7 @@ class VideoRecordingTest(
         // Wait for finalize event to saved file.
         assertThat(latchForVideoSaved.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
 
-        assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_SOURCE_INACTIVE)
+        assertThat(finalize.error).isEqualTo(ERROR_SOURCE_INACTIVE)
 
         // Cleanup.
         file.delete()
@@ -280,7 +281,7 @@ class VideoRecordingTest(
         // Wait for finalize event to saved file.
         assertThat(latchForVideoSaved.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
 
-        assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_SOURCE_INACTIVE)
+        assertThat(finalize.error).isEqualTo(ERROR_SOURCE_INACTIVE)
 
         // Cleanup.
         file.delete()
@@ -315,7 +316,7 @@ class VideoRecordingTest(
         val captor = forClass(VideoRecordEvent::class.java)
         verify(mockListener, atLeastOnce()).accept(captor.capture())
         val finalize = captor.value as VideoRecordEvent.Finalize
-        assertThat(finalize.error).isEqualTo(VideoRecordEvent.ERROR_SOURCE_INACTIVE)
+        assertThat(finalize.error).isEqualTo(ERROR_SOURCE_INACTIVE)
 
         // Cleanup.
         file.delete()
