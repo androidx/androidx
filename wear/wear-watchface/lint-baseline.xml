@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
 
     <issue
         id="MissingClass"
@@ -250,7 +250,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="291"
+            line="292"
             column="34"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="329"
+            line="330"
             column="38"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="367"
+            line="368"
             column="38"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="412"
+            line="413"
             column="14"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="462"
+            line="463"
             column="38"/>
     </issue>
 
@@ -305,63 +305,8 @@
         errorLine2="                                     ~~~~~~~">
         <location
             file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="468"
+            line="469"
             column="38"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 25): `ashmemReadImageBundle`"
-        errorLine1="            bitmap = SharedMemoryImage.ashmemReadImageBundle("
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="545"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 25): `ashmemReadImageBundle`"
-        errorLine1="            bitmap = SharedMemoryImage.ashmemReadImageBundle("
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="579"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 25): `ashmemReadImageBundle`"
-        errorLine1="            bitmap = SharedMemoryImage.ashmemReadImageBundle("
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="632"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 25): `ashmemReadImageBundle`"
-        errorLine1="            bitmap = SharedMemoryImage.ashmemReadImageBundle("
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="670"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 25): `ashmemReadImageBundle`"
-        errorLine1="            bitmap = SharedMemoryImage.ashmemReadImageBundle("
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="732"
-            column="40"/>
     </issue>
 
     <issue
@@ -371,29 +316,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="760"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 25): `sendTouchEvent`"
-        errorLine1="        interactiveWatchFaceInstance.sendTouchEvent("
-        errorLine2="                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="828"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 25): `release`"
-        errorLine1="        interactiveWatchFaceInstance.release()"
-        errorLine2="                                     ~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
-            line="835"
+            line="802"
             column="38"/>
     </issue>
 
@@ -404,7 +327,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="430"
+            line="434"
             column="14"/>
     </issue>
 
@@ -415,7 +338,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2654"
+            line="2699"
             column="14"/>
     </issue>
 
@@ -426,7 +349,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2720"
+            line="2765"
             column="31"/>
     </issue>
 
@@ -437,7 +360,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2754"
+            line="2939"
             column="32"/>
     </issue>
 
@@ -448,7 +371,7 @@
         errorLine2="                     ~~~~~~~~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2754"
+            line="2939"
             column="22"/>
     </issue>
 
@@ -459,7 +382,7 @@
         errorLine2="                   ~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2755"
+            line="2940"
             column="20"/>
     </issue>
 
@@ -470,7 +393,7 @@
         errorLine2="          ~~~~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2756"
+            line="2941"
             column="11"/>
     </issue>
 
@@ -481,7 +404,7 @@
         errorLine2="                     ~~~~~~~~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2759"
+            line="2944"
             column="22"/>
     </issue>
 
@@ -492,7 +415,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2759"
+            line="2944"
             column="32"/>
     </issue>
 
@@ -503,7 +426,7 @@
         errorLine2="                              ~~~~~~~~~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2760"
+            line="2945"
             column="31"/>
     </issue>
 
@@ -514,7 +437,7 @@
         errorLine2="                   ~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2761"
+            line="2946"
             column="20"/>
     </issue>
 
@@ -525,8 +448,30 @@
         errorLine2="          ~~~~~">
         <location
             file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
-            line="2762"
+            line="2947"
             column="11"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method addUserStyleChangeListener must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="        currentUserStyleRepository.addUserStyleChangeListener("
+        errorLine2="        ^">
+        <location
+            file="src/test/java/androidx/wear/watchface/TestCommon.kt"
+            line="89"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method addTapListener must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="        complicationSlotsManager.addTapListener("
+        errorLine2="        ^">
+        <location
+            file="src/test/java/androidx/wear/watchface/TestCommon.kt"
+            line="99"
+            column="9"/>
     </issue>
 
     <issue
@@ -536,7 +481,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/watchface/WatchFace.kt"
-            line="528"
+            line="593"
             column="44"/>
     </issue>
 
