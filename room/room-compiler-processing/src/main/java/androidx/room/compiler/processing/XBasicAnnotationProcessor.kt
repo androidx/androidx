@@ -26,6 +26,11 @@ package androidx.room.compiler.processing
 interface XBasicAnnotationProcessor {
 
     /**
+     * Returns the [XProcessingEnv].
+     */
+    val xProcessingEnv: XProcessingEnv
+
+    /**
      * The list of processing steps to execute.
      */
     fun processingSteps(): Iterable<XProcessingStep>

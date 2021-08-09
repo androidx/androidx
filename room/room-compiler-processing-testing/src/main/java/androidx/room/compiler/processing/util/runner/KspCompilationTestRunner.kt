@@ -23,6 +23,9 @@ import androidx.room.compiler.processing.util.KotlinCompilationUtil
 import androidx.room.compiler.processing.util.KotlinCompileTestingCompilationResult
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
+import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspArgs
@@ -50,7 +53,14 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
         } else {
             params.sources
         }
-        val syntheticKspProcessor = SyntheticKspProcessor(params.handlers)
+
+        val processorProvider = object : SymbolProcessorProvider {
+            lateinit var processor: SyntheticKspProcessor
+
+            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+                return SyntheticKspProcessor(environment, params.handlers).also { processor = it }
+            }
+        }
 
         val combinedOutputStream = ByteArrayOutputStream()
         val kspCompilation = KotlinCompilationUtil.prepareCompilation(
@@ -59,7 +69,7 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
             classpaths = params.classpath
         )
         kspCompilation.kspArgs.putAll(params.options)
-        kspCompilation.symbolProcessorProviders = listOf(syntheticKspProcessor.asProvider())
+        kspCompilation.symbolProcessorProviders = listOf(processorProvider)
         kspCompilation.compile()
         // ignore KSP result for now because KSP stops compilation, which might create false
         // negatives when java code accesses kotlin code.
@@ -76,6 +86,7 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
         finalCompilation.sources += kspCompilation.kspJavaSourceDir.collectSourceFiles() +
             kspCompilation.kspKotlinSourceDir.collectSourceFiles()
         val result = finalCompilation.compile()
+        val syntheticKspProcessor = processorProvider.processor
         // workaround for: https://github.com/google/ksp/issues/122
         // KSP does not fail compilation for error diagnostics hence we do it here.
         val hasErrorDiagnostics = syntheticKspProcessor.messageWatcher
