@@ -32,6 +32,7 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DistanceSpan;
+import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ModelUtils;
@@ -40,6 +41,7 @@ import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.util.Collections;
 import java.util.List;
@@ -194,28 +196,34 @@ public final class PlaceListNavigationTemplate implements Template {
         /**
          * Sets the title of the template.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code title} is null
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
         }
 
         /**
          * Sets the title of the template, with support for multiple length variants.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code title} is null
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
         }
 

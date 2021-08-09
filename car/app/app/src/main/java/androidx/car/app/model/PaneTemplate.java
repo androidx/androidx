@@ -16,6 +16,7 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_PANE;
@@ -26,6 +27,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -158,14 +160,17 @@ public final class PaneTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code title} is {@code null}
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
         }
 
@@ -224,8 +229,11 @@ public final class PaneTemplate implements Template {
          * via {@link Row.Builder#addText} and cannot contain either a {@link Toggle} or a {@link
          * OnClickListener}.
          *
-         * <p>Up to 2 {@link Action}s are allowed in the {@link Pane}, and either a header
-         * {@link Action} or title must be set on the template.
+         * <p>Up to 2 {@link Action}s are allowed in the {@link Pane}. Each action's title color
+         * can be customized with {@link ForegroundCarColorSpan} instances. Any other span is not
+         * supported.
+         *
+         * <p>Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
          * @throws IllegalStateException    if the template does not have either a title or header
@@ -235,6 +243,7 @@ public final class PaneTemplate implements Template {
         @NonNull
         public PaneTemplate build() {
             ROW_LIST_CONSTRAINTS_PANE.validateOrThrow(mPane);
+            ACTIONS_CONSTRAINTS_BODY.validateOrThrow(mPane.getActions());
 
             if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
                 throw new IllegalStateException("Either the title or header action must be set");

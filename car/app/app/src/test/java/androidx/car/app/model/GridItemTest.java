@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import android.os.RemoteException;
 
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.TestUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,6 +74,24 @@ public class GridItemTest {
     }
 
     @Test
+    public void title_unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridItem.Builder().setTitle(title));
+        CarText title2 = TestUtils.getCarTextVariantsWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridItem.Builder().setTitle(title2));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title3 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        new GridItem.Builder().setTitle(title3).setImage(BACK).build();
+        CarText title4 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        new GridItem.Builder().setTitle(title4).setImage(BACK).build();
+    }
+
+    @Test
     public void title_throwsIfNotSet() {
         // Not set
         assertThrows(IllegalStateException.class,
@@ -108,6 +127,24 @@ public class GridItemTest {
         assertThrows(
                 IllegalStateException.class,
                 () -> new GridItem.Builder().setText("text").setImage(BACK).build());
+    }
+
+    @Test
+    public void text_unsupportedSpans_throws() {
+        CharSequence text = TestUtils.getCharSequenceWithClickableSpan("Text");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridItem.Builder().setTitle("Title").setText(text));
+        CarText text2 = TestUtils.getCarTextVariantsWithClickableSpan("Text");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridItem.Builder().setTitle("Title").setText(text2));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence text3 = TestUtils.getCharSequenceWithColorSpan("Text");
+        new GridItem.Builder().setTitle("Title").setText(text3).setImage(BACK).build();
+        CarText text4 = TestUtils.getCarTextVariantsWithColorSpan("Text");
+        new GridItem.Builder().setTitle("Title").setText(text4).setImage(BACK).build();
     }
 
     @Test
