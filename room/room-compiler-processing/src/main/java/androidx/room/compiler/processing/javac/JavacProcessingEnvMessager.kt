@@ -26,7 +26,7 @@ import javax.lang.model.element.Element
 import javax.tools.Diagnostic
 
 internal class JavacProcessingEnvMessager(
-    private val processingEnv: ProcessingEnvironment,
+    private val processingEnv: ProcessingEnvironment
 ) : XMessager() {
     val delegate: Messager get() = processingEnv.messager
 
