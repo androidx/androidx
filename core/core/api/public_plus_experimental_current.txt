@@ -2527,7 +2527,7 @@ package androidx.core.view {
     method @Deprecated public static void setFitsSystemWindows(android.view.View!, boolean);
     method public static void setFocusedByDefault(android.view.View, boolean);
     method public static void setHasTransientState(android.view.View, boolean);
-    method public static void setImportantForAccessibility(android.view.View, int);
+    method @UiThread public static void setImportantForAccessibility(android.view.View, int);
     method public static void setImportantForAutofill(android.view.View, int);
     method public static void setKeyboardNavigationCluster(android.view.View, boolean);
     method public static void setLabelFor(android.view.View, @IdRes int);

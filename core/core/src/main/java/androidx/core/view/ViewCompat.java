@@ -1126,6 +1126,7 @@ public class ViewCompat {
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
      */
+    @UiThread
     public static void setImportantForAccessibility(@NonNull View view,
             @ImportantForAccessibility int mode) {
         if (Build.VERSION.SDK_INT >= 19) {
