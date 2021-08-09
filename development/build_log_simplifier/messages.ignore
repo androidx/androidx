@@ -242,12 +242,6 @@ Note: Recompile with \-Xlint\:deprecation for details\.
 # > Task :startup:integration-tests:first-library:processDebugManifest
 \$SUPPORT/startup/integration\-tests/first\-library/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 meta\-data\#androidx\.work\.WorkManagerInitializer was tagged at AndroidManifest\.xml\:[0-9]+ to remove other declarations but no other declaration present
-# > Task :camera:integration-tests:camera-testapp-extensions:compileDebugJavaWithJavac
-# > Task :camera:integration-tests:camera-testapp-core:compileDebugJavaWithJavac
-# > Task :room:integration-tests:room-testapp:processDebugMainManifest
-\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$GRADLE_USER_HOME/caches/transforms\-[0-9]+/[0-9a-f]{32}/transformed/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
-Package name 'androidx\.vectordrawable' used in: androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+, androidx\.vectordrawable:vectordrawable:[0-9]+\.[0-9]+\.[0-9]+\.
-# > Task :lifecycle:integration-tests:lifecycle-testapp:compileDebugJavaWithJavac
 # > Task :support-slices-demos:compileDebugJavaWithJavac
 Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/slice/demos/SliceBrowser\.java uses unchecked or unsafe operations\.
 # > Task :emoji2:emoji2-benchmark:processReleaseAndroidTestManifest
