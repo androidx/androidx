@@ -109,7 +109,7 @@ final class SupportedSurfaceCombination {
                 (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         mExcludedSupportedSizesContainer = new ExcludedSupportedSizesContainer(cameraId);
         mExtraSupportedSurfaceCombinationsContainer =
-                new ExtraSupportedSurfaceCombinationsContainer(cameraId);
+                new ExtraSupportedSurfaceCombinationsContainer();
 
         try {
             mCharacteristics = cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId);
@@ -1159,7 +1159,8 @@ final class SupportedSurfaceCombination {
             mSurfaceCombinations.addAll(getLevel3SupportedCombinationList());
         }
 
-        mSurfaceCombinations.addAll(mExtraSupportedSurfaceCombinationsContainer.get());
+        mSurfaceCombinations.addAll(
+                mExtraSupportedSurfaceCombinationsContainer.get(mCameraId, mHardwareLevel));
     }
 
     private void checkCustomization() {
