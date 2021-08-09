@@ -17,12 +17,12 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${libs.versions.kotlin.get()}")
 
-    implementation(libs.androidGradlePlugin)
+    implementation(libs.androidGradlePluginz)
     implementation(libs.dexMemberList)
-    implementation(libs.kotlinGradlePlugin)
+    implementation(libs.kotlinGradlePluginz)
     implementation(libs.kotlinPoet)
 
-    implementation(libs.dokkaGradlePlugin)
+    implementation(libs.dokkaGradlePluginz)
     implementation(libs.gson)
 
     implementation(libs.androidLint)
@@ -30,9 +30,9 @@ dependencies {
     // Not really sure about these:
     implementation("com.googlecode.json-simple:json-simple:1.1")
     implementation("androidx.benchmark:benchmark-gradle-plugin:1.0.0")
-    implementation(libs.protobufGradlePlugin)
+    implementation(libs.protobufGradlePluginz)
     implementation(libs.shadow)
-    implementation(libs.wireGradlePlugin)
+    implementation(libs.wireGradlePluginz)
     testImplementation(libs.junit)
 }
 
