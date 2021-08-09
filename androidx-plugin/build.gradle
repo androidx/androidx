@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 buildscript {
     repositories {
         google()
+        mavenCentral()
         maven {
             url("https://androidx.dev/dokka/builds/7299536/artifacts/repository")
             metadataSources {
@@ -23,6 +24,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
         maven {
             url("https://androidx.dev/metalava/builds/7255182/artifacts/repo/m2repository")
             metadataSources {
