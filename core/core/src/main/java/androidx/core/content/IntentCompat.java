@@ -19,9 +19,8 @@ package androidx.core.content;
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 import static androidx.core.content.PackageManagerCompat.ACTION_PERMISSION_REVOCATION_SETTINGS;
-import static androidx.core.content.PackageManagerCompat.UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE;
-import static androidx.core.content.PackageManagerCompat.getUnusedAppRestrictionsStatus;
-import static androidx.core.content.PackageManagerCompat.getVerifierRolePackageName;
+import static androidx.core.content.PackageManagerCompat.areUnusedAppRestrictionsAvailable;
+import static androidx.core.content.PackageManagerCompat.getPermissionRevocationVerifierApp;
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
@@ -131,9 +130,11 @@ public final class IntentCompat {
      * for a particular app (e.g. permission revocation, app hibernation).
      *
      * Note: developers must first call
-     * {@link PackageManagerCompat#getUnusedAppRestrictionsStatus(Context)} to make
-     * sure that unused app restriction features are available on the device before attempting to
-     * create an intent using this method. Any return value of this method besides
+     * {@link PackageManagerCompat#getUnusedAppRestrictionsStatus(Context)}
+     * to make sure that unused app restriction features are available on the device before
+     * attempting to create an intent using this method.
+     *
+     * Any return value of this method besides
      * {@link PackageManagerCompat#UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE} indicates that at
      * least one unused app restriction feature is available on the device. If the return value _is_
      * {@link PackageManagerCompat#UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE}, this method will
@@ -160,8 +161,7 @@ public final class IntentCompat {
     @NonNull
     public static Intent createManageUnusedAppRestrictionsIntent(@NonNull Context context,
             @NonNull String packageName) {
-        if (getUnusedAppRestrictionsStatus(context)
-                == UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE) {
+        if (!areUnusedAppRestrictionsAvailable(context.getPackageManager())) {
             throw new UnsupportedOperationException(
                     "Unused App Restriction features are not available on this device");
         }
@@ -184,8 +184,9 @@ public final class IntentCompat {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             return permissionRevocationSettingsIntent;
         } else {
-            // Only allow apps with the Verifier role to resolve the intent.
-            String verifierPackageName = getVerifierRolePackageName(context.getPackageManager());
+            // Only allow apps with the Verifier role to resolve the permission revocation intent.
+            String verifierPackageName =
+                    getPermissionRevocationVerifierApp(context.getPackageManager());
             // The Verifier package name shouldn't be null since we've already checked that there
             // exists a Verifier on the device, but nonetheless we double-check here.
             return permissionRevocationSettingsIntent

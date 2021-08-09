@@ -1017,7 +1017,7 @@ package androidx.core.content {
   }
 
   public final class PackageManagerCompat {
-    method public static int getUnusedAppRestrictionsStatus(android.content.Context);
+    method public static com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> getUnusedAppRestrictionsStatus(android.content.Context);
     field public static final String ACTION_PERMISSION_REVOCATION_SETTINGS = "android.intent.action.AUTO_REVOKE_PERMISSIONS";
     field public static final int APP_HIBERNATION_DISABLED = 5; // 0x5
     field public static final int APP_HIBERNATION_ENABLED = 4; // 0x4
@@ -1043,6 +1043,17 @@ package androidx.core.content {
   @Deprecated public static final class SharedPreferencesCompat.EditorCompat {
     method @Deprecated public void apply(android.content.SharedPreferences.Editor);
     method @Deprecated public static androidx.core.content.SharedPreferencesCompat.EditorCompat! getInstance();
+  }
+
+  public class UnusedAppRestrictionsBackportCallback {
+    method public void onResult(boolean, boolean) throws android.os.RemoteException;
+  }
+
+  public abstract class UnusedAppRestrictionsBackportService extends android.app.Service {
+    ctor public UnusedAppRestrictionsBackportService();
+    method protected abstract void isPermissionRevocationEnabled(androidx.core.content.UnusedAppRestrictionsBackportCallback);
+    method public android.os.IBinder? onBind(android.content.Intent?);
+    field public static final String ACTION_UNUSED_APP_RESTRICTIONS_BACKPORT_CONNECTION = "android.support.unusedapprestrictions.action.CustomUnusedAppRestrictionsBackportService";
   }
 
 }
