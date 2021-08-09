@@ -127,7 +127,7 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity> {
 
     companion object {
         protected const val IMAGES_COUNT = 30
-        protected const val TIMEOUT = 10L
+        protected const val TIMEOUT = 20L
 
         @JvmStatic
         lateinit var testCameraRule: CameraUtil.PreTestCamera
