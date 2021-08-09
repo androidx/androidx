@@ -26,14 +26,14 @@ allprojects {
         mavenCentral()
         gradlePluginPortal()
         maven {
-            url("https://androidx.dev/metalava/builds/7255182/artifacts/repo/m2repository")
+            url("https://androidx.dev/metalava/builds/7610917/artifacts/repo/m2repository")
             metadataSources {
                 mavenPom()
                 artifact()
             }
         }
         maven {
-            url("https://androidx.dev/dokka/builds/7299536/artifacts/repository")
+            url("https://androidx.dev/dokka/builds/7472101/artifacts/repository")
             metadataSources {
                 mavenPom()
                 artifact()
