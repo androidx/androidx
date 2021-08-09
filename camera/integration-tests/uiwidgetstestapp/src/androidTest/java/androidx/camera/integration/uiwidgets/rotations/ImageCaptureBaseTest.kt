@@ -186,7 +186,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     companion object {
         protected const val IMAGES_COUNT = 30
-        protected const val TIMEOUT = 10L
+        protected const val TIMEOUT = 20L
         @JvmStatic
         protected val captureModes = arrayOf(
             CameraActivity.IMAGE_CAPTURE_MODE_IN_MEMORY,
