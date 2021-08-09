@@ -217,15 +217,18 @@ public class AutomotiveCarInfo implements CarInfo {
         // Add "evConnector" and "fuel" type of the vehicle to the requests.
         request.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
         request.add(GetPropertyRequest.create(INFO_FUEL_CAPACITY));
-
-        ListenableFuture<List<CarPropertyResponse<?>>> future =
+        ListenableFuture<List<CarPropertyResponse<?>>> capacityFuture =
                 mPropertyManager.submitGetPropertyRequest(request, executor);
+        EnergyLevelListener energyLevelListener = new EnergyLevelListener(listener, executor);
 
-        future.addListener(() -> {
+        // This future will get EV battery capacity and fuel capacity for calculating the
+        // percentage of battery level and fuel level. Without those values, we still can provide
+        // fuel_level_low, distance_units and range_remaining information in EnergyLevelListener.
+        capacityFuture.addListener(() -> {
             try {
                 float evBatteryCapacity = UNKNOWN_CAPACITY;
                 float fuelCapacity = UNKNOWN_CAPACITY;
-                List<CarPropertyResponse<?>> result = future.get();
+                List<CarPropertyResponse<?>> result = capacityFuture.get();
                 for (CarPropertyResponse<?> value : result) {
                     if (value.getValue() == null) {
                         Log.w(LogTags.TAG_CAR_HARDWARE,
@@ -233,18 +236,17 @@ public class AutomotiveCarInfo implements CarInfo {
                                         + value.getPropertyId());
                         continue;
                     }
-                    if (value.getPropertyId() == INFO_EV_BATTERY_CAPACITY) {
+                    if (value.getPropertyId() == INFO_EV_BATTERY_CAPACITY
+                            && value.getStatus() == CarValue.STATUS_SUCCESS) {
                         evBatteryCapacity = (Float) value.getValue();
+                        energyLevelListener.updateEvBatteryCapacity(evBatteryCapacity);
                     }
-                    if (value.getPropertyId() == INFO_FUEL_CAPACITY) {
+                    if (value.getPropertyId() == INFO_FUEL_CAPACITY
+                            && value.getStatus() == CarValue.STATUS_SUCCESS) {
                         fuelCapacity = (Float) value.getValue();
+                        energyLevelListener.updateFuelCapacity(fuelCapacity);
                     }
                 }
-                EnergyLevelListener energyLevelListener = new EnergyLevelListener(listener,
-                        executor, evBatteryCapacity, fuelCapacity);
-                mPropertyManager.submitRegisterListenerRequest(ENERGY_LEVEL_REQUEST,
-                        DEFAULT_SAMPLE_RATE, energyLevelListener, executor);
-                mListenerMap.put(listener, energyLevelListener);
             } catch (ExecutionException e) {
                 Log.e(LogTags.TAG_CAR_HARDWARE,
                         "Failed to get CarPropertyResponse for Energy Level", e);
@@ -254,6 +256,9 @@ public class AutomotiveCarInfo implements CarInfo {
                 Thread.currentThread().interrupt();
             }
         }, executor);
+        mPropertyManager.submitRegisterListenerRequest(ENERGY_LEVEL_REQUEST,
+                DEFAULT_SAMPLE_RATE, energyLevelListener, executor);
+        mListenerMap.put(listener, energyLevelListener);
     }
 
     private void populateModelData(@NonNull Executor executor,
@@ -510,14 +515,19 @@ public class AutomotiveCarInfo implements CarInfo {
         private final OnCarDataAvailableListener<EnergyLevel>
                 mEnergyLevelOnCarDataAvailableListener;
         private final Executor mExecutor;
-        private float mEvBatteryCapacity;
-        private float mFuelCapacity;
+        private float mEvBatteryCapacity = UNKNOWN_CAPACITY;
+        private float mFuelCapacity = UNKNOWN_CAPACITY;
 
-        EnergyLevelListener(OnCarDataAvailableListener<EnergyLevel> listener, Executor executor,
-                float evBatteryCapacity, float fuelCapacity) {
+        EnergyLevelListener(OnCarDataAvailableListener<EnergyLevel> listener, Executor executor) {
             mEnergyLevelOnCarDataAvailableListener = listener;
             mExecutor = executor;
+        }
+
+        void updateEvBatteryCapacity(float evBatteryCapacity) {
             mEvBatteryCapacity = evBatteryCapacity;
+        }
+
+        void updateFuelCapacity(float fuelCapacity) {
             mFuelCapacity = fuelCapacity;
         }
 
