@@ -16,21 +16,31 @@
 
 package androidx.room.compiler.processing.compat
 
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
+import androidx.room.compiler.processing.javac.JavacAnnotation
+import androidx.room.compiler.processing.javac.JavacAnnotationValue
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.javac.JavacExecutableElement
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
+import androidx.room.compiler.processing.javac.JavacProcessingEnvMessager
 import androidx.room.compiler.processing.javac.JavacRoundEnv
 import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.javac.JavacVariableElement
+import javax.annotation.processing.Messager
+import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
+import javax.lang.model.element.AnnotationMirror
+import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
@@ -39,9 +49,14 @@ import javax.lang.model.type.TypeMirror
 
 // Migration APIs for converting between Javac and XProcessing types.
 object XConverters {
+    @JvmStatic
+    fun XProcessingEnv.toJavac(): ProcessingEnvironment = (this as JavacProcessingEnv).delegate
 
     @JvmStatic
     fun XRoundEnv.toJavac(): RoundEnvironment = (this as JavacRoundEnv).delegate
+
+    @JvmStatic
+    fun XMessager.toJavac(): Messager = (this as JavacProcessingEnvMessager).delegate
 
     @JvmStatic
     fun XElement.toJavac(): Element = (this as JavacElement).element
@@ -54,6 +69,12 @@ object XConverters {
 
     @JvmStatic
     fun XVariableElement.toJavac(): VariableElement = (this as JavacVariableElement).element
+
+    @JvmStatic
+    fun XAnnotation.toJavac(): AnnotationMirror = (this as JavacAnnotation).mirror
+
+    @JvmStatic
+    fun XAnnotationValue.toJavac(): AnnotationValue = (this as JavacAnnotationValue).annotationValue
 
     @JvmStatic
     fun XType.toJavac(): TypeMirror = (this as JavacType).typeMirror
@@ -81,6 +102,10 @@ object XConverters {
     @JvmStatic
     fun VariableElement.toXProcessing(env: XProcessingEnv): XVariableElement =
         (env as JavacProcessingEnv).wrapVariableElement(this)
+
+    @JvmStatic
+    fun AnnotationMirror.toXProcessing(env: XProcessingEnv): XAnnotation =
+        JavacAnnotation(env as JavacProcessingEnv, this)
 
     // TODO: TypeMirror to XType, this will be more complicated since location context is lost...
 }
