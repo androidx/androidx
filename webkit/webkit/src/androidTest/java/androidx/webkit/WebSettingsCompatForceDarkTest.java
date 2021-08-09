@@ -275,7 +275,7 @@ public class WebSettingsCompatForceDarkTest {
 
     private boolean isGreen(int color) {
         return Color.green(color) > 200
-                && Color.red(color) < 50
-                && Color.blue(color) < 50;
+                && Color.red(color) < 90
+                && Color.blue(color) < 90;
     }
 }
