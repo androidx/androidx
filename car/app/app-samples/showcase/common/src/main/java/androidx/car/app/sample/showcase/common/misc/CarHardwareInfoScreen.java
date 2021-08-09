@@ -108,12 +108,11 @@ public final class CarHardwareInfoScreen extends Screen {
 
                 mEnergyProfile = null;
                 try {
-                    carInfo.fetchModel(mCarHardwareExecutor, mModelListener);
+                    carInfo.fetchEnergyProfile(mCarHardwareExecutor, mEnergyProfileListener);
                     mHasEnergyProfilePermission = true;
                 } catch (SecurityException e) {
                     mHasEnergyProfilePermission = false;
                 }
-                carInfo.fetchEnergyProfile(mCarHardwareExecutor, mEnergyProfileListener);
             }
 
         });
@@ -153,7 +152,7 @@ public final class CarHardwareInfoScreen extends Screen {
 
             Row.Builder energyProfileRowBuilder = new Row.Builder()
                     .setTitle("Energy Profile");
-            if (!mHasModelPermission) {
+            if (!mHasEnergyProfilePermission) {
                 energyProfileRowBuilder.addText("No Energy Profile Permission.");
             } else {
                 StringBuilder fuelInfo = new StringBuilder();

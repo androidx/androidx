@@ -30,6 +30,7 @@ import static android.car.VehiclePropertyIds.PERF_ODOMETER;
 import static android.car.VehiclePropertyIds.RANGE_REMAINING;
 
 import static androidx.car.app.hardware.common.CarValue.STATUS_SUCCESS;
+import static androidx.car.app.hardware.common.CarValue.STATUS_UNAVAILABLE;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.DEFAULT_SAMPLE_RATE;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.SPEED_DISPLAY_UNIT_ID;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.TOLL_CARD_STATUS_ID;
@@ -322,6 +323,65 @@ public class AutomotiveCarInfoTest {
                 evBatteryLevelValue / evBatteryCapacity * 100);
         assertThat(energyLevel.getFuelPercent().getValue()).isEqualTo(
                 fuelLevelValue / fuelCapacity * 100);
+        assertThat(energyLevel.getEnergyIsLow().getValue()).isEqualTo(
+                true);
+        assertThat(energyLevel.getRangeRemainingMeters().getValue()).isEqualTo(
+                5f);
+        assertThat(energyLevel.getDistanceDisplayUnit().getValue()).isEqualTo(7);
+    }
+
+    @Test
+    public void getEnergyLevel_withUnavailableCapacityValues() throws InterruptedException {
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        float evBatteryCapacity = 100f;
+        float evBatteryLevelValue = 50f;
+        float fuelCapacity = 120f;
+        float fuelLevelValue = 50f;
+        List<CarPropertyResponse<?>> capacities = new ArrayList<>();
+        capacities.add(CarPropertyResponse.create(INFO_EV_BATTERY_CAPACITY,
+                STATUS_UNAVAILABLE, 1, evBatteryCapacity));
+        capacities.add(CarPropertyResponse.create(INFO_FUEL_CAPACITY,
+                STATUS_UNAVAILABLE, 1, fuelCapacity));
+        ListenableFuture<List<CarPropertyResponse<?>>> future =
+                Futures.immediateFuture(capacities);
+        when(mPropertyManager.submitGetPropertyRequest(any(), any())).thenReturn(future);
+
+        AtomicReference<EnergyLevel> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<EnergyLevel> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addEnergyLevelListener(mExecutor, listener);
+
+        verify(mPropertyManager, times(1)).submitGetPropertyRequest(any(), any());
+        verify(mPropertyManager, times(1)).submitRegisterListenerRequest(any(),
+                eq(DEFAULT_SAMPLE_RATE), captor.capture(), any());
+
+        mResponse.add(CarPropertyResponse.create(EV_BATTERY_LEVEL,
+                STATUS_SUCCESS, 1, evBatteryLevelValue));
+        mResponse.add(CarPropertyResponse.create(FUEL_LEVEL,
+                STATUS_SUCCESS, 1, fuelLevelValue));
+        mResponse.add(CarPropertyResponse.create(FUEL_LEVEL_LOW,
+                STATUS_SUCCESS, 1, true));
+        mResponse.add(CarPropertyResponse.create(RANGE_REMAINING,
+                STATUS_SUCCESS, 1, 5f));
+        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS,
+                STATUS_SUCCESS, 1, 7));
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        EnergyLevel energyLevel = loadedResult.get();
+
+        // Battery percent and fuel percent should be UNIMPLEMENTED_FLOAT since we can not get
+        // the capacity of battery and fuel property.
+        assertThat(energyLevel.getBatteryPercent().getValue()).isEqualTo(
+                CarValue.UNIMPLEMENTED_FLOAT.getValue());
+        assertThat(energyLevel.getFuelPercent().getValue()).isEqualTo(
+                CarValue.UNIMPLEMENTED_FLOAT.getValue());
+
+        // The other properties should still work without capacity values
         assertThat(energyLevel.getEnergyIsLow().getValue()).isEqualTo(
                 true);
         assertThat(energyLevel.getRangeRemainingMeters().getValue()).isEqualTo(
