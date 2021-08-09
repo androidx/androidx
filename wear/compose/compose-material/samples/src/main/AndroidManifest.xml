@@ -18,6 +18,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.wear.compose.material.samples">
-    <uses-sdk android:minSdkVersion="25"
-        tools:overrideLibrary="androidx.wear.compose.material"/>
+    <uses-sdk tools:overrideLibrary="androidx.wear.compose.material"/>
 </manifest>

@@ -83,7 +83,7 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
     }
 
     /** Computes the window bounds for [Build.VERSION_CODES.Q].  */
-    @SuppressLint("BanUncheckedReflection")
+    @SuppressLint("BanUncheckedReflection", "BlockedPrivateApi")
     @RequiresApi(VERSION_CODES.Q)
     internal fun computeWindowBoundsQ(activity: Activity): Rect {
         var bounds: Rect
@@ -122,7 +122,7 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
      * the window.
      *
      */
-    @SuppressLint("BanUncheckedReflection")
+    @SuppressLint("BanUncheckedReflection", "BlockedPrivateApi")
     @RequiresApi(VERSION_CODES.P)
     internal fun computeWindowBoundsP(activity: Activity): Rect {
         val bounds = Rect()
