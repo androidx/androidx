@@ -19,6 +19,7 @@ package androidx.benchmark.macro
 import android.app.Instrumentation
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.benchmark.macro.CompilationMode.SpeedProfile
 import androidx.profileinstaller.ProfileInstallReceiver
 import androidx.profileinstaller.ProfileInstaller
 import androidx.test.platform.app.InstrumentationRegistry
@@ -100,12 +101,13 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
     // Clear profile between runs.
     Log.d(TAG, "Clearing profiles for $packageName")
     device.executeShellCommand("cmd package compile --reset $packageName")
-
+    // Wait for the --reset to take affect.
+    Thread.sleep(1000)
     if (this == CompilationMode.None || this == CompilationMode.Interpreted) {
         return // nothing to do
     }
     if (this == CompilationMode.BaselineProfile) {
-        // For baseline profiles, if the profileinstaller library is included in the APK, then we
+        // For baseline profiles, if the ProfileInstaller library is included in the APK, then we
         // triggering this broadcast will cause the baseline profile to get installed
         // synchronously, instead of waiting for the
         val action = ProfileInstallReceiver.ACTION_INSTALL_PROFILE
@@ -148,6 +150,12 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
                 )
             }
         }
+        // Kill Process
+        Log.d(TAG, "Killing process $packageName")
+        device.executeShellCommand("am force-stop $packageName")
+        // Compile
+        compilePackage(instrumentation, packageName)
+        Log.d(TAG, "$packageName is compiled.")
     }
     if (this is CompilationMode.SpeedProfile) {
         repeat(this.warmupIterations) {
@@ -162,16 +170,7 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
             Log.d(TAG, "Received dump profile response $response")
             throw RuntimeException("Failed to dump profile for $packageName ($response)")
         }
-        Thread.sleep(5000)
-    }
-
-    Log.d(TAG, "Compiling $packageName ($this)")
-    val response = device.executeShellCommand(
-        "cmd package compile -f -m ${compileArgument()} $packageName"
-    )
-    if (!response.contains("Success")) {
-        Log.d(TAG, "Received compile cmd response: $response")
-        throw RuntimeException("Failed to compile $packageName ($response)")
+        compilePackage(instrumentation, packageName)
     }
 }
 
@@ -215,6 +214,22 @@ internal fun CompilationMode.assumeSupportedWithVmSettings() {
             }
         )
     }
+}
+
+/**
+ * Compiles the application.
+ */
+internal fun CompilationMode.compilePackage(instrumentation: Instrumentation, packageName: String) {
+    val device = instrumentation.device()
+    Log.d(TAG, "Compiling $packageName ($this)")
+    val response = device.executeShellCommand(
+        "cmd package compile -f -m ${compileArgument()} $packageName"
+    )
+    if (!response.contains("Success")) {
+        Log.d(TAG, "Received compile cmd response: $response")
+        throw RuntimeException("Failed to compile $packageName ($response)")
+    }
+    Thread.sleep(5000)
 }
 
 internal fun Instrumentation.device(): UiDevice {
