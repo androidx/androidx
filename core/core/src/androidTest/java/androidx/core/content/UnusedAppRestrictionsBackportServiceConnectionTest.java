@@ -19,11 +19,11 @@ package androidx.core.content;
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.Build.VERSION_CODES.Q;
 
-import static androidx.core.content.PackageManagerCompat.PERMISSION_REVOCATION_DISABLED;
-import static androidx.core.content.PackageManagerCompat.PERMISSION_REVOCATION_ENABLED;
-import static androidx.core.content.PackageManagerCompat.UNUSED_APP_RESTRICTION_STATUS_UNKNOWN;
 import static androidx.core.content.PackageManagerCompatTest.setupPermissionRevocationApps;
 import static androidx.core.content.UnusedAppRestrictionsBackportService.ACTION_UNUSED_APP_RESTRICTIONS_BACKPORT_CONNECTION;
+import static androidx.core.content.UnusedAppRestrictionsConstants.API_30_BACKPORT;
+import static androidx.core.content.UnusedAppRestrictionsConstants.DISABLED;
+import static androidx.core.content.UnusedAppRestrictionsConstants.ERROR;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -159,7 +159,7 @@ public class UnusedAppRestrictionsBackportServiceConnectionTest {
         mServiceConnection.onServiceConnected(new ComponentName("package", "package.ClassName"),
                 fakeService);
 
-        assertThat(mResultFuture.get()).isEqualTo(PERMISSION_REVOCATION_ENABLED);
+        assertThat(mResultFuture.get()).isEqualTo(API_30_BACKPORT);
     }
 
     @Test
@@ -176,7 +176,7 @@ public class UnusedAppRestrictionsBackportServiceConnectionTest {
         mServiceConnection.onServiceConnected(new ComponentName("package", "package.ClassName"),
                 fakeService);
 
-        assertThat(mResultFuture.get()).isEqualTo(PERMISSION_REVOCATION_DISABLED);
+        assertThat(mResultFuture.get()).isEqualTo(DISABLED);
     }
 
     @Test
@@ -193,7 +193,7 @@ public class UnusedAppRestrictionsBackportServiceConnectionTest {
         mServiceConnection.onServiceConnected(new ComponentName("package", "package.ClassName"),
                 fakeService);
 
-        assertThat(mResultFuture.get()).isEqualTo(UNUSED_APP_RESTRICTION_STATUS_UNKNOWN);
+        assertThat(mResultFuture.get()).isEqualTo(ERROR);
     }
 
     @Test

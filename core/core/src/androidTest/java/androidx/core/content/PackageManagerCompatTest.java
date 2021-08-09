@@ -20,15 +20,16 @@ import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static android.os.Build.VERSION_CODES.M;
+import static android.os.Build.VERSION_CODES.N;
 import static android.os.Build.VERSION_CODES.Q;
 import static android.os.Build.VERSION_CODES.R;
 
-import static androidx.core.content.PackageManagerCompat.APP_HIBERNATION_DISABLED;
-import static androidx.core.content.PackageManagerCompat.APP_HIBERNATION_ENABLED;
-import static androidx.core.content.PackageManagerCompat.PERMISSION_REVOCATION_DISABLED;
-import static androidx.core.content.PackageManagerCompat.PERMISSION_REVOCATION_ENABLED;
-import static androidx.core.content.PackageManagerCompat.UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE;
 import static androidx.core.content.UnusedAppRestrictionsBackportService.ACTION_UNUSED_APP_RESTRICTIONS_BACKPORT_CONNECTION;
+import static androidx.core.content.UnusedAppRestrictionsConstants.API_30;
+import static androidx.core.content.UnusedAppRestrictionsConstants.API_31;
+import static androidx.core.content.UnusedAppRestrictionsConstants.DISABLED;
+import static androidx.core.content.UnusedAppRestrictionsConstants.ERROR;
+import static androidx.core.content.UnusedAppRestrictionsConstants.FEATURE_NOT_AVAILABLE;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -48,6 +49,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
+import android.os.UserManager;
 
 import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
@@ -72,11 +74,11 @@ import java.util.List;
 public class PackageManagerCompatTest {
 
     private Context mContext;
-    private PackageManager mPackageManager = mock(PackageManager.class);
+    private final PackageManager mPackageManager = mock(PackageManager.class);
     private static final String VERIFIER_PACKAGE_NAME = "verifier.package.name";
     private static final String VERIFIER_PACKAGE_NAME2 = "verifier.package.name.2";
     private static final String NON_VERIFIER_PACKAGE_NAME = "non.verifier.package.name";
-    private ArgumentCaptor<Intent> mIntentCaptor = ArgumentCaptor.forClass(Intent.class);
+    private final ArgumentCaptor<Intent> mIntentCaptor = ArgumentCaptor.forClass(Intent.class);
 
     @Before
     public void setUp() {
@@ -85,48 +87,130 @@ public class PackageManagerCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 31)
-    public void getUnusedAppRestrictionsStatus_api31Plus_disabled_returnsAppHibernationDisabled()
+    // UserManagerCompat#isUserUnlocked always returns true if on a pre-N OS version
+    @SdkSuppress(minSdkVersion = N)
+    public void getUnusedAppRestrictionsStatus_whenLockedDirectBootMode_returnsErrorStatus()
             throws Exception {
+        UserManager userManager = mock(UserManager.class);
+        when(mContext.getSystemService(UserManager.class)).thenReturn(userManager);
+        when(userManager.isUserUnlocked()).thenReturn(false);
+
+        ListenableFuture<Integer> resultFuture =
+                PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
+
+        assertThat(resultFuture.get()).isEqualTo(ERROR);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = R)
+    public void getUnusedAppRestrictionsStatus_api30Plus_preApi30App_returnsErrorStatus()
+            throws Exception {
+        ApplicationInfo appInfo = new ApplicationInfo();
+        // Mark the application as targeting pre API 30
+        appInfo.targetSdkVersion = Q;
+        when(mContext.getApplicationInfo()).thenReturn(appInfo);
+
+        ListenableFuture<Integer> resultFuture =
+                PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
+
+        assertThat(resultFuture.get()).isEqualTo(ERROR);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = M, maxSdkVersion = Q)
+    public void getUnusedAppRestrictionsStatus_preApi30_preApi30App_returnsErrorStatus()
+            throws Exception {
+        ApplicationInfo appInfo = new ApplicationInfo();
+        // Mark the application as targeting pre API 30
+        appInfo.targetSdkVersion = Q;
+        when(mContext.getApplicationInfo()).thenReturn(appInfo);
+        setupPermissionRevocationApps(mPackageManager, Arrays.asList(VERIFIER_PACKAGE_NAME));
+        // Set this app as the Verifier on the device
+        when(mPackageManager.checkPermission("android.permission.PACKAGE_VERIFICATION_AGENT",
+                VERIFIER_PACKAGE_NAME)).thenReturn(PERMISSION_GRANTED);
+
+        ListenableFuture<Integer> resultFuture =
+                PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
+
+        assertThat(resultFuture.get()).isEqualTo(ERROR);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    public void getUnusedAppRestrictionsStatus_api31Plus_api31App_disabled_returnsDisabledStatus()
+            throws Exception {
+        ApplicationInfo appInfo = new ApplicationInfo();
+        // Mark the application as targeting API 31
+        appInfo.targetSdkVersion = 31;
+        when(mContext.getApplicationInfo()).thenReturn(appInfo);
         // Mark the application as exempt from app hibernation, so the feature is disabled
         when(mPackageManager.isAutoRevokeWhitelisted()).thenReturn(true);
 
         ListenableFuture<Integer> resultFuture =
                 PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
 
-        assertThat(resultFuture.get()).isEqualTo(APP_HIBERNATION_DISABLED);
+        assertThat(resultFuture.get()).isEqualTo(DISABLED);
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 31)
-    public void getUnusedAppRestrictionsStatus_api31Plus_enabled_returnsAppHibernationEnabled()
+    public void getUnusedAppRestrictionsStatus_api31Plus_api31App_enabled_returnsApi31Status()
             throws Exception {
+        ApplicationInfo appInfo = new ApplicationInfo();
+        // Mark the application as targeting API 31
+        appInfo.targetSdkVersion = 31;
+        when(mContext.getApplicationInfo()).thenReturn(appInfo);
         // Mark the application as _not_ exempt from app hibernation, so the feature is enabled
         when(mPackageManager.isAutoRevokeWhitelisted()).thenReturn(false);
 
         ListenableFuture<Integer> resultFuture =
                 PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
 
-        assertThat(resultFuture.get()).isEqualTo(APP_HIBERNATION_ENABLED);
+        assertThat(resultFuture.get()).isEqualTo(API_31);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    public void getUnusedAppRestrictionsStatus_api31Plus_api30App_enabled_returnsApi30Status()
+            throws Exception {
+        ApplicationInfo appInfo = new ApplicationInfo();
+        // Mark the application as targeting below API 31
+        appInfo.targetSdkVersion = R;
+        when(mContext.getApplicationInfo()).thenReturn(appInfo);
+        // Mark the application as _not_ exempt from app hibernation, so the feature is enabled
+        when(mPackageManager.isAutoRevokeWhitelisted()).thenReturn(false);
+
+        ListenableFuture<Integer> resultFuture =
+                PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
+
+        assertThat(resultFuture.get()).isEqualTo(API_30);
     }
 
     @Test
     @SdkSuppress(minSdkVersion = R, maxSdkVersion = R)
-    public void getUnusedAppRestrictionsStatus_api30_disabled_returnsPermRevocationDisabled()
+    public void getUnusedAppRestrictionsStatus_api30_disabled_returnsDisabledStatus()
             throws Exception {
+        ApplicationInfo appInfo = new ApplicationInfo();
+        // Mark the application as targeting API 30+
+        appInfo.targetSdkVersion = R;
+        when(mContext.getApplicationInfo()).thenReturn(appInfo);
         // Mark the application as exempt from permission revocation, so the feature is disabled
         when(mPackageManager.isAutoRevokeWhitelisted()).thenReturn(true);
 
         ListenableFuture<Integer> resultFuture =
                 PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
 
-        assertThat(resultFuture.get()).isEqualTo(PERMISSION_REVOCATION_DISABLED);
+        assertThat(resultFuture.get()).isEqualTo(DISABLED);
     }
 
     @Test
     @SdkSuppress(minSdkVersion = R)
-    public void getUnusedAppRestrictionsStatus_api30Plus_enabled_returnsPermRevocationEnabled()
+    public void getUnusedAppRestrictionsStatus_api30Plus_enabled_returnsApi30Status()
             throws Exception {
+        ApplicationInfo appInfo = new ApplicationInfo();
+        // Mark the application as targeting API 30+
+        appInfo.targetSdkVersion = R;
+        when(mContext.getApplicationInfo()).thenReturn(appInfo);
         // Mark the application as _not_ exempt from permission revocation, so the feature is
         // enabled
         when(mPackageManager.isAutoRevokeWhitelisted()).thenReturn(false);
@@ -134,19 +218,19 @@ public class PackageManagerCompatTest {
         ListenableFuture<Integer> resultFuture =
                 PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
 
-        assertThat(resultFuture.get()).isEqualTo(PERMISSION_REVOCATION_ENABLED);
+        assertThat(resultFuture.get()).isEqualTo(API_30);
     }
 
     @Test
     @SdkSuppress(minSdkVersion = M, maxSdkVersion = Q)
-    public void getUnusedAppRestrictionsStatus_preApi30_noRevocationApp_returnsNotAvailable()
+    public void getUnusedAppRestrictionsStatus_preApi30_noRevocationApp_returnsFeatureNotAvailable()
             throws Exception {
         // Don't install an app that can resolve the permission auto-revocation intent
 
         ListenableFuture<Integer> resultFuture =
                 PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
 
-        assertThat(resultFuture.get()).isEqualTo(UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE);
+        assertThat(resultFuture.get()).isEqualTo(FEATURE_NOT_AVAILABLE);
     }
 
     @Test
@@ -161,12 +245,16 @@ public class PackageManagerCompatTest {
         ListenableFuture<Integer> resultFuture =
                 PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
 
-        assertThat(resultFuture.get()).isEqualTo(UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE);
+        assertThat(resultFuture.get()).isEqualTo(FEATURE_NOT_AVAILABLE);
     }
 
     @Test
     @SdkSuppress(minSdkVersion = M, maxSdkVersion = Q)
     public void getUnusedAppRestrictionsStatus_preApi30_verifierRevocationApp_bindsService() {
+        ApplicationInfo appInfo = new ApplicationInfo();
+        // Mark the application as targeting API 30+
+        appInfo.targetSdkVersion = R;
+        when(mContext.getApplicationInfo()).thenReturn(appInfo);
         setupPermissionRevocationApps(mPackageManager, Arrays.asList(VERIFIER_PACKAGE_NAME));
         // Set this app as the Verifier on the device
         when(mPackageManager.checkPermission("android.permission.PACKAGE_VERIFICATION_AGENT",
@@ -189,6 +277,10 @@ public class PackageManagerCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = M, maxSdkVersion = Q)
     public void getUnusedAppRestrictionsStatus_preApi30_manyVerifierRevocationApps_doesNotThrow() {
+        ApplicationInfo appInfo = new ApplicationInfo();
+        // Mark the application as targeting API 30+
+        appInfo.targetSdkVersion = R;
+        when(mContext.getApplicationInfo()).thenReturn(appInfo);
         setupPermissionRevocationApps(mPackageManager, Arrays.asList(VERIFIER_PACKAGE_NAME,
                 VERIFIER_PACKAGE_NAME2));
         // Set both apps as the Verifier on the device, but we should have a graceful failure.
@@ -218,7 +310,7 @@ public class PackageManagerCompatTest {
         ListenableFuture<Integer> resultFuture =
                 PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
 
-        assertThat(resultFuture.get()).isEqualTo(UNUSED_APP_RESTRICTION_FEATURE_NOT_AVAILABLE);
+        assertThat(resultFuture.get()).isEqualTo(FEATURE_NOT_AVAILABLE);
     }
 
     /**
