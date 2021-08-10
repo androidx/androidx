@@ -17,6 +17,7 @@
 package androidx.benchmark.macro.perfetto
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.benchmark.Outputs
 import androidx.test.uiautomator.UiDevice
 import java.io.File
@@ -24,6 +25,7 @@ import java.io.InputStream
 
 internal data class ShellOutput(val stdout: String, val stderr: String)
 
+@RequiresApi(21)
 private fun UiDevice.chmodExecutable(absoluteFilePath: String) {
     if (Build.VERSION.SDK_INT >= 23) {
         executeShellCommand("chmod +x $absoluteFilePath")
@@ -43,6 +45,7 @@ private fun UiDevice.chmodExecutable(absoluteFilePath: String) {
  * stdin/stderr is required, so that all stderr can be captured (instead of redirecting the
  * last command), and stdin can be read by other commands in the script (instead of just the 1st).
  */
+@RequiresApi(21)
 private fun UiDevice.executeShellScript(
     script: String,
     stdin: String?,
@@ -113,6 +116,7 @@ private fun UiDevice.executeShellScript(
  *
  * @return ShellOutput, including stdout of full script, and stderr of last command.
  */
+@RequiresApi(21)
 internal fun UiDevice.executeShellScriptWithStderr(
     script: String,
     stdin: String? = null
@@ -142,6 +146,7 @@ internal fun UiDevice.executeShellScriptWithStderr(
  *
  * @return Stdout string
  */
+@RequiresApi(21)
 internal fun UiDevice.executeShellScript(script: String, stdin: String? = null): String {
     return executeShellScript(script, stdin, false).first
 }
@@ -149,6 +154,7 @@ internal fun UiDevice.executeShellScript(script: String, stdin: String? = null):
 /**
  * Writes the inputStream to an executable file with the given name in `/data/local/tmp`
  */
+@RequiresApi(21)
 internal fun UiDevice.createRunnableExecutable(name: String, inputStream: InputStream): String {
     // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
     // so we copy to /data/local/tmp
@@ -179,10 +185,12 @@ internal fun UiDevice.createRunnableExecutable(name: String, inputStream: InputS
  * Returns true if the shell session is rooted, and thus root commands can be run (e.g. atrace
  * commands with root-only tags)
  */
+@RequiresApi(21)
 internal fun UiDevice.isShellSessionRooted(): Boolean {
     return executeShellCommand("getprop service.adb.root").trim() == "1"
 }
 
+@RequiresApi(21)
 private fun UiDevice.moveToTmpAndMakeExecutable(src: String, dst: String) {
     // Note: we don't check for return values from the below, since shell based file
     // permission errors generally crash our process.
@@ -190,6 +198,7 @@ private fun UiDevice.moveToTmpAndMakeExecutable(src: String, dst: String) {
     chmodExecutable(dst)
 }
 
+@RequiresApi(21)
 internal fun UiDevice.isPackageAlive(packageName: String): Boolean {
     if (Build.VERSION.SDK_INT >= 24) {
         // On API 23 (first version to offer it) we observe that 'pidof'

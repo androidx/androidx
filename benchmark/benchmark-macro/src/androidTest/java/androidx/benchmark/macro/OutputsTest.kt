@@ -18,6 +18,7 @@ package androidx.benchmark.macro
 
 import androidx.benchmark.Outputs
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -46,6 +47,7 @@ public class OutputsTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 21) // executeShellCommand
     public fun dirUsableByAppAndShell_writeAppReadShell() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val dir = Outputs.dirUsableByAppAndShell

@@ -19,6 +19,7 @@ package androidx.benchmark.macro.perfetto
 import androidx.benchmark.macro.device
 import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertTrue
@@ -30,6 +31,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 @SmallTest
+@SdkSuppress(minSdkVersion = 21)
 @RunWith(AndroidJUnit4::class)
 class PerfettoTraceProcessorTest {
     @Test

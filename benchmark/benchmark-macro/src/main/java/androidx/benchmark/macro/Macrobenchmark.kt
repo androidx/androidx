@@ -20,6 +20,7 @@ import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkResult
@@ -92,6 +93,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
  *
  * This function is a building block for public testing APIs
  */
+@RequiresApi(21)
 private fun macrobenchmark(
     uniqueName: String,
     className: String,
@@ -247,6 +249,7 @@ private fun macrobenchmark(
  *
  * @suppress
  */
+@RequiresApi(21)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun macrobenchmarkWithStartupMode(
     uniqueName: String,
