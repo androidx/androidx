@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +45,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavGraph
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.contains
 import androidx.navigation.createGraph
@@ -556,6 +558,55 @@ class NavHostTest {
             assertThat(secondEntry.lifecycle.currentState)
                 .isEqualTo(Lifecycle.State.RESUMED)
         }
+    }
+
+    @Test
+    fun testStateSavedByCrossFade() {
+        lateinit var navController: NavHostController
+        lateinit var text: MutableState<String>
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, "start") {
+                composable("start") {
+                    text = rememberSaveable { mutableStateOf("") }
+                    Column {
+                        TextField(value = text.value, onValueChange = { text.value = it })
+                    }
+                }
+                composable("second") { }
+            }
+        }
+
+        composeTestRule.onNodeWithText("test").assertDoesNotExist()
+
+        text.value = "test"
+
+        composeTestRule.onNodeWithText("test").assertExists()
+
+        composeTestRule.runOnIdle {
+            navController.navigate("second") {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate("start") {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+
+        composeTestRule.onNodeWithText("test").assertExists()
     }
 
     private fun createNavController(context: Context): TestNavHostController {

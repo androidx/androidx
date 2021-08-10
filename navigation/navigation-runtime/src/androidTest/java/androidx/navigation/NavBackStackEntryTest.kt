@@ -27,11 +27,13 @@ import androidx.lifecycle.get
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
@@ -81,6 +83,36 @@ class NavBackStackEntryTest {
         val viewModelProvider = ViewModelProvider(owner)
         val viewModel = viewModelProvider[TestAndroidViewModel::class.java]
         assertThat(viewModel).isNotNull()
+    }
+
+    @Test
+    fun testEqualsOnRestore() {
+        with(ActivityScenario.launch(NavControllerActivity::class.java)) {
+            val navController = withActivity { NavController(this) }
+            navController.navigatorProvider.addNavigator(TestNavigator())
+
+            val navGraph = navController.navigatorProvider.navigation(
+                route = "start",
+                startDestination = "first"
+            ) {
+                test("first")
+            }
+            withActivity { navController.setGraph(navGraph, null) }
+
+            val entry = navController.currentBackStackEntry
+
+            val savedState = navController.saveState()
+
+            recreate()
+
+            val restoredNavController = withActivity { NavController(this) }
+            restoredNavController.navigatorProvider.addNavigator(TestNavigator())
+
+            restoredNavController.restoreState(savedState)
+            withActivity { restoredNavController.graph = navGraph }
+
+            assertThat(restoredNavController.currentBackStackEntry).isEqualTo(entry)
+        }
     }
 
     @Suppress("DEPRECATION")

@@ -199,7 +199,7 @@ public class NavBackStackEntry private constructor(
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is NavBackStackEntry) return false
-        return context == other.context && id == other.id && destination == other.destination &&
+        return id == other.id && destination == other.destination &&
             (
                 arguments == other.arguments ||
                     arguments?.keySet()
@@ -208,8 +208,7 @@ public class NavBackStackEntry private constructor(
     }
 
     override fun hashCode(): Int {
-        var result = context.hashCode()
-        result = 31 * result + id.hashCode()
+        var result = id.hashCode()
         result = 31 * result + destination.hashCode()
         arguments?.keySet()?.forEach {
             result = 31 * result + arguments!!.get(it).hashCode()
