@@ -68,7 +68,7 @@ fun SwipeToDismissBox(
         )
 
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .swipeable(
                 state = state,
