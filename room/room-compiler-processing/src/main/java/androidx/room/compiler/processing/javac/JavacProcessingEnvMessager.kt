@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
+import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic
@@ -27,6 +28,8 @@ import javax.tools.Diagnostic
 internal class JavacProcessingEnvMessager(
     private val processingEnv: ProcessingEnvironment
 ) : XMessager() {
+    val delegate: Messager get() = processingEnv.messager
+
     override fun onPrintMessage(
         kind: Diagnostic.Kind,
         msg: String,
@@ -35,7 +38,7 @@ internal class JavacProcessingEnvMessager(
         annotationValue: XAnnotationValue?
     ) {
         if (element == null) {
-            processingEnv.messager.printMessage(kind, msg)
+            delegate.printMessage(kind, msg)
             return
         }
 
@@ -47,18 +50,18 @@ internal class JavacProcessingEnvMessager(
             msg
         }
         if (annotation == null) {
-            processingEnv.messager.printMessage(kind, msg, javacElement)
+            delegate.printMessage(kind, msg, javacElement)
             return
         }
 
         val javacAnnotation = (annotation as JavacAnnotation).mirror
         if (annotationValue == null) {
-            processingEnv.messager.printMessage(kind, msg, javacElement, javacAnnotation)
+            delegate.printMessage(kind, msg, javacElement, javacAnnotation)
             return
         }
 
         val javacAnnotationValue = (annotationValue as JavacAnnotationValue).annotationValue
-        processingEnv.messager.printMessage(
+        delegate.printMessage(
             kind, msg, javacElement, javacAnnotation, javacAnnotationValue
         )
     }
