@@ -19,12 +19,15 @@ package androidx.room.compiler.processing.compat
 import androidx.room.compiler.processing.compat.XConverters.toJavac
 import androidx.room.compiler.processing.compat.XConverters.toXProcessing
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
+import androidx.room.compiler.processing.testcode.TestSuppressWarnings
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getDeclaredMethod
 import androidx.room.compiler.processing.util.runKaptTest
+import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth.assertThat
+import com.squareup.javapoet.ClassName
 import org.junit.Test
 import javax.lang.model.util.ElementFilter
 
@@ -33,6 +36,7 @@ class XConvertersTest {
     val kotlinSrc = Source.kotlin(
         "KotlinClass.kt",
         """
+        @androidx.room.compiler.processing.testcode.TestSuppressWarnings("warning1")
         class KotlinClass {
           var field = 1
           fun foo(param: Int) {
@@ -43,6 +47,7 @@ class XConvertersTest {
     val javaSrc = Source.java(
         "JavaClass",
         """
+        @androidx.room.compiler.processing.testcode.TestSuppressWarnings("warning1")
         public class JavaClass {
           public int field = 1;
           public void foo(int param) {
@@ -180,6 +185,36 @@ class XConvertersTest {
             ).first { it.simpleName.toString() == "foo" }.parameters.first()
             assertThat(javaParam.toXProcessing(invocation.processingEnv))
                 .isEqualTo(javaClass.getDeclaredMethod("foo").parameters.first())
+        }
+    }
+
+    @Suppress("UnstableApiUsage")
+    @Test
+    fun annotation() {
+        runKaptTest(
+            sources = listOf(kotlinSrc, javaSrc)
+        ) { invocation ->
+            val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
+            val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
+
+            assertThat(
+                kotlinClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                    .toJavac()
+            ).isEqualTo(
+                MoreElements.getAnnotationMirror(
+                    invocation.getJavacTypeElement("KotlinClass"),
+                    TestSuppressWarnings::class.java
+                ).get()
+            )
+            assertThat(
+                javaClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                    .toJavac()
+            ).isEqualTo(
+                MoreElements.getAnnotationMirror(
+                    invocation.getJavacTypeElement("JavaClass"),
+                    TestSuppressWarnings::class.java
+                ).get()
+            )
         }
     }
 
