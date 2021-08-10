@@ -62,7 +62,6 @@ import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import java.io.File
-import java.util.ArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -390,58 +389,6 @@ class VideoRecordingTest(
 
         // Verify.
         verifyRecordingResult(videoFile)
-
-        // Cleanup.
-        videoFile.delete()
-        imageFile.delete()
-    }
-
-    @Test
-    fun recordingWithImageAnalysisAndImageCapture() {
-        // TODO(b/168187087): Video: Unable to record Video on Pixel 1 API 26,27 without Preview
-        Assume.assumeFalse(
-            "Pixel running API 26,27 has CameraDevice.onError when set repeating request",
-            Build.DEVICE.equals("sailfish", true) &&
-                (Build.VERSION.SDK_INT == 26 || Build.VERSION.SDK_INT == 27)
-        )
-
-        // Pre-check and arrange
-        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
-        val imageCapture = ImageCapture.Builder().build()
-        val analysis = ImageAnalysis.Builder().build()
-        Assume.assumeTrue(checkUseCasesCombinationSupported(analysis, videoCapture, imageCapture))
-
-        val videoFile = File.createTempFile("camerax-video", ".tmp").apply {
-            deleteOnExit()
-        }
-        val imageFile = File.createTempFile("camerax-image-capture", ".tmp").apply {
-            deleteOnExit()
-        }
-        latchForVideoSaved = CountDownLatch(1)
-        latchForVideoRecording = CountDownLatch(5)
-        val latchForImageAnalysis = CountDownLatch(5)
-        analysis.setAnalyzer(CameraXExecutors.directExecutor()) { it: ImageProxy ->
-            latchForImageAnalysis.countDown()
-            it.close()
-        }
-
-        instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(
-                lifecycleOwner,
-                cameraSelector,
-                analysis,
-                imageCapture,
-                videoCapture
-            )
-        }
-
-        // Act.
-        completeVideoRecording(videoCapture, videoFile)
-        completeImageCapture(imageCapture, imageFile)
-
-        // Verify.
-        verifyRecordingResult(videoFile)
-        assertThat(latchForImageAnalysis.await(10, TimeUnit.SECONDS)).isTrue()
 
         // Cleanup.
         videoFile.delete()
