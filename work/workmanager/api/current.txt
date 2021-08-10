@@ -154,6 +154,7 @@ package androidx.work {
   public abstract class ListenableWorker {
     ctor @Keep public ListenableWorker(android.content.Context, androidx.work.WorkerParameters);
     method public final android.content.Context getApplicationContext();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.work.ForegroundInfo!> getForegroundInfoAsync();
     method public final java.util.UUID getId();
     method public final androidx.work.Data getInputData();
     method @RequiresApi(28) public final android.net.Network? getNetwork();
@@ -213,6 +214,11 @@ package androidx.work {
   }
 
   public static final class Operation.State.SUCCESS extends androidx.work.Operation.State {
+  }
+
+  public enum OutOfQuotaPolicy {
+    enum_constant public static final androidx.work.OutOfQuotaPolicy DROP_WORK_REQUEST;
+    enum_constant public static final androidx.work.OutOfQuotaPolicy RUN_AS_NON_EXPEDITED_WORK_REQUEST;
   }
 
   public final class OverwritingInputMerger extends androidx.work.InputMerger {
@@ -341,6 +347,7 @@ package androidx.work {
     method public final B setBackoffCriteria(androidx.work.BackoffPolicy, long, java.util.concurrent.TimeUnit);
     method @RequiresApi(26) public final B setBackoffCriteria(androidx.work.BackoffPolicy, java.time.Duration);
     method public final B setConstraints(androidx.work.Constraints);
+    method public B setExpedited(androidx.work.OutOfQuotaPolicy);
     method public B setInitialDelay(long, java.util.concurrent.TimeUnit);
     method @RequiresApi(26) public B setInitialDelay(java.time.Duration);
     method public final B setInputData(androidx.work.Data);
