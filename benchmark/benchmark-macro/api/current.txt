@@ -4,7 +4,7 @@ package androidx.benchmark.macro {
   @RequiresApi(29) public final class Api29Kt {
   }
 
-  public abstract sealed class CompilationMode {
+  @RequiresApi(21) public abstract sealed class CompilationMode {
   }
 
   public static final class CompilationMode.BaselineProfile extends androidx.benchmark.macro.CompilationMode {
@@ -31,7 +31,7 @@ package androidx.benchmark.macro {
   public final class ConfigurationErrorKt {
   }
 
-  public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
+  @RequiresApi(21) public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
     ctor public FrameTimingMetric();
   }
 
@@ -41,7 +41,7 @@ package androidx.benchmark.macro {
   public final class MacrobenchmarkKt {
   }
 
-  public final class MacrobenchmarkScope {
+  @RequiresApi(21) public final class MacrobenchmarkScope {
     ctor public MacrobenchmarkScope(String packageName, boolean launchWithClearTask);
     method public void dropKernelPageCache();
     method public void killProcess();
@@ -50,7 +50,7 @@ package androidx.benchmark.macro {
     method public void startActivityAndWait(android.content.Intent intent);
   }
 
-  public abstract sealed class Metric {
+  @RequiresApi(21) public abstract sealed class Metric {
   }
 
   public final class MetricKt {

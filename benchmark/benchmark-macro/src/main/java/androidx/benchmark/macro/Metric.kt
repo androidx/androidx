@@ -26,6 +26,7 @@ import androidx.test.uiautomator.UiDevice
 /**
  * Metric interface.
  */
+@RequiresApi(21)
 public sealed class Metric {
     internal abstract fun configure(packageName: String)
 
@@ -41,6 +42,7 @@ public sealed class Metric {
     internal abstract fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState
 }
 
+@RequiresApi(21)
 public class FrameTimingMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()

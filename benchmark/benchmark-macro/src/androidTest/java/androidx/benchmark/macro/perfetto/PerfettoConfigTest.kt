@@ -53,12 +53,14 @@ class PerfettoConfigTest {
         assertFalse(ftraceConfig.atrace_categories.contains("memory"))
     }
 
+    @SdkSuppress(minSdkVersion = 21)
     @Test
     fun validateAndEncode() {
         // default config shouldn't throw
         perfettoConfig(listOf(Packages.TEST)).validateAndEncode()
     }
 
+    @SdkSuppress(minSdkVersion = 21)
     @Test
     fun validateAndEncode_invalidAtraceCategories() {
         val invalidConfig = TraceConfig(
@@ -86,7 +88,7 @@ class PerfettoConfigTest {
         assertTrue(exception.message!!.contains("bad_category"))
     }
 
-    @SdkSuppress(maxSdkVersion = 27)
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 27)
     @Test
     fun validateAndEncode_invalidWildcard() {
         val invalidConfig = TraceConfig(

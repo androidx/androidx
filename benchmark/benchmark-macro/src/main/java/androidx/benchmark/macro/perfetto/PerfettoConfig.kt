@@ -17,6 +17,7 @@
 package androidx.benchmark.macro.perfetto
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import perfetto.protos.DataSourceConfig
@@ -150,6 +151,7 @@ internal fun perfettoConfig(
     ),
 )
 
+@RequiresApi(21) // needed for shell access
 internal fun TraceConfig.validateAndEncode(): ByteArray {
     val ftraceConfig = data_sources
         .mapNotNull { it.config?.ftrace_config }
