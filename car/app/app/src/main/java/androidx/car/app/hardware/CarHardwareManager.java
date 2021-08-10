@@ -24,10 +24,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
+import androidx.car.app.HostException;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.info.CarInfo;
 import androidx.car.app.hardware.info.CarSensors;
 import androidx.car.app.managers.Manager;
+import androidx.car.app.versioning.CarAppApiLevels;
 
 import java.lang.reflect.Constructor;
 
@@ -59,13 +61,20 @@ public interface CarHardwareManager extends Manager {
      *
      * @throws IllegalStateException if none of the supported classes are found or if a supported
      *                               class was found but the constructor was mismatched
+     * @throws HostException         if the negotiated api level is less than
+     *                               {@link CarAppApiLevels#LEVEL_3}
      * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
     static CarHardwareManager create(@NonNull CarContext context,
-            @NonNull HostDispatcher hostDispatcher) throws IllegalStateException {
-        // TODO(b/192493839) : Switch to using Manager.create
+            @NonNull HostDispatcher hostDispatcher) {
+        if (context.getCarAppApiLevel() < CarAppApiLevels.LEVEL_3) {
+            throw new HostException("Create CarHardwareManager failed",
+                    new IllegalArgumentException("Attempted to retrieve CarHardwareManager "
+                            + "service, but the host is less than " + CarAppApiLevels.LEVEL_3));
+        }
+
         try { // Check for automotive library first.
             Class<?> c = Class.forName("androidx.car.app.hardware.AutomotiveCarHardwareManager");
             Constructor<?> ctor = c.getConstructor(Context.class);
@@ -78,7 +87,7 @@ public interface CarHardwareManager extends Manager {
             throw new IllegalStateException("Mismatch with app-automotive artifact", e);
         }
 
-        try { // Check for automotive library first.
+        try { // Check for projected library.
             Class<?> c = Class.forName("androidx.car.app.hardware.ProjectedCarHardwareManager");
             Constructor<?> ctor = c.getConstructor(HostDispatcher.class);
             Object object = ctor.newInstance(hostDispatcher);
