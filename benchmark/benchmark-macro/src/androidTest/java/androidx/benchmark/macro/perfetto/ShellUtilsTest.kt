@@ -29,6 +29,7 @@ import org.junit.runner.RunWith
 import kotlin.test.assertNotNull
 
 @MediumTest
+@SdkSuppress(minSdkVersion = 21)
 @RunWith(AndroidJUnit4::class)
 class ShellUtilsTest {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())

@@ -18,6 +18,7 @@ package androidx.benchmark.macro
 
 import android.app.Instrumentation
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.macro.CompilationMode.SpeedProfile
 import androidx.profileinstaller.ProfileInstallReceiver
@@ -32,6 +33,7 @@ import org.junit.AssumptionViolatedException
  * For example, [SpeedProfile] will run a configurable number of profiling iterations to generate
  * a profile, and use that to compile the target app.
  */
+@RequiresApi(21)
 public sealed class CompilationMode(
     // for modes other than [None], is argument passed `cmd package compile`
     private val compileArgument: String?
@@ -95,6 +97,7 @@ public sealed class CompilationMode(
  *
  * For more information: https://source.android.com/devices/tech/dalvik/jit-compiler
  */
+@RequiresApi(21)
 internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     val device = instrumentation.device()
@@ -219,6 +222,7 @@ internal fun CompilationMode.assumeSupportedWithVmSettings() {
 /**
  * Compiles the application.
  */
+@RequiresApi(21)
 internal fun CompilationMode.compilePackage(instrumentation: Instrumentation, packageName: String) {
     val device = instrumentation.device()
     Log.d(TAG, "Compiling $packageName ($this)")
