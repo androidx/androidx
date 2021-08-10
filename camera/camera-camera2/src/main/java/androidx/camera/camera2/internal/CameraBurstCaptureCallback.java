@@ -49,7 +49,6 @@ class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
         mCallbackMap = new HashMap<>();
     }
 
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onCaptureBufferLost(
@@ -100,6 +99,11 @@ class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
     @Override
     public void onCaptureSequenceAborted(
             @NonNull CameraCaptureSession session, int sequenceId) {
+        for (List<CameraCaptureSession.CaptureCallback> callbackList : mCallbackMap.values()) {
+            for (CameraCaptureSession.CaptureCallback callback : callbackList) {
+                callback.onCaptureSequenceAborted(session, sequenceId);
+            }
+        }
         if (mCaptureSequenceCallback != null) {
             mCaptureSequenceCallback.onCaptureSequenceCompletedOrAborted(session, sequenceId, true);
         }
@@ -108,9 +112,14 @@ class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
     @Override
     public void onCaptureSequenceCompleted(
             @NonNull CameraCaptureSession session, int sequenceId, long frameNumber) {
+        for (List<CameraCaptureSession.CaptureCallback> callbackList : mCallbackMap.values()) {
+            for (CameraCaptureSession.CaptureCallback callback : callbackList) {
+                callback.onCaptureSequenceCompleted(session, sequenceId, frameNumber);
+            }
+        }
         if (mCaptureSequenceCallback != null) {
-            mCaptureSequenceCallback.onCaptureSequenceCompletedOrAborted(session, sequenceId,
-                    false);
+            mCaptureSequenceCallback
+                    .onCaptureSequenceCompletedOrAborted(session, sequenceId, false);
         }
     }
 
