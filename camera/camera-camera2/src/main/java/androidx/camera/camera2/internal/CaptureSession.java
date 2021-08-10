@@ -60,12 +60,12 @@ import java.util.Objects;
 import java.util.concurrent.CancellationException;
 
 /**
- * A session for capturing images from the camera which is tied to a specific {@link CameraDevice}.
  *
- * <p>A session can only be opened a single time. Once has {@link CaptureSession#close()} been
- * called then it is permanently closed so a new session has to be created for capturing images.
+ *  A basic implementation of {@link CaptureSessionInterface} for capturing images from the camera
+ *  which is tied to a specific {@link CameraDevice}.
+ *
  */
-final class CaptureSession {
+final class CaptureSession implements CaptureSessionInterface {
     private static final String TAG = "CaptureSession";
 
     // TODO: Find a proper timeout threshold.
@@ -139,27 +139,21 @@ final class CaptureSession {
     }
 
     /**
-     * Returns the configurations of the capture session, or null if it has not yet been set
-     * or if the capture session has been closed.
+     * {@inheritDoc}
      */
     @Nullable
-    SessionConfig getSessionConfig() {
+    @Override
+    public SessionConfig getSessionConfig() {
         synchronized (mSessionLock) {
             return mSessionConfig;
         }
     }
 
     /**
-     * Sets the active configurations for the capture session.
-     *
-     * <p>Once both the session configuration has been set and the session has been opened, then the
-     * capture requests will immediately be issued.
-     *
-     * @param sessionConfig has the configuration that will currently active in issuing capture
-     *                      request. The surfaces contained in this must be a subset of the
-     *                      surfaces that were used to open this capture session.
+     * {@inheritDoc}
      */
-    void setSessionConfig(SessionConfig sessionConfig) {
+    @Override
+    public void setSessionConfig(@Nullable SessionConfig sessionConfig) {
         synchronized (mSessionLock) {
             switch (mState) {
                 case UNINITIALIZED:
@@ -172,6 +166,9 @@ final class CaptureSession {
                     break;
                 case OPENED:
                     mSessionConfig = sessionConfig;
+                    if (sessionConfig == null) {
+                        return;
+                    }
 
                     if (!mConfiguredSurfaceMap.keySet().containsAll(sessionConfig.getSurfaces())) {
                         Logger.e(TAG, "Does not have the proper configured lists");
@@ -190,25 +187,13 @@ final class CaptureSession {
         }
     }
 
+
     /**
-     * Opens the capture session.
-     *
-     * <p>When the session is opened and the configurations have been set then the capture requests
-     * will be issued.
-     *
-     * <p>The cancellation of the returned ListenableFuture will not propagate into the inner
-     * future, that is, the capture session creation process is not cancelable.
-     *
-     * @param sessionConfig which is used to configure the camera capture session.
-     *                      This contains configurations which may or may not be currently
-     *                      active in issuing capture requests.
-     * @param cameraDevice  the camera with which to generate the capture session
-     * @param opener        The opener to open the {@link SynchronizedCaptureSession}.
-     * @return A {@link ListenableFuture} that will be completed once the
-     * {@link CameraCaptureSession} has been configured.
+     * {@inheritDoc}
      */
     @NonNull
-    ListenableFuture<Void> open(@NonNull SessionConfig sessionConfig,
+    @Override
+    public ListenableFuture<Void> open(@NonNull SessionConfig sessionConfig,
             @NonNull CameraDevice cameraDevice,
             @NonNull SynchronizedCaptureSessionOpener opener) {
         synchronized (mSessionLock) {
@@ -350,15 +335,10 @@ final class CaptureSession {
     }
 
     /**
-     * Closes the capture session.
-     *
-     * <p>Close needs be called on a session in order to safely open another session. However, this
-     * stops minimal resources so that another session can be quickly opened.
-     *
-     * <p>Once a session is closed it can no longer be opened again. After the session is closed all
-     * method calls on it do nothing.
+     * {@inheritDoc}
      */
-    void close() {
+    @Override
+    public void close() {
         synchronized (mSessionLock) {
             switch (mState) {
                 case UNINITIALIZED:
@@ -406,16 +386,12 @@ final class CaptureSession {
     }
 
     /**
-     * Releases the capture session.
-     *
-     * <p>This releases all of the sessions resources and should be called when ready to close the
-     * camera.
-     *
-     * <p>Once a session is released it can no longer be opened again. After the session is released
-     * all method calls on it do nothing.
+     * {@inheritDoc}
      */
     @SuppressWarnings("ObjectToString")
-    ListenableFuture<Void> release(boolean abortInFlightCaptures) {
+    @NonNull
+    @Override
+    public ListenableFuture<Void> release(boolean abortInFlightCaptures) {
         synchronized (mSessionLock) {
             switch (mState) {
                 case UNINITIALIZED:
@@ -479,11 +455,10 @@ final class CaptureSession {
     }
 
     /**
-     * Issues capture requests.
-     *
-     * @param captureConfigs which is used to construct {@link CaptureRequest}.
+     * {@inheritDoc}
      */
-    void issueCaptureRequests(List<CaptureConfig> captureConfigs) {
+    @Override
+    public void issueCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         synchronized (mSessionLock) {
             switch (mState) {
                 case UNINITIALIZED:
@@ -508,8 +483,12 @@ final class CaptureSession {
         }
     }
 
-    /** Returns the configurations of the capture requests. */
-    List<CaptureConfig> getCaptureConfigs() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @NonNull
+    public List<CaptureConfig> getCaptureConfigs() {
         synchronized (mSessionLock) {
             return Collections.unmodifiableList(mCaptureConfigs);
         }
@@ -761,7 +740,11 @@ final class CaptureSession {
         }
     }
 
-    void cancelIssuedCaptureRequests() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cancelIssuedCaptureRequests() {
         List<CaptureConfig> captureConfigs = null;
         synchronized (mSessionLock) {
             if (!mCaptureConfigs.isEmpty()) {
@@ -809,7 +792,7 @@ final class CaptureSession {
             Config newOptions = captureConfig.getImplementationOptions();
             for (Config.Option<?> option : newOptions.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
-                        Config.Option<Object> objectOpt = (Config.Option<Object>) option;
+                Config.Option<Object> objectOpt = (Config.Option<Object>) option;
                 Object newValue = newOptions.retrieveOption(objectOpt, null);
                 if (options.containsOption(option)) {
                     Object oldValue = options.retrieveOption(objectOpt, null);
