@@ -21,9 +21,11 @@ import static org.mockito.Mockito.mock;
 import android.graphics.Typeface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.MetadataRepo;
 
+@RequiresApi(19)
 public class NoFontTestEmojiConfig extends EmojiCompat.Config {
 
     static EmojiCompat.Config emptyConfig() {
