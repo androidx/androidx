@@ -18,6 +18,9 @@ package androidx.security.crypto;
 
 import static androidx.security.crypto.MasterKey.KEYSTORE_PATH_URI;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.content.Context;
@@ -41,6 +44,7 @@ import org.junit.runner.RunWith;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -102,7 +106,7 @@ public class EncryptedFileTest {
 
         EncryptedFile encryptedFile = new EncryptedFile.Builder(mContext,
                 new File(mContext.getFilesDir(),
-                fileName), mMasterKey,
+                        fileName), mMasterKey,
                 EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
                 .build();
 
@@ -152,7 +156,7 @@ public class EncryptedFileTest {
         } catch (IOException ex) {
             inputFailed = true;
         }
-        Assert.assertTrue("File should have failed opening.", inputFailed);
+        assertTrue("File should have failed opening.", inputFailed);
 
         EncryptedFile existingFileOutputCheck = new EncryptedFile.Builder(mContext,
                 new File(mContext.getFilesDir(), fileName), mMasterKey,
@@ -164,7 +168,7 @@ public class EncryptedFileTest {
         } catch (IOException ex) {
             outputFailed = true;
         }
-        Assert.assertTrue("File should have failed writing.", outputFailed);
+        assertTrue("File should have failed writing.", outputFailed);
 
     }
 
@@ -177,7 +181,7 @@ public class EncryptedFileTest {
         // Write
 
         EncryptedFile encryptedFile = new EncryptedFile.Builder(new File(mContext.getFilesDir(),
-                        fileName), mContext, mMasterKey.getKeyAlias(),
+                fileName), mContext, mMasterKey.getKeyAlias(),
                 EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
                 .build();
 
@@ -227,7 +231,7 @@ public class EncryptedFileTest {
         } catch (IOException ex) {
             inputFailed = true;
         }
-        Assert.assertTrue("File should have failed opening.", inputFailed);
+        assertTrue("File should have failed opening.", inputFailed);
 
         EncryptedFile existingFileOutputCheck = new EncryptedFile.Builder(
                 new File(mContext.getFilesDir(), fileName), mContext, mMasterKey.getKeyAlias(),
@@ -239,8 +243,28 @@ public class EncryptedFileTest {
         } catch (IOException ex) {
             outputFailed = true;
         }
-        Assert.assertTrue("File should have failed writing.", outputFailed);
+        assertTrue("File should have failed writing.", outputFailed);
+    }
 
+    @Test
+    public void testReadNonExistingFileThrows() throws Exception {
+        final File nonExisting = new File(mContext.getFilesDir(), "non-existing.data");
+        if (nonExisting.exists()) {
+            assertTrue(nonExisting.delete());
+        }
+        EncryptedFile encryptedFile = new EncryptedFile.Builder(
+                mContext,
+                nonExisting,
+                mMasterKey,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
+                .build();
+
+        try {
+            FileInputStream stream = encryptedFile.openFileInput();
+            fail("Successfully opened file that should not exist");
+        } catch (FileNotFoundException fnf) {
+            // Pass
+        }
     }
 
     @Test
@@ -251,7 +275,7 @@ public class EncryptedFileTest {
         // Write
         EncryptedFile encryptedFile = new EncryptedFile.Builder(mContext,
                 new File(mContext.getFilesDir(),
-                fileName), mMasterKey,
+                        fileName), mMasterKey,
                 EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB)
                 .setKeysetAlias("CustomKEYALIAS")
                 .setKeysetPrefName("CUSTOMPREFNAME")
@@ -295,7 +319,7 @@ public class EncryptedFileTest {
         SharedPreferences sharedPreferences = mContext.getSharedPreferences("CUSTOMPREFNAME",
                 Context.MODE_PRIVATE);
         boolean containsKeyset = sharedPreferences.contains("CustomKEYALIAS");
-        Assert.assertTrue("Keyset should have existed.", containsKeyset);
+        assertTrue("Keyset should have existed.", containsKeyset);
     }
 
     @SuppressWarnings("deprecation")
