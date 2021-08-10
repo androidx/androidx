@@ -19,7 +19,6 @@ package androidx.work;
 /**
  * An enumeration of policies that help determine out of quota behavior for expedited jobs.
  */
-@ExperimentalExpeditedWork
 public enum OutOfQuotaPolicy {
 
     /**

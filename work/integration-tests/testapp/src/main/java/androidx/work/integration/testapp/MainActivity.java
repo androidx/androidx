@@ -44,7 +44,6 @@ import androidx.lifecycle.Observer;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
-import androidx.work.ExperimentalExpeditedWork;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.OutOfQuotaPolicy;
@@ -66,7 +65,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Main Activity
  */
-@ExperimentalExpeditedWork
 public class MainActivity extends AppCompatActivity {
 
     private static final String PACKAGE_NAME = "androidx.work.integration.testapp";
