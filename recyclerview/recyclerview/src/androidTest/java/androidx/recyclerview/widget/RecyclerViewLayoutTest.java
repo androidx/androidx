@@ -1880,6 +1880,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         scrollInOtherOrientationTest(FLAG_VERTICAL | FLAG_FLING);
     }
 
+    @FlakyTest(bugId = 195936088)
     @SuppressWarnings("WrongConstant")
     @Test
     public void nestedDragVertical() throws Throwable {
