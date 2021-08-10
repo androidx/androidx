@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
+import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 
 // Declare the swipe to dismiss demos so that we can use this variable as the background composable
@@ -72,7 +73,15 @@ val WearMaterialDemos = DemoCategory(
         ),
         ComposableDemo("Card") { CardDemo() },
         SwipeToDismissDemos,
-        ComposableDemo("Scaling Lazy Column") { SimpleScalingLazyColumn() },
-        ComposableDemo("List Headers") { ScalingLazyColumnWithHeaders() },
+        DemoCategory(
+            "List",
+            listOf(
+                ComposableDemo("Scaling Lazy Column") { SimpleScalingLazyColumn() },
+                ComposableDemo("SLC with Content Padding") {
+                    SimpleScalingLazyColumnWithContentPadding()
+                },
+                ComposableDemo("List Headers") { ScalingLazyColumnWithHeaders() },
+            )
+        )
     ),
 )

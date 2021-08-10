@@ -17,9 +17,12 @@
 package androidx.wear.compose.material
 
 import androidx.compose.animation.core.Easing
+import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Constraints
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /**
  * Parameters to control the scaling of the contents of a [ScalingLazyColumn]. The contents
@@ -158,6 +161,7 @@ public interface ScalingParams {
     public fun resolveViewportVerticalOffset(viewportConstraints: Constraints): Int
 }
 
+@Stable
 internal class DefaultScalingParams(
     override val edgeScale: Float,
     override val edgeAlpha: Float,
@@ -300,11 +304,70 @@ internal fun calculateScaleAndAlpha(
     return ScaleAndAlpha(scaleToApply, alphaToApply)
 }
 
+/**
+ * Create a [ScalingLazyColumnItemInfo] given an unscaled start and end position for an item.
+ *
+ * @param itemStart the x-axis position of a list item. The x-axis position takes into account
+ * any adjustment to the original position based on the scaling of other list items.
+ * @param item the original item info used to provide the pre-scaling position and size
+ * information for the item.
+ * @param verticalAdjustment the amount of vertical adjustment to apply to item positions to
+ * allow for content padding in order to determine the adjusted position of the item within the
+ * viewport in order to correctly calculate the scaling to apply.
+ * @param viewportHeightPx the height of the viewport in pixels
+ * @param scalingParams the scaling params to use for determining the scaled size of the item
+ */
+internal fun createItemInfo(
+    itemStart: Int,
+    item: LazyListItemInfo,
+    verticalAdjustment: Int,
+    viewportHeightPx: Int,
+    scalingParams: ScalingParams,
+): ScalingLazyColumnItemInfo {
+    val adjustedItemStart = itemStart - verticalAdjustment
+    val adjustedItemEnd = itemStart + item.size - verticalAdjustment
+
+    val scaleAndAlpha = calculateScaleAndAlpha(
+        viewPortStartPx = 0, viewPortEndPx = viewportHeightPx, itemTopPx = adjustedItemStart,
+        itemBottomPx = adjustedItemEnd, scalingParams = scalingParams
+    )
+
+    val isAboveLine = (adjustedItemEnd + adjustedItemStart) < viewportHeightPx
+    val scaledHeight = (item.size * scaleAndAlpha.scale).roundToInt()
+    val scaledItemTop = if (!isAboveLine) {
+        itemStart
+    } else {
+        itemStart + item.size - scaledHeight
+    }
+
+    return DefaultScalingLazyColumnItemInfo(
+        index = item.index,
+        unadjustedOffset = item.offset,
+        offset = scaledItemTop,
+        size = scaledHeight,
+        scale = scaleAndAlpha.scale,
+        alpha = scaleAndAlpha.alpha
+    )
+}
+
+internal class DefaultScalingLazyColumnLayoutInfo(
+    override val visibleItemsInfo: List<ScalingLazyColumnItemInfo>,
+    override val viewportStartOffset: Int,
+    override val viewportEndOffset: Int,
+    override val totalItemsCount: Int
+) : ScalingLazyColumnLayoutInfo
+
+internal class DefaultScalingLazyColumnItemInfo(
+    override val index: Int,
+    override val unadjustedOffset: Int,
+    override val offset: Int,
+    override val size: Int,
+    override val scale: Float,
+    override val alpha: Float
+) : ScalingLazyColumnItemInfo
+
 @Immutable
 internal data class ScaleAndAlpha(
     val scale: Float,
     val alpha: Float
 )
-
-@Immutable
-internal data class ScaleAlphaAndStartPosition(val scale: Float, val alpha: Float, val top: Int)

@@ -25,13 +25,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
 
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
@@ -96,9 +95,17 @@ public fun ScalingLazyColumn(
     content: ScalingLazyColumnScope.() -> Unit
 ) {
     BoxWithConstraints(modifier = modifier) {
-
         val extraPaddingInPixels = scalingParams.resolveViewportVerticalOffset(constraints)
         val extraPadding = with(LocalDensity.current) { extraPaddingInPixels.toDp() }
+
+        // Set up transient state
+        state.scalingParams.value = scalingParams
+        state.extraPaddingInPixels.value = extraPaddingInPixels
+        state.viewportHeightPx.value = constraints.maxHeight
+        state.gapBetweenItemsPx.value = with(LocalDensity.current) {
+            verticalArrangement.spacing.roundToPx()
+        }
+
         val combinedPaddingValues = CombinedPaddingValues(
             contentPadding = contentPadding,
             extraPadding = extraPadding
@@ -128,11 +135,8 @@ public fun ScalingLazyColumn(
             state = state.lazyListState
         ) {
             val scope = ScalingLazyColumnScopeImpl(
-                state.lazyListState,
+                state,
                 this,
-                scalingParams,
-                maxHeight,
-                verticalArrangement.spacing
             )
             scope.content()
         }
@@ -213,11 +217,8 @@ public object ScalingLazyColumnDefaults {
 }
 
 private class ScalingLazyColumnScopeImpl(
-    private val state: LazyListState,
+    private val state: ScalingLazyColumnState,
     private val scope: LazyListScope,
-    private val scalingParams: ScalingParams,
-    private val realViewportSize: Dp,
-    private val paddingBetweenItems: Dp
 ) : ScalingLazyColumnScope {
 
     private var currentStartIndex = 0
@@ -228,9 +229,6 @@ private class ScalingLazyColumnScopeImpl(
             ScalingLazyColumnItemWrapper(
                 startIndex,
                 state,
-                scalingParams,
-                realViewportSize,
-                paddingBetweenItems,
                 content = content
             )
         }
@@ -243,9 +241,6 @@ private class ScalingLazyColumnScopeImpl(
             ScalingLazyColumnItemWrapper(
                 startIndex + it,
                 state,
-                scalingParams,
-                realViewportSize,
-                paddingBetweenItems
             ) {
                 itemContent(it)
             }
@@ -257,85 +252,20 @@ private class ScalingLazyColumnScopeImpl(
 @Composable
 private fun ScalingLazyColumnItemWrapper(
     index: Int,
-    state: LazyListState,
-    scalingParams: ScalingParams,
-    realViewportSize: Dp,
-    paddingBetweenItems: Dp,
+    state: ScalingLazyColumnState,
     content: @Composable () -> Unit
 ) {
     Box(
-        // TODO (b/194464927): Refactor this method to make it more readable
         Modifier.graphicsLayer {
             val items = state.layoutInfo.visibleItemsInfo
             val currentItem = items.find { it.index == index }
             if (currentItem != null) {
-                val viewportSize = realViewportSize.roundToPx()
-                val centerOffset = viewportSize / 2
-                val paddingBetweenItemsPx = paddingBetweenItems.roundToPx()
-
-                val rawItemStart = currentItem.offset
-                val rawItemEnd = rawItemStart + currentItem.size
-                if (rawItemEnd < centerOffset) {
-                    var currentSumOfScaledSizeDiffs = 0
-                    items.reversed().forEach {
-                        if (it.index > currentItem.index && it.offset < centerOffset) {
-                            val (scale, _) = calculateScaleAndAlpha(
-                                0,
-                                viewportSize,
-                                it.offset + currentSumOfScaledSizeDiffs,
-                                it.offset + it.size + currentSumOfScaledSizeDiffs,
-                                scalingParams
-                            )
-                            currentSumOfScaledSizeDiffs += it.size -
-                                (it.size * scale).roundToInt() +
-                                (
-                                    paddingBetweenItemsPx -
-                                        (paddingBetweenItemsPx * scale).roundToInt()
-                                    )
-                        }
-                    }
-                    translationY = currentSumOfScaledSizeDiffs.toFloat()
-                }
-                if (rawItemEnd > centerOffset) {
-                    var currentSumOfScaledSizeDiffs = 0
-                    items.forEach {
-                        if (it.index < currentItem.index && it.offset > centerOffset) {
-                            val (scale, _) = calculateScaleAndAlpha(
-                                0,
-                                viewportSize,
-                                it.offset + currentSumOfScaledSizeDiffs,
-                                it.offset + it.size + currentSumOfScaledSizeDiffs,
-                                scalingParams
-                            )
-                            currentSumOfScaledSizeDiffs -= it.size -
-                                (it.size * scale).roundToInt() -
-                                (
-                                    paddingBetweenItemsPx -
-                                        (paddingBetweenItemsPx * scale).roundToInt()
-                                    )
-                        }
-                    }
-                    translationY = currentSumOfScaledSizeDiffs.toFloat()
-                }
-
-                val (scaleToApply, alphaToApply) = calculateScaleAndAlpha(
-                    0,
-                    viewportSize,
-                    rawItemStart + translationY.roundToInt(),
-                    rawItemEnd + translationY.roundToInt(),
-                    scalingParams
-                )
-
-                alpha = alphaToApply
-                scaleX = scaleToApply
-                scaleY = scaleToApply
-                val halfScaleSizeDiff = (currentItem.size - (currentItem.size * scaleToApply)) / 2f
-                if (rawItemEnd < centerOffset) {
-                    translationY += halfScaleSizeDiff
-                }
-                if (rawItemEnd > centerOffset) {
-                    translationY -= halfScaleSizeDiff
-                }
+                alpha = currentItem.alpha
+                scaleX = currentItem.scale
+                scaleY = currentItem.scale
+                translationY =
+                    (currentItem.offset - currentItem.unadjustedOffset).toFloat()
+                transformOrigin = TransformOrigin(0.5f, 0.0f)
             }
         }
     ) {

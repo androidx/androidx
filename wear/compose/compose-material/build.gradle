@@ -46,6 +46,7 @@ dependencies {
         androidTestImplementation project(path: ':compose:test-utils')
         androidTestImplementation project(":test:screenshot:test-screenshot")
         androidTestImplementation(libs.testRunner)
+        androidTestImplementation(libs.truth)
     }
 }
 
