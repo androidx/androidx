@@ -252,7 +252,6 @@ public abstract class ListenableWorker {
      * {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)}.
      */
     @NonNull
-    @ExperimentalExpeditedWork
     public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
         SettableFuture<ForegroundInfo> future = SettableFuture.create();
         future.setException(new IllegalStateException("Not implemented"));
