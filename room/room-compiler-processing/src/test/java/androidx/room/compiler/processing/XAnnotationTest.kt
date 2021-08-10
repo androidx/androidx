@@ -174,6 +174,35 @@ class XAnnotationTest(
     }
 
     @Test
+    fun readSimpleAnnotationValueFromClassName() {
+        val source = Source.java(
+            "foo.bar.Baz",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.TestSuppressWarnings;
+            @TestSuppressWarnings({"warning1", "warning 2"})
+            public class Baz {
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(source)
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
+            val annotation =
+                element.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+
+            val argument = annotation.annotationValues.single()
+            assertThat(argument.name).isEqualTo("value")
+            assertThat(
+                argument.value
+            ).isEqualTo(
+                listOf("warning1", "warning 2")
+            )
+        }
+    }
+
+    @Test
     fun typeReference_javac() {
         val mySource = Source.java(
             "foo.bar.Baz",
