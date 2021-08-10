@@ -301,6 +301,7 @@ function removeCaches() {
   rm -rf $SCRIPT_PATH/appsearch/local-storage/.cxx
   # https://github.com/gradle/gradle/issues/18386
   rm -rf $SCRIPT_PATH/reports
+  rm -rf $SCRIPT_PATH/build
   rm -rf $OUT_DIR
 }
 
