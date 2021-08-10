@@ -87,9 +87,8 @@ public open class ListenableWatchFaceControlClient(
 
         /**
          * Returns a [ListenableFuture] for a [ListenableWatchFaceControlClient] which attempts to
-         * connect to a watch face in the android package [watchFacePackageName].
-         * Resolves as [ServiceNotBoundException] if the watch face control service can not
-         * be bound.
+         * connect to a watch face in the android package [watchFacePackageName]. Resolves as
+         * [ServiceNotBoundException] if the watch face control service can not be bound.
          *
          * Note the returned future may resolve immediately on the calling thread or it may resolve
          * asynchronously when the service is connected on a background thread.
@@ -135,6 +134,15 @@ public open class ListenableWatchFaceControlClient(
      * [ListenableFuture] wrapper around
      * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient].
      * This is open to allow mocking.
+     *
+     * @param id The Id of the interactive instance to get or create.
+     * @param deviceConfig The [DeviceConfig] of the interactive instance (only used when creating)
+     * @param watchUiState The initial [WatchUiState] for the wearable.
+     * @param userStyle Optional [UserStyleData] to apply to the instance (whether or not it's
+     * created). If `null` then the pre-existing user style is preserved (if the instance is created
+     * this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
+     * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
+     * or `null` if unavailable.
      */
     public open fun listenableGetOrCreateInteractiveWatchFaceClient(
         id: String,

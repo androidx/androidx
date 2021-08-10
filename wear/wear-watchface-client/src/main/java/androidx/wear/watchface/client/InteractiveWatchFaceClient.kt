@@ -126,6 +126,8 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Returns the ID of the [androidx.wear.watchface.ComplicationSlot] at the given coordinates or
      * `null` if there isn't one.
+     *
+     * Note this currently doesn't support Edge complications.
      */
     @SuppressWarnings("AutoBoxing")
     @Throws(RemoteException::class)

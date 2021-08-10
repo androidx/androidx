@@ -34,14 +34,11 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
  * instance with [MutableUserStyle.toUserStyle].
  *
  * @param selectedOptions The [UserStyleSetting.Option] selected for each [UserStyleSetting]
+ * @param copySelectedOptions Whether to create a copy of the provided [selectedOptions]. If
+ * `false`, no mutable copy of the [selectedOptions] map should be retained outside this class.
  */
 public class UserStyle private constructor(
-    /** The selected option for each setting. */
     selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>,
-    /**
-     * Whether to create a copy of the provided [selectedOptions]. If false, no mutable copy of
-     * the [selectedOptions] map should be retained outside this class.
-     */
     copySelectedOptions: Boolean
 ) : Iterable<Map.Entry<UserStyleSetting, UserStyleSetting.Option>> {
     private val selectedOptions =
@@ -322,8 +319,7 @@ public class UserStyleData(
  * @param userStyleSettings The user configurable style categories associated with this watch face.
  * Empty if the watch face doesn't support user styling. Note we allow at most one
  * [UserStyleSetting.ComplicationSlotsUserStyleSetting] and one
- * [UserStyleSetting.CustomValueUserStyleSetting]
- * in the list.
+ * [UserStyleSetting.CustomValueUserStyleSetting] in the list.
  */
 public class UserStyleSchema(
     public val userStyleSettings: List<UserStyleSetting>

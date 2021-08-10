@@ -90,16 +90,16 @@ public interface WatchFaceHostApi {
      * that may be used before your watch face has the permission, use a safe complication data
      * source instead.
      *
-     * A complication data source not satisfying the above conditions may still be set as a default using
-     * this method, but the watch face will receive placeholder data of type
+     * A complication data source not satisfying the above conditions may still be set as a default
+     * using this method, but the watch face will receive placeholder data of type
      * [ComplicationData.TYPE_NO_PERMISSION] until the permission has been granted.
      *
      * @param complicationSlotId The [ComplicationSlot] id.
      * @param dataSources data sources The list of non-system complication data sources to try in
      * order before falling back to
      * fallbackSystemProvider. This list may be null.
-     * @param fallbackSystemProvider The system complication data source to use if none of the complication data sources could be
-     * used.
+     * @param fallbackSystemProvider The system complication data source to use if none of the
+     * complication data sources could be used.
      * @param type The type of complication data that should be provided. Must be one of the types
      * defined in [ComplicationData].
      */

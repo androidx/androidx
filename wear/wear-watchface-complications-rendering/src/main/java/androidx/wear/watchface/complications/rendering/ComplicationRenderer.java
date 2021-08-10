@@ -174,7 +174,7 @@ class ComplicationRenderer {
     /**
      * Initializes complication renderer.
      *
-     * @param context      Current context.
+     * @param context      Current [Context].
      * @param activeStyle  ComplicationSlot style to be used when in active mode.
      * @param ambientStyle ComplicationSlot style to be used when in ambient mode.
      */
