@@ -35,6 +35,7 @@ import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -238,13 +239,14 @@ public final class EncryptedFile {
      *
      * @return The input stream to read previously encrypted data.
      * @throws GeneralSecurityException when a bad master key or keyset has been used
-     * @throws IOException              when the file was not found
+     * @throws FileNotFoundException    when the file was not found
+     * @throws IOException              when other I/O errors occur
      */
     @NonNull
     public FileInputStream openFileInput()
-            throws GeneralSecurityException, IOException {
+            throws GeneralSecurityException, IOException, FileNotFoundException {
         if (!mFile.exists()) {
-            throw new IOException("file doesn't exist: " + mFile.getName());
+            throw new FileNotFoundException("file doesn't exist: " + mFile.getName());
         }
         FileInputStream fileInputStream = new FileInputStream(mFile);
         InputStream decryptingStream = mStreamingAead.newDecryptingStream(fileInputStream,
