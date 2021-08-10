@@ -17,14 +17,11 @@
 package androidx.camera.video;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.camera.core.Logger;
 import androidx.camera.core.impl.utils.CloseGuardHelper;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -45,25 +42,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class ActiveRecording implements AutoCloseable {
 
-    private static final String TAG = "ActiveRecording";
-
     // Indicates the recording has been explicitly stopped by users.
     private final AtomicBoolean mIsStopped = new AtomicBoolean(false);
     private final Recorder mRecorder;
+    private final long mRecordingId;
     private final OutputOptions mOutputOptions;
-    private final Consumer<VideoRecordEvent> mEventListener;
-    private final Executor mCallbackExecutor;
     private final CloseGuardHelper mCloseGuard = CloseGuardHelper.create();
-    private final boolean mAudioEnabled;
 
-    ActiveRecording(@NonNull Recorder recorder, @NonNull OutputOptions options,
-            @Nullable Executor callbackExecutor, @Nullable Consumer<VideoRecordEvent> listener,
-            boolean audioEnabled, boolean finalizedOnCreation) {
+    ActiveRecording(@NonNull Recorder recorder, long recordingId, @NonNull OutputOptions options,
+            boolean finalizedOnCreation) {
         mRecorder = recorder;
+        mRecordingId = recordingId;
         mOutputOptions = options;
-        mCallbackExecutor = callbackExecutor;
-        mEventListener = listener;
-        mAudioEnabled = audioEnabled;
 
         if (finalizedOnCreation) {
             mIsStopped.set(true);
@@ -73,39 +63,43 @@ public final class ActiveRecording implements AutoCloseable {
     }
 
     /**
-     * Creates an {@link ActiveRecording} from a {@link PendingRecording}.
+     * Creates an {@link ActiveRecording} from a {@link PendingRecording} and recording ID.
+     *
+     * <p>The recording ID is expected to be unique to the recorder that generated the pending
+     * recording.
      */
     @NonNull
-    static ActiveRecording from(@NonNull PendingRecording pendingRecording) {
+    static ActiveRecording from(@NonNull PendingRecording pendingRecording, long recordingId) {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
         return new ActiveRecording(pendingRecording.getRecorder(),
-                pendingRecording.getOutputOptions(), pendingRecording.getCallbackExecutor(),
-                pendingRecording.getEventListener(), pendingRecording.isAudioEnabled(),
+                recordingId,
+                pendingRecording.getOutputOptions(),
                 /*finalizedOnCreation=*/false);
     }
 
     /**
-     * Creates an {@link ActiveRecording} from a {@link PendingRecording} in a finalized state.
+     * Creates an {@link ActiveRecording} from a {@link PendingRecording} and recording ID in a
+     * finalized state.
      *
      * <p>This can be used if there was an error setting up the active recording and it would not
      * be able to be started.
+     *
+     * <p>The recording ID is expected to be unique to the recorder that generated the pending
+     * recording.
      */
     @NonNull
-    static ActiveRecording createFinalizedFrom(@NonNull PendingRecording pendingRecording) {
+    static ActiveRecording createFinalizedFrom(@NonNull PendingRecording pendingRecording,
+            long recordingId) {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
         return new ActiveRecording(pendingRecording.getRecorder(),
-                pendingRecording.getOutputOptions(), pendingRecording.getCallbackExecutor(),
-                pendingRecording.getEventListener(), pendingRecording.isAudioEnabled(),
+                recordingId,
+                pendingRecording.getOutputOptions(),
                 /*finalizedOnCreation=*/true);
     }
 
     @NonNull
     OutputOptions getOutputOptions() {
         return mOutputOptions;
-    }
-
-    boolean isAudioEnabled() {
-        return mAudioEnabled;
     }
 
     /**
@@ -168,19 +162,6 @@ public final class ActiveRecording implements AutoCloseable {
     }
 
     /**
-     * Updates the recording status and callback to users.
-     */
-    void updateVideoRecordEvent(@NonNull VideoRecordEvent event) {
-        if (mCallbackExecutor != null && mEventListener != null) {
-            try {
-                mCallbackExecutor.execute(() -> mEventListener.accept(event));
-            } catch (RejectedExecutionException e) {
-                Logger.e(TAG, "The callback executor is invalid.", e);
-            }
-        }
-    }
-
-    /**
      * Close this recording, as if calling {@link #stop()}.
      *
      * <p>This method is invoked automatically on active recording instances managed by the {@code
@@ -202,5 +183,10 @@ public final class ActiveRecording implements AutoCloseable {
         } finally {
             super.finalize();
         }
+    }
+
+    /** Returns the recording ID which is unique to the recorder that generated this recording. */
+    long getRecordingId() {
+        return mRecordingId;
     }
 }
