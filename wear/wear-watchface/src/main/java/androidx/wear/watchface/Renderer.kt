@@ -316,9 +316,9 @@ public sealed class Renderer @WorkerThread constructor(
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
      * interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
      * rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
-     * possible for better battery life. Variable frame rates can also help preserve battery
-     * life, e.g. if a watch face has a short animation once per second it can adjust the frame
-     * rate inorder to sleep when not animating.
+     * possible for better battery life. Variable frame rates can also help preserve battery life,
+     * e.g. if a watch face has a short animation once per second it can adjust the framerate
+     * inorder to sleep when not animating.
      */
     public abstract class CanvasRenderer @WorkerThread constructor(
         surfaceHolder: SurfaceHolder,

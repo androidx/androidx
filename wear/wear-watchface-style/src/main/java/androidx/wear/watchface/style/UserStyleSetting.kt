@@ -261,8 +261,8 @@ public sealed class UserStyleSetting private constructor(
      * an arbitrary value depending on the nature of the style setting.
      *
      * @property id Machine readable [Id] for the style setting. Identifier for the option (or the
-     *     option itself for [CustomValueUserStyleSetting.CustomValueOption]), must be unique
-     *     within the UserStyleSetting. Short ids are encouraged.
+     * option itself for [CustomValueUserStyleSetting.CustomValueOption]), must be unique within
+     * the UserStyleSetting. Short ids are encouraged.
      */
     public abstract class Option(public val id: Id) {
         /**
@@ -278,6 +278,8 @@ public sealed class UserStyleSetting private constructor(
         /**
          * Machine readable identifier for [Option]s. The length of this identifier may not exceed
          * [MAX_LENGTH].
+         *
+         * @param value The [ByteArray] value of this Id.
          */
         public class Id(public val value: ByteArray) {
             /**
@@ -482,9 +484,11 @@ public sealed class UserStyleSetting private constructor(
         /** Returns the default value. */
         public fun getDefaultValue(): Boolean = (options[defaultOptionIndex] as BooleanOption).value
 
-        /** Represents a true or false option in the [BooleanUserStyleSetting]. */
+        /**
+         * Represents a true or false option in the [BooleanUserStyleSetting].
+         * @param value The boolean value this instance represents.
+         */
         public class BooleanOption private constructor(
-            /** The boolean value this instance represents. */
             public val value: Boolean
         ) : Option(
             Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 })
@@ -560,8 +564,13 @@ public sealed class UserStyleSetting private constructor(
             @get:SuppressWarnings("AutoBoxing")
             public val accessibilityTraversalIndex: Int? = null
         ) {
+            /**
+             * Constructs a [ComplicationSlotOverlay].Builder.
+             *
+             * @param complicationSlotId The id of the [androidx.wear.watchface.ComplicationSlot]
+             * to configure.
+             */
             public class Builder(
-                /** The id of the [androidx.wear.watchface.ComplicationSlot] to configure. */
                 private val complicationSlotId: Int
             ) {
                 private var enabled: Boolean? = null
@@ -1487,8 +1496,8 @@ public sealed class UserStyleSetting private constructor(
             )
 
         /**
-         * An application specific custom value. NB the [CustomValueOption.customValue] is the
-         * same as the [CustomValueOption.id].
+         * An application specific custom value. NB the [CustomValueOption.customValue] is the same
+         * as the [CustomValueOption.id].
          */
         public class CustomValueOption : Option {
             /* The [ByteArray] value for this option which is the same as the [id]. */

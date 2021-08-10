@@ -53,8 +53,7 @@ typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
  * @param renderParameters The [RenderParameters] to use when rendering the screen shot
  * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with. If
  * [EditorSession.DEFAULT_PREVIEW_TIME_MILLIS] is passed then the watch face's default preview time
- * will be
- * used.
+ * will be used.
  */
 public class PreviewScreenshotParams(
     public val renderParameters: RenderParameters,

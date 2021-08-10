@@ -53,15 +53,15 @@ public class ListenableEditorSession(
          *
          * If watch face editor takes more than 4s to create a watch face, returned future will be
          * resolved with [TimeoutCancellationException] exception.
+         *
+         * @param activity The [ComponentActivity] associated with the EditorSession.
+         * @param editIntent [Intent] sent by SysUI to launch the editing session.
          */
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
         @UiThread
         public fun listenableCreateOnWatchEditorSession(
-            /** The [ComponentActivity] associated with the EditorSession. */
             activity: ComponentActivity,
-
-            /** [Intent] sent by SysUI to launch the editing session. */
             editIntent: Intent
         ): ListenableFuture<ListenableEditorSession?> {
             val result = ResolvableFuture.create<ListenableEditorSession?>()
@@ -85,17 +85,20 @@ public class ListenableEditorSession(
             return result
         }
 
-        /** Constructs an [ListenableEditorSession] for a remote watch face editor. */
+        /**
+         * Constructs an [ListenableEditorSession] for a remote watch face editor.
+         *
+         * @param activity The [ComponentActivity] associated with the EditorSession.
+         * @param editIntent [Intent] sent by SysUI to launch the editing session.
+         * @param headlessWatchFaceClient The [HeadlessWatchFaceClient] that backs the constructed
+         * EditorSession.
+         */
         @JvmStatic
         @RequiresApi(27)
         @UiThread
         public fun createHeadlessEditorSession(
-            /** The [ComponentActivity] associated with the EditorSession. */
             activity: ComponentActivity,
-
-            /** [Intent] sent by SysUI to launch the editing session. */
             editIntent: Intent,
-
             headlessWatchFaceClient: HeadlessWatchFaceClient
         ): ListenableEditorSession = ListenableEditorSession(
             EditorSession.createHeadlessEditorSession(

@@ -736,7 +736,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal var pendingUserStyle: UserStyleWireFormat? = null
 
         /**
-         * Whether or not we allow watchfaces to animate. In some tests or for headless
+         * Whether or not we allow watch faces to animate. In some tests or for headless
          * rendering (for remote config) we don't want this.
          */
         internal var allowWatchfaceToAnimate = allowWatchFaceToAnimate()
@@ -911,7 +911,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 ambientUpdateWakelock.acquire()
                 // It's unlikely an ambient tick would be sent to a watch face that hasn't loaded
                 // yet. The watch face will render at least once upon loading so we don't need to do
-                // anyhting special here.
+                // anything special here.
                 getWatchFaceImplOrNull()?.renderer?.invalidate()
                 ambientUpdateWakelock.acquire(SURFACE_DRAW_TIMEOUT_MS)
             }
@@ -995,14 +995,6 @@ public abstract class WatchFaceService : WallpaperService() {
                     WslFlow.PendingComplicationData(complicationSlotId, data)
                 )
             }
-        }
-
-        internal fun clearComplicationData() {
-            val watchFaceImpl = getWatchFaceImplOrNull()
-            require(watchFaceImpl != null) {
-                "WatchFace must have been created first"
-            }
-            watchFaceImpl.clearComplicationData()
         }
 
         @UiThread
@@ -1440,7 +1432,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     initStyleAndComplicationsDone.complete(Unit)
 
                     // validateSchemaWireSize is fairly expensive so only perform it for
-                    // interactive watchfaces.
+                    // interactive watch faces.
                     if (!watchState.isHeadless) {
                         validateSchemaWireSize(currentUserStyleRepository.schema)
                     }
@@ -1508,7 +1500,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 initStyleAndComplicationsDone.await()
 
                 // Its possible a second getOrCreateInteractiveWatchFaceClient call came in before
-                // the watch face for the first one had finished initalizing, in that case we want
+                // the watch face for the first one had finished initializing, in that case we want
                 // to apply the updated style. NB pendingUserStyle is accessed on the UiThread so
                 // there shouldn't be any problems with race conditions.
                 pendingUserStyle?.let {

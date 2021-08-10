@@ -192,10 +192,10 @@ public class ComplicationDrawable : Drawable {
     internal var complicationRenderer: ComplicationRenderer? = null
         private set
 
-    /** Returns complication style for active mode.  */
+    /** Returns complication style for active mode. */
     public val activeStyle: ComplicationStyle
 
-    /** Returns complication style for ambient mode.  */
+    /** Returns complication style for ambient mode. */
     public val ambientStyle: ComplicationStyle
 
     private val mainThreadHandler = Handler(Looper.getMainLooper())
@@ -206,17 +206,17 @@ public class ComplicationDrawable : Drawable {
     private val rendererInvalidateListener = OnInvalidateListener { invalidateSelf() }
 
     /**
-     * The time in milliseconds since the epoch used for rendering [ComplicationData]
-     * with time dependent text.
+     * The time in milliseconds since the epoch used for rendering [ComplicationData] with time
+     * dependent text.
      */
     public var currentTimeMillis: Long = 0
 
-    /** Whether the complication is rendered in ambient mode.  */
+    /** Whether the complication is rendered in ambient mode. */
     public var isInAmbientMode: Boolean = false
 
     /**
-     * Whether the complication, when rendering in ambient mode, should apply a style
-     * suitable for low bit ambient mode.
+     * Whether the complication, when rendering in ambient mode, should apply a style suitable for
+     * low bit ambient mode.
      */
     public var isLowBitAmbient: Boolean = false
 
@@ -227,8 +227,8 @@ public class ComplicationDrawable : Drawable {
     public var isBurnInProtectionOn: Boolean = false
 
     /**
-     * Whether the complication is currently highlighted. This may be called by a watch face
-     * when a complication is tapped.
+     * Whether the complication is currently highlighted. This may be called by a watch face when
+     * a complication is tapped.
      *
      * If watch face is in ambient mode, highlight will not be visible even if this is set to
      * `true`, because it may cause burn-in or power inefficiency.
@@ -238,7 +238,7 @@ public class ComplicationDrawable : Drawable {
     private var isInflatedFromXml = false
     private var alreadyStyled = false
 
-    /** Default constructor.  */
+    /** Default constructor. */
     public constructor() {
         activeStyle = ComplicationStyle()
         ambientStyle = ComplicationStyle()
@@ -246,7 +246,9 @@ public class ComplicationDrawable : Drawable {
 
     /**
      * Creates a ComplicationDrawable using the given context. If this constructor is used, calling
-     * [.setContext] may not be necessary.
+     * [setContext] may not be necessary.
+     *
+     * @param context The [Context] used to render the complication.
      */
     public constructor(context: Context) : this() {
         setContext(context)
@@ -269,12 +271,12 @@ public class ComplicationDrawable : Drawable {
     }
 
     /**
-     * Sets the context used to render the complication. If a context is not set,
-     * ComplicationDrawable will throw an [IllegalStateException] if one of [draw], [setBounds],
-     * or [setComplicationData] is called.
+     * Sets the [Context] used to render the complication. If a context is not set,
+     * ComplicationDrawable will throw an [IllegalStateException] if one of [draw], [setBounds], or
+     * [setComplicationData] is called.
      *
      * While this can be called from any context, ideally, a
-     * androidx.wear.watchface.WatchFaceService object should be passed here to allow creating
+     * [androidx.wear.watchface.WatchFaceService] object should be passed here to allow creating
      * permission dialogs by the [onTap] method, in case current watch face doesn't have the
      * permission to receive complication data.
      *
@@ -282,8 +284,10 @@ public class ComplicationDrawable : Drawable {
      * be called before calling any of the methods mentioned above.
      *
      * If this ComplicationDrawable is not inflated from an XML file, this method will reset the
-     * style to match the default values, so if [ComplicationDrawable()] is used to construct a
-     * ComplicationDrawable, this method should be called right after.
+     * style to match the default values, so if ComplicationDrawable(drawable: ComplicationDrawable)
+     * is used to construct a ComplicationDrawable, this method should be called right after.
+     *
+     * @param context The [Context] used to render the complication.
      */
     public fun setContext(context: Context) {
         if (context == this.context) {
@@ -556,8 +560,8 @@ public class ComplicationDrawable : Drawable {
         }
 
     /**
-     * Sets the complication data to be drawn. If `complicationData` is `null`, nothing
-     * will be drawn when [draw] is called.
+     * Sets the complication data to be drawn. If `complicationData` is `null`, nothing will be
+     * drawn when [draw] is called.
      *
      * @param complicationData The [ComplicationData] to set
      * @param loadDrawablesAsync If true any drawables should be loaded asynchronously,
@@ -695,10 +699,10 @@ public class ComplicationDrawable : Drawable {
             "ComplicationDrawable does not have a context. Use setContext(Context) to set it first."
         }
     }
+
     /**
      * The text to be rendered when [ComplicationData] is of type [NO_DATA]. If `noDataText` is
-     * null, an empty text will be
-     * rendered.
+     * null, an empty text will be rendered.
      */
     public var noDataText: CharSequence? = null
         set(noDataText) {
@@ -724,7 +728,7 @@ public class ComplicationDrawable : Drawable {
             return drawable
         }
 
-        /** Sets the style to default values using resources.  */
+        /** Sets the style to default values using resources. */
         @JvmStatic
         internal fun setStyleToDefaultValues(style: ComplicationStyle, r: Resources) {
             style.backgroundColor = r.getColor(R.color.complicationDrawable_backgroundColor, null)
