@@ -164,8 +164,34 @@ package androidx.wear.compose.material {
     field public static final androidx.wear.compose.material.ScalingLazyColumnDefaults INSTANCE;
   }
 
+  public interface ScalingLazyColumnItemInfo {
+    method public float getAlpha();
+    method public int getIndex();
+    method public int getOffset();
+    method public float getScale();
+    method public int getSize();
+    method public int getUnadjustedOffset();
+    property public abstract float alpha;
+    property public abstract int index;
+    property public abstract int offset;
+    property public abstract float scale;
+    property public abstract int size;
+    property public abstract int unadjustedOffset;
+  }
+
   public final class ScalingLazyColumnKt {
     method @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.ScalingParams scalingParams, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.wear.compose.material.ScalingLazyColumnState state, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.ScalingLazyColumnScope,kotlin.Unit> content);
+  }
+
+  public interface ScalingLazyColumnLayoutInfo {
+    method public int getTotalItemsCount();
+    method public int getViewportEndOffset();
+    method public int getViewportStartOffset();
+    method public java.util.List<androidx.wear.compose.material.ScalingLazyColumnItemInfo> getVisibleItemsInfo();
+    property public abstract int totalItemsCount;
+    property public abstract int viewportEndOffset;
+    property public abstract int viewportStartOffset;
+    property public abstract java.util.List<androidx.wear.compose.material.ScalingLazyColumnItemInfo> visibleItemsInfo;
   }
 
   public final class ScalingLazyColumnMeasureKt {
@@ -178,6 +204,8 @@ package androidx.wear.compose.material {
 
   @androidx.compose.runtime.Stable public final class ScalingLazyColumnState {
     ctor public ScalingLazyColumnState();
+    method public androidx.wear.compose.material.ScalingLazyColumnLayoutInfo getLayoutInfo();
+    property public final androidx.wear.compose.material.ScalingLazyColumnLayoutInfo layoutInfo;
     field public static final androidx.wear.compose.material.ScalingLazyColumnState.Companion Companion;
   }
 
