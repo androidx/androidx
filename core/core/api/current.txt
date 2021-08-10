@@ -2217,6 +2217,11 @@ package androidx.core.view {
     method @Deprecated public boolean onMenuItemActionExpand(android.view.MenuItem!);
   }
 
+  public interface MenuProvider {
+    method public void onCreateMenu(android.view.Menu, android.view.MenuInflater);
+    method public boolean onMenuItemSelected(android.view.MenuItem);
+  }
+
   public final class MotionEventCompat {
     method @Deprecated public static int findPointerIndex(android.view.MotionEvent!, int);
     method @Deprecated public static int getActionIndex(android.view.MotionEvent!);
