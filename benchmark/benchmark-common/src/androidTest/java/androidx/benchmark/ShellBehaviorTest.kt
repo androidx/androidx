@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro
+package androidx.benchmark
 
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
@@ -36,12 +35,12 @@ import kotlin.test.assertTrue
 @SdkSuppress(minSdkVersion = 21)
 @RunWith(AndroidJUnit4::class)
 class ShellBehaviorTest {
-    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    private val packageName = InstrumentationRegistry.getInstrumentation().context.packageName
 
     @Test
     fun pidof() {
         // Should only be one process - this one!
-        val pidofString = device.executeShellCommand("pidof ${Packages.TEST}").trim()
+        val pidofString = Shell.executeCommand("pidof $packageName").trim()
 
         when {
             Build.VERSION.SDK_INT < 23 -> {
@@ -60,7 +59,7 @@ class ShellBehaviorTest {
 
     @Test
     fun psDashA() {
-        val output = device.executeShellCommand("ps -A").trim()
+        val output = Shell.executeCommand("ps -A").trim()
         when {
             Build.VERSION.SDK_INT <= 23 -> {
                 // doesn't correctly handle -A
@@ -77,7 +76,7 @@ class ShellBehaviorTest {
                 // ps -A should work - expect several processes including this one
                 val processes = output.split("\n")
                 assertTrue(processes.size > 5)
-                assertTrue(processes.any { it.endsWith(Packages.TEST) })
+                assertTrue(processes.any { it.endsWith(packageName) })
             }
         }
     }

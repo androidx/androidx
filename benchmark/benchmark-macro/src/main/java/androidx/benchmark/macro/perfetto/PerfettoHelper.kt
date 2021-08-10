@@ -21,8 +21,8 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.Shell
 import androidx.benchmark.macro.DeviceInfo.deviceSummaryString
-import androidx.benchmark.macro.device
 import androidx.benchmark.macro.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import org.jetbrains.annotations.TestOnly
@@ -40,16 +40,12 @@ import java.io.IOException
 public class PerfettoHelper(
     private val unbundled: Boolean = Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED
 ) {
-
     init {
         require(unbundled || Build.VERSION.SDK_INT >= LOWEST_BUNDLED_VERSION_SUPPORTED) {
             "Perfetto capture using the os version of perfetto requires API " +
                 "$LOWEST_BUNDLED_VERSION_SUPPORTED or greater."
         }
     }
-
-    private val instrumentation = InstrumentationRegistry.getInstrumentation()
-    private val device = instrumentation.device()
 
     private fun perfettoStartupException(label: String, cause: Exception?): IllegalStateException {
         return IllegalStateException(
@@ -94,8 +90,8 @@ public class PerfettoHelper(
             val actualConfigPath = if (unbundled) {
                 val path = "$UNBUNDLED_PERFETTO_ROOT_DIR/config.pb"
                 // Move the config to a directory that unbundled perfetto has permissions for.
-                device.executeShellCommand("rm $path")
-                device.executeShellCommand("mv $configFilePath $path")
+                Shell.executeCommand("rm $path")
+                Shell.executeCommand("mv $configFilePath $path")
                 path
             } else {
                 configFilePath
@@ -103,7 +99,7 @@ public class PerfettoHelper(
 
             val outputPath = getPerfettoTmpOutputFilePath()
             // Remove already existing temporary output trace file if any.
-            val output = device.executeShellCommand("rm $outputPath")
+            val output = Shell.executeCommand("rm $outputPath")
             Log.i(LOG_TAG, "Perfetto output file cleanup - $output")
 
             // Setup `traced` and `traced_probes` if necessary.
@@ -112,7 +108,7 @@ public class PerfettoHelper(
             // Perfetto
             val perfettoCmd = perfettoCommand(actualConfigPath, isTextProtoConfig)
             Log.i(LOG_TAG, "Starting perfetto tracing with cmd: $perfettoCmd")
-            val perfettoCmdOutput = device.executeShellScript(perfettoCmd)
+            val perfettoCmdOutput = Shell.executeScript(perfettoCmd)
             Log.i(LOG_TAG, "Perfetto pid - $perfettoCmdOutput")
         } catch (ioe: IOException) {
             throw perfettoStartupException("Unable to start perfetto tracing", ioe)
@@ -194,12 +190,12 @@ public class PerfettoHelper(
         // Setup traced
         val tracedCmd = "$UNBUNDLED_ENV_PREFIX $tracedShellPath --background"
         Log.i(LOG_TAG, "Starting traced cmd: $tracedCmd")
-        device.executeShellScript(tracedCmd)
+        Shell.executeScript(tracedCmd)
 
         // Setup traced_probes
         val tracedProbesCmd = "$UNBUNDLED_ENV_PREFIX $tracedProbesShellPath --background"
         Log.i(LOG_TAG, "Starting traced_probes cmd: $tracedProbesCmd")
-        device.executeShellScript(tracedProbesCmd)
+        Shell.executeScript(tracedProbesCmd)
     }
 
     /**
@@ -242,7 +238,7 @@ public class PerfettoHelper(
      */
     private fun getProcessId(processName: String): String? {
         return try {
-            val processId = device.executeShellCommand("pidof $processName")
+            val processId = Shell.executeCommand("pidof $processName")
             // We want to pick the most recent invocation of the command.
             // This is because we may have more than once instance of the process.
             val pid = processId.split(" ").lastOrNull()?.trim()
@@ -260,7 +256,7 @@ public class PerfettoHelper(
      * @return true if the process was stopped successfully.
      */
     private fun stopProcess(pid: String?): Boolean {
-        val stopOutput = device.executeShellCommand("kill -TERM $pid")
+        val stopOutput = Shell.executeCommand("kill -TERM $pid")
         Log.i(LOG_TAG, "Stop command output - $stopOutput")
         var waitCount = 0
         while (isProcessRunning(pid)) {
@@ -296,7 +292,7 @@ public class PerfettoHelper(
         if (Build.VERSION.SDK_INT <= 23) {
             TODO("pid checking for api 23 and below not yet supported")
         }
-        val output = device.executeShellCommand("ps -A $pid")
+        val output = Shell.executeCommand("ps -A $pid")
         return output.contains(pid)
     }
 
@@ -330,7 +326,7 @@ public class PerfettoHelper(
         // destinationFile
         try {
             val moveResult =
-                device.executeShellCommand("mv $sourceFile $destinationFile")
+                Shell.executeCommand("mv $sourceFile $destinationFile")
             if (moveResult.isNotEmpty()) {
                 Log.e(
                     LOG_TAG,
@@ -444,8 +440,7 @@ public class PerfettoHelper(
                 }
                 val instrumentation = InstrumentationRegistry.getInstrumentation()
                 val inputStream = instrumentation.context.assets.open("${tool}_$suffix")
-                val device = instrumentation.device()
-                return device.createRunnableExecutable(tool, inputStream)
+                return Shell.createRunnableExecutable(tool, inputStream)
             }
         }
     }

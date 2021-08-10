@@ -19,9 +19,8 @@ package androidx.benchmark.macro.perfetto
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Outputs
-import androidx.benchmark.macro.device
+import androidx.benchmark.Shell
 import androidx.benchmark.macro.userspaceTrace
-import androidx.test.platform.app.InstrumentationRegistry
 import org.jetbrains.annotations.TestOnly
 import java.io.File
 
@@ -55,14 +54,11 @@ internal object PerfettoTraceProcessor {
             "Metric must not contain spaces: $metric"
         }
 
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val device = instrumentation.device()
-
         val command = "$shellPath --run-metric $metric $absoluteTracePath --metrics-output=json"
         Log.d(TAG, "Executing command $command")
 
         val json = userspaceTrace("trace_processor_shell") {
-            device.executeShellCommand(command)
+            Shell.executeCommand(command)
                 .trim() // trim to enable empty check below
         }
         Log.d(TAG, "Trace Processor result: \n\n $json")
@@ -137,12 +133,9 @@ internal object PerfettoTraceProcessor {
         try {
             queryFile.writeText(query)
 
-            val instrumentation = InstrumentationRegistry.getInstrumentation()
-            val device = instrumentation.device()
-
             val command = "$shellPath --query-file ${queryFile.absolutePath} $absoluteTracePath"
             return userspaceTrace("trace_processor_shell") {
-                device.executeShellCommand(command)
+                Shell.executeCommand(command)
             }
         } finally {
             queryFile.delete()

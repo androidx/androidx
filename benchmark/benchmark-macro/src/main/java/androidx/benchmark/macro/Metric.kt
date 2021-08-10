@@ -17,11 +17,10 @@
 package androidx.benchmark.macro
 
 import androidx.annotation.RequiresApi
+import androidx.benchmark.Shell
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
-import androidx.benchmark.macro.perfetto.isPackageAlive
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
 
 /**
  * Metric interface.
@@ -65,8 +64,7 @@ public class FrameTimingMetric : Metric() {
             // a designated setup block, we can get rid of this.
             val instrumentation = InstrumentationRegistry.getInstrumentation()
             if (instrumentation != null) {
-                val device = UiDevice.getInstance(instrumentation)
-                if (!device.isPackageAlive(packageName)) {
+                if (!Shell.isPackageAlive(packageName)) {
                     error(exception.message ?: "Assertion error, $packageName not running")
                 }
             }

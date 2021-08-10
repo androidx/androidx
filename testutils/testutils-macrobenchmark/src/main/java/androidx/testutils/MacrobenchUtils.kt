@@ -45,6 +45,7 @@ fun MacrobenchmarkRule.measureStartup(
     startActivityAndWait(intent)
 }
 
+@RequiresApi(21)
 fun createStartupCompilationParams(
     startupModes: List<StartupMode> = listOf(
         StartupMode.HOT,
@@ -68,6 +69,7 @@ fun createStartupCompilationParams(
     }
 }
 
+@RequiresApi(21)
 fun createCompilationParams(
     compilationModes: List<CompilationMode> = listOf(
         CompilationMode.None,

@@ -19,8 +19,7 @@ package androidx.benchmark.macro
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.benchmark.macro.perfetto.isPackageAlive
-import androidx.benchmark.macro.perfetto.isShellSessionRooted
+import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -63,9 +62,9 @@ class MacrobenchmarkScopeTest {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         scope.pressHome()
         scope.startActivityAndWait()
-        assertTrue(device.isPackageAlive(Packages.TARGET))
+        assertTrue(Shell.isPackageAlive(Packages.TARGET))
         scope.killProcess()
-        assertFalse(device.isPackageAlive(Packages.TARGET))
+        assertFalse(Shell.isPackageAlive(Packages.TARGET))
     }
 
     @SdkSuppress(minSdkVersion = 24) // TODO: define behavior for older platforms
@@ -101,12 +100,12 @@ class MacrobenchmarkScopeTest {
         intent.setPackage(Packages.TARGET)
         intent.action = "${Packages.TARGET}.NOT_EXPORTED_ACTIVITY"
 
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        if (device.isShellSessionRooted() || Build.VERSION.SDK_INT <= 23) {
+        if (Shell.isSessionRooted() || Build.VERSION.SDK_INT <= 23) {
             // while device and adb session are both rooted, doesn't throw
             // TODO: verify whether pre-23 behavior requires userdebug device, only tested with
             //  emulator so far
             scope.startActivityAndWait(intent)
+            val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             assertTrue(device.hasObject(By.text("NOT EXPORTED ACTIVITY")))
         } else {
             // should throw, warning to set exported = true

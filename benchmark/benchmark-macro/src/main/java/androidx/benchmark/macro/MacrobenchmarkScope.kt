@@ -19,8 +19,7 @@ package androidx.benchmark.macro
 import android.content.Intent
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.benchmark.macro.perfetto.executeShellScript
-import androidx.benchmark.macro.perfetto.executeShellScriptWithStderr
+import androidx.benchmark.Shell
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.tracing.trace
@@ -90,7 +89,7 @@ public class MacrobenchmarkScope(
         Log.d(TAG, "Starting activity with command: $cmd")
 
         // executeShellScript used to access stderr, and avoid need to escape special chars like `;`
-        val result = device.executeShellScriptWithStderr(cmd)
+        val result = Shell.executeScriptWithStderr(cmd)
 
         // Check for errors
         result.stdout
@@ -135,7 +134,7 @@ public class MacrobenchmarkScope(
      * held in memory, such as during [cold startup](androidx.benchmark.macro.StartupMode.COLD).
      */
     public fun dropKernelPageCache() {
-        val result = device.executeShellScript(
+        val result = Shell.executeScript(
             "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
         ).trim()
         // User builds don't allow drop caches yet.

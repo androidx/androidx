@@ -29,7 +29,7 @@ package androidx.benchmark.macro {
   }
 
   public final class CompilationModeKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static boolean isSupportedWithVmSettings(androidx.benchmark.macro.CompilationMode);
+    method @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static boolean isSupportedWithVmSettings(androidx.benchmark.macro.CompilationMode);
   }
 
   public final class ConfigurationErrorKt {
@@ -84,9 +84,6 @@ package androidx.benchmark.macro {
 package androidx.benchmark.macro.perfetto {
 
   public final class PerfettoConfigKt {
-  }
-
-  public final class ShellUtilsKt {
   }
 
   public final class UiStateKt {
