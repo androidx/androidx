@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,9 @@
  * limitations under the License.
  */
 
-@file:JvmName("ViewModelProviderKt")
 package androidx.lifecycle
 
-import androidx.annotation.MainThread
 import kotlin.reflect.KClass
-
-/**
- * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or
- * an activity), associated with this `ViewModelProvider`.
- *
- * @see ViewModelProvider.get(Class)
- */
-@MainThread
-public inline fun <reified VM : ViewModel> ViewModelProvider.get(): VM = get(VM::class.java)
 
 /**
  * An implementation of [Lazy] used by [androidx.fragment.app.Fragment.viewModels] and

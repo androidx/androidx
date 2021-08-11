@@ -29,9 +29,6 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
