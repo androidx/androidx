@@ -56,19 +56,19 @@ public final class TileRenderer {
     /**
      * Default constructor.
      *
-     * @param appContext The application context.
+     * @param uiContext A {@link Context} suitable for interacting with the UI.
      * @param layout The portion of the Tile to render.
      * @param resources The resources for the Tile.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
      */
     public TileRenderer(
-            @NonNull Context appContext,
+            @NonNull Context uiContext,
             @NonNull LayoutElementBuilders.Layout layout,
             @NonNull ResourceBuilders.Resources resources,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
         this(
-                appContext,
+                uiContext,
                 layout,
                 /* tilesTheme= */ 0,
                 resources,
@@ -79,7 +79,7 @@ public final class TileRenderer {
     /**
      * Default constructor.
      *
-     * @param appContext The application context.
+     * @param uiContext A {@link Context} suitable for interacting with the UI.
      * @param layout The portion of the Tile to render.
      * @param tilesTheme The theme to use for this Tile instance. This can be used to customise
      *     things like the default font family. Pass 0 to use the default theme.
@@ -87,7 +87,7 @@ public final class TileRenderer {
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
      */
     public TileRenderer(
-            @NonNull Context appContext,
+            @NonNull Context uiContext,
             @NonNull LayoutElementBuilders.Layout layout,
             @StyleRes int tilesTheme,
             @NonNull ResourceBuilders.Resources resources,
@@ -95,9 +95,9 @@ public final class TileRenderer {
             @NonNull LoadActionListener loadActionListener) {
         this.mRenderer =
                 new TileRendererInternal(
-                        appContext,
+                        uiContext,
                         layout.toProto(),
-                        StandardResourceResolvers.forLocalApp(resources.toProto(), appContext)
+                        StandardResourceResolvers.forLocalApp(resources.toProto(), uiContext)
                                 .build(),
                         tilesTheme,
                         loadActionExecutor,
