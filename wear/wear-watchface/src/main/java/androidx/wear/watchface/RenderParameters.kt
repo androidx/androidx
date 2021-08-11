@@ -20,6 +20,7 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.RenderParameters.HighlightLayer
+import androidx.wear.watchface.data.IdAndTapEventWireFormat
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyleSetting
@@ -81,13 +82,14 @@ public enum class DrawMode {
  * @param highlightLayer Optional [HighlightLayer] used by editors to visually highlight an
  * aspect of the watch face. Rendered last on top of [watchFaceLayers]. If highlighting isn't needed
  * this will be `null`.
- * @param pressedComplicationSlotIds A set of [ComplicationSlot.id]s to render as pressed.
+ * @param lastComplicationTapDownEvents Map of [ComplicationSlot] id to the latest [TapType.DOWN]
+ * [TapEvent] that ComplicationSlot received, if any.
  */
 public class RenderParameters @JvmOverloads constructor(
     public val drawMode: DrawMode,
     public val watchFaceLayers: Set<WatchFaceLayer>,
     public val highlightLayer: HighlightLayer? = null,
-    public val pressedComplicationSlotIds: Set<Int> = emptySet()
+    public val lastComplicationTapDownEvents: Map<Int, TapEvent> = emptyMap()
 ) {
     init {
         require(watchFaceLayers.isNotEmpty() || highlightLayer != null) {
@@ -243,13 +245,23 @@ public class RenderParameters @JvmOverloads constructor(
 
             else -> null
         },
-        wireFormat.pressedComplicationSlotIds.toSet()
+        wireFormat.idAndTapEventWireFormat?.associate {
+            Pair(it.id, TapEvent(it.x, it.y, it.calendarTapTimeMillis))
+        } ?: emptyMap()
     )
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public fun toWireFormat(): RenderParametersWireFormat =
-        when (val thingHighlighted = highlightLayer?.highlightedElement) {
+    public fun toWireFormat(): RenderParametersWireFormat {
+        val idAndTapEventWireFormats = lastComplicationTapDownEvents.map {
+            IdAndTapEventWireFormat(
+                it.key,
+                it.value.xPos,
+                it.value.yPos,
+                it.value.tapTimeMillis
+            )
+        }
+        return when (val thingHighlighted = highlightLayer?.highlightedElement) {
             is HighlightedElement.AllComplicationSlots -> RenderParametersWireFormat(
                 drawMode.ordinal,
                 computeLayersBitfield(),
@@ -258,7 +270,7 @@ public class RenderParameters @JvmOverloads constructor(
                 null,
                 highlightLayer!!.highlightTint,
                 highlightLayer.backgroundTint,
-                pressedComplicationSlotIds.toIntArray()
+                idAndTapEventWireFormats
             )
 
             is HighlightedElement.ComplicationSlot -> RenderParametersWireFormat(
@@ -269,7 +281,7 @@ public class RenderParameters @JvmOverloads constructor(
                 null,
                 highlightLayer!!.highlightTint,
                 highlightLayer.backgroundTint,
-                pressedComplicationSlotIds.toIntArray()
+                idAndTapEventWireFormats
             )
 
             is HighlightedElement.UserStyle -> RenderParametersWireFormat(
@@ -280,7 +292,7 @@ public class RenderParameters @JvmOverloads constructor(
                 thingHighlighted.id.value,
                 highlightLayer!!.highlightTint,
                 highlightLayer.backgroundTint,
-                pressedComplicationSlotIds.toIntArray()
+                idAndTapEventWireFormats
             )
 
             else -> RenderParametersWireFormat(
@@ -291,9 +303,10 @@ public class RenderParameters @JvmOverloads constructor(
                 null,
                 Color.BLACK,
                 Color.BLACK,
-                pressedComplicationSlotIds.toIntArray()
+                idAndTapEventWireFormats
             )
         }
+    }
 
     private fun computeLayersBitfield(): Int {
         var bitfield = 0
@@ -310,6 +323,11 @@ public class RenderParameters @JvmOverloads constructor(
         writer.increaseIndent()
         writer.println("drawMode=${drawMode.name}")
         writer.println("watchFaceLayers=${watchFaceLayers.joinToString()}")
+        writer.println(
+            "lastComplicationTapDownEvents=" + lastComplicationTapDownEvents.map {
+                it.key.toString() + "->" + it.value
+            }.joinToString(", ")
+        )
 
         highlightLayer?.let {
             writer.println("HighlightLayer:")
@@ -349,7 +367,7 @@ public class RenderParameters @JvmOverloads constructor(
         if (drawMode != other.drawMode) return false
         if (watchFaceLayers != other.watchFaceLayers) return false
         if (highlightLayer != other.highlightLayer) return false
-        if (pressedComplicationSlotIds != other.pressedComplicationSlotIds) return false
+        if (lastComplicationTapDownEvents != other.lastComplicationTapDownEvents) return false
 
         return true
     }
@@ -358,7 +376,7 @@ public class RenderParameters @JvmOverloads constructor(
         var result = drawMode.hashCode()
         result = 31 * result + watchFaceLayers.hashCode()
         result = 31 * result + (highlightLayer?.hashCode() ?: 0)
-        result = 31 * result + pressedComplicationSlotIds.hashCode()
+        result = 31 * result + lastComplicationTapDownEvents.hashCode()
         return result
     }
 }

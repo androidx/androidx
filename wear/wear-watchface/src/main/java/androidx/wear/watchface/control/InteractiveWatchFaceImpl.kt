@@ -19,6 +19,7 @@ package androidx.wear.watchface.control
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.wear.utility.TraceEvent
+import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.WatchFaceImpl
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -62,7 +63,12 @@ internal class InteractiveWatchFaceImpl(
     override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.sendTouchEvent"
-        ) { watchFaceImpl -> watchFaceImpl.onTapCommand(tapType, xPos, yPos) }
+        ) { watchFaceImpl ->
+            watchFaceImpl.onTapCommand(
+                tapType,
+                TapEvent(xPos, yPos, watchFaceImpl.calendar.timeInMillis)
+            )
+        }
 
     override fun getContentDescriptionLabels() =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
@@ -142,8 +148,6 @@ internal class InteractiveWatchFaceImpl(
         ) { watchFaceImpl -> watchFaceImpl.currentUserStyleRepository.schema.toWireFormat() }
 
     override fun bringAttentionToComplication(id: Int) {
-        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
-            "InteractiveWatchFaceImpl.getUserStyleSchema"
-        ) { watchFaceImpl -> watchFaceImpl.complicationSlotsManager.displayPressedAnimation(id) }
+        // Unsupported.
     }
 }
