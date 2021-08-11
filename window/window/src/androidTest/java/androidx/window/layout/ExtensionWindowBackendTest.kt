@@ -61,17 +61,6 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
     }
 
     @Test
-    public fun testInitAndVerifyExtension() {
-        val extensionVersion = ExtensionCompat.extensionVersion
-        assumeTrue(extensionVersion != null)
-        assertTrue(ExtensionWindowBackend.isExtensionVersionSupported(extensionVersion))
-        val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
-        assertNotNull(extension)
-        assertTrue(extension is ExtensionCompat)
-        assertTrue(extension!!.validateExtensionInterface())
-    }
-
-    @Test
     public fun testInitAndVerifySidecar() {
         val sidecarVersion = SidecarCompat.sidecarVersion
         assumeTrue(sidecarVersion != null)
