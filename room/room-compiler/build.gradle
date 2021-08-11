@@ -19,7 +19,8 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.SupportConfig
 import androidx.build.SdkHelperKt
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -61,6 +62,8 @@ shadowJar {
         exclude(dependency("org.glassfish:.*"))
         exclude(dependency("com.ibm.icu:.*"))
     }
+    relocate("org.antlr", "androidx.room.jarjarred.org.antlr")
+    relocate("org.stringtemplate", "androidx.room.jarjarred.org.stringtemplate")
 }
 
 jar {
@@ -69,14 +72,6 @@ jar {
     // are necessary to run.
     archiveClassifier = "before-jarjar"
 }
-
-// relocate all shadow dependencies
-task relocateShadowJar(type: ConfigureShadowRelocation) {
-    target = tasks.shadowJar
-    prefix = "androidx.room.jarjarred"
-}
-
-tasks.shadowJar.dependsOn(tasks.relocateShadowJar)
 
 configurations {
     // replace the standard jar with the one built by 'shadowJar' in both api and runtime variants
@@ -166,17 +161,27 @@ class CheckArtifactTask extends DefaultTask {
      * their location.
      */
     def validateJarContents(File jarFile) {
-        FileTree jarFiles = project.zipTree(jarFile)
-        def found = false
-        jarFiles.files.each {
-            if (it.path.contains("/org/antlr")) {
-                found = true
-                if (!it.path.contains("androidx/room/jarjarred/org/antlr")) {
-                    throw new GradleException("Any Antlr class included in the Room Compiler's" +
-                            " jar file should be moved into androidx/room/jarjarred.\n" +
-                            "Looks like $it has not been moved")
+        Boolean found = false
+        ZipFile zip = new ZipFile(jarFile)
+        try {
+            for (Enumeration list = zip.entries(); list.hasMoreElements(); ) {
+                String entry = ((ZipEntry) list.nextElement()).name
+                if (!entry.endsWith(".class")) continue
+                if (entry.contains("org/antlr")) {
+                    found = true
+                    if (!entry.contains("androidx/room/jarjarred/org/antlr")) {
+                        throw new GradleException("Any Antlr class included in the Room Compiler's" +
+                                " jar file should be moved into androidx/room/jarjarred.\n" +
+                                "Looks like $entry has not been moved")
+                    }
+                }
+                if (!entry.startsWith("androidx/room/") && !entry.startsWith("Jdbc_extKt")) {
+                    throw new GradleException("Found a class that is not in androidx.room " +
+                            "package: $entry")
                 }
             }
+        } finally {
+            zip.close()
         }
         if (!found) {
             throw new GradleException("Couldn't find any Antlr classes in room-compiler artifact" +
