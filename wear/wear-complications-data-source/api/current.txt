@@ -27,14 +27,15 @@ package androidx.wear.complications.datasource {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void onComplicationData(androidx.wear.complications.data.ComplicationData? complicationData) throws android.os.RemoteException;
   }
 
-  public final class ComplicationDataSourceUpdateRequester {
-    ctor public ComplicationDataSourceUpdateRequester(android.content.Context context, android.content.ComponentName complicationDataSourceComponent);
+  public interface ComplicationDataSourceUpdateRequester {
+    method public default static androidx.wear.complications.datasource.ComplicationDataSourceUpdateRequester create(android.content.Context context, android.content.ComponentName complicationDataSourceComponent);
     method public void requestUpdate(int... complicationInstanceIds);
     method public void requestUpdateAll();
     field public static final androidx.wear.complications.datasource.ComplicationDataSourceUpdateRequester.Companion Companion;
   }
 
   public static final class ComplicationDataSourceUpdateRequester.Companion {
+    method public androidx.wear.complications.datasource.ComplicationDataSourceUpdateRequester create(android.content.Context context, android.content.ComponentName complicationDataSourceComponent);
   }
 
   public final class ComplicationRequest {

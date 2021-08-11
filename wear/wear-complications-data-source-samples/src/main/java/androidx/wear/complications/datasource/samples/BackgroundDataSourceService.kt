@@ -39,7 +39,7 @@ class BackgroundDataSourceService : ComplicationDataSourceService() {
 
     override fun onCreate() {
         if (updateRequester == null) {
-            updateRequester = ComplicationDataSourceUpdateRequester(
+            updateRequester = ComplicationDataSourceUpdateRequester.create(
                 this,
                 ComponentName(this, BackgroundDataSourceService::class.java)
             )
