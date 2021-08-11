@@ -19,6 +19,7 @@ package androidx.camera.view
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.view.Surface
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -29,6 +30,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+
+private const val INVALID_ROTATION = -1
 
 /**
  * Unit tests for [RotationProvider].
@@ -51,10 +54,50 @@ class RotationProviderTest {
     }
 
     @Test
+    fun addAndRemoveAllListener_noCallback() {
+        // Arrange.
+        var rotation = INVALID_ROTATION
+        rotationProvider.addListener(CameraXExecutors.mainThreadExecutor()) {
+            rotation = it
+        }
+
+        // Act.
+        rotationProvider.removeAllListeners()
+        rotationProvider.mOrientationListener.onOrientationChanged(0)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert.
+        assertThat(rotation).isEqualTo(INVALID_ROTATION)
+    }
+
+    @Test
+    fun addAndRemoveListener_noCallback() {
+        var rotationNoChange = INVALID_ROTATION
+        var rotationChanged = INVALID_ROTATION
+        val listenerKept = RotationProvider.Listener {
+            rotationChanged = it
+        }
+        val listenerRemoved = RotationProvider.Listener {
+            rotationNoChange = it
+        }
+        rotationProvider.addListener(CameraXExecutors.mainThreadExecutor(), listenerKept)
+        rotationProvider.addListener(CameraXExecutors.mainThreadExecutor(), listenerRemoved)
+
+        // Act.
+        rotationProvider.removeListener(listenerRemoved)
+        rotationProvider.mOrientationListener.onOrientationChanged(0)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert.
+        assertThat(rotationNoChange).isEqualTo(INVALID_ROTATION)
+        assertThat(rotationChanged).isEqualTo(Surface.ROTATION_0)
+    }
+
+    @Test
     fun addListener_receivesCallback() {
         // Arrange.
         var rotation = -1
-        rotationProvider.setListener {
+        rotationProvider.addListener(CameraXExecutors.mainThreadExecutor()) {
             rotation = it
         }
         // Act.
@@ -67,7 +110,7 @@ class RotationProviderTest {
     @Test
     fun cannotDetectOrientation_addingReturnsFalse() {
         rotationProvider.mIgnoreCanDetectForTest = false
-        assertThat(rotationProvider.setListener {}).isFalse()
+        assertThat(rotationProvider.addListener(CameraXExecutors.mainThreadExecutor()) {}).isFalse()
     }
 
     @Test
