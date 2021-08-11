@@ -82,9 +82,6 @@ package androidx.benchmark.macro.perfetto {
   public final class PerfettoConfigKt {
   }
 
-  public final class ShellUtilsKt {
-  }
-
   public final class UiStateKt {
   }
 

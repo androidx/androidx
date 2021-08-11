@@ -18,7 +18,10 @@ package androidx.benchmark
 
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,5 +86,135 @@ class ShellTest {
                 assertNull(output)
             }
         }
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun executeScript_trivial() {
+        Assert.assertEquals("foo\n", Shell.executeScript("echo foo"))
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun executeScriptWithStderr_trivial() {
+        Assert.assertEquals(Shell.Output("foo\n", ""), Shell.executeScriptWithStderr("echo foo"))
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun executeScriptWithStderr_invalidCommand() {
+        val shellOutput = Shell.executeScriptWithStderr("invalidCommand")
+
+        Assert.assertEquals("", shellOutput.stdout)
+
+        val stderr = shellOutput.stderr
+
+        // sample stderr observed in manual testing:
+        // API 23: "invalidCommand: not found"
+        // API 30: "invalidCommand: inaccessible or not found"
+        Assert.assertTrue(
+            "unexpected stderr \"$stderr\"",
+            stderr.contains("invalidCommand") && stderr.contains("not found")
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
+    @Test
+    fun executeScript_pipe_xargs() {
+        // validate piping works with xargs
+        Assert.assertEquals("foo\n", Shell.executeScript("echo foo | xargs echo $1"))
+    }
+
+    @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
+    @Test
+    fun executeScript_pipe_echo() {
+        // validate piping works
+        Assert.assertEquals("foo\n", Shell.executeScript("echo foo | echo $(</dev/stdin)"))
+    }
+
+    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
+    @Test
+    fun executeScript_stdinArg_xargs() {
+        // validate stdin to first command in script
+        Assert.assertEquals("foo\n", Shell.executeScript("xargs echo $1", stdin = "foo"))
+    }
+
+    @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
+    @Test
+    fun executeScript_stdinArg_echo() {
+        // validate stdin to first command in script
+        Assert.assertEquals("foo\n", Shell.executeScript("echo $(</dev/stdin)", stdin = "foo"))
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun executeScript_multilineRedirect() {
+        Assert.assertEquals(
+            "foo\n",
+            Shell.executeScript(
+                """
+                    echo foo > /data/local/tmp/foofile
+                    cat /data/local/tmp/foofile
+                """.trimIndent()
+            )
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
+    @Test
+    fun executeScript_multilineRedirectStdin_xargs() {
+        Assert.assertEquals(
+            "foo\n",
+            Shell.executeScript(
+                """
+                    xargs echo $1 > /data/local/tmp/foofile
+                    cat /data/local/tmp/foofile
+                """.trimIndent(),
+                stdin = "foo"
+            )
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
+    @Test
+    fun executeScript_multilineRedirectStdin_echo() {
+        Assert.assertEquals(
+            "foo\n",
+            Shell.executeScript(
+                """
+                    echo $(</dev/stdin) > /data/local/tmp/foofile
+                    cat /data/local/tmp/foofile
+                """.trimIndent(),
+                stdin = "foo"
+            )
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun createRunnableExecutable_simpleScript() {
+        val path = Shell.createRunnableExecutable(
+            name = "myScript.sh",
+            inputStream = "echo foo".byteInputStream()
+        )
+        try {
+            Assert.assertEquals(
+                "foo\n",
+                Shell.executeCommand(path)
+            )
+        } finally {
+            Shell.executeCommand("rm $path")
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun isPackageAlive() {
+        // this package is certainly alive...
+        val packageName = InstrumentationRegistry.getInstrumentation().context.packageName
+        assertNotNull(Shell.isPackageAlive(packageName))
+
+        // this made up one shouldn't be
+        assertNotNull(Shell.isPackageAlive("com.notalive.package.notarealapp"))
     }
 }

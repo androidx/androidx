@@ -18,8 +18,7 @@ package androidx.benchmark.macro.perfetto
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
+import androidx.benchmark.Shell
 import perfetto.protos.DataSourceConfig
 import perfetto.protos.FtraceConfig
 import perfetto.protos.MeminfoCounters
@@ -158,10 +157,9 @@ internal fun TraceConfig.validateAndEncode(): ByteArray {
         .first()
 
     // check tags against known-supported tags based on SDK_INT / root status
-    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     val supportedTags = AtraceTag.supported(
         api = Build.VERSION.SDK_INT,
-        rooted = device.isShellSessionRooted()
+        rooted = Shell.isSessionRooted()
     ).map { it.tag }.toSet()
 
     val unsupportedTags = (ftraceConfig.atrace_categories - supportedTags)

@@ -16,15 +16,13 @@
 
 package androidx.benchmark.macro
 
-import android.app.Instrumentation
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.Shell
 import androidx.benchmark.macro.CompilationMode.SpeedProfile
 import androidx.profileinstaller.ProfileInstallReceiver
 import androidx.profileinstaller.ProfileInstaller
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
 import org.junit.AssumptionViolatedException
 
 /**
@@ -99,11 +97,9 @@ public sealed class CompilationMode(
  */
 @RequiresApi(21)
 internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
-    val instrumentation = InstrumentationRegistry.getInstrumentation()
-    val device = instrumentation.device()
     // Clear profile between runs.
     Log.d(TAG, "Clearing profiles for $packageName")
-    device.executeShellCommand("cmd package compile --reset $packageName")
+    Shell.executeCommand("cmd package compile --reset $packageName")
     // Wait for the --reset to take affect.
     Thread.sleep(1000)
     if (this == CompilationMode.None || this == CompilationMode.Interpreted) {
@@ -116,7 +112,7 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
         val action = ProfileInstallReceiver.ACTION_INSTALL_PROFILE
         // Use an explicit broadcast given the app was force-stopped.
         val name = ProfileInstallReceiver::class.java.name
-        val result = device.executeShellCommand("am broadcast -a $action $packageName/$name")
+        val result = Shell.executeCommand("am broadcast -a $action $packageName/$name")
             .substringAfter("Broadcast completed: result=")
             .trim()
             .toIntOrNull()
@@ -155,9 +151,9 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
         }
         // Kill Process
         Log.d(TAG, "Killing process $packageName")
-        device.executeShellCommand("am force-stop $packageName")
+        Shell.executeCommand("am force-stop $packageName")
         // Compile
-        compilePackage(instrumentation, packageName)
+        compilePackage(packageName)
         Log.d(TAG, "$packageName is compiled.")
     }
     if (this is CompilationMode.SpeedProfile) {
@@ -168,12 +164,12 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
         // is in the foreground, dump the profile, wait for another 5 secs before
         // speed-profile compilation.
         Thread.sleep(5000)
-        val response = device.executeShellCommand("killall -s SIGUSR1 $packageName")
+        val response = Shell.executeCommand("killall -s SIGUSR1 $packageName")
         if (response.isNotBlank()) {
             Log.d(TAG, "Received dump profile response $response")
             throw RuntimeException("Failed to dump profile for $packageName ($response)")
         }
-        compilePackage(instrumentation, packageName)
+        compilePackage(packageName)
     }
 }
 
@@ -185,9 +181,9 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RequiresApi(21)
 public fun CompilationMode.isSupportedWithVmSettings(): Boolean {
-    val device = InstrumentationRegistry.getInstrumentation().device()
-    val getProp = device.executeShellCommand("getprop dalvik.vm.extra-opts")
+    val getProp = Shell.executeCommand("getprop dalvik.vm.extra-opts")
     val vmRunningInterpretedOnly = getProp.contains("-Xusejit:false")
 
     // true if requires interpreted, false otherwise
@@ -195,6 +191,7 @@ public fun CompilationMode.isSupportedWithVmSettings(): Boolean {
     return vmRunningInterpretedOnly == interpreted
 }
 
+@RequiresApi(21)
 internal fun CompilationMode.assumeSupportedWithVmSettings() {
     if (!isSupportedWithVmSettings()) {
         throw AssumptionViolatedException(
@@ -223,10 +220,9 @@ internal fun CompilationMode.assumeSupportedWithVmSettings() {
  * Compiles the application.
  */
 @RequiresApi(21)
-internal fun CompilationMode.compilePackage(instrumentation: Instrumentation, packageName: String) {
-    val device = instrumentation.device()
+internal fun CompilationMode.compilePackage(packageName: String) {
     Log.d(TAG, "Compiling $packageName ($this)")
-    val response = device.executeShellCommand(
+    val response = Shell.executeCommand(
         "cmd package compile -f -m ${compileArgument()} $packageName"
     )
     if (!response.contains("Success")) {
@@ -234,8 +230,4 @@ internal fun CompilationMode.compilePackage(instrumentation: Instrumentation, pa
         throw RuntimeException("Failed to compile $packageName ($response)")
     }
     Thread.sleep(5000)
-}
-
-internal fun Instrumentation.device(): UiDevice {
-    return UiDevice.getInstance(this)
 }
