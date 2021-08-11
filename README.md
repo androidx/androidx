@@ -16,6 +16,7 @@ Note: The contributions workflow via GitHub is currently experimental - only con
 * [Activity](activity)
 * [Biometric](biometric)
 * [Compose Compiler](compose/compiler)
+* [Compose Runtime](compose/runtime)
 * [DataStore](datastore)
 * [Fragment](fragment)
 * [Lifecycle](lifecycle)
