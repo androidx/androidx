@@ -83,7 +83,7 @@ public final class ScreenTest {
             }
         };
 
-        new ScreenController(mCarContext, mScreen).moveToState(State.RESUMED);
+        new ScreenController(mScreen).moveToState(State.RESUMED);
     }
 
     @Test

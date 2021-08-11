@@ -28,10 +28,8 @@ import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 
-import java.lang.reflect.Field;
-
 /**
- * A controller that allows testing of a {@link Session}.
+ * {@link SessionController} provides API that allows testing of a {@link Session}.
  *
  * <p>This controller allows:
  *
@@ -64,19 +62,8 @@ public class SessionController {
         mLifecycleOwner = new TestLifecycleOwner();
         mLifecycleOwner.getRegistry().addObserver(new SessionLifecycleObserver());
 
-        // Use reflection to inject the TestCarContext into the Session.
-        try {
-            Field registry = Session.class.getDeclaredField("mRegistry");
-            registry.setAccessible(true);
-            registry.set(session, mTestCarContext.getLifecycleOwner().mRegistry);
-
-            Field carContext = Session.class.getDeclaredField("mCarContext");
-            carContext.setAccessible(true);
-            carContext.set(session, mTestCarContext);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(
-                    "Failed to set internal Session values for testing", e);
-        }
+        mSession.setCarContextInternal(mTestCarContext);
+        mSession.setLifecycleRegistryInternal(mTestCarContext.getLifecycleOwner().getRegistry());
     }
 
     /** Returns the {@link Session} that is being controlled. */
