@@ -16,7 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
-import androidx.benchmark.macro.device
+import androidx.benchmark.Shell
 import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -38,8 +38,7 @@ class PerfettoTraceProcessorTest {
     fun shellPath() {
         assumeTrue(isAbiSupported())
         val shellPath = PerfettoTraceProcessor.shellPath
-        val device = InstrumentationRegistry.getInstrumentation().device()
-        val out = device.executeShellCommand("$shellPath --version")
+        val out = Shell.executeCommand("$shellPath --version")
         assertTrue(
             "expect to get Perfetto version string, saw: $out",
             out.contains("Perfetto v")
