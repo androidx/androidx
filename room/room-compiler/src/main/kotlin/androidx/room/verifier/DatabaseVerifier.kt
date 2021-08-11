@@ -24,7 +24,6 @@ import androidx.room.vo.EntityOrView
 import androidx.room.vo.FtsEntity
 import androidx.room.vo.FtsOptions
 import androidx.room.vo.Warning
-import columnInfo
 import org.sqlite.JDBC
 import org.sqlite.SQLiteJDBCLoader
 import java.io.File

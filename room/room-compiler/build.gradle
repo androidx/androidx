@@ -175,7 +175,7 @@ class CheckArtifactTask extends DefaultTask {
                                 "Looks like $entry has not been moved")
                     }
                 }
-                if (!entry.startsWith("androidx/room/") && !entry.startsWith("Jdbc_extKt")) {
+                if (!entry.startsWith("androidx/room/")) {
                     throw new GradleException("Found a class that is not in androidx.room " +
                             "package: $entry")
                 }
