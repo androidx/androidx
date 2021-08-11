@@ -603,8 +603,11 @@ public final class WindowInsetsControllerCompat {
                 WindowInsetsController.OnControllableInsetsChangedListener>
                 mListeners = new SimpleArrayMap<>();
 
+        protected Window mWindow;
+
         Impl30(@NonNull Window window, @NonNull WindowInsetsControllerCompat compatController) {
             this(window.getInsetsController(), compatController);
+            mWindow = window;
         }
 
         Impl30(@NonNull WindowInsetsController insetsController,
@@ -632,6 +635,10 @@ public final class WindowInsetsControllerCompat {
         @Override
         public void setAppearanceLightStatusBars(boolean isLight) {
             if (isLight) {
+                if (mWindow != null) {
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                }
+
                 mInsetsController.setSystemBarsAppearance(
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
@@ -759,6 +766,13 @@ public final class WindowInsetsControllerCompat {
             if (fwListener != null) {
                 mInsetsController.removeOnControllableInsetsChangedListener(fwListener);
             }
+        }
+
+        protected void unsetSystemUiFlag(int systemUiFlag) {
+            View decorView = mWindow.getDecorView();
+            decorView.setSystemUiVisibility(
+                    decorView.getSystemUiVisibility()
+                            & ~systemUiFlag);
         }
     }
 }
