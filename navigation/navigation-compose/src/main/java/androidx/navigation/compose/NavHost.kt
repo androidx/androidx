@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
@@ -128,11 +129,11 @@ public fun NavHost(
     if (backStackEntry != null) {
         // while in the scope of the composable, we provide the navBackStackEntry as the
         // ViewModelStoreOwner and LifecycleOwner
-        Crossfade(backStackEntry, modifier) { currentEntry ->
-            currentEntry.LocalOwnersProvider(saveableStateHolder) {
-                (currentEntry.destination as ComposeNavigator.Destination).content(currentEntry)
+        Crossfade(EntryHolder(backStackEntry), modifier) { holder ->
+            holder.entry.LocalOwnersProvider(saveableStateHolder) {
+                (holder.entry.destination as ComposeNavigator.Destination).content(holder.entry)
             }
-            DisposableEffect(currentEntry) {
+            DisposableEffect(holder.entry) {
                 if (initialCrossfade) {
                     // There's no animation for the initial crossfade,
                     // so we can instantly mark the transition as complete
@@ -156,4 +157,16 @@ public fun NavHost(
 
     // Show any dialog destinations
     DialogHost(dialogNavigator)
+}
+
+private class EntryHolder(val entry: NavBackStackEntry) {
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is EntryHolder) return false
+        return entry.id == other.entry.id
+    }
+
+    override fun hashCode(): Int {
+        return entry.id.hashCode()
+    }
 }
