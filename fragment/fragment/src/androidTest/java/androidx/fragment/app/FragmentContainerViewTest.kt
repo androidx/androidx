@@ -28,7 +28,9 @@ import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.animation.Animation
 import androidx.core.app.ActivityCompat
+import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -155,12 +157,13 @@ class FragmentContainerViewTest {
             .build()
 
         var dispatchedToChild = 0
-        childView.setOnApplyWindowInsetsListener { _, insets ->
-            // Ensure insets received by child are not consumed at all by the parent
-            assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
-            dispatchedToChild++
-            insets
-        }
+        childView.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
+            override fun onApplyWindowInsets(p0: View?, insets: WindowInsets?): WindowInsets {
+                assertThat(insets!!.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+                dispatchedToChild++
+                return insets
+            }
+        })
 
         childView.setTag(R.id.fragment_container_view_tag, Fragment())
 
@@ -185,22 +188,24 @@ class FragmentContainerViewTest {
             .build()
 
         var dispatchedToChild = 0
-        childView.setOnApplyWindowInsetsListener { _, insets ->
-            // Ensure insets received by child are not consumed at all by the parent
-            assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
-            dispatchedToChild++
-            WindowInsets.Builder()
-                .setSystemWindowInsets(Insets.of(0, 0, 0, 0))
-                .build()
-        }
+        childView.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
+            override fun onApplyWindowInsets(p0: View?, insets: WindowInsets?): WindowInsets {
+                assertThat(insets!!.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+                dispatchedToChild++
+                return WindowInsets.Builder()
+                    .setSystemWindowInsets(Insets.of(0, 0, 0, 0))
+                    .build()
+            }
+        })
 
         var dispatchedToChild2 = 0
-        childView2.setOnApplyWindowInsetsListener { _, insets ->
-            // Ensure insets received by child are not consumed at all by the parent
-            assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
-            dispatchedToChild2++
-            insets
-        }
+        childView2.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
+            override fun onApplyWindowInsets(p0: View?, insets: WindowInsets?): WindowInsets {
+                assertThat(insets!!.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+                dispatchedToChild2++
+                return insets
+            }
+        })
 
         childView.setTag(R.id.fragment_container_view_tag, Fragment())
         childView2.setTag(R.id.fragment_container_view_tag, Fragment())
@@ -225,10 +230,18 @@ class FragmentContainerViewTest {
             .setSystemWindowInsets(Insets.of(4, 3, 2, 1))
             .build()
 
-        ViewCompat.setOnApplyWindowInsetsListener(fragmentContainerView) { _, insets ->
-            calledListener = true
-            insets
-        }
+        ViewCompat.setOnApplyWindowInsetsListener(
+            fragmentContainerView,
+            object : OnApplyWindowInsetsListener {
+                override fun onApplyWindowInsets(
+                    v: View?,
+                    insets: WindowInsetsCompat?
+                ): WindowInsetsCompat {
+                    calledListener = true
+                    return insets!!
+                }
+            }
+        )
 
         fragmentContainerView.onApplyWindowInsets(sentInsets)
 
