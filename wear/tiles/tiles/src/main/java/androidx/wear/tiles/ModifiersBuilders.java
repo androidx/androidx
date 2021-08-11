@@ -63,12 +63,6 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -88,7 +82,7 @@ public final class ModifiersBuilders {
             private final ModifiersProto.Clickable.Builder mImpl =
                     ModifiersProto.Clickable.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the ID associated with this action. */
             @NonNull
@@ -103,15 +97,6 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setOnClick(@NonNull Action onClick) {
                 mImpl.setOnClick(onClick.toActionProto());
-                return this;
-            }
-
-            /**
-             * Sets the action to perform when the element this modifier is attached to is clicked.
-             */
-            @NonNull
-            public Builder setOnClick(@NonNull Action.Builder onClickBuilder) {
-                mImpl.setOnClick(onClickBuilder.build().toActionProto());
                 return this;
             }
 
@@ -144,12 +129,6 @@ public final class ModifiersBuilders {
             return mImpl.getContentDescription();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -169,7 +148,7 @@ public final class ModifiersBuilders {
             private final ModifiersProto.Semantics.Builder mImpl =
                     ModifiersProto.Semantics.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the content description associated with this element. This will be dictated when
@@ -258,12 +237,6 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -283,7 +256,7 @@ public final class ModifiersBuilders {
             private final ModifiersProto.Padding.Builder mImpl =
                     ModifiersProto.Padding.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the padding on the end of the content, depending on the layout direction, in DP
@@ -292,16 +265,6 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setEnd(@NonNull DpProp end) {
                 mImpl.setEnd(end.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the padding on the end of the content, depending on the layout direction, in DP
-             * and the value of "rtl_aware".
-             */
-            @NonNull
-            public Builder setEnd(@NonNull DpProp.Builder endBuilder) {
-                mImpl.setEnd(endBuilder.build().toProto());
                 return this;
             }
 
@@ -315,16 +278,6 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /**
-             * Sets the padding on the start of the content, depending on the layout direction, in
-             * DP and the value of "rtl_aware".
-             */
-            @NonNull
-            public Builder setStart(@NonNull DpProp.Builder startBuilder) {
-                mImpl.setStart(startBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets the padding at the top, in DP. */
             @NonNull
             public Builder setTop(@NonNull DpProp top) {
@@ -332,24 +285,10 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets the padding at the top, in DP. */
-            @NonNull
-            public Builder setTop(@NonNull DpProp.Builder topBuilder) {
-                mImpl.setTop(topBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets the padding at the bottom, in DP. */
             @NonNull
             public Builder setBottom(@NonNull DpProp bottom) {
                 mImpl.setBottom(bottom.toProto());
-                return this;
-            }
-
-            /** Sets the padding at the bottom, in DP. */
-            @NonNull
-            public Builder setBottom(@NonNull DpProp.Builder bottomBuilder) {
-                mImpl.setBottom(bottomBuilder.build().toProto());
                 return this;
             }
 
@@ -382,16 +321,6 @@ public final class ModifiersBuilders {
             @SuppressLint("MissingGetterMatchingBuilder")
             public Builder setAll(@NonNull DpProp value) {
                 return setStart(value).setEnd(value).setTop(value).setBottom(value);
-            }
-
-            /** Sets the padding for all sides of the content, in DP. */
-            @NonNull
-            @SuppressLint("MissingGetterMatchingBuilder")
-            public Builder setAll(@NonNull DpProp.Builder valueBuilder) {
-                return setStart(valueBuilder)
-                        .setEnd(valueBuilder)
-                        .setTop(valueBuilder)
-                        .setBottom(valueBuilder);
             }
 
             /** Builds an instance from accumulated values. */
@@ -430,12 +359,6 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -454,7 +377,7 @@ public final class ModifiersBuilders {
         public static final class Builder {
             private final ModifiersProto.Border.Builder mImpl = ModifiersProto.Border.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the width of the border, in DP. */
             @NonNull
@@ -463,24 +386,10 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets the width of the border, in DP. */
-            @NonNull
-            public Builder setWidth(@NonNull DpProp.Builder widthBuilder) {
-                mImpl.setWidth(widthBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets the color of the border. */
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
                 mImpl.setColor(color.toProto());
-                return this;
-            }
-
-            /** Sets the color of the border. */
-            @NonNull
-            public Builder setColor(@NonNull ColorProp.Builder colorBuilder) {
-                mImpl.setColor(colorBuilder.build().toProto());
                 return this;
             }
 
@@ -510,12 +419,6 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -534,19 +437,12 @@ public final class ModifiersBuilders {
         public static final class Builder {
             private final ModifiersProto.Corner.Builder mImpl = ModifiersProto.Corner.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the radius of the corner in DP. */
             @NonNull
             public Builder setRadius(@NonNull DpProp radius) {
                 mImpl.setRadius(radius.toProto());
-                return this;
-            }
-
-            /** Sets the radius of the corner in DP. */
-            @NonNull
-            public Builder setRadius(@NonNull DpProp.Builder radiusBuilder) {
-                mImpl.setRadius(radiusBuilder.build().toProto());
                 return this;
             }
 
@@ -593,12 +489,6 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -618,7 +508,7 @@ public final class ModifiersBuilders {
             private final ModifiersProto.Background.Builder mImpl =
                     ModifiersProto.Background.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the background color for this element. If not defined, defaults to being
@@ -631,16 +521,6 @@ public final class ModifiersBuilders {
             }
 
             /**
-             * Sets the background color for this element. If not defined, defaults to being
-             * transparent.
-             */
-            @NonNull
-            public Builder setColor(@NonNull ColorProp.Builder colorBuilder) {
-                mImpl.setColor(colorBuilder.build().toProto());
-                return this;
-            }
-
-            /**
              * Sets the corner properties of this element. This only affects the drawing of this
              * element if it has a background color or border. If not defined, defaults to having a
              * square corner.
@@ -648,17 +528,6 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setCorner(@NonNull Corner corner) {
                 mImpl.setCorner(corner.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the corner properties of this element. This only affects the drawing of this
-             * element if it has a background color or border. If not defined, defaults to having a
-             * square corner.
-             */
-            @NonNull
-            public Builder setCorner(@NonNull Corner.Builder cornerBuilder) {
-                mImpl.setCorner(cornerBuilder.build().toProto());
                 return this;
             }
 
@@ -741,12 +610,6 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -766,7 +629,7 @@ public final class ModifiersBuilders {
             private final ModifiersProto.Modifiers.Builder mImpl =
                     ModifiersProto.Modifiers.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets allows its wrapped element to have actions associated with it, which will be
@@ -775,16 +638,6 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setClickable(@NonNull Clickable clickable) {
                 mImpl.setClickable(clickable.toProto());
-                return this;
-            }
-
-            /**
-             * Sets allows its wrapped element to have actions associated with it, which will be
-             * executed when the element is tapped.
-             */
-            @NonNull
-            public Builder setClickable(@NonNull Clickable.Builder clickableBuilder) {
-                mImpl.setClickable(clickableBuilder.build().toProto());
                 return this;
             }
 
@@ -798,27 +651,10 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /**
-             * Sets adds metadata for the modified element, for example, screen reader content
-             * descriptions.
-             */
-            @NonNull
-            public Builder setSemantics(@NonNull Semantics.Builder semanticsBuilder) {
-                mImpl.setSemantics(semanticsBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets adds padding to the modified element. */
             @NonNull
             public Builder setPadding(@NonNull Padding padding) {
                 mImpl.setPadding(padding.toProto());
-                return this;
-            }
-
-            /** Sets adds padding to the modified element. */
-            @NonNull
-            public Builder setPadding(@NonNull Padding.Builder paddingBuilder) {
-                mImpl.setPadding(paddingBuilder.build().toProto());
                 return this;
             }
 
@@ -829,24 +665,10 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets draws a border around the modified element. */
-            @NonNull
-            public Builder setBorder(@NonNull Border.Builder borderBuilder) {
-                mImpl.setBorder(borderBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets adds a background (with optional corner radius) to the modified element. */
             @NonNull
             public Builder setBackground(@NonNull Background background) {
                 mImpl.setBackground(background.toProto());
-                return this;
-            }
-
-            /** Sets adds a background (with optional corner radius) to the modified element. */
-            @NonNull
-            public Builder setBackground(@NonNull Background.Builder backgroundBuilder) {
-                mImpl.setBackground(backgroundBuilder.build().toProto());
                 return this;
             }
 
@@ -895,12 +717,6 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -920,7 +736,7 @@ public final class ModifiersBuilders {
             private final ModifiersProto.ArcModifiers.Builder mImpl =
                     ModifiersProto.ArcModifiers.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets allows its wrapped element to have actions associated with it, which will be
@@ -933,32 +749,12 @@ public final class ModifiersBuilders {
             }
 
             /**
-             * Sets allows its wrapped element to have actions associated with it, which will be
-             * executed when the element is tapped.
-             */
-            @NonNull
-            public Builder setClickable(@NonNull Clickable.Builder clickableBuilder) {
-                mImpl.setClickable(clickableBuilder.build().toProto());
-                return this;
-            }
-
-            /**
              * Sets adds metadata for the modified element, for example, screen reader content
              * descriptions.
              */
             @NonNull
             public Builder setSemantics(@NonNull Semantics semantics) {
                 mImpl.setSemantics(semantics.toProto());
-                return this;
-            }
-
-            /**
-             * Sets adds metadata for the modified element, for example, screen reader content
-             * descriptions.
-             */
-            @NonNull
-            public Builder setSemantics(@NonNull Semantics.Builder semanticsBuilder) {
-                mImpl.setSemantics(semanticsBuilder.build().toProto());
                 return this;
             }
 
@@ -995,12 +791,6 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1020,7 +810,7 @@ public final class ModifiersBuilders {
             private final ModifiersProto.SpanModifiers.Builder mImpl =
                     ModifiersProto.SpanModifiers.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets allows its wrapped element to have actions associated with it, which will be
@@ -1029,16 +819,6 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setClickable(@NonNull Clickable clickable) {
                 mImpl.setClickable(clickable.toProto());
-                return this;
-            }
-
-            /**
-             * Sets allows its wrapped element to have actions associated with it, which will be
-             * executed when the element is tapped.
-             */
-            @NonNull
-            public Builder setClickable(@NonNull Clickable.Builder clickableBuilder) {
-                mImpl.setClickable(clickableBuilder.build().toProto());
                 return this;
             }
 

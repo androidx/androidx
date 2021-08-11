@@ -64,7 +64,7 @@ public class TileProviderServiceTest {
     // TileProviderService. For that, we need the builder form (for DummyTileProviderService to
     // return), and the protobuf form (to compare against, which also includes the version).
     private static final TileBuilders.Tile DUMMY_TILE_TO_RETURN =
-            TileBuilders.Tile.builder().setResourcesVersion("5").build();
+            new TileBuilders.Tile.Builder().setResourcesVersion("5").build();
     private static final Tile DUMMY_TILE_PROTOBUF =
             Tile.newBuilder().setResourcesVersion("5").setSchemaVersion(Version.CURRENT).build();
 
@@ -215,7 +215,7 @@ public class TileProviderServiceTest {
         protected ListenableFuture<ResourceBuilders.Resources> onResourcesRequest(
                 @NonNull ResourcesRequest requestParams) {
             ResourceBuilders.Resources resources =
-                    ResourceBuilders.Resources.builder()
+                    new ResourceBuilders.Resources.Builder()
                             .setVersion(requestParams.getVersion())
                             .build();
 

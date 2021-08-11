@@ -61,12 +61,6 @@ public final class RequestBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -86,7 +80,7 @@ public final class RequestBuilders {
             private final RequestProto.TileRequest.Builder mImpl =
                     RequestProto.TileRequest.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets parameters describing the device requesting the tile update. */
             @NonNull
@@ -95,25 +89,10 @@ public final class RequestBuilders {
                 return this;
             }
 
-            /** Sets parameters describing the device requesting the tile update. */
-            @NonNull
-            public Builder setDeviceParameters(
-                    @NonNull DeviceParameters.Builder deviceParametersBuilder) {
-                mImpl.setDeviceParameters(deviceParametersBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets the state that should be used when building the tile. */
             @NonNull
             public Builder setState(@NonNull State state) {
                 mImpl.setState(state.toProto());
-                return this;
-            }
-
-            /** Sets the state that should be used when building the tile. */
-            @NonNull
-            public Builder setState(@NonNull State.Builder stateBuilder) {
-                mImpl.setState(stateBuilder.build().toProto());
                 return this;
             }
 
@@ -172,12 +151,6 @@ public final class RequestBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -197,7 +170,7 @@ public final class RequestBuilders {
             private final RequestProto.ResourcesRequest.Builder mImpl =
                     RequestProto.ResourcesRequest.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the version of the resources being fetched. This is the same as the requested
@@ -229,14 +202,6 @@ public final class RequestBuilders {
             @NonNull
             public Builder setDeviceParameters(@NonNull DeviceParameters deviceParameters) {
                 mImpl.setDeviceParameters(deviceParameters.toProto());
-                return this;
-            }
-
-            /** Sets parameters describing the device requesting the resources. */
-            @NonNull
-            public Builder setDeviceParameters(
-                    @NonNull DeviceParameters.Builder deviceParametersBuilder) {
-                mImpl.setDeviceParameters(deviceParametersBuilder.build().toProto());
                 return this;
             }
 

@@ -59,7 +59,7 @@ public class TestTileProviderClientTest {
 
     @Test
     public fun canCallOnTileRequest() {
-        val future = clientUnderTest.requestTile(RequestBuilders.TileRequest.builder().build())
+        val future = clientUnderTest.requestTile(RequestBuilders.TileRequest.Builder().build())
 
         shadowOf(Looper.getMainLooper()).idle()
         assertThat(future.isDone).isTrue()
@@ -69,7 +69,7 @@ public class TestTileProviderClientTest {
     @Test
     public fun canCallOnResourcesRequest() {
         val future = clientUnderTest.requestResources(
-            RequestBuilders.ResourcesRequest.builder().build()
+            RequestBuilders.ResourcesRequest.Builder().build()
         )
         shadowOf(Looper.getMainLooper()).idle()
 
@@ -140,7 +140,7 @@ public class TestTileProviderClientTest {
         ): ListenableFuture<TileBuilders.Tile> {
             val f = ResolvableFuture.create<TileBuilders.Tile>()
 
-            f.set(TileBuilders.Tile.builder().setResourcesVersion(RESOURCES_VERSION).build())
+            f.set(TileBuilders.Tile.Builder().setResourcesVersion(RESOURCES_VERSION).build())
 
             return f
         }
@@ -150,7 +150,7 @@ public class TestTileProviderClientTest {
         ): ListenableFuture<ResourceBuilders.Resources> {
             val f = ResolvableFuture.create<ResourceBuilders.Resources>()
 
-            f.set(ResourceBuilders.Resources.builder().setVersion(RESOURCES_VERSION).build())
+            f.set(ResourceBuilders.Resources.Builder().setVersion(RESOURCES_VERSION).build())
 
             return f
         }

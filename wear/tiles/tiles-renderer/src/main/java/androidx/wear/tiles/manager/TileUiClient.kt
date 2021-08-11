@@ -135,11 +135,11 @@ public class TileUiClient(
     }
 
     private suspend fun requestTile(
-        state: StateBuilders.State = StateBuilders.State.builder().build()
+        state: StateBuilders.State = StateBuilders.State.Builder().build()
     ) = coroutineScope {
         withContext(Dispatchers.Main) {
             val tileRequest = RequestBuilders.TileRequest
-                .builder()
+                .Builder()
                 .setState(state)
                 .setDeviceParameters(buildDeviceParameters())
                 .build()
@@ -150,7 +150,7 @@ public class TileUiClient(
                 tile.resourcesVersion != tileResources?.version
             ) {
                 val resourcesRequest = RequestBuilders.ResourcesRequest
-                    .builder()
+                    .Builder()
                     .setVersion(tile.resourcesVersion)
                     .setDeviceParameters(buildDeviceParameters())
                     .build()
@@ -170,7 +170,7 @@ public class TileUiClient(
             val localTimelineManager = TilesTimelineManager(
                 context.getSystemService(AlarmManager::class.java),
                 System::currentTimeMillis,
-                tile.timeline ?: TimelineBuilders.Timeline.builder().build(),
+                tile.timeline ?: TimelineBuilders.Timeline.Builder().build(),
                 0,
                 ContextCompat.getMainExecutor(context),
                 { _, layout -> updateContents(layout) }
@@ -212,7 +212,7 @@ public class TileUiClient(
     private fun buildDeviceParameters(): DeviceParametersBuilders.DeviceParameters {
         val displayMetrics: DisplayMetrics = context.resources.displayMetrics
         val isScreenRound: Boolean = context.resources.configuration.isScreenRound
-        return DeviceParametersBuilders.DeviceParameters.builder()
+        return DeviceParametersBuilders.DeviceParameters.Builder()
             .setScreenWidthDp(Math.round(displayMetrics.widthPixels / displayMetrics.density))
             .setScreenHeightDp(Math.round(displayMetrics.heightPixels / displayMetrics.density))
             .setScreenDensity(displayMetrics.density)
