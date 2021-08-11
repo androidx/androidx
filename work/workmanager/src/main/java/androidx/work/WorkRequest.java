@@ -295,7 +295,6 @@ public abstract class WorkRequest {
          *
          * @param policy The {@link OutOfQuotaPolicy} to be used.
          */
-        @ExperimentalExpeditedWork
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull B setExpedited(@NonNull OutOfQuotaPolicy policy) {
             mWorkSpec.expedited = true;

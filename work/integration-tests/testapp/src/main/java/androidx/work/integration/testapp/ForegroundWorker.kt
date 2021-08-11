@@ -26,7 +26,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.os.BuildCompat
 import androidx.work.CoroutineWorker
 import androidx.work.Data
-import androidx.work.ExperimentalExpeditedWork
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -59,7 +58,6 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
         return Result.success()
     }
 
-    @ExperimentalExpeditedWork
     override suspend fun getForegroundInfo(): ForegroundInfo {
         val notificationId = inputData.getInt(InputNotificationId, NotificationId)
         return getForegroundInfo(notificationId)

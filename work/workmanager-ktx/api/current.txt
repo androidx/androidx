@@ -5,6 +5,8 @@ package androidx.work {
     ctor public CoroutineWorker(android.content.Context appContext, androidx.work.WorkerParameters params);
     method public abstract suspend Object? doWork(kotlin.coroutines.Continuation<? super androidx.work.ListenableWorker.Result> p);
     method @Deprecated public kotlinx.coroutines.CoroutineDispatcher getCoroutineContext();
+    method public suspend Object? getForegroundInfo(kotlin.coroutines.Continuation<? super androidx.work.ForegroundInfo> p);
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ForegroundInfo> getForegroundInfoAsync();
     method public final void onStopped();
     method public final suspend Object? setForeground(androidx.work.ForegroundInfo foregroundInfo, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final suspend Object? setProgress(androidx.work.Data data, kotlin.coroutines.Continuation<? super kotlin.Unit> p);

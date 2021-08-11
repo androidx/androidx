@@ -96,7 +96,6 @@ public abstract class CoroutineWorker(
      * @throws [IllegalStateException] when not overridden. Override this method when the
      * corresponding [WorkRequest] is marked expedited.
      */
-    @ExperimentalExpeditedWork
     public open suspend fun getForegroundInfo(): ForegroundInfo {
         throw IllegalStateException("Not implemented")
     }
@@ -127,7 +126,6 @@ public abstract class CoroutineWorker(
     }
 
     @Suppress("DEPRECATION")
-    @ExperimentalExpeditedWork
     public final override fun getForegroundInfoAsync(): ListenableFuture<ForegroundInfo> {
         val job = Job()
         val scope = CoroutineScope(coroutineContext + job)
