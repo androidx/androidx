@@ -17,15 +17,19 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XFiler
+import androidx.room.compiler.processing.XProcessingEnv
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.FileSpec
-import javax.annotation.processing.ProcessingEnvironment
+import javax.annotation.processing.Filer
 
-internal class JavacFiler(val processingEnv: ProcessingEnvironment) : XFiler {
+internal class JavacFiler(
+    private val processingEnv: XProcessingEnv,
+    val delegate: Filer
+) : XFiler {
 
     // "mode" is ignored in javac, and only applicable in KSP
     override fun write(javaFile: JavaFile, mode: XFiler.Mode) {
-        javaFile.writeTo(processingEnv.filer)
+        javaFile.writeTo(delegate)
     }
 
     override fun write(fileSpec: FileSpec, mode: XFiler.Mode) {
@@ -34,6 +38,6 @@ internal class JavacFiler(val processingEnv: ProcessingEnvironment) : XFiler {
             "Could not generate kotlin file $filePath/${fileSpec.name}.kt. The " +
                 "annotation processing environment is not set to generate Kotlin files."
         }
-        fileSpec.writeTo(processingEnv.filer)
+        fileSpec.writeTo(delegate)
     }
 }

@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
@@ -30,12 +31,14 @@ import androidx.room.compiler.processing.javac.JavacAnnotation
 import androidx.room.compiler.processing.javac.JavacAnnotationValue
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.javac.JavacExecutableElement
+import androidx.room.compiler.processing.javac.JavacFiler
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.javac.JavacProcessingEnvMessager
 import androidx.room.compiler.processing.javac.JavacRoundEnv
 import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.javac.JavacVariableElement
+import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
@@ -57,6 +60,9 @@ object XConverters {
 
     @JvmStatic
     fun XMessager.toJavac(): Messager = (this as JavacProcessingEnvMessager).delegate
+
+    @JvmStatic
+    fun XFiler.toJavac(): Filer = (this as JavacFiler).delegate
 
     @JvmStatic
     fun XElement.toJavac(): Element = (this as JavacElement).element
@@ -106,6 +112,14 @@ object XConverters {
     @JvmStatic
     fun AnnotationMirror.toXProcessing(env: XProcessingEnv): XAnnotation =
         JavacAnnotation(env as JavacProcessingEnv, this)
+
+    @JvmStatic
+    fun Filer.toXProcessing(env: XProcessingEnv): XFiler =
+        JavacFiler(env as JavacProcessingEnv, this)
+
+    @JvmStatic
+    fun Messager.toXProcessing(): XMessager =
+        JavacProcessingEnvMessager(this)
 
     // TODO: TypeMirror to XType, this will be more complicated since location context is lost...
 }

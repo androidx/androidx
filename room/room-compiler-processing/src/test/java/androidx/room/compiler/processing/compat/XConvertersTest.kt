@@ -28,8 +28,13 @@ import androidx.room.compiler.processing.util.runKaptTest
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.TypeSpec
 import org.junit.Test
+import javax.annotation.processing.Filer
+import javax.annotation.processing.Messager
 import javax.lang.model.util.ElementFilter
+import javax.tools.Diagnostic
 
 class XConvertersTest {
 
@@ -215,6 +220,63 @@ class XConvertersTest {
                     TestSuppressWarnings::class.java
                 ).get()
             )
+        }
+    }
+
+    @Suppress("UnstableApiUsage")
+    @Test
+    fun customFiler() {
+        var runCount = 0
+        runKaptTest(
+            sources = listOf(kotlinSrc, javaSrc)
+        ) { invocation ->
+            val className = ClassName.get("foo.bar", "ToBeGenerated")
+            if (invocation.processingEnv.findTypeElement(className) == null) {
+                // Assert that this is only run only on the first round
+                assertThat(++runCount).isEqualTo(1)
+
+                // Check that we can create a custom filer and toJavac() returns it
+                val filer = invocation.processingEnv.filer.toJavac()
+                val customFiler = object : Filer by filer {}
+                val customXFiler = customFiler.toXProcessing(invocation.processingEnv)
+                assertThat(customXFiler.toJavac()).isEqualTo(customFiler)
+                val spec = TypeSpec.classBuilder(className).build()
+                customXFiler.write(JavaFile.builder(className.packageName(), spec).build())
+            } else {
+                // Asserts that the class was generated in the second round
+                assertThat(++runCount).isEqualTo(2)
+                assertThat(invocation.processingEnv.findTypeElement(className)).isNotNull()
+            }
+        }
+    }
+
+    @Suppress("UnstableApiUsage")
+    @Test
+    fun customMessager() {
+        runKaptTest(
+            sources = listOf(kotlinSrc, javaSrc)
+        ) { invocation ->
+            // Check that we can create a custom messager and toJavac() returns it
+            val customMessager = object : Messager by invocation.processingEnv.messager.toJavac() {
+                override fun printMessage(kind: Diagnostic.Kind?, msg: CharSequence?) {
+                    // We have to use the XMessager from XProcessingEnv here so that it runs the
+                    // hooks that are attached to the testing infrastructure. Otherwise, the error
+                    // is produced by not recorded. We may want to add a method to XMessager to copy
+                    // the watchers from another messager, e.g. XMessager#copyWatchers(XMessager)
+                    invocation.processingEnv.messager.printMessage(kind!!, "Custom: $msg")
+                }
+            }
+            val customXMessager = customMessager.toXProcessing()
+            assertThat(customXMessager.toJavac()).isEqualTo(customMessager)
+
+            // Check that the custom messager prints the proper message
+            customXMessager.printMessage(Diagnostic.Kind.ERROR, "error msg")
+            invocation.assertCompilationResult {
+                compilationDidFail()
+                hasErrorCount(1)
+                hasWarningCount(0)
+                hasError("Custom: error msg")
+            }
         }
     }
 
