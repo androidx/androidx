@@ -38,8 +38,6 @@ import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
 import androidx.room.vo.Fields
 import androidx.room.vo.PrimaryKey
-import collect
-import columnNames
 import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.containsString
