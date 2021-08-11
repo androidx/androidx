@@ -25,6 +25,7 @@ import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.ApplicationExitInfo;
@@ -39,6 +40,7 @@ import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.database.sqlite.SQLiteTableLockedException;
 import android.os.Build;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -154,6 +156,7 @@ public class ForceStopRunnable implements Runnable {
      * @return {@code true} If the application was force stopped.
      */
     @VisibleForTesting
+    @SuppressLint("ClassVerificationFailure")
     public boolean isForceStopped() {
         // Alarms get cancelled when an app is force-stopped starting at Eclair MR1.
         // Cancelling of Jobs on force-stop was introduced in N-MR1 (SDK 25).
@@ -235,6 +238,7 @@ public class ForceStopRunnable implements Runnable {
      *
      * @return {@code true} if there are WorkSpecs that need rescheduling.
      */
+    @SuppressWarnings("deprecation")
     @VisibleForTesting
     public boolean cleanUp() {
         boolean needsReconciling = false;
@@ -291,6 +295,14 @@ public class ForceStopRunnable implements Runnable {
         // But ForceStopRunnable causes a lot of multi-process contention on the underlying
         // SQLite datastore. Therefore we only initialize WorkManager in the default app-process.
         Configuration configuration = mWorkManager.getConfiguration();
+        // Check if the application specified a default process name. If they did not, we want to
+        // run ForceStopRunnable in every app process. This is safer for apps with multiple
+        // processes. There is risk of SQLite contention and that might result in a crash, but an
+        // actual crash is better than decreased throughput for WorkRequests.
+        if (TextUtils.isEmpty(configuration.getDefaultProcessName())) {
+            Logger.get().debug(TAG, "The default process name was not specified.");
+            return true;
+        }
         boolean isDefaultProcess = ProcessUtils.isDefaultProcess(mContext, configuration);
         Logger.get().debug(TAG, String.format("Is default app process = %s", isDefaultProcess));
         return isDefaultProcess;
@@ -329,6 +341,7 @@ public class ForceStopRunnable implements Runnable {
         return intent;
     }
 
+    @SuppressLint("ClassVerificationFailure")
     static void setAlarm(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         // Using FLAG_UPDATE_CURRENT, because we only ever want once instance of this alarm.
