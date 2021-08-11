@@ -37,7 +37,10 @@ dependencies {
 }
 
 sourceSets {
-    main.java.srcDirs += "${supportRootFolder}/buildSrc/src/main/kotlin"
+    ["public", "private", "plugins"].each { subdir ->
+        main.java.srcDirs += "${supportRootFolder}/buildSrc/${subdir}/src/main/kotlin"
+    }
+
     main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
     test.java.srcDirs += "${supportRootFolder}/buildSrc-tests/src/test/kotlin"
     main.resources.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/resources"
