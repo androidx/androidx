@@ -1,0 +1,14 @@
+// Signature format: 4.0
+package androidx.work {
+
+  public abstract class RxWorker extends androidx.work.ListenableWorker {
+    ctor public RxWorker(android.content.Context, androidx.work.WorkerParameters);
+    method @MainThread public abstract io.reactivex.Single<androidx.work.ListenableWorker.Result!> createWork();
+    method protected io.reactivex.Scheduler getBackgroundScheduler();
+    method public final io.reactivex.Completable setCompletableProgress(androidx.work.Data);
+    method @Deprecated public final io.reactivex.Single<java.lang.Void!> setProgress(androidx.work.Data);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
+  }
+
+}
+
