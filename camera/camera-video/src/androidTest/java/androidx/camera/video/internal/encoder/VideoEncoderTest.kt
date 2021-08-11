@@ -41,6 +41,7 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
+import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -92,6 +93,7 @@ class VideoEncoderTest {
     private lateinit var preview: Preview
     private lateinit var mainExecutor: Executor
     private lateinit var encoderExecutor: Executor
+    private lateinit var latestSurfaceReadyToRelease: ResolvableFuture<Void>
 
     @Before
     fun setUp() {
@@ -141,6 +143,13 @@ class VideoEncoderTest {
             }
         }
 
+        if (::latestSurfaceReadyToRelease.isInitialized) {
+            latestSurfaceReadyToRelease.addListener(
+                { videoEncoder.release() },
+                CameraXExecutors.directExecutor()
+            )
+        }
+
         // Ensure all cameras are released for the next test
         CameraX.shutdown()[10, TimeUnit.SECONDS]
     }
@@ -152,7 +161,7 @@ class VideoEncoderTest {
         var inOrder = inOrder(videoEncoderCallback)
         inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStart()
         inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-        videoEncoder.stop()
+        videoEncoder.stopSafely()
         inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
         clearInvocations(videoEncoderCallback)
 
@@ -165,7 +174,7 @@ class VideoEncoderTest {
         inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
         // Act.
-        videoEncoder.stop()
+        videoEncoder.stopSafely()
 
         // Assert.
         inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
@@ -202,7 +211,7 @@ class VideoEncoderTest {
         // callback.
         verify(videoEncoderCallback, noInvocation(3000L, 10000L)).onEncodedData(any())
 
-        videoEncoder.stop()
+        videoEncoder.stopSafely()
 
         verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
 
@@ -242,22 +251,20 @@ class VideoEncoderTest {
 
     @Test
     fun startVideoEncoder_firstEncodedDataIsKeyFrame() {
-        for (i in 0..2) {
-            clearInvocations(videoEncoderCallback)
+        clearInvocations(videoEncoderCallback)
 
-            videoEncoder.start()
-            val captor = ArgumentCaptor.forClass(EncodedData::class.java)
-            verify(
-                videoEncoderCallback,
-                timeout(5000L).atLeastOnce()
-            ).onEncodedData(captor.capture())
+        videoEncoder.start()
+        val captor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(
+            videoEncoderCallback,
+            timeout(5000L).atLeastOnce()
+        ).onEncodedData(captor.capture())
 
-            assertThat(isKeyFrame(captor.allValues.first().bufferInfo)).isTrue()
+        assertThat(isKeyFrame(captor.allValues.first().bufferInfo)).isTrue()
 
-            videoEncoder.stop()
+        videoEncoder.stopSafely()
 
-            verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
-        }
+        verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
     }
 
     @Test
@@ -318,20 +325,27 @@ class VideoEncoderTest {
 
         videoEncoder.setEncoderCallback(videoEncoderCallback, CameraXExecutors.directExecutor())
 
+        latestSurfaceReadyToRelease = ResolvableFuture.create<Void>().apply { set(null) }
+
         (videoEncoder.input as Encoder.SurfaceInput).setOnSurfaceUpdateListener(
             mainExecutor
         ) { surface: Surface ->
+            latestSurfaceReadyToRelease = ResolvableFuture.create()
             currentSurface = surface
-            previewForVideoEncoder.setSurfaceProvider { request: SurfaceRequest ->
-                request.provideSurface(
-                    surface,
-                    mainExecutor
-                ) {
-                    if (it.surface != currentSurface) {
-                        it.surface.release()
-                    } else {
-                        videoEncoder.release()
-                    }
+            setVideoPreviewSurfaceProvider(surface)
+        }
+    }
+
+    private fun setVideoPreviewSurfaceProvider(surface: Surface) {
+        previewForVideoEncoder.setSurfaceProvider { request: SurfaceRequest ->
+            request.provideSurface(
+                surface,
+                mainExecutor
+            ) {
+                if (it.surface != currentSurface) {
+                    it.surface.release()
+                } else {
+                    latestSurfaceReadyToRelease.set(null)
                 }
             }
         }
@@ -371,5 +385,30 @@ class VideoEncoderTest {
 
     private fun isKeyFrame(bufferInfo: MediaCodec.BufferInfo): Boolean {
         return bufferInfo.flags and MediaCodec.BUFFER_FLAG_KEY_FRAME != 0
+    }
+
+    /**
+     * Stops safely by first removing the Encoder surface from camera repeating request.
+     *
+     * <p>When encoder is started and repeating request is running, stop the encoder will get EGL
+     * error on some devices such as Samsung J2, J3 and J7 (Exynos chipset). The encoder surface
+     * needs to be removed from repeating request before stop the encoder to avoid this failure.
+     *
+     * See b/196039619.
+     */
+    private fun EncoderImpl.stopSafely() {
+        instrumentation.runOnMainSync { previewForVideoEncoder.setSurfaceProvider(null) }
+        verify(videoEncoderCallback, noInvocation(2000L, 6000L)).onEncodedData(any())
+
+        stop()
+        verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
+
+        // The SurfaceProvider needs to be added back to recover repeating. However, for API < 23,
+        // EncoderImpl will trigger a surface update event to OnSurfaceUpdateListener and this will
+        // be handled by initVideoEncoder() to set the SurfaceProvider with new surface. So no
+        // need to add the SurfaceProvider back here.
+        if (Build.VERSION.SDK_INT >= 23) {
+            instrumentation.runOnMainSync { setVideoPreviewSurfaceProvider(currentSurface!!) }
+        }
     }
 }
