@@ -43,7 +43,6 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.WindowInsets
 import android.view.accessibility.AccessibilityManager
-import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -58,7 +57,6 @@ import androidx.wear.complications.data.toWireTypes
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
-import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.InteractiveWatchFaceImpl
 import androidx.wear.watchface.control.data.CrashInfoParcel
@@ -100,47 +98,6 @@ internal typealias WireComplicationData = android.support.wearable.complications
  * expose a callback.
  */
 internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
-
-/** @hide */
-@IntDef(
-    value = [
-        TapType.DOWN,
-        TapType.UP,
-        TapType.CANCEL
-    ]
-)
-public annotation class TapType {
-    public companion object {
-        /**
-         * Used to indicate a "down" touch event on the watch face.
-         *
-         * The watch face will receive an [UP] or a [CANCEL] event to follow this event, to
-         * indicate whether this down event corresponds to a tap gesture to be handled by the watch
-         * face, or a different type of gesture that is handled by the system, respectively.
-         */
-        public const val DOWN: Int = IInteractiveWatchFace.TAP_TYPE_DOWN
-
-        /**
-         * Used in to indicate that a previous [TapType.DOWN] touch event has been canceled. This
-         * generally happens when the watch face is touched but then a move or long press occurs.
-         *
-         * The watch face should not trigger any action, as the system is already processing the
-         * gesture.
-         */
-        public const val CANCEL: Int = IInteractiveWatchFace.TAP_TYPE_CANCEL
-
-        /**
-         * Used to indicate that an "up" event on the watch face has occurred that has not been
-         * consumed by the system. A [TapType.DOWN] will always occur first. This event will not
-         * be sent if a [TapType.CANCEL] is sent.
-         *
-         * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed
-         * to be close enough to be considered a tap according to the value returned by
-         * [android.view.ViewConfiguration.getScaledTouchSlop].
-         */
-        public const val UP: Int = IInteractiveWatchFace.TAP_TYPE_UP
-    }
-}
 
 /**
  * WatchFaceService and [WatchFace] are a pair of classes intended to handle much of
@@ -1162,17 +1119,29 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 Constants.COMMAND_TAP ->
                     uiThreadCoroutineScope.runBlockingWithTracing("onCommand COMMAND_TAP") {
-                        deferredWatchFaceImpl.await().onTapCommand(TapType.UP, x, y)
+                        val watchFaceImpl = deferredWatchFaceImpl.await()
+                        watchFaceImpl.onTapCommand(
+                            TapType.UP,
+                            TapEvent(x, y, watchFaceImpl.calendar.timeInMillis)
+                        )
                     }
                 Constants.COMMAND_TOUCH ->
                     uiThreadCoroutineScope.runBlockingWithTracing("onCommand COMMAND_TOUCH") {
-                        deferredWatchFaceImpl.await().onTapCommand(TapType.DOWN, x, y)
+                        val watchFaceImpl = deferredWatchFaceImpl.await()
+                        watchFaceImpl.onTapCommand(
+                            TapType.DOWN,
+                            TapEvent(x, y, watchFaceImpl.calendar.timeInMillis)
+                        )
                     }
                 Constants.COMMAND_TOUCH_CANCEL ->
                     uiThreadCoroutineScope.runBlockingWithTracing(
                         "onCommand COMMAND_TOUCH_CANCEL"
                     ) {
-                        deferredWatchFaceImpl.await().onTapCommand(TapType.CANCEL, x, y)
+                        val watchFaceImpl = deferredWatchFaceImpl.await()
+                        watchFaceImpl.onTapCommand(
+                            TapType.CANCEL,
+                            TapEvent(x, y, watchFaceImpl.calendar.timeInMillis)
+                        )
                     }
                 else -> {
                 }

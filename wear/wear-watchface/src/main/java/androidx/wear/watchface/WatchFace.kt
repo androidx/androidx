@@ -38,7 +38,6 @@ import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
-import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
@@ -277,15 +276,10 @@ public class WatchFace(
          * the system is already processing the gesture.
          *
          * @param tapType the type of touch event sent to the watch face
-         * @param xPos the horizontal position in pixels on the screen where the touch happened
-         * @param yPos the vertical position in pixels on the screen where the touch happened
+         * @param tapEvent the received [TapEvent]
          */
         @UiThread
-        public fun onTap(
-            @TapType tapType: Int,
-            @Px xPos: Int,
-            @Px yPos: Int
-        )
+        public fun onTapEvent(@TapType tapType: Int, tapEvent: TapEvent)
     }
 
     /**
@@ -429,9 +423,6 @@ public class WatchFaceImpl @UiThread constructor(
         // clamp the framerate to a maximum of 10fps to conserve power.
         internal const val MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS = 100L
 
-        // Complications are highlighted when tapped and after this delay the highlight is removed.
-        internal const val CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS = 300L
-
         // The threshold used to judge whether the battery is low during initialization.  Ideally
         // we would use the threshold for Intent.ACTION_BATTERY_LOW but it's not documented or
         // available programmatically. The value below is the default but it could be overridden
@@ -446,28 +437,28 @@ public class WatchFaceImpl @UiThread constructor(
                     DrawMode.AMBIENT,
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     null,
-                    complicationSlotsManager.pressedSlotIds
+                    complicationSlotsManager.lastComplicationTapDownEvents
                 ),
             DrawMode.INTERACTIVE to
                 RenderParameters(
                     DrawMode.INTERACTIVE,
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     null,
-                    complicationSlotsManager.pressedSlotIds
+                    complicationSlotsManager.lastComplicationTapDownEvents
                 ),
             DrawMode.LOW_BATTERY_INTERACTIVE to
                 RenderParameters(
                     DrawMode.LOW_BATTERY_INTERACTIVE,
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     null,
-                    complicationSlotsManager.pressedSlotIds
+                    complicationSlotsManager.lastComplicationTapDownEvents
                 ),
             DrawMode.MUTE to
                 RenderParameters(
                     DrawMode.MUTE,
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     null,
-                    complicationSlotsManager.pressedSlotIds
+                    complicationSlotsManager.lastComplicationTapDownEvents
                 ),
         )
 
@@ -887,21 +878,17 @@ public class WatchFaceImpl @UiThread constructor(
      * Called when a tap or touch related event occurs. Detects taps on [ComplicationSlot]s and
      * triggers the associated action.
      *
-     * @param tapType Value representing the event sent to the wallpaper
-     * @param x X coordinate of the event
-     * @param y Y coordinate of the event
+     * @param tapType The [TapType] of the event
+     * @param tapEvent The received [TapEvent]
      */
     @UiThread
-    internal fun onTapCommand(
-        @TapType tapType: Int,
-        x: Int,
-        y: Int
-    ) {
-        val tappedComplication = complicationSlotsManager.getComplicationSlotAt(x, y)
+    internal fun onTapCommand(@TapType tapType: Int, tapEvent: TapEvent) {
+        val tappedComplication =
+            complicationSlotsManager.getComplicationSlotAt(tapEvent.xPos, tapEvent.yPos)
         if (tappedComplication == null) {
             // The event does not belong to any of the complicationSlots, pass to the listener.
             lastTappedComplicationId = null
-            tapListener?.onTap(tapType, x, y)
+            tapListener?.onTapEvent(tapType, tapEvent)
             return
         }
 
@@ -915,12 +902,12 @@ public class WatchFaceImpl @UiThread constructor(
                     lastTappedComplicationId = null
                     return
                 }
-                complicationSlotsManager.displayPressedAnimation(tappedComplication.id)
                 complicationSlotsManager.onComplicationSlotSingleTapped(tappedComplication.id)
                 watchFaceHostApi.invalidate()
                 lastTappedComplicationId = null
             }
             TapType.DOWN -> {
+                complicationSlotsManager.onTapDown(tappedComplication.id, tapEvent)
                 lastTappedComplicationId = tappedComplication.id
             }
             else -> lastTappedComplicationId = null

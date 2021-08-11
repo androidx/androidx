@@ -50,6 +50,7 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
@@ -679,7 +680,10 @@ public class WatchFaceServiceImageTest {
                             DrawMode.INTERACTIVE,
                             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                             null,
-                            setOf(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+                            mapOf(
+                                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                                    TapEvent(1, 1, 123456789)
+                            )
                         ).toWireFormat(),
                         123456789,
                         null,

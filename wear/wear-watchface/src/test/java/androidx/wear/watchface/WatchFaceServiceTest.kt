@@ -709,52 +709,59 @@ public class WatchFaceServiceTest {
 
     private fun tapAt(x: Int, y: Int) {
         // The eventTime is ignored.
-        watchFaceImpl.onTapCommand(TapType.DOWN, x, y)
-        watchFaceImpl.onTapCommand(TapType.UP, x, y)
+        watchFaceImpl.onTapCommand(TapType.DOWN, TapEvent(x, y, looperTimeMillis))
+        watchFaceImpl.onTapCommand(TapType.UP, TapEvent(x, y, looperTimeMillis))
     }
 
     private fun tapCancelAt(x: Int, y: Int) {
-        watchFaceImpl.onTapCommand(TapType.DOWN, x, y)
-        watchFaceImpl.onTapCommand(TapType.CANCEL, x, y)
+        watchFaceImpl.onTapCommand(TapType.DOWN, TapEvent(x, y, looperTimeMillis))
+        watchFaceImpl.onTapCommand(TapType.CANCEL, TapEvent(x, y, looperTimeMillis))
     }
 
     @Test
-    public fun singleTaps_correctlyDetected_and_highlightComplications() {
+    public fun singleTaps_correctlyDetected() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
 
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(RIGHT_COMPLICATION_ID)
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
+            .isNull()
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
+            .isNull()
 
         // Tap left complication.
         tapAt(30, 50)
-        assertThat(complicationSlotsManager.pressedSlotIds).contains(LEFT_COMPLICATION_ID)
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
+            .isEqualTo(TapEvent(30, 50, 0))
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
+            .isNull()
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(LEFT_COMPLICATION_ID))
 
-        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
+        runPostedTasksFor(100)
 
         // Tap right complication.
         testWatchFaceService.reset()
         tapAt(70, 50)
-        assertThat(complicationSlotsManager.pressedSlotIds).contains(RIGHT_COMPLICATION_ID)
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
+            .isEqualTo(TapEvent(30, 50, 0))
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
+            .isEqualTo(TapEvent(70, 50, 100))
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(RIGHT_COMPLICATION_ID))
 
-        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
+        runPostedTasksFor(100)
 
         // Tap on blank space.
         testWatchFaceService.reset()
         tapAt(1, 1)
-        assertThat(testWatchFaceService.tappedComplicationSlotIds).isEmpty()
-
-        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
+        // No change in lastComplicationTapDownEvents
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
+            .isEqualTo(TapEvent(30, 50, 0))
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
+            .isEqualTo(TapEvent(70, 50, 100))
         assertThat(testWatchFaceService.tappedComplicationSlotIds).isEmpty()
     }
 
@@ -766,23 +773,20 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(RIGHT_COMPLICATION_ID)
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
+            .isNull()
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
+            .isNull()
 
         // Rapidly tap left then right complication.
         tapAt(30, 50)
         tapAt(70, 50)
 
-        // Both complicationSlots get temporarily highlighted.
-        assertThat(complicationSlotsManager.pressedSlotIds).contains(LEFT_COMPLICATION_ID)
-        assertThat(complicationSlotsManager.pressedSlotIds).contains(RIGHT_COMPLICATION_ID)
-
-        // And the highlight goes away after a delay.
-        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(LEFT_COMPLICATION_ID)
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(RIGHT_COMPLICATION_ID)
-
         // Taps are registered on both complicationSlots.
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
+            .isEqualTo(TapEvent(30, 50, 0))
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
+            .isEqualTo(TapEvent(70, 50, 0))
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID))
     }
@@ -810,7 +814,8 @@ public class WatchFaceServiceTest {
             tapListener = tapListener
         )
 
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(EDGE_COMPLICATION_ID)
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[EDGE_COMPLICATION_ID])
+            .isNull()
 
         `when`(
             edgeComplicationHitTester.hitTest(
@@ -823,12 +828,10 @@ public class WatchFaceServiceTest {
 
         // Tap the edge complication.
         tapAt(0, 50)
-        assertThat(complicationSlotsManager.pressedSlotIds).contains(EDGE_COMPLICATION_ID)
+        assertThat(complicationSlotsManager.lastComplicationTapDownEvents[EDGE_COMPLICATION_ID])
+            .isEqualTo(TapEvent(0, 50, 0))
         assertThat(testWatchFaceService.tappedComplicationSlotIds)
             .isEqualTo(listOf(EDGE_COMPLICATION_ID))
-
-        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationSlotsManager.pressedSlotIds).doesNotContain(EDGE_COMPLICATION_ID)
     }
 
     @Test
@@ -843,8 +846,8 @@ public class WatchFaceServiceTest {
         // Tap on nothing.
         tapAt(1, 1)
 
-        verify(tapListener).onTap(TapType.DOWN, 1, 1)
-        verify(tapListener).onTap(TapType.UP, 1, 1)
+        verify(tapListener).onTapEvent(TapType.DOWN, TapEvent(1, 1, looperTimeMillis))
+        verify(tapListener).onTapEvent(TapType.UP, TapEvent(1, 1, looperTimeMillis))
     }
 
     @Test
@@ -885,8 +888,8 @@ public class WatchFaceServiceTest {
             false
         )
 
-        verify(tapListener).onTap(TapType.DOWN, 10, 20)
-        verify(tapListener).onTap(TapType.UP, 10, 20)
+        verify(tapListener).onTapEvent(TapType.DOWN, TapEvent(10, 20, looperTimeMillis))
+        verify(tapListener).onTapEvent(TapType.UP, TapEvent(10, 20, looperTimeMillis))
     }
 
     @Test
@@ -901,8 +904,8 @@ public class WatchFaceServiceTest {
         // Tap right complication.
         tapAt(70, 50)
 
-        verify(tapListener, times(0)).onTap(TapType.DOWN, 70, 50)
-        verify(tapListener, times(0)).onTap(TapType.UP, 70, 50)
+        verify(tapListener, times(0)).onTapEvent(TapType.DOWN, TapEvent(70, 50, looperTimeMillis))
+        verify(tapListener, times(0)).onTapEvent(TapType.UP, TapEvent(70, 50, looperTimeMillis))
     }
 
     @Test

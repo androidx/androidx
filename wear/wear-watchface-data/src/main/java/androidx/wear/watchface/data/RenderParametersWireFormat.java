@@ -29,6 +29,8 @@ import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import java.util.List;
+
 /**
  * Wire format for {@link androidx.wear.watchface.RenderParameters}.
  *
@@ -108,10 +110,12 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     @ColorInt
     int mBackgroundTint;
 
+    // ParcelField(8) is reserved.
+
     /** Optional set of ComplicationSlots to render as pressed. */
-    @ParcelField(8)
-    @NonNull
-    int[] mPressedComplicationSlotIds = new int[0];
+    @ParcelField(9)
+    @Nullable
+    List<IdAndTapEventWireFormat> mIdAndTapEventWireFormats;
 
     RenderParametersWireFormat() {
     }
@@ -124,7 +128,7 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
             @Nullable String elementUserStyleSettingId,
             @ColorInt int highlightTint,
             @ColorInt int backgroundTint,
-            @NonNull int[] pressedComplicationSlotIds) {
+            @NonNull List<IdAndTapEventWireFormat> idAndTapEventWireFormats) {
         mDrawMode = drawMode;
         mWatchFaceLayerSetBitfield = watchFaceLayerSetBitfield;
         mElementType = elementType;
@@ -132,7 +136,7 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
         mElementUserStyleSettingId = elementUserStyleSettingId;
         mHighlightTint = highlightTint;
         mBackgroundTint = backgroundTint;
-        mPressedComplicationSlotIds = pressedComplicationSlotIds;
+        mIdAndTapEventWireFormats = idAndTapEventWireFormats;
         if (elementType == ELEMENT_TYPE_USER_STYLE) {
             if (elementUserStyleSettingId == null) {
                 throw new IllegalArgumentException(
@@ -179,9 +183,9 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
         return mBackgroundTint;
     }
 
-    @NonNull
-    public int[] getPressedComplicationSlotIds() {
-        return mPressedComplicationSlotIds;
+    @Nullable
+    public List<IdAndTapEventWireFormat> getIdAndTapEventWireFormat() {
+        return mIdAndTapEventWireFormats;
     }
 
     /** Serializes this IndicatorState to the specified {@link Parcel}. */
