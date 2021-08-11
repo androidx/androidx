@@ -48,6 +48,7 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
     private volatile int mRelativeRotation;
     @ImageAnalysis.OutputImageFormat
     private volatile int mOutputImageFormat = ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888;
+    private volatile boolean mOnePixelShiftEnabled;
     @GuardedBy("mAnalyzerLock")
     private Executor mUserExecutor;
 
@@ -122,7 +123,9 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
             final ImageProxy rgbImageProxy =
                     (mOutputImageFormat == OUTPUT_IMAGE_FORMAT_RGBA_8888
                             && rgbImageReaderProxy != null)
-                            ? convertYUVToRGB(imageProxy, rgbImageReaderProxy) : null;
+                            ? convertYUVToRGB(
+                                    imageProxy, rgbImageReaderProxy, mOnePixelShiftEnabled)
+                            : null;
 
             // When the analyzer exists and ImageAnalysis is active.
             future = CallbackToFutureAdapter.getFuture(
@@ -158,6 +161,10 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
 
     void setOutputImageFormat(@ImageAnalysis.OutputImageFormat int outputImageFormat) {
         mOutputImageFormat = outputImageFormat;
+    }
+
+    void setOnePixelShiftEnabled(boolean onePixelShiftEnabled) {
+        mOnePixelShiftEnabled = onePixelShiftEnabled;
     }
 
     void setRGBImageReaderProxy(@NonNull ImageReaderProxy rgbImageReaderProxy) {

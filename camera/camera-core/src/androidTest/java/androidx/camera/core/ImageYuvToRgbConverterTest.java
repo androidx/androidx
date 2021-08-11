@@ -77,7 +77,7 @@ public class ImageYuvToRgbConverterTest {
 
         // Act.
         ImageProxy rgbImageProxy = ImageYuvToRgbConverter.convertYUVToRGB(mYUVImageProxy,
-                mRGBImageReaderProxy);
+                mRGBImageReaderProxy, /*onePixelShiftRequested=*/false);
 
         // Assert.
         assertThat(rgbImageProxy.getFormat()).isEqualTo(PixelFormat.RGBA_8888);
@@ -86,13 +86,13 @@ public class ImageYuvToRgbConverterTest {
 
     @Test
     public void convertYUVToRGBWhenFlipUV() {
-        // Act.
+        // Arrange.
         mYUVImageProxy.setPlanes(createYUV420ImagePlanes(WIDTH, HEIGHT, PIXEL_STRIDE_Y,
                 PIXEL_STRIDE_UV, true));
 
         // Act.
         ImageProxy rgbImageProxy = ImageYuvToRgbConverter.convertYUVToRGB(mYUVImageProxy,
-                mRGBImageReaderProxy);
+                mRGBImageReaderProxy, /*onePixelShiftRequested=*/false);
 
         // Assert.
         assertThat(rgbImageProxy.getFormat()).isEqualTo(PixelFormat.RGBA_8888);
@@ -101,13 +101,16 @@ public class ImageYuvToRgbConverterTest {
 
     @Test
     public void convertYUVToRGBWhenUnsupportedYUVFormat() {
-        // Act.
-        mYUVImageProxy.setPlanes(createYUV420ImagePlanes(WIDTH, HEIGHT, PIXEL_STRIDE_Y_UNSUPPORTED,
+        // Arrange.
+        mYUVImageProxy.setPlanes(createYUV420ImagePlanes(
+                WIDTH,
+                HEIGHT,
+                PIXEL_STRIDE_Y_UNSUPPORTED,
                 PIXEL_STRIDE_UV_UNSUPPORTED, true));
 
         // Act.
         ImageProxy rgbImageProxy = ImageYuvToRgbConverter.convertYUVToRGB(mYUVImageProxy,
-                mRGBImageReaderProxy);
+                mRGBImageReaderProxy, /*onePixelShiftRequested=*/false);
 
         // Assert.
         assertThat(rgbImageProxy.getFormat()).isEqualTo(PixelFormat.RGBA_8888);

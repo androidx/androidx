@@ -65,6 +65,9 @@ public class CameraQuirks {
         if (CameraNoResponseWhenEnablingFlashQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new CameraNoResponseWhenEnablingFlashQuirk());
         }
+        if (YuvImageOnePixelShiftQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new YuvImageOnePixelShiftQuirk());
+        }
 
         return new Quirks(quirks);
     }
