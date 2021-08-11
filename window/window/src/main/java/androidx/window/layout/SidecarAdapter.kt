@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.window.core.Bounds
+import androidx.window.layout.ExtensionWindowBackend.Companion.DEBUG
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarWindowLayoutInfo
@@ -157,15 +158,15 @@ internal class SidecarAdapter {
                     @Suppress("UNCHECKED_CAST")
                     return methodGetFeatures.invoke(info) as List<SidecarDisplayFeature>
                 } catch (e: NoSuchMethodException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 } catch (e: IllegalAccessException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 } catch (e: InvocationTargetException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 }
@@ -189,15 +190,15 @@ internal class SidecarAdapter {
                     )
                     methodSetFeatures.invoke(info, displayFeatures)
                 } catch (e: NoSuchMethodException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 } catch (e: IllegalAccessException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 } catch (e: InvocationTargetException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 }
@@ -226,15 +227,15 @@ internal class SidecarAdapter {
                     val methodGetPosture = SidecarDeviceState::class.java.getMethod("getPosture")
                     return methodGetPosture.invoke(sidecarDeviceState) as Int
                 } catch (e: NoSuchMethodException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 } catch (e: IllegalAccessException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 } catch (e: InvocationTargetException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 }
@@ -256,15 +257,15 @@ internal class SidecarAdapter {
                     )
                     methodSetPosture.invoke(sidecarDeviceState, posture)
                 } catch (e: NoSuchMethodException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 } catch (e: IllegalAccessException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 } catch (e: InvocationTargetException) {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         e.printStackTrace()
                     }
                 }
@@ -281,7 +282,7 @@ internal class SidecarAdapter {
         ): DisplayFeature? {
             val bounds = feature.rect
             if (bounds.width() == 0 && bounds.height() == 0) {
-                if (ExtensionCompat.DEBUG) {
+                if (DEBUG) {
                     Log.d(TAG, "Passed a display feature with empty rect, skipping: $feature")
                 }
                 return null
@@ -290,7 +291,7 @@ internal class SidecarAdapter {
                 if (bounds.width() != 0 && bounds.height() != 0) {
                     // Bounds for fold types are expected to be zero-wide or zero-high.
                     // See DisplayFeature#getBounds().
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         Log.d(
                             TAG,
                             "Passed a non-zero area display feature expected to be zero-area, " +
@@ -312,7 +313,7 @@ internal class SidecarAdapter {
                 ) {
                     // Bounds for fold and hinge types are expected to span the entire window space.
                     // See DisplayFeature#getBounds().
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         Log.d(
                             TAG,
                             "Passed a display feature expected to span the entire window but " +
@@ -326,7 +327,7 @@ internal class SidecarAdapter {
                 SidecarDisplayFeature.TYPE_FOLD -> HardwareFoldingFeature.Type.FOLD
                 SidecarDisplayFeature.TYPE_HINGE -> HardwareFoldingFeature.Type.HINGE
                 else -> {
-                    if (ExtensionCompat.DEBUG) {
+                    if (DEBUG) {
                         Log.d(TAG, "Unknown feature type: ${feature.type}, skipping feature.")
                     }
                     return null

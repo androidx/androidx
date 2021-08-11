@@ -198,16 +198,11 @@ public class ExtensionTest : WindowTestBase() {
         if (version != null) {
             assertEquals(Version.VERSION_0_1, version)
         }
-        version = ExtensionCompat.extensionVersion
-        if (version != null) {
-            assertEquals(Version.VERSION_1_0, version)
-        }
     }
 
     private fun assumeExtensionV10_V01() {
         Assume.assumeTrue(
-            Version.VERSION_1_0 == ExtensionCompat.extensionVersion ||
-                Version.VERSION_0_1 == SidecarCompat.sidecarVersion
+            Version.VERSION_0_1 == SidecarCompat.sidecarVersion
         )
     }
 
