@@ -21,10 +21,14 @@ import android.content.Intent;
 import android.content.res.Configuration;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
+
+import java.util.Objects;
 
 /**
  * The base class for implementing a session for a car app.
@@ -38,12 +42,14 @@ public abstract class Session implements LifecycleOwner {
      * guarantees that apps listening to the session's lifecycle will get the events in the correct
      * order (e.g. start and destroy) compared to other artifacts within a session (e.g. screens).
      */
-    private final LifecycleRegistry mRegistry;
+    private LifecycleRegistry mRegistry;
     /**
      * The external {@link LifecycleRegistry} that apps can register observers to.
      */
     final LifecycleRegistry mRegistryPublic;
-    private final CarContext mCarContext;
+    private CarContext mCarContext;
+
+    private final LifecycleObserver mLifecycleObserver = new LifecycleObserverImpl();
 
     public Session() {
         mRegistry = new LifecycleRegistry(this);
@@ -53,7 +59,7 @@ public abstract class Session implements LifecycleOwner {
         // LifecycleRegistry first, because that's the one apps will use to observer lifecycle
         // events related to the Session, and we want them to wrap around the events of everything
         // else that happens within the session (e.g. Screen lifecycles).
-        mRegistry.addObserver(new LifecycleObserverImpl());
+        mRegistry.addObserver(mLifecycleObserver);
         mCarContext = CarContext.create(mRegistry);
     }
 
@@ -173,18 +179,35 @@ public abstract class Session implements LifecycleOwner {
     }
 
     /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used by the testing library.
+    public void setLifecycleRegistryInternal(@NonNull LifecycleRegistry registry) {
+        mRegistry = registry;
+        mRegistry.addObserver(mLifecycleObserver);
+    }
+
+    /**
      * Returns the {@link CarContext} for this session.
      *
-     * <p><b>The {@link CarContext} is not fully initialized until this session's {@link
-     * Lifecycle.State} is at least {@link Lifecycle.State#CREATED}</b>. Some instance methods
-     * should not be called before this state has been reached. See the documentation in
-     * {@link CarContext} for details on any such restrictions.
+     * <p><b>The {@link CarContext} is not expected to be available until this session's {@link
+     * Lifecycle.State} is at least {@link Lifecycle.State#CREATED}</b>. Further, some instance
+     * methods within {@link CarContext} should not be called before this state has been reached.
+     * See the documentation in {@link CarContext} for details on any such restrictions.
      *
      * @see #getLifecycle
      */
     @NonNull
     public final CarContext getCarContext() {
-        return mCarContext;
+        return Objects.requireNonNull(mCarContext);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used by the testing library.
+    public void setCarContextInternal(@NonNull CarContext carContext) {
+        mCarContext = carContext;
     }
 
     /**

@@ -136,6 +136,17 @@ public abstract class Screen implements LifecycleOwner {
     }
 
     /**
+     * Returns the result set via {@link #setResult}, or {@code null} if none is set.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Nullable
+    public Object getResultInternal() {
+        return mResult;
+    }
+
+    /**
      * Updates the marker for this screen.
      *
      * <p>Set the {@code marker} to {@code null} to clear it.
@@ -315,7 +326,7 @@ public abstract class Screen implements LifecycleOwner {
      */
     @RestrictTo(LIBRARY_GROUP)
     // Restrict to testing library
-    void dispatchLifecycleEvent(Event event) {
+    public void dispatchLifecycleEvent(@NonNull Event event) {
         ThreadUtils.runOnMain(
                 () -> {
                     State currentState = mLifecycleRegistry.getCurrentState();
