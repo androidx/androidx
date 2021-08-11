@@ -14,30 +14,33 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.slice.view.test">
+    package="androidx.slice.view.test">
 
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <application
-        android:label="Slice Render Test">
-        <provider android:name="androidx.slice.SliceViewManagerTest$TestSliceProvider"
-                  android:authorities="androidx.slice.view.test"
-                  android:exported="true">
-            <intent-filter>
-                <action android:name="androidx.slice.action.TEST" />
-                <category android:name="android.app.slice.category.SLICE" />
-            </intent-filter>
-        </provider>
-
-        <activity android:name="androidx.slice.render.SliceRenderActivity"
+    <application android:label="Slice Render Test">
+        <activity
+            android:name="androidx.slice.render.SliceRenderActivity"
+            android:exported="false"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <meta-data android:name="android.metadata.SLICE_URI"
-                       android:value="content://androidx.slice.view.test/render" />
+            <meta-data
+                android:name="android.metadata.SLICE_URI"
+                android:value="content://androidx.slice.view.test/render" />
         </activity>
+
+        <provider
+            android:name="androidx.slice.SliceViewManagerTest$TestSliceProvider"
+            android:authorities="androidx.slice.view.test"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.slice.action.TEST" />
+                <category android:name="android.app.slice.category.SLICE" />
+            </intent-filter>
+        </provider>
     </application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 </manifest>

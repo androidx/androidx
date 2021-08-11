@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.os.BuildCompat;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
@@ -65,7 +66,7 @@ class SystemJobInfoConverter {
      * Note: All {@link JobInfo} are set to persist on reboot.
      *
      * @param workSpec The {@link WorkSpec} to convert
-     * @param jobId The {@code jobId} to use. This is useful when de-duping jobs on reschedule.
+     * @param jobId    The {@code jobId} to use. This is useful when de-duping jobs on reschedule.
      * @return The {@link JobInfo} representing the same information as the {@link WorkSpec}
      */
     JobInfo convert(WorkSpec workSpec, int jobId) {
@@ -96,11 +97,12 @@ class SystemJobInfoConverter {
             // always setMinimumLatency to make sure we have at least one constraint.
             // See aosp/5434530 & b/6771687
             builder.setMinimumLatency(offset);
-        } else  {
+        } else {
             if (offset > 0) {
                 // Only set a minimum latency when applicable.
                 builder.setMinimumLatency(offset);
-            } else {
+            } else if (!workSpec.expedited) {
+                // Only set this if the workSpec is not expedited.
                 builder.setImportantWhileForeground(true);
             }
         }
@@ -120,6 +122,12 @@ class SystemJobInfoConverter {
         if (Build.VERSION.SDK_INT >= 26) {
             builder.setRequiresBatteryNotLow(constraints.requiresBatteryNotLow());
             builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());
+        }
+        // Retries cannot be expedited jobs, given they will occur at some point in the future.
+        boolean isRetry = workSpec.runAttemptCount > 0;
+        if (BuildCompat.isAtLeastS() && workSpec.expedited && !isRetry) {
+            //noinspection NewApi
+            builder.setExpedited(true);
         }
         return builder.build();
     }
@@ -161,7 +169,7 @@ class SystemJobInfoConverter {
      */
     @SuppressWarnings("MissingCasesInEnumSwitch")
     static int convertNetworkType(NetworkType networkType) {
-        switch(networkType) {
+        switch (networkType) {
             case NOT_REQUIRED:
                 return JobInfo.NETWORK_TYPE_NONE;
             case CONNECTED:

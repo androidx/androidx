@@ -17,6 +17,7 @@ package androidx.work.impl.background.systemjob;
 
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
 
+import static androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST;
 import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
@@ -183,7 +184,20 @@ public class SystemJobScheduler implements Scheduler {
                 TAG,
                 String.format("Scheduling work ID %s Job ID %s", workSpec.id, jobId));
         try {
-            mJobScheduler.schedule(jobInfo);
+            int result = mJobScheduler.schedule(jobInfo);
+            if (result == JobScheduler.RESULT_FAILURE) {
+                Logger.get()
+                        .warning(TAG, String.format("Unable to schedule work ID %s", workSpec.id));
+                if (workSpec.expedited
+                        && workSpec.outOfQuotaPolicy == RUN_AS_NON_EXPEDITED_WORK_REQUEST) {
+                    // Falling back to a non-expedited job.
+                    workSpec.expedited = false;
+                    String message = String.format(
+                            "Scheduling a non-expedited job (work ID %s)", workSpec.id);
+                    Logger.get().debug(TAG, message);
+                    scheduleInternal(workSpec, jobId);
+                }
+            }
         } catch (IllegalStateException e) {
             // This only gets thrown if we exceed 100 jobs.  Let's figure out if WorkManager is
             // responsible for all these jobs.

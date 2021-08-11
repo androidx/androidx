@@ -21,25 +21,30 @@ import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.work.Constraints
 import androidx.work.ForegroundInfo
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.model.WorkSpecDao
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.worker.TestWorker
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.mock
 import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
-// Mockito tries to class load android.os.CancellationSignal which is only available on API >= 16
-@SdkSuppress(minSdkVersion = 16)
-class WorkForegroundUpdaterTest {
+
+public class WorkForegroundUpdaterTest {
 
     private lateinit var mContext: Context
     private lateinit var mDatabase: WorkDatabase
@@ -49,7 +54,7 @@ class WorkForegroundUpdaterTest {
     private lateinit var mForegroundInfo: ForegroundInfo
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         mContext = mock(Context::class.java)
         mDatabase = mock(WorkDatabase::class.java)
         mWorkSpecDao = mock(WorkSpecDao::class.java)
@@ -62,7 +67,9 @@ class WorkForegroundUpdaterTest {
 
     @Test(expected = IllegalStateException::class)
     @MediumTest
-    fun setForeground_whenWorkReplaced() {
+    // Mockito tries to class load android.os.CancellationSignal which is only available on API >= 16
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 29)
+    public fun setForeground_whenWorkReplaced() {
         val foregroundUpdater =
             WorkForegroundUpdater(mDatabase, mForegroundProcessor, mTaskExecutor)
         val uuid = UUID.randomUUID()
@@ -75,7 +82,9 @@ class WorkForegroundUpdaterTest {
 
     @Test(expected = IllegalStateException::class)
     @MediumTest
-    fun setForeground_whenWorkFinished() {
+    // Mockito tries to class load android.os.CancellationSignal which is only available on API >= 16
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 29)
+    public fun setForeground_whenWorkFinished() {
         `when`(mWorkSpecDao.getState(anyString())).thenReturn(WorkInfo.State.SUCCEEDED)
         val foregroundUpdater =
             WorkForegroundUpdater(mDatabase, mForegroundProcessor, mTaskExecutor)
@@ -85,5 +94,30 @@ class WorkForegroundUpdaterTest {
         } catch (exception: Throwable) {
             throw exception.cause ?: exception
         }
+    }
+
+    @Test
+    @MediumTest
+    public fun setForeground_throwsException() {
+        `when`(mWorkSpecDao.getState(anyString())).thenReturn(WorkInfo.State.RUNNING)
+        `when`(mForegroundProcessor.startForeground(anyString(), ArgumentMatchers.any()))
+            .thenThrow(IllegalStateException("Subject to foreground service restrictions."))
+        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setConstraints(
+                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+            ).build()
+        val notificationId = 1
+        val notification = mock(Notification::class.java)
+        val metadata = ForegroundInfo(notificationId, notification)
+        val foregroundUpdater =
+            WorkForegroundUpdater(mDatabase, mForegroundProcessor, mTaskExecutor)
+        var exception: Throwable? = null
+        try {
+            val future = foregroundUpdater.setForegroundAsync(mContext, request.id, metadata)
+            future.get()
+        } catch (throwable: Throwable) {
+            exception = throwable
+        }
+        assertNotNull("Exception cannot be null", exception)
     }
 }

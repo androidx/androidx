@@ -18,14 +18,20 @@ package androidx.core.widget;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Parcelable;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EdgeEffect;
 
+import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -303,6 +309,127 @@ public class NestedScrollViewTest {
         assertThat(mNestedScrollView.getScrollY(), is(100));
     }
 
+    @Test
+    public void testTopEdgeEffectReversal() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        swipeDown(false);
+        assertEquals(0, mNestedScrollView.getScrollY());
+        swipeUp(true);
+        if (BuildCompat.isAtLeastS()) {
+            // This should just reverse the overscroll effect
+            assertEquals(0, mNestedScrollView.getScrollY());
+        } else {
+            // Can't catch the overscroll effect for R and earlier
+            assertNotEquals(0, mNestedScrollView.getScrollY());
+        }
+    }
+
+    @Test
+    public void testBottomEdgeEffectReversal() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        int scrollRange = mNestedScrollView.getScrollRange();
+        mNestedScrollView.scrollTo(0, scrollRange);
+        assertEquals(scrollRange, mNestedScrollView.getScrollY());
+        swipeUp(false);
+        assertEquals(scrollRange, mNestedScrollView.getScrollY());
+        swipeDown(true);
+        if (BuildCompat.isAtLeastS()) {
+            // This should just reverse the overscroll effect
+            assertEquals(scrollRange, mNestedScrollView.getScrollY());
+        } else {
+            // Can't catch the overscroll effect for R and earlier
+            assertNotEquals(scrollRange, mNestedScrollView.getScrollY());
+        }
+    }
+
+    @Test
+    public void testFlingWhileStretchedAtTop() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        CaptureOnAbsorbEdgeEffect edgeEffect =
+                new CaptureOnAbsorbEdgeEffect(mNestedScrollView.getContext());
+        mNestedScrollView.mEdgeGlowTop = edgeEffect;
+        flingDown();
+        assertTrue(edgeEffect.pullDistance > 0);
+
+        if (BuildCompat.isAtLeastS()) {
+            assertTrue(edgeEffect.absorbVelocity > 0);
+        } else {
+            assertEquals(0, edgeEffect.absorbVelocity);
+            flingUp();
+            assertNotEquals(0, mNestedScrollView.getScrollY());
+        }
+    }
+
+    @Test
+    public void testFlingWhileStretchedAtBottom() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        CaptureOnAbsorbEdgeEffect edgeEffect =
+                new CaptureOnAbsorbEdgeEffect(mNestedScrollView.getContext());
+        mNestedScrollView.mEdgeGlowBottom = edgeEffect;
+
+        int scrollRange = mNestedScrollView.getScrollRange();
+        mNestedScrollView.scrollTo(0, scrollRange);
+        assertEquals(scrollRange, mNestedScrollView.getScrollY());
+        flingUp();
+        assertTrue(edgeEffect.pullDistance > 0);
+        assertEquals(scrollRange, mNestedScrollView.getScrollY());
+
+        if (BuildCompat.isAtLeastS()) {
+            assertTrue(edgeEffect.absorbVelocity > 0);
+        } else {
+            assertEquals(0, edgeEffect.absorbVelocity);
+            flingDown();
+            assertNotEquals(scrollRange, mNestedScrollView.getScrollY());
+        }
+    }
+
+    private void swipeDown(boolean shortSwipe) {
+        float endY = shortSwipe ? mNestedScrollView.getHeight() / 2f :
+                mNestedScrollView.getHeight() - 1;
+        swipe(0, endY);
+    }
+
+    private void swipeUp(boolean shortSwipe) {
+        float endY = shortSwipe ? mNestedScrollView.getHeight() / 2f : 0;
+        swipe(mNestedScrollView.getHeight() - 1, endY);
+    }
+
+    private void swipe(float startY, float endY) {
+        float x = mNestedScrollView.getWidth() / 2f;
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, x, startY, 0);
+        mNestedScrollView.dispatchTouchEvent(down);
+        MotionEvent move = MotionEvent.obtain(0, 10, MotionEvent.ACTION_MOVE, x, endY, 0);
+        mNestedScrollView.dispatchTouchEvent(move);
+        MotionEvent up = MotionEvent.obtain(0, 1000, MotionEvent.ACTION_UP, x, endY, 0);
+        mNestedScrollView.dispatchTouchEvent(up);
+    }
+
+    private void flingDown() {
+        fling(0, mNestedScrollView.getHeight() - 1);
+    }
+
+    private void flingUp() {
+        fling(mNestedScrollView.getHeight() - 1, 0);
+    }
+
+    private void fling(float startY, float endY) {
+        float x = mNestedScrollView.getWidth() / 2f;
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, x, startY, 0);
+        mNestedScrollView.dispatchTouchEvent(down);
+        MotionEvent move = MotionEvent.obtain(0, 10, MotionEvent.ACTION_MOVE, x, endY, 0);
+        mNestedScrollView.dispatchTouchEvent(move);
+        MotionEvent up = MotionEvent.obtain(0, 11, MotionEvent.ACTION_UP, x, endY, 0);
+        mNestedScrollView.dispatchTouchEvent(up);
+    }
+
     private void setup(int childHeight) {
         Context context = ApplicationProvider.getApplicationContext();
 
@@ -338,5 +465,37 @@ public class NestedScrollViewTest {
     private void measureAndLayout(int height) {
         measure(height);
         mNestedScrollView.layout(0, 0, 100, height);
+    }
+
+    private static class CaptureOnAbsorbEdgeEffect extends EdgeEffect {
+        public int absorbVelocity;
+        public float pullDistance;
+
+        CaptureOnAbsorbEdgeEffect(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onPull(float deltaDistance) {
+            pullDistance += deltaDistance;
+            super.onPull(deltaDistance);
+        }
+
+        @Override
+        public void onPull(float deltaDistance, float displacement) {
+            pullDistance += deltaDistance;
+            super.onPull(deltaDistance, displacement);
+        }
+
+        @Override
+        public void onAbsorb(int velocity) {
+            absorbVelocity = velocity;
+            super.onAbsorb(velocity);
+        }
+
+        @Override
+        public void onRelease() {
+            super.onRelease();
+        }
     }
 }

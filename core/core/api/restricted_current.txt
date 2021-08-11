@@ -44,6 +44,7 @@ package androidx.core.app {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.ActivityCompat.PermissionCompatDelegate! getPermissionCompatDelegate();
     method public static android.net.Uri? getReferrer(android.app.Activity);
     method @Deprecated public static boolean invalidateOptionsMenu(android.app.Activity!);
+    method public static boolean isLaunchedFromBubble(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void recreate(android.app.Activity);
     method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity!, android.view.DragEvent!);
@@ -388,6 +389,9 @@ package androidx.core.app {
     field public static final int FLAG_ONGOING_EVENT = 2; // 0x2
     field public static final int FLAG_ONLY_ALERT_ONCE = 8; // 0x8
     field public static final int FLAG_SHOW_LIGHTS = 1; // 0x1
+    field public static final int FOREGROUND_SERVICE_DEFAULT = 0; // 0x0
+    field public static final int FOREGROUND_SERVICE_DEFERRED = 2; // 0x2
+    field public static final int FOREGROUND_SERVICE_IMMEDIATE = 1; // 0x1
     field public static final int GROUP_ALERT_ALL = 0; // 0x0
     field public static final int GROUP_ALERT_CHILDREN = 2; // 0x2
     field public static final int GROUP_ALERT_SUMMARY = 1; // 0x1
@@ -548,6 +552,7 @@ package androidx.core.app {
     method @ColorInt @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getColor();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getContentView();
     method public android.os.Bundle getExtras();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getForegroundServiceBehavior();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getHeadsUpContentView();
     method @Deprecated public android.app.Notification getNotification();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getPriority();
@@ -573,6 +578,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setDefaults(int);
     method public androidx.core.app.NotificationCompat.Builder setDeleteIntent(android.app.PendingIntent?);
     method public androidx.core.app.NotificationCompat.Builder setExtras(android.os.Bundle?);
+    method public androidx.core.app.NotificationCompat.Builder setForegroundServiceBehavior(@androidx.core.app.NotificationCompat.ServiceNotificationBehavior int);
     method public androidx.core.app.NotificationCompat.Builder setFullScreenIntent(android.app.PendingIntent?, boolean);
     method public androidx.core.app.NotificationCompat.Builder setGroup(String?);
     method public androidx.core.app.NotificationCompat.Builder setGroupAlertBehavior(@androidx.core.app.NotificationCompat.GroupAlertBehavior int);
@@ -698,6 +704,9 @@ package androidx.core.app {
   }
 
   @IntDef({androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC, androidx.core.app.NotificationCompat.VISIBILITY_PRIVATE, androidx.core.app.NotificationCompat.VISIBILITY_SECRET}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.NotificationVisibility {
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_DEFAULT, androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE, androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_DEFERRED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.ServiceNotificationBehavior {
   }
 
   @IntDef({android.media.AudioManager.STREAM_VOICE_CALL, android.media.AudioManager.STREAM_SYSTEM, android.media.AudioManager.STREAM_RING, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.STREAM_ALARM, android.media.AudioManager.STREAM_NOTIFICATION, android.media.AudioManager.STREAM_DTMF, android.media.AudioManager.STREAM_ACCESSIBILITY}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.StreamType {
@@ -1821,14 +1830,50 @@ package androidx.core.location {
     field public static final String EXTRA_VERTICAL_ACCURACY = "verticalAccuracy";
   }
 
+  public interface LocationListenerCompat extends android.location.LocationListener {
+    method public default void onStatusChanged(String, int, android.os.Bundle?);
+  }
+
   public final class LocationManagerCompat {
     method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void getCurrentLocation(android.location.LocationManager, String, androidx.core.os.CancellationSignal?, java.util.concurrent.Executor, androidx.core.util.Consumer<android.location.Location!>);
     method public static String? getGnssHardwareModelName(android.location.LocationManager);
     method public static int getGnssYearOfHardware(android.location.LocationManager);
+    method public static boolean hasProvider(android.location.LocationManager, String);
     method public static boolean isLocationEnabled(android.location.LocationManager);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void removeUpdates(android.location.LocationManager, androidx.core.location.LocationListenerCompat);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void requestLocationUpdates(android.location.LocationManager, String, androidx.core.location.LocationRequestCompat, java.util.concurrent.Executor, androidx.core.location.LocationListenerCompat);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void requestLocationUpdates(android.location.LocationManager, String, androidx.core.location.LocationRequestCompat, androidx.core.location.LocationListenerCompat, android.os.Looper);
     method public static void unregisterGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback);
+  }
+
+  public final class LocationRequestCompat {
+    method @IntRange(from=1) public long getDurationMillis();
+    method @IntRange(from=0) public long getIntervalMillis();
+    method @IntRange(from=0) public long getMaxUpdateDelayMillis();
+    method @IntRange(from=1, to=java.lang.Integer.MAX_VALUE) public int getMaxUpdates();
+    method @FloatRange(from=0, to=java.lang.Float.MAX_VALUE) public float getMinUpdateDistanceMeters();
+    method @IntRange(from=0) public long getMinUpdateIntervalMillis();
+    method public int getQuality();
+    field public static final long PASSIVE_INTERVAL = 9223372036854775807L; // 0x7fffffffffffffffL
+    field public static final int QUALITY_BALANCED_POWER_ACCURACY = 102; // 0x66
+    field public static final int QUALITY_HIGH_ACCURACY = 100; // 0x64
+    field public static final int QUALITY_LOW_POWER = 104; // 0x68
+  }
+
+  public static final class LocationRequestCompat.Builder {
+    ctor public LocationRequestCompat.Builder(long);
+    ctor public LocationRequestCompat.Builder(androidx.core.location.LocationRequestCompat);
+    method public androidx.core.location.LocationRequestCompat build();
+    method public androidx.core.location.LocationRequestCompat.Builder clearMinUpdateIntervalMillis();
+    method public androidx.core.location.LocationRequestCompat.Builder setDurationMillis(@IntRange(from=1) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setIntervalMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setMaxUpdateDelayMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setMaxUpdates(@IntRange(from=1, to=java.lang.Integer.MAX_VALUE) int);
+    method public androidx.core.location.LocationRequestCompat.Builder setMinUpdateDistanceMeters(@FloatRange(from=0, to=java.lang.Float.MAX_VALUE) float);
+    method public androidx.core.location.LocationRequestCompat.Builder setMinUpdateIntervalMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setQuality(int);
   }
 
 }
@@ -2325,7 +2370,11 @@ package androidx.core.util {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Preconditions {
     method public static void checkArgument(boolean);
     method public static void checkArgument(boolean, Object);
+    method public static void checkArgument(boolean, String, java.lang.Object!...);
     method public static int checkArgumentInRange(int, int, int, String);
+    method public static long checkArgumentInRange(long, long, long, String);
+    method public static float checkArgumentInRange(float, float, float, String);
+    method public static double checkArgumentInRange(double, double, double, String);
     method @IntRange(from=0) public static int checkArgumentNonnegative(int, String?);
     method @IntRange(from=0) public static int checkArgumentNonnegative(int);
     method public static int checkFlagsArgument(int, int);
@@ -2404,11 +2453,16 @@ package androidx.core.view {
     method public android.net.Uri? getLinkUri();
     method @androidx.core.view.ContentInfoCompat.Source public int getSource();
     method public android.util.Pair<androidx.core.view.ContentInfoCompat!,androidx.core.view.ContentInfoCompat!> partition(androidx.core.util.Predicate<android.content.ClipData.Item!>);
+    method @RequiresApi(31) public static android.util.Pair<android.view.ContentInfo!,android.view.ContentInfo!> partition(android.view.ContentInfo, java.util.function.Predicate<android.content.ClipData.Item!>);
+    method @RequiresApi(31) public android.view.ContentInfo toContentInfo();
+    method @RequiresApi(31) public static androidx.core.view.ContentInfoCompat toContentInfoCompat(android.view.ContentInfo);
     field public static final int FLAG_CONVERT_TO_PLAIN_TEXT = 1; // 0x1
     field public static final int SOURCE_APP = 0; // 0x0
+    field public static final int SOURCE_AUTOFILL = 4; // 0x4
     field public static final int SOURCE_CLIPBOARD = 1; // 0x1
     field public static final int SOURCE_DRAG_AND_DROP = 3; // 0x3
     field public static final int SOURCE_INPUT_METHOD = 2; // 0x2
+    field public static final int SOURCE_PROCESS_TEXT = 5; // 0x5
   }
 
   public static final class ContentInfoCompat.Builder {
@@ -2425,7 +2479,7 @@ package androidx.core.view {
   @IntDef(flag=true, value={androidx.core.view.ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentInfoCompat.Flags {
   }
 
-  @IntDef({androidx.core.view.ContentInfoCompat.SOURCE_APP, androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD, androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD, androidx.core.view.ContentInfoCompat.SOURCE_DRAG_AND_DROP}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentInfoCompat.Source {
+  @IntDef({androidx.core.view.ContentInfoCompat.SOURCE_APP, androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD, androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD, androidx.core.view.ContentInfoCompat.SOURCE_DRAG_AND_DROP, androidx.core.view.ContentInfoCompat.SOURCE_AUTOFILL, androidx.core.view.ContentInfoCompat.SOURCE_PROCESS_TEXT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentInfoCompat.Source {
   }
 
   public final class DisplayCompat {
@@ -3900,13 +3954,16 @@ package androidx.core.widget {
 
   public final class EdgeEffectCompat {
     ctor @Deprecated public EdgeEffectCompat(android.content.Context!);
+    method public static android.widget.EdgeEffect create(android.content.Context, android.util.AttributeSet?);
     method @Deprecated public boolean draw(android.graphics.Canvas!);
     method @Deprecated public void finish();
+    method public static float getDistance(android.widget.EdgeEffect);
     method @Deprecated public boolean isFinished();
     method @Deprecated public boolean onAbsorb(int);
     method @Deprecated public boolean onPull(float);
     method @Deprecated public boolean onPull(float, float);
     method public static void onPull(android.widget.EdgeEffect, float, float);
+    method public static float onPullDistance(android.widget.EdgeEffect, float, float);
     method @Deprecated public boolean onRelease();
     method @Deprecated public void setSize(int, int);
   }

@@ -75,6 +75,10 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    // TODO(aurimas): reenable once AGP 7.0-alpha15 lands
+    lintOptions {
+        disable("ClassVerificationFailure", "NewApi")
+    }
 }
 
 androidx {

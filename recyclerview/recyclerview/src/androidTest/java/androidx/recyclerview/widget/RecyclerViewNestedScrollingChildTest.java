@@ -80,6 +80,7 @@ public class RecyclerViewNestedScrollingChildTest {
                 ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
 
         mRecyclerView = new RecyclerView(context);
+        mRecyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
         mRecyclerView.setMinimumWidth(1000);
         mRecyclerView.setMinimumHeight(1000);
 
@@ -663,4 +664,5 @@ public class RecyclerViewNestedScrollingChildTest {
             super(itemView);
         }
     }
+
 }

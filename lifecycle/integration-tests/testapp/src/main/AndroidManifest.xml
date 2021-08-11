@@ -11,37 +11,50 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" package="androidx.lifecycle.testapp">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.lifecycle.testapp">
 
-    <application android:allowBackup="true" android:label="Test App" android:supportsRtl="true"
+    <application
+        android:allowBackup="true"
+        android:label="Test App"
+        android:supportsRtl="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,MissingApplicationIcon">
 
-        <activity android:name="androidx.lifecycle.testapp.LifecycleTestActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name="androidx.lifecycle.testapp.CollectingSupportActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name="androidx.lifecycle.testapp.FrameworkLifecycleRegistryActivity">
+        <activity
+            android:name="androidx.lifecycle.testapp.LifecycleTestActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="androidx.lifecycle.testapp.SimpleAppLifecycleTestActivity">
+            android:name="androidx.lifecycle.testapp.CollectingSupportActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="androidx.lifecycle.testapp.NavigationTestActivityFirst"
+        <activity
+            android:name="androidx.lifecycle.testapp.FrameworkLifecycleRegistryActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="androidx.lifecycle.testapp.SimpleAppLifecycleTestActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="androidx.lifecycle.testapp.NavigationTestActivityFirst"
+            android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,16 +62,23 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="androidx.lifecycle.testapp.EmptyActivity">
+            android:name="androidx.lifecycle.testapp.EmptyActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NavigationTestActivitySecond" />
-        <activity android:name=".NavigationDialogActivity"
+        <activity
+            android:name=".NavigationTestActivitySecond"
+            android:exported="false" />
+        <activity
+            android:name=".NavigationDialogActivity"
+            android:exported="false"
             android:launchMode="singleTask"
             android:theme="@android:style/Theme.DeviceDefault.Dialog" />
-        <activity android:name=".NonSupportActivity"/>
+        <activity
+            android:name=".NonSupportActivity"
+            android:exported="false" />
     </application>
 </manifest>

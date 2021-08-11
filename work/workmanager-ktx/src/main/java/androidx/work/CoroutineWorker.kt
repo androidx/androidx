@@ -62,7 +62,6 @@ public abstract class CoroutineWorker(
 
     @Suppress("DEPRECATION")
     public final override fun startWork(): ListenableFuture<Result> {
-
         val coroutineScope = CoroutineScope(coroutineContext + job)
         coroutineScope.launch {
             try {
@@ -72,7 +71,6 @@ public abstract class CoroutineWorker(
                 future.setException(t)
             }
         }
-
         return future
     }
 
@@ -93,6 +91,17 @@ public abstract class CoroutineWorker(
     public abstract suspend fun doWork(): Result
 
     /**
+     * @return The [ForegroundInfo] instance if the [WorkRequest] is marked as expedited.
+     *
+     * @throws [IllegalStateException] when not overridden. Override this method when the
+     * corresponding [WorkRequest] is marked expedited.
+     */
+    @ExperimentalExpeditedWork
+    public open suspend fun getForegroundInfo(): ForegroundInfo {
+        throw IllegalStateException("Not implemented")
+    }
+
+    /**
      * Updates the progress for the [CoroutineWorker]. This is a suspending function unlike the
      * [setProgressAsync] API which returns a [ListenableFuture].
      *
@@ -107,10 +116,26 @@ public abstract class CoroutineWorker(
      * is a suspending function unlike the [setForegroundAsync] API which returns a
      * [ListenableFuture].
      *
+     * Calling [setForeground] will throw an [IllegalStateException] if the process is subject to
+     * foreground service restrictions. Consider using  [WorkRequest.Builder.setExpedited]
+     * and [getForegroundInfo] instead.
+     *
      * @param foregroundInfo The [ForegroundInfo]
      */
     public suspend fun setForeground(foregroundInfo: ForegroundInfo) {
         setForegroundAsync(foregroundInfo).await()
+    }
+
+    @Suppress("DEPRECATION")
+    @ExperimentalExpeditedWork
+    public final override fun getForegroundInfoAsync(): ListenableFuture<ForegroundInfo> {
+        val job = Job()
+        val scope = CoroutineScope(coroutineContext + job)
+        val jobFuture = JobListenableFuture<ForegroundInfo>(job)
+        scope.launch {
+            jobFuture.complete(getForegroundInfo())
+        }
+        return jobFuture
     }
 
     public final override fun onStopped() {

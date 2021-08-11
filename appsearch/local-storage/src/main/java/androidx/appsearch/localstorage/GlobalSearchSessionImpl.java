@@ -16,17 +16,25 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
-import androidx.appsearch.app.AppSearchSession;
+import androidx.annotation.Nullable;
+import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.GlobalSearchSession;
+import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.core.util.Preconditions;
 
-import java.util.concurrent.ExecutorService;
+import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.Executor;
 
 /**
- * An implementation of {@link AppSearchSession} which stores data locally
+ * An implementation of {@link GlobalSearchSession} which stores data locally
  * in the app's storage space using a bundled version of the search native library.
  *
  * <p>Queries are executed multi-threaded, but a single thread is used for mutate requests (put,
@@ -34,27 +42,62 @@ import java.util.concurrent.ExecutorService;
  */
 class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final AppSearchImpl mAppSearchImpl;
-    private final ExecutorService mExecutorService;
+    private final Executor mExecutor;
+    private final Context mContext;
+
+    private boolean mIsClosed = false;
+
+    @Nullable
+    private final AppSearchLogger mLogger;
 
     GlobalSearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
-            @NonNull ExecutorService executorService) {
+            @NonNull Executor executor,
+            @NonNull Context context,
+            @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
-        mExecutorService = Preconditions.checkNotNull(executorService);
+        mExecutor = Preconditions.checkNotNull(executor);
+        mContext = Preconditions.checkNotNull(context);
+        mLogger = logger;
     }
 
     @NonNull
     @Override
-    public SearchResults query(
+    public SearchResults search(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
+        Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
         return new SearchResultsImpl(
                 mAppSearchImpl,
-                mExecutorService,
-                /*packageName=*/ null,
+                mExecutor,
+                mContext.getPackageName(),
                 /*databaseName=*/ null,
                 queryExpression,
-                searchSpec);
+                searchSpec,
+                mLogger);
+    }
+
+    /**
+     * Reporting system usage is not supported in the local backend, so this method does nothing
+     * and always completes the return value with an
+     * {@link androidx.appsearch.exceptions.AppSearchException} having a result code of
+     * {@link AppSearchResult#RESULT_SECURITY_ERROR}.
+     */
+    @NonNull
+    @Override
+    public ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request) {
+        Preconditions.checkNotNull(request);
+        Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
+        return FutureUtil.execute(mExecutor, () -> {
+            throw new AppSearchException(
+                    AppSearchResult.RESULT_SECURITY_ERROR,
+                    mContext.getPackageName() + " does not have access to report system usage");
+        });
+    }
+
+    @Override
+    public void close() {
+        mIsClosed = true;
     }
 }

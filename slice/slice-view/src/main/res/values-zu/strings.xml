@@ -17,21 +17,21 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_slice_more_content" msgid="7841223363798860154">"+ <xliff:g id="NUMBER">%1$d</xliff:g>"</string>
-    <string name="abc_slice_more" msgid="4299234410808450900">"Okuningi"</string>
-    <string name="abc_slice_show_more" msgid="1112789899890391107">"Bonisa okuningi"</string>
-    <string name="abc_slice_updated" msgid="7932359091871934205">"Ibuyekezwe <xliff:g id="TIME">%1$s</xliff:g>"</string>
-    <plurals name="abc_slice_duration_min" formatted="false" msgid="7664017844210142826">
+    <string name="abc_slice_more_content" msgid="6405516388971241142">"+ <xliff:g id="NUMBER">%1$d</xliff:g>"</string>
+    <string name="abc_slice_more" msgid="1983560225998630901">"Okuningi"</string>
+    <string name="abc_slice_show_more" msgid="1567717014004692768">"Bonisa okuningi"</string>
+    <string name="abc_slice_updated" msgid="8155085405396453848">"Kubuyekezwe ngo-<xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
       <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> iminithi eledlule</item>
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> iminithi eledlule</item>
     </plurals>
-    <plurals name="abc_slice_duration_years" formatted="false" msgid="2628491538787454021">
+    <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
       <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> unyaka owedlule</item>
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> unyaka owedlule</item>
     </plurals>
-    <plurals name="abc_slice_duration_days" formatted="false" msgid="8356547162075064530">
-      <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> izinsuku ezidlule</item>
-      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> izinsuku ezidlule</item>
+    <plurals name="abc_slice_duration_days" formatted="false" msgid="6241698511167107334">
+      <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> izinsuku ezedlule</item>
+      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> izinsuku ezedlule</item>
     </plurals>
-    <string name="abc_slice_error" msgid="1794214973158263497">"Ayikwazanga ukuxhuma"</string>
+    <string name="abc_slice_error" msgid="4188371422904147368">"Ayikwazanga ukuxhuma"</string>
 </resources>

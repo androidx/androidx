@@ -24,6 +24,10 @@ plugins {
 
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
+    api(libs.jsr250)
+    implementation(libs.autoCommon)
+    implementation(libs.autoValue)
+    implementation(libs.autoValueAnnotations)
     implementation(libs.javapoet)
 
     // For testing, add in the compiled classes from appsearch to get access to annotations.
@@ -41,6 +45,6 @@ androidx {
     type = LibraryType.COMPILER_PLUGIN
     mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2019'
-    description = 'Compiler for AndroidX AppSearch data classes'
+    description = 'Compiler for classes annotated with @androidx.appsearch.annotation.Document'
     failOnDeprecationWarnings = false
 }

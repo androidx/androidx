@@ -21,6 +21,8 @@ import androidx.core.app.NotificationCompat
 import androidx.work.ForegroundInfo
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import androidx.work.impl.utils.futures.SettableFuture
+import com.google.common.util.concurrent.ListenableFuture
 
 public open class TestForegroundWorker(
     private val context: Context,
@@ -29,8 +31,13 @@ public open class TestForegroundWorker(
     Worker(context, parameters) {
 
     override fun doWork(): Result {
-        setForegroundAsync(getNotification()).get()
         return Result.success()
+    }
+
+    override fun getForegroundInfoAsync(): ListenableFuture<ForegroundInfo> {
+        val future = SettableFuture.create<ForegroundInfo>()
+        future.set(getNotification())
+        return future
     }
 
     private fun getNotification(): ForegroundInfo {

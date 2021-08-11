@@ -17,10 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_slices_permission_request" msgid="4431189529265983653">"「<xliff:g id="APP_0">%1$s</xliff:g>」想顯示「<xliff:g id="APP_2">%2$s</xliff:g>」的 Slice"</string>
-    <string name="abc_slice_permission_title" msgid="4776010267128891014">"要允許「<xliff:g id="APP_0">%1$s</xliff:g>」顯示「<xliff:g id="APP_2">%2$s</xliff:g>」的 Slice 嗎？"</string>
-    <string name="abc_slice_permission_text_1" msgid="9108592981418900836">"- 可以讀取「<xliff:g id="APP">%1$s</xliff:g>」中的資料"</string>
-    <string name="abc_slice_permission_text_2" msgid="7135705417979137589">"- 可以在「<xliff:g id="APP">%1$s</xliff:g>」內執行操作"</string>
-    <string name="abc_slice_permission_allow" msgid="6374752258872407887">"允許"</string>
-    <string name="abc_slice_permission_deny" msgid="576316744017426251">"拒絕"</string>
+    <string name="abc_slices_permission_request" msgid="3604847235923472451">"「<xliff:g id="APP_0">%1$s</xliff:g>」想顯示「<xliff:g id="APP_2">%2$s</xliff:g>」的快訊"</string>
+    <string name="abc_slice_permission_title" msgid="4175332421259324948">"要允許「<xliff:g id="APP_0">%1$s</xliff:g>」顯示「<xliff:g id="APP_2">%2$s</xliff:g>」的快訊嗎？"</string>
+    <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- 可以讀取「<xliff:g id="APP">%1$s</xliff:g>」中的資料"</string>
+    <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- 可以在「<xliff:g id="APP">%1$s</xliff:g>」內執行操作"</string>
+    <string name="abc_slice_permission_allow" msgid="5024599872061409708">"允許"</string>
+    <string name="abc_slice_permission_deny" msgid="3819478292430407705">"拒絕"</string>
 </resources>

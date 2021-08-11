@@ -37,6 +37,7 @@ dependencies {
     implementation(project(":profileinstaller:profileinstaller"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testCore)
 }
 
 android {

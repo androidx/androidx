@@ -35,6 +35,7 @@ import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -239,6 +240,33 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertThat(jobInfo.isImportantWhileForeground(), is(false));
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_expedited() {
+        if (!BuildCompat.isAtLeastS()) {
+            return;
+        }
+
+        WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
+        workSpec.expedited = true;
+        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
+        assertThat(jobInfo.isExpedited(), is(true));
+    }
+
+    @Test
+    @SmallTest
+    public void testConvertExpeditedJobs_retriesAreNotExpedited() {
+        if (!BuildCompat.isAtLeastS()) {
+            return;
+        }
+
+        WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
+        workSpec.expedited = true;
+        workSpec.runAttemptCount = 1; // retry
+        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
+        assertThat(jobInfo.isExpedited(), is(false));
     }
 
     private void convertWithRequiredNetworkType(NetworkType networkType,

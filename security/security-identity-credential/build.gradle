@@ -31,6 +31,7 @@ dependencies {
     implementation(project(":biometric:biometric"))
     implementation("org.bouncycastle:bcprov-jdk15on:1.65")
     implementation("org.bouncycastle:bcpkix-jdk15on:1.56")
+    implementation project(path: ':annotation:annotation')
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

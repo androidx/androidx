@@ -146,6 +146,7 @@ public final class ImageUtil {
 
     /** Crops byte array with given {@link android.graphics.Rect}. */
     @NonNull
+    @SuppressWarnings("deprecation")
     public static byte[] cropByteArray(@NonNull byte[] data, @Nullable Rect cropRect)
             throws CodecFailedException {
         if (cropRect == null) {

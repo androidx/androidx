@@ -25,6 +25,7 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkRequest
 import androidx.work.multiprocess.parcelable.ParcelConverters
 import androidx.work.multiprocess.parcelable.ParcelableWorkRequest
@@ -120,6 +121,7 @@ public class ParcelableWorkRequestConvertersTest {
             requests += OneTimeWorkRequest.Builder(TestWorker::class.java)
                 .addTag("Test Worker")
                 .keepResultsForAtLeast(1, TimeUnit.DAYS)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
         }
         assertOn(requests)

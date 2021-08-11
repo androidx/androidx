@@ -16,6 +16,7 @@
 
     <activity
         android:name=".ConfigActivity"
+        android:exported="true"
         android:label="@string/configuration_title">
       <intent-filter>
         <action android:name="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />

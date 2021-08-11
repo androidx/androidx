@@ -15,40 +15,52 @@
    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.media2.session.test">
-
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    package="androidx.media2.session.test">
 
     <application android:usesCleartextTraffic="true">
-        <activity android:name="androidx.media2.session.MockActivity" />
-        <activity android:name="androidx.media2.session.SurfaceActivity" />
+        <activity
+            android:name="androidx.media2.session.MockActivity"
+            android:exported="false" />
+        <activity
+            android:name="androidx.media2.session.SurfaceActivity"
+            android:exported="false" />
 
         <!-- Keep the test services synced together with the MockMediaSessionService -->
-        <service android:name="androidx.media2.session.MockMediaSessionService">
+        <receiver
+            android:name="androidx.media.session.MediaButtonReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="androidx.media2.session.MediaSessionService" />
-                <action android:name="android.media.browse.MediaBrowserService" />
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
-        </service>
+        </receiver>
         <!-- Keep the test services synced together with the MockMediaLibraryService -->
-        <service android:name="androidx.media2.session.MockMediaLibraryService">
+        <service
+            android:name="androidx.media2.session.MockMediaLibraryService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="androidx.media2.session.MediaLibraryService" />
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
         <!-- Keep the test services synced together with the MockMediaSessionService -->
-        <service android:name="androidx.media2.session.MockMediaBrowserServiceCompat">
+        <service
+            android:name="androidx.media2.session.MockMediaBrowserServiceCompat"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
-        <receiver android:name="androidx.media.session.MediaButtonReceiver" >
+        <service
+            android:name="androidx.media2.session.MockMediaSessionService"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
+                <action android:name="androidx.media2.session.MediaSessionService" />
+                <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
-        </receiver>
+        </service>
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 </manifest>

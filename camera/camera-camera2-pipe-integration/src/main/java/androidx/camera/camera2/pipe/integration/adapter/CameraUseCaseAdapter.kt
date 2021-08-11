@@ -46,6 +46,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory
  * This includes things like default template and session parameters, as well as maximum resolution
  * and aspect ratios for the display.
  */
+@Suppress("DEPRECATION")
 class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
 
     private val display: Display by lazy {

@@ -74,6 +74,7 @@ private const val TAG = "VideoEncoderTest"
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@Suppress("DEPRECATION")
 class VideoEncoderTest {
 
     @get: Rule

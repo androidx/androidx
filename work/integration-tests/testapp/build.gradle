@@ -34,6 +34,8 @@ android {
         }
     }
     defaultConfig {
+        // This is necessary because "S" is a pre-release SDK.
+        targetSdkVersion "S"
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [

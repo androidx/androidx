@@ -69,15 +69,11 @@ class SoftwareIdentityCredentialStore extends IdentityCredentialStore {
     public @NonNull
     IdentityCredentialStoreCapabilities getCapabilities() {
         if (mCapabilities == null) {
-            mCapabilities = new SimpleIdentityCredentialStoreCapabilities(
+            LinkedHashSet<String> supportedDocTypesSet = new LinkedHashSet<>();
+            mCapabilities = SimpleIdentityCredentialStoreCapabilities.getFeatureVersion202101(
                     false,
-                    IdentityCredentialStoreCapabilities.FEATURE_VERSION_202101,
                     false,
-                    new LinkedHashSet<String>(),
-                    true,
-                    true,
-                    true,
-                    true);
+                    supportedDocTypesSet);
         }
         return mCapabilities;
     }
