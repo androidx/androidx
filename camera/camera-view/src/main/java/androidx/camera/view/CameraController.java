@@ -523,12 +523,13 @@ public abstract class CameraController {
     private void startListeningToRotationEvents() {
         getDisplayManager().registerDisplayListener(mDisplayRotationListener,
                 new Handler(Looper.getMainLooper()));
-        mRotationProvider.setListener(mDeviceRotationListener);
+        mRotationProvider.addListener(CameraXExecutors.mainThreadExecutor(),
+                mDeviceRotationListener);
     }
 
     private void stopListeningToRotationEvents() {
         getDisplayManager().unregisterDisplayListener(mDisplayRotationListener);
-        mRotationProvider.clearListener();
+        mRotationProvider.removeAllListeners();
     }
 
     private DisplayManager getDisplayManager() {

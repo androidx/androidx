@@ -106,13 +106,13 @@ package androidx.camera.view {
 
   public final class RotationProvider {
     ctor public RotationProvider(android.content.Context);
-    method public void clearListener();
-    method public boolean setListener(androidx.camera.view.RotationProvider.Listener);
-    method public boolean setListener(java.util.concurrent.Executor, androidx.camera.view.RotationProvider.Listener);
+    method @CheckResult public boolean addListener(java.util.concurrent.Executor, androidx.camera.view.RotationProvider.Listener);
+    method public void removeAllListeners();
+    method public void removeListener(androidx.camera.view.RotationProvider.Listener);
   }
 
   public static interface RotationProvider.Listener {
-    method public void onRotationChanged(int);
+    method public void onRotationChanged(@androidx.camera.core.impl.ImageOutputConfig.RotationValue int);
   }
 
 }
