@@ -90,4 +90,19 @@ class InvalidatingPagingSourceFactoryTest {
         // after .invalidate() is called as it would result in an infinite loop.
         factory.invalidate()
     }
+
+    @Test
+    fun invalidate_threadSafe() {
+        val factory = InvalidatingPagingSourceFactory { TestPagingSource() }
+
+        // Check for concurrent modification when invalidating paging sources.
+        repeat(2) {
+            factory().registerInvalidatedCallback {
+                factory()
+                factory.invalidate()
+                factory()
+            }
+        }
+        factory.invalidate()
+    }
 }
