@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_BACKPRESSURE_STRATEGY;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_QUEUE_DEPTH;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_READER_PROXY_PROVIDER;
+import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_ONE_PIXEL_SHIFT_ENABLED;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
@@ -52,6 +53,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -71,6 +73,7 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
+import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
@@ -176,6 +179,8 @@ public final class ImageAnalysis extends UseCase {
     private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
     // Default to YUV_420_888 format for output.
     private static final int DEFAULT_OUTPUT_IMAGE_FORMAT = OUTPUT_IMAGE_FORMAT_YUV_420_888;
+    // One pixel shift for YUV.
+    private static final Boolean DEFAULT_ONE_PIXEL_SHIFT_ENABLED = null;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
@@ -216,6 +221,30 @@ public final class ImageAnalysis extends UseCase {
                     config.getBackgroundExecutor(CameraXExecutors.highPriorityExecutor()));
         }
         mImageAnalysisAbstractAnalyzer.setOutputImageFormat(getOutputImageFormat());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+
+        // Flag to enable or disable one pixel shift. It will override the flag set by device info.
+        // If enabled, the workaround will be applied for all devices.
+        // If disabled, the workaround will be disabled for all devices.
+        // If not configured, the workaround will be applied to the problem devices only.
+        Boolean isOnePixelShiftEnabled = getOnePixelShiftEnabled();
+        boolean isOnePixelShiftIssueDevice = cameraInfo.getCameraQuirks().contains(
+                OnePixelShiftQuirk.class) ? true : false;
+        mImageAnalysisAbstractAnalyzer.setOnePixelShiftEnabled(
+                isOnePixelShiftEnabled == null ? isOnePixelShiftIssueDevice
+                        : isOnePixelShiftEnabled);
+        return super.onMergeConfig(cameraInfo, builder);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -478,6 +507,16 @@ public final class ImageAnalysis extends UseCase {
     public int getOutputImageFormat() {
         return ((ImageAnalysisConfig) getCurrentConfig()).getOutputImageFormat(
                 DEFAULT_OUTPUT_IMAGE_FORMAT);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Boolean getOnePixelShiftEnabled() {
+        return ((ImageAnalysisConfig) getCurrentConfig()).getOnePixelShiftEnabled(
+                DEFAULT_ONE_PIXEL_SHIFT_ENABLED);
     }
 
     /**
@@ -831,6 +870,15 @@ public final class ImageAnalysis extends UseCase {
         @NonNull
         public Builder setOutputImageFormat(@OutputImageFormat int outputImageFormat) {
             getMutableConfig().insertOption(OPTION_OUTPUT_IMAGE_FORMAT, outputImageFormat);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setOnePixelShiftEnabled(boolean onePixelShiftEnabled) {
+            getMutableConfig().insertOption(OPTION_ONE_PIXEL_SHIFT_ENABLED,
+                    Boolean.valueOf(onePixelShiftEnabled));
             return this;
         }
 

@@ -50,6 +50,9 @@ public final class ImageAnalysisConfig
     public static final Option<Integer> OPTION_OUTPUT_IMAGE_FORMAT =
             Option.create("camerax.core.imageAnalysis.outputImageFormat",
                     ImageAnalysis.OutputImageFormat.class);
+    public static final Option<Boolean> OPTION_ONE_PIXEL_SHIFT_ENABLED =
+            Option.create("camerax.core.imageAnalysis.onePixelShiftEnabled",
+                    Boolean.class);
 
     // *********************************************************************************************
 
@@ -139,6 +142,17 @@ public final class ImageAnalysisConfig
     @ImageAnalysis.OutputImageFormat
     public int getOutputImageFormat(int valueIfMissing) {
         return retrieveOption(OPTION_OUTPUT_IMAGE_FORMAT, valueIfMissing);
+    }
+
+    /**
+     * Gets if one pixel shift is requested or not.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Boolean getOnePixelShiftEnabled(@Nullable Boolean valueIfMissing) {
+        return retrieveOption(OPTION_ONE_PIXEL_SHIFT_ENABLED, valueIfMissing);
     }
 
     /**
