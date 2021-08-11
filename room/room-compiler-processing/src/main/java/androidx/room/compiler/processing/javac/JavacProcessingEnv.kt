@@ -61,10 +61,10 @@ internal class JavacProcessingEnv(
         )
 
     override val messager: XMessager by lazy {
-        JavacProcessingEnvMessager(delegate)
+        JavacProcessingEnvMessager(delegate.messager)
     }
 
-    override val filer = JavacFiler(delegate)
+    override val filer = JavacFiler(this, delegate.filer)
 
     override val options: Map<String, String>
         get() = delegate.options

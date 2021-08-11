@@ -21,15 +21,12 @@ import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
 import javax.annotation.processing.Messager
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic
 
 internal class JavacProcessingEnvMessager(
-    private val processingEnv: ProcessingEnvironment
+    val delegate: Messager
 ) : XMessager() {
-    val delegate: Messager get() = processingEnv.messager
-
     override fun onPrintMessage(
         kind: Diagnostic.Kind,
         msg: String,
