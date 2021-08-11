@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.ForegroundInfo;
 import androidx.work.ForegroundUpdater;
+import androidx.work.Logger;
 import androidx.work.WorkInfo;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.foreground.ForegroundProcessor;
@@ -45,6 +46,8 @@ import java.util.UUID;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkForegroundUpdater implements ForegroundUpdater {
+
+    private static final String TAG = Logger.tagWithPrefix("WMFgUpdater");
 
     private final TaskExecutor mTaskExecutor;
 
@@ -92,6 +95,8 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
                         }
 
                         // startForeground() is idempotent
+                        // NOTE: This will fail when the process is subject to foreground service
+                        // restrictions. Propagate the exception to the caller.
                         mForegroundProcessor.startForeground(workSpecId, foregroundInfo);
                         Intent intent = createNotifyIntent(context, workSpecId, foregroundInfo);
                         context.startService(intent);

@@ -16,11 +16,15 @@
 
 package androidx.work;
 
+import static androidx.work.NetworkType.METERED;
+import static androidx.work.NetworkType.NOT_REQUIRED;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import androidx.core.os.BuildCompat;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.impl.model.WorkSpec;
@@ -138,5 +142,98 @@ public class WorkTest extends WorkManagerTest {
                 TestWorker.class)
                 .setInitialDelay(Long.MAX_VALUE - now, TimeUnit.MILLISECONDS)
                 .build();
+    }
+
+    @Test
+    public void testBuild_expedited_noConstraints() {
+        if (!BuildCompat.isAtLeastS()) {
+            return;
+        }
+
+        OneTimeWorkRequest request = mBuilder
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build();
+        WorkSpec workSpec = request.getWorkSpec();
+        Constraints constraints = workSpec.constraints;
+        assertThat(constraints.getRequiredNetworkType(), is(NOT_REQUIRED));
+    }
+
+    @Test
+    public void testBuild_expedited_networkConstraints() {
+        if (!BuildCompat.isAtLeastS()) {
+            return;
+        }
+
+        OneTimeWorkRequest request = mBuilder
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.METERED)
+                        .build()
+                )
+                .build();
+        WorkSpec workSpec = request.getWorkSpec();
+        Constraints constraints = workSpec.constraints;
+        assertThat(constraints.getRequiredNetworkType(), is(METERED));
+    }
+
+    @Test
+    public void testBuild_expedited_networkStorageConstraints() {
+        if (!BuildCompat.isAtLeastS()) {
+            return;
+        }
+
+        OneTimeWorkRequest request = mBuilder
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.METERED)
+                        .setRequiresStorageNotLow(true)
+                        .build()
+                )
+                .build();
+        WorkSpec workSpec = request.getWorkSpec();
+        Constraints constraints = workSpec.constraints;
+        assertThat(constraints.getRequiredNetworkType(), is(METERED));
+    }
+
+    @Test
+    public void testBuild_expedited_withUnspportedConstraints() {
+        if (!BuildCompat.isAtLeastS()) {
+            return;
+        }
+
+        mThrown.expect(IllegalArgumentException.class);
+        OneTimeWorkRequest request = mBuilder
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.METERED)
+                        .setRequiresStorageNotLow(true)
+                        .setRequiresCharging(true)
+                        .build()
+                )
+                .build();
+        WorkSpec workSpec = request.getWorkSpec();
+        Constraints constraints = workSpec.constraints;
+        assertThat(constraints.getRequiredNetworkType(), is(METERED));
+    }
+
+    @Test
+    public void testBuild_expedited_withUnspportedConstraints2() {
+        if (!BuildCompat.isAtLeastS()) {
+            return;
+        }
+
+        mThrown.expect(IllegalArgumentException.class);
+        OneTimeWorkRequest request = mBuilder
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.METERED)
+                        .setRequiresStorageNotLow(true)
+                        .setRequiresDeviceIdle(true)
+                        .build()
+                )
+                .build();
+        WorkSpec workSpec = request.getWorkSpec();
+        Constraints constraints = workSpec.constraints;
+        assertThat(constraints.getRequiredNetworkType(), is(METERED));
     }
 }

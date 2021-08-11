@@ -44,8 +44,10 @@ import androidx.lifecycle.Observer;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.ExperimentalExpeditedWork;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.OutOfQuotaPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
@@ -64,6 +66,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Main Activity
  */
+@ExperimentalExpeditedWork
 public class MainActivity extends AppCompatActivity {
 
     private static final String PACKAGE_NAME = "androidx.work.integration.testapp";
@@ -413,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
                 OneTimeWorkRequest request =
                         new OneTimeWorkRequest.Builder(ForegroundWorker.class)
                                 .setInputData(inputData)
+                                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                                 .setConstraints(new Constraints.Builder()
                                         .setRequiredNetworkType(NetworkType.CONNECTED).build()
                                 ).build();

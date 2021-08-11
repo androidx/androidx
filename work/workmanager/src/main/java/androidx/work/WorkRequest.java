@@ -16,6 +16,7 @@
 package androidx.work;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -289,12 +290,38 @@ public abstract class WorkRequest {
         }
 
         /**
+         * Marks the {@link WorkRequest} as important to the user.  In this case, WorkManager
+         * provides an additional signal to the OS that this work is important.
+         *
+         * @param policy The {@link OutOfQuotaPolicy} to be used.
+         */
+        @ExperimentalExpeditedWork
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public @NonNull B setExpedited(@NonNull OutOfQuotaPolicy policy) {
+            mWorkSpec.expedited = true;
+            mWorkSpec.outOfQuotaPolicy = policy;
+            return getThis();
+        }
+
+        /**
          * Builds a {@link WorkRequest} based on this {@link Builder}.
          *
          * @return A {@link WorkRequest} based on this {@link Builder}
          */
         public final @NonNull W build() {
             W returnValue = buildInternal();
+            Constraints constraints = mWorkSpec.constraints;
+            // Check for unsupported constraints.
+            boolean hasUnsupportedConstraints =
+                    (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers())
+                            || constraints.requiresBatteryNotLow()
+                            || constraints.requiresCharging()
+                            || (Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle());
+
+            if (mWorkSpec.expedited && hasUnsupportedConstraints) {
+                throw new IllegalArgumentException(
+                        "Expedited jobs only support network and storage constraints");
+            }
             // Create a new id and WorkSpec so this WorkRequest.Builder can be used multiple times.
             mId = UUID.randomUUID();
             mWorkSpec = new WorkSpec(mWorkSpec);

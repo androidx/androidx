@@ -51,6 +51,7 @@ android {
                 targets "icing"
             }
         }
+	multiDexEnabled true
     }
     externalNativeBuild {
         cmake {
@@ -75,9 +76,11 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.2.0")
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoAndroid)
     //TODO(b/149787478) upgrade and link to Dependencies.kt
     androidTestImplementation("junit:junit:4.13")
 }

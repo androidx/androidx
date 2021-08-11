@@ -17,21 +17,21 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_slice_more_content" msgid="7841223363798860154">"<xliff:g id="NUMBER">%1$d</xliff:g>개 더보기"</string>
-    <string name="abc_slice_more" msgid="4299234410808450900">"더보기"</string>
-    <string name="abc_slice_show_more" msgid="1112789899890391107">"더보기"</string>
-    <string name="abc_slice_updated" msgid="7932359091871934205">"<xliff:g id="TIME">%1$s</xliff:g>에 업데이트함"</string>
-    <plurals name="abc_slice_duration_min" formatted="false" msgid="7664017844210142826">
+    <string name="abc_slice_more_content" msgid="6405516388971241142">"<xliff:g id="NUMBER">%1$d</xliff:g>개 더보기"</string>
+    <string name="abc_slice_more" msgid="1983560225998630901">"더보기"</string>
+    <string name="abc_slice_show_more" msgid="1567717014004692768">"더보기"</string>
+    <string name="abc_slice_updated" msgid="8155085405396453848">"<xliff:g id="TIME">%1$s</xliff:g>에 업데이트됨"</string>
+    <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g>분 전</item>
       <item quantity="one"><xliff:g id="ID_1">%d</xliff:g>분 전</item>
     </plurals>
-    <plurals name="abc_slice_duration_years" formatted="false" msgid="2628491538787454021">
+    <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g>년 전</item>
       <item quantity="one"><xliff:g id="ID_1">%d</xliff:g>년 전</item>
     </plurals>
-    <plurals name="abc_slice_duration_days" formatted="false" msgid="8356547162075064530">
+    <plurals name="abc_slice_duration_days" formatted="false" msgid="6241698511167107334">
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g>일 전</item>
       <item quantity="one"><xliff:g id="ID_1">%d</xliff:g>일 전</item>
     </plurals>
-    <string name="abc_slice_error" msgid="1794214973158263497">"연결할 수 없음"</string>
+    <string name="abc_slice_error" msgid="4188371422904147368">"연결할 수 없음"</string>
 </resources>

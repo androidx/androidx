@@ -151,6 +151,7 @@ class ViewUtilsBase {
         }
     }
 
+    @SuppressLint("SoonBlockedPrivateApi") // Only called on API <23
     public void setTransitionVisibility(@NonNull View view, int visibility) {
         if (!sViewFlagsFieldFetched) {
             try {

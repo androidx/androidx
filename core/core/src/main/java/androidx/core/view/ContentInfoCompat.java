@@ -19,12 +19,16 @@ package androidx.core.view;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.ContentInfo;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
@@ -32,12 +36,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
- * Holds all the relevant data for a request to {@link OnReceiveContentListener}.
+ * Holds all the relevant data for a request to {@link OnReceiveContentListener}. This is a
+ * backward-compatible wrapper for the platform class {@link ContentInfo}.
  */
-// This class has the "Compat" suffix because it will integrate with (ie, wrap) the SDK API once
-// that is available.
 public final class ContentInfoCompat {
 
     /**
@@ -47,7 +51,8 @@ public final class ContentInfoCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @IntDef(value = {SOURCE_APP, SOURCE_CLIPBOARD, SOURCE_INPUT_METHOD, SOURCE_DRAG_AND_DROP})
+    @IntDef(value = {SOURCE_APP, SOURCE_CLIPBOARD, SOURCE_INPUT_METHOD, SOURCE_DRAG_AND_DROP,
+            SOURCE_AUTOFILL, SOURCE_PROCESS_TEXT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Source {
     }
@@ -77,6 +82,19 @@ public final class ContentInfoCompat {
     public static final int SOURCE_DRAG_AND_DROP = 3;
 
     /**
+     * Specifies that the operation was triggered by the autofill framework. See
+     * https://developer.android.com/guide/topics/text/autofill for more info.
+     */
+    public static final int SOURCE_AUTOFILL = 4;
+
+    /**
+     * Specifies that the operation was triggered by a result from a
+     * {@link android.content.Intent#ACTION_PROCESS_TEXT PROCESS_TEXT} action in the selection
+     * menu.
+     */
+    public static final int SOURCE_PROCESS_TEXT = 5;
+
+    /**
      * Returns the symbolic name of the given source.
      *
      * @hide
@@ -89,6 +107,8 @@ public final class ContentInfoCompat {
             case SOURCE_CLIPBOARD: return "SOURCE_CLIPBOARD";
             case SOURCE_INPUT_METHOD: return "SOURCE_INPUT_METHOD";
             case SOURCE_DRAG_AND_DROP: return "SOURCE_DRAG_AND_DROP";
+            case SOURCE_AUTOFILL: return "SOURCE_AUTOFILL";
+            case SOURCE_PROCESS_TEXT: return "SOURCE_PROCESS_TEXT";
         }
         return String.valueOf(source);
     }
@@ -124,35 +144,46 @@ public final class ContentInfoCompat {
     }
 
     @NonNull
-    final ClipData mClip;
-    @Source
-    final int mSource;
-    @Flags
-    final int mFlags;
-    @Nullable
-    final Uri mLinkUri;
-    @Nullable
-    final Bundle mExtras;
+    private final Compat mCompat;
 
-    ContentInfoCompat(Builder b) {
-        this.mClip = Preconditions.checkNotNull(b.mClip);
-        this.mSource = Preconditions.checkArgumentInRange(b.mSource, 0, SOURCE_DRAG_AND_DROP,
-                "source");
-        this.mFlags = Preconditions.checkFlagsArgument(b.mFlags, FLAG_CONVERT_TO_PLAIN_TEXT);
-        this.mLinkUri = b.mLinkUri;
-        this.mExtras = b.mExtras;
+    ContentInfoCompat(@NonNull Compat compat) {
+        mCompat = compat;
+    }
+
+    /**
+     * Provides a backward-compatible wrapper for {@link ContentInfo}.
+     *
+     * <p>This method is not supported on devices running SDK <= 30 since the platform
+     * class will not be available.
+     *
+     * @param platContentInfo platform class to wrap, must not be null
+     * @return wrapped class
+     */
+    @RequiresApi(31)
+    @NonNull
+    public static ContentInfoCompat toContentInfoCompat(@NonNull ContentInfo platContentInfo) {
+        return new ContentInfoCompat(new Compat31Impl(platContentInfo));
+    }
+
+    /**
+     * Provides the {@link ContentInfo} represented by this object.
+     *
+     * <p>This method is not supported on devices running SDK <= 30 since the platform
+     * class will not be available.
+     *
+     * @return platform class object
+     * @see ContentInfoCompat#toContentInfoCompat
+     */
+    @RequiresApi(31)
+    @NonNull
+    public ContentInfo toContentInfo() {
+        return mCompat.getWrapped();
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "ContentInfoCompat{"
-                + "clip=" + mClip.getDescription()
-                + ", source=" + sourceToString(mSource)
-                + ", flags=" + flagsToString(mFlags)
-                + (mLinkUri == null ? "" : ", hasLinkUri(" + mLinkUri.toString().length() + ")")
-                + (mExtras == null ? "" : ", hasExtras")
-                + "}";
+        return mCompat.toString();
     }
 
     /**
@@ -160,7 +191,7 @@ public final class ContentInfoCompat {
      */
     @NonNull
     public ClipData getClip() {
-        return mClip;
+        return mCompat.getClip();
     }
 
     /**
@@ -169,7 +200,7 @@ public final class ContentInfoCompat {
      */
     @Source
     public int getSource() {
-        return mSource;
+        return mCompat.getSource();
     }
 
     /**
@@ -177,7 +208,7 @@ public final class ContentInfoCompat {
      */
     @Flags
     public int getFlags() {
-        return mFlags;
+        return mCompat.getFlags();
     }
 
     /**
@@ -188,7 +219,7 @@ public final class ContentInfoCompat {
      */
     @Nullable
     public Uri getLinkUri() {
-        return mLinkUri;
+        return mCompat.getLinkUri();
     }
 
     /**
@@ -198,7 +229,7 @@ public final class ContentInfoCompat {
      */
     @Nullable
     public Bundle getExtras() {
-        return mExtras;
+        return mCompat.getExtras();
     }
 
     /**
@@ -220,37 +251,51 @@ public final class ContentInfoCompat {
     @NonNull
     public Pair<ContentInfoCompat, ContentInfoCompat> partition(
             @NonNull androidx.core.util.Predicate<ClipData.Item> itemPredicate) {
-        if (mClip.getItemCount() == 1) {
-            boolean matched = itemPredicate.test(mClip.getItemAt(0));
+        ClipData clip = mCompat.getClip();
+        if (clip.getItemCount() == 1) {
+            boolean matched = itemPredicate.test(clip.getItemAt(0));
             return Pair.create(matched ? this : null, matched ? null : this);
         }
-        ArrayList<ClipData.Item> acceptedItems = new ArrayList<>();
-        ArrayList<ClipData.Item> remainingItems = new ArrayList<>();
-        for (int i = 0; i < mClip.getItemCount(); i++) {
-            ClipData.Item item = mClip.getItemAt(i);
+        Pair<ClipData, ClipData> split = ContentInfoCompat.partition(clip, itemPredicate);
+        if (split.first == null) {
+            return Pair.create(null, this);
+        } else if (split.second == null) {
+            return Pair.create(this, null);
+        }
+        return Pair.create(
+                new ContentInfoCompat.Builder(this).setClip(split.first).build(),
+                new ContentInfoCompat.Builder(this).setClip(split.second).build());
+    }
+
+    @NonNull
+    static Pair<ClipData, ClipData> partition(@NonNull ClipData clip,
+            @NonNull androidx.core.util.Predicate<ClipData.Item> itemPredicate) {
+        ArrayList<ClipData.Item> acceptedItems = null;
+        ArrayList<ClipData.Item> remainingItems = null;
+        for (int i = 0; i < clip.getItemCount(); i++) {
+            ClipData.Item item = clip.getItemAt(i);
             if (itemPredicate.test(item)) {
+                acceptedItems = (acceptedItems == null) ? new ArrayList<>() : acceptedItems;
                 acceptedItems.add(item);
             } else {
+                remainingItems = (remainingItems == null) ? new ArrayList<>() : remainingItems;
                 remainingItems.add(item);
             }
         }
-        if (acceptedItems.isEmpty()) {
-            return Pair.create(null, this);
+        if (acceptedItems == null) {
+            return Pair.create(null, clip);
         }
-        if (remainingItems.isEmpty()) {
-            return Pair.create(this, null);
+        if (remainingItems == null) {
+            return Pair.create(clip, null);
         }
-        ContentInfoCompat accepted = new Builder(this)
-                .setClip(buildClipData(mClip.getDescription(), acceptedItems))
-                .build();
-        ContentInfoCompat remaining = new Builder(this)
-                .setClip(buildClipData(mClip.getDescription(), remainingItems))
-                .build();
-        return Pair.create(accepted, remaining);
+        return Pair.create(
+                buildClipData(clip.getDescription(), acceptedItems),
+                buildClipData(clip.getDescription(), remainingItems));
     }
 
-    private static ClipData buildClipData(ClipDescription description,
-            List<ClipData.Item> items) {
+    @NonNull
+    static ClipData buildClipData(@NonNull ClipDescription description,
+            @NonNull List<ClipData.Item> items) {
         ClipData clip = new ClipData(new ClipDescription(description), items.get(0));
         for (int i = 1; i < items.size(); i++) {
             clip.addItem(items.get(i));
@@ -259,29 +304,205 @@ public final class ContentInfoCompat {
     }
 
     /**
+     * Partitions content based on the given predicate.
+     *
+     * <p>This function classifies the content and organizes it into a pair, grouping the items
+     * that matched vs didn't match the predicate.
+     *
+     * <p>Except for the {@link ClipData} items, the returned objects will contain all the same
+     * metadata as the passed-in {@link ContentInfo}.
+     *
+     * @param itemPredicate The predicate to test each {@link ClipData.Item} to determine which
+     *                      partition to place it into.
+     * @return A pair containing the partitioned content. The pair's first object will have the
+     * content that matched the predicate, or null if none of the items matched. The pair's
+     * second object will have the content that didn't match the predicate, or null if all of
+     * the items matched.
+     */
+    @RequiresApi(31)
+    @NonNull
+    public static Pair<ContentInfo, ContentInfo> partition(@NonNull ContentInfo payload,
+            @NonNull Predicate<ClipData.Item> itemPredicate) {
+        return Api31Impl.partition(payload, itemPredicate);
+    }
+
+    @RequiresApi(31)
+    private static final class Api31Impl {
+        private Api31Impl() {}
+
+        @DoNotInline
+        @NonNull
+        public static Pair<ContentInfo, ContentInfo> partition(@NonNull ContentInfo payload,
+                @NonNull Predicate<ClipData.Item> itemPredicate) {
+            ClipData clip = payload.getClip();
+            if (clip.getItemCount() == 1) {
+                boolean matched = itemPredicate.test(clip.getItemAt(0));
+                return Pair.create(matched ? payload : null, matched ? null : payload);
+            }
+            Pair<ClipData, ClipData> split = ContentInfoCompat.partition(clip, itemPredicate::test);
+            if (split.first == null) {
+                return Pair.create(null, payload);
+            } else if (split.second == null) {
+                return Pair.create(payload, null);
+            }
+            return Pair.create(
+                    new ContentInfo.Builder(payload).setClip(split.first).build(),
+                    new ContentInfo.Builder(payload).setClip(split.second).build());
+        }
+    }
+
+    private interface Compat {
+        @Nullable
+        ContentInfo getWrapped();
+        @NonNull
+        ClipData getClip();
+        @Source
+        int getSource();
+        @Flags
+        int getFlags();
+        @Nullable
+        Uri getLinkUri();
+        @Nullable
+        Bundle getExtras();
+    }
+
+    private static final class CompatImpl implements Compat {
+        @NonNull
+        private final ClipData mClip;
+        @Source
+        private final int mSource;
+        @Flags
+        private final int mFlags;
+        @Nullable
+        private final Uri mLinkUri;
+        @Nullable
+        private final Bundle mExtras;
+
+        CompatImpl(BuilderCompatImpl b) {
+            mClip = Preconditions.checkNotNull(b.mClip);
+            mSource = Preconditions.checkArgumentInRange(b.mSource, 0, SOURCE_PROCESS_TEXT,
+                    "source");
+            mFlags = Preconditions.checkFlagsArgument(b.mFlags, FLAG_CONVERT_TO_PLAIN_TEXT);
+            mLinkUri = b.mLinkUri;
+            mExtras = b.mExtras;
+        }
+
+        @Nullable
+        @Override
+        public ContentInfo getWrapped() {
+            return null;
+        }
+
+        @NonNull
+        @Override
+        public ClipData getClip() {
+            return mClip;
+        }
+
+        @Source
+        @Override
+        public int getSource() {
+            return mSource;
+        }
+
+        @Flags
+        @Override
+        public int getFlags() {
+            return mFlags;
+        }
+
+        @Nullable
+        @Override
+        public Uri getLinkUri() {
+            return mLinkUri;
+        }
+
+        @Nullable
+        @Override
+        public Bundle getExtras() {
+            return mExtras;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "ContentInfoCompat{"
+                    + "clip=" + mClip.getDescription()
+                    + ", source=" + sourceToString(mSource)
+                    + ", flags=" + flagsToString(mFlags)
+                    + (mLinkUri == null ? "" : ", hasLinkUri(" + mLinkUri.toString().length() + ")")
+                    + (mExtras == null ? "" : ", hasExtras")
+                    + "}";
+        }
+    }
+
+    private static final class Compat31Impl implements Compat {
+        @NonNull
+        private final ContentInfo mWrapped;
+
+        Compat31Impl(@NonNull ContentInfo wrapped) {
+            mWrapped = Preconditions.checkNotNull(wrapped);
+        }
+
+        @NonNull
+        @Override
+        public ContentInfo getWrapped() {
+            return mWrapped;
+        }
+
+        @NonNull
+        @Override
+        public ClipData getClip() {
+            return mWrapped.getClip();
+        }
+
+        @Source
+        @Override
+        public int getSource() {
+            return mWrapped.getSource();
+        }
+
+        @Flags
+        @Override
+        public int getFlags() {
+            return mWrapped.getFlags();
+        }
+
+        @Nullable
+        @Override
+        public Uri getLinkUri() {
+            return mWrapped.getLinkUri();
+        }
+
+        @Nullable
+        @Override
+        public Bundle getExtras() {
+            return mWrapped.getExtras();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "ContentInfoCompat{" + mWrapped + "}";
+        }
+    }
+
+    /**
      * Builder for {@link ContentInfoCompat}.
      */
     public static final class Builder {
         @NonNull
-        ClipData mClip;
-        @Source
-        int mSource;
-        @Flags
-        int mFlags;
-        @Nullable
-        Uri mLinkUri;
-        @Nullable
-        Bundle mExtras;
+        private final BuilderCompat mBuilderCompat;
 
         /**
-         * Creates a new builder initialized with the data from the given builder.
+         * Creates a new builder initialized with the data from the given object (shallow copy).
          */
         public Builder(@NonNull ContentInfoCompat other) {
-            mClip = other.mClip;
-            mSource = other.mSource;
-            mFlags = other.mFlags;
-            mLinkUri = other.mLinkUri;
-            mExtras = other.mExtras;
+            if (Build.VERSION.SDK_INT >= 31) {
+                mBuilderCompat = new BuilderCompat31Impl(other);
+            } else {
+                mBuilderCompat = new BuilderCompatImpl(other);
+            }
         }
 
         /**
@@ -291,8 +512,11 @@ public final class ContentInfoCompat {
          * @param source The source of the operation. See {@code SOURCE_} constants.
          */
         public Builder(@NonNull ClipData clip, @Source int source) {
-            mClip = clip;
-            mSource = source;
+            if (Build.VERSION.SDK_INT >= 31) {
+                mBuilderCompat = new BuilderCompat31Impl(clip, source);
+            } else {
+                mBuilderCompat = new BuilderCompatImpl(clip, source);
+            }
         }
 
         /**
@@ -303,7 +527,7 @@ public final class ContentInfoCompat {
          */
         @NonNull
         public Builder setClip(@NonNull ClipData clip) {
-            mClip = clip;
+            mBuilderCompat.setClip(clip);
             return this;
         }
 
@@ -315,7 +539,7 @@ public final class ContentInfoCompat {
          */
         @NonNull
         public Builder setSource(@Source int source) {
-            mSource = source;
+            mBuilderCompat.setSource(source);
             return this;
         }
 
@@ -328,7 +552,7 @@ public final class ContentInfoCompat {
          */
         @NonNull
         public Builder setFlags(@Flags int flags) {
-            mFlags = flags;
+            mBuilderCompat.setFlags(flags);
             return this;
         }
 
@@ -341,7 +565,7 @@ public final class ContentInfoCompat {
          */
         @NonNull
         public Builder setLinkUri(@Nullable Uri linkUri) {
-            mLinkUri = linkUri;
+            mBuilderCompat.setLinkUri(linkUri);
             return this;
         }
 
@@ -353,7 +577,7 @@ public final class ContentInfoCompat {
          */
         @NonNull
         public Builder setExtras(@Nullable Bundle extras) {
-            mExtras = extras;
+            mBuilderCompat.setExtras(extras);
             return this;
         }
 
@@ -362,7 +586,119 @@ public final class ContentInfoCompat {
          */
         @NonNull
         public ContentInfoCompat build() {
-            return new ContentInfoCompat(this);
+            return mBuilderCompat.build();
+        }
+    }
+
+    private interface BuilderCompat {
+        void setClip(@NonNull ClipData clip);
+        void setSource(@Source int source);
+        void setFlags(@Flags int flags);
+        void setLinkUri(@Nullable Uri linkUri);
+        void setExtras(@Nullable Bundle extras);
+        @NonNull
+        ContentInfoCompat build();
+    }
+
+    private static final class BuilderCompatImpl implements BuilderCompat {
+        @NonNull
+        ClipData mClip;
+        @Source
+        int mSource;
+        @Flags
+        int mFlags;
+        @Nullable
+        Uri mLinkUri;
+        @Nullable
+        Bundle mExtras;
+
+        BuilderCompatImpl(@NonNull ClipData clip, int source) {
+            mClip = clip;
+            mSource = source;
+        }
+
+        BuilderCompatImpl(@NonNull ContentInfoCompat other) {
+            mClip = other.getClip();
+            mSource = other.getSource();
+            mFlags = other.getFlags();
+            mLinkUri = other.getLinkUri();
+            mExtras = other.getExtras();
+        }
+
+        @Override
+        public void setClip(@NonNull ClipData clip) {
+            mClip = clip;
+        }
+
+        @Override
+        public void setSource(@Source int source) {
+            mSource = source;
+        }
+
+        @Override
+        public void setFlags(@Flags int flags) {
+            mFlags = flags;
+        }
+
+        @Override
+        public void setLinkUri(@Nullable Uri linkUri) {
+            mLinkUri = linkUri;
+        }
+
+        @Override
+        public void setExtras(@Nullable Bundle extras) {
+            mExtras = extras;
+        }
+
+        @Override
+        @NonNull
+        public ContentInfoCompat build() {
+            return new ContentInfoCompat(new CompatImpl(this));
+        }
+    }
+
+    @RequiresApi(31)
+    private static final class BuilderCompat31Impl implements BuilderCompat {
+        @NonNull
+        private final ContentInfo.Builder mPlatformBuilder;
+
+        BuilderCompat31Impl(@NonNull ClipData clip, int source) {
+            mPlatformBuilder = new ContentInfo.Builder(clip, source);
+        }
+
+        BuilderCompat31Impl(@NonNull ContentInfoCompat other) {
+            mPlatformBuilder = new ContentInfo.Builder(other.toContentInfo());
+        }
+
+        @Override
+        public void setClip(@NonNull ClipData clip) {
+            mPlatformBuilder.setClip(clip);
+        }
+
+        @Override
+        public void setSource(@Source int source) {
+            mPlatformBuilder.setSource(source);
+        }
+
+        @Override
+        public void setFlags(@Flags int flags) {
+            mPlatformBuilder.setFlags(flags);
+        }
+
+        @Override
+        public void setLinkUri(@Nullable Uri linkUri) {
+            mPlatformBuilder.setLinkUri(linkUri);
+        }
+
+        @Override
+        public void setExtras(@Nullable Bundle extras) {
+            mPlatformBuilder.setExtras(extras);
+        }
+
+        @NonNull
+        @Override
+        public ContentInfoCompat build() {
+            return new ContentInfoCompat(new Compat31Impl(mPlatformBuilder.build()));
         }
     }
 }

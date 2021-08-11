@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.internal.compat.params;
 
+import android.annotation.SuppressLint;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.view.Surface;
 
@@ -59,6 +60,7 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
 
     private static int getMaxSharedSurfaceCountApi26()
             throws NoSuchFieldException, IllegalAccessException {
+        @SuppressLint("SoonBlockedPrivateApi") // Only used between API 26 and 28
         Field maxSurfacesCountField = OutputConfiguration.class.getDeclaredField(
                 MAX_SHARED_SURFACES_COUNT_FIELD);
         maxSurfacesCountField.setAccessible(true);
@@ -68,6 +70,7 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
     @SuppressWarnings("unchecked")
     private static List<Surface> getMutableSurfaceListApi26(OutputConfiguration outputConfiguration)
             throws NoSuchFieldException, IllegalAccessException {
+        @SuppressLint("SoonBlockedPrivateApi") // Only used between API 26 and 28
         Field surfacesField = OutputConfiguration.class.getDeclaredField(SURFACES_FIELD);
         surfacesField.setAccessible(true);
         return (List<Surface>) surfacesField.get(outputConfiguration);

@@ -36,6 +36,7 @@ import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.Logger;
+import androidx.work.OutOfQuotaPolicy;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
 
@@ -129,10 +130,19 @@ public final class WorkSpec {
     public long scheduleRequestedAt = SCHEDULE_NOT_REQUESTED_YET;
 
     /**
-     * This is {@code true} when the WorkSpec needs to be hosted by a foreground service.
+     * This is {@code true} when the WorkSpec needs to be hosted by a foreground service or a
+     * high priority job.
      */
     @ColumnInfo(name = "run_in_foreground")
-    public boolean runInForeground;
+    public boolean expedited;
+
+    /**
+     * When set to <code>true</code> this {@link WorkSpec} falls back to a regular job when
+     * an application runs out of expedited job quota.
+     */
+    @NonNull
+    @ColumnInfo(name = "out_of_quota_policy")
+    public OutOfQuotaPolicy outOfQuotaPolicy = OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST;
 
     public WorkSpec(@NonNull String id, @NonNull String workerClassName) {
         this.id = id;
@@ -156,7 +166,8 @@ public final class WorkSpec {
         periodStartTime = other.periodStartTime;
         minimumRetentionDuration = other.minimumRetentionDuration;
         scheduleRequestedAt = other.scheduleRequestedAt;
-        runInForeground = other.runInForeground;
+        expedited = other.expedited;
+        outOfQuotaPolicy = other.outOfQuotaPolicy;
     }
 
     /**
@@ -173,7 +184,6 @@ public final class WorkSpec {
         }
         this.backoffDelayDuration = backoffDelayDuration;
     }
-
 
     public boolean isPeriodic() {
         return intervalDuration != 0L;
@@ -301,7 +311,7 @@ public final class WorkSpec {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof WorkSpec)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         WorkSpec workSpec = (WorkSpec) o;
 
@@ -313,7 +323,7 @@ public final class WorkSpec {
         if (periodStartTime != workSpec.periodStartTime) return false;
         if (minimumRetentionDuration != workSpec.minimumRetentionDuration) return false;
         if (scheduleRequestedAt != workSpec.scheduleRequestedAt) return false;
-        if (runInForeground != workSpec.runInForeground) return false;
+        if (expedited != workSpec.expedited) return false;
         if (!id.equals(workSpec.id)) return false;
         if (state != workSpec.state) return false;
         if (!workerClassName.equals(workSpec.workerClassName)) return false;
@@ -325,7 +335,8 @@ public final class WorkSpec {
         if (!input.equals(workSpec.input)) return false;
         if (!output.equals(workSpec.output)) return false;
         if (!constraints.equals(workSpec.constraints)) return false;
-        return backoffPolicy == workSpec.backoffPolicy;
+        if (backoffPolicy != workSpec.backoffPolicy) return false;
+        return outOfQuotaPolicy == workSpec.outOfQuotaPolicy;
     }
 
     @Override
@@ -346,7 +357,8 @@ public final class WorkSpec {
         result = 31 * result + (int) (periodStartTime ^ (periodStartTime >>> 32));
         result = 31 * result + (int) (minimumRetentionDuration ^ (minimumRetentionDuration >>> 32));
         result = 31 * result + (int) (scheduleRequestedAt ^ (scheduleRequestedAt >>> 32));
-        result = 31 * result + (runInForeground ? 1 : 0);
+        result = 31 * result + (expedited ? 1 : 0);
+        result = 31 * result + outOfQuotaPolicy.hashCode();
         return result;
     }
 

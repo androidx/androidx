@@ -16,6 +16,8 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
+import android.os.Process;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
@@ -24,18 +26,19 @@ import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 class SearchResultsImpl implements SearchResults {
     private final AppSearchImpl mAppSearchImpl;
 
-    private final ExecutorService mExecutorService;
+    private final Executor mExecutor;
 
     // The package name to search over. If null, this will search over all package names.
     @Nullable
@@ -55,47 +58,74 @@ class SearchResultsImpl implements SearchResults {
 
     private boolean mIsClosed = false;
 
+    @Nullable
+    private final AppSearchLogger mLogger;
+
+    // Visibility Scope(local vs global) for 1st query, so it can be used for the visibility
+    // scope for getNextPage().
+    @SearchStats.VisibilityScope
+    private int mVisibilityScope = SearchStats.VISIBILITY_SCOPE_UNKNOWN;
+
     SearchResultsImpl(
             @NonNull AppSearchImpl appSearchImpl,
-            @NonNull ExecutorService executorService,
+            @NonNull Executor executor,
             @Nullable String packageName,
             @Nullable String databaseName,
             @NonNull String queryExpression,
-            @NonNull SearchSpec searchSpec) {
+            @NonNull SearchSpec searchSpec,
+            @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
-        mExecutorService = Preconditions.checkNotNull(executorService);
+        mExecutor = Preconditions.checkNotNull(executor);
         mPackageName = packageName;
         mDatabaseName = databaseName;
         mQueryExpression = Preconditions.checkNotNull(queryExpression);
         mSearchSpec = Preconditions.checkNotNull(searchSpec);
+        mLogger = logger;
     }
 
     @Override
     @NonNull
     public ListenableFuture<List<SearchResult>> getNextPage() {
         Preconditions.checkState(!mIsClosed, "SearchResults has already been closed");
-        return FutureUtil.execute(mExecutorService, () -> {
+        return FutureUtil.execute(mExecutor, () -> {
             SearchResultPage searchResultPage;
             if (mIsFirstLoad) {
                 mIsFirstLoad = false;
-                if (mDatabaseName == null && mPackageName == null) {
-                    // Global query, there's no one package-database combination to check.
-                    searchResultPage = mAppSearchImpl.globalQuery(mQueryExpression, mSearchSpec);
-                } else if (mPackageName == null) {
+                if (mPackageName == null) {
                     throw new AppSearchException(
                             AppSearchResult.RESULT_INVALID_ARGUMENT,
                             "Invalid null package name for query");
                 } else if (mDatabaseName == null) {
-                    throw new AppSearchException(
-                            AppSearchResult.RESULT_INVALID_ARGUMENT,
-                            "Invalid null database name for query");
+                    mVisibilityScope = SearchStats.VISIBILITY_SCOPE_GLOBAL;
+                    // Global queries aren't restricted to a single database
+                    searchResultPage = mAppSearchImpl.globalQuery(
+                            mQueryExpression,
+                            mSearchSpec,
+                            mPackageName,
+                            /*visibilityStore=*/ null,
+                            Process.myUid(),
+                            /*callerHasSystemAccess=*/ false,
+                            mLogger);
                 } else {
+                    mVisibilityScope = SearchStats.VISIBILITY_SCOPE_LOCAL;
                     // Normal local query, pass in specified database.
                     searchResultPage = mAppSearchImpl.query(
-                            mPackageName, mDatabaseName, mQueryExpression, mSearchSpec);
+                            mPackageName, mDatabaseName, mQueryExpression, mSearchSpec, mLogger);
                 }
             } else {
-                searchResultPage = mAppSearchImpl.getNextPage(mNextPageToken);
+                SearchStats.Builder sStatsBuilder = null;
+                if (mLogger != null) {
+                    sStatsBuilder =
+                            new SearchStats.Builder(mVisibilityScope, mPackageName);
+                    if (mDatabaseName != null) {
+                        sStatsBuilder.setDatabase(mDatabaseName);
+                    }
+                }
+                searchResultPage = mAppSearchImpl.getNextPage(mPackageName, mNextPageToken,
+                        sStatsBuilder);
+                if (mLogger != null && sStatsBuilder != null) {
+                    mLogger.logStats(sStatsBuilder.build());
+                }
             }
             mNextPageToken = searchResultPage.getNextPageToken();
             return searchResultPage.getResults();
@@ -108,8 +138,8 @@ class SearchResultsImpl implements SearchResults {
         // Checking the future result is not needed here since this is a cleanup step which is not
         // critical to the correct functioning of the system; also, the return value is void.
         if (!mIsClosed) {
-            FutureUtil.execute(mExecutorService, () -> {
-                mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
+            FutureUtil.execute(mExecutor, () -> {
+                mAppSearchImpl.invalidateNextPageToken(mPackageName, mNextPageToken);
                 mIsClosed = true;
                 return null;
             });

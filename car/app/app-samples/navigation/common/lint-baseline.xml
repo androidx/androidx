@@ -96,7 +96,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="502"
+            line="503"
             column="21"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="503"
+            line="504"
             column="34"/>
     </issue>
 

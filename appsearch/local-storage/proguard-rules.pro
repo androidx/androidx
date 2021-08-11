@@ -18,3 +18,13 @@
 -keepclassmembers class * extends com.google.android.icing.protobuf.GeneratedMessageLite {
   <fields>;
 }
+-keep class com.google.android.icing.BreakIteratorBatcher { *; }
+-keepclassmembers public class com.google.android.icing.IcingSearchEngine {
+  private long nativePointer;
+}
+
+# This prevents the names of native methods from being obfuscated and prevents
+# UnsatisfiedLinkErrors.
+-keepclasseswithmembernames,includedescriptorclasses class * {
+  native <methods>;
+}

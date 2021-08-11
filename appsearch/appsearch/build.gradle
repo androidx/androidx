@@ -24,9 +24,8 @@ plugins {
 }
 
 android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 
@@ -38,6 +37,7 @@ dependencies {
 
     androidTestAnnotationProcessor project(':appsearch:appsearch-compiler')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
+    androidTestImplementation project(':appsearch:appsearch-platform-storage')
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)

@@ -26,6 +26,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@Suppress("DEPRECATION")
 public class CamcorderProfileProxyTest {
 
     @Test

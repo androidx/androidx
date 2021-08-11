@@ -1143,6 +1143,7 @@ public final class VideoCapture extends UseCase {
     }
 
     /** Set audio record parameters by CamcorderProfile */
+    @SuppressWarnings("deprecation")
     private void setAudioParametersByCamcorderProfile(Size currentResolution, String cameraId) {
         CamcorderProfile profile;
         boolean isCamcorderProfileFound = false;

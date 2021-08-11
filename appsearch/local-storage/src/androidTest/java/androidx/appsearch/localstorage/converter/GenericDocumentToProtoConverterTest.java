@@ -21,8 +21,11 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.appsearch.app.GenericDocument;
 
 import com.google.android.icing.proto.DocumentProto;
+import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
+import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.protobuf.ByteString;
+import com.google.common.collect.ImmutableMap;
 
 import org.junit.Test;
 
@@ -30,29 +33,42 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GenericDocumentToProtoConverterTest {
     private static final byte[] BYTE_ARRAY_1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
     private static final byte[] BYTE_ARRAY_2 = new byte[]{(byte) 4, (byte) 5, (byte) 6, (byte) 7};
+    private static final String SCHEMA_TYPE_1 = "sDocumentPropertiesSchemaType1";
+    private static final String SCHEMA_TYPE_2 = "sDocumentPropertiesSchemaType2";
     private static final GenericDocument DOCUMENT_PROPERTIES_1 =
             new GenericDocument.Builder<GenericDocument.Builder<?>>(
-                    "sDocumentProperties1", "sDocumentPropertiesSchemaType1")
-            .setCreationTimestampMillis(12345L)
-            .build();
+                    "namespace", "sDocumentProperties1", SCHEMA_TYPE_1)
+                    .setCreationTimestampMillis(12345L)
+                    .build();
     private static final GenericDocument DOCUMENT_PROPERTIES_2 =
             new GenericDocument.Builder<GenericDocument.Builder<?>>(
-                    "sDocumentProperties2", "sDocumentPropertiesSchemaType2")
-            .setCreationTimestampMillis(6789L)
+                    "namespace", "sDocumentProperties2", SCHEMA_TYPE_2)
+                    .setCreationTimestampMillis(6789L)
+                    .build();
+    private static final SchemaTypeConfigProto SCHEMA_PROTO_1 = SchemaTypeConfigProto.newBuilder()
+            .setSchemaType(SCHEMA_TYPE_1)
             .build();
+    private static final SchemaTypeConfigProto SCHEMA_PROTO_2 = SchemaTypeConfigProto.newBuilder()
+            .setSchemaType(SCHEMA_TYPE_2)
+            .build();
+    private static final String PREFIX = "package$databaseName/";
+    private static final Map<String, SchemaTypeConfigProto> SCHEMA_MAP =
+            ImmutableMap.of(PREFIX + SCHEMA_TYPE_1, SCHEMA_PROTO_1, PREFIX + SCHEMA_TYPE_2,
+                    SCHEMA_PROTO_2);
 
     @Test
     public void testDocumentProtoConvert() {
         GenericDocument document =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("uri1", "schemaType1")
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
+                        SCHEMA_TYPE_1)
                         .setCreationTimestampMillis(5L)
                         .setScore(1)
                         .setTtlMillis(1L)
-                        .setNamespace("namespace")
                         .setPropertyLong("longKey1", 1L)
                         .setPropertyDouble("doubleKey1", 1.0)
                         .setPropertyBoolean("booleanKey1", true)
@@ -64,8 +80,8 @@ public class GenericDocumentToProtoConverterTest {
 
         // Create the Document proto. Need to sort the property order by key.
         DocumentProto.Builder documentProtoBuilder = DocumentProto.newBuilder()
-                .setUri("uri1")
-                .setSchema("schemaType1")
+                .setUri("id1")
+                .setSchema(SCHEMA_TYPE_1)
                 .setCreationTimestampMs(5L)
                 .setScore(1)
                 .setTtlMs(1L)
@@ -95,9 +111,123 @@ public class GenericDocumentToProtoConverterTest {
             documentProtoBuilder.addProperties(propertyProtoMap.get(key));
         }
         DocumentProto documentProto = documentProtoBuilder.build();
-        assertThat(GenericDocumentToProtoConverter.toDocumentProto(document))
-                .isEqualTo(documentProto);
-        assertThat(document)
-                .isEqualTo(GenericDocumentToProtoConverter.toGenericDocument(documentProto));
+
+        GenericDocument convertedGenericDocument =
+                GenericDocumentToProtoConverter.toGenericDocument(documentProto, PREFIX,
+                        SCHEMA_MAP);
+        DocumentProto convertedDocumentProto =
+                GenericDocumentToProtoConverter.toDocumentProto(document);
+
+        assertThat(convertedDocumentProto).isEqualTo(documentProto);
+        assertThat(convertedGenericDocument).isEqualTo(document);
+    }
+
+    @Test
+    public void testConvertDocument_whenPropertyHasEmptyList() {
+        String emptyStringPropertyName = "emptyStringProperty";
+        DocumentProto documentProto = DocumentProto.newBuilder()
+                .setUri("id1")
+                .setSchema(SCHEMA_TYPE_1)
+                .setCreationTimestampMs(5L)
+                .setNamespace("namespace")
+                .addProperties(
+                        PropertyProto.newBuilder()
+                                .setName(emptyStringPropertyName)
+                                .build()
+                ).build();
+
+        PropertyConfigProto emptyStringListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.STRING)
+                .setPropertyName(emptyStringPropertyName)
+                .build();
+        SchemaTypeConfigProto schemaTypeConfigProto = SchemaTypeConfigProto.newBuilder()
+                .addProperties(emptyStringListProperty)
+                .setSchemaType(SCHEMA_TYPE_1)
+                .build();
+        Map<String, SchemaTypeConfigProto> schemaMap =
+                ImmutableMap.of(PREFIX + SCHEMA_TYPE_1, schemaTypeConfigProto);
+
+        GenericDocument convertedDocument = GenericDocumentToProtoConverter.toGenericDocument(
+                documentProto, PREFIX, schemaMap);
+
+        GenericDocument expectedDocument =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
+                        SCHEMA_TYPE_1)
+                        .setCreationTimestampMillis(5L)
+                        .setPropertyString(emptyStringPropertyName)
+                        .build();
+        assertThat(convertedDocument).isEqualTo(expectedDocument);
+        assertThat(expectedDocument.getPropertyStringArray(emptyStringPropertyName)).isEmpty();
+    }
+
+    @Test
+    public void testConvertDocument_whenNestedDocumentPropertyHasEmptyList() {
+        String emptyStringPropertyName = "emptyStringProperty";
+        String documentPropertyName = "documentProperty";
+        DocumentProto nestedDocumentProto = DocumentProto.newBuilder()
+                .setUri("id2")
+                .setSchema(SCHEMA_TYPE_2)
+                .setCreationTimestampMs(5L)
+                .setNamespace("namespace")
+                .addProperties(
+                        PropertyProto.newBuilder()
+                                .setName(emptyStringPropertyName)
+                                .build()
+                ).build();
+        DocumentProto documentProto = DocumentProto.newBuilder()
+                .setUri("id1")
+                .setSchema(SCHEMA_TYPE_1)
+                .setCreationTimestampMs(5L)
+                .setNamespace("namespace")
+                .addProperties(
+                        PropertyProto.newBuilder()
+                                .addDocumentValues(nestedDocumentProto)
+                                .setName(documentPropertyName)
+                                .build()
+                ).build();
+
+        PropertyConfigProto documentProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
+                .setPropertyName(documentPropertyName)
+                .setSchemaType(SCHEMA_TYPE_2)
+                .build();
+        SchemaTypeConfigProto schemaTypeConfigProto = SchemaTypeConfigProto.newBuilder()
+                .addProperties(documentProperty)
+                .setSchemaType(SCHEMA_TYPE_1)
+                .build();
+        PropertyConfigProto emptyStringListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.STRING)
+                .setPropertyName(emptyStringPropertyName)
+                .build();
+        SchemaTypeConfigProto nestedSchemaTypeConfigProto = SchemaTypeConfigProto.newBuilder()
+                .addProperties(emptyStringListProperty)
+                .setSchemaType(SCHEMA_TYPE_2)
+                .build();
+        Map<String, SchemaTypeConfigProto> schemaMap =
+                ImmutableMap.of(PREFIX + SCHEMA_TYPE_1, schemaTypeConfigProto,
+                        PREFIX + SCHEMA_TYPE_2, nestedSchemaTypeConfigProto);
+
+        GenericDocument convertedDocument = GenericDocumentToProtoConverter.toGenericDocument(
+                documentProto, PREFIX, schemaMap);
+
+        GenericDocument expectedDocument =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
+                        SCHEMA_TYPE_1)
+                        .setCreationTimestampMillis(5L)
+                        .setPropertyDocument(documentPropertyName,
+                                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace",
+                                        "id2", SCHEMA_TYPE_2)
+                                        .setCreationTimestampMillis(5L)
+                                        .setPropertyString(emptyStringPropertyName)
+                                        .build()
+                        )
+                        .build();
+        assertThat(convertedDocument).isEqualTo(expectedDocument);
+        assertThat(
+                expectedDocument.getPropertyDocument(documentPropertyName).getPropertyStringArray(
+                        emptyStringPropertyName)).isEmpty();
     }
 }

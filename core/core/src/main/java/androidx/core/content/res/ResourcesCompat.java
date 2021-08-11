@@ -190,12 +190,10 @@ public final class ResourcesCompat {
     @SuppressWarnings("deprecation")
     public static ColorStateList getColorStateList(@NonNull Resources res, @ColorRes int id,
             @Nullable Theme theme) throws NotFoundException {
-        if (SDK_INT >= 23) {
-            // On M+ we can use the framework
-            return res.getColorStateList(id, theme);
-        }
+        // We explicitly do not attempt to use the platform Resources impl on S+
+        // in case the CSL is using only app:lStar
 
-        // Before that, we'll try handle it ourselves
+        // First, try and handle the inflation ourselves
         ColorStateListCacheKey key = new ColorStateListCacheKey(res, theme);
         ColorStateList csl = getCachedColorStateList(key, id);
         if (csl != null) {

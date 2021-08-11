@@ -18,8 +18,12 @@ package androidx.work.multiprocess.parcelable;
 
 import static androidx.work.impl.model.WorkTypeConverters.backoffPolicyToInt;
 import static androidx.work.impl.model.WorkTypeConverters.intToBackoffPolicy;
+import static androidx.work.impl.model.WorkTypeConverters.intToOutOfQuotaPolicy;
 import static androidx.work.impl.model.WorkTypeConverters.intToState;
+import static androidx.work.impl.model.WorkTypeConverters.outOfQuotaPolicyToInt;
 import static androidx.work.impl.model.WorkTypeConverters.stateToInt;
+import static androidx.work.multiprocess.parcelable.ParcelUtils.readBooleanValue;
+import static androidx.work.multiprocess.parcelable.ParcelUtils.writeBooleanValue;
 
 import android.annotation.SuppressLint;
 import android.os.Parcel;
@@ -89,6 +93,10 @@ public class ParcelableWorkRequest implements Parcelable {
         workSpec.minimumRetentionDuration = in.readLong();
         // scheduleRequestedAt
         workSpec.scheduleRequestedAt = in.readLong();
+        // expedited
+        workSpec.expedited = readBooleanValue(in);
+        // fallback
+        workSpec.outOfQuotaPolicy = intToOutOfQuotaPolicy(in.readInt());
         mWorkRequest = new WorkRequestHolder(UUID.fromString(id), workSpec, tagsSet);
     }
 
@@ -149,6 +157,10 @@ public class ParcelableWorkRequest implements Parcelable {
         parcel.writeLong(workSpec.minimumRetentionDuration);
         // scheduleRequestedAt
         parcel.writeLong(workSpec.scheduleRequestedAt);
+        // expedited
+        writeBooleanValue(parcel, workSpec.expedited);
+        // fallback
+        parcel.writeInt(outOfQuotaPolicyToInt(workSpec.outOfQuotaPolicy));
     }
 
     @NonNull

@@ -23,6 +23,7 @@ import static androidx.core.appdigest.Checksum.TYPE_WHOLE_SHA256;
 import static androidx.core.appdigest.Checksum.TYPE_WHOLE_SHA512;
 
 import android.content.Context;
+import android.content.pm.ApkChecksum;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -30,8 +31,10 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -115,6 +118,11 @@ public final class Checksums {
         Preconditions.checkNotNull(trustedInstallers);
         Preconditions.checkNotNull(executor);
 
+        if (BuildCompat.isAtLeastS()) {
+            return ApiSImpl.getChecksums(context, packageName, includeSplits, required,
+                    trustedInstallers, executor);
+        }
+
         final ApplicationInfo applicationInfo =
                 context.getPackageManager().getApplicationInfo(packageName, 0);
         if (applicationInfo == null) {
@@ -156,6 +164,56 @@ public final class Checksums {
             }
         });
         return result;
+    }
+
+    private static class ApiSImpl {
+        private ApiSImpl() {}
+
+        @ChecksSdkIntAtLeast(codename = "S") static
+        @NonNull ListenableFuture<Checksum[]> getChecksums(@NonNull Context context,
+                @NonNull String packageName, boolean includeSplits, @Checksum.Type int required,
+                @NonNull List<Certificate> trustedInstallers, @NonNull Executor executor)
+                throws CertificateEncodingException, PackageManager.NameNotFoundException {
+            final ResolvableFuture<Checksum[]> result = ResolvableFuture.create();
+
+            if (trustedInstallers == TRUST_ALL) {
+                trustedInstallers = PackageManager.TRUST_ALL;
+            } else if (trustedInstallers == TRUST_NONE) {
+                trustedInstallers = PackageManager.TRUST_NONE;
+            } else if (trustedInstallers.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "trustedInstallers has to be one of TRUST_ALL/TRUST_NONE or a non-empty "
+                                + "list of certificates.");
+            }
+
+            context.getPackageManager().requestChecksums(packageName, includeSplits, required,
+                    trustedInstallers, new PackageManager.OnChecksumsReadyListener() {
+                        @Override
+                        public void onChecksumsReady(List<ApkChecksum> apkChecksums) {
+                            if (apkChecksums == null) {
+                                result.setException(
+                                        new IllegalStateException("Checksums missing."));
+                                return;
+                            }
+
+                            try {
+                                Checksum[] checksums = new Checksum[apkChecksums.size()];
+                                for (int i = 0, size = apkChecksums.size(); i < size; ++i) {
+                                    ApkChecksum apkChecksum = apkChecksums.get(i);
+                                    checksums[i] = new Checksum(apkChecksum.getSplitName(),
+                                            apkChecksum.getType(), apkChecksum.getValue(),
+                                            apkChecksum.getInstallerPackageName(),
+                                            apkChecksum.getInstallerCertificate());
+                                }
+                                result.set(checksums);
+                            } catch (Throwable e) {
+                                result.setException(e);
+                            }
+                        }
+                    });
+
+            return result;
+        }
     }
 
     private static void getChecksumsSync(@NonNull List<Pair<String, File>> filesToChecksum,

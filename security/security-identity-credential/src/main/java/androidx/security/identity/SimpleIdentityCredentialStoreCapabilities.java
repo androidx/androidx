@@ -50,6 +50,36 @@ class SimpleIdentityCredentialStoreCapabilities extends IdentityCredentialStoreC
                 isStaticAuthenticationDataExpirationDateSupported;
     }
 
+    static SimpleIdentityCredentialStoreCapabilities getFeatureVersion202009(
+            boolean isDirectAccess,
+            boolean isHardwareBacked,
+            Set<String> supportedDocTypesSet) {
+        return new SimpleIdentityCredentialStoreCapabilities(
+                isDirectAccess,
+                IdentityCredentialStoreCapabilities.FEATURE_VERSION_202009,
+                isHardwareBacked,
+                supportedDocTypesSet,
+                false,
+                false,
+                false,
+                false);
+    }
+
+    static SimpleIdentityCredentialStoreCapabilities getFeatureVersion202101(
+            boolean isDirectAccess,
+            boolean isHardwareBacked,
+            Set<String> supportedDocTypesSet) {
+        return new SimpleIdentityCredentialStoreCapabilities(
+                isDirectAccess,
+                IdentityCredentialStoreCapabilities.FEATURE_VERSION_202101,
+                isHardwareBacked,
+                supportedDocTypesSet,
+                true,
+                true,
+                true,
+                true);
+    }
+
     @Override
     public boolean isDirectAccess() {
         return mIsDirectAccess;

@@ -21,6 +21,7 @@
     <application>
         <activity
             android:name="androidx.camera.testing.activity.ForegroundTestActivity"
+            android:exported="true"
             android:label="ForegroundTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,6 +30,7 @@
         </activity>
         <activity
             android:name="androidx.camera.testing.activity.CameraXTestActivity"
+            android:exported="true"
             android:label="CameraX TestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,6 +39,7 @@
         </activity>
         <activity
             android:name="androidx.camera.testing.activity.Camera2TestActivity"
+            android:exported="true"
             android:label="Camera2 TestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

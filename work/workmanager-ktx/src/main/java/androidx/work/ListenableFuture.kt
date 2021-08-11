@@ -19,7 +19,9 @@
 package androidx.work
 
 import androidx.annotation.RestrictTo
+import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
@@ -58,5 +60,28 @@ public suspend inline fun <R> ListenableFuture<R>.await(): R {
             },
             DirectExecutor.INSTANCE
         )
+    }
+}
+
+/**
+ * A special [Job] to [ListenableFuture] wrapper.
+ */
+internal class JobListenableFuture<R>(
+    private val job: Job,
+    private val underlying: SettableFuture<R> = SettableFuture.create()
+) : ListenableFuture<R> by underlying {
+
+    public fun complete(result: R) {
+        underlying.set(result)
+    }
+
+    init {
+        job.invokeOnCompletion { throwable: Throwable? ->
+            when (throwable) {
+                null -> require(underlying.isDone)
+                is CancellationException -> underlying.cancel(true)
+                else -> underlying.setException(throwable.cause ?: throwable)
+            }
+        }
     }
 }

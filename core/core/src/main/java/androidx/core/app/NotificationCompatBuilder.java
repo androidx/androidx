@@ -36,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.os.BuildCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -245,6 +246,11 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                     NotificationCompat.BubbleMetadata.toPlatform(b.mBubbleMetadata));
             if (b.mLocusId != null) {
                 mBuilder.setLocusId(b.mLocusId.toLocusId());
+            }
+        }
+        if (BuildCompat.isAtLeastS()) {
+            if (b.mFgsDeferBehavior != NotificationCompat.FOREGROUND_SERVICE_DEFAULT) {
+                mBuilder.setForegroundServiceBehavior(b.mFgsDeferBehavior);
             }
         }
 

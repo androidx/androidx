@@ -23,8 +23,10 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.os.BuildCompat
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ExperimentalExpeditedWork
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -41,16 +43,26 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
     override suspend fun doWork(): Result {
         val notificationId = inputData.getInt(InputNotificationId, NotificationId)
         val delayTime = inputData.getLong(InputDelayTime, Delay)
-        // Run in the context of a Foreground service
-        setForeground(getForegroundInfo(notificationId))
         val range = 20
         for (i in 1..range) {
             delay(delayTime)
             progress = workDataOf(Progress to i * (100 / range))
             setProgress(progress)
-            setForeground(getForegroundInfo(notificationId))
+            if (!BuildCompat.isAtLeastS()) {
+                // No need for notifications starting S.
+                notificationManager.notify(
+                    notificationId,
+                    getForegroundInfo(notificationId).notification
+                )
+            }
         }
         return Result.success()
+    }
+
+    @ExperimentalExpeditedWork
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        val notificationId = inputData.getInt(InputNotificationId, NotificationId)
+        return getForegroundInfo(notificationId)
     }
 
     private fun getForegroundInfo(notificationId: Int): ForegroundInfo {

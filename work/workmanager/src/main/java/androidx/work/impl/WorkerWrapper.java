@@ -48,6 +48,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.PackageManagerHelper;
+import androidx.work.impl.utils.WorkForegroundRunnable;
 import androidx.work.impl.utils.WorkForegroundUpdater;
 import androidx.work.impl.utils.WorkProgressUpdater;
 import androidx.work.impl.utils.futures.SettableFuture;
@@ -82,13 +83,13 @@ public class WorkerWrapper implements Runnable {
     // Avoid Synthetic accessor
     WorkSpec mWorkSpec;
     ListenableWorker mWorker;
+    TaskExecutor mWorkTaskExecutor;
 
     // Package-private for synthetic accessor.
     @NonNull
     ListenableWorker.Result mResult = ListenableWorker.Result.failure();
 
     private Configuration mConfiguration;
-    private TaskExecutor mWorkTaskExecutor;
     private ForegroundProcessor mForegroundProcessor;
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
@@ -226,7 +227,7 @@ public class WorkerWrapper implements Runnable {
             input = inputMerger.merge(inputs);
         }
 
-        WorkerParameters params = new WorkerParameters(
+        final WorkerParameters params = new WorkerParameters(
                 UUID.fromString(mWorkSpecId),
                 input,
                 mTags,
@@ -272,22 +273,32 @@ public class WorkerWrapper implements Runnable {
             }
 
             final SettableFuture<ListenableWorker.Result> future = SettableFuture.create();
-            // Call mWorker.startWork() on the main thread.
-            mWorkTaskExecutor.getMainThreadExecutor()
-                    .execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Logger.get().debug(TAG, String.format("Starting work for %s",
-                                        mWorkSpec.workerClassName));
-                                mInnerFuture = mWorker.startWork();
-                                future.setFuture(mInnerFuture);
-                            } catch (Throwable e) {
-                                future.setException(e);
-                            }
+            final WorkForegroundRunnable foregroundRunnable =
+                    new WorkForegroundRunnable(
+                            mAppContext,
+                            mWorkSpec,
+                            mWorker,
+                            params.getForegroundUpdater(),
+                            mWorkTaskExecutor
+                    );
+            mWorkTaskExecutor.getMainThreadExecutor().execute(foregroundRunnable);
 
-                        }
-                    });
+            final ListenableFuture<Void> runExpedited = foregroundRunnable.getFuture();
+            runExpedited.addListener(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        runExpedited.get();
+                        Logger.get().debug(TAG,
+                                String.format("Starting work for %s", mWorkSpec.workerClassName));
+                        // Call mWorker.startWork() on the main thread.
+                        mInnerFuture = mWorker.startWork();
+                        future.setFuture(mInnerFuture);
+                    } catch (Throwable e) {
+                        future.setException(e);
+                    }
+                }
+            }, mWorkTaskExecutor.getMainThreadExecutor());
 
             // Avoid synthetic accessors.
             final String workDescription = mWorkDescription;
@@ -681,6 +692,7 @@ public class WorkerWrapper implements Runnable {
         /**
          * @return The instance of {@link WorkerWrapper}.
          */
+        @NonNull
         public WorkerWrapper build() {
             return new WorkerWrapper(this);
         }

@@ -206,7 +206,7 @@
         errorLine2="                                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/Constraints.java"
-            line="408"
+            line="429"
             column="51"/>
     </issue>
 
@@ -217,8 +217,30 @@
         errorLine2="                                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/Constraints.java"
-            line="443"
+            line="464"
             column="48"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        activityManager.getHistoricalProcessExitReasons("
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
+            line="171"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        if (info.getReason() == REASON_USER_REQUESTED) {"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
+            line="180"
+            column="34"/>
     </issue>
 
     <issue
@@ -228,7 +250,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="303"
+            line="339"
             column="30"/>
     </issue>
 
@@ -349,7 +371,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="104"
+            line="106"
             column="25"/>
     </issue>
 
@@ -360,7 +382,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="111"
+            line="113"
             column="25"/>
     </issue>
 
@@ -371,7 +393,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="113"
+            line="115"
             column="21"/>
     </issue>
 
@@ -382,7 +404,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="114"
+            line="116"
             column="21"/>
     </issue>
 
@@ -393,7 +415,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="121"
+            line="123"
             column="21"/>
     </issue>
 
@@ -404,7 +426,18 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="122"
+            line="124"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            builder.setExpedited(true);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="130"
             column="21"/>
     </issue>
 
@@ -415,7 +448,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="132"
+            line="140"
             column="16"/>
     </issue>
 
@@ -426,7 +459,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="150"
+            line="158"
             column="21"/>
     </issue>
 
@@ -503,7 +536,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkManagerImpl.java"
-            line="761"
+            line="767"
             column="71"/>
     </issue>
 
@@ -514,7 +547,7 @@
         errorLine2="                                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/WorkRequest.java"
-            line="174"
+            line="175"
             column="56"/>
     </issue>
 
@@ -525,7 +558,7 @@
         errorLine2="                                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/WorkRequest.java"
-            line="251"
+            line="252"
             column="59"/>
     </issue>
 
@@ -536,7 +569,7 @@
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/WorkRequest.java"
-            line="283"
+            line="284"
             column="47"/>
     </issue>
 
@@ -618,11 +651,11 @@
         errorLine2="                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="178"
+            line="188"
             column="20"/>
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="191"
+            line="201"
             column="17"
             message="Setter here"/>
     </issue>
@@ -931,7 +964,7 @@
         errorLine2="                                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/Constraints.java"
-            line="407"
+            line="428"
             column="53"/>
     </issue>
 
@@ -942,7 +975,7 @@
         errorLine2="                                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/Constraints.java"
-            line="442"
+            line="463"
             column="50"/>
     </issue>
 
@@ -1712,7 +1745,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="77"
+            line="78"
             column="13"/>
     </issue>
 
@@ -1723,7 +1756,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="78"
+            line="79"
             column="13"/>
     </issue>
 
@@ -1734,7 +1767,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="79"
+            line="80"
             column="13"/>
     </issue>
 
@@ -1745,7 +1778,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="80"
+            line="81"
             column="13"/>
     </issue>
 
@@ -1756,7 +1789,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="180"
+            line="181"
             column="34"/>
     </issue>
 
@@ -1954,7 +1987,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="76"
+            line="77"
             column="12"/>
     </issue>
 
@@ -1965,7 +1998,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="365"
+            line="377"
             column="16"/>
     </issue>
 
@@ -1976,7 +2009,7 @@
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="368"
+            line="380"
             column="16"/>
     </issue>
 
@@ -1987,7 +2020,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="395"
+            line="407"
             column="16"/>
     </issue>
 
@@ -1998,7 +2031,7 @@
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="398"
+            line="410"
             column="16"/>
     </issue>
 
@@ -2009,7 +2042,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="401"
+            line="413"
             column="16"/>
     </issue>
 
@@ -2020,7 +2053,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="411"
+            line="423"
             column="16"/>
     </issue>
 
@@ -2031,7 +2064,7 @@
         errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="420"
+            line="432"
             column="16"/>
     </issue>
 
@@ -2097,7 +2130,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="90"
+            line="100"
             column="34"/>
     </issue>
 
@@ -2108,7 +2141,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="123"
+            line="133"
             column="19"/>
     </issue>
 
@@ -2119,7 +2152,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="156"
+            line="166"
             column="42"/>
     </issue>
 
@@ -2130,7 +2163,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="177"
+            line="187"
             column="19"/>
     </issue>
 
@@ -2141,7 +2174,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="198"
+            line="208"
             column="40"/>
     </issue>
 
@@ -2152,7 +2185,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="233"
+            line="243"
             column="19"/>
     </issue>
 
@@ -2163,7 +2196,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="266"
+            line="315"
             column="19"/>
     </issue>
 
@@ -2174,7 +2207,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="266"
+            line="315"
             column="56"/>
     </issue>
 
@@ -2185,7 +2218,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="305"
+            line="354"
             column="19"/>
     </issue>
 
@@ -2196,7 +2229,7 @@
         errorLine2="                                                                   ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="305"
+            line="354"
             column="68"/>
     </issue>
 
@@ -2208,17 +2241,6 @@
         <location
             file="src/main/java/androidx/work/WorkerParameters.java"
             line="216"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public WorkerWrapper build() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkerWrapper.java"
-            line="684"
             column="16"/>
     </issue>
 

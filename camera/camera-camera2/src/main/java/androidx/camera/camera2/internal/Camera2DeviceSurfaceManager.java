@@ -69,6 +69,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
             }
 
             @Override
+            @SuppressWarnings("deprecation")
             public CamcorderProfile get(int cameraId, int quality) {
                 return CamcorderProfile.get(cameraId, quality);
             }

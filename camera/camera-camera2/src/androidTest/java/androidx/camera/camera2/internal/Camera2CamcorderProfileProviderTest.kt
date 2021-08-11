@@ -35,6 +35,7 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @SmallTest
+@Suppress("DEPRECATION")
 public class Camera2CamcorderProfileProviderTest(private val quality: Int) {
     public companion object {
         @JvmStatic

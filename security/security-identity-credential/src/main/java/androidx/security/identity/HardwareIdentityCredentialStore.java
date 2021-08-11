@@ -17,6 +17,7 @@
 package androidx.security.identity;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -31,14 +32,17 @@ import java.util.Set;
 class HardwareIdentityCredentialStore extends IdentityCredentialStore {
 
     private static final String TAG = "HardwareIdentityCredentialStore";
+    private final Context mContext;
 
     private android.security.identity.IdentityCredentialStore mStore = null;
     private boolean mIsDirectAccess = false;
 
     private HardwareIdentityCredentialStore(
             @NonNull android.security.identity.IdentityCredentialStore store,
+            @NonNull Context context,
             boolean isDirectAccess) {
         mStore = store;
+        mContext = context;
         mIsDirectAccess = isDirectAccess;
     }
 
@@ -46,7 +50,7 @@ class HardwareIdentityCredentialStore extends IdentityCredentialStore {
         android.security.identity.IdentityCredentialStore store =
                 android.security.identity.IdentityCredentialStore.getInstance(context);
         if (store != null) {
-            return new HardwareIdentityCredentialStore(store, false);
+            return new HardwareIdentityCredentialStore(store, context, false);
         }
         return null;
     }
@@ -65,7 +69,7 @@ class HardwareIdentityCredentialStore extends IdentityCredentialStore {
         android.security.identity.IdentityCredentialStore store =
                 android.security.identity.IdentityCredentialStore.getDirectAccessInstance(context);
         if (store != null) {
-            return new HardwareIdentityCredentialStore(store, true);
+            return new HardwareIdentityCredentialStore(store, context, true);
         }
         return null;
     }
@@ -144,19 +148,27 @@ class HardwareIdentityCredentialStore extends IdentityCredentialStore {
     public @NonNull
     IdentityCredentialStoreCapabilities getCapabilities() {
         LinkedHashSet<String> supportedDocTypesSet =
-                new LinkedHashSet<String>(Arrays.asList(mStore.getSupportedDocTypes()));
+                new LinkedHashSet<>(Arrays.asList(mStore.getSupportedDocTypes()));
 
         if (mCapabilities == null) {
-            // TODO: update for Android 12 platform APIs when available.
-            mCapabilities = new SimpleIdentityCredentialStoreCapabilities(
-                    mIsDirectAccess,
-                    IdentityCredentialStoreCapabilities.FEATURE_VERSION_202009,
-                    true,
-                    supportedDocTypesSet,
-                    false,
-                    false,
-                    false,
-                    false);
+            PackageManager pm = mContext.getPackageManager();
+            String featureName = PackageManager.FEATURE_IDENTITY_CREDENTIAL_HARDWARE;
+            if (mIsDirectAccess) {
+                featureName = PackageManager.FEATURE_IDENTITY_CREDENTIAL_HARDWARE_DIRECT_ACCESS;
+            }
+
+            if (pm.hasSystemFeature(featureName,
+                    IdentityCredentialStoreCapabilities.FEATURE_VERSION_202101)) {
+                mCapabilities = SimpleIdentityCredentialStoreCapabilities.getFeatureVersion202101(
+                        mIsDirectAccess,
+                        true,
+                        supportedDocTypesSet);
+            } else {
+                mCapabilities = SimpleIdentityCredentialStoreCapabilities.getFeatureVersion202009(
+                        mIsDirectAccess,
+                        true,
+                        supportedDocTypesSet);
+            }
         }
         return mCapabilities;
     }

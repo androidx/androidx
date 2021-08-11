@@ -19,6 +19,7 @@ package androidx.work;
 import static android.content.Context.MODE_PRIVATE;
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL;
 
+import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_11_12;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_6_7;
@@ -27,6 +28,7 @@ import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_8_9;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_1;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_10;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_11;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_12;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_4;
@@ -85,6 +87,7 @@ public class WorkDatabaseMigrationTest {
     private static final String COLUMN_SYSTEM_ID = "system_id";
     private static final String COLUMN_ALARM_ID = "alarm_id";
     private static final String COLUMN_RUN_IN_FOREGROUND = "run_in_foreground";
+    private static final String COLUMN_OUT_OF_QUOTA_POLICY = "out_of_quota_policy";
 
     // Queries
     private static final String INSERT_ALARM_INFO = "INSERT INTO alarmInfo VALUES (?, ?)";
@@ -433,6 +436,22 @@ public class WorkDatabaseMigrationTest {
             assertThat(cursor.getLong(cursor.getColumnIndex("long_value")), is(expected));
             cursor.close();
         }
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion11To12() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_11);
+        database = mMigrationTestHelper.runMigrationsAndValidate(
+                TEST_DATABASE,
+                VERSION_12,
+                VALIDATE_DROPPED_TABLES,
+                MIGRATION_11_12);
+
+        assertThat(checkColumnExists(database, TABLE_WORKSPEC, COLUMN_OUT_OF_QUOTA_POLICY),
+                is(true));
         database.close();
     }
 

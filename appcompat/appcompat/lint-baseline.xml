@@ -6160,7 +6160,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatImageButton.java"
-            line="103"
+            line="112"
             column="32"/>
     </issue>
 
@@ -6171,7 +6171,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatImageHelper.java"
-            line="51"
+            line="52"
             column="36"/>
     </issue>
 
@@ -6182,7 +6182,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatImageView.java"
-            line="113"
+            line="123"
             column="32"/>
     </issue>
 

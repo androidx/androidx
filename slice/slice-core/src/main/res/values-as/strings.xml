@@ -17,10 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_slices_permission_request" msgid="4431189529265983653">"<xliff:g id="APP_0">%1$s</xliff:g>এ <xliff:g id="APP_2">%2$s</xliff:g>ৰ অংশ দেখুৱাব বিচাৰিছে"</string>
-    <string name="abc_slice_permission_title" msgid="4776010267128891014">"<xliff:g id="APP_0">%1$s</xliff:g>ক <xliff:g id="APP_2">%2$s</xliff:g>ৰ অংশ দেখুৱাবলৈ অনুমতি দিবনে?"</string>
-    <string name="abc_slice_permission_text_1" msgid="9108592981418900836">"- ই <xliff:g id="APP">%1$s</xliff:g>ৰ তথ্য পঢ়িব পাৰে"</string>
-    <string name="abc_slice_permission_text_2" msgid="7135705417979137589">"- ই <xliff:g id="APP">%1$s</xliff:g>ৰ ভিতৰত কাৰ্য কৰিব পাৰে"</string>
-    <string name="abc_slice_permission_allow" msgid="6374752258872407887">"অনুমতি দিয়ক"</string>
-    <string name="abc_slice_permission_deny" msgid="576316744017426251">"অস্বীকাৰ কৰক"</string>
+    <string name="abc_slices_permission_request" msgid="3604847235923472451">"<xliff:g id="APP_0">%1$s</xliff:g>এ <xliff:g id="APP_2">%2$s</xliff:g>ৰ অংশ দেখুওৱাব খুজিছে"</string>
+    <string name="abc_slice_permission_title" msgid="4175332421259324948">"<xliff:g id="APP_0">%1$s</xliff:g>ক <xliff:g id="APP_2">%2$s</xliff:g>ৰ অংশ দেখুওৱাবলৈ অনুমতি দিবনে?"</string>
+    <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- ই <xliff:g id="APP">%1$s</xliff:g>ৰ তথ্য পঢ়িব পাৰে"</string>
+    <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- ই <xliff:g id="APP">%1$s</xliff:g>ৰ ভিতৰত কাৰ্য কৰিব পাৰে"</string>
+    <string name="abc_slice_permission_allow" msgid="5024599872061409708">"অনুমতি দিয়ক"</string>
+    <string name="abc_slice_permission_deny" msgid="3819478292430407705">"অস্বীকাৰ কৰক"</string>
 </resources>

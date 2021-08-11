@@ -1,62 +1,57 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.DataClassFactory;
+import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Override;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
-public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
-  private static final String SCHEMA_TYPE = "Gift";
+@Generated("androidx.appsearch.compiler.AppSearchCompiler")
+public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+  public static final String SCHEMA_NAME = "Gift";
 
   @Override
-  public String getSchemaType() {
-    return SCHEMA_TYPE;
+  public String getSchemaName() {
+    return SCHEMA_NAME;
   }
 
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
-    return new AppSearchSchema.Builder(SCHEMA_TYPE)
-          .addProperty(new AppSearchSchema.PropertyConfig.Builder("price")
-            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+    return new AppSearchSchema.Builder(SCHEMA_NAME)
+          .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
-    String namespaceCopy = dataClass.namespace;
-    if (namespaceCopy != null) {
-      builder.setNamespace(namespaceCopy);
-    }
-    builder.setCreationTimestampMillis(dataClass.creationTs);
-    builder.setTtlMillis(dataClass.ttlMs);
-    builder.setScore(dataClass.score);
-    builder.setPropertyLong("price", dataClass.price);
+        new GenericDocument.Builder<>(document.namespace, document.id, SCHEMA_NAME);
+    builder.setCreationTimestampMillis(document.creationTs);
+    builder.setTtlMillis(document.ttlMs);
+    builder.setScore(document.score);
+    builder.setPropertyLong("price", document.price);
     return builder.build();
   }
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String uriConv = genericDoc.getUri();
+    String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
     long creationTsConv = genericDoc.getCreationTimestampMillis();
     long ttlMsConv = genericDoc.getTtlMillis();
     int scoreConv = genericDoc.getScore();
     int priceConv = (int) genericDoc.getPropertyLong("price");
-    Gift dataClass = new Gift();
-    dataClass.uri = uriConv;
-    dataClass.namespace = namespaceConv;
-    dataClass.creationTs = creationTsConv;
-    dataClass.ttlMs = ttlMsConv;
-    dataClass.price = priceConv;
-    dataClass.score = scoreConv;
-    return dataClass;
+    Gift document = new Gift();
+    document.namespace = namespaceConv;
+    document.id = idConv;
+    document.creationTs = creationTsConv;
+    document.ttlMs = ttlMsConv;
+    document.price = priceConv;
+    document.score = scoreConv;
+    return document;
   }
 }

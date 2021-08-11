@@ -17,13 +17,17 @@
 package androidx.work.impl.utils;
 
 import static android.app.AlarmManager.RTC_WAKEUP;
+import static android.app.ApplicationExitInfo.REASON_USER_REQUESTED;
+import static android.app.PendingIntent.FLAG_MUTABLE;
 import static android.app.PendingIntent.FLAG_NO_CREATE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
+import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.ApplicationExitInfo;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -40,6 +44,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.os.BuildCompat;
 import androidx.work.Configuration;
 import androidx.work.InitializationExceptionHandler;
 import androidx.work.Logger;
@@ -155,18 +160,46 @@ public class ForceStopRunnable implements Runnable {
         // Even though API 23, 24 are probably safe, OEMs may choose to do
         // something different.
         try {
-            PendingIntent pendingIntent = getPendingIntent(mContext, FLAG_NO_CREATE);
-            if (pendingIntent == null) {
+            int flags = FLAG_NO_CREATE;
+            if (BuildCompat.isAtLeastS()) {
+                flags |= FLAG_MUTABLE;
+            }
+            PendingIntent pendingIntent = getPendingIntent(mContext, flags);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // We no longer need the alarm.
+                if (pendingIntent != null) {
+                    pendingIntent.cancel();
+                }
+                ActivityManager activityManager =
+                        (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+                List<ApplicationExitInfo> exitInfoList =
+                        activityManager.getHistoricalProcessExitReasons(
+                                null /* match caller uid */,
+                                0, // ignore
+                                0 // ignore
+                        );
+
+                if (exitInfoList != null && !exitInfoList.isEmpty()) {
+                    for (int i = 0; i < exitInfoList.size(); i++) {
+                        ApplicationExitInfo info = exitInfoList.get(i);
+                        if (info.getReason() == REASON_USER_REQUESTED) {
+                            return true;
+                        }
+                    }
+                }
+            } else if (pendingIntent == null) {
                 setAlarm(mContext);
                 return true;
-            } else {
-                return false;
             }
-        } catch (SecurityException exception) {
+            return false;
+        } catch (SecurityException | IllegalArgumentException exception) {
+            // b/189975360 Some Samsung Devices seem to throw an IllegalArgumentException :( on
+            // API 30.
+
             // Setting Alarms on some devices fails due to OEM introduced bugs in AlarmManager.
             // When this happens, there is not much WorkManager can do, other can reschedule
             // everything.
-            Logger.get().warning(TAG, "Ignoring security exception", exception);
+            Logger.get().warning(TAG, "Ignoring exception", exception);
             return true;
         }
     }
@@ -299,7 +332,11 @@ public class ForceStopRunnable implements Runnable {
     static void setAlarm(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         // Using FLAG_UPDATE_CURRENT, because we only ever want once instance of this alarm.
-        PendingIntent pendingIntent = getPendingIntent(context, FLAG_UPDATE_CURRENT);
+        int flags = FLAG_UPDATE_CURRENT;
+        if (BuildCompat.isAtLeastS()) {
+            flags |= FLAG_MUTABLE;
+        }
+        PendingIntent pendingIntent = getPendingIntent(context, flags);
         long triggerAt = System.currentTimeMillis() + TEN_YEARS;
         if (alarmManager != null) {
             if (Build.VERSION.SDK_INT >= 19) {
