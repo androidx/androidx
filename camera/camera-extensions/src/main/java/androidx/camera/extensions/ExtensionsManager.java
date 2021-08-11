@@ -178,6 +178,15 @@ public final class ExtensionsManager {
                                 + "are missed in the vendor library. " + e);
                         completer.set(getOrCreateExtensionsManager(
                                 ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION));
+                    } catch (RuntimeException e) {
+                        // Catches all unexpected runtime exceptions and still returns an
+                        // ExtensionsManager instance which performs default behavior.
+                        Logger.e(TAG,
+                                "Failed to initialize extensions. Something wents wrong when "
+                                        + "initializing the vendor library. "
+                                        + e);
+                        completer.set(getOrCreateExtensionsManager(
+                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING));
                     }
 
                     return "Initialize extensions";
