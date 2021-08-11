@@ -27,37 +27,19 @@ import androidx.wear.complications.ComplicationDataSourceUpdateRequesterConstant
  * Allows complication complication data source to request update calls from the system. This
  * effectively allows complication data source to push updates to the system outside of the update
  * request cycle.
- *
- * @param context The [ComplicationDataSourceService]'s [Context]
- * @param complicationDataSourceComponent The [ComponentName] of the ComplicationDataSourceService]
- * to reload.
  */
-public class ComplicationDataSourceUpdateRequester(
-    private val context: Context,
-    private val complicationDataSourceComponent: ComponentName
-) {
+public interface ComplicationDataSourceUpdateRequester {
     /**
      * Requests that the system call
      * [onComplicationUpdate][ComplicationDataSourceService.onComplicationRequest] on the specified
      * complication data source, for all active complications using that complication data source.
      *
      * This will do nothing if no active complications are configured to use the specified
-     * omplication data source.
+     * complication data source.
      *
      * This will also only work if called from the same package as the omplication data source.
      */
-    @SuppressLint("PendingIntentMutability")
-    public fun requestUpdateAll() {
-        val intent = Intent(ACTION_REQUEST_UPDATE_ALL)
-        intent.setPackage(UPDATE_REQUEST_RECEIVER_PACKAGE)
-        intent.putExtra(EXTRA_PROVIDER_COMPONENT, complicationDataSourceComponent)
-        // Add a placeholder PendingIntent to allow the UID to be checked.
-        intent.putExtra(
-            ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
-            PendingIntent.getActivity(context, 0, Intent(""), 0)
-        )
-        context.sendBroadcast(intent)
-    }
+    public fun requestUpdateAll()
 
     /**
      * Requests that the system call
@@ -69,12 +51,71 @@ public class ComplicationDataSourceUpdateRequester(
      * provided to [ComplicationDataSourceService.onComplicationActivated] and
      * [ComplicationDataSourceService.onComplicationRequest].
      */
+    public fun requestUpdate(vararg complicationInstanceIds: Int)
+
+    public companion object {
+        /**
+         * The package of the service that accepts complication data source requests.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app"
+
+        /**
+         * Creates a [ComplicationDataSourceUpdateRequester].
+         *
+         * @param context The [ComplicationDataSourceService]'s [Context]
+         * @param complicationDataSourceComponent The [ComponentName] of the
+         * [ComplicationDataSourceService] to reload.
+         * @return The constructed [ComplicationDataSourceUpdateRequester].
+         */
+        @JvmStatic
+        public fun create(
+            context: Context,
+            complicationDataSourceComponent: ComponentName
+        ): ComplicationDataSourceUpdateRequester =
+            ComplicationDataSourceUpdateRequesterImpl(context, complicationDataSourceComponent)
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val ACTION_REQUEST_UPDATE: String =
+            "android.support.wearable.complications.ACTION_REQUEST_UPDATE"
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val ACTION_REQUEST_UPDATE_ALL: String =
+            "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL"
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val EXTRA_PROVIDER_COMPONENT: String =
+            "android.support.wearable.complications.EXTRA_PROVIDER_COMPONENT"
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val EXTRA_COMPLICATION_IDS: String =
+            "android.support.wearable.complications.EXTRA_COMPLICATION_IDS"
+    }
+}
+
+/**
+ * @param context The [ComplicationDataSourceService]'s [Context]
+ * @param complicationDataSourceComponent The [ComponentName] of the ComplicationDataSourceService]
+ * to reload.
+ */
+private class ComplicationDataSourceUpdateRequesterImpl(
+    private val context: Context,
+    private val complicationDataSourceComponent: ComponentName
+) : ComplicationDataSourceUpdateRequester {
+
     @SuppressLint("PendingIntentMutability")
-    public fun requestUpdate(vararg complicationInstanceIds: Int) {
-        val intent = Intent(ACTION_REQUEST_UPDATE)
-        intent.setPackage(UPDATE_REQUEST_RECEIVER_PACKAGE)
-        intent.putExtra(EXTRA_PROVIDER_COMPONENT, complicationDataSourceComponent)
-        intent.putExtra(EXTRA_COMPLICATION_IDS, complicationInstanceIds)
+    override fun requestUpdateAll() {
+        val intent = Intent(ComplicationDataSourceUpdateRequester.ACTION_REQUEST_UPDATE_ALL)
+        intent.setPackage(ComplicationDataSourceUpdateRequester.UPDATE_REQUEST_RECEIVER_PACKAGE)
+        intent.putExtra(
+            ComplicationDataSourceUpdateRequester.EXTRA_PROVIDER_COMPONENT,
+            complicationDataSourceComponent
+        )
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
             ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
@@ -83,32 +124,23 @@ public class ComplicationDataSourceUpdateRequester(
         context.sendBroadcast(intent)
     }
 
-    public companion object {
-        /** The package of the service that accepts complication data source requests.  */
-        private const val UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app"
-
-        /** @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public const val ACTION_REQUEST_UPDATE: String =
-            "android.support.wearable.complications.ACTION_REQUEST_UPDATE"
-
-        /** @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public const val ACTION_REQUEST_UPDATE_ALL: String =
-            "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL"
-
-        /** @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public const val EXTRA_PROVIDER_COMPONENT: String =
-            "android.support.wearable.complications.EXTRA_PROVIDER_COMPONENT"
-
-        /** @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public const val EXTRA_COMPLICATION_IDS: String =
-            "android.support.wearable.complications.EXTRA_COMPLICATION_IDS"
+    @SuppressLint("PendingIntentMutability")
+    override fun requestUpdate(vararg complicationInstanceIds: Int) {
+        val intent = Intent(ComplicationDataSourceUpdateRequester.ACTION_REQUEST_UPDATE)
+        intent.setPackage(ComplicationDataSourceUpdateRequester.UPDATE_REQUEST_RECEIVER_PACKAGE)
+        intent.putExtra(
+            ComplicationDataSourceUpdateRequester.EXTRA_PROVIDER_COMPONENT,
+            complicationDataSourceComponent
+        )
+        intent.putExtra(
+            ComplicationDataSourceUpdateRequester.EXTRA_COMPLICATION_IDS,
+            complicationInstanceIds
+        )
+        // Add a placeholder PendingIntent to allow the UID to be checked.
+        intent.putExtra(
+            ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
+            PendingIntent.getActivity(context, 0, Intent(""), 0)
+        )
+        context.sendBroadcast(intent)
     }
 }
