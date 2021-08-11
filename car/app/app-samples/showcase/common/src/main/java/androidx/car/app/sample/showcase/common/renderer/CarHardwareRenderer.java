@@ -49,6 +49,7 @@ public final class CarHardwareRenderer implements Renderer {
 
     private static final int ROW_SPACING = 10;
     private static final int LEFT_MARGIN = 15;
+    private static final int MAX_FONT_SIZE = 32;
 
     private final Executor mCarHardwareExecutor;
     private final Paint mCarInfoPaint = new Paint();
@@ -311,7 +312,7 @@ public final class CarHardwareRenderer implements Renderer {
                 stableArea.set(0, 0, canvas.getWidth() - 1, canvas.getHeight() - 1);
             }
 
-            int height = stableArea.height() / 8;
+            int height = Math.min(stableArea.height() / 8, MAX_FONT_SIZE);
             int updatedSize = height - ROW_SPACING;
             mCarInfoPaint.setTextSize(updatedSize);
 
