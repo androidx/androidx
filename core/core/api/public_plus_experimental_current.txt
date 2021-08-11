@@ -106,6 +106,7 @@ package androidx.core.app {
   }
 
   public final class AppOpsManagerCompat {
+    method public static int checkOrNoteProxyOp(android.content.Context, int, String, String);
     method public static int noteOp(android.content.Context, String, int, String);
     method public static int noteOpNoThrow(android.content.Context, String, int, String);
     method public static int noteProxyOp(android.content.Context, String, String);
