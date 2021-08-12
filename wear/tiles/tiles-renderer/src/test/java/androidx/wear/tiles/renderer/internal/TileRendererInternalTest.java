@@ -29,6 +29,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.os.Looper;
+import android.os.SystemClock;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
@@ -84,6 +86,7 @@ import androidx.wear.tiles.proto.ModifiersProto.Clickable;
 import androidx.wear.tiles.proto.ModifiersProto.Modifiers;
 import androidx.wear.tiles.proto.ModifiersProto.Padding;
 import androidx.wear.tiles.proto.ModifiersProto.Semantics;
+import androidx.wear.tiles.proto.ModifiersProto.SpanModifiers;
 import androidx.wear.tiles.proto.ResourceProto.AndroidImageResourceByResId;
 import androidx.wear.tiles.proto.ResourceProto.ImageResource;
 import androidx.wear.tiles.proto.ResourceProto.Resources;
@@ -103,6 +106,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowPackageManager;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(TilesTestRunner.class)
@@ -1134,6 +1139,60 @@ public class TileRendererInternalTest {
 
         assertThat(tvInRootLayoutWithoutImage.getText().toString()).isEqualTo("FooBar");
         assertThat(tvInRootLayoutWithImage.getText().toString()).isEqualTo("FooABar");
+    }
+
+    @Test
+    public void inflate_spannable_onClickCanFire() {
+        LayoutElement root = LayoutElement.newBuilder()
+                .setSpannable(Spannable.newBuilder()
+                        .addSpans(Span.newBuilder()
+                                .setText(SpanText.newBuilder()
+                                        .setText(StringProp.newBuilder()
+                                                .setValue("Hello World"))
+                                        .setModifiers(SpanModifiers.newBuilder()
+                                                .setClickable(Clickable.newBuilder()
+                                                        .setOnClick(Action.newBuilder()
+                                                                .setLoadAction(LoadAction
+                                                                        .getDefaultInstance())))))))
+                        .build();
+
+        List<Boolean> hasFiredList = new ArrayList<>();
+        FrameLayout rootLayout =
+                inflateProto(
+                        root,
+                        /* theme= */0,
+                        resourceResolvers(),
+                        p -> hasFiredList.add(true));
+
+        TextView tv = (TextView) rootLayout.getChildAt(0);
+
+        // Dispatch a click event to the first View; it should trigger the LoadAction...
+        long startTime = SystemClock.uptimeMillis();
+        MotionEvent evt =
+                MotionEvent.obtain(
+                        /* downTime= */ startTime,
+                        /* eventTime= */ startTime,
+                        MotionEvent.ACTION_DOWN,
+                        /* x= */ 5f,
+                        /* y= */ 5f,
+                        /* metaState= */ 0);
+        tv.dispatchTouchEvent(evt);
+        evt.recycle();
+
+        evt =
+                MotionEvent.obtain(
+                        /* downTime= */ startTime,
+                        /* eventTime= */ startTime + 100,
+                        MotionEvent.ACTION_UP,
+                        /* x= */ 5f,
+                        /* y= */ 5f,
+                        /* metaState= */ 0);
+        tv.dispatchTouchEvent(evt);
+        evt.recycle();
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(hasFiredList).hasSize(1);
     }
 
     @Test
