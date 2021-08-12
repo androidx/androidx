@@ -18,13 +18,18 @@ package androidx.camera.camera2.pipe.integration.testing
 
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
+import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
+import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
+import androidx.camera.core.impl.SessionConfig
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
@@ -50,7 +55,55 @@ class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraCompone
 }
 
 // TODO: Further implement the methods in this class as needed
-class FakeUseCaseCamera(override var activeUseCases: Set<UseCase> = emptySet()) : UseCaseCamera {
+class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
+    override fun appendParametersAsync(
+        type: UseCaseCameraRequestControl.Type,
+        values: Map<CaptureRequest.Key<*>, Any>,
+        optionPriority: Config.OptionPriority,
+        tags: Map<String, Any>,
+        streams: Set<StreamId>?,
+        template: RequestTemplate?,
+        listeners: Set<Request.Listener>
+    ): Deferred<Unit> {
+        return CompletableDeferred(Unit)
+    }
+
+    override fun setConfigAsync(
+        type: UseCaseCameraRequestControl.Type,
+        config: Config?,
+        tags: Map<String, Any>,
+        streams: Set<StreamId>?,
+        template: RequestTemplate?,
+        listeners: Set<Request.Listener>
+    ): Deferred<Unit> {
+        return CompletableDeferred(Unit)
+    }
+
+    override fun setSessionConfigAsync(sessionConfig: SessionConfig): Deferred<Unit> {
+        return CompletableDeferred(Unit)
+    }
+
+    override suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A> {
+        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
+    }
+
+    override suspend fun startFocusAndMeteringAsync(
+        aeRegions: List<MeteringRectangle>,
+        afRegions: List<MeteringRectangle>,
+        awbRegions: List<MeteringRectangle>
+    ): Deferred<Result3A> {
+        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
+    }
+
+    override fun issueSingleCapture(captureSequence: List<CaptureConfig>) {
+    }
+}
+
+// TODO: Further implement the methods in this class as needed
+class FakeUseCaseCamera(
+    override var activeUseCases: Set<UseCase> = emptySet(),
+    override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
+) : UseCaseCamera {
 
     override fun <T> setParameter(
         key: CaptureRequest.Key<T>,
@@ -64,7 +117,7 @@ class FakeUseCaseCamera(override var activeUseCases: Set<UseCase> = emptySet()) 
         value: T,
         priority: Config.OptionPriority
     ): Deferred<Unit> {
-        return CompletableDeferred<Unit>().apply { complete(Unit) }
+        return CompletableDeferred(Unit)
     }
 
     override fun setParameters(
@@ -77,13 +130,11 @@ class FakeUseCaseCamera(override var activeUseCases: Set<UseCase> = emptySet()) 
         values: Map<CaptureRequest.Key<*>, Any>,
         priority: Config.OptionPriority
     ): Deferred<Unit> {
-        return CompletableDeferred<Unit>().apply { complete(Unit) }
+        return CompletableDeferred(Unit)
     }
 
     override suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A> {
-        return CompletableDeferred<Result3A>().apply {
-            complete(Result3A(status = Result3A.Status.OK))
-        }
+        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
 
     override suspend fun startFocusAndMeteringAsync(
@@ -91,9 +142,7 @@ class FakeUseCaseCamera(override var activeUseCases: Set<UseCase> = emptySet()) 
         afRegions: List<MeteringRectangle>,
         awbRegions: List<MeteringRectangle>
     ): Deferred<Result3A> {
-        return CompletableDeferred<Result3A>().apply {
-            complete(Result3A(status = Result3A.Status.OK))
-        }
+        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
 
     override fun capture(captureSequence: List<CaptureConfig>) {
