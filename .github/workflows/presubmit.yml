@@ -19,6 +19,7 @@ jobs:
             -Dorg.gradle.internal.http.socketTimeout=300000                  \
             -Dorg.gradle.internal.repository.max.retries=10                  \
             -Dorg.gradle.internal.repository.initial.backoff=500             \
+            -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=512m"                 \
             --stacktrace"
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
       - name: "Compute actions/checkout arguments"
