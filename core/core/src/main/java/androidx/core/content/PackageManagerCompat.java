@@ -170,11 +170,11 @@ public final class PackageManagerCompat {
         UnusedAppRestrictionsBackportServiceConnection backportServiceConnection =
                 new UnusedAppRestrictionsBackportServiceConnection(context);
 
-        resultFuture.addListener(() -> {
-            // Keep the connection object alive until the async operation completes, and then
-            // disconnect it.
-            backportServiceConnection.disconnectFromService();
-        }, Executors.newSingleThreadExecutor());
+        // Keep the connection object alive until the async operation completes, and then
+        // disconnect it.
+        resultFuture.addListener(
+                backportServiceConnection::disconnectFromService,
+                Executors.newSingleThreadExecutor());
 
         // Start binding the service and fetch the result
         backportServiceConnection.connectAndFetchResult(resultFuture);
