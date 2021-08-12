@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.createGraph
 import androidx.navigation.get
 import androidx.navigation.plusAssign
@@ -188,6 +189,38 @@ class NavHostControllerTest {
         assertWithMessage("there should be 2 destination on back stack when using singleTop")
             .that(navigator.backStack.size)
             .isEqualTo(2)
+    }
+
+    @Test
+    fun testNavigateOptionSingleTopDifferentArguments() {
+        var value = ""
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first?arg={arg}") {
+                composable("first?arg={arg}") { entry ->
+                    if (entry.arguments?.containsKey("arg") == true) {
+                        value = entry.arguments?.getString("arg", "").toString()
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate("first?arg=value2") {
+                launchSingleTop = true
+            }
+        }
+        composeTestRule.runOnIdle {
+            val navigator = navController.navigatorProvider.get<ComposeNavigator>(
+                navController.currentDestination?.navigatorName!!
+            )
+            assertWithMessage("there should be 1 destination on back stack when using singleTop")
+                .that(navigator.backStack.value.size)
+                .isEqualTo(1)
+            assertThat(value).isEqualTo("value2")
+        }
     }
 
     @Test
