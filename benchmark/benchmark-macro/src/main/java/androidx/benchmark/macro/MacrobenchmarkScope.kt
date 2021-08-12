@@ -18,7 +18,6 @@ package androidx.benchmark.macro
 
 import android.content.Intent
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -28,7 +27,6 @@ import androidx.tracing.trace
  * Provides access to common operations in app automation, such as killing the app,
  * or navigating home.
  */
-@RequiresApi(21)
 public class MacrobenchmarkScope(
     private val packageName: String,
     /**

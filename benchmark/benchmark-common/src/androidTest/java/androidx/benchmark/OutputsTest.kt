@@ -19,6 +19,7 @@ package androidx.benchmark
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -84,6 +85,34 @@ public class OutputsTest {
 
         for ((path, relativePath) in paths.zip(relativePaths)) {
             assertEquals(path, relativePath, "$path != $relativePath")
+        }
+    }
+
+    @Test
+    public fun dirUsableByAppAndShell_writeAppReadApp() {
+        val dir = Outputs.dirUsableByAppAndShell
+        val file = File.createTempFile("testFile", null, dir)
+        try {
+            file.writeText(file.name) // use name, as it's fairly unique
+            Assert.assertEquals(file.name, file.readText())
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public fun dirUsableByAppAndShell_writeAppReadShell() {
+        val dir = Outputs.dirUsableByAppAndShell
+        val file = File.createTempFile("testFile", null, dir)
+        try {
+            file.writeText(file.name) // use name, as it's fairly unique
+            Assert.assertEquals(
+                file.name,
+                Shell.executeCommand("cat ${file.absolutePath}")
+            )
+        } finally {
+            file.delete()
         }
     }
 }

@@ -17,7 +17,6 @@
 package androidx.benchmark.macro.perfetto
 
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.perfetto.PerfettoHelper
@@ -28,7 +27,6 @@ import java.io.File
 /**
  * Enables parsing perfetto traces on-device
  */
-@RequiresApi(21)
 internal object PerfettoTraceProcessor {
     private const val TAG = "PerfettoTraceProcessor"
 
