@@ -32,7 +32,7 @@ from JetpadClient import *
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 FRAMEWORKS_SUPPORT_FP = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
-LIBRARY_VERSIONS_REL = './buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt'
+LIBRARY_VERSIONS_REL = './buildSrc/public/src/main/kotlin/androidx/build/LibraryVersions.kt'
 LIBRARY_VERSIONS_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, LIBRARY_VERSIONS_REL)
 
 # Set up input arguments
