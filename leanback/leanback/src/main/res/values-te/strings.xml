@@ -43,8 +43,8 @@ limitations under the License.
     <string name="lb_playback_controls_repeat_one" msgid="676658705837320560">"ఒకదాన్ని పునరావృతం చేయి"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="5151681938752704485">"షఫుల్ చేయడాన్ని ప్రారంభించు"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="6793109999253893369">"షఫుల్ చేయడాన్ని నిలిపివేయి"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="3057698527166674705">"అధిక నాణ్యతను ప్రారంభించు"</string>
-    <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"అధిక నాణ్యతను నిలిపివేయి"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="3057698527166674705">"అధిక క్వాలిటీని ప్రారంభించు"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"అధిక క్వాలిటీని నిలిపివేయి"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"మూసివేసిన శీర్షికలను ప్రారంభించు"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"మూసివేసిన శీర్షికలను నిలిపివేయి"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"చిత్రంలో చిత్రం మోడ్‌లోకి ప్రవేశించు"</string>
