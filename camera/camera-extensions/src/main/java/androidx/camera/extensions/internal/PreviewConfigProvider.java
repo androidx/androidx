@@ -38,7 +38,6 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
-import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
@@ -54,15 +53,15 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     private static final String TAG = "PreviewConfigProvider";
     static final Config.Option<Integer> OPTION_PREVIEW_CONFIG_PROVIDER_MODE = Config.Option.create(
             "camerax.extensions.previewConfigProvider.mode", Integer.class);
-    private final BasicVendorExtender mVendorExtender;
-    private Context mContext;
+    private final VendorExtender mVendorExtender;
+    private final Context mContext;
     @ExtensionMode.Mode
-    private int mEffectMode;
+    private final int mEffectMode;
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public PreviewConfigProvider(
             @ExtensionMode.Mode int mode,
-            @NonNull BasicVendorExtender vendorExtender,
+            @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
         mEffectMode = mode;
         mVendorExtender = vendorExtender;
@@ -72,11 +71,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     @NonNull
     @Override
     public PreviewConfig getConfig() {
-        if (mVendorExtender == null) {
-            return new PreviewConfig(OptionsBundle.emptyBundle());
-        }
         Preview.Builder builder = new Preview.Builder();
-
         updateBuilderConfig(builder, mEffectMode, mVendorExtender, mContext);
 
         return builder.getUseCaseConfig();
@@ -86,34 +81,37 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
      * Update extension related configs to the builder.
      */
     void updateBuilderConfig(@NonNull Preview.Builder builder,
-            @ExtensionMode.Mode int effectMode, @NonNull BasicVendorExtender vendorExtender,
+            @ExtensionMode.Mode int effectMode, @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
-        PreviewEventAdapter previewEventAdapter;
-
-        PreviewExtenderImpl previewExtenderImpl = vendorExtender.getPreviewExtenderImpl();
-        switch (vendorExtender.getPreviewExtenderImpl().getProcessorType()) {
-            case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:
-                AdaptingRequestUpdateProcessor adaptingRequestUpdateProcessor =
-                        new AdaptingRequestUpdateProcessor(previewExtenderImpl);
-                builder.setImageInfoProcessor(adaptingRequestUpdateProcessor);
-                previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
-                        adaptingRequestUpdateProcessor);
-                break;
-            case PROCESSOR_TYPE_IMAGE_PROCESSOR:
-                AdaptingPreviewProcessor adaptingPreviewProcessor = new
-                        AdaptingPreviewProcessor(
-                                (PreviewImageProcessorImpl) previewExtenderImpl.getProcessor());
-                builder.setCaptureProcessor(adaptingPreviewProcessor);
-                previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
-                        adaptingPreviewProcessor);
-                break;
-            default:
-                previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context, null);
+        if (vendorExtender instanceof BasicVendorExtender) {
+            PreviewEventAdapter previewEventAdapter;
+            PreviewExtenderImpl previewExtenderImpl =
+                    ((BasicVendorExtender) vendorExtender).getPreviewExtenderImpl();
+            switch (previewExtenderImpl.getProcessorType()) {
+                case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:
+                    AdaptingRequestUpdateProcessor adaptingRequestUpdateProcessor =
+                            new AdaptingRequestUpdateProcessor(previewExtenderImpl);
+                    builder.setImageInfoProcessor(adaptingRequestUpdateProcessor);
+                    previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
+                            adaptingRequestUpdateProcessor);
+                    break;
+                case PROCESSOR_TYPE_IMAGE_PROCESSOR:
+                    AdaptingPreviewProcessor adaptingPreviewProcessor = new
+                            AdaptingPreviewProcessor(
+                            (PreviewImageProcessorImpl) previewExtenderImpl.getProcessor());
+                    builder.setCaptureProcessor(adaptingPreviewProcessor);
+                    previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
+                            adaptingPreviewProcessor);
+                    break;
+                default:
+                    previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
+                            null);
+            }
+            new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
+                    new CameraEventCallbacks(previewEventAdapter));
+            builder.setUseCaseEventCallback(previewEventAdapter);
         }
 
-        new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
-                new CameraEventCallbacks(previewEventAdapter));
-        builder.setUseCaseEventCallback(previewEventAdapter);
 
         builder.getMutableConfig().insertOption(OPTION_PREVIEW_CONFIG_PROVIDER_MODE, effectMode);
         List<Pair<Integer, Size[]>> supportedResolutions =

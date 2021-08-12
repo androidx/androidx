@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions.internal;
 
+import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
@@ -30,6 +31,7 @@ import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
@@ -85,7 +87,7 @@ public class BasicVendorExtender implements VendorExtender {
                     break;
                 case ExtensionMode.NONE:
                 default:
-                    throw new IllegalArgumentException("Should not active ExtensionMode.NONE");
+                    throw new IllegalArgumentException("Should not activate ExtensionMode.NONE");
             }
         } catch (NoClassDefFoundError e) {
             throw new IllegalArgumentException("Extension mode does not exist: " + mode);
@@ -163,6 +165,7 @@ public class BasicVendorExtender implements VendorExtender {
             return ImageFormat.PRIVATE;
         }
     }
+
     private int getCaptureInputImageFormat() {
         if (mImageCaptureExtenderImpl.getCaptureProcessor() != null) {
             return ImageFormat.YUV_420_888;
@@ -222,5 +225,15 @@ public class BasicVendorExtender implements VendorExtender {
     public Size[] getSupportedYuvAnalysisResolutions() {
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
         return getOutputSizes(ImageFormat.YUV_420_888);
+    }
+
+    @Nullable
+    @Override
+    public SessionProcessor createSessionProcessor(@NonNull Context context) {
+        Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
+        /* Return null to keep using existing flow for basic extender to ensure compatibility for
+         * now. We will switch to SessionProcessor implementation once compatibility is ensured.
+         */
+        return null;
     }
 }

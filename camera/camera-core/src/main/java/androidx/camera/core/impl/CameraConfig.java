@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 
@@ -42,6 +43,9 @@ public interface CameraConfig extends ReadableConfig {
     Option<Integer> OPTION_USE_CASE_COMBINATION_REQUIRED_RULE =
             Option.create("camerax.core.camera.useCaseCombinationRequiredRule", Integer.class);
 
+    Option<SessionProcessor> OPTION_SESSION_PROCESSOR =
+            Option.create("camerax.core.camera.SessionProcessor", SessionProcessor.class);
+
     /**
      * No rule is required when the camera is opened by the camera config.
      */
@@ -65,7 +69,9 @@ public interface CameraConfig extends ReadableConfig {
      * Retrieves the use case config factory instance.
      */
     @NonNull
-    UseCaseConfigFactory getUseCaseConfigFactory();
+    default UseCaseConfigFactory getUseCaseConfigFactory() {
+        return retrieveOption(OPTION_USECASE_CONFIG_FACTORY, UseCaseConfigFactory.EMPTY_INSTANCE);
+    }
 
     /**
      * Retrieves the compatibility {@link Identifier}.
@@ -82,11 +88,37 @@ public interface CameraConfig extends ReadableConfig {
      */
     @RequiredRule
     default int getUseCaseCombinationRequiredRule() {
-        return REQUIRED_RULE_NONE;
+        return retrieveOption(OPTION_USE_CASE_COMBINATION_REQUIRED_RULE, REQUIRED_RULE_NONE);
+    }
+
+    /**
+     * Returns the session processor which will transform the stream configurations and
+     * will perform the repeating request and still capture request when being requested by CameraX.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    default SessionProcessor getSessionProcessor(@Nullable SessionProcessor valueIfMissing) {
+        return retrieveOption(OPTION_SESSION_PROCESSOR, valueIfMissing);
+    }
+
+    /**
+     * Returns the session processor which will transform the stream configurations and will
+     * perform the repeating request and still capture request when being requested by CameraX.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    default SessionProcessor getSessionProcessor() {
+        return retrieveOption(OPTION_SESSION_PROCESSOR);
     }
 
     /**
      * Builder for creating a {@link CameraConfig}.
+     *
      * @param <B> the top level builder type for which this builder is composed with.
      */
     interface Builder<B> {
@@ -107,5 +139,12 @@ public interface CameraConfig extends ReadableConfig {
          */
         @NonNull
         B setUseCaseCombinationRequiredRule(@RequiredRule int useCaseCombinationRequiredRule);
+
+        /**
+         * Sets the session processor which will transform the stream configurations and will
+         * perform the repeating request and still capture request when being requested by CameraX.
+         */
+        @NonNull
+        B setSessionProcessor(@NonNull SessionProcessor sessionProcessor);
     }
 }

@@ -559,6 +559,9 @@ public final class CameraUseCaseAdapter implements Camera {
             }
 
             mCameraConfig = cameraConfig;
+
+            //Configure the CameraInternal as well so that it can get SessionProcessor.
+            mCameraInternal.setExtendedConfig(mCameraConfig);
         }
     }
 
