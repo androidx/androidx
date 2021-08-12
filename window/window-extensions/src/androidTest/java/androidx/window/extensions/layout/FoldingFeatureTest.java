@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.extensions;
+package androidx.window.extensions.layout;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -27,19 +27,19 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Tests for {@link ExtensionFoldingFeature} class. */
+/** Tests for {@link FoldingFeature} class. */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public final class ExtensionDisplayFeatureTest {
+public final class FoldingFeatureTest {
 
     @Test
     public void testEquals_sameAttributes() {
         Rect bounds = new Rect(1, 0, 1, 10);
-        int type = ExtensionFoldingFeature.TYPE_FOLD;
-        int state = ExtensionFoldingFeature.STATE_FLAT;
+        int type = FoldingFeature.TYPE_FOLD;
+        int state = FoldingFeature.STATE_FLAT;
 
-        ExtensionFoldingFeature original = new ExtensionFoldingFeature(bounds, type, state);
-        ExtensionFoldingFeature copy = new ExtensionFoldingFeature(bounds, type, state);
+        FoldingFeature original = new FoldingFeature(bounds, type, state);
+        FoldingFeature copy = new FoldingFeature(bounds, type, state);
 
         assertEquals(original, copy);
     }
@@ -48,12 +48,12 @@ public final class ExtensionDisplayFeatureTest {
     public void testEquals_differentRect() {
         Rect originalRect = new Rect(1, 0, 1, 10);
         Rect otherRect = new Rect(2, 0, 2, 10);
-        int type = ExtensionFoldingFeature.TYPE_FOLD;
-        int state = ExtensionFoldingFeature.STATE_FLAT;
+        int type = FoldingFeature.TYPE_FOLD;
+        int state = FoldingFeature.STATE_FLAT;
 
-        ExtensionFoldingFeature original = new ExtensionFoldingFeature(originalRect, type,
+        FoldingFeature original = new FoldingFeature(originalRect, type,
                 state);
-        ExtensionFoldingFeature other = new ExtensionFoldingFeature(otherRect, type, state);
+        FoldingFeature other = new FoldingFeature(otherRect, type, state);
 
         assertNotEquals(original, other);
     }
@@ -61,13 +61,13 @@ public final class ExtensionDisplayFeatureTest {
     @Test
     public void testEquals_differentType() {
         Rect rect = new Rect(1, 0, 1, 10);
-        int originalType = ExtensionFoldingFeature.TYPE_FOLD;
-        int otherType = ExtensionFoldingFeature.TYPE_HINGE;
-        int state = ExtensionFoldingFeature.STATE_FLAT;
+        int originalType = FoldingFeature.TYPE_FOLD;
+        int otherType = FoldingFeature.TYPE_HINGE;
+        int state = FoldingFeature.STATE_FLAT;
 
-        ExtensionFoldingFeature original = new ExtensionFoldingFeature(rect, originalType,
+        FoldingFeature original = new FoldingFeature(rect, originalType,
                 state);
-        ExtensionFoldingFeature other = new ExtensionFoldingFeature(rect, otherType, state);
+        FoldingFeature other = new FoldingFeature(rect, otherType, state);
 
         assertNotEquals(original, other);
     }
@@ -75,13 +75,13 @@ public final class ExtensionDisplayFeatureTest {
     @Test
     public void testEquals_differentState() {
         Rect rect = new Rect(1, 0, 1, 10);
-        int type = ExtensionFoldingFeature.TYPE_FOLD;
-        int originalState = ExtensionFoldingFeature.STATE_FLAT;
-        int otherState = ExtensionFoldingFeature.STATE_HALF_OPENED;
+        int type = FoldingFeature.TYPE_FOLD;
+        int originalState = FoldingFeature.STATE_FLAT;
+        int otherState = FoldingFeature.STATE_HALF_OPENED;
 
-        ExtensionFoldingFeature original = new ExtensionFoldingFeature(rect, type,
+        FoldingFeature original = new FoldingFeature(rect, type,
                 originalState);
-        ExtensionFoldingFeature other = new ExtensionFoldingFeature(rect, type, otherState);
+        FoldingFeature other = new FoldingFeature(rect, type, otherState);
 
         assertNotEquals(original, other);
     }
@@ -90,12 +90,12 @@ public final class ExtensionDisplayFeatureTest {
     public void testHashCode_matchesIfEqual() {
         Rect originalRect = new Rect(1, 0, 1, 10);
         Rect matchingRect = new Rect(1, 0, 1, 10);
-        int type = ExtensionFoldingFeature.TYPE_FOLD;
-        int state = ExtensionFoldingFeature.STATE_FLAT;
+        int type = FoldingFeature.TYPE_FOLD;
+        int state = FoldingFeature.STATE_FLAT;
 
-        ExtensionFoldingFeature original = new ExtensionFoldingFeature(originalRect, type,
+        FoldingFeature original = new FoldingFeature(originalRect, type,
                 state);
-        ExtensionFoldingFeature matching = new ExtensionFoldingFeature(matchingRect, type,
+        FoldingFeature matching = new FoldingFeature(matchingRect, type,
                 state);
 
         assertEquals(original, matching);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.extensions;
+package androidx.window.extensions.layout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Contains information about the layout of display features within the window.
  */
-public class ExtensionWindowLayoutInfo {
+public class WindowLayoutInfo {
 
     /**
      * List of display features within the window.
@@ -33,9 +33,9 @@ public class ExtensionWindowLayoutInfo {
      * window and reported within the coordinate space of the window that was provided by the app.
      */
     @NonNull
-    private List<ExtensionDisplayFeature> mDisplayFeatures;
+    private List<DisplayFeature> mDisplayFeatures;
 
-    public ExtensionWindowLayoutInfo(@NonNull List<ExtensionDisplayFeature> displayFeatures) {
+    public WindowLayoutInfo(@NonNull List<DisplayFeature> displayFeatures) {
         mDisplayFeatures = Collections.unmodifiableList(displayFeatures);
     }
 
@@ -43,7 +43,7 @@ public class ExtensionWindowLayoutInfo {
      * Gets the list of display features present within the window.
      */
     @NonNull
-    public List<ExtensionDisplayFeature> getDisplayFeatures() {
+    public List<DisplayFeature> getDisplayFeatures() {
         return mDisplayFeatures;
     }
 
@@ -67,11 +67,11 @@ public class ExtensionWindowLayoutInfo {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof ExtensionWindowLayoutInfo)) {
+        if (!(obj instanceof WindowLayoutInfo)) {
             return false;
         }
-        final ExtensionWindowLayoutInfo
-                other = (ExtensionWindowLayoutInfo) obj;
+        final WindowLayoutInfo
+                other = (WindowLayoutInfo) obj;
         if (mDisplayFeatures == null) {
             return other.mDisplayFeatures == null;
         }

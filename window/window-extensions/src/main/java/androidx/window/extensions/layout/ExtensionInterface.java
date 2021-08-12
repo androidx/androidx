@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.window.extensions;
+package androidx.window.extensions.layout;
 
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.window.extensions.ExtensionProvider;
 
 /**
  * Main Extension interface definition that will be used by the WindowManager library to get custom
@@ -58,6 +59,6 @@ public interface ExtensionInterface {
          * should be provided as soon as possible.
          */
         void onWindowLayoutChanged(@NonNull Activity activity,
-                @NonNull ExtensionWindowLayoutInfo newLayout);
+                @NonNull WindowLayoutInfo newLayout);
     }
 }
