@@ -147,6 +147,46 @@ class TestNavigatorStateTest {
             .isEqualTo(Lifecycle.State.RESUMED)
     }
 
+    @Test
+    fun testSameEntry() {
+        val navigator = TestTransitionNavigator()
+        navigator.onAttach(state)
+        val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
+
+        navigator.navigate(listOf(firstEntry), null, null)
+
+        val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntry), null, null)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(secondEntry)
+
+        navigator.popBackStack(secondEntry, true)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+        val restoredSecondEntry = state.restoreBackStackEntry(secondEntry)
+        navigator.navigate(listOf(restoredSecondEntry), null, null)
+        assertThat(
+            state.transitionsInProgress.value.firstOrNull { it === restoredSecondEntry }
+        ).isNotNull()
+
+        state.markTransitionComplete(firstEntry)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isFalse()
+
+        state.markTransitionComplete(restoredSecondEntry)
+        assertThat(state.transitionsInProgress.value.firstOrNull { it === secondEntry }).isNull()
+
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(restoredSecondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        state.markTransitionComplete(secondEntry)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
     @Navigator.Name("test")
     internal class TestNavigator : Navigator<NavDestination>() {
         override fun createDestination(): NavDestination = NavDestination(this)
