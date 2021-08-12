@@ -112,7 +112,9 @@ public class TestNavigatorState @JvmOverloads constructor(
         val savedState = entrySavedState[entry] == true
         super.markTransitionComplete(entry)
         entrySavedState.remove(entry)
-        if (!backStack.value.contains(entry)) {
+        if (!backStack.value.contains(entry) ||
+            backStack.value[backStack.value.indexOf(entry)] !== entry
+        ) {
             updateMaxLifecycle(listOf(entry), savedState)
         } else {
             updateMaxLifecycle()
