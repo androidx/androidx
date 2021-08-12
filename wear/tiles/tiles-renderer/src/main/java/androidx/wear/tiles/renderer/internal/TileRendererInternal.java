@@ -40,6 +40,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils.TruncateAt;
+import android.text.method.LinkMovementMethod;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -59,6 +60,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
+import android.widget.Scroller;
 import android.widget.Space;
 import android.widget.TextView;
 
@@ -1517,15 +1519,26 @@ public final class TileRendererInternal {
 
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
+        boolean isAnySpanClickable = false;
         for (Span element : spannable.getSpansList()) {
             switch (element.getInnerCase()) {
                 case IMAGE:
                     SpanImage protoImage = element.getImage();
                     builder = inflateImageInSpannable(builder, protoImage, tv);
+
+                    if (protoImage.getModifiers().hasClickable()) {
+                        isAnySpanClickable = true;
+                    }
+
                     break;
                 case TEXT:
                     SpanText protoText = element.getText();
                     builder = inflateTextInSpannable(builder, protoText);
+
+                    if (protoText.getModifiers().hasClickable()) {
+                        isAnySpanClickable = true;
+                    }
+
                     break;
                 default:
                     Log.w(TAG, "Unknown Span child type.");
@@ -1568,8 +1581,23 @@ public final class TileRendererInternal {
 
         tv.setText(builder);
 
+        if (isAnySpanClickable) {
+            // For any ClickableSpans to work, the MovementMethod must be set to LinkMovementMethod.
+            tv.setMovementMethod(LinkMovementMethod.getInstance());
+
+            // Disable the highlight color; if we don't do this, the clicked span will get
+            // highlighted, which will be cleared half a second later if using LoadAction as the
+            // next layout will be delivered, which recreates the elements and clears the highlight.
+            tv.setHighlightColor(Color.TRANSPARENT);
+
+            // Use InhibitingScroller to prevent the text from scrolling when tapped. Setting a
+            // MovementMethod on a TextView (e.g. for clickables in a Spannable) then cause the
+            // TextView to be scrollable, and to jump to the end when tapped.
+            tv.setScroller(new InhibitingScroller(mUiContext));
+        }
+
         View wrappedView = applyModifiers(tv, spannable.getModifiers());
-        parent.addView(applyModifiers(tv, spannable.getModifiers()), layoutParams);
+        parent.addView(wrappedView, layoutParams);
 
         return wrappedView;
     }
@@ -1957,5 +1985,18 @@ public final class TileRendererInternal {
                 throw new IllegalArgumentException("Unknown resource value type " + resType);
             }
         }
+    }
+
+    /** Implementation of {@link Scroller} which inhibits all scrolling. */
+    private static class InhibitingScroller extends Scroller {
+        InhibitingScroller(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void startScroll(int startX, int startY, int dx, int dy) {}
+
+        @Override
+        public void startScroll(int startX, int startY, int dx, int dy, int duration) {}
     }
 }
