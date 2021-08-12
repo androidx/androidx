@@ -133,6 +133,17 @@ public abstract class NavigatorState {
         pop(popUpTo, saveState)
     }
 
+    public open fun onLaunchSingleTop() {
+        // We need to create a new object and change the value of the back stack to something
+        // different so that Kotlin allows it to be a new object with the same values.
+        // TODO: We should change to just assign to itself this once b/196267358 is addressed
+        val updatedBackStack = mutableListOf<NavBackStackEntry>().apply {
+            addAll(_backStack.value)
+        }
+        _backStack.value = _backStack.value - _backStack.value.last()
+        _backStack.value = updatedBackStack
+    }
+
     /**
      * This removes the given [NavBackStackEntry] from the [set of the transitions in
      * progress][transitionsInProgress]. This should be called in conjunction with
