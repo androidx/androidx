@@ -92,6 +92,32 @@ final class ImageYuvToRgbConverter {
     }
 
     /**
+     * Applies one pixel shift workaround for YUV image
+     *
+     * @param imageProxy input image proxy in YUV.
+     * @return true if one pixel shift is applied successfully, otherwise false.
+     */
+    public static boolean applyPixelShiftForYUV(@NonNull ImageProxy imageProxy) {
+        if (!ImageYuvToRgbConverter.isSupportedYUVFormat(imageProxy)) {
+            Logger.e(TAG, "Unsupported format for YUV to RGB");
+            return false;
+        }
+
+        ImageYuvToRgbConverter.Result result = applyPixelShiftInternal(imageProxy);
+
+        if (result == Result.ERROR_CONVERSION) {
+            Logger.e(TAG, "YUV to RGB conversion failure");
+            return false;
+        }
+
+        if (result == Result.ERROR_FORMAT) {
+            Logger.e(TAG, "Unsupported format for YUV to RGB");
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Checks whether input image is in supported YUV format.
      *
      * @param imageProxy input image proxy in YUV.
@@ -115,10 +141,6 @@ final class ImageYuvToRgbConverter {
             @NonNull ImageProxy imageProxy,
             @NonNull Surface surface,
             boolean onePixelShiftEnabled) {
-        if (!isSupportedYUVFormat(imageProxy)) {
-            return Result.ERROR_FORMAT;
-        }
-
         int imageWidth = imageProxy.getWidth();
         int imageHeight = imageProxy.getHeight();
         int srcStrideY = imageProxy.getPlanes()[0].getRowStride();
@@ -141,6 +163,40 @@ final class ImageYuvToRgbConverter {
                 srcPixelStrideY,
                 srcPixelStrideUV,
                 surface,
+                imageWidth,
+                imageHeight,
+                startOffsetY,
+                startOffsetU,
+                startOffsetV);
+        if (result != 0) {
+            return Result.ERROR_CONVERSION;
+        }
+        return Result.SUCCESS;
+    }
+
+    @NonNull
+    private static Result applyPixelShiftInternal(@NonNull ImageProxy imageProxy) {
+        int imageWidth = imageProxy.getWidth();
+        int imageHeight = imageProxy.getHeight();
+        int srcStrideY = imageProxy.getPlanes()[0].getRowStride();
+        int srcStrideU = imageProxy.getPlanes()[1].getRowStride();
+        int srcStrideV = imageProxy.getPlanes()[2].getRowStride();
+        int srcPixelStrideY = imageProxy.getPlanes()[0].getPixelStride();
+        int srcPixelStrideUV = imageProxy.getPlanes()[1].getPixelStride();
+
+        int startOffsetY = srcPixelStrideY;
+        int startOffsetU = srcPixelStrideUV;
+        int startOffsetV = srcPixelStrideUV;
+
+        int result = shiftPixel(
+                imageProxy.getPlanes()[0].getBuffer(),
+                srcStrideY,
+                imageProxy.getPlanes()[1].getBuffer(),
+                srcStrideU,
+                imageProxy.getPlanes()[2].getBuffer(),
+                srcStrideV,
+                srcPixelStrideY,
+                srcPixelStrideUV,
                 imageWidth,
                 imageHeight,
                 startOffsetY,
@@ -181,6 +237,21 @@ final class ImageYuvToRgbConverter {
             int srcPixelStrideY,
             int srcPixelStrideUV,
             @NonNull Surface surface,
+            int width,
+            int height,
+            int startOffsetY,
+            int startOffsetU,
+            int startOffsetV);
+
+    private static native int shiftPixel(
+            @NonNull ByteBuffer srcByteBufferY,
+            int srcStrideY,
+            @NonNull ByteBuffer srcByteBufferU,
+            int srcStrideU,
+            @NonNull ByteBuffer srcByteBufferV,
+            int srcStrideV,
+            int srcPixelStrideY,
+            int srcPixelStrideUV,
             int width,
             int height,
             int startOffsetY,

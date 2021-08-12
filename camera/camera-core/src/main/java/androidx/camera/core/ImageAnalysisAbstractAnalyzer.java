@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888;
+import static androidx.camera.core.ImageYuvToRgbConverter.applyPixelShiftForYUV;
 import static androidx.camera.core.ImageYuvToRgbConverter.convertYUVToRGB;
 
 import androidx.annotation.GuardedBy;
@@ -126,6 +127,10 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
                             ? convertYUVToRGB(
                                     imageProxy, rgbImageReaderProxy, mOnePixelShiftEnabled)
                             : null;
+            if (mOutputImageFormat == ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888
+                    && mOnePixelShiftEnabled) {
+                applyPixelShiftForYUV(imageProxy);
+            }
 
             // When the analyzer exists and ImageAnalysis is active.
             future = CallbackToFutureAdapter.getFuture(
