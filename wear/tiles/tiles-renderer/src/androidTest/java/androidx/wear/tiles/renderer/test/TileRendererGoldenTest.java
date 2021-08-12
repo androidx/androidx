@@ -93,6 +93,7 @@ public class TileRendererGoldenTest {
                     {"line_in_arc"},
                     {"line_multi_height"},
                     {"long_text"},
+                    {"mixed_language_text"},
                     {"multi_line_text_alignment"},
                     {"row_column_space_test"},
                     {"row_with_alignment"},

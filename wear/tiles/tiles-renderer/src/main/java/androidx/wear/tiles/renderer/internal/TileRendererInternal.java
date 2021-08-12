@@ -539,21 +539,13 @@ public final class TileRendererInternal {
     }
 
     private void applyFontStyle(FontStyle style, TextView textView) {
+        // Note: Underline must be applied as a Span to work correctly (as opposed to using
+        // TextPaint#setTextUnderline). This is applied in the caller instead.
+
         // Need to supply typefaceStyle when creating the typeface (will select specialist
         // bold/italic typefaces), *and* when setting the typeface (will set synthetic bold/italic
         // flags in Paint if they're not supported by the given typeface).
         textView.setTypeface(createTypeface(style), fontStyleToTypefaceStyle(style));
-
-        int currentPaintFlags = textView.getPaintFlags();
-
-        // Remove the bits we're setting
-        currentPaintFlags &= ~Paint.UNDERLINE_TEXT_FLAG;
-
-        if (style.hasUnderline() && style.getUnderline().getValue()) {
-            currentPaintFlags |= Paint.UNDERLINE_TEXT_FLAG;
-        }
-
-        textView.setPaintFlags(currentPaintFlags);
 
         if (style.hasSize()) {
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, style.getSize().getValue());
@@ -1026,7 +1018,18 @@ public final class TileRendererInternal {
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
 
-        textView.setText(text.getText().getValue());
+        // Underlines are applied using a Spannable here, rather than setting paint bits (or using
+        // Paint#setTextUnderline). When multiple fonts are mixed on the same line (especially when
+        // mixing anything with NotoSans-CJK), multiple underlines can appear. Using UnderlineSpan
+        // instead though causes the correct behaviour to happen (only a single underline).
+        SpannableStringBuilder ssb = new SpannableStringBuilder();
+        ssb.append(text.getText().getValue());
+
+        if (text.getFontStyle().getUnderline().getValue()) {
+            ssb.setSpan(new UnderlineSpan(), 0, ssb.length(), Spanned.SPAN_MARK_MARK);
+        }
+
+        textView.setText(ssb);
 
         textView.setEllipsize(textTruncationToEllipsize(text.getOverflow()));
         textView.setGravity(textAlignToAndroidGravity(text.getMultilineAlignment()));
