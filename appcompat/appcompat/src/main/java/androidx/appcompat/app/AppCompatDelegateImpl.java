@@ -1532,7 +1532,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 mAppCompatViewInflater = new AppCompatViewInflater();
             } else {
                 try {
-                    Class<?> viewInflaterClass = Class.forName(viewInflaterClassName);
+                    Class<?> viewInflaterClass =
+                            mContext.getClassLoader().loadClass(viewInflaterClassName);
                     mAppCompatViewInflater =
                             (AppCompatViewInflater) viewInflaterClass.getDeclaredConstructor()
                                     .newInstance();
