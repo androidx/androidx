@@ -17,27 +17,27 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_slice_more_content" msgid="6405516388971241142">"+ <xliff:g id="NUMBER">%1$d</xliff:g>"</string>
-    <string name="abc_slice_more" msgid="1983560225998630901">"עוד"</string>
-    <string name="abc_slice_show_more" msgid="1567717014004692768">"עוד"</string>
-    <string name="abc_slice_updated" msgid="8155085405396453848">"עדכון אחרון: <xliff:g id="TIME">%1$s</xliff:g>"</string>
-    <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
-      <item quantity="two">לפני <xliff:g id="ID_2">%d</xliff:g> דק’</item>
-      <item quantity="many">לפני <xliff:g id="ID_2">%d</xliff:g> דק’</item>
-      <item quantity="other">לפני <xliff:g id="ID_2">%d</xliff:g> דק’</item>
+    <string name="abc_slice_more_content" msgid="7841223363798860154">"+ <xliff:g id="NUMBER">%1$d</xliff:g>"</string>
+    <string name="abc_slice_more" msgid="4299234410808450900">"עוד"</string>
+    <string name="abc_slice_show_more" msgid="1112789899890391107">"הצגת פרטים נוספים"</string>
+    <string name="abc_slice_updated" msgid="7932359091871934205">"עדכון אחרון: <xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <plurals name="abc_slice_duration_min" formatted="false" msgid="7664017844210142826">
+      <item quantity="two">לפני <xliff:g id="ID_2">%d</xliff:g> דקות</item>
+      <item quantity="many">לפני <xliff:g id="ID_2">%d</xliff:g> דקות</item>
+      <item quantity="other">לפני <xliff:g id="ID_2">%d</xliff:g> דקות</item>
       <item quantity="one">לפני דקה (<xliff:g id="ID_1">%d</xliff:g>)</item>
     </plurals>
-    <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
+    <plurals name="abc_slice_duration_years" formatted="false" msgid="2628491538787454021">
       <item quantity="two">לפני <xliff:g id="ID_2">%d</xliff:g> שנים</item>
       <item quantity="many">לפני <xliff:g id="ID_2">%d</xliff:g> שנים</item>
       <item quantity="other">לפני <xliff:g id="ID_2">%d</xliff:g> שנים</item>
       <item quantity="one">לפני שנה (<xliff:g id="ID_1">%d</xliff:g>)</item>
     </plurals>
-    <plurals name="abc_slice_duration_days" formatted="false" msgid="6241698511167107334">
-      <item quantity="two">לפני <xliff:g id="ID_2">%d</xliff:g> ימים</item>
+    <plurals name="abc_slice_duration_days" formatted="false" msgid="8356547162075064530">
+      <item quantity="two">לפני יומיים (<xliff:g id="ID_2">%d</xliff:g>)</item>
       <item quantity="many">לפני <xliff:g id="ID_2">%d</xliff:g> ימים</item>
       <item quantity="other">לפני <xliff:g id="ID_2">%d</xliff:g> ימים</item>
       <item quantity="one">לפני יום אחד (<xliff:g id="ID_1">%d</xliff:g>)</item>
     </plurals>
-    <string name="abc_slice_error" msgid="4188371422904147368">"לא ניתן היה להתחבר"</string>
+    <string name="abc_slice_error" msgid="1794214973158263497">"לא ניתן היה להתחבר"</string>
 </resources>

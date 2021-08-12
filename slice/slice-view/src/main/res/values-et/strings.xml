@@ -17,21 +17,21 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_slice_more_content" msgid="6405516388971241142">"ja veel <xliff:g id="NUMBER">%1$d</xliff:g>"</string>
-    <string name="abc_slice_more" msgid="1983560225998630901">"Rohkem"</string>
-    <string name="abc_slice_show_more" msgid="1567717014004692768">"Kuva rohkem"</string>
-    <string name="abc_slice_updated" msgid="8155085405396453848">"Värskendatud kell <xliff:g id="TIME">%1$s</xliff:g>"</string>
-    <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
+    <string name="abc_slice_more_content" msgid="7841223363798860154">"+<xliff:g id="NUMBER">%1$d</xliff:g>"</string>
+    <string name="abc_slice_more" msgid="4299234410808450900">"Rohkem"</string>
+    <string name="abc_slice_show_more" msgid="1112789899890391107">"Kuva rohkem"</string>
+    <string name="abc_slice_updated" msgid="7932359091871934205">"Värskendati <xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <plurals name="abc_slice_duration_min" formatted="false" msgid="7664017844210142826">
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> min tagasi</item>
       <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> min tagasi</item>
     </plurals>
-    <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
+    <plurals name="abc_slice_duration_years" formatted="false" msgid="2628491538787454021">
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> a tagasi</item>
       <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> a tagasi</item>
     </plurals>
-    <plurals name="abc_slice_duration_days" formatted="false" msgid="6241698511167107334">
+    <plurals name="abc_slice_duration_days" formatted="false" msgid="8356547162075064530">
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> päeva tagasi</item>
       <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> päev tagasi</item>
     </plurals>
-    <string name="abc_slice_error" msgid="4188371422904147368">"Ühendamine ebaõnnestus"</string>
+    <string name="abc_slice_error" msgid="1794214973158263497">"Ühendamine ebaõnnestus"</string>
 </resources>
