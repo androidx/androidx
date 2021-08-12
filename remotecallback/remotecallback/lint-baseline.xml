@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RemoteCallback.TYPE_RECEIVER, RemoteCallback.TYPE_PROVIDER"
+        errorLine1="    public static final RemoteCallback LOCAL = new RemoteCallback(null, -1, null, null, null) {"
+        errorLine2="                                                                        ~~">
+        <location
+            file="src/main/java/androidx/remotecallback/RemoteCallback.java"
+            line="151"
+            column="73"/>
+    </issue>
 
     <issue
         id="LambdaLast"
@@ -19,7 +30,7 @@
         errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="40"
+            line="41"
             column="27"/>
     </issue>
 
@@ -30,7 +41,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="40"
+            line="41"
             column="44"/>
     </issue>
 
@@ -41,7 +52,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="49"
+            line="50"
             column="35"/>
     </issue>
 
@@ -52,7 +63,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="58"
+            line="59"
             column="12"/>
     </issue>
 
@@ -63,7 +74,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="58"
+            line="59"
             column="44"/>
     </issue>
 
@@ -74,7 +85,7 @@
         errorLine2="                                                         ~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="58"
+            line="59"
             column="58"/>
     </issue>
 
@@ -85,7 +96,7 @@
         errorLine2="                                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="58"
+            line="59"
             column="75"/>
     </issue>
 
@@ -96,7 +107,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="59"
+            line="60"
             column="13"/>
     </issue>
 
@@ -107,7 +118,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="59"
+            line="60"
             column="26"/>
     </issue>
 
@@ -118,7 +129,7 @@
         errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="48"
+            line="49"
             column="27"/>
     </issue>
 
@@ -129,7 +140,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="48"
+            line="49"
             column="44"/>
     </issue>
 
@@ -140,7 +151,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="55"
+            line="56"
             column="35"/>
     </issue>
 
@@ -151,7 +162,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="64"
+            line="65"
             column="12"/>
     </issue>
 
@@ -162,7 +173,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="64"
+            line="65"
             column="44"/>
     </issue>
 
@@ -173,7 +184,7 @@
         errorLine2="                                                         ~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="64"
+            line="65"
             column="58"/>
     </issue>
 
@@ -184,7 +195,7 @@
         errorLine2="                                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="64"
+            line="65"
             column="75"/>
     </issue>
 
@@ -195,7 +206,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="65"
+            line="66"
             column="13"/>
     </issue>
 
@@ -206,7 +217,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="65"
+            line="66"
             column="26"/>
     </issue>
 
@@ -481,7 +492,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="47"
+            line="48"
             column="28"/>
     </issue>
 
@@ -492,7 +503,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="47"
+            line="48"
             column="45"/>
     </issue>
 
@@ -503,7 +514,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="53"
+            line="54"
             column="12"/>
     </issue>
 
@@ -514,7 +525,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="53"
+            line="54"
             column="24"/>
     </issue>
 
@@ -525,7 +536,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="53"
+            line="54"
             column="39"/>
     </issue>
 
@@ -536,7 +547,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="53"
+            line="54"
             column="51"/>
     </issue>
 
@@ -547,7 +558,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="62"
+            line="63"
             column="35"/>
     </issue>
 
@@ -558,7 +569,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="71"
+            line="72"
             column="12"/>
     </issue>
 
@@ -569,7 +580,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="71"
+            line="72"
             column="44"/>
     </issue>
 
@@ -580,7 +591,7 @@
         errorLine2="                                                         ~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="71"
+            line="72"
             column="58"/>
     </issue>
 
@@ -591,7 +602,7 @@
         errorLine2="                                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="71"
+            line="72"
             column="75"/>
     </issue>
 
@@ -602,7 +613,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="72"
+            line="73"
             column="13"/>
     </issue>
 
@@ -613,7 +624,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="72"
+            line="73"
             column="26"/>
     </issue>
 

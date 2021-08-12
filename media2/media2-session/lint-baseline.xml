@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: VolumeProviderCompat.VOLUME_CONTROL_FIXED, VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE"
+        errorLine1="        return new VolumeProviderCompat(player.getVolumeControlType(), player.getMaxVolume(),"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionLegacyStub.java"
+            line="630"
+            column="41"/>
+    </issue>
 
     <issue
         id="WrongConstant"
