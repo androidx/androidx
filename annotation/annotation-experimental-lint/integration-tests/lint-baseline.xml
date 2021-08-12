@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="ExperimentalAnnotationRetention"
@@ -180,6 +180,17 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        return experimentalObject.field;"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
+            line="32"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
         errorLine1="        AnnotatedJavaClass experimentalObject = new AnnotatedJavaClass();"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -196,6 +207,17 @@
         <location
             file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
             line="40"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        return AnnotatedJavaClass.FIELD_STATIC;"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
+            line="47"
             column="35"/>
     </issue>
 
@@ -278,6 +300,28 @@
 
     <issue
         id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        return experimentalObject.field"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
+            line="29"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.experimental.ExperimentalDateTime` or `@OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)`"
+        errorLine1="        return dateProvider.date"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"
+            line="30"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@sample.experimental.ExperimentalDateTime` or `@OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)`"
         errorLine1="        return dateProvider.date"
         errorLine2="                            ~~~~">
@@ -312,6 +356,17 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        return AnnotatedJavaClass.FIELD_STATIC"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
+            line="44"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
         errorLine1="        return AnnotatedJavaClass.methodStatic()"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
@@ -329,6 +384,17 @@
             file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"
             line="57"
             column="32"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.experimental.ExperimentalLocation` or `@OptIn(markerClass = sample.experimental.ExperimentalLocation.class)`"
+        errorLine1="        return dateProvider.date + locationProvider.location"
+        errorLine2="                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"
+            line="58"
+            column="53"/>
     </issue>
 
     <issue
@@ -388,6 +454,17 @@
 
     <issue
         id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation2` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation2.class)`"
+        errorLine1="        return experimentalObject.method() + AnnotatedJavaClass2.FIELD_STATIC"
+        errorLine2="                                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
+            line="108"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
         errorLine1="        return stableObject.field;"
         errorLine2="                            ~~~~~">
@@ -439,6 +516,17 @@
             file="src/main/java/sample/optin/UseJavaExperimentalMultipleMarkersFromJava.java"
             line="33"
             column="51"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation2` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation2.class)`"
+        errorLine1="        return experimentalObject.method() + experimentalObject2.field;"
+        errorLine2="                                                                 ~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalMultipleMarkersFromJava.java"
+            line="34"
+            column="66"/>
     </issue>
 
     <issue
@@ -549,6 +637,17 @@
             file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"
             line="55"
             column="58"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalKotlinAnnotation2` or `@OptIn(markerClass = sample.optin.ExperimentalKotlinAnnotation2.class)`"
+        errorLine1="        return experimentalObject.method() + AnnotatedKotlinClass2.fieldStatic;"
+        errorLine2="                                                                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"
+            line="56"
+            column="68"/>
     </issue>
 
     <issue
