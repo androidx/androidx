@@ -37,18 +37,25 @@ public interface RequestProcessorImpl {
 
     /**
      * Submits a request.
+     * @return the id of the capture sequence or -1 in case the processor encounters a fatal error
+     *         or receives and invalid argument.
      */
-    boolean submit(Request request, Callback callback);
+    int submit(Request request, Callback callback);
 
     /**
      * Submits a list of requests.
+     * @return the id of the capture sequence or -1 in case the processor encounters a fatal error
+     *         or receives and invalid argument.
      */
-    boolean submit(List<Request> requests, Callback callback);
+    int submit(List<Request> requests, Callback callback);
 
     /**
      * Set repeating requests.
+     * @return the id of the capture sequence or -1 in case the processor encounters a fatal error
+     *         or receives and invalid argument.
      */
-    boolean setRepeating(Request request, Callback callback);
+    int setRepeating(Request request, Callback callback);
+
 
     /**
      * Abort captures.
