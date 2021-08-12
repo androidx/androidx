@@ -381,7 +381,8 @@ public class MediaControllerCompatCallbackTest {
             Intent intent = new Intent("MEDIA_SESSION_ACTION");
             final int requestCode = 555;
             final PendingIntent pi =
-                    PendingIntent.getActivity(getApplicationContext(), requestCode, intent, 0);
+                    PendingIntent.getActivity(getApplicationContext(), requestCode, intent,
+                            PendingIntent.FLAG_IMMUTABLE);
 
             callMediaSessionMethod(SET_SESSION_ACTIVITY, pi, getApplicationContext());
             new PollingCheck(TIME_OUT_MS) {
