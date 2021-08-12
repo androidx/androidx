@@ -16,8 +16,11 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executor
 
 /**
@@ -28,4 +31,10 @@ class UseCaseThreads(
 
     val backgroundExecutor: Executor,
     val backgroundDispatcher: CoroutineDispatcher,
-)
+) {
+    val sequentialExecutor = CameraXExecutors.newSequentialExecutor(backgroundExecutor)
+    val sequentialDispatcher = sequentialExecutor.asCoroutineDispatcher()
+    val sequentialScope = CoroutineScope(
+        scope.coroutineContext + SupervisorJob() + sequentialDispatcher
+    )
+}
