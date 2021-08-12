@@ -65,10 +65,8 @@ internal class HardwareFoldingFeature(
         }
 
     override fun toString(): String {
-        return (
-            "${FoldingFeature::class.java.simpleName} { $featureBounds, " +
-                "type=$type, state=$state }"
-            )
+        return "${HardwareFoldingFeature::class.java.simpleName} { $featureBounds, type=$type, " +
+            "state=$state }"
     }
 
     override fun equals(other: Any?): Boolean {
