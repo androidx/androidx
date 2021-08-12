@@ -97,12 +97,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
                     deferredService.completeExceptionally(ServiceStartFailureException())
                 }
             }
-            if (!context.bindService(
-                    intent,
-                    serviceConnection,
-                    Context.BIND_AUTO_CREATE or Context.BIND_IMPORTANT
-                )
-            ) {
+            if (!BindHelper.bindService(context, intent, serviceConnection)) {
                 traceEvent.close()
                 throw ServiceNotBoundException()
             }
