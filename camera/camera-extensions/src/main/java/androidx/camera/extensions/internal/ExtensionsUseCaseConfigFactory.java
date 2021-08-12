@@ -38,15 +38,8 @@ public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactor
             @ExtensionMode.Mode int mode,
             @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
-        if (vendorExtender instanceof BasicVendorExtender) {
-            BasicVendorExtender basicVendorExtender = (BasicVendorExtender) vendorExtender;
-            mImageCaptureConfigProvider = new ImageCaptureConfigProvider(
-                    mode, basicVendorExtender, context);
-            mPreviewConfigProvider = new PreviewConfigProvider(
-                    mode, basicVendorExtender, context);
-        } else {
-            throw new UnsupportedOperationException("Advanced extender implementation not ready");
-        }
+        mImageCaptureConfigProvider = new ImageCaptureConfigProvider(mode, vendorExtender, context);
+        mPreviewConfigProvider = new PreviewConfigProvider(mode, vendorExtender, context);
     }
 
     /**

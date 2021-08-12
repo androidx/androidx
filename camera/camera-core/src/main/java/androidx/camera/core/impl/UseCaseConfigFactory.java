@@ -71,4 +71,12 @@ public interface UseCaseConfigFactory {
      */
     @Nullable
     Config getConfig(@NonNull CaptureType captureType);
+
+    UseCaseConfigFactory EMPTY_INSTANCE = new UseCaseConfigFactory() {
+        @Nullable
+        @Override
+        public Config getConfig(@NonNull CaptureType captureType) {
+            return null;
+        }
+    };
 }
