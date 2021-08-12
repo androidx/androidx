@@ -10837,21 +10837,31 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 return false;
             }
             int vScroll = 0, hScroll = 0;
+            int height = getHeight();
+            int width = getWidth();
+            Rect rect = new Rect();
+            // Gets the visible rect on the screen except for the rotation or scale cases which
+            // might affect the result.
+            if (mRecyclerView.getMatrix().isIdentity() && mRecyclerView.getGlobalVisibleRect(
+                    rect)) {
+                height = rect.height();
+                width = rect.width();
+            }
             switch (action) {
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
                     if (mRecyclerView.canScrollVertically(-1)) {
-                        vScroll = -(getHeight() - getPaddingTop() - getPaddingBottom());
+                        vScroll = -(height - getPaddingTop() - getPaddingBottom());
                     }
                     if (mRecyclerView.canScrollHorizontally(-1)) {
-                        hScroll = -(getWidth() - getPaddingLeft() - getPaddingRight());
+                        hScroll = -(width - getPaddingLeft() - getPaddingRight());
                     }
                     break;
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
                     if (mRecyclerView.canScrollVertically(1)) {
-                        vScroll = getHeight() - getPaddingTop() - getPaddingBottom();
+                        vScroll = height - getPaddingTop() - getPaddingBottom();
                     }
                     if (mRecyclerView.canScrollHorizontally(1)) {
-                        hScroll = getWidth() - getPaddingLeft() - getPaddingRight();
+                        hScroll = width - getPaddingLeft() - getPaddingRight();
                     }
                     break;
             }
