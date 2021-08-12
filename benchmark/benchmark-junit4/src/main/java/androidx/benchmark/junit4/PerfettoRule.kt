@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.junit4
+package androidx.benchmark.junit4
 
 import android.os.Build
 import android.util.Log
@@ -22,7 +22,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
-import androidx.benchmark.macro.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -57,11 +58,11 @@ public class PerfettoRule : TestRule {
         description: Description
     ): Statement = object : Statement() {
         override fun evaluate() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= PerfettoHelper.LOWEST_BUNDLED_VERSION_SUPPORTED) {
                 val prefix = "${description.className}_${description.methodName}"
                 val suffix = dateToFileName()
                 val traceName = "${prefix}_$suffix.perfetto-trace"
-                PerfettoCapture().recordAndReportFile(traceName) {
+                PerfettoCapture(unbundled = false).recordAndReportFile(traceName) {
                     base.evaluate()
                 }
             } else {

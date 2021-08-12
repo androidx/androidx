@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-/**
- * Hide the perfetto.protos package, as it's an implementation detail of benchmark.macro
- *
- * Note: other attempts to use these protos in the macrobench process will clash with our
- * definitions. If this becomes an issue, we can move ours to a separate, internal package.
- *
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-package perfetto.protos;
+package androidx.benchmark
 
-import androidx.annotation.RestrictTo;
+import androidx.test.platform.app.InstrumentationRegistry
+
+object Packages {
+    val TEST: String = InstrumentationRegistry.getInstrumentation()
+        .context
+        .packageName
+}

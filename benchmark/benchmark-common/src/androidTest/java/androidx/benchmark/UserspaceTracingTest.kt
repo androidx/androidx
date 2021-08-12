@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro
+package androidx.benchmark
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -27,6 +28,7 @@ import org.junit.runner.RunWith
 import perfetto.protos.TracePacket
 import perfetto.protos.TrackDescriptor
 import perfetto.protos.TrackEvent
+import java.io.File
 import kotlin.test.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
@@ -110,4 +112,16 @@ class UserspaceTracingTest {
             )
         }
     }
+}
+
+@Suppress("SameParameterValue")
+internal fun createTempFileFromAsset(prefix: String, suffix: String): File {
+    val file = File.createTempFile(prefix, suffix, Outputs.dirUsableByAppAndShell)
+    InstrumentationRegistry
+        .getInstrumentation()
+        .context
+        .assets
+        .open(prefix + suffix)
+        .copyTo(file.outputStream())
+    return file
 }

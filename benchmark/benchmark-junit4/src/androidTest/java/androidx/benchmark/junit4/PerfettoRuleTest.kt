@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.test
+package androidx.benchmark.junit4
 
 import android.os.Build
-import androidx.benchmark.macro.junit4.PerfettoRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto
+package androidx.benchmark.perfetto
 
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
@@ -26,7 +27,8 @@ import androidx.benchmark.PropOverride
 /**
  * Wrapper for [PerfettoCapture] which does nothing below L.
  */
-internal class PerfettoCaptureWrapper {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class PerfettoCaptureWrapper {
     private var capture: PerfettoCapture? = null
     private val TRACE_ENABLE_PROP = "persist.traced.enable"
 

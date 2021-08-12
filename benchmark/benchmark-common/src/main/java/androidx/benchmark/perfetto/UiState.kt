@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto
+package androidx.benchmark.perfetto
 
+import androidx.annotation.RestrictTo
 import perfetto.protos.Trace
 import perfetto.protos.TracePacket
 import perfetto.protos.UiState
@@ -25,7 +26,8 @@ import java.io.File
  * Convenience for UiState construction with specified package
  */
 @Suppress("FunctionName") // constructor convenience
-internal fun UiState(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun UiState(
     timelineStart: Long?,
     timelineEnd: Long?,
     highlightPackage: String?
@@ -37,7 +39,8 @@ internal fun UiState(
     }
 )
 
-internal fun File.appendUiState(state: UiState) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun File.appendUiState(state: UiState) {
     val traceToAppend = Trace(packet = listOf(TracePacket(ui_state = state)))
     appendBytes(traceToAppend.encode())
 }

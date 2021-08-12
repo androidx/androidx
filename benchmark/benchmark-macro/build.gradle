@@ -22,7 +22,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-    id("com.squareup.wire")
 }
 
 android {
@@ -36,34 +35,10 @@ android {
                 SupportConfigKt.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/trace_processor_shell"
         )
-        main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/perfetto"
-        )
-        main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/traced"
-        )
-        main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/traced_probes"
-        )
         androidTest.assets.srcDirs += new File(
                 SupportConfigKt.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/testdata"
         )
-    }
-}
-
-wire {
-    kotlin {}
-
-    // prune unused config components which have deprecated fields
-    prune 'perfetto.protos.TraceConfig.IncidentReportConfig'
-    prune 'perfetto.protos.ProcessStatsConfig.Quirks'
-
-    sourcePath {
-        srcDir 'src/main/proto'
     }
 }
 
@@ -77,7 +52,6 @@ dependencies {
     implementation("androidx.tracing:tracing-ktx:1.0.0")
     implementation(libs.testCore)
     implementation(libs.testUiautomator)
-    implementation(libs.wireRuntime)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":activity:activity-ktx"))

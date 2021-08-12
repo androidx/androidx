@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto
+package androidx.benchmark.perfetto
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
 import perfetto.protos.DataSourceConfig
 import perfetto.protos.FtraceConfig
@@ -134,9 +135,12 @@ private val LINUX_SYS_STATS_DATASOURCE = TraceConfig.DataSource(
 /**
  * Global config for perfetto.
  *
- * Eventually, this should be configurable.
+ * Eventually, this should be more configurable.
+ *
+ * @suppress
  */
-internal fun perfettoConfig(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun perfettoConfig(
     atraceApps: List<String>
 ) = TraceConfig(
     buffers = listOf(

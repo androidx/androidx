@@ -19,5 +19,8 @@ package androidx.benchmark.junit4 {
     method public static inline void measureRepeated(androidx.benchmark.junit4.BenchmarkRule, kotlin.jvm.functions.Function1<? super androidx.benchmark.junit4.BenchmarkRule.Scope,kotlin.Unit> block);
   }
 
+  public final class PerfettoRuleKt {
+  }
+
 }
 
