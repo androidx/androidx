@@ -116,6 +116,8 @@ And put the following at the top of your 'repositories' property in your **proje
 maven { url '/path/to/checkout/out/androidx/build/support_repo/' }
 ```
 
+**NOTE: In order to see your changes in the project, you might need to clean your build (`Build > Clean Project` in Android Studio or run `./gradlew clean`).**
+
 ### Continuous integration
 [Our continuous integration system](https://ci.android.com/builds/branches/aosp-androidx-main/grid?) builds all in progress (and potentially unstable) libraries as new changes are merged. You can manually download these AARs and JARs for your experimentation.
 
