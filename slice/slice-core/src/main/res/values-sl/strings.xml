@@ -17,10 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_slices_permission_request" msgid="3604847235923472451">"Aplikacija <xliff:g id="APP_0">%1$s</xliff:g> želi prikazati izreze iz aplikacije <xliff:g id="APP_2">%2$s</xliff:g>"</string>
-    <string name="abc_slice_permission_title" msgid="4175332421259324948">"Ali aplikaciji <xliff:g id="APP_0">%1$s</xliff:g> dovolite prikazovanje izrezov iz aplikacije <xliff:g id="APP_2">%2$s</xliff:g>?"</string>
-    <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"– lahko bere podatke v aplikaciji <xliff:g id="APP">%1$s</xliff:g>"</string>
-    <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"– lahko izvaja dejanja v aplikaciji <xliff:g id="APP">%1$s</xliff:g>"</string>
-    <string name="abc_slice_permission_allow" msgid="5024599872061409708">"Dovoli"</string>
-    <string name="abc_slice_permission_deny" msgid="3819478292430407705">"Zavrni"</string>
+    <string name="abc_slices_permission_request" msgid="4431189529265983653">"Aplikacija <xliff:g id="APP_0">%1$s</xliff:g> želi prikazati izreze aplikacije <xliff:g id="APP_2">%2$s</xliff:g>."</string>
+    <string name="abc_slice_permission_title" msgid="4776010267128891014">"Želite dovoliti, da aplikacija <xliff:g id="APP_0">%1$s</xliff:g> prikaže izreze aplikacije <xliff:g id="APP_2">%2$s</xliff:g>?"</string>
+    <string name="abc_slice_permission_text_1" msgid="9108592981418900836">"– lahko bere podatke v aplikaciji <xliff:g id="APP">%1$s</xliff:g>."</string>
+    <string name="abc_slice_permission_text_2" msgid="7135705417979137589">"– lahko izvaja dejanja v aplikaciji <xliff:g id="APP">%1$s</xliff:g>."</string>
+    <string name="abc_slice_permission_allow" msgid="6374752258872407887">"Dovoli"</string>
+    <string name="abc_slice_permission_deny" msgid="576316744017426251">"Zavrni"</string>
 </resources>
