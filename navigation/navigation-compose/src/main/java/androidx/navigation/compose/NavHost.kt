@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -29,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -118,22 +120,28 @@ public fun NavHost(
     ) as? ComposeNavigator ?: return
     val backStack by composeNavigator.backStack.collectAsState()
     val transitionsInProgress by composeNavigator.transitionsInProgress.collectAsState()
+    val visibleTransitionsInProgress = rememberVisibleList(transitionsInProgress)
+    val visibleBackStack = rememberVisibleList(backStack)
+    visibleTransitionsInProgress.PopulateVisibleList(transitionsInProgress)
+    visibleBackStack.PopulateVisibleList(backStack)
 
-    val backStackEntry = transitionsInProgress.lastOrNull { entry ->
-        entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
-    } ?: backStack.lastOrNull { entry ->
-        entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
-    }
+    val backStackEntry = visibleTransitionsInProgress.lastOrNull() ?: visibleBackStack.lastOrNull()
 
     var initialCrossfade by remember { mutableStateOf(true) }
     if (backStackEntry != null) {
         // while in the scope of the composable, we provide the navBackStackEntry as the
         // ViewModelStoreOwner and LifecycleOwner
-        Crossfade(EntryHolder(backStackEntry), modifier) { holder ->
-            holder.entry.LocalOwnersProvider(saveableStateHolder) {
-                (holder.entry.destination as ComposeNavigator.Destination).content(holder.entry)
+        Crossfade(backStackEntry.id, modifier) {
+            val lastEntry = transitionsInProgress.lastOrNull { entry ->
+                it == entry.id
+            } ?: backStack.lastOrNull { entry ->
+                it == entry.id
             }
-            DisposableEffect(holder.entry) {
+
+            lastEntry?.LocalOwnersProvider(saveableStateHolder) {
+                (lastEntry.destination as ComposeNavigator.Destination).content(lastEntry)
+            }
+            DisposableEffect(lastEntry) {
                 if (initialCrossfade) {
                     // There's no animation for the initial crossfade,
                     // so we can instantly mark the transition as complete
@@ -159,14 +167,37 @@ public fun NavHost(
     DialogHost(dialogNavigator)
 }
 
-private class EntryHolder(val entry: NavBackStackEntry) {
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is EntryHolder) return false
-        return entry.id == other.entry.id
-    }
-
-    override fun hashCode(): Int {
-        return entry.id.hashCode()
+@Composable
+private fun MutableList<NavBackStackEntry>.PopulateVisibleList(
+    transitionsInProgress: Collection<NavBackStackEntry>
+) {
+    transitionsInProgress.forEach { entry ->
+        DisposableEffect(entry.lifecycle) {
+            val observer = LifecycleEventObserver { _, event ->
+                // ON_START -> add to visibleBackStack, ON_STOP -> remove from visibleBackStack
+                if (event == Lifecycle.Event.ON_START) {
+                    add(entry)
+                }
+                if (event == Lifecycle.Event.ON_STOP) {
+                    remove(entry)
+                }
+            }
+            entry.lifecycle.addObserver(observer)
+            onDispose {
+                entry.lifecycle.removeObserver(observer)
+            }
+        }
     }
 }
+
+@Composable
+private fun rememberVisibleList(transitionsInProgress: Collection<NavBackStackEntry>) =
+    remember(transitionsInProgress) {
+        mutableStateListOf<NavBackStackEntry>().also {
+            it.addAll(
+                transitionsInProgress.filter { entry ->
+                    entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                }
+            )
+        }
+    }
