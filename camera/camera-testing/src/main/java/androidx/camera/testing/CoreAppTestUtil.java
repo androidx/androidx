@@ -16,6 +16,7 @@
 
 package androidx.camera.testing;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.KeyguardManager;
@@ -81,6 +82,7 @@ public final class CoreAppTestUtil {
      * Clean up the device UI and back to the home screen for test.
      * @param instrumentation the instrumentation used to run the test
      */
+    @SuppressLint("MissingPermission") // Permission needed for action_close_system_dialogs in S
     @SuppressWarnings("deprecation")
     public static void clearDeviceUI(@NonNull Instrumentation instrumentation) {
         UiDevice device = UiDevice.getInstance(instrumentation);
@@ -110,8 +112,10 @@ public final class CoreAppTestUtil {
         device.waitForIdle(MAX_TIMEOUT_MS);
 
         // Close system dialogs first to avoid interrupt.
-        instrumentation.getTargetContext().sendBroadcast(
-                new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+            instrumentation.getTargetContext().sendBroadcast(
+                    new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+        }
     }
 
     /**
