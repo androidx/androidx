@@ -23,9 +23,9 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInternalAdapter
 import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
+import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
-import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
@@ -39,7 +39,7 @@ import dagger.Provides
 import dagger.Subcomponent
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import javax.inject.Scope
 
@@ -70,7 +70,7 @@ abstract class CameraModule {
             val dispatcher = cameraThreadConfig.cameraExecutor.asCoroutineDispatcher()
 
             val cameraScope = CoroutineScope(
-                Job() +
+                SupervisorJob() +
                     dispatcher +
                     CoroutineName("CXCP-UseCase-${cameraConfig.cameraId.value}")
             )

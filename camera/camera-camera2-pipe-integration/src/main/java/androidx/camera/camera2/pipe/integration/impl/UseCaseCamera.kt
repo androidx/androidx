@@ -232,6 +232,7 @@ class UseCaseCameraImpl(
                 useCases: java.util.ArrayList<UseCase>,
                 cameraConfig: CameraConfig,
                 callbackMap: CameraCallbackMap,
+                requestListener: ComboRequestListener,
                 threads: UseCaseThreads,
             ): UseCaseCamera {
                 val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
@@ -256,7 +257,7 @@ class UseCaseCameraImpl(
                 val config = CameraGraph.Config(
                     camera = cameraConfig.cameraId,
                     streams = streamConfigMap.keys.toList(),
-                    defaultListeners = listOf(callbackMap),
+                    defaultListeners = listOf(callbackMap, requestListener),
                 )
                 val graph = cameraPipe.create(config)
 
