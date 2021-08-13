@@ -67,8 +67,6 @@ package androidx.wear.complications {
     field public static final int DATA_SOURCE_DAY_OF_WEEK = 13; // 0xd
     field public static final int DATA_SOURCE_FAVORITE_CONTACT = 14; // 0xe
     field public static final int DATA_SOURCE_NEXT_EVENT = 9; // 0x9
-    field public static final int DATA_SOURCE_RETAIL_CHAT = 11; // 0xb
-    field public static final int DATA_SOURCE_RETAIL_STEP_COUNT = 10; // 0xa
     field public static final int DATA_SOURCE_STEP_COUNT = 4; // 0x4
     field public static final int DATA_SOURCE_SUNRISE_SUNSET = 12; // 0xc
     field public static final int DATA_SOURCE_TIME_AND_DATE = 3; // 0x3

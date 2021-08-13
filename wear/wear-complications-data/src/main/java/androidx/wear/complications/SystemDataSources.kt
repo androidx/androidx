@@ -123,28 +123,6 @@ public class SystemDataSources private constructor() {
         public const val DATA_SOURCE_NEXT_EVENT: Int = 9
 
         /**
-         * Id for the 'retail mode step count' complication complication data source.
-         *
-         * This complication data source shows fake step count data, and the tap action launches the
-         * retail mode health app. This complication data source should only be set as a default if
-         * the device is in retail mode.
-         *
-         * This complication data source supports only [ComplicationType.SHORT_TEXT].
-         */
-        public const val DATA_SOURCE_RETAIL_STEP_COUNT: Int = 10
-
-        /**
-         * Id for the 'retail mode chat' complication complication data source.
-         *
-         * This complication data source shows fake 'unread chat messages' data, and the tap action
-         * launches the retail mode chat app. This complication data source should only be set as
-         * a default if the device is in retail mode.
-         *
-         * This complication data source supports only [ComplicationType.SHORT_TEXT].
-         */
-        public const val DATA_SOURCE_RETAIL_CHAT: Int = 11
-
-        /**
          * Id for the 'sunrise sunset' complication complication data source.
          *
          * This complication data source shows next sunrise or sunset time according to current
@@ -203,8 +181,6 @@ public class SystemDataSources private constructor() {
         DATA_SOURCE_APP_SHORTCUT,
         DATA_SOURCE_UNREAD_NOTIFICATION_COUNT,
         DATA_SOURCE_NEXT_EVENT,
-        DATA_SOURCE_RETAIL_STEP_COUNT,
-        DATA_SOURCE_RETAIL_CHAT,
         DATA_SOURCE_SUNRISE_SUNSET,
         DATA_SOURCE_DAY_OF_WEEK,
         DATA_SOURCE_FAVORITE_CONTACT,
