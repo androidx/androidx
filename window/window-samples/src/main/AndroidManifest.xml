@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2020 The Android Open Source Project
-
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-
        http://www.apache.org/licenses/LICENSE-2.0
-
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.window.sample">
-
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
@@ -52,6 +48,98 @@
             android:exported="false"
             android:configChanges="orientation|screenSize|screenLayout|screenSize"
             android:label="@string/window_metrics"/>
+        <activity
+            android:name=".embedding.SplitActivityA"
+            android:exported="true"
+            android:label="Split Main"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.manual_split_affinity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".embedding.SplitActivityB"
+            android:exported="false"
+            android:label="B"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.manual_split_affinity"/>
+        <activity
+            android:name=".embedding.SplitActivityC"
+            android:exported="false"
+            android:label="C"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.manual_split_affinity"/>
+        <activity
+            android:name=".embedding.SplitActivityD"
+            android:exported="false"
+            android:label="D"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.manual_split_affinity"/>
+        <activity
+            android:name=".embedding.SplitActivityE"
+            android:exported="false"
+            android:label="E"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.manual_split_affinity"/>
+        <activity
+            android:name=".embedding.SplitActivityF"
+            android:exported="false"
+            android:label="F"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.manual_split_affinity"/>
+        <activity
+            android:name=".embedding.SplitActivityPlaceholder"
+            android:exported="false"
+            android:label="Placeholder"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.manual_split_affinity"/>
+        <activity
+            android:name=".embedding.SplitActivityTrampoline"
+            android:exported="true"
+            android:label="Split Trampoline"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.trampoline_affinity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity-alias
+            android:name=".embedding.SplitActivityTrampolineTarget"
+            android:targetActivity=".embedding.SplitActivityA"/>
+        <activity
+            android:name=".embedding.SplitActivityList"
+            android:exported="true"
+            android:label="Split List"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.list_detail_split_affinity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".embedding.SplitActivityDetail"
+            android:exported="false"
+            android:label="Item detail"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:launchMode="singleTop"
+            android:taskAffinity="androidx.window.sample.list_detail_split_affinity"/>
+        <activity
+            android:name=".embedding.SplitActivityListPlaceholder"
+            android:exported="false"
+            android:label="Placeholder"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.list_detail_split_affinity" />
+        <provider android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- This entry makes ExampleWindowInitializer discoverable. -->
+            <meta-data  android:name="androidx.window.sample.embedding.ExampleWindowInitializer"
+                android:value="androidx.startup" />
+        </provider>
     </application>
-
 </manifest>
