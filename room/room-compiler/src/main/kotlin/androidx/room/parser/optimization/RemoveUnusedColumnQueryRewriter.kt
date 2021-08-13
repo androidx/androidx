@@ -36,9 +36,7 @@ object RemoveUnusedColumnQueryRewriter : QueryRewriter {
         if (resultAdapter.mappings.isEmpty()) {
             return query
         }
-        val usedColumns = resultAdapter.mappings.flatMap { mapping ->
-            mapping.matchedFields.map { it.columnName }
-        }
+        val usedColumns = resultAdapter.mappings.flatMap { it.usedColumns }
         val columnNames = resultInfo.columns.map { it.name }
         val unusedColumns = columnNames - usedColumns
         if (unusedColumns.isEmpty()) {
