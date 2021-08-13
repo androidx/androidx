@@ -28,10 +28,12 @@ public class SearchResultCtsTest {
     @Test
     public void testBuildSearchResult() {
         SearchResult.MatchRange exactMatchRange = new SearchResult.MatchRange(3, 8);
+        SearchResult.MatchRange submatchRange = new SearchResult.MatchRange(3, 5);
         SearchResult.MatchRange snippetMatchRange = new SearchResult.MatchRange(1, 10);
         SearchResult.MatchInfo matchInfo =
                 new SearchResult.MatchInfo.Builder("body")
                         .setExactMatchRange(exactMatchRange)
+                        .setSubmatchRange(submatchRange)
                         .setSnippetRange(snippetMatchRange).build();
 
         AppSearchEmail email = new AppSearchEmail.Builder("namespace1", "id1")
@@ -51,8 +53,10 @@ public class SearchResultCtsTest {
         SearchResult.MatchInfo actualMatchInfo = searchResult.getMatchInfos().get(0);
         assertThat(actualMatchInfo.getPropertyPath()).isEqualTo("body");
         assertThat(actualMatchInfo.getExactMatchRange()).isEqualTo(exactMatchRange);
+        assertThat(actualMatchInfo.getSubmatchRange()).isEqualTo(submatchRange);
         assertThat(actualMatchInfo.getSnippetRange()).isEqualTo(snippetMatchRange);
         assertThat(actualMatchInfo.getExactMatch()).isEqualTo("lo Wo");
+        assertThat(actualMatchInfo.getSubmatch()).isEqualTo("lo");
         assertThat(actualMatchInfo.getSnippet()).isEqualTo("ello Worl");
         assertThat(actualMatchInfo.getFullText()).isEqualTo("Hello World.");
     }

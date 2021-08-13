@@ -74,6 +74,8 @@ public class SnippetTest {
                                 .setExactMatchByteLength(3)
                                 .setExactMatchUtf16Position(29)
                                 .setExactMatchUtf16Length(3)
+                                .setSubmatchByteLength(3)
+                                .setSubmatchUtf16Length(3)
                                 .setWindowBytePosition(26)
                                 .setWindowByteLength(6)
                                 .setWindowUtf16Position(26)
@@ -97,6 +99,9 @@ public class SnippetTest {
         assertThat(match.getFullText()).isEqualTo(propertyValueString);
         assertThat(match.getExactMatch()).isEqualTo(exactMatch);
         assertThat(match.getExactMatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/29, /*upper=*/32));
+        assertThat(match.getSubmatch()).isEqualTo("foo");
+        assertThat(match.getSubmatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/29, /*upper=*/32));
         assertThat(match.getFullText()).isEqualTo(propertyValueString);
         assertThat(match.getSnippetRange()).isEqualTo(
@@ -154,6 +159,8 @@ public class SnippetTest {
                                 .setExactMatchByteLength(4)
                                 .setExactMatchUtf16Position(0)
                                 .setExactMatchUtf16Length(4)
+                                .setSubmatchByteLength(4)
+                                .setSubmatchUtf16Length(4)
                                 .setWindowBytePosition(0)
                                 .setWindowByteLength(9)
                                 .setWindowUtf16Position(0)
@@ -165,6 +172,8 @@ public class SnippetTest {
                                 .setExactMatchByteLength(20)
                                 .setExactMatchUtf16Position(0)
                                 .setExactMatchUtf16Length(20)
+                                .setSubmatchByteLength(4)
+                                .setSubmatchUtf16Length(4)
                                 .setWindowBytePosition(0)
                                 .setWindowByteLength(20)
                                 .setWindowUtf16Position(0)
@@ -189,6 +198,9 @@ public class SnippetTest {
         assertThat(match1.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
         assertThat(match1.getExactMatch()).isEqualTo("Test");
+        assertThat(match1.getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
+        assertThat(match1.getSubmatch()).isEqualTo("Test");
         assertThat(match1.getSnippetRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/9));
         assertThat(match1.getSnippet()).isEqualTo("Test Name");
@@ -199,6 +211,9 @@ public class SnippetTest {
         assertThat(match2.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/20));
         assertThat(match2.getExactMatch()).isEqualTo("TestNameJr@gmail.com");
+        assertThat(match2.getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
+        assertThat(match2.getSubmatch()).isEqualTo("Test");
         assertThat(match2.getSnippetRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/20));
         assertThat(match2.getSnippet()).isEqualTo("TestNameJr@gmail.com");
@@ -229,6 +244,8 @@ public class SnippetTest {
                                 .setExactMatchByteLength(4)
                                 .setExactMatchUtf16Position(0)
                                 .setExactMatchUtf16Length(4)
+                                .setSubmatchByteLength(4)
+                                .setSubmatchUtf16Length(4)
                                 .setWindowBytePosition(0)
                                 .setWindowByteLength(9)
                                 .setWindowUtf16Position(0)
@@ -240,6 +257,8 @@ public class SnippetTest {
                                 .setExactMatchByteLength(21)
                                 .setExactMatchUtf16Position(0)
                                 .setExactMatchUtf16Length(21)
+                                .setSubmatchByteLength(4)
+                                .setSubmatchUtf16Length(4)
                                 .setWindowBytePosition(0)
                                 .setWindowByteLength(21)
                                 .setWindowUtf16Position(0)
@@ -264,6 +283,9 @@ public class SnippetTest {
         assertThat(match1.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
         assertThat(match1.getExactMatch()).isEqualTo("Test");
+        assertThat(match1.getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
+        assertThat(match1.getSubmatch()).isEqualTo("Test");
         assertThat(match1.getSnippetRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/9));
         assertThat(match1.getSnippet()).isEqualTo("Test Name");
@@ -274,6 +296,9 @@ public class SnippetTest {
         assertThat(match2.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));
         assertThat(match2.getExactMatch()).isEqualTo("TestNameJr2@gmail.com");
+        assertThat(match2.getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/4));
+        assertThat(match2.getSubmatch()).isEqualTo("Test");
         assertThat(match2.getSnippetRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));
         assertThat(match2.getSnippet()).isEqualTo("TestNameJr2@gmail.com");

@@ -281,6 +281,8 @@ public final class SearchResult {
      * nonsense word that’s used a lot is bar."
      * <p>{@link MatchInfo#getExactMatchRange()} returns [29, 32]
      * <p>{@link MatchInfo#getExactMatch()} returns "foo"
+     * <p>{@link MatchInfo#getSubmatchRange()} returns [29, 32]
+     * <p>{@link MatchInfo#getSubmatch()} returns "foo"
      * <p>{@link MatchInfo#getSnippetRange()} returns [26, 33]
      * <p>{@link MatchInfo#getSnippet()} returns "is foo."
      * <p>
@@ -297,6 +299,8 @@ public final class SearchResult {
      * <p>{@link MatchInfo#getFullText()} returns "Test Name Jr."
      * <p>{@link MatchInfo#getExactMatchRange()} returns [0, 4]
      * <p>{@link MatchInfo#getExactMatch()} returns "Test"
+     * <p>{@link MatchInfo#getSubmatchRange()} returns [0, 4]
+     * <p>{@link MatchInfo#getSubmatch()} returns "Test"
      * <p>{@link MatchInfo#getSnippetRange()} returns [0, 9]
      * <p>{@link MatchInfo#getSnippet()} returns "Test Name"
      * <p> Match-2
@@ -304,6 +308,8 @@ public final class SearchResult {
      * <p>{@link MatchInfo#getFullText()} returns "TestNameJr@gmail.com"
      * <p>{@link MatchInfo#getExactMatchRange()} returns [0, 20]
      * <p>{@link MatchInfo#getExactMatch()} returns "TestNameJr@gmail.com"
+     * <p>{@link MatchInfo#getSubmatchRange()} returns [0, 4]
+     * <p>{@link MatchInfo#getSubmatch()} returns "Test"
      * <p>{@link MatchInfo#getSnippetRange()} returns [0, 20]
      * <p>{@link MatchInfo#getSnippet()} returns "TestNameJr@gmail.com"
      */
@@ -312,6 +318,8 @@ public final class SearchResult {
         private static final String PROPERTY_PATH_FIELD = "propertyPath";
         private static final String EXACT_MATCH_RANGE_LOWER_FIELD = "exactMatchRangeLower";
         private static final String EXACT_MATCH_RANGE_UPPER_FIELD = "exactMatchRangeUpper";
+        private static final String SUBMATCH_RANGE_LOWER_FIELD = "submatchRangeLower";
+        private static final String SUBMATCH_RANGE_UPPER_FIELD = "submatchRangeUpper";
         private static final String SNIPPET_RANGE_LOWER_FIELD = "snippetRangeLower";
         private static final String SNIPPET_RANGE_UPPER_FIELD = "snippetRangeUpper";
 
@@ -334,6 +342,13 @@ public final class SearchResult {
         /** Range of property that exactly matched the query. Populated on first use. */
         @Nullable
         private MatchRange mExactMatchRange;
+
+        /**
+         * Range of property that corresponds to the subsequence of the exact match that directly
+         * matches a query term. Populated on first use.
+         */
+        @Nullable
+        private MatchRange mSubmatchRange;
 
         /** Range of some reasonable amount of context around the query. Populated on first use. */
         @Nullable
@@ -376,8 +391,10 @@ public final class SearchResult {
         }
 
         /**
-         * Gets the exact {@link MatchRange} corresponding to the given entry.
-         * <p>For class example 1 this returns [29, 32]
+         * Gets the {@link MatchRange} of the exact term of the given entry that matched the query.
+         * <p>Class example 1: this returns [29, 32].
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns [0, 4] and, for the
+         * second {@link MatchInfo}, this returns [0, 20].
          */
         @NonNull
         public MatchRange getExactMatchRange() {
@@ -390,8 +407,10 @@ public final class SearchResult {
         }
 
         /**
-         * Gets the  {@link MatchRange} corresponding to the given entry.
-         * <p>For class example 1 this returns "foo"
+         * Gets the exact term of the given entry that matched the query.
+         * <p>Class example 1: this returns "foo".
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test" and, for the
+         * second {@link MatchInfo}, this returns "TestNameJr@gmail.com".
          */
         @NonNull
         public CharSequence getExactMatch() {
@@ -399,10 +418,40 @@ public final class SearchResult {
         }
 
         /**
+         * Gets the {@link MatchRange} of the exact term subsequence of the given entry that matched
+         * the query.
+         * <p>Class example 1: this returns [29, 32].
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns [0, 4] and, for the
+         * second {@link MatchInfo}, this returns [0, 4].
+         */
+        @NonNull
+        public MatchRange getSubmatchRange() {
+            if (mSubmatchRange == null) {
+                mSubmatchRange = new MatchRange(
+                        mBundle.getInt(SUBMATCH_RANGE_LOWER_FIELD),
+                        mBundle.getInt(SUBMATCH_RANGE_UPPER_FIELD));
+            }
+            return mSubmatchRange;
+        }
+
+        /**
+         * Gets the exact term subsequence of the given entry that matched the query.
+         * <p>Class example 1: this returns "foo".
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test" and, for the
+         * second {@link MatchInfo}, this returns "Test".
+         */
+        @NonNull
+        public CharSequence getSubmatch() {
+            return getSubstring(getSubmatchRange());
+        }
+
+        /**
          * Gets the snippet {@link MatchRange} corresponding to the given entry.
          * <p>Only populated when set maxSnippetSize > 0 in
          * {@link SearchSpec.Builder#setMaxSnippetSize}.
-         * <p>For class example 1 this returns [29, 41].
+         * <p>Class example 1: this returns [29, 41].
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns [0, 9] and, for the
+         * second {@link MatchInfo}, this returns [0, 20].
          */
         @NonNull
         public MatchRange getSnippetRange() {
@@ -420,7 +469,9 @@ public final class SearchResult {
          * maxSnippetSize > 0. The size of this content can be changed by
          * {@link SearchSpec.Builder#setMaxSnippetSize}. Windowing is centered around the middle of
          * the matched token with content on either side clipped to token boundaries.
-         * <p>For class example 1 this returns "foo. Another"
+         * <p>Class example 1: this returns "foo. Another".
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test Name" and, for
+         * the second {@link MatchInfo}, this returns "TestNameJr@gmail.com".
          */
         @NonNull
         public CharSequence getSnippet() {
@@ -448,6 +499,7 @@ public final class SearchResult {
         public static final class Builder {
             private final String mPropertyPath;
             private MatchRange mExactMatchRange = new MatchRange(0, 0);
+            private MatchRange mSubmatchRange = new MatchRange(0, 0);
             private MatchRange mSnippetRange = new MatchRange(0, 0);
 
             /**
@@ -474,6 +526,14 @@ public final class SearchResult {
                 return this;
             }
 
+
+            /** Sets the submatch {@link MatchRange} corresponding to the given entry. */
+            @NonNull
+            public Builder setSubmatchRange(@NonNull MatchRange matchRange) {
+                mSubmatchRange = Preconditions.checkNotNull(matchRange);
+                return this;
+            }
+
             /** Sets the snippet {@link MatchRange} corresponding to the given entry. */
             @NonNull
             public Builder setSnippetRange(@NonNull MatchRange matchRange) {
@@ -488,6 +548,8 @@ public final class SearchResult {
                 bundle.putString(SearchResult.MatchInfo.PROPERTY_PATH_FIELD, mPropertyPath);
                 bundle.putInt(MatchInfo.EXACT_MATCH_RANGE_LOWER_FIELD, mExactMatchRange.getStart());
                 bundle.putInt(MatchInfo.EXACT_MATCH_RANGE_UPPER_FIELD, mExactMatchRange.getEnd());
+                bundle.putInt(MatchInfo.SUBMATCH_RANGE_LOWER_FIELD, mSubmatchRange.getStart());
+                bundle.putInt(MatchInfo.SUBMATCH_RANGE_UPPER_FIELD, mSubmatchRange.getEnd());
                 bundle.putInt(MatchInfo.SNIPPET_RANGE_LOWER_FIELD, mSnippetRange.getStart());
                 bundle.putInt(MatchInfo.SNIPPET_RANGE_UPPER_FIELD, mSnippetRange.getEnd());
                 return new MatchInfo(bundle, /*document=*/ null);

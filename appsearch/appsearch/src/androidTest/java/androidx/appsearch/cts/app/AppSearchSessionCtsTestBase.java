@@ -1860,7 +1860,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(document).build()));
 
         // Query for the document
-        SearchResults searchResults = mDb1.search("foo",
+        SearchResults searchResults = mDb1.search("fo",
                 new SearchSpec.Builder()
                         .addFilterSchemas("Generic")
                         .setSnippetCount(1)
@@ -1880,6 +1880,9 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(matchInfo.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/32));
         assertThat(matchInfo.getExactMatch()).isEqualTo("foo");
+        assertThat(matchInfo.getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/31));
+        assertThat(matchInfo.getSubmatch()).isEqualTo("fo");
         assertThat(matchInfo.getSnippetRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/26,  /*upper=*/33));
         assertThat(matchInfo.getSnippet()).isEqualTo("is foo.");
@@ -2005,6 +2008,9 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(matchInfo.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
         assertThat(matchInfo.getExactMatch()).isEqualTo("は");
+        assertThat(matchInfo.getSubmatchRange()).isEqualTo(
+                new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
+        assertThat(matchInfo.getSubmatch()).isEqualTo("は");
     }
 
     @Test
