@@ -204,12 +204,12 @@ includeProject(":appcompat:appcompat-resources", "appcompat/appcompat-resources"
 includeProject(":appcompat:integration-tests:receive-content-testapp", "appcompat/integration-tests/receive-content-testapp", [BuildType.MAIN])
 includeProject(":appsearch:appsearch", "appsearch/appsearch", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-compiler", "appsearch/compiler", [BuildType.MAIN])
-includeProject(":appsearch:appsearch-debug-view", "appsearch/debug-view", [BuildType.MAIN])
-includeProject(":appsearch:appsearch-debug-view:samples", "appsearch/debug-view/samples",
+includeProject(":appsearch:appsearch-debug-view", "appsearch/appsearch-debug-view", [BuildType.MAIN])
+includeProject(":appsearch:appsearch-debug-view:samples", "appsearch/appsearch-debug-view/samples",
         [BuildType.MAIN])
 includeProject(":appsearch:appsearch-ktx", "appsearch/appsearch-ktx", [BuildType.MAIN])
-includeProject(":appsearch:appsearch-local-storage", "appsearch/local-storage", [BuildType.MAIN])
-includeProject(":appsearch:appsearch-platform-storage", "appsearch/platform-storage", [BuildType.MAIN])
+includeProject(":appsearch:appsearch-local-storage", "appsearch/appsearch-local-storage", [BuildType.MAIN])
+includeProject(":appsearch:appsearch-platform-storage", "appsearch/appsearch-platform-storage", [BuildType.MAIN])
 includeProject(":arch:core:core-common", "arch/core/core-common", [BuildType.MAIN])
 includeProject(":arch:core:core-runtime", "arch/core/core-runtime", [BuildType.MAIN])
 includeProject(":arch:core:core-testing", "arch/core/core-testing", [BuildType.MAIN])
