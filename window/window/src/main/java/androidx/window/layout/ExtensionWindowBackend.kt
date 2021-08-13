@@ -39,16 +39,17 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
     ) var windowExtension: ExtensionInterfaceCompat?
 ) : WindowBackend {
 
-    init {
-        windowExtension?.setExtensionCallback(ExtensionListenerImpl())
-    }
-
     /**
      * List of all registered callbacks for window layout info. Not protected by [globalLock] to
      * allow iterating and callback execution without holding the global lock.
      */
     @VisibleForTesting
-    val windowLayoutChangeCallbacks = CopyOnWriteArrayList<WindowLayoutChangeCallbackWrapper>()
+    val windowLayoutChangeCallbacks: CopyOnWriteArrayList<WindowLayoutChangeCallbackWrapper>
+
+    init {
+        windowLayoutChangeCallbacks = CopyOnWriteArrayList<WindowLayoutChangeCallbackWrapper>()
+        windowExtension?.setExtensionCallback(ExtensionListenerImpl())
+    }
 
     override fun registerLayoutChangeCallback(
         activity: Activity,

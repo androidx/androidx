@@ -46,7 +46,7 @@ android {
 dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
-    implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.core:core:1.3.2")
 
