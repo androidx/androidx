@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.extensions;
+package androidx.window.extensions.layout;
 
 import android.graphics.Rect;
 
@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 /**
  * Description of a physical feature on the display.
  */
-public interface ExtensionDisplayFeature {
+public interface DisplayFeature {
 
     /**
      * The bounding rectangle of the feature within the application window
