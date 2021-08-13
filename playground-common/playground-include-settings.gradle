@@ -56,14 +56,6 @@ def setupPlayground(settings, String relativePathToRoot) {
     }
     settings.ext.supportRootDir = supportRoot
     settings.rootProject.buildFileName = relativePathToBuild
-    settings.pluginManagement {
-        repositories {
-            google()
-            mavenCentral()
-            jcenter()
-            gradlePluginPortal()
-        }
-    }
     settings.enableFeaturePreview("VERSION_CATALOGS")
     settings.dependencyResolutionManagement {
         versionCatalogs {
@@ -72,7 +64,6 @@ def setupPlayground(settings, String relativePathToRoot) {
             }
         }
     }
-    settings.includeBuild(new File(supportRoot, "androidx-plugin"))
     settings.includeProject(":lint-checks", new File(supportRoot, "lint-checks"))
     settings.includeProject(":lint-checks:integration-tests",
             new File(supportRoot, "lint-checks/integration-tests"))
@@ -144,3 +135,9 @@ if (jvmVersion != "11") {
             Current version: $jvmVersion
             Current JAVA HOME: ${System.getProperty("java.home")}""".stripIndent());
 }
+
+// allow public repositories
+System.setProperty("ALLOW_PUBLIC_REPOS", "true")
+
+// specify out dir location
+System.setProperty("CHECKOUT_ROOT", "${buildscript.sourceFile.parent}/..")
