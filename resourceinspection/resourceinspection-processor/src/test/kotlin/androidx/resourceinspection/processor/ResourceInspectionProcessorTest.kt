@@ -23,6 +23,7 @@ import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects
 import org.intellij.lang.annotations.Language
 import org.junit.Test
+import java.io.File
 import javax.lang.model.SourceVersion
 import javax.tools.JavaFileObject
 
@@ -1582,6 +1583,40 @@ class ResourceInspectionProcessorTest {
         ).hadErrorContaining(
             "@AppCompatShadowedAttributes is present on this view, but it does not implement any " +
                 "interfaces that indicate it has shadowed attributes."
+        )
+    }
+
+    @Test
+    fun `fails when view inspection API is missing`() {
+        val source = java(
+            "androidx.pkg.MissingViewInspectorApiTestClass",
+            """
+                package androidx.pkg;
+
+                import androidx.resourceinspection.annotation.Attribute;
+
+                public final class MissingViewInspectorApiTestClass {
+                    @Attribute("androidx.pkg:attribute")
+                    public int getAttribute() {
+                        return 1;
+                    }
+                }
+            """
+        )
+
+        val classpath = System.getProperty("java.class.path")
+            .split(File.pathSeparator)
+            .map { File(it) }
+            .filterNot { it.name == "android.jar" }
+
+        assertThat(
+            javac()
+                .withClasspath(classpath)
+                .withProcessors(ResourceInspectionProcessor())
+                .compile(source)
+        ).hadErrorContaining(
+            "View inspector (android.view.inspector) API is not present. Please ensure compile " +
+                "SDK is 29 or greater."
         )
     }
 
