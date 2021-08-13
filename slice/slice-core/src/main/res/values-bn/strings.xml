@@ -17,10 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_slices_permission_request" msgid="3604847235923472451">"<xliff:g id="APP_0">%1$s</xliff:g> অ্যাপটি <xliff:g id="APP_2">%2$s</xliff:g> এর অংশ দেখাতে চায়"</string>
-    <string name="abc_slice_permission_title" msgid="4175332421259324948">"<xliff:g id="APP_0">%1$s</xliff:g> অ্যাপটিকে <xliff:g id="APP_2">%2$s</xliff:g> এর অংশ দেখানোর অনুমতি দেবেন?"</string>
-    <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- এটি <xliff:g id="APP">%1$s</xliff:g> এর তথ্য অ্যাক্সেস করতে পারবে"</string>
-    <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- এটি <xliff:g id="APP">%1$s</xliff:g> এর মধ্যে কাজ করতে পারবে"</string>
-    <string name="abc_slice_permission_allow" msgid="5024599872061409708">"অনুমতি দিন"</string>
-    <string name="abc_slice_permission_deny" msgid="3819478292430407705">"খারিজ করুন"</string>
+    <string name="abc_slices_permission_request" msgid="4431189529265983653">"<xliff:g id="APP_0">%1$s</xliff:g> অ্যাপটি <xliff:g id="APP_2">%2$s</xliff:g> অ্যাপের বিভিন্ন অংশ দেখাতে চায়"</string>
+    <string name="abc_slice_permission_title" msgid="4776010267128891014">"<xliff:g id="APP_0">%1$s</xliff:g> অ্যাপকে <xliff:g id="APP_2">%2$s</xliff:g> অ্যাপের বিভিন্ন অংশ দেখানোর অনুমতি দেবেন?"</string>
+    <string name="abc_slice_permission_text_1" msgid="9108592981418900836">"- এটি <xliff:g id="APP">%1$s</xliff:g> অ্যাপের তথ্য অ্যাক্সেস করতে পারবে"</string>
+    <string name="abc_slice_permission_text_2" msgid="7135705417979137589">"- এটি <xliff:g id="APP">%1$s</xliff:g> অ্যাপের মধ্যে বিভিন্ন কাজ করতে পারবে"</string>
+    <string name="abc_slice_permission_allow" msgid="6374752258872407887">"অনুমতি দিন"</string>
+    <string name="abc_slice_permission_deny" msgid="576316744017426251">"বাতিল করুন"</string>
 </resources>
