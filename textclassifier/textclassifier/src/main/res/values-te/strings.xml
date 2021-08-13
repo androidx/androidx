@@ -22,8 +22,8 @@ limitations under the License.
     <string name="dial_desc" msgid="1195407206406821463">"ఎంచుకున్న ఫోన్ నంబర్‌కు కాల్ చేస్తుంది"</string>
     <string name="browse" msgid="4753676368851695348">"తెరువు"</string>
     <string name="browse_desc" msgid="728882176434276995">"ఎంచుకున్న URLని తెరుస్తుంది"</string>
-    <string name="sms" msgid="2214738262605167054">"సందేశం పంపు"</string>
-    <string name="sms_desc" msgid="7733202356868441148">"ఎంచుకున్న ఫోన్ నంబర్‌కి సందేశం పంపుతుంది"</string>
+    <string name="sms" msgid="2214738262605167054">"మెసేజ్‌ పంపు"</string>
+    <string name="sms_desc" msgid="7733202356868441148">"ఎంచుకున్న ఫోన్ నంబర్‌కి మెసేజ్‌ పంపుతుంది"</string>
     <string name="add_contact" msgid="386263007484061034">"జోడించు"</string>
     <string name="add_contact_desc" msgid="1739272501140197425">"పరిచయాలకు జోడిస్తుంది"</string>
     <string name="floating_toolbar_open_overflow_description" msgid="6778458701858708647">"మరిన్ని ఆప్షన్‌లు"</string>
