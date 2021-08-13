@@ -16,6 +16,7 @@
 
 
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
@@ -27,7 +28,7 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId "androidx.core.splashscreen.sample"
+        applicationId "androidx.core.splashscreen.samples"
         minSdkVersion 21
     }
 }
@@ -42,7 +43,7 @@ dependencies {
 
 androidx {
     name = "AndroidX Splashscreen Samples"
-    publish = Publish.NONE
+    type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.CORE_SPLASHSCREEN
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
