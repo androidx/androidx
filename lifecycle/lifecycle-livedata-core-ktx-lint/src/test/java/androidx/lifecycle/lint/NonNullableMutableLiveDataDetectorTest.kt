@@ -100,6 +100,7 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
         ).expectClean()
     }
 
+    @Ignore("b/196832482")
     @Test
     fun helperMethodFails() {
         check(
@@ -130,6 +131,7 @@ src/com/example/test.kt:7: Error: Expected non-nullable value [NullSafeMutableLi
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun variableAssignmentFails() {
         check(
@@ -167,6 +169,7 @@ Fix for src/com/example/test.kt line 8: Add non-null asserted (!!) call:
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun nullLiteralFailField() {
         check(
@@ -193,6 +196,7 @@ src/com/example/test.kt:8: Error: Cannot set non-nullable LiveData value to null
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun nullLiteralFailMultipleFields() {
         check(
@@ -250,6 +254,7 @@ src/com/example/test.kt:12: Error: Cannot set non-nullable LiveData value to nul
         ).expectClean()
     }
 
+    @Ignore("b/196832482")
     @Test
     fun nullLiteralFailMultipleAssignment() {
         check(
@@ -277,6 +282,7 @@ src/com/example/test.kt:9: Error: Cannot set non-nullable LiveData value to null
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun nullLiteralFailFieldAndIgnore() {
         check(
@@ -349,6 +355,7 @@ src/com/example/test.kt:9: Error: Cannot set non-nullable LiveData value to null
         ).expectClean()
     }
 
+    @Ignore("b/196832482")
     @Test
     fun nullLiteralFailFieldAndLocalVariable() {
         check(
@@ -380,6 +387,7 @@ src/com/example/test.kt:10: Error: Cannot set non-nullable LiveData value to nul
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun nullLiteralQuickFix() {
         check(
@@ -405,6 +413,7 @@ Fix for src/com/example/test.kt line 7: Change `LiveData` type to nullable:
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun classHierarchyTest() {
         check(
@@ -447,6 +456,7 @@ Fix for src/com/example/test.kt line 6: Add non-null asserted (!!) call:
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun differentClassSameFieldTestFirstNull() {
         check(
@@ -497,6 +507,7 @@ Fix for src/com/example/MyClass1.kt line 9: Change `LiveData` type to nullable:
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun differentClassSameFieldTestSecondNull() {
         check(
@@ -547,6 +558,7 @@ Fix for src/com/example/MyClass2.kt line 9: Change `LiveData` type to nullable:
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun nestedClassSameFieldTest() {
         check(
@@ -590,6 +602,7 @@ Fix for src/com/example/MyClass1.kt line 16: Change `LiveData` type to nullable:
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun modifiersFieldTest() {
         check(
@@ -630,6 +643,7 @@ Fix for src/com/example/MyClass1.kt line 12: Change `LiveData` type to nullable:
         )
     }
 
+    @Ignore("b/196832482")
     @Test
     fun implementationClassTest() {
         check(

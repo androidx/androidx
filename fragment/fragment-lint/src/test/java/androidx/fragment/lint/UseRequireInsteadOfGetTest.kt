@@ -20,6 +20,7 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -201,6 +202,7 @@ class UseRequireInsteadOfGetTest {
             )
     }
 
+    @Ignore("b/196833165")
     @Test
     fun `simple java checks where the code is in a fragment`() {
         useRequireLint()
@@ -317,6 +319,7 @@ class UseRequireInsteadOfGetTest {
             )
     }
 
+    @Ignore("b/196833165")
     @Test
     fun `qualified checkNotNulls should remove the qualifier`() {
         useRequireLint()
@@ -658,6 +661,7 @@ class UseRequireInsteadOfGetTest {
             )
     }
 
+    @Ignore("b/196833165")
     @Test
     fun `kotlin get then require`() {
         // Note we don't import a preconditions stub here because we use kotlin's built-in
@@ -698,6 +702,7 @@ class UseRequireInsteadOfGetTest {
             )
     }
 
+    @Ignore("b/196833165")
     @Test
     fun `simple kotlin get non null with require`() {
         // Note we don't import a preconditions stub here because we use kotlin's built-in
@@ -738,6 +743,7 @@ class UseRequireInsteadOfGetTest {
             )
     }
 
+    @Ignore("b/196833165")
     @Test
     fun `simple kotlin checks where the code is in a fragment`() {
         // Note we don't import a preconditions stub here because we use kotlin's built-in

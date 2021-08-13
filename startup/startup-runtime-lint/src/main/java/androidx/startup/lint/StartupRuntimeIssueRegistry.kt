@@ -27,7 +27,7 @@ import com.android.tools.lint.detector.api.Issue
  */
 class StartupRuntimeIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
-    override val api = 10
+    override val api = 11
     override val issues: List<Issue>
         get() = listOf(
             InitializerConstructorDetector.ISSUE,

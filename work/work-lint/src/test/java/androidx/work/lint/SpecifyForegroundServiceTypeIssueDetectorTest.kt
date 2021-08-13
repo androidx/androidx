@@ -21,9 +21,11 @@ import androidx.work.lint.Stubs.NOTIFICATION
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.manifest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 
 class SpecifyForegroundServiceTypeIssueDetectorTest {
+    @Ignore("b/196831196")
     @Test
     fun failWhenServiceTypeIsNotSpecified() {
         val application = kotlin(
@@ -62,6 +64,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
         /* ktlint-enable max-line-length */
     }
 
+    @Ignore("b/196831196")
     @Test
     fun failWhenSpecifiedServiceTypeIsInSufficient() {
         val manifest = manifest(
