@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.extensions;
+package androidx.window.extensions.layout;
 
 import android.graphics.Rect;
 
@@ -29,7 +29,7 @@ import java.lang.annotation.RetentionPolicy;
  * A feature that describes a fold in a flexible display
  * or a hinge between two physical display panels.
  */
-public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
+public class FoldingFeature implements DisplayFeature {
 
     /**
      * A fold in the flexible screen without a physical gap.
@@ -91,7 +91,7 @@ public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
     @State
     private final int mState;
 
-    public ExtensionFoldingFeature(@NonNull Rect bounds, @Type int type, @State int state) {
+    public FoldingFeature(@NonNull Rect bounds, @Type int type, @State int state) {
         validateFeatureBounds(bounds);
         mBounds = new Rect(bounds);
         mType = type;
@@ -166,10 +166,10 @@ public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof ExtensionFoldingFeature)) {
+        if (!(obj instanceof FoldingFeature)) {
             return false;
         }
-        final ExtensionFoldingFeature other = (ExtensionFoldingFeature) obj;
+        final FoldingFeature other = (FoldingFeature) obj;
         if (mType != other.mType) {
             return false;
         }

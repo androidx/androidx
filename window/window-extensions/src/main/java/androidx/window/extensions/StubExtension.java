@@ -19,6 +19,8 @@ package androidx.window.extensions;
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.window.extensions.layout.ExtensionInterface;
+import androidx.window.extensions.layout.WindowLayoutInfo;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -49,7 +51,7 @@ abstract class StubExtension implements ExtensionInterface {
     }
 
     protected void updateWindowLayout(@NonNull Activity activity,
-            @NonNull ExtensionWindowLayoutInfo newLayout) {
+            @NonNull WindowLayoutInfo newLayout) {
         if (mExtensionCallback != null) {
             mExtensionCallback.onWindowLayoutChanged(activity, newLayout);
         }
