@@ -85,12 +85,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An implementation of {@link VideoOutput} for starting video recordings that are saved
@@ -124,6 +125,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <p>A recorder can also capture and save audio alongside video. The audio must be explicitly
  * enabled with {@link PendingRecording#withAudioEnabled()} before starting the recording.
+ *
  * @see VideoCapture#withOutput(VideoOutput)
  * @see PendingRecording
  */
@@ -196,6 +198,26 @@ public final class Recorder implements VideoOutput {
     }
 
     /**
+     * The subset of states considered pending states.
+     */
+    private static final Set<State> PENDING_STATES =
+            Collections.unmodifiableSet(EnumSet.of(State.PENDING_RECORDING, State.PENDING_PAUSED));
+
+    /**
+     * The subset of states which are valid non-pending states while in a pending state.
+     *
+     * <p>All other states should not be possible if in a PENDING_* state. Pending states are
+     * meant to be transient states that occur while waiting for another operation to finish.
+     */
+    private static final Set<State> VALID_NON_PENDING_STATES_WHILE_PENDING =
+            Collections.unmodifiableSet(EnumSet.of(
+                    State.INITIALIZING, // Waiting for camera before starting recording.
+                    State.IDLING, // Waiting for sequential executor to start pending recording.
+                    State.RESETTING, // Waiting for camera/encoders to reset before starting.
+                    State.STOPPING // Waiting for previous recording to finalize before starting.
+            ));
+
+    /**
      * Default quality selector for recordings.
      *
      * <p>The default quality selector chooses a video quality suitable for recordings based on
@@ -241,10 +263,10 @@ public final class Recorder implements VideoOutput {
     private static final int VIDEO_INTRA_FRAME_INTERVAL_DEFAULT = 1;
     @SuppressWarnings("deprecation")
     private static final String MEDIA_COLUMN = MediaStore.Video.Media.DATA;
+    private static final Exception PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE =
+            new RuntimeException("The video frame producer became inactive before any "
+                    + "data was received.");
 
-    private final Object mLock = new Object();
-    @GuardedBy("mLock")
-    private State mState = State.INITIALIZING;
     private final MutableStateObservable<StreamState> mStreamState =
             MutableStateObservable.withInitialState(StreamState.INACTIVE);
     // Used only by getExecutor()
@@ -252,28 +274,54 @@ public final class Recorder implements VideoOutput {
     // May be equivalent to mUserProvidedExecutor or an internal executor if the user did not
     // provide an executor.
     private final Executor mExecutor;
-    private final AtomicBoolean mSurfaceRequested = new AtomicBoolean(false);
-    private final AtomicBoolean mAudioInitialized = new AtomicBoolean(false);
-    private final AtomicReference<SourceState> mSourceState = new AtomicReference<>(
-            SourceState.ACTIVE);
-    private SurfaceRequest.TransformationInfo mSurfaceTransformationInfo = null;
-    private Throwable mErrorCause;
-
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final SparseArray<CallbackToFutureAdapter.Completer<Void>> mEncodingCompleters =
-            new SparseArray<>();
+    final Executor mSequentialExecutor;
+    private final Object mLock = new Object();
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                          Members only accessed when holding mLock                          //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    @GuardedBy("mLock")
+    private State mState = State.INITIALIZING;
+    // Tracks the underlying state when in a PENDING_* state. When not in a PENDING_* state, this
+    // should be null.
+    @GuardedBy("mLock")
+    private State mNonPendingState = null;
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    ActiveRecording mActiveRecording = null;
+    // A recording that will be started once the previous recording has finalized or the
+    // recorder has finished initializing.
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    ActiveRecording mPendingRecording = null;
+    @GuardedBy("mLock")
+    private SourceState mSourceState = SourceState.ACTIVE;
+    @GuardedBy("mLock")
+    private Throwable mErrorCause;
+    @GuardedBy("mLock")
+    private boolean mSurfaceRequested = false;
+    //--------------------------------------------------------------------------------------------//
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                      Members only accessed on mSequentialExecutor                          //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    private ActiveRecording mInProgressRecording = null;
+    private boolean mInProgressRecordingStopping = false;
+    private boolean mAudioInitialized = false;
+    private SurfaceRequest.TransformationInfo mSurfaceTransformationInfo = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final List<ListenableFuture<Void>> mEncodingFutures = new ArrayList<>();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    ActiveRecording mRunningRecording = null;
+    final SparseArray<CallbackToFutureAdapter.Completer<Void>> mEncodingCompleters =
+            new SparseArray<>();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Integer mAudioTrackIndex = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Integer mVideoTrackIndex = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Surface mSurface = null;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Executor mSequentialExecutor;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     MediaMuxer mMediaMuxer = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -301,6 +349,7 @@ public final class Recorder implements VideoOutput {
     int mRecordingStopError = ERROR_UNKNOWN;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     AudioState mCachedAudioState;
+    //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec) {
         mUserProvidedExecutor = executor;
@@ -322,7 +371,9 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case INITIALIZING:
                     // The recorder should be initialized only once until it is released.
-                    if (mSurfaceRequested.compareAndSet(false, true)) {
+                    // TODO (b/198551531): Make this code more robust to multiple SurfaceRequests.
+                    if (!mSurfaceRequested) {
+                        mSurfaceRequested = true;
                         mSequentialExecutor.execute(() -> initializeInternal(request));
                     }
                     break;
@@ -361,37 +412,52 @@ public final class Recorder implements VideoOutput {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
-    public void onSourceStateChanged(@NonNull SourceState sourceState) {
-        mSourceState.set(sourceState);
-        if (sourceState == SourceState.INACTIVE) {
-            synchronized (mLock) {
+    public void onSourceStateChanged(@NonNull SourceState newState) {
+        ActiveRecording pendingRecordingToFinalize = null;
+        synchronized (mLock) {
+            SourceState oldState = mSourceState;
+            mSourceState = newState;
+            if (oldState == SourceState.ACTIVE && newState == SourceState.INACTIVE) {
+                Logger.d(TAG, "Video source has transitioned to an INACTIVE state.");
                 switch (mState) {
                     case PENDING_RECORDING:
                         // Fall-through
                     case PENDING_PAUSED:
-                        mSequentialExecutor.execute(
-                                () -> finalizeRecording(ERROR_SOURCE_INACTIVE,
-                                        new IllegalStateException(
-                                                "The video frame producer is inactive.")));
+                        // Immediately finalize pending recording since it never started.
+                        pendingRecordingToFinalize = mPendingRecording;
+                        mPendingRecording = null;
+                        restoreNonPendingState(); // Equivalent to setState(mNonPendingState)
                         break;
-                    case RECORDING:
-                        // Fall-through
                     case PAUSED:
-                        mSequentialExecutor.execute(() -> stopInternal(ERROR_SOURCE_INACTIVE));
+                        // Fall-through
+                    case RECORDING:
+                        setState(State.STOPPING);
+                        ActiveRecording finalActiveRecording = mActiveRecording;
+                        mSequentialExecutor.execute(() -> stopInternal(finalActiveRecording,
+                                ERROR_SOURCE_INACTIVE));
                         break;
-                    case IDLING:
-                        // Fall-through
-                    case INITIALIZING:
-                        // Fall-through
-                    case RESETTING:
-                        // Fall-through
                     case STOPPING:
                         // Fall-through
+                    case RESETTING:
+                        // We are already stopping or resetting, nothing needs to be done.
+                        break;
+                    case INITIALIZING:
+                        // Fall-through
+                    case IDLING:
+                        break;
                     case ERROR:
-                        // No-op
+                        // In an error state, the recording will already be finalized. Nothing
+                        // needs to be done.
                         break;
                 }
+            } else if (oldState == SourceState.INACTIVE && newState == SourceState.ACTIVE) {
+                Logger.d(TAG, "Video source has transitioned to an ACTIVE state.");
             }
+        }
+
+        if (pendingRecordingToFinalize != null) {
+            finalizePendingRecording(pendingRecordingToFinalize, ERROR_SOURCE_INACTIVE,
+                    PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE);
         }
     }
 
@@ -530,209 +596,298 @@ public final class Recorder implements VideoOutput {
      * {@link VideoCapture} this Recorder is associated with is detached from the camera.
      *
      * @throws IllegalStateException if there's an active recording, or the audio is
-     * {@link PendingRecording#withAudioEnabled() enabled} for the recording but
-     * {@link android.Manifest.permission#RECORD_AUDIO} is not granted.
+     *                               {@link PendingRecording#withAudioEnabled() enabled} for the
+     *                               recording but
+     *                               {@link android.Manifest.permission#RECORD_AUDIO} is not
+     *                               granted.
      */
-    @SuppressLint("MissingPermission")
     @NonNull
     ActiveRecording start(@NonNull PendingRecording pendingRecording) {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
-        ActiveRecording activeRecording = ActiveRecording.from(pendingRecording);
-        if (mSourceState.get() == SourceState.INACTIVE) {
-            // Immediately finalize the recording if the source is inactive.
-            activeRecording.updateVideoRecordEvent(VideoRecordEvent.finalizeWithError(
-                    activeRecording.getOutputOptions(),
-                    getCurrentRecordingStats(),
-                    OutputResults.of(Uri.EMPTY),
-                    ERROR_SOURCE_INACTIVE,
-                    new IllegalStateException("The video frame producer is inactive.")));
-        } else {
-            synchronized (mLock) {
+        ActiveRecording alreadyInProgressRecording = null;
+        ActiveRecording newActiveRecording = null;
+        @VideoRecordError int error = ERROR_NONE;
+        Throwable errorCause = null;
+        synchronized (mLock) {
+            if (mSourceState == SourceState.INACTIVE) {
+                error = ERROR_SOURCE_INACTIVE;
+                errorCause = PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE;
+            } else {
                 switch (mState) {
-                    case STOPPING:
-                        // Fall-through
-                    case PENDING_PAUSED:
-                        // Fall-through
                     case PAUSED:
                         // Fall-through
-                    case PENDING_RECORDING:
-                        // Fall-through
                     case RECORDING:
-                        throw new IllegalStateException("There's an active recording.");
+                        alreadyInProgressRecording = mActiveRecording;
+                        break;
+                    case PENDING_PAUSED:
+                        // Fall-through
+                    case PENDING_RECORDING:
+                        // There is already a recording pending that hasn't been stopped.
+                        alreadyInProgressRecording =
+                                Preconditions.checkNotNull(mPendingRecording);
+                        break;
                     case RESETTING:
                         // Fall-through
+                    case STOPPING:
+                        // Fall-through
                     case INITIALIZING:
-                        setupAudioIfNeeded(activeRecording);
-                        mRunningRecording = activeRecording;
+                        mPendingRecording = newActiveRecording = ActiveRecording.from(
+                                pendingRecording);
                         // The recording will automatically start once the initialization completes.
                         setState(State.PENDING_RECORDING);
                         break;
                     case IDLING:
-                        setupAudioIfNeeded(activeRecording);
-                        mRunningRecording = activeRecording;
-                        mSequentialExecutor.execute(this::startInternal);
-                        setState(State.RECORDING);
+                        Preconditions.checkState(
+                                mActiveRecording == null && mPendingRecording == null,
+                                "Expected recorder to be idle but a recording is either pending or "
+                                        + "in progress.");
+                        mPendingRecording = newActiveRecording = ActiveRecording.from(
+                                pendingRecording);
+                        setState(State.PENDING_RECORDING);
+                        mSequentialExecutor.execute(this::tryServicePendingRecording);
                         break;
                     case ERROR:
-                        Logger.e(TAG,
-                                "Recording was started when the Recorder had encountered error "
-                                        + mErrorCause);
-                        // Immediately finalize the recording if the Recorder encountered error.
-                        activeRecording.updateVideoRecordEvent(VideoRecordEvent.finalizeWithError(
-                                activeRecording.getOutputOptions(),
-                                getCurrentRecordingStats(),
-                                OutputResults.of(Uri.EMPTY),
-                                ERROR_RECORDER_ERROR,
-                                mErrorCause));
+                        error = ERROR_RECORDER_ERROR;
+                        errorCause = mErrorCause;
                         break;
                 }
             }
         }
-        return activeRecording;
+
+        if (alreadyInProgressRecording != null) {
+            throw new IllegalStateException("A recording is already in progress. Previous "
+                    + "recordings must be stopped before a new recording can be started.");
+        } else if (error != ERROR_NONE) {
+            Logger.e(TAG,
+                    "Recording was started when the Recorder had encountered error " + errorCause);
+            newActiveRecording = ActiveRecording.createFinalizedFrom(pendingRecording);
+            // Immediately update the listener if the Recorder encountered an error.
+            finalizePendingRecording(newActiveRecording, error, errorCause);
+        }
+
+        return Preconditions.checkNotNull(newActiveRecording);
     }
 
-    void pause() {
+    void pause(@NonNull ActiveRecording activeRecording) {
         synchronized (mLock) {
+            if (activeRecording != mPendingRecording && activeRecording !=  mActiveRecording) {
+                // If this ActiveRecording is no longer active, log and treat as a no-op.
+                // This is not technically an error since the recording can be finalized
+                // asynchronously.
+                Logger.d(TAG,
+                        "pause() called on a recording that is no longer active: "
+                                + activeRecording.getOutputOptions());
+                return;
+            }
+
             switch (mState) {
                 case PENDING_RECORDING:
-                    // Fall-through
-                case RESETTING:
-                    // Fall-through
-                case INITIALIZING:
                     // The recording will automatically pause once the initialization completes.
                     setState(State.PENDING_PAUSED);
                     break;
-                case STOPPING:
+                case INITIALIZING:
                     // Fall-through
                 case IDLING:
-                    throw new IllegalStateException(
-                            "Incorrectly invoke pause() in state " + mState);
+                    throw new IllegalStateException("Called pause() from invalid state: " + mState);
                 case RECORDING:
-                    mSequentialExecutor.execute(this::pauseInternal);
                     setState(State.PAUSED);
+                    ActiveRecording finalActiveRecording = mActiveRecording;
+                    mSequentialExecutor.execute(() -> pauseInternal(finalActiveRecording));
                     break;
                 case PENDING_PAUSED:
                     // Fall-through
                 case PAUSED:
                     // No-op when the recording is already paused.
                     break;
+                case RESETTING:
+                    // Fall-through
+                case STOPPING:
+                    // If recorder is resetting or stopping, then pause is a no-op.
+                    break;
                 case ERROR:
-                    Logger.e(TAG, "Recording was paused when the Recorder had encountered error "
-                            + mErrorCause);
-                    mSequentialExecutor.execute(
-                            () -> finalizeRecording(ERROR_RECORDER_ERROR, mErrorCause));
+                    // In an error state, the recording will already be finalized. Treat as a
+                    // no-op in pause()
                     break;
             }
         }
     }
 
-    void resume() {
+    void resume(@NonNull ActiveRecording activeRecording) {
         synchronized (mLock) {
+            if (activeRecording != mPendingRecording && activeRecording != mActiveRecording) {
+                // If this ActiveRecording is no longer active, log and treat as a no-op.
+                // This is not technically an error since the recording can be finalized
+                // asynchronously.
+                Logger.d(TAG,
+                        "resume() called on a recording that is no longer active: "
+                                + activeRecording.getOutputOptions());
+                return;
+            }
             switch (mState) {
                 case PENDING_PAUSED:
-                    // Fall-through
-                case RESETTING:
-                    // Fall-through
-                case INITIALIZING:
                     // The recording will automatically start once the initialization completes.
                     setState(State.PENDING_RECORDING);
                     break;
-                case STOPPING:
+                case INITIALIZING:
+                    // Should not be able to resume when initializing. Should be in a PENDING state.
                     // Fall-through
                 case IDLING:
-                    throw new IllegalStateException(
-                            "Incorrectly invoke resume() in state " + mState);
+                    throw new IllegalStateException("Called resume() from invalid state: "
+                            + mState);
+                case RESETTING:
+                    // Fall-through
+                case STOPPING:
+                    // If recorder is stopping or resetting, then resume is a no-op.
+                    // Fall-through
                 case PENDING_RECORDING:
                     // Fall-through
                 case RECORDING:
                     // No-op when the recording is running.
                     break;
                 case PAUSED:
-                    mSequentialExecutor.execute(this::resumeInternal);
                     setState(State.RECORDING);
+                    ActiveRecording finalActiveRecording = mActiveRecording;
+                    mSequentialExecutor.execute(() -> resumeInternal(finalActiveRecording));
                     break;
                 case ERROR:
-                    Logger.e(TAG, "Recording was resumed when the Recorder had encountered error "
-                            + mErrorCause);
-                    mSequentialExecutor.execute(
-                            () -> finalizeRecording(ERROR_RECORDER_ERROR, mErrorCause));
+                    // In an error state, the recording will already be finalized. Treat as a
+                    // no-op in resume()
                     break;
             }
         }
     }
 
-    void stop() {
+    void stop(@NonNull ActiveRecording activeRecording) {
+        ActiveRecording pendingRecordingToFinalize = null;
         synchronized (mLock) {
+            if (activeRecording != mPendingRecording && activeRecording != mActiveRecording) {
+                // If this ActiveRecording is no longer active, log and treat as a no-op.
+                // This is not technically an error since the recording can be finalized
+                // asynchronously.
+                Logger.d(TAG,
+                        "stop() called on a recording that is no longer active: "
+                                + activeRecording.getOutputOptions());
+                return;
+            }
             switch (mState) {
                 case PENDING_RECORDING:
                     // Fall-through
                 case PENDING_PAUSED:
-                    mSequentialExecutor.execute(
-                            () -> finalizeRecording(ERROR_NO_VALID_DATA,
-                            new IllegalStateException("The Recorder hasn't been initialized.")));
+                    // Immediately finalize pending recording since it never started.
+                    Preconditions.checkState(activeRecording == mPendingRecording);
+                    pendingRecordingToFinalize = mPendingRecording;
+                    mPendingRecording = null;
+                    restoreNonPendingState(); // Equivalent to setState(mNonPendingState)
+                    break;
+                case STOPPING:
+                    // Fall-through
+                case RESETTING:
+                    // We are already stopping or resetting, likely due to an error that stopped
+                    // the recording. Ensure this is the current active recording and treat as a
+                    // no-op. The active recording will be cleared once stop/reset is complete.
+                    Preconditions.checkState(activeRecording == mActiveRecording);
                     break;
                 case INITIALIZING:
                     // Fall-through
                 case IDLING:
-                    throw new IllegalStateException("There's no active recording.");
+                    throw new IllegalStateException("Calling stop() while idling or "
+                            + "initializing is invalid.");
                 case PAUSED:
                     // Fall-through
                 case RECORDING:
                     setState(State.STOPPING);
-                    mSequentialExecutor.execute(() -> stopInternal(ERROR_NONE));
+                    ActiveRecording finalActiveRecording = mActiveRecording;
+                    mSequentialExecutor.execute(() -> stopInternal(finalActiveRecording,
+                            ERROR_NONE));
                     break;
                 case ERROR:
-                    Logger.e(TAG, "Recording was stopped when the Recorder had encountered error "
-                            + mErrorCause);
-                    mSequentialExecutor.execute(
-                            () -> finalizeRecording(ERROR_RECORDER_ERROR, mErrorCause));
-                    break;
-                case STOPPING:
-                    // Fall-through
-                case RESETTING:
-                    // No-Op
+                    // In an error state, the recording will already be finalized. Treat as a
+                    // no-op in stop()
                     break;
             }
         }
+
+        if (pendingRecordingToFinalize != null) {
+            finalizePendingRecording(pendingRecordingToFinalize, ERROR_NO_VALID_DATA,
+                    new RuntimeException("Recording was stopped before any data could be "
+                            + "produced."));
+        }
+    }
+
+    private void finalizePendingRecording(@NonNull ActiveRecording recordingToFinalize,
+            @VideoRecordError int error, @Nullable Throwable cause) {
+        recordingToFinalize.updateVideoRecordEvent(
+                VideoRecordEvent.finalizeWithError(
+                        recordingToFinalize.getOutputOptions(),
+                        RecordingStats.of(/*duration=*/0L,
+                                /*bytes=*/0L,
+                                RecordingStats.AUDIO_DISABLED),
+                        OutputResults.of(Uri.EMPTY),
+                        error,
+                        cause));
     }
 
     /**
-     * Releases the Recorder.
+     * Resets the state on the sequential executor for a new recording.
      *
-     * <p>By releasing the Recorder, it will stop the running recording if there's one. Once the
-     * Recorder is released, it cannot be used anymore. Any other method call after the encoder
-     * is released will get {@link IllegalStateException}.
+     * <p>If a recording is in progress, it will be stopped asynchronously and reset once it has
+     * been finalized.
+     *
+     * <p>If there is a recording in progress, reset() will stop the recording and rely on the
+     * recording's onRecordingFinalized() to actually release resources.
      */
     @ExecutedBy("mSequentialExecutor")
     void reset() {
+        boolean shouldReset = false;
+        boolean shouldStop = false;
         synchronized (mLock) {
             switch (mState) {
                 case PENDING_RECORDING:
                     // Fall-through
                 case PENDING_PAUSED:
                     // Fall-through
+                    mSurfaceRequested = false;
+                    shouldReset = true;
+                    updateNonPendingState(State.RESETTING);
+                    break;
                 case INITIALIZING:
                     // Fall-through
                 case ERROR:
                     // Fall-through
                 case IDLING:
-                    resetInternal();
+                    setState(State.INITIALIZING);
+                    mSurfaceRequested = false;
+                    shouldReset = true;
                     break;
                 case PAUSED:
                     // Fall-through
                 case RECORDING:
-                    setState(State.RESETTING);
+                    if (mActiveRecording != mInProgressRecording) {
+                        throw new AssertionError("In-progress recording does not match the active"
+                                + " recording. Unable to reset encoder.");
+                    }
                     // If there's an active recording, stop it first then release the resources
-                    // at finalizeRecording().
-                    mSequentialExecutor.execute(() -> stopInternal(ERROR_NONE));
+                    // at onRecordingFinalized().
+                    setState(State.RESETTING);
+                    shouldStop = true;
                     break;
                 case STOPPING:
+                    // Already stopping. Set state to RESETTING so resources will be released once
+                    // onRecordingFinalized() runs.
                     setState(State.RESETTING);
-                    break;
+                    // Fall-through
                 case RESETTING:
-                    // No-Op, the Recorder is being reset.
+                    // No-Op, the Recorder is already being reset.
                     break;
             }
+        }
+
+        // These calls must not be posted to the executor to ensure they are executed inline on
+        // the sequential executor and the state changes above are correctly handled.
+        if (shouldReset) {
+            resetInternal();
+        } else if (shouldStop) {
+            stopInternal(mInProgressRecording, ERROR_NONE);
         }
     }
 
@@ -760,6 +915,8 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     private void onInitialized() {
+        ActiveRecording recordingToStart = null;
+        boolean startRecordingPaused = false;
         synchronized (mLock) {
             switch (mState) {
                 case IDLING:
@@ -768,34 +925,31 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case PAUSED:
                     // Fall-through
-                case STOPPING:
-                    // Fall-through
                 case RESETTING:
-                    throw new IllegalStateException(
+                    // Fall-through
+                case STOPPING:
+                    throw new AssertionError(
                             "Incorrectly invoke onInitialized() in state " + mState);
                 case INITIALIZING:
                     setState(State.IDLING);
-                    break;
-                case PENDING_PAUSED:
-                    // Start and pause recording if start() has been called before video encoder is
-                    // setup.
-                    mSequentialExecutor.execute(() -> {
-                        startInternal();
-                        pauseInternal();
-                    });
-                    setState(State.PAUSED);
-                    break;
-                case PENDING_RECORDING:
-                    // Start recording if start() has been called before video encoder is setup.
-                    mSequentialExecutor.execute(this::startInternal);
-                    setState(State.RECORDING);
                     break;
                 case ERROR:
                     Logger.e(TAG,
                             "onInitialized() was invoked when the Recorder had encountered error "
                                     + mErrorCause);
                     break;
+                case PENDING_PAUSED:
+                    startRecordingPaused = true;
+                    // Fall through
+                case PENDING_RECORDING:
+                    recordingToStart = makePendingRecordingActiveLocked(mState);
+                    break;
             }
+        }
+
+        if (recordingToStart != null) {
+            // Start new active recording inline on sequential executor (but unlocked).
+            startActiveRecording(recordingToStart, startRecordingPaused);
         }
     }
 
@@ -859,6 +1013,7 @@ public final class Recorder implements VideoOutput {
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @ExecutedBy("mSequentialExecutor")
     private void setupAudioIfNeeded(@NonNull ActiveRecording activeRecording) {
         if (!activeRecording.isAudioEnabled()) {
             // Skip if audio is not enabled for the recording.
@@ -869,7 +1024,7 @@ public final class Recorder implements VideoOutput {
             throw new IllegalStateException("The Recorder doesn't support recording with audio");
         }
 
-        if (mAudioInitialized.getAndSet(true)) {
+        if (mAudioInitialized) {
             // Skip if audio has already been initialized.
             return;
         }
@@ -881,96 +1036,23 @@ public final class Recorder implements VideoOutput {
             mAudioEncoder = new EncoderImpl(mExecutor, config);
         } catch (InvalidConfigException e) {
             Logger.e(TAG, "Unable to initialize audio encoder." + e);
-            setState(State.ERROR);
-            mErrorCause = e;
+            onEncoderSetupError(e);
             return;
         }
 
         Encoder.EncoderInput bufferProvider = mAudioEncoder.getInput();
-        Preconditions.checkState(
-                bufferProvider instanceof Encoder.ByteBufferInput,
-                "The EncoderInput of audio isn't a ByteBufferInput.");
+        if (!(bufferProvider instanceof Encoder.ByteBufferInput)) {
+            throw new AssertionError("The EncoderInput of audio isn't a ByteBufferInput.");
+        }
         try {
             mAudioSource = setupAudioSource((Encoder.ByteBufferInput) bufferProvider,
                     mediaSpec.getAudioSpec());
         } catch (AudioSourceAccessException e) {
             Logger.e(TAG, "Unable to create audio source." + e);
-            throw new IllegalStateException("Unable to create audio source.", e);
+            throw new AssertionError("Unable to create audio source.", e);
         }
 
-        mAudioEncoder.setEncoderCallback(new EncoderCallback() {
-            @Override
-            public void onEncodeStart() {
-                // No-op.
-            }
-
-            @Override
-            public void onEncodeStop() {
-                mEncodingCompleters.get(mAudioTrackIndex).set(null);
-            }
-
-            @Override
-            public void onEncodeError(@NonNull EncodeException e) {
-                // If the audio encoder encounters error, update the status event to notify users.
-                // Then continue recording without audio data.
-                setAudioState(AudioState.ENCODER_ERROR);
-                updateStatusEvent();
-                mEncodingCompleters.get(mAudioTrackIndex).set(null);
-            }
-
-            @Override
-            public void onEncodedData(@NonNull EncodedData encodedData) {
-                try (EncodedData encodedDataToClose = encodedData) {
-                    if (mAudioState == AudioState.DISABLED) {
-                        throw new IllegalStateException(
-                                "Audio is not enabled but audio encoded data is produced.");
-                    } else if (mAudioState == AudioState.RECORDING
-                            || mAudioState == AudioState.SOURCE_SILENCED) {
-                        if (mAudioTrackIndex == null) {
-                            // Throw an exception if the data comes before the track is added.
-                            throw new IllegalStateException(
-                                    "Audio data comes before the track is added to MediaMuxer.");
-                        }
-                        if (mVideoTrackIndex == null) {
-                            Logger.d(TAG, "Drop audio data since video track hasn't been added.");
-                            return;
-                        }
-
-                        long newRecordingBytes = mRecordingBytes + encodedData.size();
-                        if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
-                                && mRecordingBytes + encodedData.size() > mFileSizeLimitInBytes) {
-                            Logger.d(TAG,
-                                    String.format("Reach file size limit %d > %d",
-                                            newRecordingBytes,
-                                            mFileSizeLimitInBytes));
-                            stopInternal(ERROR_FILE_SIZE_LIMIT_REACHED);
-                            return;
-                        }
-
-                        mMediaMuxer.writeSampleData(mAudioTrackIndex, encodedData.getByteBuffer(),
-                                encodedData.getBufferInfo());
-
-                        mRecordingBytes = newRecordingBytes;
-                    }
-                }
-            }
-
-            @Override
-            public void onOutputConfigUpdate(@NonNull OutputConfig outputConfig) {
-                if (isAudioEnabled() && mAudioTrackIndex == null) {
-                    mAudioTrackIndex = Preconditions.checkNotNull(mMediaMuxer).addTrack(
-                            outputConfig.getMediaFormat());
-                    mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
-                            completer -> {
-                                mEncodingCompleters.put(mAudioTrackIndex, completer);
-                                return "audioEncodingFuture";
-                            }));
-                }
-                if (mVideoTrackIndex != null) {
-                    startMediaMuxer();
-                }
-            }
-        }, mSequentialExecutor);
+        mAudioInitialized = true;
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
@@ -1001,13 +1083,13 @@ public final class Recorder implements VideoOutput {
                                 if (silenced) {
                                     mCachedAudioState = mAudioState;
                                     setAudioState(AudioState.SOURCE_SILENCED);
-                                    updateStatusEvent();
+                                    updateInProgressStatusEvent();
                                 }
                                 break;
                             case SOURCE_SILENCED:
                                 if (!silenced) {
                                     setAudioState(mCachedAudioState);
-                                    updateStatusEvent();
+                                    updateInProgressStatusEvent();
                                 }
                                 break;
                         }
@@ -1017,7 +1099,7 @@ public final class Recorder implements VideoOutput {
                     public void onError(@NonNull Throwable throwable) {
                         if (throwable instanceof AudioSourceAccessException) {
                             setAudioState(AudioState.DISABLED);
-                            updateStatusEvent();
+                            updateInProgressStatusEvent();
                         }
                     }
                 });
@@ -1055,14 +1137,14 @@ public final class Recorder implements VideoOutput {
         } catch (InvalidConfigException e) {
             surfaceRequest.willNotProvideSurface();
             Logger.e(TAG, "Unable to initialize video encoder." + e);
-            setState(State.ERROR);
-            mErrorCause = e;
+            onEncoderSetupError(e);
             return;
         }
 
         Encoder.EncoderInput encoderInput = mVideoEncoder.getInput();
-        Preconditions.checkState(encoderInput instanceof Encoder.SurfaceInput,
-                "The EncoderInput of video isn't a SurfaceInput.");
+        if (!(encoderInput instanceof Encoder.SurfaceInput)) {
+            throw new AssertionError("The EncoderInput of video isn't a SurfaceInput.");
+        }
         ((Encoder.SurfaceInput) encoderInput).setOnSurfaceUpdateListener(
                 mSequentialExecutor,
                 surface -> {
@@ -1079,87 +1161,43 @@ public final class Recorder implements VideoOutput {
                     });
                     onInitialized();
                 });
+    }
 
-        mVideoEncoder.setEncoderCallback(new EncoderCallback() {
-            @Override
-            public void onEncodeStart() {
-                // No-op.
+    @ExecutedBy("mSequentialExecutor")
+    private void onEncoderSetupError(@Nullable Throwable cause) {
+        ActiveRecording pendingRecordingToFinalize = null;
+        synchronized (mLock) {
+            switch (mState) {
+                case PENDING_PAUSED:
+                    // Fall-through
+                case PENDING_RECORDING:
+                    pendingRecordingToFinalize = mPendingRecording;
+                    mPendingRecording = null;
+                    // Fall-through
+                case INITIALIZING:
+                    setState(State.ERROR);
+                    mErrorCause = cause;
+                    break;
+                case ERROR:
+                    // Already in an error state. Ignore new error.
+                    break;
+                case PAUSED:
+                    // Fall-through
+                case RECORDING:
+                    // Fall-through
+                case IDLING:
+                    // Fall-through
+                case RESETTING:
+                    // Fall-through
+                case STOPPING:
+                    throw new AssertionError("Encountered encoder setup error while in unexpected"
+                            + " state " + mState + ": " + cause);
             }
+        }
 
-            @Override
-            public void onEncodeStop() {
-                mEncodingCompleters.get(mVideoTrackIndex).set(null);
-            }
-
-            @Override
-            public void onEncodeError(@NonNull EncodeException e) {
-                mEncodingCompleters.get(mVideoTrackIndex).setException(e);
-            }
-
-            @Override
-            public void onEncodedData(@NonNull EncodedData encodedData) {
-                try (EncodedData encodedDataToClose = encodedData) {
-                    if (mVideoTrackIndex == null) {
-                        // Throw an exception if the data comes before the track is added.
-                        throw new IllegalStateException(
-                                "Video data comes before the track is added to MediaMuxer.");
-                    }
-                    if (isAudioEnabled() && mAudioTrackIndex == null) {
-                        Logger.d(TAG, "Drop video data since audio track hasn't been added.");
-                        return;
-                    }
-                    // If the first video data is not a key frame, MediaMuxer#writeSampleData
-                    // will drop it. It will cause incorrect estimated record bytes and should
-                    // be dropped.
-                    if (mFirstRecordingVideoDataTimeUs == 0L && !encodedData.isKeyFrame()) {
-                        Logger.d(TAG, "Drop video data since first video data is no key frame.");
-                        mVideoEncoder.requestKeyFrame();
-                        return;
-                    }
-
-                    long newRecordingBytes = mRecordingBytes + encodedData.size();
-                    if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
-                            && newRecordingBytes > mFileSizeLimitInBytes) {
-                        Logger.d(TAG,
-                                String.format("Reach file size limit %d > %d", newRecordingBytes,
-                                        mFileSizeLimitInBytes));
-                        stopInternal(ERROR_FILE_SIZE_LIMIT_REACHED);
-                        return;
-                    }
-
-                    mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
-                            encodedData.getBufferInfo());
-
-                    mRecordingBytes = newRecordingBytes;
-
-                    if (mFirstRecordingVideoDataTimeUs == 0L) {
-                        mFirstRecordingVideoDataTimeUs = encodedData.getPresentationTimeUs();
-                    }
-                    mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
-                            encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
-
-                    updateStatusEvent();
-                }
-            }
-
-            @Override
-            public void onOutputConfigUpdate(@NonNull OutputConfig outputConfig) {
-                if (mVideoTrackIndex == null) {
-                    mVideoTrackIndex = Preconditions.checkNotNull(mMediaMuxer).addTrack(
-                            outputConfig.getMediaFormat());
-                    mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
-                            completer -> {
-                                mEncodingCompleters.put(mVideoTrackIndex, completer);
-                                return "videoEncodingFuture";
-                            }));
-                }
-                if (isAudioEnabled() && mAudioTrackIndex == null) {
-                    // The audio is enabled but audio track hasn't been configured.
-                    return;
-                }
-                startMediaMuxer();
-            }
-        }, mSequentialExecutor);
+        if (pendingRecordingToFinalize != null) {
+            finalizePendingRecording(pendingRecordingToFinalize, ERROR_RECORDER_ERROR, cause);
+        }
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -1169,32 +1207,38 @@ public final class Recorder implements VideoOutput {
                 new FutureCallback<List<Void>>() {
                     @Override
                     public void onSuccess(@Nullable List<Void> result) {
-                        finalizeRecording(mRecordingStopError, null);
+                        finalizeInProgressRecording(mRecordingStopError, null);
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-                        finalizeRecording(ERROR_ENCODING_FAILED, t);
+                        finalizeInProgressRecording(ERROR_ENCODING_FAILED, t);
                     }
                 }, mSequentialExecutor);
-        Preconditions.checkNotNull(mMediaMuxer).start();
+        if (mMediaMuxer == null) {
+            throw new AssertionError("MediaMuxer should not be null.");
+        }
+        mMediaMuxer.start();
     }
 
+    @SuppressLint("WrongConstant")
     @ExecutedBy("mSequentialExecutor")
     private void setupMediaMuxer(@NonNull OutputOptions options) throws IOException {
         int outputFormat = getObservableData(mMediaSpec).getOutputFormat();
         switch (options.getType()) {
             case OutputOptions.OPTIONS_TYPE_FILE:
-                Preconditions.checkState(options instanceof FileOutputOptions, "Invalid "
-                                + "OutputOptions type");
+                if (!(options instanceof FileOutputOptions)) {
+                    throw new AssertionError("Invalid OutputOptions type");
+                }
                 FileOutputOptions fileOutputOptions = (FileOutputOptions) options;
                 mMediaMuxer = new MediaMuxer(
                         fileOutputOptions.getFile().getAbsolutePath(),
                         outputFormat);
                 break;
             case OutputOptions.OPTIONS_TYPE_FILE_DESCRIPTOR:
-                Preconditions.checkState(options instanceof FileDescriptorOutputOptions, "Invalid "
-                        + "OutputOptions type");
+                if (!(options instanceof FileDescriptorOutputOptions)) {
+                    throw new AssertionError("Invalid OutputOptions type");
+                }
                 FileDescriptorOutputOptions fileDescriptorOutputOptions =
                         (FileDescriptorOutputOptions) options;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -1208,8 +1252,9 @@ public final class Recorder implements VideoOutput {
                 }
                 break;
             case OutputOptions.OPTIONS_TYPE_MEDIA_STORE:
-                Preconditions.checkState(options instanceof MediaStoreOutputOptions, "Invalid "
-                        + "OutputOptions type");
+                if (!(options instanceof MediaStoreOutputOptions)) {
+                    throw new AssertionError("Invalid OutputOptions type");
+                }
                 MediaStoreOutputOptions mediaStoreOutputOptions = (MediaStoreOutputOptions) options;
 
                 ContentValues contentValues =
@@ -1217,9 +1262,7 @@ public final class Recorder implements VideoOutput {
                 mOutputUri = mediaStoreOutputOptions.getContentResolver().insert(
                         mediaStoreOutputOptions.getCollection(), contentValues);
                 if (mOutputUri == null) {
-                    finalizeRecording(ERROR_INVALID_OUTPUT_OPTIONS,
-                            new IOException("Unable to create MediaStore entry."));
-                    return;
+                    throw new IOException("Unable to create MediaStore entry.");
                 }
 
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -1245,7 +1288,7 @@ public final class Recorder implements VideoOutput {
                 }
                 break;
             default:
-                throw new IllegalArgumentException(
+                throw new AssertionError(
                         "Invalid output options type." + options.getType());
         }
         // TODO: Add more metadata to MediaMuxer, e.g. location information.
@@ -1254,73 +1297,275 @@ public final class Recorder implements VideoOutput {
         }
     }
 
+    @SuppressLint("MissingPermission")
     @ExecutedBy("mSequentialExecutor")
-    private void startInternal() {
-        if (mAudioState == AudioState.INITIALIZING) {
-            setAudioState(mRunningRecording.isAudioEnabled() ? AudioState.RECORDING
-                    : AudioState.DISABLED);
+    private void startInternal(@NonNull ActiveRecording recordingToStart) {
+        if (mInProgressRecording != null) {
+            throw new AssertionError("Attempted to start a new recording while another was in "
+                    + "progress.");
         }
 
-        try {
-            setupMediaMuxer(Preconditions.checkNotNull(mRunningRecording).getOutputOptions());
-        } catch (IOException e) {
-            finalizeRecording(ERROR_INVALID_OUTPUT_OPTIONS, e);
-            return;
-        }
-
-        if (mRunningRecording.getOutputOptions().getFileSizeLimit() > 0) {
+        if (recordingToStart.getOutputOptions().getFileSizeLimit() > 0) {
             // Use %95 of the given file size limit as the criteria, which refers to the
             // MPEG4Writer.cpp in libstagefright.
             mFileSizeLimitInBytes = Math.round(
-                    mRunningRecording.getOutputOptions().getFileSizeLimit() * 0.95);
+                    recordingToStart.getOutputOptions().getFileSizeLimit() * 0.95);
             Logger.d(TAG, "File size limit in bytes: " + mFileSizeLimitInBytes);
         } else {
             mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
         }
 
+        setupAudioIfNeeded(recordingToStart);
+
+        mInProgressRecording = recordingToStart;
+        if (mAudioState == AudioState.INITIALIZING) {
+            setAudioState(recordingToStart.isAudioEnabled() ? AudioState.RECORDING
+                    : AudioState.DISABLED);
+        }
+
+        try {
+            setupMediaMuxer(mInProgressRecording.getOutputOptions());
+        } catch (IOException e) {
+            finalizeInProgressRecording(ERROR_INVALID_OUTPUT_OPTIONS, e);
+            return;
+        }
+
+        initEncoderCallbacks(recordingToStart);
         if (isAudioEnabled()) {
             mAudioSource.start();
             mAudioEncoder.start();
         }
         mVideoEncoder.start();
 
-        updateVideoRecordEvent(VideoRecordEvent.start(
-                Preconditions.checkNotNull(mRunningRecording).getOutputOptions(),
-                getCurrentRecordingStats()));
+        mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.start(
+                mInProgressRecording.getOutputOptions(),
+                getInProgressRecordingStats()));
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void pauseInternal() {
-        if (isAudioEnabled()) {
-            mAudioEncoder.pause();
-        }
-        mVideoEncoder.pause();
+    private void initEncoderCallbacks(@NonNull ActiveRecording recordingToStart) {
+        mVideoEncoder.setEncoderCallback(new EncoderCallback() {
+            @ExecutedBy("mSequentialExecutor")
+            @Override
+            public void onEncodeStart() {
+                // No-op.
+            }
 
-        updateVideoRecordEvent(VideoRecordEvent.pause(
-                Preconditions.checkNotNull(mRunningRecording).getOutputOptions(),
-                getCurrentRecordingStats()));
+            @ExecutedBy("mSequentialExecutor")
+            @Override
+            public void onEncodeStop() {
+                mEncodingCompleters.get(mVideoTrackIndex).set(null);
+            }
+
+            @ExecutedBy("mSequentialExecutor")
+            @Override
+            public void onEncodeError(@NonNull EncodeException e) {
+                mEncodingCompleters.get(mVideoTrackIndex).setException(e);
+            }
+
+            @ExecutedBy("mSequentialExecutor")
+            @Override
+            public void onEncodedData(@NonNull EncodedData encodedData) {
+                try (EncodedData encodedDataToClose = encodedData) {
+                    if (mVideoTrackIndex == null) {
+                        // Throw an exception if the data comes before the track is added.
+                        throw new AssertionError(
+                                "Video data comes before the track is added to MediaMuxer.");
+                    }
+                    if (isAudioEnabled() && mAudioTrackIndex == null) {
+                        Logger.d(TAG, "Drop video data since audio track hasn't been added.");
+                        return;
+                    }
+                    // If the first video data is not a key frame, MediaMuxer#writeSampleData
+                    // will drop it. It will cause incorrect estimated record bytes and should
+                    // be dropped.
+                    if (mFirstRecordingVideoDataTimeUs == 0L && !encodedData.isKeyFrame()) {
+                        Logger.d(TAG, "Drop video data since first video data is no key frame.");
+                        mVideoEncoder.requestKeyFrame();
+                        return;
+                    }
+
+                    long newRecordingBytes = mRecordingBytes + encodedData.size();
+                    if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
+                            && newRecordingBytes > mFileSizeLimitInBytes) {
+                        Logger.d(TAG,
+                                String.format("Reach file size limit %d > %d", newRecordingBytes,
+                                        mFileSizeLimitInBytes));
+                        onInProgressRecordingInternalError(recordingToStart,
+                                ERROR_FILE_SIZE_LIMIT_REACHED);
+                        return;
+                    }
+
+                    mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
+                            encodedData.getBufferInfo());
+
+                    mRecordingBytes = newRecordingBytes;
+
+                    if (mFirstRecordingVideoDataTimeUs == 0L) {
+                        mFirstRecordingVideoDataTimeUs = encodedData.getPresentationTimeUs();
+                    }
+                    mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
+                            encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
+
+                    updateInProgressStatusEvent();
+                }
+            }
+
+            @ExecutedBy("mSequentialExecutor")
+            @Override
+            public void onOutputConfigUpdate(@NonNull OutputConfig outputConfig) {
+                if (mVideoTrackIndex == null) {
+                    if (mMediaMuxer == null) {
+                        throw new AssertionError("MediaMuxer should not be null.");
+                    }
+                    mVideoTrackIndex = mMediaMuxer.addTrack(outputConfig.getMediaFormat());
+                    mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
+                            completer -> {
+                                mEncodingCompleters.put(mVideoTrackIndex, completer);
+                                return "videoEncodingFuture";
+                            }));
+                }
+                if (isAudioEnabled() && mAudioTrackIndex == null) {
+                    // The audio is enabled but audio track hasn't been configured.
+                    return;
+                }
+                startMediaMuxer();
+            }
+        }, mSequentialExecutor);
+
+        if (isAudioEnabled()) {
+            mAudioEncoder.setEncoderCallback(new EncoderCallback() {
+                @ExecutedBy("mSequentialExecutor")
+                @Override
+                public void onEncodeStart() {
+                    // No-op.
+                }
+
+                @ExecutedBy("mSequentialExecutor")
+                @Override
+                public void onEncodeStop() {
+                    mEncodingCompleters.get(mAudioTrackIndex).set(null);
+                }
+
+                @ExecutedBy("mSequentialExecutor")
+                @Override
+                public void onEncodeError(@NonNull EncodeException e) {
+                    // If the audio encoder encounters error, update the status event to notify
+                    // users.
+                    // Then continue recording without audio data.
+                    setAudioState(AudioState.ENCODER_ERROR);
+                    updateInProgressStatusEvent();
+                    mEncodingCompleters.get(mAudioTrackIndex).set(null);
+                }
+
+                @ExecutedBy("mSequentialExecutor")
+                @Override
+                public void onEncodedData(@NonNull EncodedData encodedData) {
+                    try (EncodedData encodedDataToClose = encodedData) {
+                        if (mAudioState == AudioState.DISABLED) {
+                            throw new IllegalStateException(
+                                    "Audio is not enabled but audio encoded data is produced.");
+                        } else if (mAudioState == AudioState.RECORDING
+                                || mAudioState == AudioState.SOURCE_SILENCED) {
+                            if (mAudioTrackIndex == null) {
+                                // Throw an exception if the data comes before the track is added.
+                                throw new IllegalStateException(
+                                        "Audio data comes before the track is added to MediaMuxer"
+                                                + ".");
+                            }
+                            if (mVideoTrackIndex == null) {
+                                Logger.d(TAG,
+                                        "Drop audio data since video track hasn't been added.");
+                                return;
+                            }
+
+                            long newRecordingBytes = mRecordingBytes + encodedData.size();
+                            if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
+                                    && mRecordingBytes + encodedData.size()
+                                    > mFileSizeLimitInBytes) {
+                                Logger.d(TAG,
+                                        String.format("Reach file size limit %d > %d",
+                                                newRecordingBytes,
+                                                mFileSizeLimitInBytes));
+                                onInProgressRecordingInternalError(recordingToStart,
+                                        ERROR_FILE_SIZE_LIMIT_REACHED);
+                                return;
+                            }
+
+                            mMediaMuxer.writeSampleData(mAudioTrackIndex,
+                                    encodedData.getByteBuffer(),
+                                    encodedData.getBufferInfo());
+
+                            mRecordingBytes = newRecordingBytes;
+                        }
+                    }
+                }
+
+                @ExecutedBy("mSequentialExecutor")
+                @Override
+                public void onOutputConfigUpdate(@NonNull OutputConfig outputConfig) {
+                    if (isAudioEnabled() && mAudioTrackIndex == null) {
+                        if (mMediaMuxer == null) {
+                            throw new AssertionError("MediaMuxer should not be null.");
+                        }
+                        mAudioTrackIndex = mMediaMuxer.addTrack(outputConfig.getMediaFormat());
+                        mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
+                                completer -> {
+                                    mEncodingCompleters.put(mAudioTrackIndex, completer);
+                                    return "audioEncodingFuture";
+                                }));
+                    }
+                    if (mVideoTrackIndex != null) {
+                        startMediaMuxer();
+                    }
+                }
+            }, mSequentialExecutor);
+        }
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void resumeInternal() {
-        if (isAudioEnabled()) {
-            mAudioEncoder.start();
-        }
-        mVideoEncoder.start();
+    private void pauseInternal(@NonNull ActiveRecording recordingToPause) {
+        // Only pause recording if recording is in-progress and it is not stopping.
+        if (mInProgressRecording == recordingToPause && !mInProgressRecordingStopping) {
+            if (isAudioEnabled()) {
+                mAudioEncoder.pause();
+            }
+            mVideoEncoder.pause();
 
-        updateVideoRecordEvent(VideoRecordEvent.resume(
-                Preconditions.checkNotNull(mRunningRecording).getOutputOptions(),
-                getCurrentRecordingStats()));
+            mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.pause(
+                    mInProgressRecording.getOutputOptions(),
+                    getInProgressRecordingStats()));
+        }
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    private void resumeInternal(@NonNull ActiveRecording recordingToResume) {
+        // Only resume recording if recording is in-progress and it is not stopping.
+        if (mInProgressRecording == recordingToResume && !mInProgressRecordingStopping) {
+            if (isAudioEnabled()) {
+                mAudioEncoder.start();
+            }
+            mVideoEncoder.start();
+
+            mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.resume(
+                    mInProgressRecording.getOutputOptions(),
+                    getInProgressRecordingStats()));
+        }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    void stopInternal(@VideoRecordError int stopError) {
-        mRecordingStopError = stopError;
-        if (isAudioEnabled()) {
-            mAudioEncoder.stop();
+    void stopInternal(@NonNull ActiveRecording recordingToStop,
+            @VideoRecordError int stopError) {
+        // Only stop recording if recording is in-progress and it is not already stopping.
+        if (mInProgressRecording == recordingToStop && !mInProgressRecordingStopping) {
+            mInProgressRecordingStopping = true;
+            mRecordingStopError = stopError;
+            if (isAudioEnabled()) {
+                mAudioEncoder.stop();
+            }
+            mVideoEncoder.stop();
         }
-        mVideoEncoder.stop();
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -1338,12 +1583,10 @@ public final class Recorder implements VideoOutput {
             mAudioSource = null;
         }
 
-        mSurfaceRequested.set(false);
-        mAudioInitialized.set(false);
-        setState(State.INITIALIZING);
+        mAudioInitialized = false;
     }
 
-    private int internalAudioStateToEventAudioState(@NonNull AudioState audioState) {
+    private int internalAudioStateToEventAudioState(AudioState audioState) {
         switch (audioState) {
             case DISABLED:
                 return RecordingStats.AUDIO_DISABLED;
@@ -1357,7 +1600,7 @@ public final class Recorder implements VideoOutput {
                 return RecordingStats.AUDIO_ENCODER_ERROR;
         }
         // Should not reach.
-        throw new IllegalStateException("Invalid internal audio state: " + audioState);
+        throw new AssertionError("Invalid internal audio state: " + audioState);
     }
 
     @NonNull
@@ -1365,18 +1608,26 @@ public final class Recorder implements VideoOutput {
         // Stopping state should be treated as inactive on certain chipsets. See b/196039619.
         DeactivateEncoderSurfaceBeforeStopEncoderQuirk quirk =
                 DeviceQuirks.get(DeactivateEncoderSurfaceBeforeStopEncoderQuirk.class);
+        // TODO(b/197047288): For devices that have the above quirk, wait for a signal that the
+        //  surface is no longer in use before stopping the video encoder.
         return state == State.RECORDING || (state == State.STOPPING && quirk == null)
                 ? StreamState.ACTIVE : StreamState.INACTIVE;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mSequentialExecutor")
     boolean isAudioEnabled() {
         return mAudioState != AudioState.DISABLED && mAudioState != AudioState.ENCODER_ERROR;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    void finalizeRecording(@VideoRecordError int error, @Nullable Throwable throwable) {
+    void finalizeInProgressRecording(@VideoRecordError int error,
+            @Nullable Throwable throwable) {
+        if (mInProgressRecording == null) {
+            throw new AssertionError("Attempted to finalize in-progress recording, but no "
+                    + "recording is in progress.");
+        }
         int errorToSend = error;
         if (mMediaMuxer != null) {
             try {
@@ -1391,15 +1642,14 @@ public final class Recorder implements VideoOutput {
             mMediaMuxer = null;
         }
 
-        OutputOptions outputOptions =
-                Preconditions.checkNotNull(mRunningRecording).getOutputOptions();
-        RecordingStats stats = getCurrentRecordingStats();
+        OutputOptions outputOptions = mInProgressRecording.getOutputOptions();
+        RecordingStats stats = getInProgressRecordingStats();
         OutputResults outputResults = OutputResults.of(mOutputUri);
-        updateVideoRecordEvent(errorToSend == ERROR_NONE
+        mInProgressRecording.updateVideoRecordEvent(errorToSend == ERROR_NONE
                 ? VideoRecordEvent.finalize(
-                        outputOptions,
-                        stats,
-                        outputResults)
+                outputOptions,
+                stats,
+                outputResults)
                 : VideoRecordEvent.finalizeWithError(
                         outputOptions,
                         stats,
@@ -1407,20 +1657,136 @@ public final class Recorder implements VideoOutput {
                         errorToSend,
                         throwable));
 
+        ActiveRecording finalizedRecording = mInProgressRecording;
+        mInProgressRecording = null;
+        mInProgressRecordingStopping = false;
         mAudioTrackIndex = null;
         mVideoTrackIndex = null;
         mEncodingFutures.clear();
         mEncodingCompleters.clear();
-        mRunningRecording = null;
         mOutputUri = Uri.EMPTY;
         mRecordingBytes = 0L;
         mRecordingDurationNs = 0L;
         mFirstRecordingVideoDataTimeUs = 0L;
         mRecordingStopError = ERROR_UNKNOWN;
-        mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
 
+        onRecordingFinalized(finalizedRecording);
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    private void onRecordingFinalized(@NonNull ActiveRecording finalizedRecording) {
+        boolean needsReset = false;
+        boolean startRecordingPaused = false;
+        ActiveRecording recordingToStart = null;
+        synchronized (mLock) {
+            if (mActiveRecording != finalizedRecording) {
+                throw new AssertionError("Active recording did not match finalized recording on "
+                        + "finalize.");
+            }
+
+            mActiveRecording = null;
+            switch (mState) {
+                case RESETTING:
+                    setState(State.INITIALIZING);
+                    mSurfaceRequested = false;
+                    needsReset = true;
+                    break;
+                case PAUSED:
+                    // Fall-through
+                case RECORDING:
+                    // If finalized while in a RECORDING or PAUSED state, then the recording was
+                    // likely finalized due to an error.
+                    // Fall-through
+                case STOPPING:
+                    setState(State.IDLING);
+                    break;
+                case PENDING_PAUSED:
+                    startRecordingPaused = true;
+                    // Fall-through
+                case PENDING_RECORDING:
+                    recordingToStart = makePendingRecordingActiveLocked(mState);
+                    break;
+                case ERROR:
+                    // Error state is non-recoverable. Nothing to do here.
+                    break;
+                case IDLING:
+                    // Fall-through
+                case INITIALIZING:
+                    throw new AssertionError("Unexpected state on finalize of recording: "
+                            + mState);
+            }
+        }
+
+        // Perform required actions from state changes inline on sequential executor but unlocked.
+        if (needsReset) {
+            resetInternal();
+        } else if (recordingToStart != null) {
+            startActiveRecording(recordingToStart, startRecordingPaused);
+        }
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    void onInProgressRecordingInternalError(@NonNull ActiveRecording recording,
+            @VideoRecordError int error) {
+        if (recording != mInProgressRecording) {
+            throw new AssertionError("Internal error occurred on recording that is not the current "
+                    + "in-progress recorindg.");
+        }
+
+        boolean needsStop = false;
         synchronized (mLock) {
             switch (mState) {
+                case PAUSED:
+                    // Fall-through
+                case RECORDING:
+                    setState(State.STOPPING);
+                    needsStop = true;
+                    // Fall-through
+                case STOPPING:
+                    // Fall-through
+                case RESETTING:
+                    // Fall-through
+                case PENDING_RECORDING:
+                    // Fall-through
+                case PENDING_PAUSED:
+                    // Fall-through
+                    if (recording != mActiveRecording) {
+                        throw new AssertionError("Internal error occurred for recording but it is"
+                                + " not the active recording.");
+                    }
+                    break;
+                case INITIALIZING:
+                    // Fall-through
+                case IDLING:
+                    // Fall-through
+                case ERROR:
+                    throw new AssertionError("In-progress recording error occurred while in "
+                            + "unexpected state: " + mState);
+            }
+        }
+
+        if (needsStop) {
+            stopInternal(recording, error);
+        }
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    void tryServicePendingRecording() {
+        boolean startRecordingPaused = false;
+        ActiveRecording recordingToStart = null;
+        synchronized (mLock) {
+            switch (mState) {
+                case PENDING_PAUSED:
+                    startRecordingPaused = true;
+                    // Fall-through
+                case PENDING_RECORDING:
+                    if (mActiveRecording != null) {
+                        // Active recording is still finalizing. Pending recording will be
+                        // serviced in onRecordingFinalized().
+                        break;
+                    }
+                    recordingToStart = makePendingRecordingActiveLocked(mState);
+                    break;
                 case INITIALIZING:
                     // Fall-through
                 case IDLING:
@@ -1428,52 +1794,94 @@ public final class Recorder implements VideoOutput {
                 case RECORDING:
                     // Fall-through
                 case PAUSED:
-                    throw new IllegalStateException(
-                            "Incorrectly invoke finalizeRecording in state " + mState);
-                case PENDING_RECORDING:
                     // Fall-through
-                case PENDING_PAUSED:
-                    setState(State.INITIALIZING);
-                    break;
                 case STOPPING:
                     // Fall-through
-                case ERROR:
-                    // Reset the internal state, except when the error is an recorder error,
-                    // which can't be recovered without reinitializing the recorder.
-                    if (error != ERROR_RECORDER_ERROR) {
-                        setState(State.IDLING);
-                    }
-                    break;
                 case RESETTING:
-                    resetInternal();
+                    // Fall-through
+                case ERROR:
                     break;
             }
         }
-    }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @ExecutedBy("mSequentialExecutor")
-    void updateStatusEvent() {
-        if (mRunningRecording != null) {
-            updateVideoRecordEvent(
-                    VideoRecordEvent.status(
-                            mRunningRecording.getOutputOptions(),
-                            getCurrentRecordingStats()));
+        if (recordingToStart != null) {
+            // Start new active recording inline on sequential executor (but unlocked).
+            startActiveRecording(recordingToStart, startRecordingPaused);
         }
     }
 
+    /**
+     * Makes the pending recording active and returns the new active recording.
+     *
+     * <p>This method will not actually start the recording. It is up to the caller to start the
+     * returned recording. However, the Recorder.State will be updated to reflect what the state
+     * should be after the recording is started. This allows the recording to be started when no
+     * longer under lock.
+     */
+    @GuardedBy("mLock")
+    @NonNull
+    private ActiveRecording makePendingRecordingActiveLocked(@NonNull State state) {
+        boolean startRecordingPaused = false;
+        if (state == State.PENDING_PAUSED) {
+            startRecordingPaused = true;
+        } else if (state != State.PENDING_RECORDING) {
+            throw new AssertionError("makePendingRecordingActiveLocked() can only be called from "
+                    + "a pending state.");
+        }
+        if (mActiveRecording != null) {
+            throw new AssertionError("Cannot make pending recording active because another "
+                    + "recording is already active.");
+        }
+        if (mPendingRecording == null) {
+            throw new AssertionError("Pending recording should exist when in a PENDING"
+                    + " state.");
+        }
+        // Swap the pending recording to the active recording and start it
+        ActiveRecording recordingToStart = mActiveRecording = mPendingRecording;
+        mPendingRecording = null;
+        // Start recording if start() has been called before video encoder is setup.
+        if (startRecordingPaused) {
+            setState(State.PAUSED);
+        } else {
+            setState(State.RECORDING);
+        }
+
+        return recordingToStart;
+    }
+
+    /**
+     * Actually starts a recording on the sequential executor.
+     *
+     * <p>This is intended to be called while unlocked on the sequential executor. It should only
+     * be called immediately after a pending recording has just been made active. The recording
+     * passed to this method should be the newly-made-active recording.
+     */
+    @ExecutedBy("mSequentialExecutor")
+    private void startActiveRecording(@NonNull ActiveRecording recordingToStart,
+            boolean startRecordingPaused) {
+        // Start pending recording inline since we are already on sequential executor.
+        startInternal(recordingToStart);
+        if (startRecordingPaused) {
+            pauseInternal(recordingToStart);
+        }
+    }
+
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    void updateVideoRecordEvent(@NonNull VideoRecordEvent event) {
-        if (mRunningRecording != null) {
-            mRunningRecording.updateVideoRecordEvent(event);
+    void updateInProgressStatusEvent() {
+        if (mInProgressRecording != null) {
+            mInProgressRecording.updateVideoRecordEvent(
+                    VideoRecordEvent.status(
+                            mInProgressRecording.getOutputOptions(),
+                            getInProgressRecordingStats()));
         }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
     @NonNull
-    RecordingStats getCurrentRecordingStats() {
+    RecordingStats getInProgressRecordingStats() {
         return RecordingStats.of(mRecordingDurationNs, mRecordingBytes,
                 internalAudioStateToEventAudioState(mAudioState));
     }
@@ -1495,17 +1903,80 @@ public final class Recorder implements VideoOutput {
                 != AudioSpec.CHANNEL_COUNT_NONE;
     }
 
+    @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void setState(@NonNull State state) {
-        synchronized (mLock) {
-            if (mState != state) {
-                Logger.d(TAG, "Transitioning Recorder internal state: " + mState + " --> " + state);
-                mState = state;
-                mStreamState.setState(internalStateToStreamState(state));
-            } else {
-                Logger.w(TAG, "Attempting to transition to the same state " + mState);
-            }
+        // If we're attempt to transition to the same state, then we likely have a logic error.
+        // All state transitions should be intentional, so throw an AssertionError here.
+        if (mState == state) {
+            throw new AssertionError("Attempted to transition to state " + state + ", but "
+                    + "Recorder is already in state " + state);
         }
+
+        Logger.d(TAG, "Transitioning Recorder internal state: " + mState + " --> " + state);
+        // If we are transitioning from a non-pending state to a pending state, we need to store
+        // the non-pending state so we can transition back if the pending recording is stopped
+        // before it becomes active.
+        StreamState streamState = null;
+        if (PENDING_STATES.contains(state)) {
+            if (!PENDING_STATES.contains(mState)) {
+                if (!VALID_NON_PENDING_STATES_WHILE_PENDING.contains(mState)) {
+                    throw new AssertionError(
+                            "Invalid state transition. Should not be transitioning "
+                                    + "to a PENDING state from state " + mState);
+                }
+                mNonPendingState = mState;
+                streamState = internalStateToStreamState(mNonPendingState);
+            }
+        } else if (mNonPendingState != null) {
+            // Transitioning out of a pending state. Clear the non-pending state.
+            mNonPendingState = null;
+        }
+
+        mState = state;
+        if (streamState == null) {
+            streamState = internalStateToStreamState(mState);
+        }
+        mStreamState.setState(streamState);
+    }
+
+    /**
+     * Updates the non-pending state while in a pending state.
+     *
+     * <p>If called from a non-pending state, an assertion error will be thrown.
+     */
+    @GuardedBy("mLock")
+    private void updateNonPendingState(@NonNull State state) {
+        if (!PENDING_STATES.contains(mState)) {
+            throw new AssertionError("Can only updated non-pending state from a pending state, "
+                    + "but state is " + mState);
+        }
+
+        if (!VALID_NON_PENDING_STATES_WHILE_PENDING.contains(state)) {
+            throw new AssertionError(
+                    "Invalid state transition. State is not a valid non-pending state while in a "
+                            + "pending state: " + state);
+        }
+
+        if (mNonPendingState != state) {
+            mNonPendingState = state;
+            mStreamState.setState(internalStateToStreamState(state));
+        }
+    }
+
+    /**
+     * Convenience for restoring the state to the non-pending state.
+     *
+     * <p>This is equivalent to calling setState(mNonPendingState), but performs a few safety
+     * checks. This can only be called while in a pending state.
+     */
+    @GuardedBy("mLock")
+    private void restoreNonPendingState() {
+        if (!PENDING_STATES.contains(mState)) {
+            throw new AssertionError("Cannot restore non-pending state when in state " + mState);
+        }
+
+        setState(mNonPendingState);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1558,7 +2029,8 @@ public final class Recorder implements VideoOutput {
          * depending on the resolutions supported by the camera and codec capabilities.
          *
          * <p>If no quality selector is provided, the default is
-         * {@link #DEFAULT_QUALITY_SELECTOR}.
+         * {@link Recorder#DEFAULT_QUALITY_SELECTOR}.
+         *
          * @see QualitySelector
          */
         @NonNull
@@ -1587,7 +2059,8 @@ public final class Recorder implements VideoOutput {
          * before starting the recording.
          *
          * @param source The audio source to use. One of {@link AudioSpec#SOURCE_AUTO} or
-         * {@link AudioSpec#SOURCE_CAMCORDER}. Default is {@link AudioSpec#SOURCE_AUTO}.
+         *               {@link AudioSpec#SOURCE_CAMCORDER}. Default is
+         *               {@link AudioSpec#SOURCE_AUTO}.
          */
         @NonNull
         Builder setAudioSource(@AudioSpec.Source int source) {

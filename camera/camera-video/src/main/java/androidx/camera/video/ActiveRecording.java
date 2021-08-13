@@ -49,9 +49,6 @@ public final class ActiveRecording implements AutoCloseable {
 
     // Indicates the recording has been explicitly stopped by users.
     private final AtomicBoolean mIsStopped = new AtomicBoolean(false);
-    // Indicates the recording has been finalized. Not to be confused with the object being
-    // finalized via its finalizer.
-    private final AtomicBoolean mIsRecordingFinalized = new AtomicBoolean(false);
     private final Recorder mRecorder;
     private final OutputOptions mOutputOptions;
     private final Consumer<VideoRecordEvent> mEventListener;
@@ -61,14 +58,18 @@ public final class ActiveRecording implements AutoCloseable {
 
     ActiveRecording(@NonNull Recorder recorder, @NonNull OutputOptions options,
             @Nullable Executor callbackExecutor, @Nullable Consumer<VideoRecordEvent> listener,
-            boolean audioEnabled) {
+            boolean audioEnabled, boolean finalizedOnCreation) {
         mRecorder = recorder;
         mOutputOptions = options;
         mCallbackExecutor = callbackExecutor;
         mEventListener = listener;
-
-        mCloseGuard.open("stop");
         mAudioEnabled = audioEnabled;
+
+        if (finalizedOnCreation) {
+            mIsStopped.set(true);
+        } else {
+            mCloseGuard.open("stop");
+        }
     }
 
     /**
@@ -79,7 +80,23 @@ public final class ActiveRecording implements AutoCloseable {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
         return new ActiveRecording(pendingRecording.getRecorder(),
                 pendingRecording.getOutputOptions(), pendingRecording.getCallbackExecutor(),
-                pendingRecording.getEventListener(), pendingRecording.isAudioEnabled());
+                pendingRecording.getEventListener(), pendingRecording.isAudioEnabled(),
+                /*finalizedOnCreation=*/false);
+    }
+
+    /**
+     * Creates an {@link ActiveRecording} from a {@link PendingRecording} in a finalized state.
+     *
+     * <p>This can be used if there was an error setting up the active recording and it would not
+     * be able to be started.
+     */
+    @NonNull
+    static ActiveRecording createFinalizedFrom(@NonNull PendingRecording pendingRecording) {
+        Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
+        return new ActiveRecording(pendingRecording.getRecorder(),
+                pendingRecording.getOutputOptions(), pendingRecording.getCallbackExecutor(),
+                pendingRecording.getEventListener(), pendingRecording.isAudioEnabled(),
+                /*finalizedOnCreation=*/true);
     }
 
     @NonNull
@@ -108,10 +125,7 @@ public final class ActiveRecording implements AutoCloseable {
         if (mIsStopped.get()) {
             throw new IllegalStateException("The recording has been stopped.");
         }
-        if (mIsRecordingFinalized.get()) {
-            return;
-        }
-        mRecorder.pause();
+        mRecorder.pause(this);
     }
 
     /**
@@ -130,10 +144,7 @@ public final class ActiveRecording implements AutoCloseable {
         if (mIsStopped.get()) {
             throw new IllegalStateException("The recording has been stopped.");
         }
-        if (mIsRecordingFinalized.get()) {
-            return;
-        }
-        mRecorder.resume();
+        mRecorder.resume(this);
     }
 
     /**
@@ -150,19 +161,16 @@ public final class ActiveRecording implements AutoCloseable {
      */
     public void stop() {
         mCloseGuard.close();
-        if (mIsStopped.getAndSet(true) || mIsRecordingFinalized.get()) {
+        if (mIsStopped.getAndSet(true)) {
             return;
         }
-        mRecorder.stop();
+        mRecorder.stop(this);
     }
 
     /**
      * Updates the recording status and callback to users.
      */
     void updateVideoRecordEvent(@NonNull VideoRecordEvent event) {
-        if (event instanceof VideoRecordEvent.Finalize) {
-            mIsRecordingFinalized.set(true);
-        }
         if (mCallbackExecutor != null && mEventListener != null) {
             try {
                 mCallbackExecutor.execute(() -> mEventListener.accept(event));

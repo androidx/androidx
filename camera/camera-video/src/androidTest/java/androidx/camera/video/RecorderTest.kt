@@ -353,6 +353,87 @@ class RecorderTest {
     }
 
     @Test
+    fun canStartRecordingPaused_whenRecorderInitializing() {
+        clearInvocations(videoRecordEventListener)
+
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.builder().setFile(file).build()
+
+        val activeRecording = recorder.prepareRecording(outputOptions)
+            .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
+            .withAudioEnabled()
+            .start()
+
+        activeRecording.pause()
+
+        // Only invoke surface request after pause() has been called
+        invokeSurfaceRequest()
+
+        val inOrder = inOrder(videoRecordEventListener)
+
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Pause::class.java))
+
+        activeRecording.stopSafely()
+
+        file.delete()
+    }
+
+    // TODO:(b/187266265): Encoder surface cannot be reused on API level < 23 on some devices
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun canStartNextRecordingPausedAfterFirstRecordingFinalized() {
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+
+        val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
+        val outputOptions1 = FileOutputOptions.builder().setFile(file1).build()
+
+        val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
+        val outputOptions2 = FileOutputOptions.builder().setFile(file2).build()
+
+        // Start and stop a recording to ensure recorder is idling
+        val inOrder = inOrder(videoRecordEventListener)
+        val activeRecording1 = recorder.prepareRecording(outputOptions1)
+            .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
+            .withAudioEnabled()
+            .start()
+
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+
+        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
+
+        activeRecording1.stopSafely()
+
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        // First recording is now finalized. Try starting second recording paused.
+        val activeRecording2 = recorder.prepareRecording(outputOptions2)
+            .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
+            .withAudioEnabled()
+            .start()
+
+        activeRecording2.pause()
+
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Pause::class.java))
+
+        activeRecording2.stopSafely()
+
+        file1.delete()
+        file2.delete()
+    }
+
+    @Test
     fun canReceiveRecordingStats() {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
@@ -477,21 +558,26 @@ class RecorderTest {
         @Suppress("UNCHECKED_CAST")
         val streamStateObserver =
             mock(Observable.Observer::class.java) as Observable.Observer<VideoOutput.StreamState>
+        val inOrder = inOrder(streamStateObserver)
         recorder.streamState.addObserver(CameraXExecutors.directExecutor(), streamStateObserver)
 
+        // Recorder should start in INACTIVE stream state before any recordings
+        inOrder.verify(streamStateObserver, timeout(1000L)).onNewData(
+            eq(VideoOutput.StreamState.INACTIVE)
+        )
+
         val activeRecording = pendingRecording.start()
-
-        val inOrder = inOrder(streamStateObserver)
-        inOrder.verify(streamStateObserver, timeout(1000L))
-            .onNewData(eq(VideoOutput.StreamState.ACTIVE))
-
-        verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
+        // Starting recording should move Recorder to ACTIVE stream state
+        inOrder.verify(streamStateObserver, timeout(1000L)).onNewData(
+            eq(VideoOutput.StreamState.ACTIVE)
+        )
 
         activeRecording.stopSafely()
 
-        inOrder.verify(streamStateObserver, timeout(FINALIZE_TIMEOUT))
-            .onNewData(eq(VideoOutput.StreamState.INACTIVE))
+        // Stopping recording should eventually move to INACTIVE stream state
+        inOrder.verify(streamStateObserver, timeout(FINALIZE_TIMEOUT)).onNewData(
+            eq(VideoOutput.StreamState.INACTIVE)
+        )
 
         file.delete()
     }
@@ -909,6 +995,70 @@ class RecorderTest {
         checkFileVideo(Uri.fromFile(file), true)
 
         file.delete()
+    }
+
+    @Test
+    fun cannotStartMultiplePendingRecordingsWhileInitializing() {
+        val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
+        val outputOptions1 = FileOutputOptions.builder().setFile(file1).build()
+        val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
+        val outputOptions2 = FileOutputOptions.builder().setFile(file2).build()
+        try {
+            // We explicitly do not invoke the surface request so the recorder is initializing.
+            recorder.prepareRecording(outputOptions1).start().use {
+                assertThrows<IllegalStateException> {
+                    recorder.prepareRecording(outputOptions2).start()
+                }
+            }
+        } finally {
+            file1.delete()
+            file2.delete()
+        }
+    }
+
+    // TODO:(b/187266265): Encoder surface cannot be reused on API level < 23 on some devices
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun nextRecordingCanBeStartedAfterLastRecordingStopped() {
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+        val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
+        val outputOptions1 = FileOutputOptions.builder().setFile(file1).build()
+        val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
+        val outputOptions2 = FileOutputOptions.builder().setFile(file2).build()
+
+        val inOrder = inOrder(videoRecordEventListener)
+        try {
+            recorder.prepareRecording(outputOptions1)
+                .withEventListener(
+                    CameraXExecutors.directExecutor(),
+                    videoRecordEventListener
+                ).start().use {
+                    inOrder.verify(videoRecordEventListener, timeout(1000L))
+                        .accept(any(VideoRecordEvent.Start::class.java))
+                    inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+                        .accept(any(VideoRecordEvent.Status::class.java))
+                }
+
+            recorder.prepareRecording(outputOptions2)
+                .withEventListener(
+                    CameraXExecutors.directExecutor(),
+                    videoRecordEventListener
+                ).start().use {
+                    inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+                        .accept(any(VideoRecordEvent.Finalize::class.java))
+                    inOrder.verify(videoRecordEventListener, timeout(1000L))
+                        .accept(any(VideoRecordEvent.Start::class.java))
+                    inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+                        .accept(any(VideoRecordEvent.Status::class.java))
+                }
+
+            verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+                .accept(any(VideoRecordEvent.Finalize::class.java))
+        } finally {
+            file1.delete()
+            file2.delete()
+        }
     }
 
     private fun invokeSurfaceRequest() {
