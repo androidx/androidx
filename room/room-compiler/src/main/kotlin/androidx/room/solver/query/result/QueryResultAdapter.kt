@@ -21,10 +21,10 @@ import androidx.room.solver.CodeGenScope
 /**
  * Gets a Cursor and converts it into the return type of a method annotated with @Query.
  */
-abstract class QueryResultAdapter(val rowAdapters: List<RowAdapter>) : QueryMappedResultAdapter {
+abstract class QueryResultAdapter(val rowAdapters: List<RowAdapter>) {
 
-    override val mappings: List<QueryMappedResultAdapter.Mapping>
-        get() = rowAdapters.filterIsInstance<PojoRowAdapter>().map { it.mapping }
+    val mappings: List<QueryMappedRowAdapter.Mapping>
+        get() = rowAdapters.filterIsInstance<QueryMappedRowAdapter>().map { it.mapping }
 
     abstract fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope)
 
@@ -33,6 +33,8 @@ abstract class QueryResultAdapter(val rowAdapters: List<RowAdapter>) : QueryMapp
     fun shouldCopyCursor(): Boolean =
         rowAdapters.filterIsInstance<PojoRowAdapter>().any { it.relationCollectors.isNotEmpty() }
 
+    // Gets a list of additionally accessed table names in sub queries done by the adapter
+    // (e.g. does done to satisfy @Relation fields).
     fun accessedTableNames(): List<String> =
         rowAdapters.filterIsInstance<PojoRowAdapter>().flatMap { it.relationTableNames() }
 }

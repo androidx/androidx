@@ -46,8 +46,8 @@ class PojoRowAdapter(
     private val info: QueryResultInfo?,
     val pojo: Pojo,
     out: XType
-) : RowAdapter(out) {
-    val mapping: QueryMappedResultAdapter.Mapping
+) : RowAdapter(out), QueryMappedRowAdapter {
+    override val mapping: PojoMapping
     val relationCollectors: List<RelationCollector>
 
     // Set when cursor is ready.
@@ -92,7 +92,7 @@ class PojoRowAdapter(
         }
         relationCollectors = RelationCollector.createCollectors(context, pojo.relations)
 
-        mapping = QueryMappedResultAdapter.Mapping(
+        mapping = PojoMapping(
             pojo = pojo,
             matchedFields = matchedFields,
             unusedColumns = unusedColumns,
@@ -154,5 +154,14 @@ class PojoRowAdapter(
                 scope = scope
             )
         }
+    }
+
+    data class PojoMapping(
+        val pojo: Pojo,
+        val matchedFields: List<Field>,
+        val unusedColumns: List<String>,
+        val unusedFields: List<Field>
+    ) : QueryMappedRowAdapter.Mapping() {
+        override val usedColumns = matchedFields.map { it.columnName }
     }
 }

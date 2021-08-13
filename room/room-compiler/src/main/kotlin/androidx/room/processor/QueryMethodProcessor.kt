@@ -224,15 +224,15 @@ private class InternalQueryProcessor(
         }
 
         query.resultInfo?.let { queryResultInfo ->
-            val mappings = resultBinder.adapter?.mappings ?: return@let
+            val mappings =
+                resultBinder.adapter?.mappings?.filterIsInstance<PojoRowAdapter.PojoMapping>()
+                    ?: return@let
             // If there are no mapping (e.g. might be a primitive return type result), then we
             // can't reasonable determine cursor mismatch.
             if (mappings.isEmpty()) {
                 return@let
             }
-            val usedColumns = mappings.flatMap { mapping ->
-                mapping.matchedFields.map { it.columnName }
-            }
+            val usedColumns = mappings.flatMap { it.usedColumns }
             val columnNames = queryResultInfo.columns.map { it.name }
             val unusedColumns = columnNames - usedColumns
             val pojoUnusedFields = mappings
