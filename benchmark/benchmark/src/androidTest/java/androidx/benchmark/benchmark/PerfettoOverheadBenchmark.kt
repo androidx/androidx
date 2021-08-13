@@ -17,8 +17,8 @@
 package androidx.benchmark.benchmark
 
 import androidx.benchmark.junit4.BenchmarkRule
+import androidx.benchmark.junit4.PerfettoRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.benchmark.macro.junit4.PerfettoRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.tracing.Trace

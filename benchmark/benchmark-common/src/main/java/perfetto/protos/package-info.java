@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-plugins {
-    id("AndroidXPlugin")
-    id("com.android.library")
-    id("kotlin-android")
-    id("androidx.benchmark")
-}
+/**
+ * Hide the perfetto.protos package, as it's an implementation detail of benchmark
+ *
+ * Note: other attempts to use these protos in a benchmark process may clash with our
+ * definitions. If this becomes an issue, we can move ours to a separate, internal package.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+package perfetto.protos;
 
-dependencies {
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation(project(":tracing:tracing-ktx"))
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinStdlib)
-}
+import androidx.annotation.RestrictTo;

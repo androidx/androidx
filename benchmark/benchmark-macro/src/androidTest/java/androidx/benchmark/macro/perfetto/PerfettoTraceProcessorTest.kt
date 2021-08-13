@@ -17,7 +17,8 @@
 package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.Shell
-import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.macro.createTempFileFromAsset
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

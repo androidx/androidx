@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -211,8 +210,7 @@ class ShellTest {
     @Test
     fun isPackageAlive() {
         // this package is certainly alive...
-        val packageName = InstrumentationRegistry.getInstrumentation().context.packageName
-        assertNotNull(Shell.isPackageAlive(packageName))
+        assertNotNull(Shell.isPackageAlive(Packages.TEST))
 
         // this made up one shouldn't be
         assertNotNull(Shell.isPackageAlive("com.notalive.package.notarealapp"))

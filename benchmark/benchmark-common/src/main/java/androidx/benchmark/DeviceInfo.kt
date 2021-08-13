@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro
+package androidx.benchmark
 
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Build
+import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
-internal object DeviceInfo {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+object DeviceInfo {
     val isEmulator = Build.FINGERPRINT.startsWith("generic") ||
         Build.FINGERPRINT.startsWith("unknown") ||
         Build.MODEL.contains("google_sdk") ||

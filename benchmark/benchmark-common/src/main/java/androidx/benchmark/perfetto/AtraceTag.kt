@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto
+package androidx.benchmark.perfetto
 
 import android.os.Build
 

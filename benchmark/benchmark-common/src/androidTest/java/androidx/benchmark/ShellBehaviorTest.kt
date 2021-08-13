@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
@@ -35,12 +34,10 @@ import kotlin.test.assertTrue
 @SdkSuppress(minSdkVersion = 21)
 @RunWith(AndroidJUnit4::class)
 class ShellBehaviorTest {
-    private val packageName = InstrumentationRegistry.getInstrumentation().context.packageName
-
     @Test
     fun pidof() {
         // Should only be one process - this one!
-        val pidofString = Shell.executeCommand("pidof $packageName").trim()
+        val pidofString = Shell.executeCommand("pidof ${Packages.TEST}").trim()
 
         when {
             Build.VERSION.SDK_INT < 23 -> {
@@ -76,7 +73,7 @@ class ShellBehaviorTest {
                 // ps -A should work - expect several processes including this one
                 val processes = output.split("\n")
                 assertTrue(processes.size > 5)
-                assertTrue(processes.any { it.endsWith(packageName) })
+                assertTrue(processes.any { it.endsWith(Packages.TEST) })
             }
         }
     }

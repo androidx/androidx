@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro
+package androidx.benchmark
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest

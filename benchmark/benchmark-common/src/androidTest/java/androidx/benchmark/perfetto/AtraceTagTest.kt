@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto
+package androidx.benchmark.perfetto
 
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
 import org.junit.Assume
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,17 +31,16 @@ import kotlin.test.assertNotEquals
 @SdkSuppress(minSdkVersion = 21)
 @SmallTest
 class AtraceTagTest {
-    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private val shellSessionRooted = Shell.isSessionRooted()
 
     @Test
     fun atraceListCategories_readable() {
-        val results = device.executeShellCommand("atrace --list_categories")
+        val results = Shell.executeCommand("atrace --list_categories")
         assertNotEquals("", results)
     }
 
     private fun getActualSupportedTags(): Set<String> {
-        val results = device.executeShellCommand("atrace --list_categories")
+        val results = Shell.executeCommand("atrace --list_categories")
 
         assertNotEquals("", results)
         val actualSupportedTags = results
