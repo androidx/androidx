@@ -137,16 +137,13 @@ if (githubBuild) {
 
 androidx {
     name = "Android Support Library collections"
-    if (githubBuild) {
-        publish = Publish.SNAPSHOT_AND_RELEASE
-    } else {
-        publish = Publish.NONE
-    }
-    mavenGroup = LibraryGroups.COLLECTION
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.COLLECTION2
     inceptionYear = "2020"
     description = "Standalone efficient collections."
     legacyDisableKotlinStrictApiMode = true // TODO: Re-enable this!
     runApiTasks = new RunApiTasks.No("metalava issues prevent api checks on kmp: b/188171162")
+    multiplatform = true
 }
 
 repositories {
