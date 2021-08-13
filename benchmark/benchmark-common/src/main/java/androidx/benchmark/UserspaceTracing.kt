@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro
+package androidx.benchmark
 
+import androidx.annotation.RestrictTo
 import perfetto.protos.Trace
 import perfetto.protos.TracePacket
 import perfetto.protos.TrackDescriptor
@@ -30,8 +31,11 @@ import perfetto.protos.TrackEvent
  * After trace processing, the extra events (before _and_ after the measureBlock section of a
  * benchmark) can be added to the trace by calling [commitToTrace], and appending that to the
  * trace on-disk.
+ *
+ * @suppress
  */
-internal object UserspaceTracing {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+object UserspaceTracing {
     /**
      * All events emitted by the benchmark annotation should have the same value.
      * the value needs to not conflict with any sequence id emitted in the trace.
@@ -90,7 +94,7 @@ internal object UserspaceTracing {
         return Trace(capturedEvents)
     }
 
-    private fun startSection(label: String) {
+    fun startSection(label: String) {
         events.add(
             TracePacket(
                 timestamp = System.nanoTime(),
@@ -106,7 +110,7 @@ internal object UserspaceTracing {
         )
     }
 
-    private fun endSection() {
+    fun endSection() {
         events.add(
             TracePacket(
                 timestamp = System.nanoTime(),
@@ -119,17 +123,15 @@ internal object UserspaceTracing {
             )
         )
     }
-
-    inline fun <T> trace(label: String, block: () -> T): T {
-        startSection(label)
-        return try {
-            block()
-        } finally {
-            endSection()
-        }
-    }
 }
 
-internal inline fun <T> userspaceTrace(label: String, block: () -> T): T {
-    return UserspaceTracing.trace(label, block)
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+inline fun <T> userspaceTrace(label: String, block: () -> T): T {
+    UserspaceTracing.startSection(label)
+    return try {
+        block()
+    } finally {
+        UserspaceTracing.endSection()
+    }
 }

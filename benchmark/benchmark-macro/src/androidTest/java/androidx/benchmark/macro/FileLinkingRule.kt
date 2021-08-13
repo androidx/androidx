@@ -18,8 +18,8 @@ package androidx.benchmark.macro
 
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
-import androidx.benchmark.macro.perfetto.UiState
-import androidx.benchmark.macro.perfetto.appendUiState
+import androidx.benchmark.perfetto.UiState
+import androidx.benchmark.perfetto.appendUiState
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description

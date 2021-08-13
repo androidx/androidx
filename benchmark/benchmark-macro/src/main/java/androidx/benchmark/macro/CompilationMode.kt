@@ -19,6 +19,7 @@ package androidx.benchmark.macro
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.CompilationMode.SpeedProfile
 import androidx.profileinstaller.ProfileInstallReceiver

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
-import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
-import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -40,6 +41,12 @@ import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+/**
+ * Tests for PerfettoCapture
+ *
+ * Note: this test is defined in benchmark-macro instead of benchmark-common so that it can
+ * validate trace contents with PerfettoTraceProcessor
+ */
 @SdkSuppress(minSdkVersion = 28) // Lowering blocked by b/131359446
 @RunWith(AndroidJUnit4::class)
 class PerfettoCaptureTest {

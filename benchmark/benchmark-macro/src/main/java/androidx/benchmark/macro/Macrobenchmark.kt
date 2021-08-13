@@ -24,11 +24,17 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkResult
+import androidx.benchmark.ConfigurationError
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.ResultWriter
-import androidx.benchmark.macro.perfetto.PerfettoCaptureWrapper
-import androidx.benchmark.macro.perfetto.UiState
-import androidx.benchmark.macro.perfetto.appendUiState
+import androidx.benchmark.UserspaceTracing
+import androidx.benchmark.checkAndGetSuppressionState
+import androidx.benchmark.conditionalError
+import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.UiState
+import androidx.benchmark.perfetto.appendUiState
+import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto
+package androidx.benchmark.perfetto
 
 import android.os.Build
 import android.os.SystemClock
@@ -22,8 +22,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
-import androidx.benchmark.macro.DeviceInfo.deviceSummaryString
-import androidx.benchmark.macro.userspaceTrace
+import androidx.benchmark.DeviceInfo.deviceSummaryString
+import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import org.jetbrains.annotations.TestOnly
 import java.io.File
@@ -348,7 +348,7 @@ public class PerfettoHelper(
         return true
     }
 
-    internal companion object {
+    companion object {
         internal const val LOG_TAG = "PerfettoCapture"
 
         const val LOWEST_BUNDLED_VERSION_SUPPORTED = 29
@@ -418,7 +418,7 @@ public class PerfettoHelper(
             createExecutable(PERFETTO)
         }
 
-        internal fun createExecutable(tool: String): String {
+        fun createExecutable(tool: String): String {
             userspaceTrace("create executable: $tool") {
                 if (!isAbiSupported()) {
                     throw IllegalStateException(

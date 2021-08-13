@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto
+package androidx.benchmark.perfetto
 
-import androidx.benchmark.Outputs
+import androidx.benchmark.createTempFileFromAsset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import okio.ByteString
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -117,16 +116,4 @@ public class UiStateTest {
         // file may shrink slightly due to re-encode, but shouldn't be significant
         assertTrue(finalSize > initialSize * 0.95f)
     }
-}
-
-@Suppress("SameParameterValue")
-internal fun createTempFileFromAsset(prefix: String, suffix: String): File {
-    val file = File.createTempFile(prefix, suffix, Outputs.dirUsableByAppAndShell)
-    InstrumentationRegistry
-        .getInstrumentation()
-        .context
-        .assets
-        .open(prefix + suffix)
-        .copyTo(file.outputStream())
-    return file
 }

@@ -28,9 +28,6 @@ package androidx.benchmark.macro {
   public final class CompilationModeKt {
   }
 
-  public final class ConfigurationErrorKt {
-  }
-
   @RequiresApi(21) public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
     ctor public FrameTimingMetric();
   }
@@ -70,19 +67,6 @@ package androidx.benchmark.macro {
   }
 
   public final class TagKt {
-  }
-
-  public final class UserspaceTracingKt {
-  }
-
-}
-
-package androidx.benchmark.macro.perfetto {
-
-  public final class PerfettoConfigKt {
-  }
-
-  public final class UiStateKt {
   }
 
 }

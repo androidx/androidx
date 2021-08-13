@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro
+package androidx.benchmark
+
+import androidx.annotation.RestrictTo
 
 /**
  * Represents an error in configuration of a benchmark.
+ *
+ * @suppress
  */
-internal data class ConfigurationError(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+data class ConfigurationError(
     /**
      * All-caps, publicly visible ID for the error.
      *
@@ -74,7 +79,9 @@ internal data class ConfigurationError(
     )
 }
 
-internal fun conditionalError(
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun conditionalError(
     hasError: Boolean,
     id: String,
     summary: String,
@@ -96,8 +103,11 @@ internal fun List<ConfigurationError>.prettyPrint(prefix: String): String {
 /**
  * Throw an AssertionError if the list contains an unsuppressed error, and return either a
  * SuppressionState if errors are suppressed, or null otherwise.
+ *
+ * @suppress
  */
-internal fun List<ConfigurationError>.checkAndGetSuppressionState(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun List<ConfigurationError>.checkAndGetSuppressionState(
     suppressedErrorIds: Set<String>,
 ): ConfigurationError.SuppressionState? {
     val (suppressed, unsuppressed) = partition {

@@ -20,7 +20,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
-import androidx.benchmark.macro.userspaceTrace
+import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.userspaceTrace
 import org.jetbrains.annotations.TestOnly
 import java.io.File
 

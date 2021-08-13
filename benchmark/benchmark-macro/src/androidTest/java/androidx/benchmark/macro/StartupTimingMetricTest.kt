@@ -18,9 +18,9 @@ package androidx.benchmark.macro
 
 import android.content.Intent
 import androidx.annotation.RequiresApi
-import androidx.benchmark.macro.perfetto.PerfettoCaptureWrapper
-import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
-import androidx.benchmark.macro.perfetto.createTempFileFromAsset
+import androidx.benchmark.Outputs
+import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
@@ -32,6 +32,7 @@ import androidx.test.uiautomator.Until
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -152,4 +153,16 @@ internal fun measureStartup(packageName: String, measureBlock: () -> Unit): Metr
         block = measureBlock
     )!!
     return metric.getMetrics(packageName, tracePath)
+}
+
+@Suppress("SameParameterValue")
+internal fun createTempFileFromAsset(prefix: String, suffix: String): File {
+    val file = File.createTempFile(prefix, suffix, Outputs.dirUsableByAppAndShell)
+    InstrumentationRegistry
+        .getInstrumentation()
+        .context
+        .assets
+        .open(prefix + suffix)
+        .copyTo(file.outputStream())
+    return file
 }
