@@ -45,6 +45,9 @@ public class DeviceQuirksLoader {
         if (MediaCodecInfoReportIncorrectInfoQuirk.load()) {
             quirks.add(new MediaCodecInfoReportIncorrectInfoQuirk());
         }
+        if (RecorderSetInactiveWhenStoppingQuirk.load()) {
+            quirks.add(new RecorderSetInactiveWhenStoppingQuirk());
+        }
 
         return quirks;
     }
