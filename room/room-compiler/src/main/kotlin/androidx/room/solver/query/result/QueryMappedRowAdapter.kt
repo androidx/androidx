@@ -16,20 +16,17 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.vo.Field
-import androidx.room.vo.Pojo
-
 /**
- * Interface that defines a result adapter containing mapping information of the query and its
- * result POJOs if any.
+ * Interface that defines a row adapter containing mapping information of the query and its
+ * result usage.
  */
-interface QueryMappedResultAdapter {
-    val mappings: List<Mapping>
+interface QueryMappedRowAdapter {
+    val mapping: Mapping
 
-    data class Mapping(
-        val pojo: Pojo,
-        val matchedFields: List<Field>,
-        val unusedColumns: List<String>,
-        val unusedFields: List<Field>
-    )
+    /**
+     * Base class of an adapter mapping declaring the used columns by the adapter.
+     */
+    abstract class Mapping {
+        abstract val usedColumns: List<String>
+    }
 }
