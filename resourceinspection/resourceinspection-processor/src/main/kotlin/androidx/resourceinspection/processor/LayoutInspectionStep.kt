@@ -55,7 +55,13 @@ internal class LayoutInspectionStep(
     override fun process(
         elementsByAnnotation: ImmutableSetMultimap<String, Element>
     ): Set<Element> {
-        // TODO(b/180039277): Validate that linked APIs (e.g. InspectionCompanion) are present
+        if (!isViewInspectorApiPresent()) {
+            printError(
+                "View inspector (android.view.inspector) API is not present. " +
+                    "Please ensure compile SDK is 29 or greater."
+            )
+            return emptySet()
+        }
 
         val views = mergeViews(
             elementsByAnnotation[ATTRIBUTE]
@@ -69,6 +75,13 @@ internal class LayoutInspectionStep(
 
         // We don't defer elements for later rounds in this processor
         return emptySet()
+    }
+
+    /** Checks if the view inspector API is present in the compile class path */
+    private fun isViewInspectorApiPresent(): Boolean {
+        return VIEW_INSPECTOR_CLASSES.all { className ->
+            processingEnv.elementUtils.getTypeElement(className) != null
+        }
     }
 
     /** Merge shadowed and regular attributes into [View] models. */
@@ -277,7 +290,7 @@ internal class LayoutInspectionStep(
     /** Convenience wrapper for [javax.annotation.processing.Messager.printMessage]. */
     private fun printError(
         message: String,
-        element: Element?,
+        element: Element? = null,
         annotation: AnnotationMirror? = null,
         value: AnnotationValue? = null
     ) {
@@ -317,7 +330,7 @@ internal class LayoutInspectionStep(
         const val APP_COMPAT_SHADOWED_ATTRIBUTES =
             "androidx.resourceinspection.annotation.AppCompatShadowedAttributes"
 
-        /** Fully qualified name of the platform's Color class */
+        /** Fully qualified name of the platform's `Color` class */
         const val COLOR = "android.graphics.Color"
 
         /** Fully qualified name of `ColorInt` */
@@ -331,6 +344,13 @@ internal class LayoutInspectionStep(
 
         /** Fully qualified name of the platform's View class */
         const val VIEW = "android.view.View"
+
+        /** Fully qualified names of the view inspector classes introduced in API 29 */
+        val VIEW_INSPECTOR_CLASSES = listOf(
+            "android.view.inspector.InspectionCompanion",
+            "android.view.inspector.PropertyReader",
+            "android.view.inspector.PropertyMapper"
+        )
 
         /**
          * Map of compat interface names in `androidx.core` to the AppCompat attributes they
