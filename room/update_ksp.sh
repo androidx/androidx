@@ -46,6 +46,6 @@ development/importMaven/import_maven_artifacts.py -n com.google.devtools.ksp:sym
 development/importMaven/import_maven_artifacts.py -n com.google.devtools.ksp:symbol-processing:$KSP_VERSION
 
 # update build version
-sed -i "s/build_versions\.ksp = .*/build_versions.ksp = \"$KSP_VERSION\"/g" buildSrc/build_dependencies.gradle
+sed -i "s/ksp = \".*\"/ksp = \"$KSP_VERSION\"/" gradle/libs.versions.toml
 
 echo "done"
