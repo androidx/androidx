@@ -16,8 +16,12 @@
 
 package androidx.core.content;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.os.RemoteException;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.core.app.unusedapprestrictions.IUnusedAppRestrictionsBackportCallback;
 
 /**
@@ -30,7 +34,10 @@ public class UnusedAppRestrictionsBackportCallback {
 
     private IUnusedAppRestrictionsBackportCallback mCallback;
 
-    UnusedAppRestrictionsBackportCallback(IUnusedAppRestrictionsBackportCallback callback) {
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    public UnusedAppRestrictionsBackportCallback(
+            @NonNull IUnusedAppRestrictionsBackportCallback callback) {
         mCallback = callback;
     }
 

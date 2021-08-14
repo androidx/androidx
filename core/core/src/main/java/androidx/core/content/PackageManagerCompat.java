@@ -57,7 +57,9 @@ public final class PackageManagerCompat {
         /* Hide constructor */
     }
 
-    static final String LOG_TAG = "PackageManagerCompat";
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    public static final String LOG_TAG = "PackageManagerCompat";
 
     /**
      * Activity action: creates an intent to redirect the user to UI to turn on/off their
@@ -182,8 +184,13 @@ public final class PackageManagerCompat {
         return resultFuture;
     }
 
-    /** Returns whether any unused app restriction features are available on the device. */
-    static boolean areUnusedAppRestrictionsAvailable(
+    /**
+     * Returns whether any unused app restriction features are available on the device.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static boolean areUnusedAppRestrictionsAvailable(
             @NonNull PackageManager packageManager) {
         boolean restrictionsBuiltIntoOs = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
         boolean isOsMThroughQ =
@@ -198,9 +205,13 @@ public final class PackageManagerCompat {
      * Returns the package name of the one and only Verifier on the device that can support
      * permission revocation. If none exist, this will return {@code null}. Likewise, if multiple
      * Verifiers exist, this method will return the first Verifier's package name.
+     *
+     * @hide
      */
     @Nullable
-    static String getPermissionRevocationVerifierApp(@NonNull PackageManager packageManager) {
+    @RestrictTo(LIBRARY)
+    public static String getPermissionRevocationVerifierApp(
+            @NonNull PackageManager packageManager) {
         Intent permissionRevocationSettingsIntent =
                 new Intent(ACTION_PERMISSION_REVOCATION_SETTINGS)
                         .setData(Uri.fromParts(
