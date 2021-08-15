@@ -41,6 +41,8 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
@@ -390,24 +392,26 @@ class VideoEncoderTest {
     /**
      * Stops safely by first removing the Encoder surface from camera repeating request.
      *
-     * <p>When encoder is started and repeating request is running, stop the encoder will get EGL
-     * error on some devices such as Samsung J2, J3 and J7 (Exynos chipset). The encoder surface
-     * needs to be removed from repeating request before stop the encoder to avoid this failure.
-     *
-     * See b/196039619.
+     * <p>As described in b/196039619, when encoder is started and repeating request is running,
+     * stop the encoder will get EGL error on some Samsung devices. The encoder surface needs to
+     * be removed from repeating request before stop the encoder to avoid this failure.
      */
     private fun EncoderImpl.stopSafely() {
-        instrumentation.runOnMainSync { previewForVideoEncoder.setSurfaceProvider(null) }
-        verify(videoEncoderCallback, noInvocation(2000L, 6000L)).onEncodedData(any())
+        val deactivateSurfaceBeforeStop =
+            DeviceQuirks.get(DeactivateEncoderSurfaceBeforeStopEncoderQuirk::class.java) != null
+
+        if (deactivateSurfaceBeforeStop) {
+            instrumentation.runOnMainSync { previewForVideoEncoder.setSurfaceProvider(null) }
+            verify(videoEncoderCallback, noInvocation(2000L, 6000L)).onEncodedData(any())
+        }
 
         stop()
-        verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
 
-        // The SurfaceProvider needs to be added back to recover repeating. However, for API < 23,
-        // EncoderImpl will trigger a surface update event to OnSurfaceUpdateListener and this will
-        // be handled by initVideoEncoder() to set the SurfaceProvider with new surface. So no
-        // need to add the SurfaceProvider back here.
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (deactivateSurfaceBeforeStop && Build.VERSION.SDK_INT >= 23) {
+            // The SurfaceProvider needs to be added back to recover repeating. However, for
+            // API < 23, EncoderImpl will trigger a surface update event to OnSurfaceUpdateListener
+            // and this will be handled by initVideoEncoder() to set the SurfaceProvider with new
+            // surface. So no need to add the SurfaceProvider back here.
             instrumentation.runOnMainSync { setVideoPreviewSurfaceProvider(currentSurface!!) }
         }
     }

@@ -29,17 +29,20 @@ import java.util.List;
 
 
 /**
- * Quick denotes that {@link Recorder#getStreamState()} has to returns
- * {@link VideoOutput.StreamState#INACTIVE} when the active recording is being stopped.
+ * Quirk denotes that the encoder surface needs to be removed from repeating request before stop
+ * the encoder.
  *
  * <p>As described in b/196039619, on devices with certain chipsets, the camera fails if
  * {@link MediaCodec} is stopped while frames are still being provided.
+ *
+ * <p>In {@link Recorder}, {@link Recorder#getStreamState()} has to returns
+ * {@link VideoOutput.StreamState#INACTIVE} when the active recording is being stopped.
  * {@link VideoCapture} monitors {@link VideoOutput#getStreamState()} and
  * detach the surface from camera if it becomes {@link VideoOutput.StreamState#INACTIVE inactive}.
  * So making the {@link Recorder} inactive in stopping state will stop the camera from producing
  * frames to the {@link MediaCodec} before actually stopping it.
  */
-public class RecorderSetInactiveWhenStoppingQuirk implements Quirk {
+public class DeactivateEncoderSurfaceBeforeStopEncoderQuirk implements Quirk {
 
     private static final List<String> BUILD_HARDWARE_SET = Arrays.asList("sc8830",
             "samsungexynos7580");
