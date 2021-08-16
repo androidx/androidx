@@ -55,7 +55,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  *
  * Navigation flows and destinations are determined by the
  * [navigation graph][NavGraph] owned by the controller. These graphs are typically
- * [inflated][getNavInflater] from an Android resource, but, like views, they can also
+ * [inflated][navInflater] from an Android resource, but, like views, they can also
  * be constructed or combined programmatically or for the case of dynamic navigation structure.
  * (For example, if the navigation structure of the application is determined by live data obtained'
  * from a remote server.)
