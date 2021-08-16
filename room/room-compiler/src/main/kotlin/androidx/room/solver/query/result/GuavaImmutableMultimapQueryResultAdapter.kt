@@ -24,12 +24,12 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 
 class GuavaImmutableMultimapQueryResultAdapter(
-    private val keyTypeArg: XType,
-    private val valueTypeArg: XType,
+    override val keyTypeArg: XType,
+    override val valueTypeArg: XType,
     private val keyRowAdapter: RowAdapter,
     private val valueRowAdapter: RowAdapter,
     private val immutableClassName: ClassName
-) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)) {
+) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)), MultimapQueryResultAdapter {
     private val mapType = ParameterizedTypeName.get(
         immutableClassName,
         keyTypeArg.typeName,

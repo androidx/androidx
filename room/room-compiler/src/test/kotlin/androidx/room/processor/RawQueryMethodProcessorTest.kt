@@ -372,6 +372,42 @@ class RawQueryMethodProcessorTest {
         }
     }
 
+    @Test
+    fun testUseMapInfoWithBothEmptyColumnsProvided() {
+        singleQueryMethod(
+            """
+                @MapInfo
+                @RawQuery
+                abstract Map<User, Book> getMultimap(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(ProcessorErrors.MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED)
+            }
+        }
+    }
+
+    @Test
+    fun testDoesNotImplementEqualsAndHashcodeRawQuery() {
+        singleQueryMethod(
+            """
+                @RawQuery
+                abstract Map<User, Book> getMultimap(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarningCount(1)
+                hasWarningContaining(
+                    ProcessorErrors.classMustImplementEqualsAndHashCode(
+                        "java.util.Map<foo.bar.User, foo.bar.Book>",
+                        "foo.bar.User"
+                    )
+                )
+            }
+        }
+    }
+
     private fun singleQueryMethod(
         vararg input: String,
         handler: (RawQueryMethod, XTestInvocation) -> Unit
@@ -385,7 +421,7 @@ class RawQueryMethodProcessorTest {
         val commonSources = listOf(
             COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER,
             COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE,
-            COMMON.NOT_AN_ENTITY
+            COMMON.NOT_AN_ENTITY, COMMON.BOOK, COMMON.ARTIST, COMMON.SONG
         )
         runProcessorTest(
             sources = commonSources + inputSource
@@ -418,6 +454,7 @@ class RawQueryMethodProcessorTest {
                 import androidx.room.*;
                 import androidx.sqlite.db.SupportSQLiteQuery;
                 import androidx.lifecycle.LiveData;
+                import java.util.*;
                 @Dao
                 abstract class MyClass {
                 """

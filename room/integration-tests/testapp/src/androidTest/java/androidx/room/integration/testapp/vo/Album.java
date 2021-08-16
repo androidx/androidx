@@ -25,9 +25,9 @@ public class Album {
     public final int mAlbumId;
     public final String mAlbumName;
     public final String mAlbumArtist;
-    public final String mAlbumReleaseYear;
+    public final int mAlbumReleaseYear;
 
-    public Album(int albumId, String albumName, String albumArtist, String albumReleaseYear) {
+    public Album(int albumId, String albumName, String albumArtist, int albumReleaseYear) {
         mAlbumId = albumId;
         mAlbumName = albumName;
         mAlbumArtist = albumArtist;
@@ -50,19 +50,15 @@ public class Album {
                 album.mAlbumArtist != null) {
             return false;
         }
-        if (mAlbumReleaseYear != null ? !mAlbumReleaseYear.equals(album.mAlbumReleaseYear) :
-                album.mAlbumReleaseYear != null) {
-            return false;
-        }
+        if (mAlbumReleaseYear != album.mAlbumReleaseYear) return false;
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = mAlbumId;
+        int result = mAlbumId + mAlbumReleaseYear;
         result = 31 * result + (mAlbumName != null ? mAlbumName.hashCode() : 0);
         result = 31 * result + (mAlbumArtist != null ? mAlbumArtist.hashCode() : 0);
-        result = 31 * result + (mAlbumReleaseYear != null ? mAlbumReleaseYear.hashCode() : 0);
         return result;
     }
 }

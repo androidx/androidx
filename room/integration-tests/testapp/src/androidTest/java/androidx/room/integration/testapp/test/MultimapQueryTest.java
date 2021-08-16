@@ -34,6 +34,8 @@ import androidx.room.integration.testapp.vo.Album;
 import androidx.room.integration.testapp.vo.AlbumNameAndBandName;
 import androidx.room.integration.testapp.vo.AlbumWithSongs;
 import androidx.room.integration.testapp.vo.Artist;
+import androidx.room.integration.testapp.vo.Image;
+import androidx.room.integration.testapp.vo.ImageFormat;
 import androidx.room.integration.testapp.vo.ReleasedAlbum;
 import androidx.room.integration.testapp.vo.Song;
 import androidx.sqlite.db.SimpleSQLiteQuery;
@@ -54,7 +56,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -105,47 +109,69 @@ public class MultimapQueryTest {
 
     private final Artist mRhcp = new Artist(
             1,
-            "Red Hot Chili Peppers"
+            "Red Hot Chili Peppers",
+            true
     );
     private final Artist mAcDc = new Artist(
             2,
-            "AC/DC"
+            "AC/DC",
+            true
     );
     private final Artist mTheClash = new Artist(
             3,
-            "The Clash"
+            "The Clash",
+            false
     );
     private final Artist mPinkFloyd = new Artist(
             4,
-            "Pink Floyd"
+            "Pink Floyd",
+            false
     );
 
     private final Album mStadiumArcadium = new Album(
             1,
             "Stadium Arcadium",
             "Red Hot Chili Peppers",
-            "2006"
+            2006
     );
 
     private final Album mCalifornication = new Album(
             2,
             "Californication",
             "Red Hot Chili Peppers",
-            "1999"
+            1999
     );
 
     private final Album mHighwayToHell = new Album(
             3,
             "Highway to Hell",
             "AC/DC",
-            "1979"
+            1979
     );
 
     private final Album mTheDarkSideOfTheMoon = new Album(
             4,
             "The Dark Side of the Moon",
             "Pink Floyd",
-            "1973"
+            1973
+    );
+
+    private final Image mPinkFloydAlbumCover = new Image(
+            1,
+            1973L,
+            "Pink Floyd",
+            "dark_side_of_the_moon_image".getBytes(),
+            new Date(101779200000L),
+            ImageFormat.JPG
+    );
+
+    private final Image mRhcpAlbumCover = new Image(
+            2,
+            2006L,
+            "Red Hot Chili Peppers",
+            "stadium_arcadium_image".getBytes(),
+            new Date(1146787200000L),
+            ImageFormat.MPEG
     );
 
     @Rule
@@ -703,6 +729,320 @@ public class MultimapQueryTest {
 
         assertThat(observer.get()).isNotNull();
         assertContentsOfResultMapWithSet(observer.get());
+    }
+
+    @Test
+    public void testStringToListOfSongs() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Map<String, List<Song>> artistNameToSongsMap = mMusicDao.getArtistNameToSongs();
+        assertThat(artistNameToSongsMap.containsKey("Pink Floyd")).isTrue();
+        assertThat(artistNameToSongsMap.get("Red Hot Chili Peppers")).containsExactlyElementsIn(
+                Arrays.asList(mRhcpSong1, mRhcpSong2)
+        );
+    }
+
+    @Test
+    public void testIntegerToListOfAlbums() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        Map<Integer, List<Song>> releaseYearToAlbumsMap = mMusicDao.getReleaseYearToAlbums();
+        assertThat(releaseYearToAlbumsMap.containsKey(2006)).isTrue();
+        assertThat(releaseYearToAlbumsMap.get(2006)).containsExactlyElementsIn(
+                Arrays.asList(mRhcpSong1, mRhcpSong2)
+        );
+        assertThat(releaseYearToAlbumsMap.get(1979)).containsExactlyElementsIn(
+                Arrays.asList(mAcdcSong1)
+        );
+    }
+
+    @Test
+    public void testIntegerToStringOfAlbumNames() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        Map<Integer, List<String>> releaseYearToAlbumNameMap =
+                mMusicDao.getReleaseYearToSongNames();
+        assertThat(releaseYearToAlbumNameMap.containsKey(2006)).isTrue();
+        assertThat(releaseYearToAlbumNameMap.get(2006)).containsExactlyElementsIn(
+                Arrays.asList("Snow (Hey Oh)", "Dani California")
+        );
+    }
+
+    @Test
+    public void testStringToListOfSongsRawQuery() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Map<String, List<Song>> artistNameToSongsMap = mMusicDao.getArtistNameToSongsRawQuery(
+                new SimpleSQLiteQuery(
+                        "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist"
+                )
+        );
+        assertThat(artistNameToSongsMap.containsKey("Pink Floyd")).isTrue();
+        assertThat(artistNameToSongsMap.get("Red Hot Chili Peppers")).containsExactlyElementsIn(
+                Arrays.asList(mRhcpSong1, mRhcpSong2)
+        );
+    }
+
+    @Test
+    public void testIntegerToListOfAlbumsRawQuery() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        Map<Integer, List<Song>> releaseYearToAlbumsMap = mMusicDao.getReleaseYearToAlbumsRawQuery(
+                new SimpleSQLiteQuery(
+                        "SELECT * FROM Album JOIN Song ON Song.mReleasedYear = Album"
+                                + ".mAlbumReleaseYear"
+                )
+        );
+        assertThat(releaseYearToAlbumsMap.containsKey(2006)).isTrue();
+        assertThat(releaseYearToAlbumsMap.get(2006)).containsExactlyElementsIn(
+                Arrays.asList(mRhcpSong1, mRhcpSong2)
+        );
+        assertThat(releaseYearToAlbumsMap.get(1979)).containsExactlyElementsIn(
+                Arrays.asList(mAcdcSong1)
+        );
+    }
+
+    @Test
+    public void testIntegerToStringOfAlbumNamesRawQuery() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addAlbums(
+                mStadiumArcadium,
+                mCalifornication,
+                mTheDarkSideOfTheMoon,
+                mHighwayToHell
+        );
+
+        Map<Integer, List<String>> releaseYearToAlbumNameMap =
+                mMusicDao.getReleaseYearToSongNamesRawQuery(
+                        new SimpleSQLiteQuery(
+                                "SELECT * FROM Album JOIN Song ON Song.mReleasedYear = Album"
+                                        + ".mAlbumReleaseYear"
+                        )
+                );
+        assertThat(releaseYearToAlbumNameMap.containsKey(2006)).isTrue();
+        assertThat(releaseYearToAlbumNameMap.get(2006)).containsExactlyElementsIn(
+                Arrays.asList("Snow (Hey Oh)", "Dani California")
+        );
+    }
+
+    @Test
+    public void testArtistToSongCount() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Map<Artist, Integer> artistNameToSongsMap = mMusicDao.getArtistAndSongCountMap();
+
+        assertThat(artistNameToSongsMap.containsKey(mPinkFloyd)).isTrue();
+        assertThat(artistNameToSongsMap.get(mRhcp)).isEqualTo(2);
+    }
+
+    @Test
+    public void testArtistToSongCountWithRawQuery() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Map<Artist, Integer> artistNameToSongsMap = mMusicDao.getArtistAndSongCountMapRawQuery(
+                new SimpleSQLiteQuery(
+                        "SELECT *, COUNT(mSongId) as songCount FROM Artist JOIN Song ON Artist"
+                                + ".mArtistName = Song.mArtist GROUP BY mArtistName"
+                )
+        );
+        assertThat(artistNameToSongsMap.containsKey(mPinkFloyd)).isTrue();
+        assertThat(artistNameToSongsMap.get(mRhcp)).isEqualTo(2);
+    }
+
+    @Test
+    public void testArtistToImage() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ImmutableMap<Artist, ByteBuffer> artistNameToImagesMap =
+                mMusicDao.getAllArtistsWithAlbumCovers();
+
+        assertThat(artistNameToImagesMap.containsKey(mPinkFloyd)).isTrue();
+        assertThat(artistNameToImagesMap.get(mRhcp)).isEqualTo(
+                ByteBuffer.wrap("stadium_arcadium_image".getBytes())
+        );
+    }
+
+    @Test
+    public void testArtistToImageRawQuery() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ImmutableMap<Artist, ByteBuffer> artistNameToImagesMap =
+                mMusicDao.getAllArtistsWithAlbumCoversRawQuery(
+                        new SimpleSQLiteQuery(
+                                "SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image"
+                                        + ".mArtistInImage"
+                        )
+                );
+
+        assertThat(artistNameToImagesMap.containsKey(mPinkFloyd)).isTrue();
+        assertThat(artistNameToImagesMap.get(mRhcp)).isEqualTo(
+                ByteBuffer.wrap("stadium_arcadium_image".getBytes())
+        );
+    }
+
+    @Test
+    public void testArtistToImageYear() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ImmutableMap<Artist, Long> artistNameToImagesMap =
+                mMusicDao.getAllArtistsWithAlbumCoverYear();
+
+        assertThat(artistNameToImagesMap.get(mRhcp)).isEqualTo(2006L);
+    }
+
+    @Test
+    public void testImageYearToArtistRawQuery() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ImmutableMap<Long, Artist> imageToArtistsMap =
+                mMusicDao.getAllAlbumCoverYearToArtistsWithRawQuery(
+                        new SimpleSQLiteQuery(
+                                "SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image"
+                                        + ".mArtistInImage"
+                        )
+                );
+
+        assertThat(imageToArtistsMap.get(2006L)).isEqualTo(mRhcp);
+        assertThat(
+                imageToArtistsMap.keySet()).containsExactlyElementsIn(Arrays.asList(2006L, 1973L)
+        );
+    }
+
+    @Test
+    public void testAlbumCoversWithBandActivity() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ImmutableMap<ByteBuffer, Boolean> imageToArtistsMap =
+                mMusicDao.getAlbumCoversWithBandActivity();
+
+        assertThat(
+                imageToArtistsMap.get(ByteBuffer.wrap("stadium_arcadium_image".getBytes()))
+        ).isEqualTo(true);
+        assertThat(
+                imageToArtistsMap.get(ByteBuffer.wrap("dark_side_of_the_moon_image".getBytes()))
+        ).isEqualTo(false);
+    }
+
+    @Test
+    public void testAlbumCoversWithBandActivityRawQuery() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ImmutableMap<ByteBuffer, Boolean> imageToArtistsMap =
+                mMusicDao.getAlbumCoversWithBandActivityRawQuery(
+                        new SimpleSQLiteQuery(
+                                "SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image"
+                                        + ".mArtistInImage"
+                        )
+                );
+
+        assertThat(imageToArtistsMap.get(
+                ByteBuffer.wrap("stadium_arcadium_image".getBytes()))).isEqualTo(true);
+        assertThat(
+                imageToArtistsMap.get(ByteBuffer.wrap("dark_side_of_the_moon_image".getBytes()))
+        ).isEqualTo(false);
+    }
+
+    @Test
+    public void testAlbumReleaseDateWithBandActivity() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ImmutableMap<Date, Boolean> imageToArtistsMap =
+                mMusicDao.getAlbumDateWithBandActivity();
+
+        assertThat(imageToArtistsMap.get(new Date(101779200000L))).isEqualTo(false);
+        assertThat(imageToArtistsMap.get(new Date(1146787200000L))).isEqualTo(true);
+    }
+
+    @Test
+    public void testAlbumReleaseDateWithBandActivityRawQuery() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ImmutableMap<Date, Boolean> imageToArtistsMap =
+                mMusicDao.getAlbumDateWithBandActivityRawQuery(
+                        new SimpleSQLiteQuery(
+                                "SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image"
+                                        + ".mArtistInImage"
+                        )
+                );
+
+        assertThat(imageToArtistsMap.get(new Date(101779200000L))).isEqualTo(false);
+        assertThat(imageToArtistsMap.get(new Date(1146787200000L))).isEqualTo(true);
+    }
+
+    @Test
+    public void testEnumMap() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ImmutableMap<ImageFormat, Boolean> imageToArtistsMap =
+                mMusicDao.getImageFormatWithBandActivity();
+
+        assertThat(imageToArtistsMap.get(ImageFormat.JPG)).isEqualTo(false);
+        assertThat(imageToArtistsMap.get(ImageFormat.MPEG)).isEqualTo(true);
+    }
+
+    @Test
+    public void testEnumMapWithRawQuery() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ImmutableMap<ImageFormat, Boolean> imageToArtistsMap =
+                mMusicDao.getImageFormatWithBandActivityRawQuery(
+                        new SimpleSQLiteQuery(
+                                "SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image"
+                                        + ".mArtistInImage"
+                        )
+                );
+
+        assertThat(imageToArtistsMap.get(ImageFormat.JPG)).isEqualTo(false);
+        assertThat(imageToArtistsMap.get(ImageFormat.MPEG)).isEqualTo(true);
+    }
+
+    @Test
+    public void testInvalidMapInfoColumnsWithRawQuery() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        try {
+            Map<Artist, Integer> artistNameToSongsMap = mMusicDao.getMapWithInvalidColumnRawQuery(
+                    new SimpleSQLiteQuery(
+                            "SELECT *, COUNT(mSongId) as songCount FROM Artist JOIN Song ON Artist"
+                                    + ".mArtistName = Song.mArtist GROUP BY mArtistName"
+                    )
+            );
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage().contains("column 'cat' does not exist"));
+        }
     }
 
     /**

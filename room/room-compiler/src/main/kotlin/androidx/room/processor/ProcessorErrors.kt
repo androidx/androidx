@@ -134,7 +134,7 @@ object ProcessorErrors {
     fun cannotFindQueryResultAdapter(returnTypeName: TypeName) = "Not sure how to convert a " +
         "Cursor to this method's return type ($returnTypeName)."
 
-    fun classMustImplementEqualsAndHashCode(mapType: TypeName, keyType: TypeName) = "The key" +
+    fun classMustImplementEqualsAndHashCode(mapType: String, keyType: String) = "The key" +
         " of the provided method's multimap return type ($mapType) must implement equals() and " +
         "hashCode(). Key type is: $keyType."
 
@@ -143,6 +143,13 @@ object ProcessorErrors {
 
     val DELETION_MISSING_PARAMS = "Method annotated with" +
         " @Delete but does not have any parameters to delete."
+
+    fun cannotMapInfoSpecifiedColumn(column: String, columnsInQuery: List<String>) =
+        "Column(s) specified in the provided @MapInfo annotation must be present in the query. " +
+            "Provided: $column. Columns Found: ${columnsInQuery.joinToString(", ")}"
+
+    val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED = "To use the @MapInfo annotation, you " +
+        "must provide either the key column name, value column name, or both."
 
     val CANNOT_FIND_DELETE_RESULT_ADAPTER = "Not sure how to handle delete method's " +
         "return type. Currently the supported return types are void, int or Int."

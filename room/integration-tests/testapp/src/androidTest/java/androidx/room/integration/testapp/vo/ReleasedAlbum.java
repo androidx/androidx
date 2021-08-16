@@ -18,16 +18,16 @@ package androidx.room.integration.testapp.vo;
 
 
 public class ReleasedAlbum {
-    private String mReleaseYear;
+    private int mReleaseYear;
     private String mAlbumName;
 
-    public ReleasedAlbum(String releaseYear, String albumName) {
+    public ReleasedAlbum(int releaseYear, String albumName) {
         mReleaseYear = releaseYear;
 
         mAlbumName = albumName;
     }
 
-    public String getReleaseYear() {
+    public int getReleaseYear() {
         return mReleaseYear;
     }
 
@@ -42,16 +42,13 @@ public class ReleasedAlbum {
         if (o == null || getClass() != o.getClass()) return false;
 
         ReleasedAlbum that = (ReleasedAlbum) o;
-        if (mReleaseYear != null ? !mReleaseYear.equals(that.mReleaseYear) :
-                that.mReleaseYear != null) {
-            return false;
-        }
+        if (mReleaseYear != that.mReleaseYear) return false;
         return mAlbumName != null ? mAlbumName.equals(that.mAlbumName) : that.mAlbumName == null;
     }
 
     @Override
     public int hashCode() {
-        int result = mReleaseYear != null ? mReleaseYear.hashCode() : 0;
+        int result = mReleaseYear;
         result = 31 * result + (mAlbumName != null ? mAlbumName.hashCode() : 0);
         return result;
     }
