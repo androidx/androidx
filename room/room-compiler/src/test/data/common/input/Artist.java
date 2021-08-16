@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.room.integration.testapp.vo;
-
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+package foo.bar;
+import androidx.room.*;
 
 @Entity
 public class Artist {
@@ -52,10 +50,5 @@ public class Artist {
         int result = mArtistId;
         result = 31 * result + (mArtistName != null ? mArtistName.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Artist{name='" + mArtistName + "'}";
     }
 }

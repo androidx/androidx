@@ -70,6 +70,7 @@ import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RowAdapter
 import androidx.room.solver.query.result.SingleColumnRowAdapter
 import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
+import androidx.room.solver.query.result.SingleNamedColumnRowAdapter
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.solver.shortcut.binderprovider.DeleteOrUpdateMethodBinderProvider
@@ -97,6 +98,7 @@ import androidx.room.solver.types.PrimitiveColumnTypeAdapter
 import androidx.room.solver.types.StatementValueBinder
 import androidx.room.solver.types.StringColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
+import androidx.room.vo.MapInfo
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.Warning
 import com.google.common.annotations.VisibleForTesting
@@ -454,6 +456,7 @@ class TypeAdapterStore private constructor(
         if (typeMirror.isError()) {
             return null
         }
+
         // TODO: (b/192068912) Refactor the following since this if-else cascade has gotten large
         if (typeMirror.isArray() && typeMirror.componentType.isNotByte()) {
             val rowAdapter =
@@ -509,6 +512,18 @@ class TypeAdapterStore private constructor(
                 keyTypeArg,
                 valueTypeArg
             )
+
+            if (!keyTypeArg.implementsEqualsAndHashcode()) {
+                context.logger.w(
+                    Warning.DOES_NOT_IMPLEMENT_EQUALS_HASHCODE,
+                    keyTypeArg.typeElement,
+                    classMustImplementEqualsAndHashCode(
+                        typeMirror.typeName.toString(),
+                        keyTypeArg.typeName.toString()
+                    )
+                )
+            }
+
             val resultAdapter = findQueryResultAdapter(mapType, query, extras) ?: return null
             return ImmutableMapQueryResultAdapter(
                 keyTypeArg = keyTypeArg,
@@ -540,16 +555,48 @@ class TypeAdapterStore private constructor(
                 return null
             }
 
+            if (!keyTypeArg.implementsEqualsAndHashcode()) {
+                context.logger.w(
+                    Warning.DOES_NOT_IMPLEMENT_EQUALS_HASHCODE,
+                    keyTypeArg.typeElement,
+                    classMustImplementEqualsAndHashCode(
+                        typeMirror.typeName.toString(),
+                        keyTypeArg.typeName.toString()
+                    )
+                )
+            }
+
+            // Get @MapInfo info if any (this might be null)
+            val mapInfo = extras.getData(MapInfo::class)
             return GuavaImmutableMultimapQueryResultAdapter(
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
-                keyRowAdapter = findRowAdapter(keyTypeArg, query) ?: return null,
-                valueRowAdapter = findRowAdapter(valueTypeArg, query) ?: return null,
+                keyRowAdapter = findRowAdapter(
+                    typeMirror = keyTypeArg,
+                    query = query,
+                    columnName = mapInfo?.keyColumnName
+                ) ?: return null,
+                valueRowAdapter = findRowAdapter(
+                    typeMirror = valueTypeArg,
+                    query = query,
+                    columnName = mapInfo?.valueColumnName
+                ) ?: return null,
                 immutableClassName = immutableClassName
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class)) {
             val keyTypeArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
             val mapValueTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
+
+            if (!keyTypeArg.implementsEqualsAndHashcode()) {
+                context.logger.w(
+                    Warning.DOES_NOT_IMPLEMENT_EQUALS_HASHCODE,
+                    keyTypeArg.typeElement,
+                    classMustImplementEqualsAndHashCode(
+                        typeMirror.typeName.toString(),
+                        keyTypeArg.typeName.toString()
+                    )
+                )
+            }
 
             if (mapValueTypeArg.typeElement == null) {
                 context.logger.e(
@@ -559,17 +606,9 @@ class TypeAdapterStore private constructor(
                 return null
             }
             // TODO: Handle nested collection values in the map
-            if (!keyTypeArg.implementsEqualsAndHashcode()) {
-                context.logger.w(
-                    Warning.DOES_NOT_IMPLEMENT_EQUALS_HASHCODE,
-                    keyTypeArg.typeElement,
-                    classMustImplementEqualsAndHashCode(
-                        typeMirror.typeName,
-                        keyTypeArg.typeName
-                    )
-                )
-            }
 
+            // Get @MapInfo info if any (this might be null)
+            val mapInfo = extras.getData(MapInfo::class)
             val collectionTypeRaw = context.COMMON_TYPES.READONLY_COLLECTION.rawType
             if (collectionTypeRaw.isAssignableFrom(mapValueTypeArg.rawType)) {
                 // The Map's value type argument is assignable to a Collection, we need to make
@@ -582,8 +621,16 @@ class TypeAdapterStore private constructor(
                     return MapQueryResultAdapter(
                         keyTypeArg = keyTypeArg,
                         valueTypeArg = valueTypeArg,
-                        keyRowAdapter = findRowAdapter(keyTypeArg, query) ?: return null,
-                        valueRowAdapter = findRowAdapter(valueTypeArg, query) ?: return null,
+                        keyRowAdapter = findRowAdapter(
+                            typeMirror = keyTypeArg,
+                            query = query,
+                            columnName = mapInfo?.keyColumnName
+                        ) ?: return null,
+                        valueRowAdapter = findRowAdapter(
+                            typeMirror = valueTypeArg,
+                            query = query,
+                            columnName = mapInfo?.valueColumnName
+                        ) ?: return null,
                         valueCollectionType = mapValueTypeArg
                     )
                 } else {
@@ -596,8 +643,16 @@ class TypeAdapterStore private constructor(
                 return MapQueryResultAdapter(
                     keyTypeArg = keyTypeArg,
                     valueTypeArg = mapValueTypeArg,
-                    keyRowAdapter = findRowAdapter(keyTypeArg, query) ?: return null,
-                    valueRowAdapter = findRowAdapter(mapValueTypeArg, query) ?: return null,
+                    keyRowAdapter = findRowAdapter(
+                        typeMirror = keyTypeArg,
+                        query = query,
+                        columnName = mapInfo?.keyColumnName
+                    ) ?: return null,
+                    valueRowAdapter = findRowAdapter(
+                        typeMirror = mapValueTypeArg,
+                        query = query,
+                        columnName = mapInfo?.valueColumnName
+                    ) ?: return null,
                     valueCollectionType = null
                 )
             }
@@ -609,10 +664,15 @@ class TypeAdapterStore private constructor(
      * Find a converter from cursor to the given type mirror.
      * If there is information about the query result, we try to use it to accept *any* POJO.
      */
-    fun findRowAdapter(typeMirror: XType, query: ParsedQuery): RowAdapter? {
+    fun findRowAdapter(
+        typeMirror: XType,
+        query: ParsedQuery,
+        columnName: String? = null
+    ): RowAdapter? {
         if (typeMirror.isError()) {
             return null
         }
+
         val typeElement = typeMirror.typeElement
         if (typeElement != null && !typeMirror.typeName.isPrimitive) {
             if (typeMirror.typeArguments.isNotEmpty()) {
@@ -658,6 +718,18 @@ class TypeAdapterStore private constructor(
             if (rowAdapter != null && rowAdapterLogs?.hasErrors() != true) {
                 rowAdapterLogs?.writeTo(context)
                 return rowAdapter
+            }
+
+            if (columnName != null) {
+                val singleNamedColumn = findCursorValueReader(
+                    typeMirror,
+                    query.resultInfo?.columns?.find {
+                        it.name == columnName
+                    }?.type
+                )
+                if (singleNamedColumn != null) {
+                    return SingleNamedColumnRowAdapter(singleNamedColumn, columnName)
+                }
             }
 
             if ((resultInfo?.columns?.size ?: 1) == 1) {

@@ -25,9 +25,11 @@ import androidx.room.ext.isNotError
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
+import androidx.room.processor.ProcessorErrors.cannotMapInfoSpecifiedColumn
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
+import androidx.room.vo.MapInfo
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.QueryParameter
 import androidx.room.vo.ReadQueryMethod
@@ -201,7 +203,32 @@ private class InternalQueryProcessor(
         returnType: XType,
         query: ParsedQuery
     ): QueryMethod {
-        val resultBinder = delegate.findResultBinder(returnType, query) { }
+        val resultBinder = delegate.findResultBinder(returnType, query) {
+            delegate.executableElement.getAnnotation(androidx.room.MapInfo::class)?.let {
+                mapInfoAnnotation ->
+                // Check if method is annotated with @MapInfo, parse annotation and put information in
+                // bag of extras, it will be later used by the TypeAdapterStore
+                val resultColumns = query.resultInfo?.columns?.map { it.name } ?: emptyList()
+                val keyColumn = mapInfoAnnotation.value.keyColumn.toString()
+                val valueColumn = mapInfoAnnotation.value.valueColumn.toString()
+                context.checker.check(
+                    keyColumn.isEmpty() || resultColumns.contains(keyColumn),
+                    delegate.executableElement,
+                    cannotMapInfoSpecifiedColumn(keyColumn, resultColumns)
+                )
+                context.checker.check(
+                    valueColumn.isEmpty() || resultColumns.contains(valueColumn),
+                    delegate.executableElement,
+                    cannotMapInfoSpecifiedColumn(valueColumn, resultColumns)
+                )
+                context.checker.check(
+                    keyColumn.isNotEmpty() || valueColumn.isNotEmpty(),
+                    executableElement,
+                    ProcessorErrors.MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED
+                )
+                putData(MapInfo::class, MapInfo(keyColumn, valueColumn))
+            }
+        }
         context.checker.check(
             resultBinder.adapter != null,
             executableElement,
@@ -224,23 +251,22 @@ private class InternalQueryProcessor(
         }
 
         query.resultInfo?.let { queryResultInfo ->
-            val mappings =
-                resultBinder.adapter?.mappings?.filterIsInstance<PojoRowAdapter.PojoMapping>()
-                    ?: return@let
+            val mappings = resultBinder.adapter?.mappings ?: return@let
             // If there are no mapping (e.g. might be a primitive return type result), then we
             // can't reasonable determine cursor mismatch.
-            if (mappings.isEmpty()) {
+            if (mappings.isEmpty() || mappings.none { it is PojoRowAdapter.PojoMapping }) {
                 return@let
             }
             val usedColumns = mappings.flatMap { it.usedColumns }
             val columnNames = queryResultInfo.columns.map { it.name }
             val unusedColumns = columnNames - usedColumns
-            val pojoUnusedFields = mappings
+            val pojoMappings = mappings.filterIsInstance<PojoRowAdapter.PojoMapping>()
+            val pojoUnusedFields = pojoMappings
                 .filter { it.unusedFields.isNotEmpty() }
                 .associate { it.pojo.typeName to it.unusedFields }
             if (unusedColumns.isNotEmpty() || pojoUnusedFields.isNotEmpty()) {
                 val warningMsg = ProcessorErrors.cursorPojoMismatch(
-                    pojoTypeNames = mappings.map { it.pojo.typeName },
+                    pojoTypeNames = pojoMappings.map { it.pojo.typeName },
                     unusedColumns = unusedColumns,
                     allColumns = columnNames,
                     pojoUnusedFields = pojoUnusedFields,

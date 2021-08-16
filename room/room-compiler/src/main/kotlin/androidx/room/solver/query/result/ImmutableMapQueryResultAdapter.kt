@@ -25,10 +25,10 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 
 class ImmutableMapQueryResultAdapter(
-    private val keyTypeArg: XType,
-    private val valueTypeArg: XType,
+    override val keyTypeArg: XType,
+    override val valueTypeArg: XType,
     private val resultAdapter: QueryResultAdapter
-) : QueryResultAdapter(resultAdapter.rowAdapters) {
+) : QueryResultAdapter(resultAdapter.rowAdapters), MultimapQueryResultAdapter {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
             val mapVarName = scope.getTmpVar("_mapResult")
