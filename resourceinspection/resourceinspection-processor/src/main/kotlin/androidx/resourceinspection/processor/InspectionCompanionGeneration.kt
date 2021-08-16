@@ -184,7 +184,7 @@ private fun intFlagLambda(attribute: Attribute): TypeSpec {
                 addStatement("final \$T flags = new \$T()", stringSet, stringHashSet)
 
                 attribute.intMapping.forEach { (name, value, mask) ->
-                    if (mask == 0) {
+                    if (value == mask || mask == 0) {
                         beginControlFlow("if (value == \$L)", value)
                     } else {
                         beginControlFlow("if ((value & \$L) == \$L)", mask, value)
