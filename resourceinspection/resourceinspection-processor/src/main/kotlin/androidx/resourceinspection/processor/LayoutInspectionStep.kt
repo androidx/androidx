@@ -140,20 +140,26 @@ internal class LayoutInspectionStep(
         val annotation = getter.getAnnotationMirror(ATTRIBUTE)!!
         val annotationValue = getAnnotationValue(annotation, "value")
         val value = annotationValue.value as String
+        var hasError = false
 
         if (getter.parameters.isNotEmpty() || getter.returnType.kind == TypeKind.VOID) {
             printError("@Attribute must annotate a getter", getter, annotation)
-            return null
+            hasError = true
         }
 
         if (effectiveVisibilityOfElement(getter) != Visibility.PUBLIC) {
             printError("@Attribute getter must be public", getter, annotation)
-            return null
+            hasError = true
         }
 
         if (!getter.enclosingElement.asType().isAssignableTo(VIEW)) {
             printError("@Attribute must be on a subclass of android.view.View", getter, annotation)
-            return null
+            hasError = true
+        }
+
+        val intMapping = parseIntMapping(annotation)
+        if (!validateIntMapping(getter, intMapping)) {
+            hasError = true
         }
 
         val match = ATTRIBUTE_VALUE.matchEntire(value)
@@ -164,19 +170,20 @@ internal class LayoutInspectionStep(
             } else {
                 printError("Invalid attribute name", getter, annotation, annotationValue)
             }
+            return null // Returning here since there's no more checks we can do
+        }
+
+        if (hasError) {
             return null
         }
 
         val (namespace, name) = match.destructured
-        val intMapping = parseIntMapping(annotation)
         val type = inferAttributeType(getter, intMapping)
 
         if (!isAttributeInRFile(namespace, name)) {
             printError("Attribute $namespace:$name not found", getter, annotation)
             return null
         }
-
-        // TODO(b/180041633): Validate consistency of int mapping
 
         return GetterAttribute(getter, annotation, namespace, name, type, intMapping)
     }
@@ -190,8 +197,91 @@ internal class LayoutInspectionStep(
                 name = getAnnotationValue(intMapAnnotation, "name").value as String,
                 value = getAnnotationValue(intMapAnnotation, "value").value as Int,
                 mask = getAnnotationValue(intMapAnnotation, "mask").value as Int,
+                annotation = intMapAnnotation
             )
         }.sortedBy { it.value }
+    }
+
+    /** Check that int mapping is valid and consistent */
+    private fun validateIntMapping(element: Element, intMapping: List<IntMap>): Boolean {
+        if (intMapping.isEmpty()) {
+            return true // Return early for the common case of no int mapping
+        }
+
+        var result = true
+        val isEnum = intMapping.all { it.mask == 0 }
+
+        // Check for duplicate names for both flags and enums
+        val duplicateNames = intMapping.groupBy { it.name }.values.filter { it.size > 1 }
+        duplicateNames.flatten().forEach { intMap ->
+            printError(
+                "Duplicate int ${if (isEnum) "enum" else "flag"} entry name: \"${intMap.name}\"",
+                element,
+                intMap.annotation,
+                intMap.annotation?.let { getAnnotationValue(it, "name") }
+            )
+        }
+        if (duplicateNames.isNotEmpty()) {
+            result = false
+        }
+
+        if (isEnum) {
+            // Check for duplicate enum values
+            val duplicateValues = intMapping.groupBy { it.value }.values.filter { it.size > 1 }
+            duplicateValues.forEach { group ->
+                group.forEach { intMap ->
+                    val others = (group - intMap).joinToString { "\"${it.name}\"" }
+                    printError(
+                        "Int enum value ${intMap.value} is duplicated on entries $others",
+                        element,
+                        intMap.annotation,
+                        intMap.annotation?.let { getAnnotationValue(it, "value") }
+                    )
+                }
+            }
+            if (duplicateValues.isNotEmpty()) {
+                result = false
+            }
+        } else {
+            // Check for invalid flags, with masks that obscure part of the value. Note that a mask
+            // of 0 is a special case which implies that the mask is equal to the value as in enums.
+            intMapping.forEach { intMap ->
+                if (intMap.mask and intMap.value != intMap.value && intMap.mask != 0) {
+                    printError(
+                        "Int flag mask 0x${intMap.mask.toString(16)} does not reveal value " +
+                            "0x${intMap.value.toString(16)}",
+                        element,
+                        intMap.annotation
+                    )
+                    result = false
+                }
+            }
+
+            // Check for duplicate flags
+            val duplicatePairs = intMapping
+                .groupBy { Pair(if (it.mask != 0) it.mask else it.value, it.value) }
+                .values
+                .filter { it.size > 1 }
+
+            duplicatePairs.forEach { group ->
+                group.forEach { intMap ->
+                    val others = (group - intMap).joinToString { "\"${it.name}\"" }
+                    val mask = if (intMap.mask != 0) intMap.mask else intMap.value
+                    printError(
+                        "Int flag mask 0x${mask.toString(16)} and value " +
+                            "0x${intMap.value.toString(16)} is duplicated on entries $others",
+                        element,
+                        intMap.annotation
+                    )
+                }
+            }
+
+            if (duplicatePairs.isNotEmpty()) {
+                result = false
+            }
+        }
+
+        return result
     }
 
     /** Map the getter's annotations and return type to the internal attribute type. */

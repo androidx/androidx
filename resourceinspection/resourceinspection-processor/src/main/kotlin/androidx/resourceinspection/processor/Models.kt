@@ -70,7 +70,8 @@ internal data class ShadowedAttribute(
 internal data class IntMap(
     val name: String,
     val value: Int,
-    val mask: Int = 0
+    val mask: Int = 0,
+    val annotation: AnnotationMirror? = null
 )
 
 /** Represents the type of the attribute, determined from context and the annotation itself. */
