@@ -605,3 +605,5 @@ WARNING\:The option setting \'android\.dependencyResolutionAtConfigurationTime\.
 Unable to detect AGP versions for included builds\. All projects in the build should use the same AGP version\. Class name for the included build .*
 \- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/benchmark/benchmark-common/build/generated/source/wire'\. Reason: Task ':benchmark:benchmark-common:.*' uses this output of task ':benchmark:benchmark-common:generate(Debug|Release)Protos' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed. Please refer to .*
 To honour the JVM settings for this build a single\-use Daemon process will be forked.*
+# > Task :work:work-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/work/work\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
