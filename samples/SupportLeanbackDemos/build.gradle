@@ -12,10 +12,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation(libs.constraintLayout)
 
-    def room_version = "2.4.0-alpha04"
-    implementation("androidx.room:room-paging:$room_version")
-    implementation("androidx.room:room-runtime:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
+    implementation(projectOrArtifact(":room:room-paging"))
+    implementation(projectOrArtifact(":room:room-runtime"))
+    annotationProcessor(projectOrArtifact(":room:room-compiler"))
 }
 
 android {

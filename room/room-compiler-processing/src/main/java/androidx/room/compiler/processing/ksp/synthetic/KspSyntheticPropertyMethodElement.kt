@@ -93,15 +93,15 @@ internal sealed class KspSyntheticPropertyMethodElement(
     override val docComment: String?
         get() = null
 
-    override val thrownTypes: List<XType>
-        get() {
-            // TODO replace with the Resolver method when it is available. This solution works only
-            //  in sources.
-            //  https://github.com/google/ksp/issues/505
-            return getAnnotation(Throws::class)
-                ?.getAsTypeList("exceptionClasses")
-                ?: emptyList()
-        }
+    @OptIn(KspExperimental::class)
+    override val thrownTypes: List<XType> by lazy {
+        env.resolver.getJvmCheckedException(accessor).map {
+            env.wrap(
+                ksType = it,
+                allowPrimitives = false
+            )
+        }.toList()
+    }
 
     final override fun asMemberOf(other: XType): XMethodType {
         return KspSyntheticPropertyMethodType.create(
