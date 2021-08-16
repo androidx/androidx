@@ -770,6 +770,7 @@ class XExecutableElementTest {
             }
             // TODO
             // add lib here once https://github.com/google/ksp/issues/507 is fixed
+            // also need https://github.com/google/ksp/issues/505 to be fixed for accessors.
             listOf("app").forEach { pkg ->
                 invocation.processingEnv.requireTypeElement("$pkg.KotlinSubject").let { subject ->
                     assertWithMessage(subject.qualifiedName).that(
