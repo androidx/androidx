@@ -135,7 +135,7 @@ function getBuildCommand() {
   if [ "$expectedMessage" == "" ]; then
     testCommand="$*"
   else
-    testCommand="$* 2>&1 | $vgrep '$expectedMessage'"
+    testCommand="$* >log 2>&1; $vgrep '$expectedMessage' log"
   fi
   echo "$testCommand"
 }
