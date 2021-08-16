@@ -21,7 +21,7 @@ is most appropriate for the project/module you are creating.
 
 ### Project/Module Types
 
-The script leverages buildSrc/src/main/kotlin/androidx/build/LibraryType.kt
+The script leverages buildSrc/public/src/main/kotlin/androidx/build/LibraryType.kt
 to create the recommended defaults for your project.  However, you can override
 the options to best fit your requirements.
 
