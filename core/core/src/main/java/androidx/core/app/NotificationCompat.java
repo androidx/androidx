@@ -436,6 +436,16 @@ public class NotificationCompat {
     public static final String EXTRA_PICTURE = "android.picture";
 
     /**
+     * {@link #getExtras extras} key: this is a boolean to indicate that the
+     * {@link BigPictureStyle#bigPicture(Bitmap) big picture} is to be shown in the collapsed state
+     * of a {@link BigPictureStyle} notification.  This will replace a
+     * {@link Builder#setLargeIcon(Bitmap) large icon} in that state if one was provided.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED =
+            "android.showBigPictureWhenCollapsed";
+
+    /**
      * {@link #getExtras extras} key: An array of CharSequences to show in {@link InboxStyle}
      * expanded notifications, each of which was supplied to
      * {@link InboxStyle#addLine(CharSequence)}.
@@ -3022,6 +3032,7 @@ public class NotificationCompat {
         private Bitmap mPicture;
         private IconCompat mBigLargeIcon;
         private boolean mBigLargeIconSet;
+        private boolean mShowBigPictureWhenCollapsed;
 
         public BigPictureStyle() {
         }
@@ -3053,6 +3064,18 @@ public class NotificationCompat {
          */
         public @NonNull BigPictureStyle bigPicture(@Nullable Bitmap b) {
             mPicture = b;
+            return this;
+        }
+
+        /**
+         * When set, the {@link #bigPicture(Bitmap) big picture} of this style will be promoted and
+         * shown in place of the {@link Builder#setLargeIcon(Bitmap) large icon} in the collapsed
+         * state of this notification.
+         */
+        @RequiresApi(31)
+        @NonNull
+        public BigPictureStyle showBigPictureWhenCollapsed(boolean show) {
+            mShowBigPictureWhenCollapsed = show;
             return this;
         }
 
@@ -3107,6 +3130,9 @@ public class NotificationCompat {
                 if (mSummaryTextSet) {
                     Api16Impl.setSummaryText(style, mSummaryText);
                 }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Api31Impl.showBigPictureWhenCollapsed(style, mShowBigPictureWhenCollapsed);
+                }
             }
         }
 
@@ -3123,6 +3149,7 @@ public class NotificationCompat {
                 mBigLargeIconSet = true;
             }
             mPicture = extras.getParcelable(EXTRA_PICTURE);
+            mShowBigPictureWhenCollapsed = extras.getBoolean(EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED);
         }
 
         @Nullable
@@ -3149,6 +3176,7 @@ public class NotificationCompat {
             super.clearCompatExtraKeys(extras);
             extras.remove(EXTRA_LARGE_ICON_BIG);
             extras.remove(EXTRA_PICTURE);
+            extras.remove(EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED);
         }
 
         /**
@@ -3194,6 +3222,26 @@ public class NotificationCompat {
             @RequiresApi(23)
             static void setBigLargeIcon(Notification.BigPictureStyle style, Icon icon) {
                 style.bigLargeIcon(icon);
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.BigPictureStyle} methods which
+         * were added in API 31; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(31)
+        private static class Api31Impl {
+            private Api31Impl() {
+            }
+
+            /**
+             * Calls {@link Notification.BigPictureStyle#showBigPictureWhenCollapsed(boolean)}
+             */
+            @RequiresApi(31)
+            static void showBigPictureWhenCollapsed(Notification.BigPictureStyle style,
+                    boolean show) {
+                style.showBigPictureWhenCollapsed(show);
             }
         }
     }
