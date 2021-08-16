@@ -63,8 +63,8 @@ import androidx.camera.video.internal.AudioSource;
 import androidx.camera.video.internal.AudioSourceAccessException;
 import androidx.camera.video.internal.BufferProvider;
 import androidx.camera.video.internal.compat.Api26Impl;
+import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.video.internal.compat.quirk.RecorderSetInactiveWhenStoppingQuirk;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
 import androidx.camera.video.internal.encoder.EncodeException;
 import androidx.camera.video.internal.encoder.EncodedData;
@@ -1363,8 +1363,8 @@ public final class Recorder implements VideoOutput {
     @NonNull
     private StreamState internalStateToStreamState(@NonNull State state) {
         // Stopping state should be treated as inactive on certain chipsets. See b/196039619.
-        RecorderSetInactiveWhenStoppingQuirk quirk =
-                DeviceQuirks.get(RecorderSetInactiveWhenStoppingQuirk.class);
+        DeactivateEncoderSurfaceBeforeStopEncoderQuirk quirk =
+                DeviceQuirks.get(DeactivateEncoderSurfaceBeforeStopEncoderQuirk.class);
         return state == State.RECORDING || (state == State.STOPPING && quirk == null)
                 ? StreamState.ACTIVE : StreamState.INACTIVE;
     }
