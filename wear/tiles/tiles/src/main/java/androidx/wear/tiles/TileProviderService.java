@@ -300,7 +300,7 @@ public abstract class TileProviderService extends Service {
                                             Log.e(
                                                     TAG,
                                                     "RemoteException while returning resources"
-                                                            + " payload",
+                                                        + " payload",
                                                     ex);
                                         }
                                     },

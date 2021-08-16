@@ -73,19 +73,19 @@ public class DefaultTileProviderClient : TileProviderClient {
 
         // These don't contain a useful payload right now, so just pre-build them.
         private val TILE_ADD_EVENT = TileAddEventData(
-            EventBuilders.TileAddEvent.builder().build().toProto().toByteArray(),
+            EventBuilders.TileAddEvent.Builder().build().toProto().toByteArray(),
             TileAddEventData.VERSION_PROTOBUF
         )
         private val TILE_REMOVE_EVENT = TileRemoveEventData(
-            EventBuilders.TileRemoveEvent.builder().build().toProto().toByteArray(),
+            EventBuilders.TileRemoveEvent.Builder().build().toProto().toByteArray(),
             TileRemoveEventData.VERSION_PROTOBUF
         )
         private val TILE_ENTER_EVENT = TileEnterEventData(
-            EventBuilders.TileEnterEvent.builder().build().toProto().toByteArray(),
+            EventBuilders.TileEnterEvent.Builder().build().toProto().toByteArray(),
             TileEnterEventData.VERSION_PROTOBUF
         )
         private val TILE_LEAVE_EVENT = TileLeaveEventData(
-            EventBuilders.TileLeaveEvent.builder().build().toProto().toByteArray(),
+            EventBuilders.TileLeaveEvent.Builder().build().toProto().toByteArray(),
             TileLeaveEventData.VERSION_PROTOBUF
         )
     }

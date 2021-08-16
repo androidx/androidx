@@ -37,31 +37,31 @@ public final class ActionBuilders {
     /** Shortcut for building an {@link AndroidStringExtra}. */
     @NonNull
     public static AndroidStringExtra stringExtra(@NonNull String value) {
-        return AndroidStringExtra.builder().setValue(value).build();
+        return new AndroidStringExtra.Builder().setValue(value).build();
     }
 
     /** Shortcut for building an {@link AndroidIntExtra}. */
     @NonNull
     public static AndroidIntExtra intExtra(int value) {
-        return AndroidIntExtra.builder().setValue(value).build();
+        return new AndroidIntExtra.Builder().setValue(value).build();
     }
 
     /** Shortcut for building an {@link AndroidLongExtra}. */
     @NonNull
     public static AndroidLongExtra longExtra(long value) {
-        return AndroidLongExtra.builder().setValue(value).build();
+        return new AndroidLongExtra.Builder().setValue(value).build();
     }
 
     /** Shortcut for building an {@link AndroidDoubleExtra}. */
     @NonNull
     public static AndroidDoubleExtra doubleExtra(double value) {
-        return AndroidDoubleExtra.builder().setValue(value).build();
+        return new AndroidDoubleExtra.Builder().setValue(value).build();
     }
 
     /** Shortcut for building an {@link AndroidBooleanExtra}. */
     @NonNull
     public static AndroidBooleanExtra booleanExtra(boolean value) {
-        return AndroidBooleanExtra.builder().setValue(value).build();
+        return new AndroidBooleanExtra.Builder().setValue(value).build();
     }
 
     /** A string value that can be added to an Android intent's extras. */
@@ -76,12 +76,6 @@ public final class ActionBuilders {
         @NonNull
         public String getValue() {
             return mImpl.getValue();
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
         }
 
         /** @hide */
@@ -111,7 +105,7 @@ public final class ActionBuilders {
             private final ActionProto.AndroidStringExtra.Builder mImpl =
                     ActionProto.AndroidStringExtra.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -141,12 +135,6 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -174,7 +162,7 @@ public final class ActionBuilders {
             private final ActionProto.AndroidIntExtra.Builder mImpl =
                     ActionProto.AndroidIntExtra.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -204,12 +192,6 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -237,7 +219,7 @@ public final class ActionBuilders {
             private final ActionProto.AndroidLongExtra.Builder mImpl =
                     ActionProto.AndroidLongExtra.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -267,12 +249,6 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -300,7 +276,7 @@ public final class ActionBuilders {
             private final ActionProto.AndroidDoubleExtra.Builder mImpl =
                     ActionProto.AndroidDoubleExtra.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -328,12 +304,6 @@ public final class ActionBuilders {
         /** Gets the value. Intended for testing purposes only. */
         public boolean getValue() {
             return mImpl.getValue();
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
         }
 
         /** @hide */
@@ -364,7 +334,7 @@ public final class ActionBuilders {
             private final ActionProto.AndroidBooleanExtra.Builder mImpl =
                     ActionProto.AndroidBooleanExtra.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @SuppressLint("MissingGetterMatchingBuilder")
@@ -473,12 +443,6 @@ public final class ActionBuilders {
                                                             f.getValue()))));
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -498,7 +462,7 @@ public final class ActionBuilders {
             private final ActionProto.AndroidActivity.Builder mImpl =
                     ActionProto.AndroidActivity.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the package name to send the intent to, for example, "com.google.weather". */
             @NonNull
@@ -522,15 +486,6 @@ public final class ActionBuilders {
             @NonNull
             public Builder addKeyToExtraMapping(@NonNull String key, @NonNull AndroidExtra extra) {
                 mImpl.putKeyToExtra(key, extra.toAndroidExtraProto());
-                return this;
-            }
-
-            /** Adds an entry into the extras to be included in the intent. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder addKeyToExtraMapping(
-                    @NonNull String key, @NonNull AndroidExtra.Builder extraBuilder) {
-                mImpl.putKeyToExtra(key, extraBuilder.build().toAndroidExtraProto());
                 return this;
             }
 
@@ -564,12 +519,6 @@ public final class ActionBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -597,20 +546,12 @@ public final class ActionBuilders {
             private final ActionProto.LaunchAction.Builder mImpl =
                     ActionProto.LaunchAction.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets an action to launch an Android activity. */
             @NonNull
             public Builder setAndroidActivity(@NonNull AndroidActivity androidActivity) {
                 mImpl.setAndroidActivity(androidActivity.toProto());
-                return this;
-            }
-
-            /** Sets an action to launch an Android activity. */
-            @NonNull
-            public Builder setAndroidActivity(
-                    @NonNull AndroidActivity.Builder androidActivityBuilder) {
-                mImpl.setAndroidActivity(androidActivityBuilder.build().toProto());
                 return this;
             }
 
@@ -645,12 +586,6 @@ public final class ActionBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -678,7 +613,7 @@ public final class ActionBuilders {
             private final ActionProto.LoadAction.Builder mImpl =
                     ActionProto.LoadAction.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the state to load the next tile with. This will be included in the {@link
@@ -688,17 +623,6 @@ public final class ActionBuilders {
             @NonNull
             public Builder setRequestState(@NonNull State requestState) {
                 mImpl.setRequestState(requestState.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the state to load the next tile with. This will be included in the {@link
-             * androidx.wear.tiles.RequestBuilders.TileRequest} sent after this action is invoked by
-             * a {@link androidx.wear.tiles.ModifiersBuilders.Clickable}.
-             */
-            @NonNull
-            public Builder setRequestState(@NonNull State.Builder requestStateBuilder) {
-                mImpl.setRequestState(requestStateBuilder.build().toProto());
                 return this;
             }
 

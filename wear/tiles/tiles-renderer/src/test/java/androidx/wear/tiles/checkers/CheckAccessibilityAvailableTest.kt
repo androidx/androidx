@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
 class CheckAccessibilityAvailableTest {
     @Test
     fun check_throwsWithNoSemantics() {
-        val entry = buildTimelineEntry(Box.builder().build())
+        val entry = buildTimelineEntry(Box.Builder().build())
 
         var exception: CheckerException? = null
 
@@ -47,13 +47,14 @@ class CheckAccessibilityAvailableTest {
     @Test
     fun check_doesntThrowIfSemanticsPresent() {
         val entry = buildTimelineEntry(
-            Box.builder()
+            Box.Builder()
                 .setModifiers(
-                    Modifiers.builder()
+                    Modifiers.Builder()
                         .setSemantics(
-                            Semantics.builder()
+                            Semantics.Builder()
                                 .setContentDescription("Hello World")
-                        )
+                                .build()
+                        ).build()
                 ).build()
         )
 
@@ -71,16 +72,17 @@ class CheckAccessibilityAvailableTest {
     @Test
     fun check_doesntThrowIfSemanticsPresentOnNestedElement() {
         val entry = buildTimelineEntry(
-            Box.builder()
+            Box.Builder()
                 .addContent(
-                    Box.builder()
+                    Box.Builder()
                         .setModifiers(
-                            Modifiers.builder()
+                            Modifiers.Builder()
                                 .setSemantics(
-                                    Semantics.builder()
+                                    Semantics.Builder()
                                         .setContentDescription("Hello World")
-                                )
-                        )
+                                        .build()
+                                ).build()
+                        ).build()
                 ).build()
         )
 
@@ -96,7 +98,7 @@ class CheckAccessibilityAvailableTest {
     }
 
     private fun buildTimelineEntry(layout: LayoutElement) =
-        TimelineEntry.builder().setLayout(
-            Layout.builder().setRoot(layout)
+        TimelineEntry.Builder().setLayout(
+            Layout.Builder().setRoot(layout).build()
         ).build()
 }
