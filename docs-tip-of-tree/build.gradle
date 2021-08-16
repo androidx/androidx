@@ -117,6 +117,7 @@ dependencies {
     docs(project(":datastore:datastore-rxjava2"))
     docs(project(":datastore:datastore-rxjava3"))
     docs(project(":documentfile:documentfile"))
+    docs(project(":draganddrop:draganddrop"))
     docs(project(":drawerlayout:drawerlayout"))
     docs(project(":dynamicanimation:dynamicanimation"))
     docs(project(":dynamicanimation:dynamicanimation-ktx"))
