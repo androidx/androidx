@@ -89,7 +89,7 @@ public abstract class NavType<T> internal constructor(
      *
      * @return name of this type
      */
-    public abstract val name: String
+    public open val name: String = "nav_type"
 
     override fun toString(): String {
         return name
