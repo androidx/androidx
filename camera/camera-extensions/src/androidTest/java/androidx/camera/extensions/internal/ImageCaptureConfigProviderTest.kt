@@ -89,56 +89,7 @@ class ImageCaptureConfigProviderTest {
 
     @Test
     @MediumTest
-    fun extenderLifeCycleTest_noMoreGetCaptureStagesBeforeAndAfterInitDeInit(): Unit = runBlocking {
-        val mockImageCaptureExtenderImpl = mock(ImageCaptureExtenderImpl::class.java)
-        val captureStages = mutableListOf<CaptureStageImpl>()
-
-        captureStages.add(FakeCaptureStage())
-
-        Mockito.`when`(mockImageCaptureExtenderImpl.captureStages).thenReturn(captureStages)
-        Mockito.`when`(mockImageCaptureExtenderImpl.captureProcessor).thenReturn(
-            mock(CaptureProcessorImpl::class.java)
-        )
-
-        val mockVendorExtender = mock(BasicVendorExtender::class.java)
-        Mockito.`when`(mockVendorExtender.imageCaptureExtenderImpl)
-            .thenReturn(mockImageCaptureExtenderImpl)
-
-        val imageCapture = createImageCaptureWithExtenderImpl(mockVendorExtender)
-
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageCapture)
-        }
-
-        // To verify the event callbacks in order, and to verification of the getCaptureStages()
-        // is also used to wait for the capture session created. The test for the unbind
-        // would come after the capture session was created.
-        verify(mockImageCaptureExtenderImpl, timeout(3000)).captureProcessor
-        verify(mockImageCaptureExtenderImpl, timeout(3000)).maxCaptureStage
-
-        verify(mockVendorExtender, timeout(3000)).supportedCaptureOutputResolutions
-
-        val inOrder = Mockito.inOrder(mockImageCaptureExtenderImpl)
-        inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onInit(
-            any(String::class.java), any(CameraCharacteristics::class.java), any()
-        )
-        inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce()).captureStages
-
-        withContext(Dispatchers.Main) {
-            // Unbind the use case to test the onDeInit.
-            cameraProvider.unbind(imageCapture)
-        }
-
-        // To verify the deInit should been called.
-        inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onDeInit()
-
-        // To verify there is no any other calls on the mock.
-        verifyNoMoreInteractions(mockImageCaptureExtenderImpl)
-    }
-
-    @Test
-    @MediumTest
-    fun extenderLifeCycleTest_noMoreCameraEventCallbacksBeforeAndAfterInitDeInit(): Unit =
+    fun extenderLifeCycleTest_noMoreInteractionsBeforeAndAfterInitDeInit(): Unit =
         runBlocking {
             val mockImageCaptureExtenderImpl = mock(ImageCaptureExtenderImpl::class.java)
             val captureStages = mutableListOf<CaptureStageImpl>()
@@ -174,6 +125,7 @@ class ImageCaptureConfigProviderTest {
                 any(CameraCharacteristics::class.java),
                 any(Context::class.java)
             )
+            inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce()).captureStages
             inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce())
                 .onPresetSession()
             inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce())
@@ -188,10 +140,6 @@ class ImageCaptureConfigProviderTest {
             inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce())
                 .onDisableSession()
             inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onDeInit()
-
-            // This test item only focus on onPreset, onEnable and onDisable callback testing,
-            // ignore all the getCaptureStages callbacks.
-            verify(mockImageCaptureExtenderImpl, Mockito.atLeastOnce()).captureStages
 
             // To verify there is no any other calls on the mock.
             verifyNoMoreInteractions(mockImageCaptureExtenderImpl)
