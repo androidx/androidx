@@ -65,14 +65,6 @@ public class Stats(data: LongArray, public val name: String) {
     }
 
     public fun putInBundle(status: Bundle, prefix: String) {
-        if (name == "timeNs") {
-            // compatibility naming scheme.
-            // should be removed, once we timeNs_min has been in dashboard for several weeks
-            status.putLong("${prefix}min", min)
-            status.putLong("${prefix}median", median)
-            status.putLong("${prefix}standardDeviation", standardDeviation.toLong())
-        }
-
         // format string to be in instrumentation results format
         val bundleName = name.toOutputMetricName()
 
