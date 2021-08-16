@@ -25,9 +25,8 @@ plugins {
 
 android {
     defaultConfig {
-        // 18 needed for UI automator. While 28 is a theoretical minimum for Perfetto, we
-        // currently leave this lower currently to enable optional usage.
-        minSdkVersion 18
+        // 21 is perfetto min API, and required for shell commands
+        minSdkVersion 21
         multiDexEnabled true
     }
 }

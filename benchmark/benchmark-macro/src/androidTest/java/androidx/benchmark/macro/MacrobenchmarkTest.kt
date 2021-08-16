@@ -25,7 +25,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 @SmallTest
 class MacrobenchmarkTest {
     @Test

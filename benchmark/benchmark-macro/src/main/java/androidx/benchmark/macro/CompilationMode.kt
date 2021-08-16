@@ -17,7 +17,6 @@
 package androidx.benchmark.macro
 
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
@@ -32,7 +31,6 @@ import org.junit.AssumptionViolatedException
  * For example, [SpeedProfile] will run a configurable number of profiling iterations to generate
  * a profile, and use that to compile the target app.
  */
-@RequiresApi(21)
 public sealed class CompilationMode(
     // for modes other than [None], is argument passed `cmd package compile`
     private val compileArgument: String?
@@ -96,7 +94,6 @@ public sealed class CompilationMode(
  *
  * For more information: https://source.android.com/devices/tech/dalvik/jit-compiler
  */
-@RequiresApi(21)
 internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
     // Clear profile between runs.
     Log.d(TAG, "Clearing profiles for $packageName")
@@ -182,7 +179,6 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@RequiresApi(21)
 public fun CompilationMode.isSupportedWithVmSettings(): Boolean {
     val getProp = Shell.executeCommand("getprop dalvik.vm.extra-opts")
     val vmRunningInterpretedOnly = getProp.contains("-Xusejit:false")
@@ -192,7 +188,6 @@ public fun CompilationMode.isSupportedWithVmSettings(): Boolean {
     return vmRunningInterpretedOnly == interpreted
 }
 
-@RequiresApi(21)
 internal fun CompilationMode.assumeSupportedWithVmSettings() {
     if (!isSupportedWithVmSettings()) {
         throw AssumptionViolatedException(
@@ -220,7 +215,6 @@ internal fun CompilationMode.assumeSupportedWithVmSettings() {
 /**
  * Compiles the application.
  */
-@RequiresApi(21)
 internal fun CompilationMode.compilePackage(packageName: String) {
     Log.d(TAG, "Compiling $packageName ($this)")
     val response = Shell.executeCommand(
