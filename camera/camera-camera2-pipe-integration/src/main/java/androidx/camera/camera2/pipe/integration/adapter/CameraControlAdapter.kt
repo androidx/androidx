@@ -30,6 +30,9 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.ImageCapture
@@ -38,7 +41,6 @@ import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -57,16 +59,16 @@ import javax.inject.Inject
  */
 @SuppressLint("UnsafeOptInUsageError")
 @CameraScope
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
 class CameraControlAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
     private val threads: UseCaseThreads,
     private val useCaseManager: UseCaseManager,
     private val cameraStateAdapter: CameraStateAdapter,
     private val zoomControl: ZoomControl,
-    private val evCompControl: EvCompControl
+    private val evCompControl: EvCompControl,
+    val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
-    private var interopConfig: Config = MutableOptionsBundle.create()
     private var imageCaptureFlashMode: Int = ImageCapture.FLASH_MODE_OFF
 
     private val focusMeteringControl = FocusMeteringControl(
@@ -80,15 +82,17 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun addInteropConfig(config: Config) {
-        interopConfig = Config.mergeConfigs(config, interopConfig)
+        camera2cameraControl.addCaptureRequestOptions(
+            CaptureRequestOptions.Builder.from(config).build()
+        )
     }
 
     override fun clearInteropConfig() {
-        interopConfig = MutableOptionsBundle.create()
+        camera2cameraControl.clearCaptureRequestOptions()
     }
 
     override fun getInteropConfig(): Config {
-        return interopConfig
+        return camera2cameraControl.getCaptureRequestOptions()
     }
 
     override fun enableTorch(torch: Boolean): ListenableFuture<Void> {
