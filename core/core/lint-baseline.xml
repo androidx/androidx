@@ -1,5 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha06)" variant="all" version="7.1.0-alpha06">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.view.ContentInfo#getClip`"
+        errorLine1="            return mWrapped.getClip();"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ContentInfoCompat.java"
+            line="456"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.view.ContentInfo#getSource`"
+        errorLine1="            return mWrapped.getSource();"
+        errorLine2="                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ContentInfoCompat.java"
+            line="462"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.view.ContentInfo#getFlags`"
+        errorLine1="            return mWrapped.getFlags();"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ContentInfoCompat.java"
+            line="468"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.view.ContentInfo#getLinkUri`"
+        errorLine1="            return mWrapped.getLinkUri();"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ContentInfoCompat.java"
+            line="474"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.view.ContentInfo#getExtras`"
+        errorLine1="            return mWrapped.getExtras();"
+        errorLine2="                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ContentInfoCompat.java"
+            line="480"
+            column="29"/>
+    </issue>
 
     <issue
         id="NewApi"
@@ -102,6 +157,39 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level S (current min is 30): `new android.widget.EdgeEffect`"
+        errorLine1="                return new EdgeEffect(context, attrs);"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
+            line="306"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 30): `android.widget.EdgeEffect#onPullDistance`"
+        errorLine1="                return edgeEffect.onPullDistance(deltaDistance, displacement);"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
+            line="319"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 30): `android.widget.EdgeEffect#getDistance`"
+        errorLine1="                return edgeEffect.getDistance();"
+        errorLine2="                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
+            line="329"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 19 (current min is 14): `java.lang.AutoCloseable#close`"
         errorLine1="                closeable.close();"
         errorLine2="                          ~~~~~">
@@ -109,6 +197,39 @@
             file="src/androidTest/java/androidx/core/content/FileProviderTest.java"
             line="466"
             column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="                            LocationRequest.class, Executor.class, LocationListener.class);"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
+            line="254"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="                            LocationRequest.class, LocationListener.class, Looper.class);"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
+            line="273"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="                            LocationRequest.class, LocationListener.class, Looper.class);"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
+            line="324"
+            column="29"/>
     </issue>
 
     <issue
@@ -124,6 +245,105 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level S (current min is 14): `android.location.LocationListener#onLocationChanged`"
+        errorLine1="                listener.onLocationChanged(locations);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
+            line="668"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.location.LocationListener#onFlushComplete`"
+        errorLine1="                listener.onFlushComplete(requestCode);"
+        errorLine2="                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
+            line="683"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                sCreateFromDeprecatedProviderMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="234"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                    (LocationRequest) sCreateFromDeprecatedProviderMethod.invoke(null, provider,"
+        errorLine2="                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="241"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                sSetQualityMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="250"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                    sSetFastestIntervalMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="258"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                    sSetNumUpdatesMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="268"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                    sSetExpireInMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="278"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 19): `android.location.LocationRequest#getQuality`"
+        errorLine1="                builder.build().toLocationRequest(&quot;test&quot;).getQuality());"
+        errorLine2="                                                          ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="102"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level S (current min is 19): `toLocationRequest`"
         errorLine1="        assertEquals(Long.MAX_VALUE, getExpireAt(builder.build().toLocationRequest()));"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~">
@@ -135,6 +355,17 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level S (current min is 19): `android.location.LocationRequest#getQuality`"
+        errorLine1="        assertEquals(QUALITY_HIGH_ACCURACY, builder.build().toLocationRequest(&quot;test&quot;).getQuality());"
+        errorLine2="                                                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="110"
+            column="87"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level S (current min is 19): `toLocationRequest`"
         errorLine1="        assertThat(getExpireAt(builder.build().toLocationRequest())).isIn("
         errorLine2="                                               ~~~~~~~~~~~~~~~~~">
@@ -142,6 +373,72 @@
             file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
             line="126"
             column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="            sGetProviderMethod = LocationRequest.class.getDeclaredMethod(&quot;getProvider&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="186"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="            sGetIntervalMethod = LocationRequest.class.getDeclaredMethod(&quot;getInterval&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="196"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="            sGetFastestIntervalMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="206"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="            sGetExpireAtMethod = LocationRequest.class.getDeclaredMethod(&quot;getExpireAt&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="217"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="            sGetNumUpdatesMethod = LocationRequest.class.getDeclaredMethod(&quot;getNumUpdates&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="227"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="            sGetSmallestDisplacementMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="237"
+            column="46"/>
     </issue>
 
     <issue
@@ -685,28 +982,6 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="            assertValueEquals(&quot;$keyPath/$key&quot;, b1[key], b2[key])"
-        errorLine2="                                               ~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/app/NotificationTester.kt"
-            line="39"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="            assertValueEquals(&quot;$keyPath/$key&quot;, b1[key], b2[key])"
-        errorLine2="                                                        ~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/app/NotificationTester.kt"
-            line="39"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 29 (current min is 28): `COLOR_DODGE`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR_DODGE, null);"
         errorLine2="                                                      ~~~~~~~~~~~">
@@ -1108,7 +1383,7 @@
         errorLine2="        ~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="269"
+            line="298"
             column="9"/>
     </issue>
 
@@ -1119,7 +1394,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="270"
+            line="299"
             column="13"/>
     </issue>
 
@@ -1130,7 +1405,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="273"
+            line="302"
             column="25"/>
     </issue>
 
@@ -1141,7 +1416,7 @@
         errorLine2="        ~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="286"
+            line="315"
             column="9"/>
     </issue>
 
@@ -1152,7 +1427,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="287"
+            line="316"
             column="13"/>
     </issue>
 
@@ -1163,7 +1438,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="290"
+            line="319"
             column="25"/>
     </issue>
 
@@ -1339,7 +1614,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/WindowInsetsControllerCompat.java"
-            line="723"
+            line="730"
             column="20"/>
     </issue>
 
@@ -9519,7 +9794,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1468"
+            line="1469"
             column="34"/>
     </issue>
 
@@ -9530,7 +9805,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1507"
+            line="1508"
             column="37"/>
     </issue>
 
@@ -9541,7 +9816,7 @@
         errorLine2="                                                                         ~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1507"
+            line="1508"
             column="74"/>
     </issue>
 
@@ -9552,7 +9827,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1531"
+            line="1532"
             column="36"/>
     </issue>
 
@@ -9563,7 +9838,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1699"
+            line="1700"
             column="36"/>
     </issue>
 
@@ -9574,7 +9849,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1736"
+            line="1737"
             column="48"/>
     </issue>
 
@@ -9585,7 +9860,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1753"
+            line="1754"
             column="49"/>
     </issue>
 
@@ -9596,7 +9871,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1767"
+            line="1768"
             column="40"/>
     </issue>
 
@@ -9607,7 +9882,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1959"
+            line="1960"
             column="41"/>
     </issue>
 
@@ -9618,7 +9893,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1973"
+            line="1974"
             column="41"/>
     </issue>
 
@@ -9629,7 +9904,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1995"
+            line="1996"
             column="36"/>
     </issue>
 
@@ -9640,7 +9915,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2101"
+            line="2102"
             column="40"/>
     </issue>
 
@@ -9651,7 +9926,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2118"
+            line="2119"
             column="40"/>
     </issue>
 
@@ -9662,7 +9937,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2135"
+            line="2136"
             column="33"/>
     </issue>
 
@@ -9673,7 +9948,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2150"
+            line="2151"
             column="29"/>
     </issue>
 
@@ -9684,7 +9959,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2165"
+            line="2166"
             column="29"/>
     </issue>
 
@@ -9695,7 +9970,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2178"
+            line="2179"
             column="36"/>
     </issue>
 
@@ -9706,7 +9981,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2192"
+            line="2193"
             column="37"/>
     </issue>
 
@@ -9717,7 +9992,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2206"
+            line="2207"
             column="37"/>
     </issue>
 
@@ -9728,7 +10003,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2219"
+            line="2220"
             column="34"/>
     </issue>
 
@@ -9739,7 +10014,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2232"
+            line="2233"
             column="34"/>
     </issue>
 
@@ -9750,7 +10025,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2243"
+            line="2244"
             column="35"/>
     </issue>
 
@@ -9761,7 +10036,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2259"
+            line="2260"
             column="34"/>
     </issue>
 
@@ -9772,7 +10047,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2272"
+            line="2273"
             column="35"/>
     </issue>
 
@@ -9783,7 +10058,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2288"
+            line="2289"
             column="34"/>
     </issue>
 
@@ -9794,7 +10069,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2296"
+            line="2297"
             column="37"/>
     </issue>
 
@@ -9805,7 +10080,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2304"
+            line="2305"
             column="38"/>
     </issue>
 
@@ -9816,7 +10091,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2312"
+            line="2313"
             column="38"/>
     </issue>
 
@@ -9827,7 +10102,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2320"
+            line="2321"
             column="35"/>
     </issue>
 
@@ -9838,7 +10113,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2328"
+            line="2329"
             column="35"/>
     </issue>
 
@@ -9849,7 +10124,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2336"
+            line="2337"
             column="30"/>
     </issue>
 
@@ -9860,7 +10135,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2344"
+            line="2345"
             column="30"/>
     </issue>
 
@@ -9871,7 +10146,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2468"
+            line="2469"
             column="55"/>
     </issue>
 
@@ -9882,7 +10157,7 @@
         errorLine2="                                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2509"
+            line="2510"
             column="45"/>
     </issue>
 
@@ -9893,7 +10168,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2523"
+            line="2524"
             column="52"/>
     </issue>
 
@@ -9904,7 +10179,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2929"
+            line="2930"
             column="49"/>
     </issue>
 
@@ -9915,7 +10190,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2945"
+            line="2946"
             column="37"/>
     </issue>
 
