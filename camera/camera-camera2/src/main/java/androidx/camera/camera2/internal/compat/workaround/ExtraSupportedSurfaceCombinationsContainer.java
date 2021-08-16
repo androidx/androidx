@@ -29,30 +29,25 @@ import java.util.List;
  * configurations.
  */
 public class ExtraSupportedSurfaceCombinationsContainer {
-
-    @NonNull
-    private final String mCameraId;
+    private final ExtraSupportedSurfaceCombinationsQuirk mQuirk;
 
     /**
      * Constructs an instance of {@link ExtraSupportedSurfaceCombinationsContainer} to provide
      * the extra surface combinations.
      */
-    public ExtraSupportedSurfaceCombinationsContainer(@NonNull String cameraId) {
-        mCameraId = cameraId;
+    public ExtraSupportedSurfaceCombinationsContainer() {
+        mQuirk = DeviceQuirks.get(ExtraSupportedSurfaceCombinationsQuirk.class);
     }
 
     /**
      * Retrieves the extra surface combinations which can be supported on the device.
      */
     @NonNull
-    public List<SurfaceCombination> get() {
-        final ExtraSupportedSurfaceCombinationsQuirk quirk =
-                DeviceQuirks.get(ExtraSupportedSurfaceCombinationsQuirk.class);
-
-        if (quirk == null) {
+    public List<SurfaceCombination> get(@NonNull String cameraId, int hardwareLevel) {
+        if (mQuirk == null) {
             return new ArrayList<>();
         }
 
-        return quirk.getExtraSupportedSurfaceCombinations(mCameraId);
+        return mQuirk.getExtraSupportedSurfaceCombinations(cameraId, hardwareLevel);
     }
 }
