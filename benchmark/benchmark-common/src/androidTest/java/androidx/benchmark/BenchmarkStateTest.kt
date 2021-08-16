@@ -209,11 +209,6 @@ public class BenchmarkStateTest {
         // check attribute presence and naming
         val prefix = Errors.PREFIX
 
-        // legacy - before metric name was included
-        assertNotNull(bundle.get("${prefix}min"))
-        assertNotNull(bundle.get("${prefix}median"))
-        assertNotNull(bundle.get("${prefix}standardDeviation"))
-
         // including metric name
         assertNotNull(bundle.get("${prefix}time_nanos_min"))
         assertNotNull(bundle.get("${prefix}time_nanos_median"))
