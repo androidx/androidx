@@ -94,17 +94,17 @@ class TimelineCheckerTest {
     }
 
     private fun buildTimeline() =
-        TimelineBuilders.Timeline.builder().addTimelineEntry(
-            TimelineBuilders.TimelineEntry.builder().setLayout(
-                LayoutElementBuilders.Layout.builder().setRoot(
-                    LayoutElementBuilders.Text.builder().setText("Hello")
-                )
-            )
+        TimelineBuilders.Timeline.Builder().addTimelineEntry(
+            TimelineBuilders.TimelineEntry.Builder().setLayout(
+                LayoutElementBuilders.Layout.Builder().setRoot(
+                    LayoutElementBuilders.Text.Builder().setText("Hello").build()
+                ).build()
+            ).build()
         ).addTimelineEntry(
-            TimelineBuilders.TimelineEntry.builder().setLayout(
-                LayoutElementBuilders.Layout.builder().setRoot(
-                    LayoutElementBuilders.Text.builder().setText("World")
-                )
-            )
+            TimelineBuilders.TimelineEntry.Builder().setLayout(
+                LayoutElementBuilders.Layout.Builder().setRoot(
+                    LayoutElementBuilders.Text.Builder().setText("World").build()
+                ).build()
+            ).build()
         ).build()
 }

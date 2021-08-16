@@ -39,12 +39,6 @@ public final class StateBuilders {
             return mImpl.getLastClickableId();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -63,7 +57,7 @@ public final class StateBuilders {
         public static final class Builder {
             private final StateProto.State.Builder mImpl = StateProto.State.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Builds an instance from accumulated values. */
             @NonNull

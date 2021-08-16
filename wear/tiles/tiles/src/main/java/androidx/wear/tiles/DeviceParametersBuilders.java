@@ -112,12 +112,6 @@ public final class DeviceParametersBuilders {
             return mImpl.getScreenShape().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -138,7 +132,7 @@ public final class DeviceParametersBuilders {
             private final DeviceParametersProto.DeviceParameters.Builder mImpl =
                     DeviceParametersProto.DeviceParameters.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets width of the device's screen in DP. */
             @NonNull
