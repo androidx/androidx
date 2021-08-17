@@ -276,6 +276,21 @@ limitations under the License.
         app:layout_constraintLeft_toRightOf="@id/plus_ev_toggle"
         app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
+    <Button
+        android:id="@+id/video_quality"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/round_button"
+        android:scaleType="fitXY"
+        android:textColor="#EEEEEE"
+        android:textSize="14dp"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/direction_toggle"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="250dp"
