@@ -87,7 +87,7 @@ object COMMON {
     }
 
     val MULTI_PKEY_ENTITY by lazy {
-        loadJavaCode("common/input/MultiPKeyEntity.java", "MultiPKeyEntity")
+        loadJavaCode("common/input/MultiPKeyEntity.java", "foo.bar.MultiPKeyEntity")
     }
 
     val FLOW by lazy {
