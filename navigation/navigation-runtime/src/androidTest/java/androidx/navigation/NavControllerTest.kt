@@ -396,7 +396,7 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test/arg2")
 
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
@@ -413,7 +413,7 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test/arg2")
 
         navController.navigate(deepLink)
 
@@ -549,7 +549,7 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test/arg2")
 
         navController.navigate(
             deepLink,

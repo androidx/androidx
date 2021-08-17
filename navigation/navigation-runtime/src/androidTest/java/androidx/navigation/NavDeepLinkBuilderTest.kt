@@ -50,7 +50,7 @@ class NavDeepLinkBuilderTest {
                     defaultValue = "defaultValue"
                 }
                 deepLink {
-                    uriPattern = "android-app://androidx.navigation.test/test"
+                    uriPattern = "android-app://androidx.navigation.test/test/{arg2}"
                     action = "test.action"
                     mimeType = "type/test"
                 }
