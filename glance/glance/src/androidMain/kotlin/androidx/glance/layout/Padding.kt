@@ -92,10 +92,15 @@ fun Modifier.absolutePadding(
 )
 
 @GlanceInternalApi
-data class PaddingModifier(
+class PaddingModifier(
     val start: Dp = 0.dp,
     val top: Dp = 0.dp,
     val end: Dp = 0.dp,
     val bottom: Dp = 0.dp,
     val rtlAware: Boolean
-) : Modifier.Element
+) : Modifier.Element {
+    override fun toString(): String {
+        return "PaddingModifier(start=$start, top=$top, end=$end, bottom=$bottom, " +
+            "rtlAware=$rtlAware)"
+    }
+}
