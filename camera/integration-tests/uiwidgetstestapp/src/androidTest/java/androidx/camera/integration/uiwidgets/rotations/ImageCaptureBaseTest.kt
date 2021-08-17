@@ -75,11 +75,13 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
         CoreAppTestUtil.assumeCompatibleDevice()
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
+        // Ensure it's in a natural orientation. This change could delay around 1 sec, please
+        // call this earlier before launching the test activity.
+        mDevice.setOrientationNatural()
+
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        // Ensure it's in a natural orientation
-        mDevice.setOrientationNatural()
 
         // Create pictures folder if it doesn't exist on the device. If this fails, abort test.
         assumeTrue("Failed to create pictures directory", createPicturesFolder())
@@ -175,7 +177,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.waitOnCameraFrames() {
         val analysisRunning = withActivity { mAnalysisRunning }
-        assertWithMessage("Timed out waiting on image analysis frames")
+        assertWithMessage("Timed out waiting on image analysis frames on $analysisRunning")
             .that(analysisRunning.tryAcquire(IMAGES_COUNT, TIMEOUT, TimeUnit.SECONDS))
             .isTrue()
     }
