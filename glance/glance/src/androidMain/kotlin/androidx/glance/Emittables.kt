@@ -17,13 +17,13 @@
 package androidx.glance
 
 @GlanceInternalApi
-interface Emittable {
-    var modifier: Modifier
+public interface Emittable {
+    public var modifier: Modifier
 }
 
 @GlanceInternalApi
-abstract class EmittableWithChildren : Emittable {
-    val children = mutableListOf<Emittable>()
+public abstract class EmittableWithChildren : Emittable {
+    public val children: MutableList<Emittable> = mutableListOf<Emittable>()
 
     protected fun childrenToString(): String =
         children.joinToString(",\n").prependIndent("  ")

@@ -29,73 +29,55 @@ import kotlin.math.min
  *     val bottomMargin = 10.dp
  */
 @Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-inline class Dp(val value: Float) : Comparable<Dp> {
+public inline class Dp(public val value: Float) : Comparable<Dp> {
     /**
      * Add two [Dp]s together.
      */
-    operator fun plus(other: Dp) =
+    public operator fun plus(other: Dp): Dp =
         Dp(value = this.value + other.value)
 
     /**
      * Subtract a Dp from another one.
      */
-    operator fun minus(other: Dp) =
+    public operator fun minus(other: Dp): Dp =
         Dp(value = this.value - other.value)
 
     /**
      * This is the same as multiplying the Dp by -1.0.
      */
-    operator fun unaryMinus() = Dp(-value)
+    public operator fun unaryMinus(): Dp = Dp(-value)
 
     /**
      * Divide a Dp by a scalar.
      */
-    operator fun div(other: Float): Dp =
+    public operator fun div(other: Float): Dp =
         Dp(value = value / other)
 
-    operator fun div(other: Int): Dp =
+    public operator fun div(other: Int): Dp =
         Dp(value = value / other)
 
     /**
      * Divide by another Dp to get a scalar.
      */
-    operator fun div(other: Dp): Float = value / other.value
+    public operator fun div(other: Dp): Float = value / other.value
 
     /**
      * Multiply a Dp by a scalar.
      */
-    operator fun times(other: Float): Dp =
+    public operator fun times(other: Float): Dp =
         Dp(value = value * other)
 
-    operator fun times(other: Int): Dp =
+    public operator fun times(other: Int): Dp =
         Dp(value = value * other)
 
     /**
      * Support comparing Dimensions with comparison operators.
      */
-    override /* TODO: inline */ operator fun compareTo(other: Dp) = value.compareTo(other.value)
+    override /* TODO: inline */ operator fun compareTo(other: Dp): Int =
+        value.compareTo(other.value)
 
-    override fun toString() = if (isUnspecified) "Dp.Unspecified" else "$value.dp"
-
-    companion object {
-        /**
-         * Constant that means unspecified Dp
-         */
-        val Unspecified = Dp(value = Float.NaN)
-    }
+    override fun toString(): String = "$value.dp"
 }
-
-/**
- * `false` when this is [Dp.Unspecified].
- */
-inline val Dp.isSpecified: Boolean
-    get() = !value.isNaN()
-
-/**
- * `true` when this is [Dp.Unspecified].
- */
-inline val Dp.isUnspecified: Boolean
-    get() = value.isNaN()
 
 /**
  * Create a [Dp] using an [Int]:
@@ -104,7 +86,7 @@ inline val Dp.isUnspecified: Boolean
  *     // -- or --
  *     val y = 10.dp
  */
-inline val Int.dp: Dp get() = Dp(value = this.toFloat())
+public inline val Int.dp: Dp get() = Dp(value = this.toFloat())
 
 /**
  * Create a [Dp] using a [Double]:
@@ -113,7 +95,7 @@ inline val Int.dp: Dp get() = Dp(value = this.toFloat())
  *     // -- or --
  *     val y = 10.0.dp
  */
-inline val Double.dp: Dp get() = Dp(value = this.toFloat())
+public inline val Double.dp: Dp get() = Dp(value = this.toFloat())
 
 /**
  * Create a [Dp] using a [Float]:
@@ -122,17 +104,17 @@ inline val Double.dp: Dp get() = Dp(value = this.toFloat())
  *     // -- or --
  *     val y = 10f.dp
  */
-inline val Float.dp: Dp get() = Dp(value = this)
+public inline val Float.dp: Dp get() = Dp(value = this)
 
-operator fun Float.times(other: Dp) =
+public operator fun Float.times(other: Dp): Dp =
     Dp(this * other.value)
 
-operator fun Double.times(other: Dp) =
+public operator fun Double.times(other: Dp): Dp =
     Dp(this.toFloat() * other.value)
 
-operator fun Int.times(other: Dp) =
+public operator fun Int.times(other: Dp): Dp =
     Dp(this * other.value)
 
-fun min(a: Dp, b: Dp): Dp = Dp(value = min(a.value, b.value))
+public fun min(a: Dp, b: Dp): Dp = Dp(value = min(a.value, b.value))
 
-fun max(a: Dp, b: Dp): Dp = Dp(value = max(a.value, b.value))
+public fun max(a: Dp, b: Dp): Dp = Dp(value = max(a.value, b.value))

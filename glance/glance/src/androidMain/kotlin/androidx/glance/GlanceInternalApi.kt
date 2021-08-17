@@ -11,4 +11,4 @@ package androidx.glance
 )
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
-annotation class GlanceInternalApi
+public annotation class GlanceInternalApi

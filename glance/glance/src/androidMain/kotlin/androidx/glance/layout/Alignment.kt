@@ -21,48 +21,56 @@ package androidx.glance.layout
  * to specify how a parent layout should place its children.
  */
 
-class Alignment(val horizontal: Horizontal, val vertical: Vertical) {
+public class Alignment(public val horizontal: Horizontal, public val vertical: Vertical) {
     /**
      * Specifies how a parent should lay its children out horizontally, if the child has a width
      * smaller than the parent.
      */
-    enum class Horizontal {
-        Start,
-        CenterHorizontally,
-        End,
+    @Suppress("INLINE_CLASS_DEPRECATED")
+    public inline class Horizontal private constructor (private val value: Int) {
+        public companion object {
+            public val Start: Horizontal = Horizontal(0)
+            public val CenterHorizontally: Horizontal = Horizontal(1)
+            public val End: Horizontal = Horizontal(2)
+        }
     }
 
     /**
      * Specifies how a parent should lay its children out vertically, if the child has a height
      * smaller than the parent.
      */
-    enum class Vertical {
-        Top,
-        CenterVertically,
-        Bottom,
+    @Suppress("INLINE_CLASS_DEPRECATED")
+    public inline class Vertical private constructor (private val value: Int) {
+        public companion object {
+            public val Top: Vertical = Vertical(0)
+            public val CenterVertically: Vertical = Vertical(1)
+            public val Bottom: Vertical = Vertical(2)
+        }
     }
 
     /** Common [Alignment] options used in layouts. */
-    companion object {
-        val TopStart = Alignment(Horizontal.Start, Vertical.Top)
-        val TopCenter = Alignment(Horizontal.CenterHorizontally, Vertical.Top)
-        val TopEnd = Alignment(Horizontal.End, Vertical.Top)
+    public companion object {
+        public val TopStart: Alignment = Alignment(Horizontal.Start, Vertical.Top)
+        public val TopCenter: Alignment = Alignment(Horizontal.CenterHorizontally, Vertical.Top)
+        public val TopEnd: Alignment = Alignment(Horizontal.End, Vertical.Top)
 
-        val CenterStart = Alignment(Horizontal.Start, Vertical.CenterVertically)
-        val Center = Alignment(Horizontal.CenterHorizontally, Vertical.CenterVertically)
-        val CenterEnd = Alignment(Horizontal.End, Vertical.CenterVertically)
+        public val CenterStart: Alignment = Alignment(Horizontal.Start, Vertical.CenterVertically)
+        public val Center: Alignment =
+            Alignment(Horizontal.CenterHorizontally, Vertical.CenterVertically)
+        public val CenterEnd: Alignment = Alignment(Horizontal.End, Vertical.CenterVertically)
 
-        val BottomStart = Alignment(Horizontal.Start, Vertical.Bottom)
-        val BottomCenter = Alignment(Horizontal.CenterHorizontally, Vertical.Bottom)
-        val BottomEnd = Alignment(Horizontal.End, Vertical.Bottom)
+        public val BottomStart: Alignment = Alignment(Horizontal.Start, Vertical.Bottom)
+        public val BottomCenter: Alignment =
+            Alignment(Horizontal.CenterHorizontally, Vertical.Bottom)
+        public val BottomEnd: Alignment = Alignment(Horizontal.End, Vertical.Bottom)
 
-        val Top = Vertical.Top
-        val CenterVertically = Vertical.CenterVertically
-        val Bottom = Vertical.Bottom
+        public val Top: Vertical = Vertical.Top
+        public val CenterVertically: Vertical = Vertical.CenterVertically
+        public val Bottom: Vertical = Vertical.Bottom
 
-        val Start = Horizontal.Start
-        val CenterHorizontally = Horizontal.CenterHorizontally
-        val End = Horizontal.End
+        public val Start: Horizontal = Horizontal.Start
+        public val CenterHorizontally: Horizontal = Horizontal.CenterHorizontally
+        public val End: Horizontal = Horizontal.End
     }
 
     override fun equals(other: Any?): Boolean {

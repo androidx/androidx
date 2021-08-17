@@ -21,7 +21,7 @@ import java.lang.IllegalStateException
 
 /** Applier for the Glance composition. */
 @GlanceInternalApi
-class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(root) {
+public class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(root) {
     override fun onClear() {
         (root as EmittableWithChildren).children.clear()
     }
