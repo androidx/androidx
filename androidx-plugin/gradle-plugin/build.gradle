@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.dexMemberList)
     implementation(libs.kotlinGradlePluginz)
     implementation(libs.kotlinPoet)
+    implementation(libs.kotlinKlibCommonizer)
 
     implementation(libs.dokkaGradlePluginz)
     implementation(libs.gson)
