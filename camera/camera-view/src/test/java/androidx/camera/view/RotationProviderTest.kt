@@ -54,23 +54,6 @@ class RotationProviderTest {
     }
 
     @Test
-    fun addAndRemoveAllListener_noCallback() {
-        // Arrange.
-        var rotation = INVALID_ROTATION
-        rotationProvider.addListener(CameraXExecutors.mainThreadExecutor()) {
-            rotation = it
-        }
-
-        // Act.
-        rotationProvider.removeAllListeners()
-        rotationProvider.mOrientationListener.onOrientationChanged(0)
-        shadowOf(getMainLooper()).idle()
-
-        // Assert.
-        assertThat(rotation).isEqualTo(INVALID_ROTATION)
-    }
-
-    @Test
     fun addAndRemoveListener_noCallback() {
         var rotationNoChange = INVALID_ROTATION
         var rotationChanged = INVALID_ROTATION

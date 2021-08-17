@@ -151,16 +151,6 @@ public final class RotationProvider {
     }
 
     /**
-     * Removes all {@link Listener} from this object.
-     */
-    public void removeAllListeners() {
-        synchronized (mLock) {
-            mOrientationListener.disable();
-            mListeners.clear();
-        }
-    }
-
-    /**
      * Converts orientation degrees to {@link Surface} rotation.
      */
     @VisibleForTesting
