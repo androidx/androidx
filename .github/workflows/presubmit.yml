@@ -113,10 +113,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        project: ["activity", "biometric", "compose-compiler", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work", "compose-runtime"]
+        project: ["activity", "biometric", "compose-runtime", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
         include:
-          - project: "compose-compiler"
-            project-root: "compose/compiler"
           - project: "compose-runtime"
             project-root: "compose/runtime"
           - project: "navigation"
