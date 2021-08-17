@@ -29,21 +29,20 @@ import androidx.annotation.NonNull;
 public interface MenuProvider {
 
     /**
-     * Called by the Menu host to allow the {@link MenuProvider}
+     * Called by the {@link MenuHost} to allow the {@link MenuProvider}
      * to inflate {@link MenuItem}s into the menu.
      *
-     * @param menu the menu to inflate the new menu items into
+     * @param menu         the menu to inflate the new menu items into
      * @param menuInflater the inflater to be used to inflate the updated menu
      */
     void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater);
 
     /**
-     * Called by the Menu host when a {@link MenuItem} is selected from the menu.
+     * Called by the {@link MenuHost} when a {@link MenuItem} is selected from the menu.
      *
      * @param menuItem the menu item that was selected
-     *
      * @return <code>true</code> if the given menu item is handled by this menu provider,
-     *         <code>false</code> otherwise
+     * <code>false</code> otherwise
      */
     boolean onMenuItemSelected(@NonNull MenuItem menuItem);
 }
