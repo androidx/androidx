@@ -56,6 +56,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -441,6 +442,7 @@ public class ChecksumsTest {
         }
     }
 
+    @Ignore // b/196917538
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
@@ -453,6 +455,7 @@ public class ChecksumsTest {
         validateFixedAllChecksums(checksums);
     }
 
+    @Ignore // b/196917538
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
@@ -469,6 +472,7 @@ public class ChecksumsTest {
         validateFixedAllChecksums(checksums);
     }
 
+    @Ignore // b/196917538
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
