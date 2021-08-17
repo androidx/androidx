@@ -24,7 +24,6 @@ import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.channels.onClosed
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicInteger
 
 internal class SimpleActor<T>(
     /**
@@ -53,7 +52,7 @@ internal class SimpleActor<T>(
      * Count of the number of remaining messages to process. When the messageQueue is closed,
      * this is no longer used.
      */
-    private val remainingMessages = AtomicInteger(0)
+    private val remainingMessages = AtomicCounter(0)
 
     init {
         // If the scope doesn't have a job, it won't be cancelled, so we don't need to register a
