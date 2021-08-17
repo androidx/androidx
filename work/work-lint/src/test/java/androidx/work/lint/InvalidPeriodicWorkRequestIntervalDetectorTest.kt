@@ -20,6 +20,7 @@ import androidx.work.lint.Stubs.LISTENABLE_WORKER
 import androidx.work.lint.Stubs.PERIODIC_WORK_REQUEST
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 
 class InvalidPeriodicWorkRequestIntervalDetectorTest {
@@ -118,6 +119,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             .expectClean()
     }
 
+    @Ignore("b/196831196")
     @Test
     fun testWithInvalidDurationType() {
         val worker = kotlin(
