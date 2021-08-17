@@ -24,6 +24,7 @@ import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFiles.xml
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -140,6 +141,7 @@ src/sample/experimental/UseJavaExperimentalFromKt.kt:58: Error: This declaration
         check(*input).expect(expected)
     }
 
+    @Ignore("b/196881523")
     @Test
     fun useKtExperimentalFromJava() {
         val input = arrayOf(
