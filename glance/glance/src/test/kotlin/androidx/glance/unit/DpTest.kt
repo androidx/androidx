@@ -16,7 +16,6 @@
 
 package androidx.glance.unit
 
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -26,7 +25,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class DpTest {
-
     @Test
     fun constructor() {
         val dim1 = Dp(value = 5f)
@@ -147,17 +145,5 @@ class DpTest {
         assertEquals(10f, 100.dp.coerceAtMost(10.dp).value, 0f)
         assertEquals(10f, 10.dp.coerceAtMost(20.dp).value, 0f)
         assertEquals(10f, 10.dp.coerceAtMost(10.dp).value, 0f)
-    }
-
-    @Test
-    fun testIsSpecified() {
-        Assert.assertFalse(Dp.Unspecified.isSpecified)
-        assertTrue(Dp(1f).isSpecified)
-    }
-
-    @Test
-    fun testIsUnspecified() {
-        assertTrue(Dp.Unspecified.isUnspecified)
-        Assert.assertFalse(Dp(1f).isUnspecified)
     }
 }

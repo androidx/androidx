@@ -24,9 +24,9 @@ import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 
 @GlanceInternalApi
-class EmittableBox() : EmittableWithChildren() {
+public class EmittableBox : EmittableWithChildren() {
     override var modifier: Modifier = Modifier
-    var contentAlignment: Alignment = Alignment.TopStart
+    public var contentAlignment: Alignment = Alignment.TopStart
 
     override fun toString(): String {
         return "EmittableBox(modifier=$modifier, contentAlignment=$contentAlignment)"
@@ -47,7 +47,7 @@ class EmittableBox() : EmittableWithChildren() {
  */
 @OptIn(GlanceInternalApi::class)
 @Composable
-fun Box(
+public fun Box(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable() () -> Unit
