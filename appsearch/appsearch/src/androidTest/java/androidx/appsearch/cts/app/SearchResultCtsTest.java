@@ -19,7 +19,7 @@ package androidx.appsearch.cts.app;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.SearchResult;
-import androidx.appsearch.app.util.AppSearchEmail;
+import androidx.appsearch.testutil.AppSearchEmail;
 
 import org.junit.Test;
 

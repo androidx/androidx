@@ -18,14 +18,14 @@ package androidx.appsearch.app;
 
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
-import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
-import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
+import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.Document;
-import androidx.appsearch.app.util.AppSearchEmail;
+import androidx.appsearch.testutil.AppSearchEmail;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

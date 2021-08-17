@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.util;
+package androidx.appsearch.testutil;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
@@ -27,7 +28,10 @@ import androidx.appsearch.app.GenericDocument;
  * Encapsulates a {@link GenericDocument} that represent an email.
  *
  * <p>This class is a higher level implement of {@link GenericDocument}.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppSearchEmail extends GenericDocument {
     /** The name of the schema type for {@link AppSearchEmail} documents.*/
     public static final String SCHEMA_TYPE = "builtin:Email";
