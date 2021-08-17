@@ -108,6 +108,10 @@ package androidx.glance.layout {
     method @androidx.compose.runtime.Composable public static void Box(optional androidx.glance.Modifier modifier, optional androidx.glance.layout.Alignment contentAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  public final class ColumnKt {
+    method @androidx.compose.runtime.Composable public static void Column(optional androidx.glance.Modifier modifier, optional int verticalAlignment, optional int horizontalAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
   public final class DimensionKt {
     method public static androidx.glance.Modifier expandHeight(androidx.glance.Modifier);
     method public static androidx.glance.Modifier expandWidth(androidx.glance.Modifier);
@@ -124,6 +128,10 @@ package androidx.glance.layout {
     method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float start, optional float top, optional float end, optional float bottom);
     method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float horizontal, optional float vertical);
     method public static androidx.glance.Modifier padding(androidx.glance.Modifier, float all);
+  }
+
+  public final class RowKt {
+    method @androidx.compose.runtime.Composable public static void Row(optional androidx.glance.Modifier modifier, optional int horizontalAlignment, optional int verticalAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
 }
