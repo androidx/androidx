@@ -24,16 +24,12 @@ import androidx.camera.video.Recorder;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoOutput;
 
-import java.util.Arrays;
-import java.util.List;
-
-
 /**
  * Quirk denotes that the encoder surface needs to be removed from repeating request before stop
  * the encoder.
  *
- * <p>As described in b/196039619, on devices with certain chipsets, the camera fails if
- * {@link MediaCodec} is stopped while frames are still being provided.
+ * <p>As described in b/196039619, the camera fails if {@link MediaCodec} is stopped while frames
+ * are still being provided.
  *
  * <p>In {@link Recorder}, {@link Recorder#getStreamState()} has to returns
  * {@link VideoOutput.StreamState#INACTIVE} when the active recording is being stopped.
@@ -44,11 +40,7 @@ import java.util.List;
  */
 public class DeactivateEncoderSurfaceBeforeStopEncoderQuirk implements Quirk {
 
-    private static final List<String> BUILD_HARDWARE_SET = Arrays.asList("sc8830",
-            "samsungexynos7580");
-
     static boolean load() {
-        return "SAMSUNG".equalsIgnoreCase(Build.BRAND) && BUILD_HARDWARE_SET.contains(
-                Build.HARDWARE.toLowerCase());
+        return Build.VERSION.SDK_INT <= 22;
     }
 }
