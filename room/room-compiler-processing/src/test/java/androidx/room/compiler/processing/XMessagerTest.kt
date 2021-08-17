@@ -121,7 +121,8 @@ class XMessagerTest {
                 compilationDidFail()
                 hasErrorCount(1)
                 hasWarningCount(0)
-                hasError("intentional failure")
+                hasErrorContaining("intentional failure")
+                    .onLineContaining("class Foo")
             }
         }
     }
@@ -163,7 +164,8 @@ class XMessagerTest {
                 compilationDidFail()
                 hasErrorCount(1)
                 hasWarningCount(0)
-                hasError("intentional failure")
+                hasErrorContaining("intentional failure")
+                    .onLineContaining("@FooAnnotation")
             }
         }
     }
@@ -212,7 +214,8 @@ class XMessagerTest {
                 compilationDidFail()
                 hasErrorCount(1)
                 hasWarningCount(0)
-                hasError("intentional failure")
+                hasErrorContaining("intentional failure")
+                    .onLineContaining("@FooAnnotation")
             }
         }
     }

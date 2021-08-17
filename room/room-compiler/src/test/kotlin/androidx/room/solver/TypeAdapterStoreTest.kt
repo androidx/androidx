@@ -131,7 +131,7 @@ class TypeAdapterStoreTest {
             val context = Context(invocation.processingEnv)
             CustomConverterProcessor.Companion.findConverters(context, typeElement)
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC)
+                hasErrorContaining(ProcessorErrors.INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC)
             }
         }
     }

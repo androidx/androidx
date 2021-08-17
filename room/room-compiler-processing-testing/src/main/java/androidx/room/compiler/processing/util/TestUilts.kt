@@ -17,6 +17,9 @@
 package androidx.room.compiler.processing.util
 
 import java.io.File
+import java.util.Locale
+import javax.tools.Diagnostic
+import javax.tools.JavaFileObject
 
 /**
  * Returns the list of File's in the system classpath
@@ -35,4 +38,30 @@ fun getSystemClasspathFiles(): Set<File> {
 fun getSystemClasspaths(): Set<String> {
     val pathSeparator = System.getProperty("path.separator")!!
     return System.getProperty("java.class.path")!!.split(pathSeparator).toSet()
+}
+
+/**
+ * Converts java compilation diagnostic messages into [DiagnosticMessage] objects.
+ */
+internal fun List<Diagnostic<out JavaFileObject>>.toDiagnosticMessages(
+    javaSources: Map<JavaFileObject, Source>
+): List<DiagnosticMessage> {
+    return this.map { diagnostic ->
+        val source = diagnostic.source?.let {
+            javaSources[it]
+        }
+        val location = if (source == null) {
+            null
+        } else {
+            DiagnosticLocation(
+                source = source,
+                line = diagnostic.lineNumber.toInt(),
+            )
+        }
+        DiagnosticMessage(
+            kind = diagnostic.kind,
+            msg = diagnostic.getMessage(Locale.US),
+            location = location,
+        )
+    }
 }

@@ -22,6 +22,9 @@ import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.testcode.MainAnnotation
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
+import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -36,9 +39,6 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import com.tschuchort.compiletesting.KotlinCompilation
-import com.tschuchort.compiletesting.SourceFile
-import com.tschuchort.compiletesting.symbolProcessorProviders
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -348,8 +348,8 @@ class XProcessingStepTest {
 
     @Test
     fun kspProcessingEnvCaching() {
-        val main = SourceFile.java(
-            "Main.java",
+        val main = Source.java(
+            "foo.bar.Main",
             """
             package foo.bar;
             import androidx.room.compiler.processing.testcode.*;
@@ -411,14 +411,14 @@ class XProcessingStepTest {
                 }
             }
         }
-        KotlinCompilation().apply {
-            workingDir = temporaryFolder.root
-            inheritClassPath = true
-            symbolProcessorProviders = listOf(processorProvider)
-            sources = listOf(main)
-            verbose = false
-        }.compile()
 
+        compile(
+            workingDir = temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(main),
+                symbolProcessorProviders = listOf(processorProvider)
+            )
+        )
         // Makes sure processingSteps() was only called once, and that the xProcessingEnv was set.
         assertThat(xProcessingEnvs).hasSize(1)
         assertThat(xProcessingEnvs.get(0)).isNotNull()
@@ -517,7 +517,7 @@ class XProcessingStepTest {
                 }
             }
         }
-        val main = SourceFile.kotlin(
+        val main = Source.kotlin(
             "Other.kt",
             """
             package foo.bar
@@ -528,13 +528,13 @@ class XProcessingStepTest {
             """.trimIndent()
         )
 
-        KotlinCompilation().apply {
-            workingDir = temporaryFolder.root
-            inheritClassPath = true
-            symbolProcessorProviders = listOf(processorProvider)
-            sources = listOf(main)
-            verbose = false
-        }.compile()
+        compile(
+            workingDir = temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(main),
+                symbolProcessorProviders = listOf(processorProvider)
+            )
+        )
 
         assertThat(returned).apply {
             isNotNull()
@@ -726,7 +726,7 @@ class XProcessingStepTest {
 
     @Test
     fun kspAnnotatedElementsByStep() {
-        val main = SourceFile.kotlin(
+        val main = Source.kotlin(
             "Classes.kt",
             """
             package foo.bar
@@ -774,13 +774,13 @@ class XProcessingStepTest {
                 }
             }
         }
-        KotlinCompilation().apply {
-            workingDir = temporaryFolder.root
-            inheritClassPath = true
-            symbolProcessorProviders = listOf(processorProvider)
-            sources = listOf(main)
-            verbose = false
-        }.compile()
+        compile(
+            workingDir = temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(main),
+                symbolProcessorProviders = listOf(processorProvider)
+            )
+        )
         assertThat(elementsByStep[mainStep])
             .containsExactly("foo.bar.Main")
         assertThat(elementsByStep[otherStep])
@@ -790,7 +790,7 @@ class XProcessingStepTest {
     @Test
     fun kspDeferredStep() {
         // create a scenario where we defer the first round of processing
-        val main = SourceFile.kotlin(
+        val main = Source.kotlin(
             "Classes.kt",
             """
             package foo.bar
@@ -840,14 +840,13 @@ class XProcessingStepTest {
                 }
             }
         }
-        KotlinCompilation().apply {
-            workingDir = temporaryFolder.root
-            inheritClassPath = true
-            symbolProcessorProviders = listOf(processorProvider)
-            sources = listOf(main)
-            verbose = false
-        }.compile()
-
+        compile(
+            workingDir = temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(main),
+                symbolProcessorProviders = listOf(processorProvider)
+            )
+        )
         // Assert that mainStep was processed twice due to deferring
         assertThat(stepsProcessed).containsExactly(mainStep, mainStep)
 
@@ -857,7 +856,7 @@ class XProcessingStepTest {
 
     @Test
     fun kspStepOnlyCalledIfElementsToProcess() {
-        val main = SourceFile.kotlin(
+        val main = Source.kotlin(
             "Classes.kt",
             """
             package foo.bar
@@ -900,13 +899,13 @@ class XProcessingStepTest {
                 }
             }
         }
-        KotlinCompilation().apply {
-            workingDir = temporaryFolder.root
-            inheritClassPath = true
-            symbolProcessorProviders = listOf(processorProvider)
-            sources = listOf(main)
-            verbose = false
-        }.compile()
+        compile(
+            workingDir = temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(main),
+                symbolProcessorProviders = listOf(processorProvider)
+            )
+        )
         assertThat(stepsProcessed).containsExactly(mainStep)
     }
 }
