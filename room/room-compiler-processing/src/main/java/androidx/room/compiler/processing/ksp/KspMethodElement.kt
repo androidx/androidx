@@ -72,7 +72,8 @@ internal sealed class KspMethodElement(
         // we should have a default implementation
         return parentDeclaration is KSClassDeclaration &&
             parentDeclaration.classKind == ClassKind.INTERFACE &&
-            !declaration.isAbstract
+            !declaration.isAbstract &&
+            !isPrivate()
     }
 
     override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
