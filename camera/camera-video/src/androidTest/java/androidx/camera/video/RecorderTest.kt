@@ -42,6 +42,8 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
+import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -190,7 +192,7 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
 
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
@@ -235,7 +237,7 @@ class RecorderTest {
 
         assertThat(statusSemaphore.tryAcquire(5, 15000L, TimeUnit.MILLISECONDS)).isTrue()
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
 
         // Wait for the recording to complete.
         assertThat(finalizeSemaphore.tryAcquire(FINALIZE_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
@@ -275,7 +277,7 @@ class RecorderTest {
             inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
                 .accept(any(VideoRecordEvent.Status::class.java))
 
-            activeRecording.stop()
+            activeRecording.stopSafely()
 
             inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
                 .accept(any(VideoRecordEvent.Finalize::class.java))
@@ -337,7 +339,7 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
 
         // Wait for the recording to be finalized.
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
@@ -389,7 +391,7 @@ class RecorderTest {
             .accept(any(VideoRecordEvent.Status::class.java))
 
         // Stop
-        activeRecording.stop()
+        activeRecording.stopSafely()
 
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
@@ -484,7 +486,7 @@ class RecorderTest {
         verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
 
         inOrder.verify(streamStateObserver, timeout(FINALIZE_TIMEOUT))
             .onNewData(eq(VideoOutput.StreamState.INACTIVE))
@@ -531,7 +533,7 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
         // Wait for the recording to be finalized.
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
@@ -594,7 +596,7 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(1000L))
             .accept(any(VideoRecordEvent.Pause::class.java))
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
         // Wait for the recording to be finalized.
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
@@ -631,7 +633,7 @@ class RecorderTest {
         // Shouldn't receive an additional Pause event.
         inOrder.verifyNoMoreInteractions()
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
 
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
@@ -660,7 +662,7 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
         assertThrows(IllegalStateException::class.java) {
             activeRecording.pause()
         }
@@ -694,7 +696,7 @@ class RecorderTest {
         // Shouldn't receive an Resume event.
         inOrder.verifyNoMoreInteractions()
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
 
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
@@ -722,7 +724,7 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
         assertThrows(IllegalStateException::class.java) {
             activeRecording.resume()
         }
@@ -744,7 +746,7 @@ class RecorderTest {
 
         val activeRecording = pendingRecording.start()
         activeRecording.pause()
-        activeRecording.stop()
+        activeRecording.stopSafely()
 
         invokeSurfaceRequest()
 
@@ -834,8 +836,8 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
-        activeRecording.stop()
-        activeRecording.stop()
+        activeRecording.stopSafely()
+        activeRecording.stopSafely()
 
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
@@ -892,7 +894,7 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
-        activeRecording.stop()
+        activeRecording.stopSafely()
 
         verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
@@ -945,6 +947,23 @@ class RecorderTest {
                     null
                 }
             )
+        }
+    }
+
+    // It fails on devices with certain chipset if the codec is stopped when the camera is still
+    // producing frames to the provided surface. This method first stop the camera from
+    // producing frames then stops the recording safely on the problematic devices.
+    private fun ActiveRecording.stopSafely() {
+        val deactivateSurfaceBeforeStop =
+            DeviceQuirks.get(DeactivateEncoderSurfaceBeforeStopEncoderQuirk::class.java) != null
+        if (deactivateSurfaceBeforeStop) {
+            instrumentation.runOnMainSync {
+                preview.setSurfaceProvider(null)
+            }
+        }
+        stop()
+        if (deactivateSurfaceBeforeStop && Build.VERSION.SDK_INT >= 23) {
+            invokeSurfaceRequest()
         }
     }
 }
