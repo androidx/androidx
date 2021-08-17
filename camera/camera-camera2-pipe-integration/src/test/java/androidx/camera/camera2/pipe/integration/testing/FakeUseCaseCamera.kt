@@ -105,25 +105,12 @@ class FakeUseCaseCamera(
     override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
 ) : UseCaseCamera {
 
-    override fun <T> setParameter(
-        key: CaptureRequest.Key<T>,
-        value: T,
-        priority: Config.OptionPriority
-    ) {
-    }
-
     override fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
         value: T,
         priority: Config.OptionPriority
     ): Deferred<Unit> {
         return CompletableDeferred(Unit)
-    }
-
-    override fun setParameters(
-        values: Map<CaptureRequest.Key<*>, Any>,
-        priority: Config.OptionPriority
-    ) {
     }
 
     override fun setParametersAsync(

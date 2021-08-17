@@ -64,6 +64,6 @@ class EvCompImpl @Inject constructor(
         }
 
     override fun apply(evCompIndex: Int, camera: UseCaseCamera) {
-        camera.setParameter(CONTROL_AE_EXPOSURE_COMPENSATION, evCompIndex)
+        camera.setParameterAsync(CONTROL_AE_EXPOSURE_COMPENSATION, evCompIndex)
     }
 }

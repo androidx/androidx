@@ -48,22 +48,11 @@ interface UseCaseCamera {
     val requestControl: UseCaseCameraRequestControl
 
     // Parameters
-    fun <T> setParameter(
-        key: CaptureRequest.Key<T>,
-        value: T,
-        priority: Config.OptionPriority = defaultOptionPriority,
-    )
-
     fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
         value: T,
         priority: Config.OptionPriority = defaultOptionPriority,
     ): Deferred<Unit>
-
-    fun setParameters(
-        values: Map<CaptureRequest.Key<*>, Any>,
-        priority: Config.OptionPriority = defaultOptionPriority,
-    )
 
     fun setParametersAsync(
         values: Map<CaptureRequest.Key<*>, Any>,
@@ -95,17 +84,18 @@ class UseCaseCameraImpl(
     override val requestControl: UseCaseCameraRequestControl,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
-    private var activeSessionConfigAdapter: SessionConfigAdapter? = null
 
-    private var _activeUseCases = setOf<UseCase>()
-    override var activeUseCases: Set<UseCase>
-        get() = _activeUseCases
+    override var activeUseCases = setOf<UseCase>()
         set(value) {
+            field = value
             // Note: This may be called with the same set of values that was previously set. This
             // is used as a signal to indicate the properties of the UseCase may have changed.
-            _activeUseCases = value
-            activeSessionConfigAdapter = SessionConfigAdapter(_activeUseCases.toList(), threads)
-            updateUseCases()
+            SessionConfigAdapter(value, threads).getValidSessionConfigOrNull()?.let {
+                requestControl.setSessionConfigAsync(it)
+            } ?: run {
+                debug { "Unable to reset the session due to invalid config" }
+                // TODO: Consider to reset the session if there is no valid config.
+            }
         }
 
     init {
@@ -127,29 +117,11 @@ class UseCaseCameraImpl(
     ): Deferred<Result3A> =
         requestControl.startFocusAndMeteringAsync(aeRegions, afRegions, awbRegions)
 
-    override fun <T> setParameter(
-        key: CaptureRequest.Key<T>,
-        value: T,
-        priority: Config.OptionPriority,
-    ) {
-        setParameterAsync(key, value, priority)
-    }
-
     override fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
         value: T,
         priority: Config.OptionPriority,
-    ): Deferred<Unit> = requestControl.appendParametersAsync(
-        values = mapOf(key to (value as Any)),
-        optionPriority = priority
-    )
-
-    override fun setParameters(
-        values: Map<CaptureRequest.Key<*>, Any>,
-        priority: Config.OptionPriority,
-    ) {
-        setParametersAsync(values, priority)
-    }
+    ): Deferred<Unit> = setParametersAsync(mapOf(key to (value as Any)), priority)
 
     override fun setParametersAsync(
         values: Map<CaptureRequest.Key<*>, Any>,
@@ -161,13 +133,6 @@ class UseCaseCameraImpl(
 
     override fun capture(captureSequence: List<CaptureConfig>) =
         requestControl.issueSingleCapture(captureSequence)
-
-    private fun updateUseCases() = activeSessionConfigAdapter?.getValidSessionConfigOrNull()?.let {
-        requestControl.setSessionConfigAsync(it)
-    } ?: run {
-        debug { "Unable to reset the session due to invalid config" }
-        // TODO: Consider to reset the session if there is no valid config.
-    }
 
     override fun toString(): String = "UseCaseCamera-$debugId"
 
