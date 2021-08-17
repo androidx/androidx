@@ -33,6 +33,7 @@ import androidx.test.filters.SmallTest;
 
 import com.google.common.collect.Range;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -92,6 +93,7 @@ public class LocationRequestCompatTest {
         assertEquals(PASSIVE_INTERVAL, builder.build().getIntervalMillis());
     }
 
+    @Ignore // b/193441451
     @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
     @Test
     public void testConversion_19Plus() throws Exception {
