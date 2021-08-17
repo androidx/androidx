@@ -16,7 +16,16 @@
 
 package androidx.glance.layout
 
+import androidx.compose.runtime.BroadcastFrameClock
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.Recomposer
+import androidx.glance.Applier
+import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.launch
 
 inline fun <reified T> Modifier.findModifier(): T? = this.foldOut<T?>(null) { cur, acc ->
     if (cur is T) {
@@ -24,4 +33,22 @@ inline fun <reified T> Modifier.findModifier(): T? = this.foldOut<T?>(null) { cu
     } else {
         acc
     }
+}
+
+@OptIn(GlanceInternalApi::class)
+suspend fun runTestingComposition(content: @Composable () -> Unit): EmittableBox = coroutineScope {
+    val root = EmittableBox()
+    val applier = Applier(root)
+    val recomposer = Recomposer(currentCoroutineContext())
+    val composition = Composition(applier, recomposer)
+    val frameClock = BroadcastFrameClock()
+
+    composition.setContent { content() }
+
+    launch(frameClock) { recomposer.runRecomposeAndApplyChanges() }
+
+    recomposer.close()
+    recomposer.join()
+
+    root
 }
