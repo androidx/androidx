@@ -19,6 +19,11 @@ package androidx.camera.integration.core;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+import static androidx.camera.video.QualitySelector.QUALITY_FHD;
+import static androidx.camera.video.QualitySelector.QUALITY_HD;
+import static androidx.camera.video.QualitySelector.QUALITY_NONE;
+import static androidx.camera.video.QualitySelector.QUALITY_SD;
+import static androidx.camera.video.QualitySelector.QUALITY_UHD;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_DISK;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
@@ -45,6 +50,7 @@ import android.util.Range;
 import android.util.Rational;
 import android.view.Display;
 import android.view.GestureDetector;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -52,6 +58,7 @@ import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,6 +94,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.ActiveRecording;
 import androidx.camera.video.MediaStoreOutputOptions;
+import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.RecordingStats;
 import androidx.camera.video.VideoCapture;
@@ -182,6 +190,7 @@ public class CameraXActivity extends AppCompatActivity {
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
     private RecordUi mRecordUi;
+    private int mVideoQuality = QUALITY_NONE;
 
     SessionImagesUriSet mSessionImagesUriSet = new SessionImagesUriSet();
 
@@ -403,6 +412,48 @@ public class CameraXActivity extends AppCompatActivity {
                     throw new IllegalStateException(
                             "Unexpected state when click pause button: " + state);
             }
+        });
+
+        mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality));
+        mRecordUi.getButtonQuality().setOnClickListener(view -> {
+            PopupMenu popup = new PopupMenu(this, view);
+            Menu menu = popup.getMenu();
+
+            // Add Auto item
+            final int groupId = Menu.NONE;
+            final int autoOrder = 0;
+            menu.add(groupId, QUALITY_NONE, autoOrder, getQualityMenuItemName(QUALITY_NONE));
+            if (mVideoQuality == QUALITY_NONE) {
+                menu.findItem(QUALITY_NONE).setChecked(true);
+            }
+
+            // Add device supported qualities
+            List<Integer> supportedQualities =
+                    QualitySelector.getSupportedQualities(mCamera.getCameraInfo());
+            // supportedQualities has been sorted by descending order.
+            for (int i = 0; i < supportedQualities.size(); i++) {
+                int quality = supportedQualities.get(i);
+                menu.add(groupId, quality, autoOrder + 1 + i,
+                        getQualityMenuItemName(quality));
+                if (mVideoQuality == quality) {
+                    menu.findItem(quality).setChecked(true);
+                }
+
+            }
+            // Make menu single checkable
+            menu.setGroupCheckable(groupId, true, true);
+
+            popup.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() != mVideoQuality) {
+                    mVideoQuality = item.getItemId();
+                    mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality));
+                    // Quality changed, rebind UseCases
+                    tryBindUseCases();
+                }
+                return true;
+            });
+
+            popup.show();
         });
     }
 
@@ -688,7 +739,8 @@ public class CameraXActivity extends AppCompatActivity {
         mRecordUi = new RecordUi(
                 findViewById(R.id.Video),
                 findViewById(R.id.video_pause),
-                findViewById(R.id.video_stats)
+                findViewById(R.id.video_stats),
+                findViewById(R.id.video_quality)
         );
 
         setUpButtonEvents();
@@ -818,14 +870,22 @@ public class CameraXActivity extends AppCompatActivity {
             // Set the use cases after a successful binding.
             mUseCases = useCases;
         } catch (IllegalArgumentException ex) {
-            Log.e(TAG, "bindToLifecycle() failed. Usually caused by binding too many use cases.");
-            Toast.makeText(this, "Bind too many use cases.", Toast.LENGTH_SHORT).show();
+            String msg;
+            if (mVideoQuality != QUALITY_NONE) {
+                msg = "Bind too many use cases or video quality is too large.";
+            } else {
+                msg = "Bind too many use cases.";
+            }
+            Log.e(TAG, "bindToLifecycle() failed. " + msg);
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
 
             // Restore toggle buttons to the previous state if the bind failed.
             mPreviewToggle.setChecked(getPreview() != null);
             mPhotoToggle.setChecked(getImageCapture() != null);
             mAnalysisToggle.setChecked(getImageAnalysis() != null);
             mVideoToggle.setChecked(getVideoCapture() != null);
+            // Reset video quality to avoid always fail by quality too large.
+            mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality = QUALITY_NONE));
 
             if (!calledBySelf) {
                 // Only call self if not already calling self to avoid an infinite loop.
@@ -875,8 +935,11 @@ public class CameraXActivity extends AppCompatActivity {
         }
 
         if (mVideoToggle.isChecked()) {
-            VideoCapture<Recorder> videoCapture =
-                    VideoCapture.withOutput(new Recorder.Builder().build());
+            Recorder.Builder builder = new Recorder.Builder();
+            if (mVideoQuality != QUALITY_NONE) {
+                builder.setQualitySelector(QualitySelector.of(mVideoQuality));
+            }
+            VideoCapture<Recorder> videoCapture = VideoCapture.withOutput(builder.build());
             useCases.add(videoCapture);
         }
         return useCases;
@@ -1199,14 +1262,16 @@ public class CameraXActivity extends AppCompatActivity {
         private final Button mButtonRecord;
         private final Button mButtonPause;
         private final TextView mTextStats;
+        private final Button mButtonQuality;
         private boolean mEnabled = false;
         private State mState = State.IDLE;
 
         RecordUi(@NonNull Button buttonRecord, @NonNull Button buttonPause,
-                @NonNull TextView textStats) {
+                @NonNull TextView textStats, @NonNull Button buttonQuality) {
             mButtonRecord = buttonRecord;
             mButtonPause = buttonPause;
             mTextStats = textStats;
+            mButtonQuality = buttonQuality;
         }
 
         void setEnabled(boolean enabled) {
@@ -1214,11 +1279,13 @@ public class CameraXActivity extends AppCompatActivity {
             if (enabled) {
                 mTextStats.setText("");
                 mTextStats.setVisibility(View.VISIBLE);
+                mButtonQuality.setVisibility(View.VISIBLE);
                 updateUi();
             } else {
                 mButtonRecord.setText("Record");
                 mButtonRecord.setEnabled(false);
                 mButtonPause.setVisibility(View.INVISIBLE);
+                mButtonQuality.setVisibility(View.INVISIBLE);
                 mTextStats.setVisibility(View.GONE);
             }
         }
@@ -1276,6 +1343,11 @@ public class CameraXActivity extends AppCompatActivity {
         TextView getTextStats() {
             return mTextStats;
         }
+
+        @NonNull
+        Button getButtonQuality() {
+            return mButtonQuality;
+        }
     }
 
     Preview getPreview() {
@@ -1320,5 +1392,41 @@ public class CameraXActivity extends AppCompatActivity {
     @Nullable
     CameraControl getCameraControl() {
         return mCamera != null ? mCamera.getCameraControl() : null;
+    }
+
+    @NonNull
+    private static String getQualityIconName(int quality) {
+        switch (quality) {
+            case QUALITY_NONE:
+                return "Auto";
+            case QUALITY_UHD:
+                return "UHD";
+            case QUALITY_FHD:
+                return "FHD";
+            case QUALITY_HD:
+                return "HD";
+            case QUALITY_SD:
+                return "SD";
+            default:
+                return "?";
+        }
+    }
+
+    @NonNull
+    private static String getQualityMenuItemName(int quality) {
+        switch (quality) {
+            case QUALITY_NONE:
+                return "Auto";
+            case QUALITY_UHD:
+                return "UHD (2160P)";
+            case QUALITY_FHD:
+                return "FHD (1080P)";
+            case QUALITY_HD:
+                return "HD (720P)";
+            case QUALITY_SD:
+                return "SD (480P)";
+            default:
+                return "Unknown quality";
+        }
     }
 }
