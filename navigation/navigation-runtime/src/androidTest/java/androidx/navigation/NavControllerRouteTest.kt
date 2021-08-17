@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.os.Parcel
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -65,14 +66,14 @@ class NavControllerRouteTest {
             test("start_test_with_default_arg") {
                 argument("defaultArg") { defaultValue = true }
             }
-            test("second_test") {
+            test("second_test/{arg2}") {
                 argument("arg2") { type = NavType.StringType }
                 argument("defaultArg") {
                     type = NavType.StringType
                     defaultValue = "defaultValue"
                 }
                 deepLink {
-                    uriPattern = "android-app://androidx.navigation.test/test"
+                    uriPattern = "android-app://androidx.navigation.test/test/{arg2}"
                     action = "test.action"
                     mimeType = "type/test"
                 }
@@ -185,7 +186,7 @@ class NavControllerRouteTest {
     fun testGetPreviousBackStackEntry() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
-        navController.navigate("second_test")
+        navController.navigate("second_test/arg2")
         assertThat(navController.previousBackStackEntry?.destination?.route).isEqualTo("start_test")
     }
 
@@ -319,8 +320,8 @@ class NavControllerRouteTest {
         assertThat(navController.currentDestination?.route).isEqualTo("start_test")
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        navController.navigate("second_test")
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
@@ -330,10 +331,10 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test/arg2")
 
         navController.navigate(deepLink)
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
         val intent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
@@ -347,12 +348,12 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test/arg2")
 
         navController.navigate(deepLink)
 
         val destination = navController.currentDestination
-        assertThat(destination?.route).isEqualTo("second_test")
+        assertThat(destination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
         assertThat(destination?.arguments?.get("defaultArg")?.defaultValue.toString())
             .isEqualTo("defaultValue")
@@ -367,7 +368,7 @@ class NavControllerRouteTest {
         val deepLink = NavDeepLinkRequest(Uri.parse("invalidDeepLink.com"), "test.action", null)
 
         navController.navigate(deepLink)
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
@@ -380,7 +381,7 @@ class NavControllerRouteTest {
         val deepLink = NavDeepLinkRequest(Uri.parse("invalidDeepLink.com"), null, "type/test")
 
         navController.navigate(deepLink)
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
@@ -447,7 +448,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test/arg2")
 
         navController.navigate(
             deepLink,
@@ -455,7 +456,7 @@ class NavControllerRouteTest {
                 popUpTo("nav_root") { inclusive = true }
             }
         )
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
@@ -570,7 +571,8 @@ class NavControllerRouteTest {
                     val navigator =
                         navController.navigatorProvider.getNavigator(TestNavigator::class.java)
 
-                    assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+                    assertThat(navController.currentDestination?.route)
+                        .isEqualTo("second_test/{arg2}")
 
                     // Only the leaf destination should be on the stack.
                     assertThat(navigator.backStack.size).isEqualTo(1)
@@ -619,7 +621,7 @@ class NavControllerRouteTest {
         var navigator = SaveStateTestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         navController.graph = nav_simple_route_graph
-        navController.navigate("second_test")
+        navController.navigate("second_test/arg2")
 
         val savedState = navController.saveState()
         navController = NavController(context)
@@ -632,7 +634,7 @@ class NavControllerRouteTest {
 
         // Explicitly setting a graph then restores the state
         navController.graph = nav_simple_route_graph
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
         // Save state should be called on the navigator exactly once
         assertThat(navigator.saveStateCount).isEqualTo(1)
@@ -679,7 +681,7 @@ class NavControllerRouteTest {
         var navigator = TestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         navController.graph = nav_simple_route_graph
-        navController.navigate("second_test")
+        navController.navigate("second_test/arg2")
 
         val savedState = navController.saveState()
         navController = NavController(context)
@@ -692,7 +694,7 @@ class NavControllerRouteTest {
 
         // Explicitly setting a graph then restores the state
         navController.graph = nav_simple_route_graph
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
@@ -926,8 +928,8 @@ class NavControllerRouteTest {
         assertThat(navController.currentDestination?.route).isEqualTo("start_test")
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        navController.navigate("second_test")
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
 
         val popped = navController.popBackStack()
@@ -947,15 +949,15 @@ class NavControllerRouteTest {
         assertThat(navController.currentDestination?.route).isEqualTo("start_test")
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        navController.navigate("second_test")
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
 
         val popped = navController.popBackStack(UNKNOWN_DESTINATION_ID, false)
         assertWithMessage("Popping to an invalid destination should return false")
             .that(popped)
             .isFalse()
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
@@ -968,10 +970,10 @@ class NavControllerRouteTest {
         assertThat(navController.currentDestination?.route).isEqualTo("start_test")
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        navController.navigate("second_test") {
+        navController.navigate("second_test/arg2") {
             popUpTo("start_test") { inclusive = true }
         }
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
@@ -984,10 +986,10 @@ class NavControllerRouteTest {
         assertThat(navController.currentDestination?.route).isEqualTo("start_test")
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        navController.navigate("second_test") {
+        navController.navigate("second_test/arg2") {
             popUpTo("nav_root") { inclusive = true }
         }
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
@@ -1000,8 +1002,8 @@ class NavControllerRouteTest {
         assertThat(navController.currentDestination?.route).isEqualTo("start_test")
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        navController.navigate("second_test")
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
 
         // This should function identically to popBackStack()
@@ -1021,8 +1023,8 @@ class NavControllerRouteTest {
         assertThat(navController.currentDestination?.route).isEqualTo("start_test")
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        navController.navigate("second_test")
-        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
 
         navController.navigate("start_test_with_default_arg")
@@ -1033,7 +1035,7 @@ class NavControllerRouteTest {
         val success = navController.navigateUp()
         assertThat(success).isTrue()
         val destination = navController.currentDestination
-        assertThat(destination?.route).isEqualTo("second_test")
+        assertThat(destination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
         assertThat(destination?.arguments?.get("defaultArg")?.defaultValue.toString())
             .isEqualTo("defaultValue")
@@ -1046,7 +1048,8 @@ class NavControllerRouteTest {
         navController.graph = nav_simple_route_graph
 
         val taskStackBuilder = navController.createDeepLink()
-            .setDestination("second_test")
+            .setDestination("second_test/{arg2}")
+            .setArguments(bundleOf("arg2" to "value"))
             .createTaskStackBuilder()
         assertThat(taskStackBuilder).isNotNull()
         assertThat(taskStackBuilder.intentCount).isEqualTo(1)
@@ -1058,10 +1061,12 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
 
-        val args = Bundle()
-        args.putString("test", "test")
+        val args = bundleOf(
+            "test" to "test",
+            "arg2" to "value",
+        )
         val taskStackBuilder = navController.createDeepLink()
-            .setDestination("second_test")
+            .setDestination("second_test/{arg2}")
             .setArguments(args)
             .createTaskStackBuilder()
 
@@ -1081,7 +1086,8 @@ class NavControllerRouteTest {
         navController.graph = nav_simple_route_graph
 
         val taskStackBuilder = navController.createDeepLink()
-            .setDestination("second_test")
+            .setDestination("second_test/{arg2}")
+            .setArguments(bundleOf("arg2" to "value"))
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
@@ -1093,7 +1099,7 @@ class NavControllerRouteTest {
         intent!!.writeToParcel(p, 0)
 
         val destination = navController.currentDestination
-        assertThat(destination?.route).isEqualTo("second_test")
+        assertThat(destination?.route).isEqualTo("second_test/{arg2}")
         assertThat(destination?.arguments?.get("defaultArg")?.defaultValue.toString())
             .isEqualTo("defaultValue")
     }
@@ -1109,7 +1115,8 @@ class NavControllerRouteTest {
         }
 
         val taskStackBuilder = navController.createDeepLink()
-            .setDestination("second_test")
+            .setDestination("second_test/{arg2}")
+            .setArguments(bundleOf("arg2" to "value"))
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
@@ -1119,7 +1126,7 @@ class NavControllerRouteTest {
             .isTrue()
         // Verify that we navigated down to the deep link
         assertThat(collectedDestinationIds)
-            .containsExactly("start_test", "start_test", "second_test")
+            .containsExactly("start_test", "start_test", "second_test/{arg2}")
             .inOrder()
     }
 
@@ -1311,7 +1318,7 @@ class NavControllerRouteTest {
         navController.setOnBackPressedDispatcher(dispatcher)
 
         navController.graph = nav_simple_route_graph
-        navController.navigate("second_test")
+        navController.navigate("second_test/arg2")
         assertThat(navController.previousBackStackEntry?.destination?.route)
             .isEqualTo("start_test")
 
