@@ -27,12 +27,12 @@ import androidx.glance.Modifier
  * Padding is applied before content measurement and takes precedence; content may only be as large
  * as the remaining space.
  */
-fun Modifier.padding(
+public fun Modifier.padding(
     start: Dp = 0.dp,
     top: Dp = 0.dp,
     end: Dp = 0.dp,
     bottom: Dp = 0.dp
-) = this.then(
+): Modifier = this.then(
     PaddingModifier(
         start = start,
         top = top,
@@ -46,10 +46,10 @@ fun Modifier.padding(
  * Apply [horizontal] dp space along the left and right edges of the content, and [vertical] dp
  * space along the top and bottom edges.
  */
-fun Modifier.padding(
+public fun Modifier.padding(
     horizontal: Dp = 0.dp,
     vertical: Dp = 0.dp
-) = this.then(
+): Modifier = this.then(
     PaddingModifier(
         start = horizontal,
         top = vertical,
@@ -62,7 +62,7 @@ fun Modifier.padding(
 /**
  * Apply [all] dp of additional space along each edge of the content, left, top, right and bottom.
  */
-fun Modifier.padding(all: Dp) = this.then(
+public fun Modifier.padding(all: Dp): Modifier = this.then(
     PaddingModifier(
         start = all,
         top = all,
@@ -76,12 +76,12 @@ fun Modifier.padding(all: Dp) = this.then(
  *  Apply additional space along each edge of the content in [Dp]: [left], [top], [right] and
  * [bottom], ignoring the current locale's layout direction.
  */
-fun Modifier.absolutePadding(
+public fun Modifier.absolutePadding(
     left: Dp = 0.dp,
     top: Dp = 0.dp,
     right: Dp = 0.dp,
     bottom: Dp = 0.dp
-) = this.then(
+): Modifier = this.then(
     PaddingModifier(
         start = left,
         top = top,
@@ -92,12 +92,12 @@ fun Modifier.absolutePadding(
 )
 
 @GlanceInternalApi
-class PaddingModifier(
-    val start: Dp = 0.dp,
-    val top: Dp = 0.dp,
-    val end: Dp = 0.dp,
-    val bottom: Dp = 0.dp,
-    val rtlAware: Boolean
+public class PaddingModifier(
+    public val start: Dp = 0.dp,
+    public val top: Dp = 0.dp,
+    public val end: Dp = 0.dp,
+    public val bottom: Dp = 0.dp,
+    public val rtlAware: Boolean
 ) : Modifier.Element {
     override fun toString(): String {
         return "PaddingModifier(start=$start, top=$top, end=$end, bottom=$bottom, " +

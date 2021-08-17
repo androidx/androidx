@@ -28,48 +28,48 @@ import androidx.glance.unit.Dp
  * below rather than this class directly.
  */
 @GlanceInternalApi
-sealed class Dimension {
-    class Dp(val dp: androidx.glance.unit.Dp) : Dimension()
-    object Wrap : Dimension()
-    object Expand : Dimension()
+public sealed class Dimension {
+    public class Dp(public val dp: androidx.glance.unit.Dp) : Dimension()
+    public object Wrap : Dimension()
+    public object Expand : Dimension()
 }
 
 /** Modifier to represent the width of an element. */
 @GlanceInternalApi
-class WidthModifier(val width: Dimension) : Modifier.Element
+public class WidthModifier(public val width: Dimension) : Modifier.Element
 
 /** Sets the absolute width of an element, in [Dp]. */
-fun Modifier.width(width: Dp): Modifier = this.then(WidthModifier(Dimension.Dp(width)))
+public fun Modifier.width(width: Dp): Modifier = this.then(WidthModifier(Dimension.Dp(width)))
 
 /** Specifies that the width of the element should wrap its contents. */
-fun Modifier.wrapWidth(): Modifier = this.then(WidthModifier(Dimension.Wrap))
+public fun Modifier.wrapWidth(): Modifier = this.then(WidthModifier(Dimension.Wrap))
 
 /**
  * Specifies that the width of the element should expand to the size of its parent. Note that if
  * multiple elements within a linear container (e.g. Row or Column) have their width as expandWidth,
  * then they will all share the remaining space.
  */
-fun Modifier.expandWidth(): Modifier = this.then(WidthModifier(Dimension.Expand))
+public fun Modifier.expandWidth(): Modifier = this.then(WidthModifier(Dimension.Expand))
 
 /** Modifier to represent the height of an element. */
 @GlanceInternalApi
-class HeightModifier(val height: Dimension) : Modifier.Element
+public class HeightModifier(public val height: Dimension) : Modifier.Element
 
 /** Sets the absolute height of an element, in [Dp]. */
-fun Modifier.height(height: Dp): Modifier = this.then(HeightModifier(Dimension.Dp(height)))
+public fun Modifier.height(height: Dp): Modifier = this.then(HeightModifier(Dimension.Dp(height)))
 
 /** Specifies that the height of the element should wrap its contents. */
-fun Modifier.wrapHeight(): Modifier = this.then(HeightModifier(Dimension.Wrap))
+public fun Modifier.wrapHeight(): Modifier = this.then(HeightModifier(Dimension.Wrap))
 
 /**
  * Specifies that the height of the element should expand to the size of its parent. Note that if
  * multiple elements within a linear container (e.g. Row or Column) have their height as
  * expandHeight, then they will all share the remaining space.
  */
-fun Modifier.expandHeight(): Modifier = this.then(HeightModifier(Dimension.Expand))
+public fun Modifier.expandHeight(): Modifier = this.then(HeightModifier(Dimension.Expand))
 
 /** Sets both the width and height of an element, in [Dp]. */
-fun Modifier.size(size: Dp): Modifier = this.width(size).height(size)
+public fun Modifier.size(size: Dp): Modifier = this.width(size).height(size)
 
 /** Sets both the width and height of an element, in [Dp]. */
-fun Modifier.size(width: Dp, height: Dp): Modifier = this.width(width).height(height)
+public fun Modifier.size(width: Dp, height: Dp): Modifier = this.width(width).height(height)
