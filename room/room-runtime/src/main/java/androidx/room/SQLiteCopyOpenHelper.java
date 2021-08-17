@@ -23,12 +23,12 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.room.util.CopyLock;
 import androidx.room.util.DBUtil;
 import androidx.room.util.FileUtil;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
+import androidx.sqlite.util.ProcessLock;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -129,7 +129,8 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper, DelegatingOpenHel
         File databaseFile = mContext.getDatabasePath(databaseName);
         boolean processLevelLock = mDatabaseConfiguration == null
                 || mDatabaseConfiguration.multiInstanceInvalidation;
-        CopyLock copyLock = new CopyLock(databaseName, mContext.getFilesDir(), processLevelLock);
+        ProcessLock copyLock = new ProcessLock(databaseName, mContext.getFilesDir(),
+                processLevelLock);
         try {
             // Acquire a copy lock, this lock works across threads and processes, preventing
             // concurrent copy attempts from occurring.
