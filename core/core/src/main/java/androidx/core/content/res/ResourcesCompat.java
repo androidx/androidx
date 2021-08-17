@@ -207,7 +207,11 @@ public final class ResourcesCompat {
             return csl;
         }
         // If we reach here then we couldn't inflate it, so let the framework handle it
-        return res.getColorStateList(id);
+        if (SDK_INT >= 23) {
+            return Api23Impl.getColorStateList(res, id, theme);
+        } else {
+            return res.getColorStateList(id);
+        }
     }
 
     /**
@@ -623,6 +627,19 @@ public final class ResourcesCompat {
         private ImplApi29() {}
         static float getFloat(@NonNull Resources res, @DimenRes int id) {
             return res.getFloat(id);
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @NonNull
+        static ColorStateList getColorStateList(@NonNull Resources res, @ColorRes int id,
+                @Nullable Theme theme) {
+            return res.getColorStateList(id, theme);
         }
     }
 
