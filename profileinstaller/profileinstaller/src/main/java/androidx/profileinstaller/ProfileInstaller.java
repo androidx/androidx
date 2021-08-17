@@ -17,6 +17,7 @@
 package androidx.profileinstaller;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.util.Log;
@@ -338,11 +339,13 @@ public class ProfileInstaller {
      *
      * @param assets the asset manager to read source file from dexopt/baseline.prof
      * @param packageName package name of the current apk
+     * @param apkName The apk file name the profile is targeting
      * @param diagnostics The diagnostics callback to pass diagnostics to
      */
     private static void transcodeAndWrite(
             @NonNull AssetManager assets,
             @NonNull String packageName,
+            @NonNull String apkName,
             @NonNull Executor executor,
             @NonNull DiagnosticsCallback diagnostics
     ) {
@@ -356,6 +359,7 @@ public class ProfileInstaller {
         DeviceProfileWriter deviceProfileWriter = new DeviceProfileWriter(assets,
                 executor,
                 diagnostics,
+                apkName,
                 PROFILE_SOURCE_LOCATION,
                 curProfile,
                 refProfile
@@ -444,7 +448,9 @@ public class ProfileInstaller {
     ) {
         Context appContext = context.getApplicationContext();
         String packageName = appContext.getPackageName();
+        ApplicationInfo appInfo = appContext.getApplicationInfo();
         AssetManager assetManager = appContext.getAssets();
-        transcodeAndWrite(assetManager, packageName, executor, diagnostics);
+        String apkName = new File(appInfo.sourceDir).getName();
+        transcodeAndWrite(assetManager, packageName, apkName, executor, diagnostics);
     }
 }
