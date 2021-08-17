@@ -39,6 +39,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
 }
 
 android {
