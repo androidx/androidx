@@ -33,11 +33,7 @@ class PaddingTest {
         )
 
         // Find the padding modifier...
-        val paddingModifier = modifiers.findPaddingModifier()
-
-        // Use Kotlin require here; it has a non-null contract, so we don't need to qualify
-        // future accesses to paddingModifier.
-        requireNotNull(paddingModifier)
+        val paddingModifier = checkNotNull(modifiers.findModifier<PaddingModifier>())
 
         assertThat(paddingModifier.rtlAware).isTrue()
         assertThat(paddingModifier.start).isEqualTo(1.dp)
@@ -50,8 +46,7 @@ class PaddingTest {
     fun buildVerticalHorizontalPadding() {
         val modifiers = Modifier.padding(vertical = 2.dp, horizontal = 4.dp)
 
-        val paddingModifier = modifiers.findPaddingModifier()
-        requireNotNull(paddingModifier)
+        val paddingModifier = checkNotNull(modifiers.findModifier<PaddingModifier>())
 
         assertThat(paddingModifier.start).isEqualTo(4.dp)
         assertThat(paddingModifier.top).isEqualTo(2.dp)
@@ -63,8 +58,7 @@ class PaddingTest {
     fun buildAllPadding() {
         val modifiers = Modifier.padding(all = 5.dp)
 
-        val paddingModifier = modifiers.findPaddingModifier()
-        requireNotNull(paddingModifier)
+        val paddingModifier = checkNotNull(modifiers.findModifier<PaddingModifier>())
 
         assertThat(paddingModifier.start).isEqualTo(5.dp)
         assertThat(paddingModifier.top).isEqualTo(5.dp)
@@ -81,8 +75,7 @@ class PaddingTest {
             bottom = 4.dp
         )
 
-        val paddingModifier = modifiers.findPaddingModifier()
-        requireNotNull(paddingModifier)
+        val paddingModifier = checkNotNull(modifiers.findModifier<PaddingModifier>())
 
         assertThat(paddingModifier.rtlAware).isFalse()
         assertThat(paddingModifier.start).isEqualTo(1.dp)
@@ -90,13 +83,4 @@ class PaddingTest {
         assertThat(paddingModifier.end).isEqualTo(3.dp)
         assertThat(paddingModifier.bottom).isEqualTo(4.dp)
     }
-
-    private fun Modifier.findPaddingModifier(): PaddingModifier? =
-        this.foldOut<PaddingModifier?>(null) { cur, acc ->
-            if (cur is PaddingModifier) {
-                cur
-            } else {
-                acc
-            }
-        }
 }
