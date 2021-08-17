@@ -419,6 +419,7 @@ includeProject(":datastore:datastore-rxjava2", "datastore/datastore-rxjava2", [B
 includeProject(":datastore:datastore-rxjava3", "datastore/datastore-rxjava3", [BuildType.MAIN])
 includeProject(":datastore:datastore-sampleapp", "datastore/datastore-sampleapp", [BuildType.MAIN])
 includeProject(":documentfile:documentfile", "documentfile/documentfile", [BuildType.MAIN])
+includeProject(":draganddrop:draganddrop", "draganddrop/draganddrop", [BuildType.MAIN])
 includeProject(":drawerlayout:drawerlayout", "drawerlayout/drawerlayout", [BuildType.MAIN])
 includeProject(":dynamicanimation", "dynamicanimation", [BuildType.MAIN])
 includeProject(":dynamicanimation:dynamicanimation", "dynamicanimation/dynamicanimation", [BuildType.MAIN])
