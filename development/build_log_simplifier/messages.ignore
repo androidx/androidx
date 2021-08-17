@@ -124,7 +124,6 @@ OUT_DIR=\$OUT_DIR
 DIST_DIR=\$DIST_DIR
 CHECKOUT=\$CHECKOUT
 GRADLE_USER_HOME=\$GRADLE_USER_HOME
-To honour the JVM settings for this build a single\-use Daemon process will be forked\. See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\#sec:disabling_the_daemon\.
 Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
 \.\.\.\.\.\.\.\.\.\.10%\.\.\.\.\.\.\.\.\.\.\.20%\.\.\.\.\.\.\.\.\.\.\.30%\.\.\.\.\.\.\.\.\.\.\.40%\.\.\.\.\.\.\.\.\.\.\.50%\.\.\.\.\.\.\.\.\.\.\.60%\.\.\.\.\.\.\.\.\.\.\.70%\.\.\.\.\.\.\.\.\.\.\.80%\.\.\.\.\.\.\.\.\.\.\.90%\.\.\.\.\.\.\.\.\.\.\.100%
 Welcome to Gradle .*
@@ -160,7 +159,7 @@ See https://kotlinlang\.org/docs/reference/building\-mpp\-with\-gradle\.html\#co
 # > Task :listTaskOutputs
 Wrote \$DIST_DIR/task_outputs\.txt
 Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
-See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/command_line_interface\.html\#sec:command_line_warnings
+See https://docs.gradle.org/.*/userguide/command_line_interface\.html#sec:command_line_warnings
 Execution optimizations have been disabled for [0-9]+ invalid unit\(s\) of work during this build to ensure correctness\.
 Please consult deprecation warnings for more details\.
 BUILD SUCCESSFUL in .*
@@ -589,7 +588,6 @@ WARNING\:The option setting \'android\.experimental\.enableArtProfiles\=true\' i
 The current default is \'false\'\.
 # ./gradlew tasks warns as we have warnings present
 You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
-See https://docs.gradle.org/.*/userguide/command_line_interface\.html#sec:command_line_warnings
 # > Task :emoji2:emoji2-bundled:processDebugAndroidTestManifest
 \$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
