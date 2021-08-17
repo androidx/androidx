@@ -7,6 +7,11 @@ package androidx.window.testing.layout {
     method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center, optional int size);
     method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.app.Activity activity, optional int center);
     method public static androidx.window.layout.FoldingFeature createFoldingFeature(android.app.Activity activity);
+    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional int center, optional int size, optional androidx.window.layout.FoldingFeature.State state, optional androidx.window.layout.FoldingFeature.Orientation orientation);
+    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional int center, optional int size, optional androidx.window.layout.FoldingFeature.State state);
+    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional int center, optional int size);
+    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional int center);
+    method @androidx.window.core.ExperimentalWindowApi public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds);
   }
 
   public final class WindowLayoutInfoPublisherRule implements org.junit.rules.TestRule {
