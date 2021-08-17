@@ -50,7 +50,6 @@ function run() {
     # Put each argument on its own line because some arguments may be long.
     # Also put "\" at the end of non-final lines so the command can be copy-pasted
     echo "$*" | sed 's/ / \\\n/g' | sed 's/^/    /' >&2
-    showDiskStats
     return 1
   fi
 }
