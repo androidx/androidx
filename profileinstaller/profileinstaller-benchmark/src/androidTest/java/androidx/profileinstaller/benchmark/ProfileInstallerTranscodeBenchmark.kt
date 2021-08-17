@@ -41,6 +41,7 @@ class ProfileInstallerTranscodeBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
     private val assets: AssetManager = InstrumentationRegistry.getInstrumentation().context.assets
+    private val APK_NAME = "base.apk"
 
     @Before
     fun setupTempDir() {
@@ -61,6 +62,7 @@ class ProfileInstallerTranscodeBenchmark {
                 assets,
                 Runnable::run,
                 Diagnostics(),
+                APK_NAME,
                 PROFILE_LOCATION,
                 mTempCurFile!!,
                 File("")
@@ -74,6 +76,7 @@ class ProfileInstallerTranscodeBenchmark {
             assets,
             Runnable::run,
             Diagnostics(),
+            APK_NAME,
             PROFILE_LOCATION,
             mTempCurFile!!,
             File("")
@@ -90,6 +93,7 @@ class ProfileInstallerTranscodeBenchmark {
             assets,
             Runnable::run,
             Diagnostics(),
+            APK_NAME,
             PROFILE_LOCATION,
             mTempCurFile!!,
             File("")
@@ -142,6 +146,7 @@ class ProfileInstallerTranscodeBenchmark {
                 assets,
                 Runnable::run,
                 Diagnostics(),
+                APK_NAME,
                 PROFILE_LOCATION,
                 mTempCurFile!!,
                 File("")
