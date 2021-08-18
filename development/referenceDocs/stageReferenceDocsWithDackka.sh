@@ -146,6 +146,7 @@ printf "=================================================================== \n"
 
 cd $newDir/reference
 python3 ./../../../switcher.py --work androidx
+python3 ./../../../switcher.py --work support
 
 printf "\n"
 printf "=================================================================== \n"
