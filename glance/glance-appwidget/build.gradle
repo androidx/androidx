@@ -40,6 +40,9 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
 }
 
 android {
