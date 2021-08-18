@@ -32,6 +32,7 @@ import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
@@ -101,7 +102,7 @@ public interface CanvasComplication {
     )
 
     /** Returns the [ComplicationData] to render with. */
-    public fun getData(): ComplicationData?
+    public fun getData(): ComplicationData
 
     /**
      * Sets the [ComplicationData] to render with and loads any [Drawable]s contained within the
@@ -112,7 +113,7 @@ public interface CanvasComplication {
      * @param complicationData The [ComplicationData] to render with
      * @param loadDrawablesAsynchronous Whether or not any drawables should be loaded asynchronously
      */
-    public fun loadData(complicationData: ComplicationData?, loadDrawablesAsynchronous: Boolean)
+    public fun loadData(complicationData: ComplicationData, loadDrawablesAsynchronous: Boolean)
 }
 
 /** Interface for determining whether a tap hits a complication. */
@@ -595,20 +596,16 @@ public class ComplicationSlot internal constructor(
 
     /**
      * The [androidx.wear.complications.data.ComplicationData] associated with the
-     * [ComplicationSlot].
+     * [ComplicationSlot]. This defaults to [NoDataComplicationData].
      */
-    public val complicationData:
-        ObservableWatchData<androidx.wear.complications.data.ComplicationData> =
-            MutableObservableWatchData()
+    public val complicationData: ObservableWatchData<ComplicationData> =
+        MutableObservableWatchData(NoDataComplicationData())
 
     /**
      * Whether or not the complication should be considered active and should be rendered at the
      * specified time.
      */
     public fun isActiveAt(dateTimeMillis: Long): Boolean {
-        if (!complicationData.hasValue()) {
-            return false
-        }
         return when (complicationData.value.type) {
             ComplicationType.NO_DATA -> false
             ComplicationType.NO_PERMISSION -> false
@@ -689,9 +686,7 @@ public class ComplicationSlot internal constructor(
         // Try the current type if there is one, otherwise fall back to the bounds for the default
         // complication data source type.
         val unitSquareBounds =
-            renderer.getData()?.let {
-                complicationSlotBounds.perComplicationTypeBounds[it.type]
-            } ?: complicationSlotBounds.perComplicationTypeBounds[defaultDataSourceType]!!
+            complicationSlotBounds.perComplicationTypeBounds[complicationData.value.type]!!
         unitSquareBounds.intersect(unitSquare)
         // We add 0.5 to make toInt() round to the nearest whole number rather than truncating.
         return Rect(

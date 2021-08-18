@@ -623,6 +623,24 @@ public class WatchFaceServiceImageTest {
         bitmap.assertAgainstGolden(screenshotRule, "green_screenshot")
     }
 
+    @Test
+    public fun testSetGreenStyleButDontResendComplications() {
+        handler.post(this::initCanvasWatchFace)
+        assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        // Note this will clear complicationSlots.
+        interactiveWatchFaceInstance.updateWatchfaceInstance(
+            "newId",
+            UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray()))
+        )
+
+        handler.post {
+            engineWrapper.draw()
+        }
+
+        assertThat(renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        bitmap.assertAgainstGolden(screenshotRule, "green_screenshot_no_complication_data")
+    }
+
     @SuppressLint("NewApi")
     @Test
     public fun testHighlightAllComplicationsInScreenshot() {

@@ -45,6 +45,7 @@ import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
@@ -346,7 +347,8 @@ public class WatchFaceServiceTest {
         apiVersion: Int = 2,
         hasLowBitAmbient: Boolean = false,
         hasBurnInProtection: Boolean = false,
-        tapListener: WatchFace.TapListener? = null
+        tapListener: WatchFace.TapListener? = null,
+        setInitialComplicationData: Boolean = true
     ) {
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
@@ -371,23 +373,25 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
 
         // Set some initial complication data.
-        for (complication in complicationSlots) {
-            setComplicationViaWallpaperCommand(
-                complication.id,
-                when (complication.defaultDataSourceType) {
-                    ComplicationType.SHORT_TEXT ->
-                        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortText(ComplicationText.plainText("Initial Short"))
-                            .build()
+        if (setInitialComplicationData) {
+            for (complication in complicationSlots) {
+                setComplicationViaWallpaperCommand(
+                    complication.id,
+                    when (complication.defaultDataSourceType) {
+                        ComplicationType.SHORT_TEXT ->
+                            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(ComplicationText.plainText("Initial Short"))
+                                .build()
 
-                    ComplicationType.PHOTO_IMAGE ->
-                        ComplicationData.Builder(ComplicationData.TYPE_LARGE_IMAGE)
-                            .setLargeImage(Icon.createWithContentUri("someuri"))
-                            .build()
+                        ComplicationType.PHOTO_IMAGE ->
+                            ComplicationData.Builder(ComplicationData.TYPE_LARGE_IMAGE)
+                                .setLargeImage(Icon.createWithContentUri("someuri"))
+                                .build()
 
-                    else -> throw UnsupportedOperationException()
-                }
-            )
+                        else -> throw UnsupportedOperationException()
+                    }
+                )
+            }
         }
 
         // Trigger watch face creation by setting the binder and the immutable properties.
@@ -2093,6 +2097,23 @@ public class WatchFaceServiceTest {
         assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
         assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
             .isEqualTo("TYPE_SHORT_TEXT")
+    }
+
+    @Test
+    public fun complicationsInitialized_with_NoComplicationComplicationData() {
+        initEngine(
+            WatchFaceType.DIGITAL,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(listOf(complicationsStyleSetting)),
+            setInitialComplicationData = false
+        )
+
+        assertThat(
+            watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value
+        ).isInstanceOf(NoDataComplicationData::class.java)
+        assertThat(
+            watchFaceImpl.complicationSlotsManager[RIGHT_COMPLICATION_ID]!!.complicationData.value
+        ).isInstanceOf(NoDataComplicationData::class.java)
     }
 
     @Test

@@ -50,6 +50,7 @@ import android.view.SurfaceHolder;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.wear.complications.data.DataKt;
+import androidx.wear.complications.data.NoDataComplicationData;
 import androidx.wear.watchface.CanvasType;
 import androidx.wear.watchface.ComplicationHelperActivity;
 import androidx.wear.watchface.ComplicationSlotsManager;
@@ -371,7 +372,7 @@ public class ComplicationDrawableTest {
     @Test
     public void onTapReturnsFalseIfNoComplicationData() {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
-        mComplicationDrawable.setComplicationData(null, true);
+        mComplicationDrawable.setComplicationData(new NoDataComplicationData(), true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isFalse();
