@@ -526,11 +526,11 @@ public class MainFragmentArgs implements NavArgs {
                 + "}";
     }
 
-    public static class Builder {
+    public static final class Builder {
         private final HashMap arguments = new HashMap();
 
         @SuppressWarnings("unchecked")
-        public Builder(MainFragmentArgs original) {
+        public Builder(@NonNull MainFragmentArgs original) {
             this.arguments.putAll(original.arguments);
         }
 
@@ -639,56 +639,56 @@ public class MainFragmentArgs implements NavArgs {
             return this;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @NonNull
         public String getMain() {
             return (String) arguments.get("main");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getOptional() {
             return (int) arguments.get("optional");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getReference() {
             return (int) arguments.get("reference");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getReferenceZeroDefaultValue() {
             return (int) arguments.get("referenceZeroDefaultValue");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public float getFloatArg() {
             return (float) arguments.get("floatArg");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @NonNull
         public float[] getFloatArrayArg() {
             return (float[]) arguments.get("floatArrayArg");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @NonNull
         public ActivityInfo[] getObjectArrayArg() {
             return (ActivityInfo[]) arguments.get("objectArrayArg");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public boolean getBoolArg() {
             return (boolean) arguments.get("boolArg");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @Nullable
         public ActivityInfo getOptionalParcelable() {
             return (ActivityInfo) arguments.get("optionalParcelable");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @NonNull
         public AccessMode getEnumArg() {
             return (AccessMode) arguments.get("enumArg");

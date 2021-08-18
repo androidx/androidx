@@ -250,7 +250,11 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
         val copyConstructor = MethodSpec.constructorBuilder()
             .addAnnotation(specs.suppressAnnotationSpec)
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(className, "original")
+            .addParameter(
+                ParameterSpec.builder(className, "original")
+                    .addAnnotation(specs.androidAnnotations.NONNULL_CLASSNAME)
+                    .build()
+            )
             .addCode(specs.copyMapContents("this", "original"))
             .build()
 
@@ -281,13 +285,13 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
 
         val builderClassName = ClassName.get("", "Builder")
         val builderTypeSpec = TypeSpec.classBuilder("Builder")
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
             .addField(specs.hashMapFieldSpec)
             .addMethod(copyConstructor)
             .addMethod(specs.constructor())
             .addMethod(buildMethod)
             .addMethods(specs.setters(builderClassName))
-            .addMethods(specs.getters())
+            .addMethods(specs.getters(true))
             .build()
 
         val typeSpec = TypeSpec.classBuilder(className)
@@ -482,10 +486,18 @@ private class ClassWithArgsSpecs(
             hashMapFieldSpec.name
         ).build()
 
-    fun getters() = args.map { arg ->
+    fun getters(isBuilder: Boolean = false) = args.map { arg ->
         MethodSpec.methodBuilder(getterFromArgName(arg.sanitizedName)).apply {
             addModifiers(Modifier.PUBLIC)
-            addAnnotation(suppressAnnotationSpec)
+            if (!isBuilder) {
+                addAnnotation(suppressAnnotationSpec)
+            } else {
+                addAnnotation(
+                    AnnotationSpec.builder(SuppressWarnings::class.java)
+                        .addMember("value", "{$S,$S}", "unchecked", "GetterOnBuilder")
+                        .build()
+                )
+            }
             if (arg.type.allowsNullable()) {
                 if (arg.isNullable) {
                     addAnnotation(androidAnnotations.NULLABLE_CLASSNAME)
