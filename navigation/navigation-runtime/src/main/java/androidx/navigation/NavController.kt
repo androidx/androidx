@@ -1527,17 +1527,6 @@ public open class NavController(
             }
         }
         val finalArgs = node.addInDefaultArgs(args)
-        val currentBackStackEntry = currentBackStackEntry
-        if (navOptions?.shouldLaunchSingleTop() == true &&
-            node.id == currentBackStackEntry?.destination?.id
-        ) {
-            // Single top operations don't change the back stack, they just update arguments
-            launchSingleTop = true
-            val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
-                node.navigatorName
-            )
-            navigator.onLaunchSingleTop(NavBackStackEntry(currentBackStackEntry, finalArgs))
-        }
         // Now determine what new destinations we need to add to the back stack
         if (navOptions?.shouldRestoreState() == true && backStackMap.containsKey(node.id)) {
             val backStackId = backStackMap[node.id]
@@ -1586,17 +1575,27 @@ public open class NavController(
                     addEntryToBackStack(lastDestination, finalArgs, entry, restoredEntries)
                 }
             }
-        } else if (!launchSingleTop) {
-            // Not a single top operation, so we're looking to add the node to the back stack
-            val backStackEntry = NavBackStackEntry.create(
-                context, node, finalArgs, lifecycleOwner, viewModel
-            )
+        } else {
+            val currentBackStackEntry = currentBackStackEntry
             val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
                 node.navigatorName
             )
-            navigator.navigateInternal(listOf(backStackEntry), navOptions, navigatorExtras) {
-                navigated = true
-                addEntryToBackStack(node, finalArgs, it)
+            if (navOptions?.shouldLaunchSingleTop() == true &&
+                node.id == currentBackStackEntry?.destination?.id
+            ) {
+                backQueue.removeLast()
+                val newEntry = NavBackStackEntry(currentBackStackEntry, finalArgs)
+                backQueue.addLast(newEntry)
+                navigator.onLaunchSingleTop(newEntry)
+            } else {
+                // Not a single top operation, so we're looking to add the node to the back stack
+                val backStackEntry = NavBackStackEntry.create(
+                    context, node, finalArgs, lifecycleOwner, viewModel
+                )
+                navigator.navigateInternal(listOf(backStackEntry), navOptions, navigatorExtras) {
+                    navigated = true
+                    addEntryToBackStack(node, finalArgs, it)
+                }
             }
         }
         updateOnBackPressedCallbackEnabled()
