@@ -33,18 +33,21 @@ dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
-
+    api(project(":wear:tiles:tiles"))
+    
     implementation(libs.kotlinStdlib)
     implementation(project(":compose:runtime:runtime"))
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
 }
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 26
     }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true

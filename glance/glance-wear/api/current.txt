@@ -1,1 +1,8 @@
 // Signature format: 4.0
+package androidx.glance.wear {
+
+  public final class WearCompositionTranslatorKt {
+  }
+
+}
+
