@@ -103,9 +103,7 @@ annotation also supports targeting a specific pre-release SDK with the
 
 You may also gate portions of test implementation code using `SDK_INT` or
 [`BuildCompat.isAtLeast`](https://developer.android.com/reference/androidx/core/os/BuildCompat)
-methods.
-
-To restrict to only phsyical devices, use
+methods. s To restrict to only physical devices, use
 [`@RequiresDevice`](https://developer.android.com/reference/androidx/test/filters/RequiresDevice).
 
 NOTE [Cuttlefish](https://source.android.com/setup/create/cuttlefish) is not
