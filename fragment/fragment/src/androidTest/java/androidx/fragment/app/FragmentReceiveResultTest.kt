@@ -184,7 +184,9 @@ class FragmentReceiveResultTest {
             intent.putExtra(FragmentResultActivity.EXTRA_RESULT_CODE, resultCode)
             intent.putExtra(FragmentResultActivity.EXTRA_RESULT_CONTENT, content)
 
-            val pendingIntent = PendingIntent.getActivity(activity, requestCode, intent, 0)
+            val pendingIntent = PendingIntent.getActivity(
+                activity, requestCode, intent, PendingIntent.FLAG_IMMUTABLE
+            )
 
             try {
                 fragment.startIntentSenderForResult(
