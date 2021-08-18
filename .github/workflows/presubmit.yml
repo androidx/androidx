@@ -94,7 +94,7 @@ jobs:
         id: affected-file-args
         run: |
           set -x
-          AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | grep -v "\s*" | sed 's|[^ ]* *|--changedFilePath=&|g'`
+          AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|[^ ]* *|--changedFilePath=&|g'`
           echo "::set-output name=files::$AFFECTED_FILES"
       - name: "ktlint"
         uses: eskatos/gradle-command-action@v1
