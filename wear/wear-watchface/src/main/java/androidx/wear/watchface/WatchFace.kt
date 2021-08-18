@@ -927,8 +927,7 @@ public class WatchFaceImpl @UiThread constructor(
                 it.value.defaultDataSourceType.toWireComplicationType(),
                 it.value.enabled,
                 it.value.initiallyEnabled,
-                it.value.renderer.getData()?.type?.toWireComplicationType()
-                    ?: ComplicationType.NO_DATA.toWireComplicationType(),
+                it.value.renderer.getData().type.toWireComplicationType(),
                 it.value.fixedComplicationDataSource,
                 it.value.configExtras
             )
@@ -1027,7 +1026,7 @@ public class WatchFaceImpl @UiThread constructor(
             )
 
             // Restore previous ComplicationData & style if required.
-            if (params.complicationData != null) {
+            if (prevData != null) {
                 it.renderer.loadData(prevData, false)
             }
 

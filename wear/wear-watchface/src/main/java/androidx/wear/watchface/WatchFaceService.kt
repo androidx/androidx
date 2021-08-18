@@ -921,6 +921,11 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         @UiThread
+        internal suspend fun clearComplicationData() {
+            deferredWatchFaceImpl.await().complicationSlotsManager.clearComplicationData()
+        }
+
+        @UiThread
         internal fun setImmutableSystemState(deviceConfig: DeviceConfig) {
             // These properties never change so set them once only.
             if (!immutableSystemStateDone) {
@@ -1711,19 +1716,17 @@ public abstract class WatchFaceService : WallpaperService() {
                             if (complication.boundsType == ComplicationSlotBoundsType.BACKGROUND) {
                                 ComplicationSlotBoundsType.BACKGROUND
                             } else {
-                                if (complication.complicationData.hasValue()) {
-                                    labels.add(
-                                        Pair(
-                                            complication.accessibilityTraversalIndex,
-                                            ContentDescriptionLabel(
-                                                _context,
-                                                complication.computeBounds(screenBounds),
-                                                complication.complicationData.value
-                                                    .asWireComplicationData()
-                                            )
+                                labels.add(
+                                    Pair(
+                                        complication.accessibilityTraversalIndex,
+                                        ContentDescriptionLabel(
+                                            _context,
+                                            complication.computeBounds(screenBounds),
+                                            complication.complicationData.value
+                                                .asWireComplicationData()
                                         )
                                     )
-                                }
+                                )
                             }
                         }
                     }
