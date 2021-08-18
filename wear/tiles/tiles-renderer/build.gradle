@@ -41,7 +41,7 @@ dependencies {
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
 
-    androidTestImplementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
+    androidTestImplementation(project(path: ":wear:tiles:tiles-proto"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

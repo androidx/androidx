@@ -28,7 +28,7 @@ dependencies {
     api(libs.guavaListenableFuture)
 
     implementation("androidx.annotation:annotation-experimental:1.1.0")
-    implementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
+    implementation(project(path: ":wear:tiles:tiles-proto"))
 
     compileOnly(libs.kotlinStdlib) // For annotation-experimental
 
