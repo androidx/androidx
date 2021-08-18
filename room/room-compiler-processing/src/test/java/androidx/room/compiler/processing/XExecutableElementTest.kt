@@ -128,26 +128,29 @@ class XExecutableElementTest {
         val subject = Source.kotlin(
             "Baz.kt",
             """
-            package foo.bar;
-            import java.util.List;
+            package foo.bar
+
             interface Baz {
                 fun noDefault()
                 fun withDefault(): Int {
-                    return 3;
+                    return 3
                 }
                 fun nameMatch()
                 fun nameMatch(param:Int) {}
                 fun withDefaultWithParams(param1:Int, param2:String) {}
                 fun withDefaultWithTypeArgs(param1: List<String>): String {
-                    return param1.first();
+                    return param1.first()
+                }
+                private fun privateWithDefault(): String {
+                    return ""
                 }
             }
             """.trimIndent()
         )
         runProcessorTest(
             sources = listOf(subject)
-        ) {
-            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getDeclaredMethod("noDefault").let { method ->
                 assertThat(method.hasKotlinDefaultImpl()).isFalse()
             }
@@ -172,6 +175,12 @@ class XExecutableElementTest {
 
             element.getDeclaredMethod("withDefaultWithTypeArgs").let { method ->
                 assertThat(method.hasKotlinDefaultImpl()).isTrue()
+            }
+            // private functions in interfaces don't appear in kapt stubs
+            if (invocation.isKsp) {
+                element.getDeclaredMethod("privateWithDefault").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isFalse()
+                }
             }
         }
     }
