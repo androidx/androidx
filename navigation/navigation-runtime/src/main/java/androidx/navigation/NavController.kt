@@ -944,7 +944,7 @@ public open class NavController(
             _graph = graph
             onGraphCreated(startDestinationArgs)
         } else {
-            for (i in 0..graph.nodes.size()) {
+            for (i in 0 until graph.nodes.size()) {
                 val newDestination = graph.nodes.valueAt(i)
                 _graph!!.nodes.replace(i, newDestination)
                 backQueue.filter { currentEntry ->
