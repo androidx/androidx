@@ -94,7 +94,7 @@ jobs:
         id: affected-file-args
         run: |
           set -x
-          AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|[^ ]* *|--changedFilePath=&|g'`
+          AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|\([^ ]\+\)|--changedFilePath=\1|g'`
           echo "::set-output name=files::$AFFECTED_FILES"
       - name: "ktlint"
         uses: eskatos/gradle-command-action@v1
@@ -156,6 +156,7 @@ jobs:
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
       - name: "./gradlew findAffectedModules"
         id: find-affected-modules
+        if: ${{ needs.lint.outputs.affectedFileArgs != '' }}
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
