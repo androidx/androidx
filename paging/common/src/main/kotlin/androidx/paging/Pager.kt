@@ -59,6 +59,7 @@ public class Pager<Key : Any, Value : Any>
      * invalidated by [PagingSource.invalidate] or calls to [AsyncPagingDataDiffer.refresh] or
      * [PagingDataAdapter.refresh].
      */
+    @OptIn(androidx.paging.ExperimentalPagingApi::class)
     public val flow: Flow<PagingData<Value>> = PageFetcher(
         pagingSourceFactory = if (
             pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>
