@@ -60,14 +60,13 @@ buildscript {
         classpath(libs.kotlinGradlePluginz)
         classpath(libs.kspGradlePluginz)
         classpath(libs.gson)
-        classpath "androidx.build:gradle-plugin:0.1.0"
         classpath(libs.shadow)
         classpath(libs.japicmpPluginz)
     }
 }
 
 apply from: "$supportRootFolder/buildSrc/dependencies.gradle"
-apply from: "$supportRootFolder/playground-common/out.gradle"
+apply from: "$supportRootFolder/buildSrc/out.gradle"
 init.chooseOutDir("/${rootProject.name}")
 
 apply plugin: AndroidXRootPlugin
