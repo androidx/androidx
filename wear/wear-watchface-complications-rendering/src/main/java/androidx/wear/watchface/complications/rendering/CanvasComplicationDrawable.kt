@@ -26,6 +26,7 @@ import android.util.TypedValue
 import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.DrawMode
@@ -139,10 +140,10 @@ constructor(
         }
     }
 
-    private var _data: ComplicationData? = null
+    private var _data: ComplicationData = NoDataComplicationData()
 
-    /** Returns the [ComplicationData] to render with. */
-    override fun getData(): ComplicationData? = _data
+    /** Returns the [ComplicationData] to render with. This defaults to [NoDataComplicationData]. */
+    override fun getData(): ComplicationData = _data
 
     /**
      * Updates the [ComplicationData] used for rendering and loads any [Drawable]s within the
@@ -157,7 +158,7 @@ constructor(
      */
     @CallSuper
     override fun loadData(
-        complicationData: ComplicationData?,
+        complicationData: ComplicationData,
         loadDrawablesAsynchronous: Boolean
     ): Unit = TraceEvent("CanvasComplicationDrawable.setIdAndData").use {
         _data = complicationData

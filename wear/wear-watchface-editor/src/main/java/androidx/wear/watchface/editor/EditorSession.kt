@@ -36,7 +36,6 @@ import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationDataSourceInfo
 import androidx.wear.complications.ComplicationDataSourceInfoRetriever
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.toApiComplicationDataSourceInfo
 import androidx.wear.watchface.ComplicationHelperActivity
@@ -720,7 +719,7 @@ internal class OnWatchFaceEditorSessionImpl(
                 it.value.defaultDataSourceType,
                 it.value.enabled,
                 it.value.initiallyEnabled,
-                it.value.renderer.getData()?.type ?: ComplicationType.NO_DATA,
+                it.value.renderer.getData().type,
                 it.value.fixedComplicationDataSource,
                 it.value.configExtras
             )

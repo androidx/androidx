@@ -30,7 +30,7 @@ import androidx.annotation.WorkerThread
 import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.complications.data.EmptyComplicationData
+import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
@@ -273,9 +273,9 @@ public class ComplicationSlotsManager(
     @UiThread
     internal fun clearComplicationData() {
         for ((_, complication) in complicationSlots) {
-            complication.renderer.loadData(null, false)
+            complication.renderer.loadData(NoDataComplicationData(), false)
             (complication.complicationData as MutableObservableWatchData).value =
-                EmptyComplicationData()
+                NoDataComplicationData()
         }
     }
 

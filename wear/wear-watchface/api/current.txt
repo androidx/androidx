@@ -8,8 +8,8 @@ package androidx.wear.watchface {
 
   public interface CanvasComplication {
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, android.icu.util.Calendar calendar, @ColorInt int color);
-    method public androidx.wear.complications.data.ComplicationData? getData();
-    method public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
+    method public androidx.wear.complications.data.ComplicationData getData();
+    method public void loadData(androidx.wear.complications.data.ComplicationData complicationData, boolean loadDrawablesAsynchronous);
     method @WorkerThread public default void onRendererCreated(androidx.wear.watchface.Renderer renderer);
     method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int slotId);
   }
