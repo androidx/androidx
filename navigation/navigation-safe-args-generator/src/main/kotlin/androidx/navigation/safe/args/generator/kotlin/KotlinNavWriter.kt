@@ -58,7 +58,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                         defaultValue(it.write())
                     }
                 }.build()
-            }
+            }.sortedBy { it.defaultValue != null }
             FunSpec.builder(action.id.javaIdentifier.toCamelCaseAsVar()).apply {
                 returns(NAV_DIRECTION_CLASSNAME)
                 addParameters(parameters)
@@ -163,7 +163,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                             defaultValue(it.write())
                         }
                     }.build()
-                }
+                }.sortedBy { it.defaultValue != null }
             )
             .build()
 
