@@ -52,6 +52,10 @@ dependencies {
     })
 }
 
+hilt {
+    enableAggregatingTask = true
+}
+
 androidx {
     name = "Android Navigation Fragment Hilt Extension"
     publish = Publish.SNAPSHOT_AND_RELEASE

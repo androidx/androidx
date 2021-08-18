@@ -56,6 +56,10 @@ dependencies {
     androidTestImplementation projectOrArtifact(":compose:test-utils")
 }
 
+hilt {
+    enableAggregatingTask = true
+}
+
 androidx {
     name = "Navigation Compose Hilt Integration"
     publish = Publish.SNAPSHOT_AND_RELEASE
