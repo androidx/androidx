@@ -121,6 +121,27 @@ In rare cases, like testing the animations themselves, you may want to enable
 animations for a particular test or test class. For those cases, you can use the
 [`AnimationDurationScaleRule`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:testutils/testutils-runtime/src/main/java/androidx/testutils/AnimationDurationScaleRule.kt).
 
+### Robolectric
+
+Robolectric tests are supported in AndroidX; however, if you targeting a
+pre-release version of the Android SDK then you may see an error like
+
+```
+java.lang.IllegalArgumentException: Package targetSdkVersion=31 > maxSdkVersion=30
+at org.robolectric.plugins.DefaultSdkPicker.configuredSdks(DefaultSdkPicker.java:118)
+at org.robolectric.plugins.DefaultSdkPicker.selectSdks(DefaultSdkPicker.java:69)
+```
+
+You can force Robolectric to run using an earlier version of the platform SDK by
+creating a `<project>/src/test/resources/robolectric.properties` file with the
+following contents:
+
+```
+# Robolectric currently doesn't support API 31, so we have to explicitly specify 30 as the target
+# sdk for now. Remove when no longer necessary.
+sdk=30
+```
+
 ## Using the emulator {#emulator}
 
 You can use the emulator or a real device to run tests. If you wish to use the
