@@ -87,7 +87,7 @@ on your project needs!
 To use it:
 
 ```sh
-cd ~/androidx-main/framework/support && \
+cd ~/androidx-main/frameworks/support && \
 cd development/project-creator && \
 ./create_project.py androidx.foo foo-bar
 ```
