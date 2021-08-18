@@ -69,6 +69,7 @@ class ProfileWatcher {
 }
 
 class MainActivity : ComponentActivity() {
+    @Suppress("EXPERIMENTAL_ANNOTATION_ON_OVERRIDE_WARNING")
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -75,6 +75,6 @@ androidx {
 // Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental"]
+        freeCompilerArgs += ["-Xopt-in=kotlin.Experimental"]
     }
 }

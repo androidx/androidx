@@ -16,7 +16,7 @@ package androidx.window.testing.layout {
 
   public final class WindowLayoutInfoPublisherRule implements org.junit.rules.TestRule {
     ctor public WindowLayoutInfoPublisherRule();
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
     method public void overrideWindowLayoutInfo(androidx.window.layout.WindowLayoutInfo info);
   }
 
