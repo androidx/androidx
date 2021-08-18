@@ -27,7 +27,7 @@ object RoomTestConfig {
      * This can help enable/disable certain tests for ksp
      */
     val isKsp
-        get() = BuildConfig.KSP
+        get() = BuildConfig.FLAVOR == "withKsp"
 }
 
 /**
