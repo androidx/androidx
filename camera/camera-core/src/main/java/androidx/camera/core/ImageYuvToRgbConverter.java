@@ -82,13 +82,20 @@ final class ImageYuvToRgbConverter {
         }
 
         // Retrieve ImageProxy in RGB
-        ImageProxy rgbImageProxy = rgbImageReaderProxy.acquireLatestImage();
-
-        // Close YUV image proxy for the next
-        if (rgbImageProxy != null) {
-            imageProxy.close();
+        final ImageProxy rgbImageProxy = rgbImageReaderProxy.acquireLatestImage();
+        if (rgbImageProxy == null) {
+            return null;
         }
-        return rgbImageProxy;
+
+        // Close ImageProxy for the next image
+        SingleCloseImageProxy wrappedRgbImageProxy = new SingleCloseImageProxy(rgbImageProxy);
+        wrappedRgbImageProxy.addOnImageCloseListener(image -> {
+            // Close YUV image proxy when RGB image proxy is closed by app.
+            if (rgbImageProxy != null && imageProxy != null) {
+                imageProxy.close();
+            }
+        });
+        return wrappedRgbImageProxy;
     }
 
     /**
