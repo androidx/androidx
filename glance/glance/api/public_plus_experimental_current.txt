@@ -133,6 +133,10 @@ package androidx.glance.layout {
     method @androidx.compose.runtime.Composable public static void Box(optional androidx.glance.Modifier modifier, optional androidx.glance.layout.Alignment contentAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  public final class ColumnKt {
+    method @androidx.compose.runtime.Composable public static void Column(optional androidx.glance.Modifier modifier, optional int verticalAlignment, optional int horizontalAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
   @androidx.glance.GlanceInternalApi public abstract sealed class Dimension {
   }
 
@@ -171,6 +175,32 @@ package androidx.glance.layout {
     property public androidx.glance.Modifier modifier;
   }
 
+  @androidx.glance.GlanceInternalApi public final class EmittableColumn extends androidx.glance.EmittableWithChildren {
+    ctor public EmittableColumn();
+    method public int getHorizontalAlignment();
+    method public androidx.glance.Modifier getModifier();
+    method public int getVerticalAlignment();
+    method public void setHorizontalAlignment(int horizontalAlignment);
+    method public void setModifier(androidx.glance.Modifier modifier);
+    method public void setVerticalAlignment(int verticalAlignment);
+    property public final int horizontalAlignment;
+    property public androidx.glance.Modifier modifier;
+    property public final int verticalAlignment;
+  }
+
+  @androidx.glance.GlanceInternalApi public final class EmittableRow extends androidx.glance.EmittableWithChildren {
+    ctor public EmittableRow();
+    method public int getHorizontalAlignment();
+    method public androidx.glance.Modifier getModifier();
+    method public int getVerticalAlignment();
+    method public void setHorizontalAlignment(int horizontalAlignment);
+    method public void setModifier(androidx.glance.Modifier modifier);
+    method public void setVerticalAlignment(int verticalAlignment);
+    property public final int horizontalAlignment;
+    property public androidx.glance.Modifier modifier;
+    property public final int verticalAlignment;
+  }
+
   @androidx.glance.GlanceInternalApi public final class HeightModifier implements androidx.glance.Modifier.Element {
     ctor public HeightModifier(androidx.glance.layout.Dimension height);
     method public androidx.glance.layout.Dimension getHeight();
@@ -196,6 +226,10 @@ package androidx.glance.layout {
     property public final boolean rtlAware;
     property public final float start;
     property public final float top;
+  }
+
+  public final class RowKt {
+    method @androidx.compose.runtime.Composable public static void Row(optional androidx.glance.Modifier modifier, optional int horizontalAlignment, optional int verticalAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   @androidx.glance.GlanceInternalApi public final class WidthModifier implements androidx.glance.Modifier.Element {
