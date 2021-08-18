@@ -4,5 +4,8 @@ package androidx.glance.appwidget {
   public final class CoroutineBroadcastReceiverKt {
   }
 
+  public final class RemoteViewsTranslatorKt {
+  }
+
 }
 
