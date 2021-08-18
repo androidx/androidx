@@ -704,6 +704,7 @@ class RecorderTest {
         file.delete()
     }
 
+    @Test
     fun resume_throwsExceptionWhenStopping() {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
