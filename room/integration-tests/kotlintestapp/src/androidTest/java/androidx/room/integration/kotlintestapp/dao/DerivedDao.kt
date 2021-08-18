@@ -25,7 +25,4 @@ interface DerivedDao : BaseDao<Author> {
 
     @Query("SELECT * FROM author WHERE authorId = :authorId")
     fun getAuthor(authorId: String): Author
-
-    // This is a private method to validate b/194706278
-    private fun getNullAuthor(): Author? = null
 }
