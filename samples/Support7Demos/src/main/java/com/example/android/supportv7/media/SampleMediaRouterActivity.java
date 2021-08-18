@@ -359,7 +359,8 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 SampleMediaButtonReceiver.class.getName());
         Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         mediaButtonIntent.setComponent(mEventReceiver);
-        mMediaPendingIntent = PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0);
+        mMediaPendingIntent = PendingIntent.getBroadcast(this, /* requestCode = */0,
+            mediaButtonIntent, PendingIntent.FLAG_IMMUTABLE);
 
         // Create and register the remote control client
         createMediaSession();
