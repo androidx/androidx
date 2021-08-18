@@ -68,11 +68,12 @@ internal sealed class KspMethodElement(
 
     override fun hasKotlinDefaultImpl(): Boolean {
         val parentDeclaration = declaration.parentDeclaration
-        // if parent declaration is an interface and we are not marked as an abstract method,
-        // we should have a default implementation
+        // if parent declaration is an interface and we are not marked as an abstract method nor
+        // we are a private function, then we should have a default implementation
         return parentDeclaration is KSClassDeclaration &&
             parentDeclaration.classKind == ClassKind.INTERFACE &&
-            !declaration.isAbstract
+            !declaration.isAbstract &&
+            !isPrivate()
     }
 
     override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
