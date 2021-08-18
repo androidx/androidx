@@ -16,7 +16,7 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.cts.app;
 
-import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -31,10 +31,10 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.util.AppSearchEmail;
-import androidx.appsearch.app.util.AppSearchTestUtils;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.appsearch.localstorage.stats.SearchStats;
+import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.appsearch.testutil.SimpleTestLogger;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -58,12 +58,11 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
                 new LocalStorage.GlobalSearchContext.Builder(context).build());
     }
 
-    // TODO(b/194207451) Following tests can be moved to CtsTestBase if customized logger is
+    // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
     //  supported for platform backend.
     @Test
     public void testLogger_searchStatsLogged_forEmptyFirstPage() throws Exception {
-        AppSearchTestUtils.TestLogger logger =
-                new AppSearchTestUtils.TestLogger();
+        SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
@@ -120,10 +119,11 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
         assertThat(logger.mSearchStats.getCurrentPageReturnedResultCount()).isEqualTo(0);
     }
 
+    // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
+    //  supported for platform backend.
     @Test
     public void testLogger_searchStatsLogged_forNonEmptyFirstPage() throws Exception {
-        AppSearchTestUtils.TestLogger logger =
-                new AppSearchTestUtils.TestLogger();
+        SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
@@ -180,10 +180,11 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
         assertThat(logger.mSearchStats.getCurrentPageReturnedResultCount()).isEqualTo(1);
     }
 
+    // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
+    //  supported for platform backend.
     @Test
     public void testLogger_searchStatsLogged_forEmptySecondPage() throws Exception {
-        AppSearchTestUtils.TestLogger logger =
-                new AppSearchTestUtils.TestLogger();
+        SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
@@ -245,10 +246,11 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
         assertThat(logger.mSearchStats.getCurrentPageReturnedResultCount()).isEqualTo(0);
     }
 
+    // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
+    //  supported for platform backend.
     @Test
     public void testLogger_searchStatsLogged_forNonEmptySecondPage() throws Exception {
-        AppSearchTestUtils.TestLogger logger =
-                new AppSearchTestUtils.TestLogger();
+        SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)

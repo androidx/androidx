@@ -26,8 +26,8 @@ import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.util.AppSearchEmail;
 import androidx.appsearch.localstorage.LocalStorage;
+import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableSet;

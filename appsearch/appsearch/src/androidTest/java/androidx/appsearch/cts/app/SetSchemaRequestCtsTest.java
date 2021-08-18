@@ -30,7 +30,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.util.AppSearchEmail;
+import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.collection.ArrayMap;
 
 import com.google.common.collect.ImmutableSet;

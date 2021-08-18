@@ -18,10 +18,10 @@ package androidx.appsearch.cts.app;
 
 import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
-import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
-import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
-import static androidx.appsearch.app.util.AppSearchTestUtils.doGet;
-import static androidx.appsearch.app.util.AppSearchTestUtils.retrieveAllSearchResults;
+import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
+import static androidx.appsearch.testutil.AppSearchTestUtils.doGet;
+import static androidx.appsearch.testutil.AppSearchTestUtils.retrieveAllSearchResults;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -47,9 +47,9 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.StorageInfo;
-import androidx.appsearch.app.util.AppSearchEmail;
 import androidx.appsearch.cts.app.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
