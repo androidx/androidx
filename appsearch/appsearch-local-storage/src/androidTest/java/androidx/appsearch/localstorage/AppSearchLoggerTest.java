@@ -47,6 +47,7 @@ import com.google.android.icing.proto.StatusProto;
 import com.google.android.icing.proto.TermMatchType;
 import com.google.common.collect.ImmutableList;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -77,6 +78,11 @@ public class AppSearchLoggerTest {
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE);
         mLogger = new TestLogger();
+    }
+
+    @After
+    public void tearDown() {
+        mAppSearchImpl.close();
     }
 
     // Test only not thread safe.
@@ -382,12 +388,13 @@ public class AppSearchLoggerTest {
     public void testLoggingStats_initializeWithoutDocuments_success() throws Exception {
         // Create an unused AppSearchImpl to generated an InitializeStats.
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
-        AppSearchImpl.create(
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
                 new UnlimitedLimitConfig(),
                 initStatsBuilder,
                 ALWAYS_OPTIMIZE);
         InitializeStats iStats = initStatsBuilder.build();
+        appSearchImpl.close();
 
         assertThat(iStats).isNotNull();
         assertThat(iStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
@@ -437,7 +444,8 @@ public class AppSearchLoggerTest {
 
         // Create another appsearchImpl on the same folder
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
-        AppSearchImpl.create(folder, new UnlimitedLimitConfig(), initStatsBuilder, ALWAYS_OPTIMIZE);
+        appSearchImpl = AppSearchImpl.create(
+                folder, new UnlimitedLimitConfig(), initStatsBuilder, ALWAYS_OPTIMIZE);
         InitializeStats iStats = initStatsBuilder.build();
 
         assertThat(iStats).isNotNull();
@@ -452,6 +460,7 @@ public class AppSearchLoggerTest {
         assertThat(iStats.getSchemaTypeCount()).isEqualTo(2);
         assertThat(iStats.hasReset()).isEqualTo(false);
         assertThat(iStats.getResetStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        appSearchImpl.close();
     }
 
     @Test
@@ -494,13 +503,15 @@ public class AppSearchLoggerTest {
 
         // Create another appsearchImpl on the same folder
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
-        AppSearchImpl.create(folder, new UnlimitedLimitConfig(), initStatsBuilder, ALWAYS_OPTIMIZE);
+        appSearchImpl = AppSearchImpl.create(
+                folder, new UnlimitedLimitConfig(), initStatsBuilder, ALWAYS_OPTIMIZE);
         InitializeStats iStats = initStatsBuilder.build();
 
         // Some of other fields are already covered by AppSearchImplTest#testReset()
         assertThat(iStats).isNotNull();
         assertThat(iStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_INTERNAL_ERROR);
         assertThat(iStats.hasReset()).isTrue();
+        appSearchImpl.close();
     }
 
     @Test

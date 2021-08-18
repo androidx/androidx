@@ -29,6 +29,7 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,6 +58,11 @@ public class SearchSessionImplTest {
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE);
         mSearchSessionImpl = new SearchSessionImpl(appSearchImpl,
                 searchContext.mExecutor, PACKAGE_NAME, DATABASE_NAME, mAppSearchLogger);
+    }
+
+    @After
+    public void tearDown() {
+        mSearchSessionImpl.close();
     }
 
     @Test

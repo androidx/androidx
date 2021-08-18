@@ -26,6 +26,7 @@ import androidx.appsearch.app.SearchSpec;
 import com.google.android.icing.proto.TermMatchType;
 import com.google.common.collect.ImmutableList;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -51,6 +52,11 @@ public class SearchResultsImplTest {
                 mTemporaryFolder.newFolder(),
                 new UnlimitedLimitConfig(),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE);
+    }
+
+    @After
+    public void tearDown() {
+        mAppSearchImpl.close();
     }
 
     @Test
