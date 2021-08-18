@@ -281,6 +281,7 @@ includeProject(":compose:animation:animation:animation-samples", "compose/animat
 includeProject(":compose:benchmark-utils", "compose/benchmark-utils", [BuildType.COMPOSE])
 includeProject(":compose:benchmark-utils:benchmark-utils-benchmark", "compose/benchmark-utils/benchmark", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler", "compose/compiler/compiler", [BuildType.COMPOSE, BuildType.MAIN])
+includeProject(":compose:compiler:compiler:integration-tests", "compose/compiler/compiler/integration-tests", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-hosted", "compose/compiler/compiler-hosted", [BuildType.COMPOSE, BuildType.MAIN])
 includeProject(":compose:compiler:compiler-hosted:integration-tests", "compose/compiler/compiler-hosted/integration-tests", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged", "compose/compiler/compiler-hosted/integration-tests/kotlin-compiler-repackaged", [BuildType.COMPOSE])
@@ -711,7 +712,7 @@ includeProject(":internal-testutils-ktx", "testutils/testutils-ktx", [BuildType.
 includeProject(":internal-testutils-macrobenchmark", "testutils/testutils-macrobenchmark", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":internal-testutils-navigation", "testutils/testutils-navigation", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":internal-testutils-paging", "testutils/testutils-paging", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":internal-testutils-mockito", "testutils/testutils-mockito", [BuildType.MAIN, BuildType.MEDIA])
 
 /////////////////////////////
