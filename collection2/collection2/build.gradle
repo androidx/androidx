@@ -69,7 +69,7 @@ kotlin {
         all {
             languageSettings {
                 progressiveMode = true
-                useExperimentalAnnotation("kotlin.ExperimentalStdlibApi") // STOPSHIP
+                optIn("kotlin.ExperimentalStdlibApi") // STOPSHIP
             }
         }
         commonMain {

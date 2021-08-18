@@ -46,6 +46,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     // The object built by paging builder can maintain the scope so that on rotation we don't stop
     // the paging.
     val flow: Flow<PagingData<Value>> = simpleChannelFlow {
+        @OptIn(androidx.paging.ExperimentalPagingApi::class)
         val remoteMediatorAccessor = remoteMediator?.let {
             RemoteMediatorAccessor(this, it)
         }

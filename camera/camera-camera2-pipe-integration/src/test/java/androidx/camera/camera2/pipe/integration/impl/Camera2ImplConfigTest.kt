@@ -20,6 +20,7 @@ import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.util.Range
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.testing.fakes.FakeConfig
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -30,6 +31,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 private const val INVALID_TEMPLATE_TYPE = -1
 private const val INVALID_COLOR_CORRECTION_MODE = -1
 
+@ExperimentalCamera2Interop
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

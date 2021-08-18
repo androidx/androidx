@@ -434,13 +434,7 @@ class XTypeElementTest {
                 val subject = invocation.processingEnv.requireTypeElement("$pkg.Subject")
                 val declaredFields = subject.getDeclaredFields().map { it.name } -
                     listOf("Companion") // skip Companion, KAPT generates it
-                val expectedFields = if (invocation.isKsp && pkg == "lib") {
-                    // TODO https://github.com/google/ksp/issues/491
-                    //  KSP returns false for companions in compiled code
-                    listOf("realField")
-                } else {
-                    listOf("realField", "staticRealField")
-                }
+                val expectedFields = listOf("realField", "staticRealField")
                 assertWithMessage(subject.qualifiedName)
                     .that(declaredFields)
                     .containsExactlyElementsIn(expectedFields)
@@ -487,13 +481,7 @@ class XTypeElementTest {
                 val subject = invocation.processingEnv.requireTypeElement("$pkg.Subject")
                 val declaredFields = subject.getDeclaredFields().map { it.name } -
                     listOf("Companion")
-                val expectedFields = if (invocation.isKsp && pkg == "lib") {
-                    // TODO https://github.com/google/ksp/issues/491
-                    //  KSP returns false for companions in compiled code
-                    listOf("value")
-                } else {
-                    listOf("value", "realCompanion", "jvmStatic")
-                }
+                val expectedFields = listOf("value", "realCompanion", "jvmStatic")
                 assertWithMessage(subject.qualifiedName)
                     .that(declaredFields)
                     .containsExactlyElementsIn(expectedFields)
