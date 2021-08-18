@@ -260,6 +260,8 @@ public final class LocationManagerCompat {
                 return;
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                 // ignored
+            } catch (UnsupportedOperationException e) {
+                // ignored
             }
         }
 
@@ -282,6 +284,8 @@ public final class LocationManagerCompat {
                 }
                 return;
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                // ignored
+            } catch (UnsupportedOperationException e) {
                 // ignored
             }
         }
@@ -329,6 +333,8 @@ public final class LocationManagerCompat {
                         locationRequest.toLocationRequest(provider), listener, looper);
                 return;
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                // ignored
+            } catch (UnsupportedOperationException e) {
                 // ignored
             }
         }
@@ -630,7 +636,17 @@ public final class LocationManagerCompat {
             List<WeakReference<LocationListenerTransport>> transports =
                     sLocationListeners.get(listener);
             if (transports != null) {
-                transports.removeIf(reference -> reference.get() == null);
+                // clean unreferenced transports
+                if (VERSION.SDK_INT >= VERSION_CODES.N) {
+                    transports.removeIf(reference -> reference.get() == null);
+                } else {
+                    Iterator<WeakReference<LocationListenerTransport>> it = transports.iterator();
+                    while (it.hasNext()) {
+                        if (it.next().get() == null) {
+                            it.remove();
+                        }
+                    }
+                }
                 if (transports.isEmpty()) {
                     sLocationListeners.remove(listener);
                 }
