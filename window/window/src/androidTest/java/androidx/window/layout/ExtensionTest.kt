@@ -31,7 +31,7 @@ import androidx.window.TestActivity.Companion.waitForOnResume
 import androidx.window.TestConfigChangeHandlingActivity
 import androidx.window.WindowTestBase
 import androidx.window.core.Version
-import androidx.window.extensions.layout.FoldingFeature
+import androidx.window.extensions.layout.FoldingFeature as ExtensionFoldingFeature
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -76,7 +76,7 @@ public class ExtensionTest : WindowTestBase() {
         val type = 1
         val state = 1
         val displayFeature =
-            FoldingFeature(
+            ExtensionFoldingFeature(
                 rect,
                 type,
                 state
@@ -257,7 +257,7 @@ public class ExtensionTest : WindowTestBase() {
 
     private companion object {
         private fun isValid(activity: TestActivity, displayFeature: DisplayFeature): Boolean {
-            if (displayFeature !is FoldingFeature) {
+            if (displayFeature as? FoldingFeature == null) {
                 return false
             }
             val featureRect: Rect = displayFeature.bounds
