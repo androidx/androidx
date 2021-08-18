@@ -17,6 +17,7 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -51,6 +52,7 @@ import kotlin.math.ceil
  * @param start Padding added at the start of the component.
  * @param end Padding added at the end of the component.
  */
+@Stable
 class ArcPaddingValues(val outer: Dp, val inner: Dp, val start: Dp, val end: Dp) {
     override fun equals(other: Any?): Boolean {
         return other is ArcPaddingValues &&
@@ -65,6 +67,14 @@ class ArcPaddingValues(val outer: Dp, val inner: Dp, val start: Dp, val end: Dp)
 
     override fun toString(): String {
         return "ArcPaddingValues(outer=$outer, inner=$inner, start=$start, end=$end)"
+    }
+
+    companion object {
+        /**
+         * An arc padding value with zero magnitude.
+         */
+        @Stable
+        val Zero = ArcPaddingValues(0.dp, 0.dp, 0.dp, 0.dp)
     }
 }
 
