@@ -176,11 +176,12 @@ fun CurvedRow(
 
             // Compute to total angle all children take and where we need to start laying them out.
             val totalSweep = measuredChildren.map { it.sweep }.sum()
-            var childAngleStart = -anchorType.ratio * totalSweep
 
             val clockwiseFactor = if (clockwise) 1 else -1
 
             layout(diameter, diameter) {
+                var childAngleStart = -anchorType.ratio * totalSweep
+
                 measuredChildren.forEach { child ->
                     // Angle of the vector from the centre of the CurvedRow to the center of the child.
                     val centerAngle = anchor.toRadians() + clockwiseFactor *
