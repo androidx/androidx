@@ -14,7 +14,7 @@ package androidx.wear.compose.foundation {
     property public final float Start;
   }
 
-  public final class ArcPaddingValues {
+  @androidx.compose.runtime.Stable public final class ArcPaddingValues {
     ctor public ArcPaddingValues(float outer, float inner, float start, float end);
     method public float getEnd();
     method public float getInner();
@@ -24,6 +24,12 @@ package androidx.wear.compose.foundation {
     property public final float inner;
     property public final float outer;
     property public final float start;
+    field public static final androidx.wear.compose.foundation.ArcPaddingValues.Companion Companion;
+  }
+
+  public static final class ArcPaddingValues.Companion {
+    method public androidx.wear.compose.foundation.ArcPaddingValues getZero();
+    property public final androidx.wear.compose.foundation.ArcPaddingValues Zero;
   }
 
   public final class BasicCurvedTextKt {
