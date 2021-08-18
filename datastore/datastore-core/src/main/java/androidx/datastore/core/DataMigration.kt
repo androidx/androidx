@@ -38,8 +38,8 @@ public interface DataMigration<T> {
      * Note that accessing any data from DataStore directly from inside this function will result
      * in deadlock, since DataStore doesn't return data until all migrations complete.
      *
-     * @param currentData the current data (which might already populated from previous runs of this
-     * or other migrations)
+     * @param currentData the current data (which might already be populated from previous runs of
+     * this or other migrations)
      */
     public suspend fun shouldMigrate(currentData: T): Boolean
 
