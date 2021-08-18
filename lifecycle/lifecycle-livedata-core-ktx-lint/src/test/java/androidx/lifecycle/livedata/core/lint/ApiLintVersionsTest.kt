@@ -16,8 +16,9 @@
 
 @file:Suppress("UnstableApiUsage")
 
-package androidx.lifecycle.lint
+package androidx.lifecycle.livedata.core.lint
 
+import androidx.lifecycle.lint.LiveDataCoreIssueRegistry
 import com.android.tools.lint.client.api.LintClient
 import com.android.tools.lint.detector.api.CURRENT_API
 import org.junit.Assert.assertEquals

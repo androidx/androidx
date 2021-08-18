@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.lint
+package androidx.lifecycle.runtime.lint
 
-import androidx.lifecycle.lint.stubs.REPEAT_ON_LIFECYCLE_STUBS
+import androidx.lifecycle.lint.RepeatOnLifecycleDetector
+import androidx.lifecycle.runtime.lint.stubs.REPEAT_ON_LIFECYCLE_STUBS
 import com.android.tools.lint.checks.infrastructure.TestFiles
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask

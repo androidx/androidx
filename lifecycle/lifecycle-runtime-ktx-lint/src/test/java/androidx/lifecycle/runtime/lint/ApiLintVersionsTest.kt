@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.lint
+package androidx.lifecycle.runtime.lint
 
+import androidx.lifecycle.lint.LifecycleRuntimeIssueRegistry
 import com.android.tools.lint.client.api.LintClient
 import com.android.tools.lint.detector.api.CURRENT_API
 import org.junit.Assert

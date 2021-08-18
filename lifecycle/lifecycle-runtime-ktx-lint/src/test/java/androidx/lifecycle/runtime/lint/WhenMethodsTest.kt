@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.lint
+package androidx.lifecycle.runtime.lint
 
-import androidx.lifecycle.lint.stubs.COROUTINES_STUB
-import androidx.lifecycle.lint.stubs.LIFECYCLE_STUB
-import androidx.lifecycle.lint.stubs.VIEW_STUB
+import androidx.lifecycle.lint.LifecycleWhenChecks
+import androidx.lifecycle.lint.errorMessage
+import androidx.lifecycle.runtime.lint.stubs.COROUTINES_STUB
+import androidx.lifecycle.runtime.lint.stubs.LIFECYCLE_STUB
+import androidx.lifecycle.runtime.lint.stubs.VIEW_STUB
 import com.android.tools.lint.checks.infrastructure.TestFiles
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask
