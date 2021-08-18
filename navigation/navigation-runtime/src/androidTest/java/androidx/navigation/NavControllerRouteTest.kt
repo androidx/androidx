@@ -1336,6 +1336,27 @@ class NavControllerRouteTest {
         assertThat(backPressedIntercepted).isTrue()
     }
 
+    @UiThreadTest
+    @Test
+    fun testSetGraph13Entries() {
+        val navController = createNavController()
+        val lifecycleOwner = TestLifecycleOwner()
+        val dispatcher = OnBackPressedDispatcher()
+
+        navController.setLifecycleOwner(lifecycleOwner)
+        navController.setOnBackPressedDispatcher(dispatcher)
+
+        val navRepeatedGraph =
+            createNavController().createGraph(route = "nav_root", startDestination = "0") {
+                repeat(13) { index ->
+                    test("$index")
+                }
+            }
+
+        navController.graph = navRepeatedGraph
+        navController.graph = navRepeatedGraph
+    }
+
     private fun createNavController(): NavController {
         val navController = NavController(ApplicationProvider.getApplicationContext())
         val navigator = TestNavigator()
