@@ -25,15 +25,16 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import android.location.LocationRequest;
+import android.os.Build.VERSION;
 import android.os.SystemClock;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.collect.Range;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -46,6 +47,7 @@ public class LocationRequestCompatTest {
     private static Method sGetIntervalMethod;
     private static Method sGetFastestIntervalMethod;
     private static Method sGetExpireAtMethod;
+    private static Method sGetExpireInMethod;
     private static Method sGetNumUpdatesMethod;
     private static Method sGetSmallestDisplacementMethod;
 
@@ -93,7 +95,6 @@ public class LocationRequestCompatTest {
         assertEquals(PASSIVE_INTERVAL, builder.build().getIntervalMillis());
     }
 
-    @Ignore // b/193441451
     @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
     @Test
     public void testConversion_19Plus() throws Exception {
@@ -104,7 +105,7 @@ public class LocationRequestCompatTest {
                 builder.build().toLocationRequest("test").getQuality());
         assertEquals(0, getInterval(builder.build().toLocationRequest("test")));
         assertEquals(0, getFastestInterval(builder.build().toLocationRequest("test")));
-        assertEquals(Long.MAX_VALUE, getExpireAt(builder.build().toLocationRequest()));
+        assertEquals(Long.MAX_VALUE, getExpireAt(builder.build().toLocationRequest("test")));
         assertEquals(Integer.MAX_VALUE, getNumUpdates(builder.build().toLocationRequest("test")));
         assertEquals(0, getSmallestDisplacement(builder.build().toLocationRequest("test")), 0);
 
@@ -124,9 +125,13 @@ public class LocationRequestCompatTest {
         assertEquals(1000, getFastestInterval(builder.build().toLocationRequest("test")));
 
         builder.setDurationMillis(1);
-        long time = SystemClock.elapsedRealtime();
-        assertThat(getExpireAt(builder.build().toLocationRequest())).isIn(
-                Range.closed(time - 1000, time));
+        if (VERSION.SDK_INT < 30) {
+            long time = SystemClock.elapsedRealtime();
+            assertThat(getExpireAt(builder.build().toLocationRequest("test"))).isIn(
+                    Range.closed(time - 100, time + 100));
+        } else {
+            assertThat(getExpireIn(builder.build().toLocationRequest("test"))).isEqualTo(1);
+        }
 
         builder.setMaxUpdates(1);
         assertEquals(1, getNumUpdates(builder.build().toLocationRequest("test")));
@@ -221,6 +226,17 @@ public class LocationRequestCompatTest {
         }
 
         return (Long) Preconditions.checkNotNull(sGetExpireAtMethod.invoke(request));
+    }
+
+    @RequiresApi(30)
+    private static long getExpireIn(LocationRequest request)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        if (sGetExpireInMethod == null) {
+            sGetExpireInMethod = LocationRequest.class.getDeclaredMethod("getExpireIn");
+            sGetExpireInMethod.setAccessible(true);
+        }
+
+        return (Long) Preconditions.checkNotNull(sGetExpireInMethod.invoke(request));
     }
 
     private static int getNumUpdates(LocationRequest request)
