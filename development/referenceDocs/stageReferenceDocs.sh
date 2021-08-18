@@ -70,6 +70,7 @@ printf "=================================================================== \n"
 
 cd reference
 python3 ./../../../switcher.py --work androidx
+python3 ./../../../switcher.py --work support
 
 printf "============================ STEP 5 =============================== \n"
 printf "== Run the following command to copy the docs into Google3 \n"
