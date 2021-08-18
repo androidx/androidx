@@ -33,7 +33,6 @@ import androidx.test.filters.SmallTest;
 
 import com.google.common.collect.Range;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -93,7 +92,6 @@ public class LocationRequestCompatTest {
         assertEquals(PASSIVE_INTERVAL, builder.build().getIntervalMillis());
     }
 
-    @Ignore // b/193441451
     @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
     @Test
     public void testConversion_19Plus() throws Exception {
@@ -104,7 +102,7 @@ public class LocationRequestCompatTest {
                 builder.build().toLocationRequest("test").getQuality());
         assertEquals(0, getInterval(builder.build().toLocationRequest("test")));
         assertEquals(0, getFastestInterval(builder.build().toLocationRequest("test")));
-        assertEquals(Long.MAX_VALUE, getExpireAt(builder.build().toLocationRequest()));
+        assertEquals(Long.MAX_VALUE, getExpireAt(builder.build().toLocationRequest("test")));
         assertEquals(Integer.MAX_VALUE, getNumUpdates(builder.build().toLocationRequest("test")));
         assertEquals(0, getSmallestDisplacement(builder.build().toLocationRequest("test")), 0);
 
@@ -125,8 +123,8 @@ public class LocationRequestCompatTest {
 
         builder.setDurationMillis(1);
         long time = SystemClock.elapsedRealtime();
-        assertThat(getExpireAt(builder.build().toLocationRequest())).isIn(
-                Range.closed(time - 1000, time));
+        assertThat(getExpireAt(builder.build().toLocationRequest("test"))).isIn(
+                Range.closed(time - 100, time + 100));
 
         builder.setMaxUpdates(1);
         assertEquals(1, getNumUpdates(builder.build().toLocationRequest("test")));
