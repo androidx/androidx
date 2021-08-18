@@ -72,8 +72,13 @@ public class ImageYuvToRgbConverterTest {
     @Test
     public void convertYUVToRGBWhenNotFlipUV() {
         // Arrange.
-        mYUVImageProxy.setPlanes(createYUV420ImagePlanes(WIDTH, HEIGHT, PIXEL_STRIDE_Y,
-                PIXEL_STRIDE_UV, false));
+        mYUVImageProxy.setPlanes(createYUV420ImagePlanes(
+                WIDTH,
+                HEIGHT,
+                PIXEL_STRIDE_Y,
+                PIXEL_STRIDE_UV,
+                /*flipUV=*/false,
+                /*incrementValue=*/false));
 
         // Act.
         ImageProxy rgbImageProxy = ImageYuvToRgbConverter.convertYUVToRGB(mYUVImageProxy,
@@ -87,8 +92,13 @@ public class ImageYuvToRgbConverterTest {
     @Test
     public void convertYUVToRGBWhenFlipUV() {
         // Arrange.
-        mYUVImageProxy.setPlanes(createYUV420ImagePlanes(WIDTH, HEIGHT, PIXEL_STRIDE_Y,
-                PIXEL_STRIDE_UV, true));
+        mYUVImageProxy.setPlanes(createYUV420ImagePlanes(
+                WIDTH,
+                HEIGHT,
+                PIXEL_STRIDE_Y,
+                PIXEL_STRIDE_UV,
+                /*flipUV=*/true,
+                /*incrementValue=*/false));
 
         // Act.
         ImageProxy rgbImageProxy = ImageYuvToRgbConverter.convertYUVToRGB(mYUVImageProxy,
@@ -106,7 +116,9 @@ public class ImageYuvToRgbConverterTest {
                 WIDTH,
                 HEIGHT,
                 PIXEL_STRIDE_Y_UNSUPPORTED,
-                PIXEL_STRIDE_UV_UNSUPPORTED, true));
+                PIXEL_STRIDE_UV_UNSUPPORTED,
+                /*flipUV=*/true,
+                /*incrementValue=*/false));
 
         // Act.
         ImageProxy rgbImageProxy = ImageYuvToRgbConverter.convertYUVToRGB(mYUVImageProxy,
@@ -115,5 +127,31 @@ public class ImageYuvToRgbConverterTest {
         // Assert.
         assertThat(rgbImageProxy.getFormat()).isEqualTo(PixelFormat.RGBA_8888);
         assertThat(rgbImageProxy.getPlanes().length).isEqualTo(1);
+    }
+
+    @Test
+    public void applyPixelShiftForYUVWhenOnePixelShiftEnabled() {
+        // Arrange.
+        mYUVImageProxy.setPlanes(createYUV420ImagePlanes(
+                WIDTH,
+                HEIGHT,
+                PIXEL_STRIDE_Y,
+                PIXEL_STRIDE_UV,
+                /*flipUV=*/false,
+                /*incrementValue=*/true));
+
+        // Assert.
+        assertThat(mYUVImageProxy.getPlanes()[0].getBuffer().get(0)).isEqualTo(1);
+        assertThat(mYUVImageProxy.getPlanes()[1].getBuffer().get(0)).isEqualTo(1);
+        assertThat(mYUVImageProxy.getPlanes()[2].getBuffer().get(0)).isEqualTo(1);
+
+        // Act.
+        boolean result = ImageYuvToRgbConverter.applyPixelShiftForYUV(mYUVImageProxy);
+
+        // Assert.
+        assertThat(result).isTrue();
+        assertThat(mYUVImageProxy.getPlanes()[0].getBuffer().get(0)).isEqualTo(2);
+        assertThat(mYUVImageProxy.getPlanes()[1].getBuffer().get(0)).isEqualTo(2);
+        assertThat(mYUVImageProxy.getPlanes()[2].getBuffer().get(0)).isEqualTo(2);
     }
 }

@@ -37,6 +37,7 @@ public final class ImageProxyUtil {
      * @param width image width.
      * @param height image height.
      * @param flipUV true if v data is before u data in memory, false otherwise.
+     * @param incrementValue true if the data value will increment by position, e.g. 1, 2, 3, etc,.
      * @return image planes in image proxy.
      */
     @NonNull
@@ -45,26 +46,27 @@ public final class ImageProxyUtil {
             final int height,
             final int pixelStrideY,
             final int pixelStrideUV,
-            final boolean flipUV) {
+            final boolean flipUV,
+            final boolean incrementValue) {
         ImageProxy.PlaneProxy[] planes = new ImageProxy.PlaneProxy[3];
 
         planes[0] =
-                createPlane(width, height, pixelStrideY, /*dataValue=*/ 1);
+                createPlane(width, height, pixelStrideY, /*dataValue=*/ 1, incrementValue);
 
         if (flipUV) {
             planes[2] =
                     createPlane(
-                            width / 2, height / 2, pixelStrideUV, /*dataValue=*/ 1);
+                            width / 2, height / 2, pixelStrideUV, /*dataValue=*/ 1, incrementValue);
             planes[1] =
                     createPlane(
-                            width / 2, height / 2, pixelStrideUV, /*dataValue=*/ 1);
+                            width / 2, height / 2, pixelStrideUV, /*dataValue=*/ 1, incrementValue);
         } else {
             planes[1] =
                     createPlane(
-                            width / 2, height / 2, pixelStrideUV, /*dataValue=*/ 1);
+                            width / 2, height / 2, pixelStrideUV, /*dataValue=*/ 1, incrementValue);
             planes[2] =
                     createPlane(
-                            width / 2, height / 2, pixelStrideUV, /*dataValue=*/ 1);
+                            width / 2, height / 2, pixelStrideUV, /*dataValue=*/ 1, incrementValue);
         }
         return planes;
     }
@@ -74,11 +76,12 @@ public final class ImageProxyUtil {
             final int width,
             final int height,
             final int pixelStride,
-            final int dataValue) {
+            final int dataValue,
+            final boolean incrementValue) {
         return new ImageProxy.PlaneProxy() {
             @SuppressLint("SyntheticAccessor")
             final ByteBuffer mBuffer =
-                    createBuffer(width, height, pixelStride, dataValue);
+                    createBuffer(width, height, pixelStride, dataValue, incrementValue);
 
             @Override
             public int getRowStride() {
@@ -103,13 +106,18 @@ public final class ImageProxyUtil {
             final int width,
             final int height,
             final int pixelStride,
-            final int dataValue) {
+            final int dataValue,
+            final boolean incrementValue) {
         int rowStride = width * pixelStride;
         ByteBuffer buffer = ByteBuffer.allocateDirect(rowStride * height);
+        int value = dataValue;
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
                 buffer.position(y * rowStride + x * pixelStride);
-                buffer.put((byte) (dataValue & 0xFF));
+                buffer.put((byte) (value & 0xFF));
+                if (incrementValue) {
+                    value++;
+                }
             }
         }
         return buffer;

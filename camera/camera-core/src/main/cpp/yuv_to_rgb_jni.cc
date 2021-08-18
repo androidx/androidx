@@ -12,6 +12,63 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "YuvToRgbJni", __VA_ARGS__)
 
 extern "C" {
+JNIEXPORT jint Java_androidx_camera_core_ImageYuvToRgbConverter_shiftPixel(
+        JNIEnv* env,
+        jclass,
+        jobject src_y,
+        jint src_stride_y,
+        jobject src_u,
+        jint src_stride_u,
+        jobject src_v,
+        jint src_stride_v,
+        jint src_pixel_stride_y,
+        jint src_pixel_stride_uv,
+        jint width,
+        jint height,
+        jint start_offset_y,
+        jint start_offset_u,
+        jint start_offset_v) {
+    uint8_t* src_y_ptr =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(src_y));
+    uint8_t* src_u_ptr =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(src_u));
+    uint8_t* src_v_ptr =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(src_v));
+
+    // TODO(b/195990691): extend the pixel shift to handle multiple corrupted pixels.
+    // We don't support multiple pixel shift now.
+    // Y
+    for (int i = 0; i < height; i++) {
+        memmove(&src_y_ptr[0 + i * src_stride_y],
+               &src_y_ptr[start_offset_y + i * src_stride_y],
+               width - 1);
+
+        src_y_ptr[width - start_offset_y + i * src_stride_y] =
+                src_y_ptr[src_stride_y - start_offset_y + i * src_stride_y];
+    }
+
+    // U
+    for (int i = 0; i < height / 2; i++) {
+        memmove(&src_u_ptr[0 + i * src_stride_u],
+               &src_u_ptr[start_offset_u + i * src_stride_u],
+               width / 2 - 1);
+
+        src_u_ptr[width / 2 - start_offset_u + i * src_stride_u] =
+                src_u_ptr[src_stride_u - start_offset_u + i * src_stride_u];
+    }
+
+    // V
+    for (int i = 0; i < height / 2; i++) {
+        memmove(&src_v_ptr[0 + i * src_stride_v],
+               &src_v_ptr[start_offset_v + i * src_stride_v],
+               width / 2 - 1);
+
+        src_v_ptr[width / 2 - start_offset_v + i * src_stride_v] =
+                src_v_ptr[src_stride_v - start_offset_v + i * src_stride_v];
+    }
+
+    return 0;
+}
 
 JNIEXPORT jint Java_androidx_camera_core_ImageYuvToRgbConverter_convertAndroid420ToABGR(
         JNIEnv* env,

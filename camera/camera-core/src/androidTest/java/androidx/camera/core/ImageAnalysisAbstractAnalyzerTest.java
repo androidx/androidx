@@ -74,8 +74,13 @@ public class ImageAnalysisAbstractAnalyzerTest {
         mImageProxy.setWidth(WIDTH);
         mImageProxy.setHeight(HEIGHT);
         mImageProxy.setFormat(YUV_420_888);
-        mImageProxy.setPlanes(createYUV420ImagePlanes(WIDTH, HEIGHT, PIXEL_STRIDE_Y,
-                PIXEL_STRIDE_UV, true));
+        mImageProxy.setPlanes(createYUV420ImagePlanes(
+                WIDTH,
+                HEIGHT,
+                PIXEL_STRIDE_Y,
+                PIXEL_STRIDE_UV,
+                /*flipUV=*/true,
+                /*incrementValue=*/true));
 
         mYUVImageReaderProxy = mock(ImageReaderProxy.class);
         when(mYUVImageReaderProxy.getWidth()).thenReturn(WIDTH);
@@ -140,6 +145,62 @@ public class ImageAnalysisAbstractAnalyzerTest {
         assertThat(imageProxyArgumentCaptor.getValue().getPlanes().length).isEqualTo(1);
     }
 
+    @Test
+    public void applyPixelShiftForYUVWhenOnePixelShiftEnabled() throws ExecutionException,
+            InterruptedException {
+        // Arrange.
+        mImageAnalysisAbstractAnalyzer.setOutputImageFormat(OUTPUT_IMAGE_FORMAT_YUV_420_888);
+        mImageAnalysisAbstractAnalyzer.setRGBImageReaderProxy(mRGBImageReaderProxy);
+        mImageAnalysisAbstractAnalyzer.setOnePixelShiftEnabled(true);
+
+        // Act.
+        ListenableFuture<Void> result =
+                mImageAnalysisAbstractAnalyzer.analyzeImage(mImageProxy);
+        result.get();
+
+        // Assert.
+        ArgumentCaptor<ImageProxy> imageProxyArgumentCaptor =
+                ArgumentCaptor.forClass(ImageProxy.class);
+        verify(mAnalyzer).analyze(imageProxyArgumentCaptor.capture());
+        assertThat(imageProxyArgumentCaptor.getValue().getFormat()).isEqualTo(YUV_420_888);
+        assertThat(imageProxyArgumentCaptor.getValue().getPlanes().length).isEqualTo(3);
+
+        assertThat(imageProxyArgumentCaptor.getValue().getPlanes()[0].getBuffer().get(0))
+                .isEqualTo(2);
+        assertThat(imageProxyArgumentCaptor.getValue().getPlanes()[1].getBuffer().get(0))
+                .isEqualTo(2);
+        assertThat(imageProxyArgumentCaptor.getValue().getPlanes()[2].getBuffer().get(0))
+                .isEqualTo(2);
+    }
+
+    @Test
+    public void notApplyPixelShiftForYUVWhenOnePixelShiftDisabled() throws ExecutionException,
+            InterruptedException {
+        // Arrange.
+        mImageAnalysisAbstractAnalyzer.setOutputImageFormat(OUTPUT_IMAGE_FORMAT_YUV_420_888);
+        mImageAnalysisAbstractAnalyzer.setRGBImageReaderProxy(mRGBImageReaderProxy);
+        mImageAnalysisAbstractAnalyzer.setOnePixelShiftEnabled(false);
+
+        // Act.
+        ListenableFuture<Void> result =
+                mImageAnalysisAbstractAnalyzer.analyzeImage(mImageProxy);
+        result.get();
+
+        // Assert.
+        ArgumentCaptor<ImageProxy> imageProxyArgumentCaptor =
+                ArgumentCaptor.forClass(ImageProxy.class);
+        verify(mAnalyzer).analyze(imageProxyArgumentCaptor.capture());
+        assertThat(imageProxyArgumentCaptor.getValue().getFormat()).isEqualTo(YUV_420_888);
+        assertThat(imageProxyArgumentCaptor.getValue().getPlanes().length).isEqualTo(3);
+
+        assertThat(imageProxyArgumentCaptor.getValue().getPlanes()[0].getBuffer().get(0))
+                .isEqualTo(1);
+        assertThat(imageProxyArgumentCaptor.getValue().getPlanes()[1].getBuffer().get(0))
+                .isEqualTo(1);
+        assertThat(imageProxyArgumentCaptor.getValue().getPlanes()[2].getBuffer().get(0))
+                .isEqualTo(1);
+    }
+
     /**
      * Faked image analysis analyzer to verify YUV to RGB convert is working as expected or not.
      *
@@ -195,6 +256,11 @@ public class ImageAnalysisAbstractAnalyzerTest {
         @Override
         ListenableFuture<Void> analyzeImage(@NonNull ImageProxy imageProxy) {
             return mImageAnalysisNonBlockingAnalyzer.analyzeImage(imageProxy);
+        }
+
+        @Override
+        void setOnePixelShiftEnabled(boolean onePixelShiftEnabled) {
+            mImageAnalysisNonBlockingAnalyzer.setOnePixelShiftEnabled(onePixelShiftEnabled);
         }
     }
 }
