@@ -24,7 +24,7 @@ import static org.junit.Assert.assertThrows;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
-import androidx.appsearch.app.util.AppSearchEmail;
+import androidx.appsearch.testutil.AppSearchEmail;
 
 import org.junit.Test;
 

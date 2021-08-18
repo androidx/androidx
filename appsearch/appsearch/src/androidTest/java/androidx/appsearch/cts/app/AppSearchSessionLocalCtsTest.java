@@ -16,8 +16,8 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.cts.app;
 
-import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
-import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
+import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -26,17 +26,20 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.util.AppSearchEmail;
-import androidx.appsearch.app.util.AppSearchTestUtils;
 import androidx.appsearch.localstorage.LocalStorage;
+import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
+import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.appsearch.testutil.SimpleTestLogger;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -64,11 +67,11 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setWorkerExecutor(executor).build());
     }
 
-    // TODO(b/194207451) Following test can be moved to CtsTestBase if customized logger is
+    // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
     //  supported for platform backend.
     @Test
     public void testLogger_searchStatsLogged_forEmptyFirstPage() throws Exception {
-        AppSearchTestUtils.TestLogger logger = new AppSearchTestUtils.TestLogger();
+        SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
@@ -123,9 +126,11 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 0);
     }
 
+    // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
+    //  supported for platform backend.
     @Test
     public void testLogger_searchStatsLogged_forNonEmptyFirstPage() throws Exception {
-        AppSearchTestUtils.TestLogger logger = new AppSearchTestUtils.TestLogger();
+        SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
@@ -180,9 +185,11 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 2);
     }
 
+    // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
+    //  supported for platform backend.
     @Test
     public void testLogger_searchStatsLogged_forEmptySecondPage() throws Exception {
-        AppSearchTestUtils.TestLogger logger = new AppSearchTestUtils.TestLogger();
+        SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
@@ -241,9 +248,11 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(logger.mSearchStats.getCurrentPageReturnedResultCount()).isEqualTo(0);
     }
 
+    // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
+    //  supported for platform backend.
     @Test
     public void testLogger_searchStatsLogged_forNonEmptySecondPage() throws Exception {
-        AppSearchTestUtils.TestLogger logger = new AppSearchTestUtils.TestLogger();
+        SimpleTestLogger logger = new SimpleTestLogger();
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
@@ -302,15 +311,124 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(logger.mSearchStats.getCurrentPageReturnedResultCount()).isEqualTo(1);
     }
 
+    // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
+    //  supported for platform backend.
+    @Test
+    public void testSetSchemaStats_withoutSchemaMigration() throws Exception {
+        SimpleTestLogger logger = new SimpleTestLogger();
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchSession db2 = LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
+                        .setLogger(logger).build()).get();
+        AppSearchSchema appSearchSchema = new AppSearchSchema.Builder("testSchema")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+
+        db2.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(appSearchSchema).build()).get();
+
+        assertThat(logger.mSetSchemaStats).isNotNull();
+        assertThat(logger.mSetSchemaStats.getPackageName()).isEqualTo(context.getPackageName());
+        assertThat(logger.mSetSchemaStats.getDatabase()).isEqualTo(DB_NAME_2);
+        assertThat(logger.mSetSchemaStats.getSchemaMigrationStats()).isNull();
+        assertThat(logger.mSetSchemaStats.getNewTypeCount()).isEqualTo(1);
+        assertThat(logger.mSetSchemaStats.getDeletedTypeCount()).isEqualTo(0);
+        assertThat(logger.mSetSchemaStats.getIndexIncompatibleTypeChangeCount())
+                .isEqualTo(0);
+        assertThat(logger.mSetSchemaStats.getBackwardsIncompatibleTypeChangeCount())
+                .isEqualTo(0);
+        assertThat(logger.mSetSchemaStats.getCompatibleTypeChangeCount()).isEqualTo(0);
+    }
+
+    // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
+    //  supported for platform backend.
+    @Test
+    public void testSetSchemaStats_withSchemaMigration() throws Exception {
+        SimpleTestLogger logger = new SimpleTestLogger();
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchSession db2 = LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
+                        .setLogger(logger).build()).get();
+        AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("To")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        AppSearchSchema newSchema = new AppSearchSchema.Builder("testSchema")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id", "testSchema")
+                .setPropertyString("subject", "testPut example")
+                .setPropertyString("To", "testTo example")
+                .build();
+        long documentCreationTime = 12345L;
+        Migrator migrator = new Migrator() {
+            @Override
+            public boolean shouldMigrate(int currentVersion, int finalVersion) {
+                return currentVersion != finalVersion;
+            }
+
+            @NonNull
+            @Override
+            public GenericDocument onUpgrade(int currentVersion, int finalVersion,
+                    @NonNull GenericDocument document) {
+                return new GenericDocument.Builder<>(document.getNamespace(), document.getId(),
+                        document.getSchemaType())
+                        .setPropertyString("subject", "testPut example migrated")
+                        .setCreationTimestampMillis(documentCreationTime)
+                        .build();
+            }
+
+            @NonNull
+            @Override
+            public GenericDocument onDowngrade(int currentVersion, int finalVersion,
+                    @NonNull GenericDocument document) {
+                throw new IllegalStateException("Downgrade should not be triggered for this test");
+            }
+        };
+
+        db2.setSchema(new SetSchemaRequest.Builder().addSchemas(
+                schema).setForceOverride(true).build()).get();
+        db2.put(new PutDocumentsRequest.Builder().addGenericDocuments(doc).build());
+        db2.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
+                .setMigrator("testSchema", migrator)
+                .setVersion(2)     // upgrade version
+                .build()).get();
+
+        assertThat(logger.mSetSchemaStats).isNotNull();
+        assertThat(logger.mSetSchemaStats.getSchemaMigrationStats()).isNotNull();
+        SchemaMigrationStats schemaMigrationStats =
+                logger.mSetSchemaStats.getSchemaMigrationStats();
+        assertThat(schemaMigrationStats.getMigratedDocumentCount()).isEqualTo(1);
+        assertThat(schemaMigrationStats.getSavedDocumentCount()).isEqualTo(1);
+    }
+
     // TODO(b/185441119) Following test can be moved to CtsTestBase if we fix the binder
     //  transaction limit in framework.
     @Test
     public void testPutLargeDocument() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchTestUtils.TestLogger logger = new AppSearchTestUtils.TestLogger();
         AppSearchSession db2 = LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
-                        .setLogger(logger).build()).get();
+                new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
 
         // Schema registration
         db2.setSchema(
@@ -345,10 +463,8 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     @Test
     public void testPutLargeDocument_exceedLimit() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchTestUtils.TestLogger logger = new AppSearchTestUtils.TestLogger();
         AppSearchSession db2 = LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context, DB_NAME_2)
-                        .setLogger(logger).build()).get();
+                new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
 
         // Schema registration
         db2.setSchema(

@@ -18,21 +18,19 @@ package androidx.appsearch.localstorage;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
+import androidx.appsearch.testutil.SimpleTestLogger;
 
 import com.google.android.icing.proto.DeleteStatsProto;
 import com.google.android.icing.proto.DocumentProto;
@@ -68,7 +66,7 @@ public class AppSearchLoggerTest {
     @Rule
     public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
     private AppSearchImpl mAppSearchImpl;
-    private TestLogger mLogger;
+    private SimpleTestLogger mLogger;
 
     @Before
     public void setUp() throws Exception {
@@ -77,65 +75,12 @@ public class AppSearchLoggerTest {
                 new UnlimitedLimitConfig(),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE);
-        mLogger = new TestLogger();
+        mLogger = new SimpleTestLogger();
     }
 
     @After
     public void tearDown() {
         mAppSearchImpl.close();
-    }
-
-    // Test only not thread safe.
-    public static class TestLogger implements AppSearchLogger {
-        @Nullable
-        CallStats mCallStats;
-        @Nullable
-        PutDocumentStats mPutDocumentStats;
-        @Nullable
-        InitializeStats mInitializeStats;
-        @Nullable
-        SearchStats mSearchStats;
-        @Nullable
-        RemoveStats mRemoveStats;
-        @Nullable
-        OptimizeStats mOptimizeStats;
-        @Nullable
-        SetSchemaStats mSetSchemaStats;
-
-        @Override
-        public void logStats(@NonNull CallStats stats) {
-            mCallStats = stats;
-        }
-
-        @Override
-        public void logStats(@NonNull PutDocumentStats stats) {
-            mPutDocumentStats = stats;
-        }
-
-        @Override
-        public void logStats(@NonNull InitializeStats stats) {
-            mInitializeStats = stats;
-        }
-
-        @Override
-        public void logStats(@NonNull SearchStats stats) {
-            mSearchStats = stats;
-        }
-
-        @Override
-        public void logStats(@NonNull RemoveStats stats) {
-            mRemoveStats = stats;
-        }
-
-        @Override
-        public void logStats(@NonNull OptimizeStats stats) {
-            mOptimizeStats = stats;
-        }
-
-        @Override
-        public void logStats(@NonNull SetSchemaStats stats) {
-            mSetSchemaStats = stats;
-        }
     }
 
     @Test
