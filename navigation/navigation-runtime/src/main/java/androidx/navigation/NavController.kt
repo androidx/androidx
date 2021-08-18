@@ -1533,11 +1533,10 @@ public open class NavController(
         ) {
             // Single top operations don't change the back stack, they just update arguments
             launchSingleTop = true
-            currentBackStackEntry.replaceArguments(finalArgs)
             val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
                 node.navigatorName
             )
-            navigator.onLaunchSingleTop(currentBackStackEntry)
+            navigator.onLaunchSingleTop(NavBackStackEntry(currentBackStackEntry, finalArgs))
         }
         // Now determine what new destinations we need to add to the back stack
         if (navOptions?.shouldRestoreState() == true && backStackMap.containsKey(node.id)) {

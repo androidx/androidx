@@ -54,9 +54,8 @@ public class NavBackStackEntry private constructor(
      * The arguments used for this entry
      * @return The arguments used when this entry was created
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var arguments: Bundle? = null,
-    navControllerLifecycleOwner: LifecycleOwner? = null,
+    public val arguments: Bundle? = null,
+    private val navControllerLifecycleOwner: LifecycleOwner? = null,
     private val viewModelStoreProvider: NavViewModelStoreProvider? = null,
     /**
      * The unique ID that serves as the identity of this entry
@@ -68,6 +67,20 @@ public class NavBackStackEntry private constructor(
     ViewModelStoreOwner,
     HasDefaultViewModelProviderFactory,
     SavedStateRegistryOwner {
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    constructor(entry: NavBackStackEntry, arguments: Bundle? = entry.arguments) : this(
+        entry.context,
+        entry.destination,
+        arguments,
+        entry.navControllerLifecycleOwner,
+        entry.viewModelStoreProvider,
+        entry.id,
+        entry.savedState
+    ) {
+        hostLifecycleState = entry.hostLifecycleState
+        maxLifecycle = entry.maxLifecycle
+    }
 
     /**
      * @hide
@@ -111,12 +124,6 @@ public class NavBackStackEntry private constructor(
         ViewModelProvider(
             this, NavResultSavedStateFactory(this, null)
         ).get(SavedStateViewModel::class.java).handle
-    }
-
-    /** @suppress */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun replaceArguments(newArgs: Bundle?) {
-        arguments = newArgs
     }
 
     /**
@@ -203,7 +210,7 @@ public class NavBackStackEntry private constructor(
             (
                 arguments == other.arguments ||
                     arguments?.keySet()
-                    ?.all { arguments!!.get(it) == other.arguments?.get(it) } == true
+                    ?.all { arguments.get(it) == other.arguments?.get(it) } == true
                 )
     }
 
@@ -211,7 +218,7 @@ public class NavBackStackEntry private constructor(
         var result = id.hashCode()
         result = 31 * result + destination.hashCode()
         arguments?.keySet()?.forEach {
-            result = 31 * result + arguments!!.get(it).hashCode()
+            result = 31 * result + arguments.get(it).hashCode()
         }
         return result
     }

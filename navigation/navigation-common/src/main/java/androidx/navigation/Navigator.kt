@@ -122,10 +122,10 @@ public abstract class Navigator<D : NavDestination> {
                 null -> null
                 destination -> backStackEntry
                 else -> {
-                    backStackEntry.replaceArguments(
+                    state.createBackStackEntry(
+                        navigatedToDestination,
                         navigatedToDestination.addInDefaultArgs(backStackEntry.arguments)
                     )
-                    state.createBackStackEntry(navigatedToDestination, backStackEntry.arguments)
                 }
             }
         }.filterNotNull().forEach { backStackEntry ->
@@ -135,9 +135,9 @@ public abstract class Navigator<D : NavDestination> {
 
     /**
      * Informational callback indicating that the given [backStackEntry] has been
-     * affected by a [NavOptions.shouldLaunchSingleTop] operation. The entry's state
-     * and arguments have already been updated, but this callback can be used to synchronize
-     * any external state with this operation.
+     * affected by a [NavOptions.shouldLaunchSingleTop] operation. The entry provided is a new
+     * [NavBackStackEntry] instance with all the previous state of the old entry and possibly
+     * new arguments.
      */
     @Suppress("UNCHECKED_CAST")
     public open fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
