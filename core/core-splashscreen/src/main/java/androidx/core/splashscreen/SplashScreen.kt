@@ -62,7 +62,7 @@ public class SplashScreen private constructor(activity: Activity) {
          * This needs to be called before [Activity.setContentView] or other view operation on
          * the root view (e.g setting flags).
          *
-         * Alternatively, if a [SplashScreen] instance is not required, the them can manually be
+         * Alternatively, if a [SplashScreen] instance is not required, the theme can manually be
          * set using [Activity.setTheme].
          */
         @JvmStatic
