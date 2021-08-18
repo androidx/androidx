@@ -131,6 +131,14 @@ git config --global merge.renameLimit 999999
 git config --global diff.renameLimit 999999
 ```
 
+### To check out older source, use the superproject
+
+The
+[git superproject](https://android.googlesource.com/platform/superproject/+/androidx-main)
+contains a history of the matching exact commits of each git repository over
+time, and it can be
+[checked out directly via git](https://stackoverflow.com/questions/3796927/how-to-git-clone-including-submodules)
+
 ## Explore source code from a browser {#code-search}
 
 `androidx-main` has a publicly-accessible
