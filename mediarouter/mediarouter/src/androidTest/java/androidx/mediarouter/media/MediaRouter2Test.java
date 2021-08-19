@@ -122,6 +122,7 @@ public class MediaRouter2Test {
                 mRouter.removeCallback(callback);
             }
             mCallbacks.clear();
+            MediaRouter.reset();
         });
         MediaRouter2TestActivity.finishActivity();
     }
