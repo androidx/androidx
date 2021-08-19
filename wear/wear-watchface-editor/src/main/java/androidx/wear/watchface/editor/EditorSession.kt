@@ -60,6 +60,7 @@ import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.android.asCoroutineDispatcher
@@ -69,9 +70,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-
-private typealias WireComplicationProviderInfo =
-    android.support.wearable.complications.ComplicationProviderInfo
 
 /**
  * Interface for manipulating watch face state during a watch face editing session. The editor
@@ -251,8 +249,7 @@ public interface EditorSession : AutoCloseable {
         ): EditorSession = TraceEvent(
             "EditorSession.createOnWatchEditorSessionAsyncImpl"
         ).use {
-            val coroutineScope =
-                CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate)
+            val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
             var isRFlow = true
             val editorRequest = editIntent.getParcelableExtra<ComponentName>(
                 Constants.EXTRA_WATCH_FACE_COMPONENT

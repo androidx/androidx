@@ -33,7 +33,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
-import android.os.Looper
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
 import android.support.wearable.watchface.Constants
@@ -91,6 +90,7 @@ import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
@@ -285,8 +285,7 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
             ComplicationDataSourceInfoRetrieverProvider? = null
     }
 
-    public val immediateCoroutineScope: CoroutineScope =
-        CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate)
+    public val immediateCoroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main.immediate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -398,7 +397,7 @@ public class TestComplicationHelperActivity : Activity() {
 
         lastIntent = intent
 
-        CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher()).launch {
+        CoroutineScope(Dispatchers.Main.immediate).launch {
             setResult(123, resultIntent!!.await())
             finish()
         }
