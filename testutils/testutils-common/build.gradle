@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 /*
  * Copyright 2018 The Android Open Source Project
  *
@@ -21,4 +23,12 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesAndroid)
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
 }

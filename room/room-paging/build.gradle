@@ -70,6 +70,7 @@ dependencies {
     }
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation(project(":internal-testutils-common"))
 }
 
 // Allow usage of Kotlin's @OptIn.
