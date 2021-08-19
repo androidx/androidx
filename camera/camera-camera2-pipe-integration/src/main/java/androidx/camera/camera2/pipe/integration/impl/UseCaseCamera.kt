@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.camera.camera2.pipe.CameraGraph
@@ -32,6 +33,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.SessionConfig
 import dagger.Module
 import dagger.Provides
 import kotlinx.atomicfu.atomic
@@ -39,6 +41,7 @@ import kotlinx.coroutines.Deferred
 
 internal val useCaseCameraIds = atomic(0)
 internal val defaultOptionPriority = Config.OptionPriority.OPTIONAL
+internal const val defaultTemplate = CameraDevice.TEMPLATE_PREVIEW
 
 interface UseCaseCamera {
     // UseCases
@@ -94,7 +97,11 @@ class UseCaseCameraImpl(
                 requestControl.setSessionConfigAsync(it)
             } ?: run {
                 debug { "Unable to reset the session due to invalid config" }
-                // TODO: Consider to reset the session if there is no valid config.
+                requestControl.setSessionConfigAsync(
+                    SessionConfig.Builder().apply {
+                        setTemplateType(defaultTemplate)
+                    }.build()
+                )
             }
         }
 
