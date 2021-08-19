@@ -122,12 +122,16 @@ public class SearchResultToProtoConverter {
 
     private static SearchResult.MatchInfo toMatchInfo(
             @NonNull SnippetMatchProto snippetMatchProto, @NonNull String propertyPath) {
+        int exactMatchPosition = snippetMatchProto.getExactMatchUtf16Position();
         return new SearchResult.MatchInfo.Builder(propertyPath)
                 .setExactMatchRange(
                         new SearchResult.MatchRange(
-                                snippetMatchProto.getExactMatchUtf16Position(),
-                                snippetMatchProto.getExactMatchUtf16Position()
-                                        + snippetMatchProto.getExactMatchUtf16Length()))
+                                exactMatchPosition,
+                                exactMatchPosition + snippetMatchProto.getExactMatchUtf16Length()))
+                .setSubmatchRange(
+                        new SearchResult.MatchRange(
+                                exactMatchPosition,
+                                exactMatchPosition + snippetMatchProto.getSubmatchUtf16Length()))
                 .setSnippetRange(
                         new SearchResult.MatchRange(
                                 snippetMatchProto.getWindowUtf16Position(),
