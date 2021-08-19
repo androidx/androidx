@@ -31,6 +31,7 @@ dependencies {
     kaptAndroidTest project(':appsearch:appsearch-compiler')
     androidTestImplementation project(':appsearch:appsearch')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
+    androidTestImplementation project(':appsearch:appsearch-test-util')
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
