@@ -140,9 +140,6 @@ package androidx.camera.core {
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
   }
 
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroup {
-  }
-
   public interface ExposureState {
     method public int getExposureCompensationIndex();
     method public android.util.Range<java.lang.Integer!> getExposureCompensationRange();

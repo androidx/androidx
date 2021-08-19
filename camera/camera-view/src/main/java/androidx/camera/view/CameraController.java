@@ -45,7 +45,6 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
@@ -1647,7 +1646,9 @@ public abstract class CameraController {
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @OptIn(markerClass = {ExperimentalUseCaseGroup.class, ExperimentalVideo.class})
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+    @SuppressLint("UnsafeOptInUsageError")
+    @OptIn(markerClass = {ExperimentalVideo.class})
     protected UseCaseGroup createUseCaseGroup() {
         if (!isCameraInitialized()) {
             Logger.d(TAG, CAMERA_NOT_INITIALIZED);
@@ -1702,9 +1703,9 @@ public abstract class CameraController {
         public void onDisplayRemoved(int displayId) {
         }
 
-        @SuppressLint("WrongConstant")
+        // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+        @SuppressLint({"UnsafeOptInUsageError", "WrongConstant"})
         @Override
-        @OptIn(markerClass = ExperimentalUseCaseGroup.class)
         public void onDisplayChanged(int displayId) {
             if (mPreviewDisplay != null && mPreviewDisplay.getDisplayId() == displayId) {
                 mPreview.setTargetRotation(mPreviewDisplay.getRotation());
