@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.editor
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -57,6 +58,7 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 private const val TIMEOUT_MS = 500L
@@ -123,11 +125,12 @@ public class EditorSessionGuavaTest {
 
     private val backgroundHandler = Handler(backgroundHandlerThread.looper)
 
+    @SuppressLint("NewApi")
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
         complicationSlots: List<ComplicationSlot>,
         watchFaceId: WatchFaceId = testInstanceId,
-        previewReferenceTimeMillis: Long = 12345
+        previewReferenceInstant: Instant = Instant.ofEpochMilli(12345)
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
         val complicationSlotsManager =
@@ -139,8 +142,7 @@ public class EditorSessionGuavaTest {
         Mockito.`when`(editorDelegate.userStyleSchema).thenReturn(userStyleRepository.schema)
         Mockito.`when`(editorDelegate.userStyle).thenReturn(userStyleRepository.userStyle)
         Mockito.`when`(editorDelegate.screenBounds).thenReturn(screenBounds)
-        Mockito.`when`(editorDelegate.previewReferenceTimeMillis)
-            .thenReturn(previewReferenceTimeMillis)
+        Mockito.`when`(editorDelegate.previewReferenceInstant).thenReturn(previewReferenceInstant)
         Mockito.`when`(editorDelegate.backgroundThreadHandler).thenReturn(backgroundHandler)
 
         OnWatchFaceEditingTestActivity.complicationDataSourceInfoRetrieverProvider =
@@ -194,13 +196,13 @@ public class EditorSessionGuavaTest {
         val leftComplicationData = previewData[LEFT_COMPLICATION_ID] as
             ShortTextComplicationData
         assertThat(
-            leftComplicationData.text.getTextAt(resources, 0)
+            leftComplicationData.text.getTextAt(resources, Instant.EPOCH)
         ).isEqualTo("Left")
 
         val rightComplicationData = previewData[RIGHT_COMPLICATION_ID] as
             LongTextComplicationData
         assertThat(
-            rightComplicationData.text.getTextAt(resources, 0)
+            rightComplicationData.text.getTextAt(resources, Instant.EPOCH)
         ).isEqualTo("Right")
     }
 
@@ -259,7 +261,7 @@ public class EditorSessionGuavaTest {
         assertThat(
             previewComplication.text.getTextAt(
                 ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                Instant.EPOCH
             )
         ).isEqualTo("DataSource3")
     }

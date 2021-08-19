@@ -19,9 +19,11 @@ package androidx.wear.watchface.client.test
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.control.IWatchFaceInstanceServiceStub
 import androidx.wear.watchface.control.WatchFaceControlService
@@ -41,6 +43,7 @@ public class WatchFaceControlTestService : Service() {
     private val realService = object : WatchFaceControlService() {
         override fun createServiceStub(): IWatchFaceInstanceServiceStub =
             object : IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper())) {
+                @RequiresApi(Build.VERSION_CODES.O_MR1)
                 override fun getApiVersion(): Int = apiVersionOverride ?: super.getApiVersion()
             }
 
@@ -49,5 +52,6 @@ public class WatchFaceControlTestService : Service() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
     override fun onBind(intent: Intent?): IBinder? = realService.onBind(intent)
 }

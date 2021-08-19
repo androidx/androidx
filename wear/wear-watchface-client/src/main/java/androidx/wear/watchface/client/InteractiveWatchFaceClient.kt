@@ -39,6 +39,7 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleData
+import java.time.Instant
 import java.util.concurrent.Executor
 
 /**
@@ -63,7 +64,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * Renders the watchface to a shared memory backed [Bitmap] with the given settings.
      *
      * @param renderParameters The [RenderParameters] to draw with.
-     * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
+     * @param instant The [Instant] render with.
      * @param userStyle Optional [UserStyle] to render with, if null the current style is used.
      * @param idAndComplicationData Map of complication ids to [ComplicationData] to render with, or
      * if null then the existing complication data if any is used.
@@ -74,14 +75,14 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     @Throws(RemoteException::class)
     public fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
-        calendarTimeMillis: Long,
+        instant: Instant,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
     @get:Throws(RemoteException::class)
-    public val previewReferenceTimeMillis: Long
+    public val previewReferenceInstant: Instant
 
     /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
@@ -248,7 +249,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     @RequiresApi(27)
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
-        calendarTimeMillis: Long,
+        instant: Instant,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
     ): Bitmap = TraceEvent("InteractiveWatchFaceClientImpl.renderWatchFaceToBitmap").use {
@@ -256,7 +257,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
             iInteractiveWatchFace.renderWatchFaceToBitmap(
                 WatchFaceRenderParams(
                     renderParameters.toWireFormat(),
-                    calendarTimeMillis,
+                    instant.toEpochMilli(),
                     userStyle?.toWireFormat(),
                     idAndComplicationData?.map {
                         IdAndComplicationDataWireFormat(
@@ -269,8 +270,8 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         )
     }
 
-    override val previewReferenceTimeMillis: Long
-        get() = iInteractiveWatchFace.previewReferenceTimeMillis
+    override val previewReferenceInstant: Instant
+        get() = Instant.ofEpochMilli(iInteractiveWatchFace.previewReferenceTimeMillis)
 
     override fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle) = TraceEvent(
         "InteractiveWatchFaceClientImpl.updateInstance"

@@ -61,7 +61,7 @@ tasks.withType(KotlinCompile).configureEach {
 
 android {
     defaultConfig {
-        minSdkVersion 25
+        minSdkVersion 26
     }
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/wear-watchface-client"

@@ -53,7 +53,7 @@ android {
         aidl = true
     }
     defaultConfig {
-        minSdkVersion 25
+        minSdkVersion 26
     }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"

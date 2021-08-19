@@ -70,6 +70,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import java.time.Duration
+import java.time.Instant
 
 /**
  * Interface for manipulating watch face state during a watch face editing session. The editor
@@ -102,8 +104,8 @@ public interface EditorSession : AutoCloseable {
      */
     public var userStyle: UserStyle
 
-    /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
-    public val previewReferenceTimeMillis: Long
+    /** The reference preview [Instant] for this watch face to render previews with. */
+    public val previewReferenceInstant: Instant
 
     /** The watch face's [UserStyleSchema]. */
     public val userStyleSchema: UserStyleSchema
@@ -172,16 +174,14 @@ public interface EditorSession : AutoCloseable {
      * Renders the watch face to a [Bitmap] using the current [userStyle].
      *
      * @param renderParameters The [RenderParameters] to render with. Must be [DrawMode.INTERACTIVE]
-     * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with. If
-     * [DEFAULT_PREVIEW_TIME_MILLIS] is passed then the watch face's default preview time will be
-     * used.
+     * @param instant The [Instant] to render with
      * @param slotIdToComplicationData The [ComplicationData] for each
      * [androidx.wear.watchface.ComplicationSlot] to render with
      */
     @UiThread
     public fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
-        calendarTimeMillis: Long,
+        instant: Instant,
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
 
@@ -210,7 +210,8 @@ public interface EditorSession : AutoCloseable {
          * If passed [renderWatchFaceToBitmap] this will signal that the watch face's default
          * preview time should be used.
          */
-        const val DEFAULT_PREVIEW_TIME_MILLIS = -1L
+        @JvmField
+        val DEFAULT_PREVIEW_INSTANT: Instant = Instant.ofEpochMilli(-1L)
 
         /**
          * Constructs an [EditorSession] for an on watch face editor. This registers an activity
@@ -221,8 +222,8 @@ public interface EditorSession : AutoCloseable {
          * @param editIntent The [Intent] sent by SysUI to launch the editing session.
          * @return Deferred<EditorSession?> which is resolved with either the [EditorSession] or
          * `null` if it can't be constructed.
-         * @throws [TimeoutCancellationException] if it takes more than
-         * [EDITING_SESSION_TIMEOUT_MILLIS] milliseconds to create a watch face editor.
+         * @throws [TimeoutCancellationException] if it takes longer than
+         * [EDITING_SESSION_TIMEOUT] to create a watch face editor.
          */
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
@@ -272,7 +273,7 @@ public interface EditorSession : AutoCloseable {
             // [WatchFace.getOrCreateEditorDelegate] is async.
             // Resolve only after init has been completed.
             withContext(coroutineScope.coroutineContext) {
-                withTimeout(EDITING_SESSION_TIMEOUT_MILLIS) {
+                withTimeout(EDITING_SESSION_TIMEOUT.toMillis()) {
                     session.setEditorDelegate(
                         // Either create a delegate for a new headless client or await an
                         // interactive one.
@@ -335,7 +336,8 @@ public interface EditorSession : AutoCloseable {
         }
 
         /** Timeout allowed for waiting for creating the watch face editing session. */
-        public const val EDITING_SESSION_TIMEOUT_MILLIS: Long = 4000L
+        @JvmField
+        public val EDITING_SESSION_TIMEOUT: Duration = Duration.ofSeconds(4)
     }
 }
 
@@ -624,7 +626,7 @@ public abstract class BaseEditorSession internal constructor(
                             SharedMemoryImage.ashmemWriteImageBundle(
                                 renderWatchFaceToBitmap(
                                     previewScreenshotParams.renderParameters,
-                                    previewScreenshotParams.calendarTimeMillis,
+                                    previewScreenshotParams.instant,
                                     getComplicationsPreviewData()
                                 )
                             )
@@ -703,7 +705,9 @@ internal class OnWatchFaceEditorSessionImpl(
         editorDelegate.userStyleSchema
     }
 
-    override val previewReferenceTimeMillis by lazy { editorDelegate.previewReferenceTimeMillis }
+    override val previewReferenceInstant: Instant by lazy {
+        editorDelegate.previewReferenceInstant
+    }
 
     override val complicationSlotsState
         get() = editorDelegate.complicationSlotsManager.complicationSlots.mapValues {
@@ -746,7 +750,7 @@ internal class OnWatchFaceEditorSessionImpl(
 
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
-        calendarTimeMillis: Long,
+        instant: Instant,
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap {
         requireNotClosed()
@@ -755,10 +759,10 @@ internal class OnWatchFaceEditorSessionImpl(
         }
         return editorDelegate.renderWatchFaceToBitmap(
             renderParameters,
-            if (calendarTimeMillis == EditorSession.DEFAULT_PREVIEW_TIME_MILLIS) {
-                editorDelegate.previewReferenceTimeMillis
+            if (instant == EditorSession.DEFAULT_PREVIEW_INSTANT) {
+                editorDelegate.previewReferenceInstant
             } else {
-                calendarTimeMillis
+                instant
             },
             slotIdToComplicationData
         )
@@ -834,22 +838,22 @@ internal class HeadlessEditorSession(
 
     override var userStyle = UserStyle(initialUserStyle, userStyleSchema)
 
-    override val previewReferenceTimeMillis = headlessWatchFaceClient.previewReferenceTimeMillis
+    override val previewReferenceInstant = headlessWatchFaceClient.previewReferenceInstant
 
     override val complicationSlotsState = headlessWatchFaceClient.complicationSlotsState
 
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
-        calendarTimeMillis: Long,
+        instant: Instant,
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap {
         requireNotClosed()
         return headlessWatchFaceClient.renderWatchFaceToBitmap(
             renderParameters,
-            if (calendarTimeMillis == EditorSession.DEFAULT_PREVIEW_TIME_MILLIS) {
-                headlessWatchFaceClient.previewReferenceTimeMillis
+            if (instant == EditorSession.DEFAULT_PREVIEW_INSTANT) {
+                headlessWatchFaceClient.previewReferenceInstant
             } else {
-                calendarTimeMillis
+                instant
             },
             userStyle,
             slotIdToComplicationData

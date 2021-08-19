@@ -30,6 +30,7 @@ import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
+import java.time.Instant
 
 class TestService : SuspendingComplicationDataSourceService() {
     override suspend fun onComplicationRequest(request: ComplicationRequest) =
@@ -79,7 +80,7 @@ public class SuspendingComplicationDataSourceServiceTest {
         assertThat(
             (result as ShortTextComplicationData).text.getTextAt(
                 ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                Instant.EPOCH
             )
         ).isEqualTo("Complication")
     }
@@ -91,7 +92,7 @@ public class SuspendingComplicationDataSourceServiceTest {
         assertThat(
             testService.getPreviewData(ComplicationType.SMALL_IMAGE).text.getTextAt(
                 ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                Instant.EPOCH
             )
         ).isEqualTo("Preview")
     }

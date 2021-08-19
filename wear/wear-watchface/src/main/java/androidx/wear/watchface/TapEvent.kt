@@ -19,6 +19,7 @@ package androidx.wear.watchface
 import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.wear.watchface.control.IInteractiveWatchFace
+import java.time.Instant
 
 /** @hide */
 @IntDef(
@@ -66,12 +67,12 @@ public annotation class TapType {
  *
  * @param xPos X coordinate of the event
  * @param yPos Y coordinate of the event
- * @param tapTimeMillis The UTC time of the tap in milliseconds since the epoch
+ * @param tapTime The [Instant] at which the tap event occurred
  */
 public class TapEvent(
     @Px public val xPos: Int,
     @Px public val yPos: Int,
-    public val tapTimeMillis: Long // TODO(b/195536041): Maybe use Instant
+    public val tapTime: Instant
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -81,7 +82,7 @@ public class TapEvent(
 
         if (xPos != other.xPos) return false
         if (yPos != other.yPos) return false
-        if (tapTimeMillis != other.tapTimeMillis) return false
+        if (tapTime != other.tapTime) return false
 
         return true
     }
@@ -89,9 +90,9 @@ public class TapEvent(
     override fun hashCode(): Int {
         var result = xPos
         result = 31 * result + yPos
-        result = 31 * result + tapTimeMillis.hashCode()
+        result = 31 * result + tapTime.hashCode()
         return result
     }
 
-    override fun toString(): String = "[$xPos, $yPos @$tapTimeMillis]"
+    override fun toString(): String = "[$xPos, $yPos @$tapTime]"
 }

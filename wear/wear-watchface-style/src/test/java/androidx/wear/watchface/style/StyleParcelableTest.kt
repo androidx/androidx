@@ -17,7 +17,9 @@
 package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
+import android.os.Build
 import android.os.Parcel
+import androidx.annotation.RequiresApi
 
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
@@ -33,11 +35,14 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(StyleTestRunner::class)
+@RequiresApi(Build.VERSION_CODES.P)
 public class StyleParcelableTest {
 
     private val icon1 = Icon.createWithContentUri("icon1")
@@ -48,6 +53,11 @@ public class StyleParcelableTest {
     private val option2 = ListOption(Option.Id("2"), "two", icon2)
     private val option3 = ListOption(Option.Id("3"), "three", icon3)
     private val option4 = ListOption(Option.Id("4"), "four", icon4)
+
+    @Before
+    public fun setUp() {
+        assumeTrue("These tests require API 28", Build.VERSION.SDK_INT >= 28)
+    }
 
     @Test
     public fun parcelAndUnparcelStyleSettingAndOption() {

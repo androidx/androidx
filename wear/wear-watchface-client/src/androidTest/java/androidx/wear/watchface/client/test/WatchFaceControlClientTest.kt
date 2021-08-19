@@ -90,6 +90,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import java.time.Instant
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -222,7 +223,7 @@ class WatchFaceControlClientTest {
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 null
             ),
-            1234567,
+            Instant.ofEpochMilli(1234567),
             null,
             complications
         )
@@ -256,7 +257,7 @@ class WatchFaceControlClientTest {
                     Color.argb(128, 0, 0, 0) // Darken everything else.
                 )
             ),
-            1234567,
+            Instant.ofEpochMilli(1234567),
             null,
             complications
         )
@@ -290,7 +291,7 @@ class WatchFaceControlClientTest {
                     Color.argb(128, 0, 0, 0) // Darken everything else.
                 )
             ),
-            1234567,
+            Instant.ofEpochMilli(1234567),
             null,
             complications
         )
@@ -424,7 +425,7 @@ class WatchFaceControlClientTest {
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 null
             ),
-            1234567,
+            Instant.ofEpochMilli(1234567),
             null,
             complications
         )
@@ -467,7 +468,7 @@ class WatchFaceControlClientTest {
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 null
             ),
-            1234567,
+            Instant.ofEpochMilli(1234567),
             null,
             complications
         )
@@ -691,7 +692,7 @@ class WatchFaceControlClientTest {
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 null
             ),
-            1234567,
+            Instant.ofEpochMilli(1234567),
             null,
             complications
         )
@@ -773,17 +774,21 @@ class WatchFaceControlClientTest {
         // Central clock element. Note we don't know the timezone this test will be running in
         // so we can't assert the contents of the clock's test.
         assertThat(contentDescriptionLabels[0].bounds).isEqualTo(Rect(100, 100, 300, 300))
-        assertThat(contentDescriptionLabels[0].getTextAt(context.resources, 0).isNotEmpty())
+        assertThat(
+            contentDescriptionLabels[0].getTextAt(context.resources, Instant.EPOCH)
+        ).isNotEqualTo("")
 
         // Left complication.
         assertThat(contentDescriptionLabels[1].bounds).isEqualTo(Rect(80, 160, 160, 240))
-        assertThat(contentDescriptionLabels[1].getTextAt(context.resources, 0))
-            .isEqualTo("ID Left")
+        assertThat(
+            contentDescriptionLabels[1].getTextAt(context.resources, Instant.EPOCH)
+        ).isEqualTo("ID Left")
 
         // Right complication.
         assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(240, 160, 320, 240))
-        assertThat(contentDescriptionLabels[2].getTextAt(context.resources, 0))
-            .isEqualTo("ID Right")
+        assertThat(
+            contentDescriptionLabels[2].getTextAt(context.resources, Instant.EPOCH)
+        ).isEqualTo("ID Right")
 
         sysUiInterface.close()
     }
@@ -840,27 +845,33 @@ class WatchFaceControlClientTest {
         // Central clock element. Note we don't know the timezone this test will be running in
         // so we can't assert the contents of the clock's test.
         assertThat(contentDescriptionLabels[0].bounds).isEqualTo(Rect(100, 100, 300, 300))
-        assertThat(contentDescriptionLabels[0].getTextAt(context.resources, 0).isNotEmpty())
+        assertThat(
+            contentDescriptionLabels[0].getTextAt(context.resources, Instant.EPOCH)
+        ).isNotEqualTo("")
 
         // First additional ContentDescriptionLabel.
         assertThat(contentDescriptionLabels[1].bounds).isEqualTo(Rect(10, 10, 20, 20))
-        assertThat(contentDescriptionLabels[1].getTextAt(context.resources, 0))
-            .isEqualTo("Before")
+        assertThat(
+            contentDescriptionLabels[1].getTextAt(context.resources, Instant.EPOCH)
+        ).isEqualTo("Before")
 
         // Left complication.
         assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(80, 160, 160, 240))
-        assertThat(contentDescriptionLabels[2].getTextAt(context.resources, 0))
-            .isEqualTo("ID Left")
+        assertThat(
+            contentDescriptionLabels[2].getTextAt(context.resources, Instant.EPOCH)
+        ).isEqualTo("ID Left")
 
         // Right complication.
         assertThat(contentDescriptionLabels[3].bounds).isEqualTo(Rect(240, 160, 320, 240))
-        assertThat(contentDescriptionLabels[3].getTextAt(context.resources, 0))
-            .isEqualTo("ID Right")
+        assertThat(
+            contentDescriptionLabels[3].getTextAt(context.resources, Instant.EPOCH)
+        ).isEqualTo("ID Right")
 
         // Second additional ContentDescriptionLabel.
         assertThat(contentDescriptionLabels[4].bounds).isEqualTo(Rect(30, 30, 40, 40))
-        assertThat(contentDescriptionLabels[4].getTextAt(context.resources, 0))
-            .isEqualTo("After")
+        assertThat(
+            contentDescriptionLabels[4].getTextAt(context.resources, Instant.EPOCH)
+        ).isEqualTo("After")
     }
 
     @SuppressLint("NewApi") // renderWatchFaceToBitmap
@@ -918,7 +929,7 @@ class WatchFaceControlClientTest {
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 null
             ),
-            1234567,
+            Instant.ofEpochMilli(1234567),
             null,
             complications
         )

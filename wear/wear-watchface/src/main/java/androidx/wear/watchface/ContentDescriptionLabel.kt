@@ -20,6 +20,7 @@ import android.app.PendingIntent
 import android.content.res.Resources
 import android.graphics.Rect
 import androidx.wear.complications.data.ComplicationText
+import java.time.Instant
 import java.util.Objects
 
 /**
@@ -39,10 +40,10 @@ public class ContentDescriptionLabel(
      * Returns the text that should be displayed for the given timestamp.
      *
      * @param resources [Resources] from the current [android.content.Context]
-     * @param dateTimeMillis milliseconds since epoch, e.g. from [System.currentTimeMillis]
+     * @param instant the [Instant] at which to sample the text
      */
-    public fun getTextAt(resources: Resources, dateTimeMillis: Long): CharSequence =
-        text.getTextAt(resources, dateTimeMillis)
+    public fun getTextAt(resources: Resources, instant: Instant): CharSequence =
+        text.getTextAt(resources, instant)
 
     override fun equals(other: Any?): Boolean =
         other is ContentDescriptionLabel &&

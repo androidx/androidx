@@ -37,6 +37,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
+import java.time.Instant
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -120,7 +121,7 @@ public class ListenableEditorSession(
 
     override var userStyle: UserStyle by wrappedEditorSession::userStyle
 
-    override val previewReferenceTimeMillis: Long = wrappedEditorSession.previewReferenceTimeMillis
+    override val previewReferenceInstant: Instant = wrappedEditorSession.previewReferenceInstant
 
     override val userStyleSchema: UserStyleSchema by wrappedEditorSession::userStyleSchema
 
@@ -175,11 +176,11 @@ public class ListenableEditorSession(
 
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
-        calendarTimeMillis: Long,
+        instant: Instant,
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap = wrappedEditorSession.renderWatchFaceToBitmap(
         renderParameters,
-        calendarTimeMillis,
+        instant,
         slotIdToComplicationData
     )
 

@@ -59,12 +59,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.time.Instant;
+
 /** Tests for {@link ComplicationRenderer}. */
 @RunWith(ComplicationsTestRunner.class)
 @DoNotInstrument
 public class ComplicationRendererTest {
 
-    private static final long REFERENCE_TIME = 1234567890123L; // Fri, 13 Feb 2009 23:31:30.123 GMT
+    private static final Instant REFERENCE_TIME =
+            Instant.ofEpochMilli(1234567890123L); // Fri, 13 Feb 2009 23:31:30.123 GMT
     private static final int BOUNDS_WIDTH = 100;
     private static final int BOUNDS_HEIGHT = 100;
 
@@ -110,7 +113,7 @@ public class ComplicationRendererTest {
         assertThat(mComplicationRenderer
                 .getComplicationData()
                 .getShortText()
-                .getTextAt(mResurces, REFERENCE_TIME))
+                .getTextAt(mResurces, REFERENCE_TIME.toEpochMilli()))
                 .isEqualTo(noDataText);
     }
 
@@ -126,14 +129,14 @@ public class ComplicationRendererTest {
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getTextAt(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME.toEpochMilli());
 
         mComplicationRenderer.setNoDataText(secondText);
         CharSequence secondResult =
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getTextAt(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME.toEpochMilli());
 
         assertThat(firstResult).isEqualTo(firstText);
         assertThat(secondResult).isEqualTo(secondText);
@@ -153,7 +156,7 @@ public class ComplicationRendererTest {
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getTextAt(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME.toEpochMilli());
 
         text.setSpan(blueSpan, 0, 2, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         mComplicationRenderer.setNoDataText(text);
@@ -161,7 +164,7 @@ public class ComplicationRendererTest {
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getTextAt(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME.toEpochMilli());
 
         assertThat(text).isEqualTo(secondResult);
         assertThat(firstResult).isNotEqualTo(secondResult);
@@ -182,7 +185,7 @@ public class ComplicationRendererTest {
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getTextAt(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME.toEpochMilli());
 
         text.setSpan(blueSpan, 0, 2, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
@@ -192,7 +195,7 @@ public class ComplicationRendererTest {
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getTextAt(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME.toEpochMilli());
 
         assertThat(firstResult).isEqualTo(secondResult);
         assertThat(text).isNotEqualTo(firstResult);
@@ -321,7 +324,7 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("hello"))
-                        .setEndDateTimeMillis(REFERENCE_TIME - 100)
+                        .setEndDateTimeMillis(REFERENCE_TIME.toEpochMilli() - 100)
                         .build(),
                 true);
 
@@ -338,8 +341,8 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("hello"))
-                        .setStartDateTimeMillis(REFERENCE_TIME - 5000)
-                        .setEndDateTimeMillis(REFERENCE_TIME + 2000)
+                        .setStartDateTimeMillis(REFERENCE_TIME.toEpochMilli() - 5000)
+                        .setEndDateTimeMillis(REFERENCE_TIME.toEpochMilli() + 2000)
                         .build(),
                 true);
 
