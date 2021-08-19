@@ -16,13 +16,17 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -35,6 +39,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.math.roundToInt
 
 @MediumTest
@@ -78,6 +85,30 @@ public class ScalingLazyColumnLayoutInfoTest {
     }
 
     @Test
+    fun visibleItemsAreCorrectAfterScrolling() {
+        lateinit var state: ScalingLazyColumnState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyColumnState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+            }
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
+        }
+    }
+
+    @Test
     fun visibleItemsAreCorrectNoScaling() {
         lateinit var state: ScalingLazyColumnState
         rule.setContent {
@@ -96,6 +127,74 @@ public class ScalingLazyColumnLayoutInfoTest {
 
         rule.runOnIdle {
             state.layoutInfo.assertVisibleItems(count = 4)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun visibleItemsAreCorrectAfterScrollNoScaling() {
+        lateinit var state: ScalingLazyColumnState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyColumnState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+            }
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollBy(-(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
+            }
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun visibleItemsAreCorrectAfterDispatchRawDeltaScrollNoScaling() {
+        lateinit var state: ScalingLazyColumnState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyColumnState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.dispatchRawDelta(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+            }
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.dispatchRawDelta(-(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
+            }
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
             assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
         }
     }
@@ -124,6 +223,115 @@ public class ScalingLazyColumnLayoutInfoTest {
                 count = 4,
                 spacing = spacingPx
             )
+        }
+    }
+
+    @Composable
+    fun ObservingFun(
+        state: ScalingLazyColumnState,
+        currentInfo: StableRef<ScalingLazyColumnLayoutInfo?>
+    ) {
+        currentInfo.value = state.layoutInfo
+    }
+
+    @Test
+    fun visibleItemsAreObservableWhenWeScroll() {
+        lateinit var state: ScalingLazyColumnState
+        val currentInfo = StableRef<ScalingLazyColumnLayoutInfo?>(null)
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyColumnState().also { state = it },
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+            ) {
+                items(6) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+            ObservingFun(state, currentInfo)
+        }
+
+        rule.runOnIdle {
+            // empty it here and scrolling should invoke observingFun again
+            currentInfo.value = null
+            runBlocking {
+                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(currentInfo.value).isNotNull()
+            currentInfo.value!!.assertVisibleItems(count = 4, startIndex = 1)
+        }
+    }
+
+    @Test
+    fun visibleItemsAreObservableWhenWeDispatchRawDeltaScroll() {
+        lateinit var state: ScalingLazyColumnState
+        val currentInfo = StableRef<ScalingLazyColumnLayoutInfo?>(null)
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyColumnState().also { state = it },
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+            ) {
+                items(6) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+            ObservingFun(state, currentInfo)
+        }
+
+        rule.runOnIdle {
+            // empty it here and scrolling should invoke observingFun again
+            currentInfo.value = null
+            runBlocking {
+                state.dispatchRawDelta(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(currentInfo.value).isNotNull()
+            currentInfo.value!!.assertVisibleItems(count = 4, startIndex = 1)
+        }
+    }
+
+    @Composable
+    fun ObservingIsScrollInProgressTrueFun(
+        state: ScalingLazyColumnState,
+        currentInfo: StableRef<Boolean?>
+    ) {
+        // If isScrollInProgress is ever true record it - otherwise leave the value as null
+        if (state.isScrollInProgress) {
+            currentInfo.value = true
+        }
+    }
+
+    @Test
+    fun isScrollInProgressIsObservableWhenWeScroll() {
+        lateinit var state: ScalingLazyColumnState
+        var scope: CoroutineScope? = null
+        val currentInfo = StableRef<Boolean?>(null)
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            ScalingLazyColumn(
+                state = rememberScalingLazyColumnState().also { state = it },
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+            ) {
+                items(6) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+            ObservingIsScrollInProgressTrueFun(state, currentInfo)
+        }
+
+        scope!!.launch {
+            // empty it here and scrolling should invoke observingFun again
+            currentInfo.value = null
+            state.animateScrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+        }
+
+        rule.runOnIdle {
+            assertThat(currentInfo.value).isNotNull()
+            assertThat(currentInfo.value).isTrue()
         }
     }
 
@@ -253,3 +461,6 @@ public class ScalingLazyColumnLayoutInfoTest {
         }
     }
 }
+
+@Stable
+class StableRef<T>(var value: T)
