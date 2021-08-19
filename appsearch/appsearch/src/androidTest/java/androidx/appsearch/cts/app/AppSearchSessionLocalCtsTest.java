@@ -67,6 +67,12 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setWorkerExecutor(executor).build());
     }
 
+    @Override
+    protected int getAppSearchApiTarget() {
+        // Any feature available in AppSearchSession is always available in the local backend.
+        return Integer.MAX_VALUE;
+    }
+
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
     //  supported for platform backend.
     @Test

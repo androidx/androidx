@@ -16,6 +16,8 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.cts.app;
 
+import static android.os.Build.VERSION;
+
 import android.content.Context;
 import android.os.Build;
 
@@ -45,5 +47,11 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
         return PlatformStorage.createSearchSession(
                 new PlatformStorage.SearchContext.Builder(context, dbName)
                         .setWorkerExecutor(executor).build());
+    }
+
+    @Override
+    protected int getAppSearchApiTarget() {
+        // Feature availability in the platform backend depends on the device's API level.
+        return VERSION.SDK_INT;
     }
 }

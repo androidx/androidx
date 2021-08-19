@@ -16,6 +16,8 @@
 
 package androidx.appsearch.cts.app;
 
+import static android.os.Build.VERSION_CODES;
+
 import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
@@ -80,6 +82,9 @@ public abstract class AppSearchSessionCtsTestBase {
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull String dbName, @NonNull ExecutorService executor);
+
+    // Returns the Android version that the current instance of AppSearchSession is based on.
+    protected abstract int getAppSearchApiTarget();
 
     @Before
     public void setUp() throws Exception {
@@ -1880,12 +1885,21 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(matchInfo.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/32));
         assertThat(matchInfo.getExactMatch()).isEqualTo("foo");
-        assertThat(matchInfo.getSubmatchRange()).isEqualTo(
-                new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/31));
-        assertThat(matchInfo.getSubmatch()).isEqualTo("fo");
         assertThat(matchInfo.getSnippetRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/26,  /*upper=*/33));
         assertThat(matchInfo.getSnippet()).isEqualTo("is foo.");
+
+        if (getAppSearchApiTarget() <= VERSION_CODES.S) {
+            // Submatch is not support on any backend that targets a platform S or lower.
+            assertThat(matchInfo.getSubmatchRange()).isEqualTo(
+                    new SearchResult.MatchRange(/*lower=*/0,  /*upper=*/0));
+            assertThat(matchInfo.getSubmatch().length()).isEqualTo(0);
+        } else {
+            // Submatch is enabled on any backend that targets a platform beyond S.
+            assertThat(matchInfo.getSubmatchRange()).isEqualTo(
+                    new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/31));
+            assertThat(matchInfo.getSubmatch()).isEqualTo("fo");
+        }
     }
 
     @Test
@@ -2008,9 +2022,18 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(matchInfo.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
         assertThat(matchInfo.getExactMatch()).isEqualTo("は");
-        assertThat(matchInfo.getSubmatchRange()).isEqualTo(
-                new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
-        assertThat(matchInfo.getSubmatch()).isEqualTo("は");
+
+        if (getAppSearchApiTarget() <= VERSION_CODES.S) {
+            // Submatch is not support on any backend that targets a platform S or lower.
+            assertThat(matchInfo.getSubmatchRange()).isEqualTo(
+                    new SearchResult.MatchRange(/*lower=*/0,  /*upper=*/0));
+            assertThat(matchInfo.getSubmatch().length()).isEqualTo(0);
+        } else {
+            // Submatch is enabled on any backend that targets a platform beyond S.
+            assertThat(matchInfo.getSubmatchRange()).isEqualTo(
+                    new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
+            assertThat(matchInfo.getSubmatch()).isEqualTo("は");
+        }
     }
 
     @Test
