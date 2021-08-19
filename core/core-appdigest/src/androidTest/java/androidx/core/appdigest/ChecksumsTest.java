@@ -56,7 +56,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -442,7 +441,6 @@ public class ChecksumsTest {
         }
     }
 
-    @Ignore // b/196917538
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
@@ -455,7 +453,6 @@ public class ChecksumsTest {
         validateFixedAllChecksums(checksums);
     }
 
-    @Ignore // b/196917538
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
@@ -472,7 +469,6 @@ public class ChecksumsTest {
         validateFixedAllChecksums(checksums);
     }
 
-    @Ignore // b/196917538
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
@@ -515,7 +511,7 @@ public class ChecksumsTest {
 
     private void validateFixedAllChecksums(Checksum[] checksums) {
         assertNotNull(checksums);
-        if (BuildCompat.isAtLeastR()) {
+        if (BuildCompat.isAtLeastS()) {
             assertEquals(checksums.length, 7);
             assertEquals(checksums[0].getType(),
                     android.content.pm.Checksum.TYPE_WHOLE_MERKLE_ROOT_4K_SHA256);
@@ -663,7 +659,8 @@ public class ChecksumsTest {
 
             Intent intent = new Intent(action);
             PendingIntent sender = PendingIntent.getBroadcast(mContext, resultId, intent,
-                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT
+                            | PendingIntent.FLAG_MUTABLE);
 
             session.commit(sender.getIntentSender());
 
