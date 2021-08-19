@@ -365,6 +365,8 @@ package androidx.appsearch.app {
     method public String getPropertyPath();
     method public CharSequence getSnippet();
     method public androidx.appsearch.app.SearchResult.MatchRange getSnippetRange();
+    method public CharSequence getSubmatch();
+    method public androidx.appsearch.app.SearchResult.MatchRange getSubmatchRange();
   }
 
   public static final class SearchResult.MatchInfo.Builder {
@@ -372,6 +374,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchResult.MatchInfo build();
     method public androidx.appsearch.app.SearchResult.MatchInfo.Builder setExactMatchRange(androidx.appsearch.app.SearchResult.MatchRange);
     method public androidx.appsearch.app.SearchResult.MatchInfo.Builder setSnippetRange(androidx.appsearch.app.SearchResult.MatchRange);
+    method public androidx.appsearch.app.SearchResult.MatchInfo.Builder setSubmatchRange(androidx.appsearch.app.SearchResult.MatchRange);
   }
 
   public static final class SearchResult.MatchRange {
