@@ -137,7 +137,8 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     public void getSessionActivity() throws Exception {
         prepareLooper();
         final Intent sessionActivity = new Intent(mContext, MockActivity.class);
-        PendingIntent pi = PendingIntent.getActivity(mContext, 0, sessionActivity, 0);
+        PendingIntent pi = PendingIntent.getActivity(mContext, 0, sessionActivity,
+                Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
         mSession.setSessionActivity(pi);
 
         mController = createController(mSession.getSessionToken());
