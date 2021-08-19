@@ -19,7 +19,6 @@ package androidx.wear.watchface.samples
 import android.content.res.Resources
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.icu.util.Calendar
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import android.opengl.Matrix
@@ -31,6 +30,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import java.time.ZonedDateTime
 
 /** Expected frame rate in interactive mode.  */
 private const val FPS: Long = 60
@@ -219,7 +219,7 @@ internal class MainThreadRenderer(
         )
     )
 
-    override fun render(calendar: Calendar) {
+    override fun render(zonedDateTime: ZonedDateTime) {
         checkGLError("renders")
         GLES20.glClearColor(0f, 1f, 0f, 1f)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
@@ -236,10 +236,10 @@ internal class MainThreadRenderer(
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, watchHandTexture)
 
-        val hours = calendar.get(Calendar.HOUR).toFloat()
-        val minutes = calendar.get(Calendar.MINUTE).toFloat()
-        val seconds = calendar.get(Calendar.SECOND).toFloat() +
-            (calendar.get(Calendar.MILLISECOND).toFloat() / 1000f)
+        val hours = (zonedDateTime.hour % 12).toFloat()
+        val minutes = zonedDateTime.minute.toFloat()
+        val seconds = zonedDateTime.second.toFloat() +
+            (zonedDateTime.nano.toDouble() / 1000000000.0).toFloat()
 
         val secondsRot = seconds / 60.0f * 360.0f
         Matrix.setRotateM(handPositionMatrix, 0, secondsRot, 0f, 0f, 1f)
@@ -262,7 +262,7 @@ internal class MainThreadRenderer(
         triangleTextureProgram.unbindAttribs()
     }
 
-    override fun renderHighlightLayer(calendar: Calendar) {
+    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
         val highlightLayer = renderParameters.highlightLayer!!
         GLES20.glClearColor(
             Color.red(highlightLayer.backgroundTint).toFloat() / 256.0f,

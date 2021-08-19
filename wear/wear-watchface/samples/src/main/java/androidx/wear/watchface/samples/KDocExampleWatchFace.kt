@@ -21,7 +21,6 @@ package androidx.wear.watchface.samples
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
-import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.Sampled
 import androidx.wear.complications.ComplicationSlotBounds
@@ -46,6 +45,7 @@ import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import java.time.ZonedDateTime
 
 @Sampled
 fun kDocCreateExampleWatchFaceService(): WatchFaceService {
@@ -178,7 +178,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 override fun render(
                     canvas: Canvas,
                     bounds: Rect,
-                    calendar: Calendar
+                    zonedDateTime: ZonedDateTime
                 ) {
                     // ...
                 }
@@ -186,7 +186,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    calendar: Calendar
+                    zonedDateTime: ZonedDateTime
                 ) {
                     canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
 

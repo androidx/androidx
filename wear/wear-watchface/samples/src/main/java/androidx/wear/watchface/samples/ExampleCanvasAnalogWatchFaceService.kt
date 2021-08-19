@@ -24,7 +24,6 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
-import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationDataSourcePolicy
@@ -54,6 +53,7 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import java.time.ZonedDateTime
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -371,7 +371,7 @@ class ExampleAnalogWatchCanvasRenderer(
         )
     }
 
-    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         val style = if (renderParameters.drawMode == DrawMode.AMBIENT) {
             watchFaceColorStyle.ambientStyle
         } else {
@@ -384,13 +384,13 @@ class ExampleAnalogWatchCanvasRenderer(
         // CanvasComplicationDrawable does that for us.
         for ((_, complication) in complicationSlotsManager.complicationSlots) {
             if (complication.enabled) {
-                complication.render(canvas, calendar, renderParameters)
+                complication.render(canvas, zonedDateTime, renderParameters)
             }
         }
 
         if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         ) {
-            drawClockHands(canvas, bounds, calendar, style)
+            drawClockHands(canvas, bounds, zonedDateTime, style)
         }
 
         if (renderParameters.drawMode != DrawMode.AMBIENT &&
@@ -400,12 +400,12 @@ class ExampleAnalogWatchCanvasRenderer(
         }
     }
 
-    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
 
         for ((_, complication) in complicationSlotsManager.complicationSlots) {
             if (complication.enabled) {
-                complication.renderHighlightLayer(canvas, calendar, renderParameters)
+                complication.renderHighlightLayer(canvas, zonedDateTime, renderParameters)
             }
         }
     }
@@ -413,14 +413,14 @@ class ExampleAnalogWatchCanvasRenderer(
     private fun drawClockHands(
         canvas: Canvas,
         bounds: Rect,
-        calendar: Calendar,
+        zonedDateTime: ZonedDateTime,
         style: ColorStyle
     ) {
         recalculateClockHands(bounds)
-        val hours = calendar.get(Calendar.HOUR).toFloat()
-        val minutes = calendar.get(Calendar.MINUTE).toFloat()
-        val seconds = calendar.get(Calendar.SECOND).toFloat() +
-            (calendar.get(Calendar.MILLISECOND).toFloat() / 1000f)
+        val hours = (zonedDateTime.hour % 12).toFloat()
+        val minutes = zonedDateTime.minute.toFloat()
+        val seconds = zonedDateTime.second.toFloat() +
+            (zonedDateTime.nano.toDouble() / 1000000000.0).toFloat()
 
         val hourRot = (hours + minutes / 60.0f + seconds / 3600.0f) / 12.0f * 360.0f
         val minuteRot = (minutes + seconds / 60.0f) / 60.0f * 360.0f

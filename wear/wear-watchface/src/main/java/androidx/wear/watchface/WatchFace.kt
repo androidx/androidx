@@ -25,8 +25,6 @@ import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.icu.util.Calendar
-import android.icu.util.TimeZone
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
@@ -60,6 +58,8 @@ import androidx.wear.watchface.style.WatchFaceLayer
 import kotlinx.coroutines.CompletableDeferred
 import java.security.InvalidParameterException
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import kotlin.math.max
 
 // Human reaction time is limited to ~100ms.
@@ -250,6 +250,9 @@ public class WatchFace(
     public interface SystemTimeProvider {
         /** Returns the current system time in milliseconds. */
         public fun getSystemTimeMillis(): Long
+
+        /** Returns the current system [ZoneId]. */
+        public fun getSystemTimeZoneId(): ZoneId
     }
 
     /** Listens for taps on the watchface which didn't land on [ComplicationSlot]s. */
@@ -339,6 +342,8 @@ public class WatchFace(
 
     internal var systemTimeProvider: SystemTimeProvider = object : SystemTimeProvider {
         override fun getSystemTimeMillis() = System.currentTimeMillis()
+
+        override fun getSystemTimeZoneId() = ZoneId.systemDefault()
     }
 
     /**
@@ -402,10 +407,6 @@ public class WatchFaceImpl @UiThread constructor(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     public var complicationSlotsManager: ComplicationSlotsManager,
 
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    public val calendar: Calendar,
     private val broadcastsObserver: BroadcastsObserver,
     internal var broadcastsReceiver: BroadcastsReceiver?
 ) {
@@ -507,7 +508,6 @@ public class WatchFaceImpl @UiThread constructor(
     )
 
     internal fun onActionTimeZoneChanged() {
-        calendar.timeZone = TimeZone.getDefault()
         renderer.invalidate()
     }
 
@@ -681,9 +681,7 @@ public class WatchFaceImpl @UiThread constructor(
                 }
             }
             val screenShot = renderer.takeScreenshot(
-                Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                    timeInMillis = instant.toEpochMilli()
-                },
+                ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
                 renderParameters
             )
             if (slotIdToComplicationData != null) {
@@ -769,7 +767,6 @@ public class WatchFaceImpl @UiThread constructor(
             return
         }
 
-        setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         if (renderer.shouldAnimate()) {
             pendingUpdateTime.postUnique {
                 watchFaceHostApi.invalidate()
@@ -777,11 +774,12 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    /** Sets the calendar's time in milliseconds adjusted by the mock time controls. */
+    /** Gets the [ZonedDateTime] from [systemTimeProvider] adjusted by the mock time controls. */
     @UiThread
-    private fun setCalendarTime(timeMillis: Long) {
-        calendar.timeInMillis = mockTime.applyMockTime(timeMillis)
-    }
+    private fun getZonedDateTime() = ZonedDateTime.ofInstant(
+        Instant.ofEpochMilli(mockTime.applyMockTime(systemTimeProvider.getSystemTimeMillis())),
+        systemTimeProvider.getSystemTimeZoneId()
+    )
 
     /** @hide */
     @UiThread
@@ -807,12 +805,10 @@ public class WatchFaceImpl @UiThread constructor(
     /** @hide */
     @UiThread
     internal fun onDraw() {
-        setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         maybeUpdateDrawMode()
-        renderer.renderInternal(calendar)
+        renderer.renderInternal(getZonedDateTime())
 
         val currentTimeMillis = systemTimeProvider.getSystemTimeMillis()
-        setCalendarTime(currentTimeMillis)
         if (renderer.shouldAnimate()) {
             val delayMillis = computeDelayTillNextFrame(nextDrawTimeMillis, currentTimeMillis)
             nextDrawTimeMillis = currentTimeMillis + delayMillis
@@ -821,9 +817,8 @@ public class WatchFaceImpl @UiThread constructor(
     }
 
     internal fun onSurfaceRedrawNeeded() {
-        setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         maybeUpdateDrawMode()
-        renderer.renderInternal(calendar)
+        renderer.renderInternal(getZonedDateTime())
     }
 
     /** @hide */
@@ -961,9 +956,10 @@ public class WatchFaceImpl @UiThread constructor(
         }
 
         val bitmap = renderer.takeScreenshot(
-            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                timeInMillis = params.calendarTimeMillis
-            },
+            ZonedDateTime.ofInstant(
+                Instant.ofEpochMilli(params.calendarTimeMillis),
+                ZoneId.of("UTC")
+            ),
             RenderParameters(params.renderParametersWireFormat)
         )
 
@@ -986,9 +982,10 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun renderComplicationToBitmap(
         params: ComplicationRenderParams
     ): Bundle? = TraceEvent("WatchFaceImpl.renderComplicationToBitmap").use {
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-            timeInMillis = params.calendarTimeMillis
-        }
+        val zonedDateTime = ZonedDateTime.ofInstant(
+            Instant.ofEpochMilli(params.calendarTimeMillis),
+            ZoneId.of("UTC")
+        )
         return complicationSlotsManager[params.complicationSlotId]?.let {
             val oldStyle = currentUserStyleRepository.userStyle
 
@@ -1016,7 +1013,7 @@ public class WatchFaceImpl @UiThread constructor(
             it.renderer.render(
                 Canvas(complicationBitmap),
                 Rect(0, 0, bounds.width(), bounds.height()),
-                calendar,
+                zonedDateTime,
                 RenderParameters(params.renderParametersWireFormat),
                 params.complicationSlotId
             )
@@ -1038,7 +1035,6 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("WatchFaceImpl ($componentName): ")
         writer.increaseIndent()
-        writer.println("calendar=$calendar")
         writer.println("mockTime.maxTime=${mockTime.maxTime}")
         writer.println("mockTime.minTime=${mockTime.minTime}")
         writer.println("mockTime.speed=${mockTime.speed}")

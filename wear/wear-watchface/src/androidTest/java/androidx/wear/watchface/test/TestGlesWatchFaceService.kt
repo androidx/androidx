@@ -27,12 +27,14 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.samples.ExampleOpenGLWatchFaceService
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import java.time.ZoneId
 
 /** A simple OpenGL test watch face for integration tests. */
 internal class TestGlesWatchFaceService(
     testContext: Context,
     private val handler: Handler,
     var mockSystemTimeMillis: Long,
+    var mockZoneId: ZoneId,
     var surfacHolderOverride: SurfaceHolder?,
     var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
 ) : WatchFaceService() {
@@ -71,9 +73,9 @@ internal class TestGlesWatchFaceService(
             complicationSlotsManager,
             currentUserStyleRepository
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-            override fun getSystemTimeMillis(): Long {
-                return mockSystemTimeMillis
-            }
+            override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+            override fun getSystemTimeZoneId() = mockZoneId
         })
     }
 

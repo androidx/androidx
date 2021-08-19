@@ -29,7 +29,6 @@ import android.graphics.Paint.Style;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.icu.util.Calendar;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
@@ -43,6 +42,7 @@ import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
 
+import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
 class WatchFaceRenderer extends Renderer.CanvasRenderer {
@@ -87,21 +87,22 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
     }
 
     @Override
-    public void render(@NonNull Canvas canvas, @NonNull Rect rect, @NonNull Calendar calendar) {
+    public void render(@NonNull Canvas canvas, @NonNull Rect rect,
+            @NonNull ZonedDateTime zonedDateTime) {
         mPaint.setColor(Color.BLACK);
         canvas.drawRect(rect, mPaint);
 
         for (ComplicationSlot complication :
                 mComplicationSlotsManager.getComplicationSlots().values()) {
             if (complication.isEnabled()) {
-                complication.render(canvas, calendar, getRenderParameters());
+                complication.render(canvas, zonedDateTime, getRenderParameters());
             }
         }
 
         mPaint.setColor(Color.WHITE);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        int second = calendar.get(Calendar.SECOND);
+        int hour = zonedDateTime.getHour() % 12;
+        int minute = zonedDateTime.getMinute();
+        int second = zonedDateTime.getSecond();
         mTime[0] = DIGITS[hour / 10];
         mTime[1] = DIGITS[hour % 10];
         mTime[2] = second % 2 == 0 ? ':' : ' ';
@@ -120,21 +121,22 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
                         Bitmap.createBitmap(rect.width(), rect.height(), Config.ARGB_8888);
             }
             renderHighlightLayer(
-                    new Canvas(mHighlightBitmap), rect, calendar, highlightLayerParams);
+                    new Canvas(mHighlightBitmap), rect, zonedDateTime, highlightLayerParams);
             canvas.drawBitmap(mHighlightBitmap, rect.left, rect.top, mPaint);
         }
     }
 
     @Override
     public void renderHighlightLayer(
-            @NonNull Canvas canvas, @NonNull Rect rect, @NonNull Calendar calendar) {
-        renderHighlightLayer(canvas, rect, calendar, getRenderParameters().getHighlightLayer());
+            @NonNull Canvas canvas, @NonNull Rect rect, @NonNull ZonedDateTime zonedDateTime) {
+        renderHighlightLayer(canvas, rect, zonedDateTime,
+                getRenderParameters().getHighlightLayer());
     }
 
     private void renderHighlightLayer(
             @NonNull Canvas canvas,
             @NonNull Rect rect,
-            @SuppressWarnings("UnusedVariable") @NonNull Calendar calendar,
+            @SuppressWarnings("UnusedVariable") @NonNull ZonedDateTime zonedDateTime,
             HighlightLayer params) {
         // There is no style defined, so the only options are rendering the highlight for the
         // only complication or for all complications, which is essentially the same.

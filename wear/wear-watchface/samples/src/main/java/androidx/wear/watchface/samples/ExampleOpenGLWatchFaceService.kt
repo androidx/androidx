@@ -19,7 +19,6 @@ package androidx.wear.watchface.samples
 import android.graphics.Color
 import android.graphics.RectF
 import android.graphics.drawable.Icon
-import android.icu.util.Calendar
 import android.opengl.GLES20
 import android.opengl.GLU
 import android.opengl.GLUtils
@@ -50,6 +49,7 @@ import androidx.wear.watchface.style.WatchFaceLayer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.time.ZonedDateTime
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -626,7 +626,7 @@ class ExampleOpenGLRenderer(
         }
     }
 
-    override fun render(calendar: Calendar) {
+    override fun render(zonedDateTime: ZonedDateTime) {
         // Draw background color and select the appropriate view projection matrix. The background
         // should always be black in ambient mode. The view projection matrix used is overhead in
         // ambient. In interactive mode, it's tilted depending on the current time.
@@ -638,14 +638,16 @@ class ExampleOpenGLRenderer(
                 "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
                 "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
             }
-            val cameraIndex = (calendar.timeInMillis / FRAME_PERIOD_MS % numCameraAngles).toInt()
+            val cameraIndex =
+                (zonedDateTime.toInstant().toEpochMilli() / FRAME_PERIOD_MS % numCameraAngles)
+                    .toInt()
             vpMatrices[cameraIndex]
         }
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         // Draw the complication first.
         if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
-            complicationTexture.renderToTexture(calendar, renderParameters)
+            complicationTexture.renderToTexture(zonedDateTime, renderParameters)
 
             textureTriangleProgram.bindProgramAndAttribs()
             complicationTexture.bind()
@@ -661,16 +663,15 @@ class ExampleOpenGLRenderer(
         }
 
         // Compute angle indices for the three hands.
-        val seconds = calendar.get(Calendar.SECOND) + calendar.get(Calendar.MILLISECOND) / 1000f
-        val minutes = calendar.get(Calendar.MINUTE) + seconds / 60f
-        val hours = calendar.get(Calendar.HOUR) + minutes / 60f
+        val seconds = zonedDateTime.second + (zonedDateTime.nano / 1000000000.0)
+        val minutes = zonedDateTime.minute + seconds / 60f
+        val hours = (zonedDateTime.hour % 12) + minutes / 60f
         val secIndex = (seconds / 60f * 360f).toInt()
         val minIndex = (minutes / 60f * 360f).toInt()
         val hoursIndex = (hours / 12f * 360f).toInt()
 
         // Render hands.
-        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)
-        ) {
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)) {
             Matrix.multiplyMM(
                 mvpMatrix,
                 0,
@@ -713,8 +714,9 @@ class ExampleOpenGLRenderer(
         }
     }
 
-    override fun renderHighlightLayer(calendar: Calendar) {
-        val cameraIndex = (calendar.timeInMillis / FRAME_PERIOD_MS % numCameraAngles).toInt()
+    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
+        val cameraIndex =
+            (zonedDateTime.toInstant().toEpochMilli() / FRAME_PERIOD_MS % numCameraAngles).toInt()
         val vpMatrix = vpMatrices[cameraIndex]
 
         val highlightLayer = renderParameters.highlightLayer!!

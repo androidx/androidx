@@ -20,12 +20,12 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
-import android.icu.util.Calendar
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import androidx.annotation.Px
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.RenderParameters
+import java.time.ZonedDateTime
 
 /**
  * Helper for rendering a [ComplicationSlot] to a GLES20 texture. To use call [renderToTexture]
@@ -52,12 +52,12 @@ public class GlesTextureComplication(
     private val bounds = Rect(0, 0, textureWidth, textureHeight)
 
     /** Renders [complicationSlot] to an OpenGL texture. */
-    public fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
+    public fun renderToTexture(zonedDateTime: ZonedDateTime, renderParameters: RenderParameters) {
         canvas.drawColor(Color.BLACK)
         complicationSlot.renderer.render(
             canvas,
             bounds,
-            calendar,
+            zonedDateTime,
             renderParameters,
             complicationSlot.id
         )

@@ -25,7 +25,6 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
-import android.icu.util.Calendar
 import android.opengl.EGL14
 import android.opengl.EGLConfig
 import android.opengl.EGLContext
@@ -47,6 +46,7 @@ import androidx.wear.watchface.Renderer.GlesRenderer
 import androidx.wear.watchface.Renderer.GlesRenderer.GlesException
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import java.nio.ByteBuffer
+import java.time.ZonedDateTime
 
 /**
  * Describes the type of [Canvas] a [CanvasRenderer] should request from a [SurfaceHolder].
@@ -205,25 +205,25 @@ public sealed class Renderer @WorkerThread constructor(
      * Renders the watch face into the [surfaceHolder] using the current [renderParameters]
      * with the user style specified by the [currentUserStyleRepository].
      *
-     * @param calendar The Calendar to use when rendering the watch face
+     * @param zonedDateTime The [ZonedDateTime] to use when rendering the watch face
      * @return A [Bitmap] containing a screenshot of the watch face
      */
     @Suppress("HiddenAbstractMethod")
     @UiThread
-    internal abstract fun renderInternal(calendar: Calendar)
+    internal abstract fun renderInternal(zonedDateTime: ZonedDateTime)
 
     /**
      * Renders the watch face into a Bitmap with the user style specified by the
      * [currentUserStyleRepository].
      *
-     * @param calendar The Calendar to use when rendering the watch face
+     * @param zonedDateTime The [ZonedDateTime] to use when rendering the watch face
      * @param renderParameters The [RenderParameters] to use when rendering the watch face
      * @return A [Bitmap] containing a screenshot of the watch face
      */
     @Suppress("HiddenAbstractMethod")
     @UiThread
     internal abstract fun takeScreenshot(
-        calendar: Calendar,
+        zonedDateTime: ZonedDateTime,
         renderParameters: RenderParameters
     ): Bitmap
 
@@ -332,7 +332,7 @@ public sealed class Renderer @WorkerThread constructor(
         interactiveDrawModeUpdateDelayMillis
     ) {
         internal override fun renderInternal(
-            calendar: Calendar
+            zonedDateTime: ZonedDateTime
         ) {
             val canvas = (
                 if (canvasType == CanvasType.HARDWARE) {
@@ -343,7 +343,7 @@ public sealed class Renderer @WorkerThread constructor(
                 ) ?: return
             try {
                 if (Build.VERSION.SDK_INT >= 30 || watchState.isVisible.value) {
-                    renderAndComposite(canvas, calendar)
+                    renderAndComposite(canvas, zonedDateTime)
                 } else {
                     canvas.drawColor(Color.BLACK)
                 }
@@ -353,7 +353,7 @@ public sealed class Renderer @WorkerThread constructor(
         }
 
         internal override fun takeScreenshot(
-            calendar: Calendar,
+            zonedDateTime: ZonedDateTime,
             renderParameters: RenderParameters
         ): Bitmap = TraceEvent("CanvasRenderer.takeScreenshot").use {
             val bitmap = Bitmap.createBitmap(
@@ -363,15 +363,15 @@ public sealed class Renderer @WorkerThread constructor(
             )
             val prevRenderParameters = this.renderParameters
             this.renderParameters = renderParameters
-            renderAndComposite(Canvas(bitmap), calendar)
+            renderAndComposite(Canvas(bitmap), zonedDateTime)
             this.renderParameters = prevRenderParameters
             return bitmap
         }
 
-        private fun renderAndComposite(canvas: Canvas, calendar: Calendar) {
+        private fun renderAndComposite(canvas: Canvas, zonedDateTime: ZonedDateTime) {
             // Usually renderParameters.watchFaceWatchFaceLayers will be non-empty.
             if (renderParameters.watchFaceLayers.isNotEmpty()) {
-                render(canvas, screenBounds, calendar)
+                render(canvas, screenBounds, zonedDateTime)
 
                 // Render and composite the HighlightLayer
                 if (renderParameters.highlightLayer != null) {
@@ -380,7 +380,7 @@ public sealed class Renderer @WorkerThread constructor(
                         screenBounds.height(),
                         Bitmap.Config.ARGB_8888
                     )
-                    renderHighlightLayer(Canvas(highlightLayer), screenBounds, calendar)
+                    renderHighlightLayer(Canvas(highlightLayer), screenBounds, zonedDateTime)
                     canvas.drawBitmap(highlightLayer, 0f, 0f, HIGHLIGHT_LAYER_COMPOSITE_PAINT)
                     highlightLayer.recycle()
                 }
@@ -389,7 +389,7 @@ public sealed class Renderer @WorkerThread constructor(
                     "We don't support empty renderParameters.watchFaceWatchFaceLayers without a " +
                         "non-null renderParameters.highlightLayer"
                 }
-                renderHighlightLayer(canvas, screenBounds, calendar)
+                renderHighlightLayer(canvas, screenBounds, zonedDateTime)
             }
         }
 
@@ -408,7 +408,7 @@ public sealed class Renderer @WorkerThread constructor(
          * Sub-classes should override this to implement their watch face rendering logic which
          * should respect the current [renderParameters]. Any highlights due to
          * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
-         * where possible. For correct behavior this function must use the supplied [Calendar]
+         * where possible. For correct behavior this function must use the supplied [ZonedDateTime]
          * in favor of any other ways of getting the time.
          *
          * Before any calls to render, [init] will be called once.
@@ -416,13 +416,13 @@ public sealed class Renderer @WorkerThread constructor(
          * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
          * the [SurfaceHolder] backing the display
          * @param bounds A [Rect] describing the bonds of the canvas to draw into
-         * @param calendar The current [Calendar]
+         * @param zonedDateTime The [ZonedDateTime] to render with
          */
         @UiThread
         public abstract fun render(
             canvas: Canvas,
             bounds: Rect,
-            calendar: Calendar
+            zonedDateTime: ZonedDateTime
         )
 
         /**
@@ -432,18 +432,19 @@ public sealed class Renderer @WorkerThread constructor(
          * [RenderParameters.HighlightLayer.backgroundTint] before rendering a transparent highlight
          * or a solid outline around the [RenderParameters.HighlightLayer.highlightedElement]. This
          * will be composited as needed on top of the results of [render]. For correct behavior this
-         * function must use the supplied [Calendar] in favor of any other ways of getting the time.
+         * function must use the supplied [ZonedDateTime] in favor of any other ways of getting the
+         * time.
          *
          * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
          * the [SurfaceHolder] backing the display
          * @param bounds A [Rect] describing the bonds of the canvas to draw into
-         * @param calendar The current [Calendar]
+         * @param zonedDateTime the [ZonedDateTime] to render with
          */
         @UiThread
         public abstract fun renderHighlightLayer(
             canvas: Canvas,
             bounds: Rect,
-            calendar: Calendar
+            zonedDateTime: ZonedDateTime
         )
 
         internal override fun dump(writer: IndentingPrintWriter) {
@@ -868,10 +869,10 @@ public sealed class Renderer @WorkerThread constructor(
         }
 
         internal override fun renderInternal(
-            calendar: Calendar
+            zonedDateTime: ZonedDateTime
         ) {
             runUiThreadGlCommands {
-                renderAndComposite(calendar)
+                renderAndComposite(zonedDateTime)
                 if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
                     Log.w(TAG, "eglSwapBuffers failed")
                 }
@@ -879,7 +880,7 @@ public sealed class Renderer @WorkerThread constructor(
         }
 
         internal override fun takeScreenshot(
-            calendar: Calendar,
+            zonedDateTime: ZonedDateTime,
             renderParameters: RenderParameters
         ): Bitmap = TraceEvent("GlesRenderer.takeScreenshot").use {
             val width = screenBounds.width()
@@ -889,7 +890,7 @@ public sealed class Renderer @WorkerThread constructor(
             runUiThreadGlCommands {
                 val prevRenderParameters = this.renderParameters
                 this.renderParameters = renderParameters
-                renderAndComposite(calendar)
+                renderAndComposite(zonedDateTime)
                 this.renderParameters = prevRenderParameters
                 GLES20.glFinish()
                 GLES20.glReadPixels(
@@ -909,18 +910,18 @@ public sealed class Renderer @WorkerThread constructor(
             return bitmap
         }
 
-        private fun renderAndComposite(calendar: Calendar) {
+        private fun renderAndComposite(zonedDateTime: ZonedDateTime) {
             GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
 
             // Usually renderParameters.watchFaceWatchFaceLayers will be non-empty.
             if (renderParameters.watchFaceLayers.isNotEmpty()) {
-                render(calendar)
+                render(zonedDateTime)
 
                 // Render and composite the HighlightLayer
                 if (renderParameters.highlightLayer != null) {
                     renderBufferTexture.bindFrameBuffer()
                     GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
-                    renderHighlightLayer(calendar)
+                    renderHighlightLayer(zonedDateTime)
                     GLES20.glFlush()
 
                     GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
@@ -931,7 +932,7 @@ public sealed class Renderer @WorkerThread constructor(
                     "We don't support empty renderParameters.watchFaceWatchFaceLayers without a " +
                         "non-null renderParameters.highlightLayer"
                 }
-                renderHighlightLayer(calendar)
+                renderHighlightLayer(zonedDateTime)
             }
         }
 
@@ -966,7 +967,7 @@ public sealed class Renderer @WorkerThread constructor(
          * Sub-classes should override this to implement their watch face rendering logic which
          * should respect the current [renderParameters]. Any highlights due to
          * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
-         * where possible. For correct behavior this function must use the supplied [Calendar]
+         * where possible. For correct behavior this function must use the supplied [ZonedDateTime]
          * in favor of any other ways of getting the time.
          *
          * Note this function is called inside a lambda passed to [runUiThreadGlCommands] which
@@ -978,10 +979,10 @@ public sealed class Renderer @WorkerThread constructor(
          * Before any calls to this function [onBackgroundThreadGlContextCreated] and
          * [onUiThreadGlSurfaceCreated] will have been called once on their respective threads.
          *
-         * @param calendar The current [Calendar]
+         * @param zonedDateTime The zonedDateTime [ZonedDateTime] to render with
          */
         @UiThread
-        public abstract fun render(calendar: Calendar)
+        public abstract fun render(zonedDateTime: ZonedDateTime)
 
         /**
          * Sub-classes should override this to implement their watch face highlight layer rendering
@@ -990,7 +991,8 @@ public sealed class Renderer @WorkerThread constructor(
          * [RenderParameters.HighlightLayer.backgroundTint] before rendering a transparent highlight
          * or a solid outline around the [RenderParameters.HighlightLayer.highlightedElement]. This
          * will be composited as needed on top of the results of [render]. For correct behavior this
-         * function must use the supplied [Calendar] in favor of any other ways of getting the time.
+         * function must use the supplied [ZonedDateTime] in favor of any other ways of getting the
+         * time.
          *
          * Note this function is called inside a lambda passed to [runUiThreadGlCommands] which
          * has synchronized access to the GL context.
@@ -998,10 +1000,10 @@ public sealed class Renderer @WorkerThread constructor(
          * Note also `GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)` is called by the library
          * before this method.
          *
-         * @param calendar The current [Calendar]
+         * @param zonedDateTime The zonedDateTime [ZonedDateTime] to render with
          */
         @UiThread
-        public abstract fun renderHighlightLayer(calendar: Calendar)
+        public abstract fun renderHighlightLayer(zonedDateTime: ZonedDateTime)
 
         internal override fun dump(writer: IndentingPrintWriter) {
             writer.println("GlesRenderer:")
