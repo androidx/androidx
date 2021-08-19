@@ -38,6 +38,8 @@ import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
+import org.jetbrains.uast.skipParenthesizedExprDown
+import org.jetbrains.uast.skipParenthesizedExprUp
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
 import java.util.Locale
@@ -103,7 +105,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
 
             /** This covers Kotlin accessor syntax expressions like "fragment.arguments" */
             override fun visitSimpleNameReferenceExpression(node: USimpleNameReferenceExpression) {
-                val parent = node.uastParent
+                val parent = skipParenthesizedExprUp(node.uastParent)
                 if (parent is UQualifiedReferenceExpression) {
                     checkReferenceExpression(parent, node.identifier) {
                         parent.receiver.getExpressionType()
@@ -157,7 +159,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
             ) {
                 // Note we go up potentially two parents - the first one may just be the qualified reference expression
                 val nearestNonQualifiedReferenceParent =
-                    node.nearestNonQualifiedReferenceParent ?: return
+                    skipParenthesizedExprUp(node.nearestNonQualifiedReferenceParent) ?: return
                 if (isKotlin && nearestNonQualifiedReferenceParent.isNullCheckBlock()) {
                     // We're a double-bang expression (!!)
                     val parentSourceToReplace =
@@ -167,17 +169,20 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                         "$targetExpression!!",
                         targetMethodName
                     )
-                    if (correctMethod == parentSourceToReplace) {
-                        correctMethod = parentSourceToReplace.replace(
-                            "$targetExpression?",
-                            "$targetExpression!!"
+                    if (correctMethod == parentSourceToReplace.removeSingleParentheses()) {
+                        correctMethod = parentSourceToReplace.removeSingleParentheses().replace(
+                            "$targetExpression?", "$targetExpression!!"
                         ).replaceFirstOccurrenceAfter("!!", "", "$targetExpression!!")
                     }
                     report(nearestNonQualifiedReferenceParent, parentSourceToReplace, correctMethod)
                 } else if (nearestNonQualifiedReferenceParent is UCallExpression) {
                     // See if we're in a "requireNotNull(...)" or similar expression
                     val enclosingMethodCall =
-                        nearestNonQualifiedReferenceParent.resolve() ?: return
+                        (
+                            skipParenthesizedExprUp(
+                                nearestNonQualifiedReferenceParent
+                            ) as UCallExpression
+                            ).resolve() ?: return
 
                     if (enclosingMethodCall.name in KNOWN_NULLCHECKS) {
                         // Only match for single (specified) parameter. If existing code had a
@@ -191,7 +196,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                         if (singleParameterSpecified) {
                             // Grab the source of this argument as it's represented.
                             val source = nearestNonQualifiedReferenceParent.valueArguments[0]
-                                .asSourceString()
+                                .skipParenthesizedExprDown()!!.asSourceString()
                             val parentToReplace =
                                 nearestNonQualifiedReferenceParent.fullyQualifiedNearestParent()
                                     .asSourceString()
@@ -222,7 +227,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                 targetExpression: String,
                 targetMethodName: String
             ): String {
-                return source.replace(
+                return source.removeSingleParentheses().replace(
                     targetExpression,
                     "require${targetMethodName.removePrefix("get").capitalize(Locale.US)}()"
                 )
@@ -289,4 +294,9 @@ internal fun String.capitalize(locale: Locale): String {
 
 internal fun UElement.isNullCheckBlock(): Boolean {
     return this is UPostfixExpression && operator.text == "!!"
+}
+
+internal fun String.removeSingleParentheses(): String {
+    return this.replace("[(](?=[^)])".toRegex(), "")
+        .replace("(?<![(])[)]".toRegex(), "")
 }
