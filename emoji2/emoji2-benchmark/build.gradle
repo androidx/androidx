@@ -24,8 +24,24 @@ plugins {
     id("androidx.benchmark")
 }
 
+ext {
+    fontDir = project(':noto-emoji-compat-font').projectDir
+}
+
+android {
+    sourceSets {
+        androidTest {
+            assets {
+                srcDirs = [new File(fontDir, "supported-emojis").getAbsolutePath()]
+            }
+        }
+    }
+
+}
+
 dependencies {
     androidTestImplementation(project(":emoji2:emoji2"))
+    androidTestImplementation(project(":emoji2:emoji2-bundled"))
     androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
