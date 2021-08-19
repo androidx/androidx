@@ -34,5 +34,5 @@ SdkResourceGenerator.generateForHostTest(project)
 
 tasks.findByPath("test").dependsOn(
         tasks.findByPath(":collection:collection:publish"),
-        tasks.findByPath(":collection:collection2:publish"),
+        tasks.findByPath(":collection2:collection2:publish"),
 )
