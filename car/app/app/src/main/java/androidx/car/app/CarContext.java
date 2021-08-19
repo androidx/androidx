@@ -639,9 +639,9 @@ public class CarContext extends ContextWrapper {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP)
     @MainThread
-    void updateHandshakeInfo(@NonNull HandshakeInfo handshakeInfo) {
+    public void updateHandshakeInfo(@NonNull HandshakeInfo handshakeInfo) {
         mCarAppApiLevel = handshakeInfo.getHostCarAppApiLevel();
     }
 
@@ -724,7 +724,8 @@ public class CarContext extends ContextWrapper {
                 () -> ConstraintManager.create(this, hostDispatcher));
         mManagers.addFactory(CarHardwareManager.class, HARDWARE_SERVICE,
                 () -> CarHardwareManager.create(this, hostDispatcher));
-        mManagers.addFactory(ResultManager.class, null, ResultManager::create);
+        mManagers.addFactory(ResultManager.class, null,
+                () -> ResultManager.create(this));
 
         mOnBackPressedDispatcher =
                 new OnBackPressedDispatcher(() -> getCarService(ScreenManager.class).pop());

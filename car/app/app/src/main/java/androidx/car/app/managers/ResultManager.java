@@ -18,11 +18,14 @@ package androidx.car.app.managers;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.CarAppMetadataHolderService;
 import androidx.car.app.CarContext;
 
 /**
@@ -60,17 +63,25 @@ public interface ResultManager extends Manager {
      *                               class was found but the constructor was mismatched
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    static ResultManager create() throws IllegalStateException {
-        ResultManager manager = Manager.create(ResultManager.class,
-                "androidx.car.app.activity.ResultManagerAutomotive");
+    static ResultManager create(@NonNull CarContext context) throws IllegalStateException {
+        try {
+            ServiceInfo serviceInfo = CarAppMetadataHolderService.getServiceInfo(context);
+            String managerClassName = null;
+            if (serviceInfo.metaData != null) {
+                managerClassName = serviceInfo.metaData.getString(
+                        "androidx.car.app.CarAppMetadataHolderService.RESULT_MANAGER");
+            }
+            if (managerClassName == null) {
+                throw new ClassNotFoundException("ResultManager metadata could not be found");
+            }
 
-        if (manager == null) {
-            throw new IllegalStateException("Unable to instantiate " + ResultManager.class
-                    + ". Did you forget to add a dependency on app-automotive artifact?");
+            Class<?> managerClass = Class.forName(managerClassName);
+            return (ResultManager) managerClass.getConstructor().newInstance();
+        } catch (PackageManager.NameNotFoundException | ReflectiveOperationException e) {
+            throw new IllegalStateException("ResultManager not configured. Did you forget "
+                    + "to add a dependency on the app-automotive artifact?");
         }
-
-        return manager;
     }
 }

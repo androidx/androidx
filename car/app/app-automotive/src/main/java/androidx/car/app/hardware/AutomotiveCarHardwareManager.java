@@ -15,11 +15,16 @@
  */
 package androidx.car.app.hardware;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import static java.util.Objects.requireNonNull;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.car.app.CarContext;
+import androidx.car.app.HostDispatcher;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.PropertyManager;
 import androidx.car.app.hardware.info.AutomotiveCarInfo;
@@ -41,6 +46,13 @@ public final class AutomotiveCarHardwareManager implements CarHardwareManager {
         requireNonNull(context);
         mCarInfo = new AutomotiveCarInfo(new PropertyManager(context));
         mCarSensors = new AutomotiveCarSensors();
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    public AutomotiveCarHardwareManager(@NonNull CarContext context,
+            @NonNull HostDispatcher dispatcher) {
+        this(context);
     }
 
     @NonNull

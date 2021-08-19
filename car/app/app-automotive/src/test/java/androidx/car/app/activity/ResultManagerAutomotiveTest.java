@@ -30,6 +30,8 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
 
+import androidx.car.app.managers.ResultManager;
+import androidx.car.app.testing.TestCarContext;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -54,6 +56,12 @@ public class ResultManagerAutomotiveTest {
     @Before
     public void setUp() {
         mCarAppViewModel = new CarAppViewModel(mApplication, mRendererComponent);
+    }
+
+    @Test
+    public void resultsManager_returnsAutomotiveInstance() {
+        ResultManager manager = ResultManager.create(TestCarContext.createCarContext(mApplication));
+        assertThat(manager).isInstanceOf(ResultManagerAutomotive.class);
     }
 
     @Test

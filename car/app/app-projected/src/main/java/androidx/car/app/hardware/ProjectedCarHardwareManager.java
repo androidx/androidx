@@ -19,6 +19,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.hardware.common.CarHardwareHostDispatcher;
 import androidx.car.app.hardware.info.CarInfo;
@@ -53,7 +54,8 @@ public class ProjectedCarHardwareManager implements CarHardwareManager {
     /**
      * Creates an instance of {@link CarHardwareManager}.
      */
-    public ProjectedCarHardwareManager(@NonNull HostDispatcher hostDispatcher) {
+    public ProjectedCarHardwareManager(@NonNull CarContext context,
+            @NonNull HostDispatcher hostDispatcher) {
         CarHardwareHostDispatcher carHardwareHostDispatcher =
                 new CarHardwareHostDispatcher(hostDispatcher);
         mVehicleInfo = new ProjectedCarInfo(carHardwareHostDispatcher);
