@@ -26,7 +26,7 @@ apply(from: "../constants.gradle")
 
 dependencies {
     api("androidx.core:core:1.6.0")
-    api("androidx.media:media:1.2.0")
+    api("androidx.media:media:1.4.1")
     // TODO(b/177296655): Remove versionedparcelable dependency after the transitive dependency
     //  through media which depends on core is updated.
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
