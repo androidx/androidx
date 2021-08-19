@@ -6,3 +6,11 @@ package androidx.glance.wear {
 
 }
 
+package androidx.glance.wear.layout {
+
+  public final class BackgroundKt {
+    method public static androidx.glance.Modifier background(androidx.glance.Modifier, int color);
+  }
+
+}
+
