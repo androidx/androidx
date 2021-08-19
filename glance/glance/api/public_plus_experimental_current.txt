@@ -57,6 +57,10 @@ package androidx.glance {
     method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.Modifier.Element,? super R,? extends R> operation);
   }
 
+  public final class UtilsKt {
+    method @androidx.glance.GlanceInternalApi public static inline <reified T> T! findModifier(androidx.glance.Modifier);
+  }
+
 }
 
 package androidx.glance.layout {

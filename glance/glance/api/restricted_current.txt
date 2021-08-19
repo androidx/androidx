@@ -32,6 +32,9 @@ package androidx.glance {
     method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.Modifier.Element,? super R,? extends R> operation);
   }
 
+  public final class UtilsKt {
+  }
+
 }
 
 package androidx.glance.layout {

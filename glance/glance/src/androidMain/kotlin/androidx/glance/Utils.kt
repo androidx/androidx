@@ -1,4 +1,5 @@
-@file:OptIn(GlanceInternalApi::class)
+package androidx.glance
+
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -15,22 +16,11 @@
  * limitations under the License.
  */
 
-package androidx.glance.wear.layout
-
-import androidx.glance.GlanceInternalApi
-import androidx.glance.Modifier
-import androidx.glance.findModifier
-import androidx.glance.unit.Color
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-
-class BackgroundTest {
-    @Test
-    fun canUseBackgroundModifier() {
-        val modifier = Modifier.background(color = Color(0xFF223344u))
-
-        val addedModifier = requireNotNull(modifier.findModifier<BackgroundModifier>())
-
-        assertThat(addedModifier.color.value).isEqualTo(0xFF223344u)
+@GlanceInternalApi
+inline fun <reified T> Modifier.findModifier(): T? = this.foldOut<T?>(null) { cur, acc ->
+    if (cur is T) {
+        cur
+    } else {
+        acc
     }
 }
