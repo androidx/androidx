@@ -16,6 +16,9 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -44,7 +47,7 @@ public fun rememberScalingLazyColumnState(): ScalingLazyColumnState {
  * In most cases, this will be created via [rememberScalingLazyColumnState].
  */
 @Stable
-public class ScalingLazyColumnState {
+public class ScalingLazyColumnState : ScrollableState {
 
     internal var lazyListState: LazyListState = LazyListState(0, 0)
     internal val extraPaddingInPixels = mutableStateOf<Int?>(null)
@@ -184,6 +187,22 @@ public class ScalingLazyColumnState {
                 scalingLazyColumnState
             }
         )
+    }
+
+    override val isScrollInProgress: Boolean
+        get() {
+            return lazyListState.isScrollInProgress
+        }
+
+    override fun dispatchRawDelta(delta: Float): Float {
+        return lazyListState.dispatchRawDelta(delta)
+    }
+
+    override suspend fun scroll(
+        scrollPriority: MutatePriority,
+        block: suspend ScrollScope.() -> Unit
+    ) {
+        lazyListState.scroll(scrollPriority = scrollPriority, block = block)
     }
 }
 
