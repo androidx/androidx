@@ -31,7 +31,7 @@ import java.io.Serializable
  *
  * @param T the type of the data that is supported by this NavType
  */
-public abstract class NavType<T> internal constructor(
+public abstract class NavType<T>(
     /**
      * Check if an argument with this type can hold a null value.
      * @return Returns true if this type allows null values, false otherwise.
