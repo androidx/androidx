@@ -25,7 +25,7 @@ package androidx.glance {
   }
 
   @androidx.glance.GlanceInternalApi public abstract class EmittableWithChildren implements androidx.glance.Emittable {
-    ctor public EmittableWithChildren();
+    ctor public EmittableWithChildren(optional int maxDepth);
     method protected final String childrenToString();
     method public final java.util.List<androidx.glance.Emittable> getChildren();
     property public final java.util.List<androidx.glance.Emittable> children;

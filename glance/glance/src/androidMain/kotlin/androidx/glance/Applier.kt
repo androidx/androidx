@@ -31,6 +31,12 @@ public class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(r
     }
 
     override fun insertTopDown(index: Int, instance: Emittable) {
+        val parent = current as EmittableWithChildren
+        require(parent.maxDepth > 0) {
+            "Too many embedded views for the current surface. The maximum depth is: " +
+                "${(root as EmittableWithChildren).maxDepth}"
+        }
+        if (instance is EmittableWithChildren) instance.maxDepth = parent.maxDepth - 1
         currentChildren.add(index, instance)
     }
 
