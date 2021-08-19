@@ -85,6 +85,7 @@ import java.io.FileDescriptor
 import java.io.FileNotFoundException
 import java.io.InputStreamReader
 import java.io.PrintWriter
+import java.time.Instant
 import java.util.concurrent.CountDownLatch
 
 /** The wire format for [ComplicationData]. */
@@ -1127,7 +1128,13 @@ public abstract class WatchFaceService : WallpaperService() {
                         val watchFaceImpl = deferredWatchFaceImpl.await()
                         watchFaceImpl.onTapCommand(
                             TapType.UP,
-                            TapEvent(x, y, watchFaceImpl.calendar.timeInMillis)
+                            TapEvent(
+                                x,
+                                y,
+                                Instant.ofEpochMilli(
+                                    watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                                )
+                            )
                         )
                     }
                 Constants.COMMAND_TOUCH ->
@@ -1135,7 +1142,13 @@ public abstract class WatchFaceService : WallpaperService() {
                         val watchFaceImpl = deferredWatchFaceImpl.await()
                         watchFaceImpl.onTapCommand(
                             TapType.DOWN,
-                            TapEvent(x, y, watchFaceImpl.calendar.timeInMillis)
+                            TapEvent(
+                                x,
+                                y,
+                                Instant.ofEpochMilli(
+                                    watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                                )
+                            )
                         )
                     }
                 Constants.COMMAND_TOUCH_CANCEL ->
@@ -1145,7 +1158,13 @@ public abstract class WatchFaceService : WallpaperService() {
                         val watchFaceImpl = deferredWatchFaceImpl.await()
                         watchFaceImpl.onTapCommand(
                             TapType.CANCEL,
-                            TapEvent(x, y, watchFaceImpl.calendar.timeInMillis)
+                            TapEvent(
+                                x,
+                                y,
+                                Instant.ofEpochMilli(
+                                    watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                                )
+                            )
                         )
                     }
                 else -> {
@@ -1398,8 +1417,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     initStyleAndComplications(
                         complicationSlotsManager,
                         currentUserStyleRepository,
-                        watchFace.renderer,
-                        calendar
+                        watchFace.renderer
                     )
 
                     // Now init has completed, it's OK to complete deferredWatchFaceImpl.
@@ -1505,8 +1523,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal fun initStyleAndComplications(
             complicationSlotsManager: ComplicationSlotsManager,
             currentUserStyleRepository: CurrentUserStyleRepository,
-            renderer: Renderer,
-            calendar: Calendar
+            renderer: Renderer
         ) = TraceEvent("initStyleAndComplications").use {
             // If the system has a stored user style then Home/SysUI is in charge of style
             // persistence, otherwise we need to do our own.
@@ -1542,7 +1559,7 @@ public abstract class WatchFaceService : WallpaperService() {
             // to render soon anyway.
             var initFinished = false
             complicationSlotsManager.init(
-                this, calendar, renderer,
+                this, renderer,
                 object : ComplicationSlot.InvalidateListener {
                     @SuppressWarnings("SyntheticAccessor")
                     override fun onInvalidate() {

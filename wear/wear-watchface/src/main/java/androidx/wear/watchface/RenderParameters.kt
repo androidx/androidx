@@ -24,6 +24,7 @@ import androidx.wear.watchface.data.IdAndTapEventWireFormat
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyleSetting
+import java.time.Instant
 
 /* Used to parameterize watch face drawing based on the current system state. */
 public enum class DrawMode {
@@ -246,7 +247,7 @@ public class RenderParameters @JvmOverloads constructor(
             else -> null
         },
         wireFormat.idAndTapEventWireFormat?.associate {
-            Pair(it.id, TapEvent(it.x, it.y, it.calendarTapTimeMillis))
+            Pair(it.id, TapEvent(it.x, it.y, Instant.ofEpochMilli(it.calendarTapTimeMillis)))
         } ?: emptyMap()
     )
 
@@ -258,7 +259,7 @@ public class RenderParameters @JvmOverloads constructor(
                 it.key,
                 it.value.xPos,
                 it.value.yPos,
-                it.value.tapTimeMillis
+                it.value.tapTime.toEpochMilli()
             )
         }
         return when (val thingHighlighted = highlightLayer?.highlightedElement) {

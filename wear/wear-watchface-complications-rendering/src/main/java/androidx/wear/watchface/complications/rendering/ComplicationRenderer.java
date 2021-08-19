@@ -53,6 +53,7 @@ import androidx.wear.watchface.complications.rendering.utils.RangedValueLayoutHe
 import androidx.wear.watchface.complications.rendering.utils.ShortTextLayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.SmallImageLayoutHelper;
 
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -314,7 +315,7 @@ class ComplicationRenderer {
      * 'empty' or 'not configured', or is not active.
      *
      * @param canvas            canvas to be drawn on.
-     * @param currentTimeMillis current system time in millis since epoch.
+     * @param currentTime       current time as an {@link Instant}
      * @param inAmbientMode     true if the device is in ambient mode.
      * @param lowBitAmbient     true if the screen supports fewer bits for each color in ambient
      *                          mode.
@@ -324,7 +325,7 @@ class ComplicationRenderer {
      */
     public void draw(
             @NonNull Canvas canvas,
-            long currentTimeMillis,
+            Instant currentTime,
             boolean inAmbientMode,
             boolean lowBitAmbient,
             boolean burnInProtection,
@@ -333,7 +334,7 @@ class ComplicationRenderer {
         if (mComplicationData == null
                 || mComplicationData.getType() == ComplicationData.TYPE_EMPTY
                 || mComplicationData.getType() == ComplicationData.TYPE_NOT_CONFIGURED
-                || !mComplicationData.isActiveAt(currentTimeMillis)
+                || !mComplicationData.isActiveAt(currentTime.toEpochMilli())
                 || mBounds.isEmpty()) {
             return;
         }
@@ -347,7 +348,7 @@ class ComplicationRenderer {
         // Choose the correct paint set to use
         PaintSet currentPaintSet = inAmbientMode ? mAmbientPaintSet : mActivePaintSet;
         // Update complication texts
-        updateComplicationTexts(currentTimeMillis);
+        updateComplicationTexts(currentTime.toEpochMilli());
         canvas.save();
         canvas.translate(mBounds.left, mBounds.top);
         // Draw background first

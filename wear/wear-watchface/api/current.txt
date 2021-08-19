@@ -41,7 +41,7 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.CanvasComplication getRenderer();
     method @UiThread public java.util.List<androidx.wear.complications.data.ComplicationType> getSupportedTypes();
     method public androidx.wear.watchface.ComplicationTapFilter getTapFilter();
-    method public boolean isActiveAt(long dateTimeMillis);
+    method public boolean isActiveAt(java.time.Instant instant);
     method @UiThread public boolean isEnabled();
     method @UiThread public void render(android.graphics.Canvas canvas, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
     method @UiThread public void renderHighlightLayer(android.graphics.Canvas canvas, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
@@ -107,7 +107,7 @@ package androidx.wear.watchface {
     method public android.graphics.Rect getBounds();
     method public android.app.PendingIntent? getTapAction();
     method public androidx.wear.complications.data.ComplicationText getText();
-    method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
+    method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
     property public final android.graphics.Rect bounds;
     property public final android.app.PendingIntent? tapAction;
     property public final androidx.wear.complications.data.ComplicationText text;
@@ -260,11 +260,11 @@ package androidx.wear.watchface {
   }
 
   public final class TapEvent {
-    ctor public TapEvent(@Px int xPos, @Px int yPos, long tapTimeMillis);
-    method public long getTapTimeMillis();
+    ctor public TapEvent(@Px int xPos, @Px int yPos, java.time.Instant tapTime);
+    method public java.time.Instant getTapTime();
     method public int getXPos();
     method public int getYPos();
-    property public final long tapTimeMillis;
+    property public final java.time.Instant tapTime;
     property public final int xPos;
     property public final int yPos;
   }
@@ -272,16 +272,16 @@ package androidx.wear.watchface {
   public final class WatchFace {
     ctor public WatchFace(int watchFaceType, androidx.wear.watchface.Renderer renderer);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
-    method public Long? getOverridePreviewReferenceTimeMillis();
+    method public java.time.Instant? getOverridePreviewReferenceInstant();
     method public androidx.wear.watchface.Renderer getRenderer();
     method public int getWatchFaceType();
     method public static boolean isLegacyWatchFaceOverlayStyleSupported();
     method public androidx.wear.watchface.WatchFace setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
-    method public androidx.wear.watchface.WatchFace setOverridePreviewReferenceTimeMillis(@IntRange(from=0) long previewReferenceTimeMillis);
+    method public androidx.wear.watchface.WatchFace setOverridePreviewReferenceInstant(java.time.Instant previewReferenceTimeMillis);
     method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
     method public void setWatchFaceType(int watchFaceType);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
-    property public final Long? overridePreviewReferenceTimeMillis;
+    property public final java.time.Instant? overridePreviewReferenceInstant;
     property public final androidx.wear.watchface.Renderer renderer;
     property public final int watchFaceType;
     field public static final androidx.wear.watchface.WatchFace.Companion Companion;

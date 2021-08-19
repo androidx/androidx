@@ -29,12 +29,14 @@ import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.wearable.watchface.SharedMemoryImage
 import android.view.Surface
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -80,6 +82,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.fail
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -88,6 +91,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import java.time.Instant
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -240,6 +244,7 @@ internal class TestControllableWatchFaceService(
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
+@RequiresApi(Build.VERSION_CODES.O_MR1)
 public class WatchFaceServiceImageTest {
 
     @Mock
@@ -301,6 +306,7 @@ public class WatchFaceServiceImageTest {
 
     @Before
     public fun setUp() {
+        Assume.assumeTrue("This test suite assumes API 27", Build.VERSION.SDK_INT >= 27)
         MockitoAnnotations.initMocks(this)
     }
 
@@ -700,7 +706,7 @@ public class WatchFaceServiceImageTest {
                             null,
                             mapOf(
                                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-                                    TapEvent(1, 1, 123456789)
+                                    TapEvent(1, 1, Instant.ofEpochMilli(123456789))
                             )
                         ).toWireFormat(),
                         123456789,

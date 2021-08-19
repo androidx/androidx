@@ -262,10 +262,10 @@ package androidx.wear.complications.data {
   }
 
   public interface ComplicationText {
-    method public long getNextChangeTime(long fromDateTimeMillis);
-    method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
+    method public java.time.Instant getNextChangeTime(java.time.Instant afterInstant);
+    method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
     method public boolean isAlwaysEmpty();
-    method public boolean returnsSameText(long firstDateTimeMillis, long secondDateTimeMillis);
+    method public boolean returnsSameText(java.time.Instant firstInstant, java.time.Instant secondInstant);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText toWireComplicationText();
     field public static final androidx.wear.complications.data.ComplicationText.Companion Companion;
     field public static final androidx.wear.complications.data.ComplicationText EMPTY;
@@ -297,15 +297,15 @@ package androidx.wear.complications.data {
   }
 
   public final class CountDownTimeReference {
-    ctor public CountDownTimeReference(long dateTimeMillis);
-    method public long getDateTimeMillis();
-    property public final long dateTimeMillis;
+    ctor public CountDownTimeReference(java.time.Instant instant);
+    method public java.time.Instant getInstant();
+    property public final java.time.Instant instant;
   }
 
   public final class CountUpTimeReference {
-    ctor public CountUpTimeReference(long dateTimeMillis);
-    method public long getDateTimeMillis();
-    property public final long dateTimeMillis;
+    ctor public CountUpTimeReference(java.time.Instant instant);
+    method public java.time.Instant getInstant();
+    property public final java.time.Instant instant;
   }
 
   public final class DataKt {
@@ -558,22 +558,22 @@ package androidx.wear.complications.data {
   }
 
   public final class TimeRange {
-    method public static androidx.wear.complications.data.TimeRange after(long startDateTimeMillis);
-    method public static androidx.wear.complications.data.TimeRange before(long endDateTimeMillis);
-    method public static androidx.wear.complications.data.TimeRange between(long startDateTimeMillis, long endDateTimeMillis);
-    method public operator boolean contains(long dateTimeMillis);
-    method public long getEndDateTimeMillis();
-    method public long getStartDateTimeMillis();
-    property public final long endDateTimeMillis;
-    property public final long startDateTimeMillis;
+    method public static androidx.wear.complications.data.TimeRange after(java.time.Instant startInstant);
+    method public static androidx.wear.complications.data.TimeRange before(java.time.Instant endInstant);
+    method public static androidx.wear.complications.data.TimeRange between(java.time.Instant startInstant, java.time.Instant endInstant);
+    method public operator boolean contains(java.time.Instant dateTimeMillis);
+    method public java.time.Instant getEndDateTimeMillis();
+    method public java.time.Instant getStartDateTimeMillis();
+    property public final java.time.Instant endDateTimeMillis;
+    property public final java.time.Instant startDateTimeMillis;
     field public static final androidx.wear.complications.data.TimeRange ALWAYS;
     field public static final androidx.wear.complications.data.TimeRange.Companion Companion;
   }
 
   public static final class TimeRange.Companion {
-    method public androidx.wear.complications.data.TimeRange after(long startDateTimeMillis);
-    method public androidx.wear.complications.data.TimeRange before(long endDateTimeMillis);
-    method public androidx.wear.complications.data.TimeRange between(long startDateTimeMillis, long endDateTimeMillis);
+    method public androidx.wear.complications.data.TimeRange after(java.time.Instant startInstant);
+    method public androidx.wear.complications.data.TimeRange before(java.time.Instant endInstant);
+    method public androidx.wear.complications.data.TimeRange between(java.time.Instant startInstant, java.time.Instant endInstant);
   }
 
   public final class TypeKt {

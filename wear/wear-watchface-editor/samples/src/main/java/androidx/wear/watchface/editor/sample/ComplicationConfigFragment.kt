@@ -113,13 +113,11 @@ internal class ConfigView(
                         }.resourceId
                     )
                     setOnClickListener { onComplicationButtonClicked(stateEntry.key) }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        setOnLongClickListener {
-                            TooltipApi26.updateTooltip(it, watchFaceConfigActivity, stateEntry.key)
-                            // Do not consume the long click so that the tooltip is shown by the
-                            // default handler.
-                            false
-                        }
+                    setOnLongClickListener {
+                        TooltipApi26.updateTooltip(it, watchFaceConfigActivity, stateEntry.key)
+                        // Do not consume the long click so that the tooltip is shown by the
+                        // default handler.
+                        false
                     }
                     addView(this)
                 }
@@ -194,7 +192,7 @@ internal class ConfigView(
                     Color.argb(128, 0, 0, 0) // Darken everything else.
                 )
             ),
-            editingSession.previewReferenceTimeMillis,
+            editingSession.previewReferenceInstant,
             previewComplicationData
         )
         canvas.drawBitmap(bitmap, drawRect, drawRect, null)

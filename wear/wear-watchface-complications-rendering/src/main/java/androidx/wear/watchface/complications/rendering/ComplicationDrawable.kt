@@ -45,6 +45,7 @@ import androidx.wear.watchface.complications.rendering.ComplicationRenderer.OnIn
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
+import java.time.Instant
 
 /**
  * A styleable drawable object that draws complicationSlots. You can create a ComplicationDrawable from
@@ -210,7 +211,7 @@ public class ComplicationDrawable : Drawable {
      * The time in milliseconds since the epoch used for rendering [ComplicationData] with time
      * dependent text.
      */
-    public var currentTimeMillis: Long = 0
+    public var currentTime: Instant = Instant.EPOCH
 
     /** Whether the complication is rendered in ambient mode. */
     public var isInAmbientMode: Boolean = false
@@ -260,7 +261,7 @@ public class ComplicationDrawable : Drawable {
         ambientStyle = ComplicationStyle(drawable.ambientStyle)
         noDataText = drawable.noDataText!!.subSequence(0, drawable.noDataText!!.length)
         highlightDuration = drawable.highlightDuration
-        currentTimeMillis = drawable.currentTimeMillis
+        currentTime = drawable.currentTime
         bounds = drawable.bounds
         isInAmbientMode = drawable.isInAmbientMode
         isLowBitAmbient = drawable.isLowBitAmbient
@@ -510,7 +511,7 @@ public class ComplicationDrawable : Drawable {
         updateStyleIfRequired()
         complicationRenderer?.draw(
             canvas,
-            currentTimeMillis,
+            currentTime,
             isInAmbientMode,
             isLowBitAmbient,
             isBurnInProtectionOn,

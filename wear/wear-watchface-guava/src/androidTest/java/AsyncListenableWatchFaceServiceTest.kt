@@ -34,8 +34,9 @@ import com.google.common.util.concurrent.SettableFuture
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.mockito.Mockito
+import java.time.Instant
 
-private const val REFERENCE_PREVIEW_TIME = 123456L
+private val REFERENCE_PREVIEW_TIME = Instant.ofEpochMilli(123456L)
 
 private class FakeRenderer(
     surfaceHolder: SurfaceHolder,
@@ -68,7 +69,7 @@ private class TestAsyncListenableWatchFaceService :
                 WatchFace(
                     WatchFaceType.DIGITAL,
                     FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
-                ).apply { setOverridePreviewReferenceTimeMillis(REFERENCE_PREVIEW_TIME) }
+                ).apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
             )
         }
         return future
@@ -112,7 +113,7 @@ public class AsyncListenableWatchFaceServiceTest {
             )
 
             // Simple check that [watchFace] looks sensible.
-            assertThat(watchFace.overridePreviewReferenceTimeMillis).isEqualTo(
+            assertThat(watchFace.overridePreviewReferenceInstant).isEqualTo(
                 REFERENCE_PREVIEW_TIME
             )
         }

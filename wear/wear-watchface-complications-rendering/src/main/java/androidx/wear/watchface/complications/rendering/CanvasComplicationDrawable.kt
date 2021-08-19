@@ -34,6 +34,7 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.style.WatchFaceLayer
+import java.time.Instant
 
 /**
  * A complication rendered with [ComplicationDrawable] which renders complicationSlots in a material
@@ -115,10 +116,10 @@ constructor(
 
         drawable.isInAmbientMode = renderParameters.drawMode == DrawMode.AMBIENT
         drawable.bounds = bounds
-        drawable.currentTimeMillis = calendar.timeInMillis
+        drawable.currentTime = Instant.ofEpochMilli(calendar.timeInMillis)
         drawable.isHighlighted = renderParameters.lastComplicationTapDownEvents[slotId]?.let {
-            val startTime = it.tapTimeMillis
-            val endTime = it.tapTimeMillis + COMPLICATION_HIGHLIGHT_DURATION_MS
+            val startTime = it.tapTime.toEpochMilli()
+            val endTime = it.tapTime.toEpochMilli() + COMPLICATION_HIGHLIGHT_DURATION_MS
             calendar.timeInMillis in startTime until endTime
         } ?: false
         drawable.draw(canvas)

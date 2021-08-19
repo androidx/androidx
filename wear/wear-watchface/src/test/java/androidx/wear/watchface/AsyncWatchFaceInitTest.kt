@@ -18,9 +18,11 @@ package androidx.wear.watchface
 
 import android.content.Context
 import android.graphics.Rect
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
@@ -186,6 +188,7 @@ public class AsyncWatchFaceInitTest {
         }.`when`(handler).removeCallbacks(ArgumentMatchers.any())
     }
 
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
     @Test
     public fun createInteractiveInstanceFailsIfDirectBootWatchFaceCreationIsInProgress() {
         val completableWatchFace = CompletableDeferred<WatchFace>()
@@ -228,6 +231,7 @@ public class AsyncWatchFaceInitTest {
         assertThat(pendingException.message).startsWith("WatchFace already exists!")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
     @Test
     public fun directBootAndGetExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance() {
         val completableDirectBootWatchFace = CompletableDeferred<WatchFace>()

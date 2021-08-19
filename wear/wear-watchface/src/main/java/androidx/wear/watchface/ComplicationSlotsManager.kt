@@ -21,7 +21,6 @@ import android.app.PendingIntent.CanceledException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.icu.util.Calendar
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
@@ -82,7 +81,6 @@ public class ComplicationSlotsManager(
     public lateinit var watchState: WatchState
 
     private lateinit var watchFaceHostApi: WatchFaceHostApi
-    private lateinit var calendar: Calendar
     internal lateinit var renderer: Renderer
 
     /** A map of complication IDs to complicationSlots. */
@@ -161,12 +159,10 @@ public class ComplicationSlotsManager(
     @WorkerThread
     internal fun init(
         watchFaceHostApi: WatchFaceHostApi,
-        calendar: Calendar,
         renderer: Renderer,
         complicationSlotInvalidateListener: ComplicationSlot.InvalidateListener
     ) = TraceEvent("ComplicationSlotsManager.init").use {
         this.watchFaceHostApi = watchFaceHostApi
-        this.calendar = calendar
         this.renderer = renderer
 
         for ((_, complication) in complicationSlots) {

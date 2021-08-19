@@ -49,10 +49,10 @@ public class AsWireComplicationTextTest {
 
     @Test
     public fun timeDifferenceText_CountUpTimeReference() {
-        val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
+        val referenceInstant = Instant.parse("2020-12-30T10:15:30.001Z")
         val text = TimeDifferenceComplicationText.Builder(
             TimeDifferenceStyle.STOPWATCH,
-            CountUpTimeReference(referenceMillis)
+            CountUpTimeReference(referenceInstant)
         )
             .setText("^1 after lunch")
             .setDisplayAsNow(false)
@@ -66,11 +66,12 @@ public class AsWireComplicationTextTest {
                     .setSurroundingText("^1 after lunch")
                     .setShowNowText(false)
                     .setMinimumUnit(TimeUnit.SECONDS)
-                    .setReferencePeriodEndMillis(referenceMillis)
+                    .setReferencePeriodEndMillis(referenceInstant.toEpochMilli())
                     .build()
             )
 
-        val twoMinutesThreeSecondAfter = referenceMillis + 2.minutes + 3.seconds
+        val twoMinutesThreeSecondAfter =
+            Instant.ofEpochMilli(referenceInstant.toEpochMilli() + 2.minutes + 3.seconds)
         assertThat(
             text.getTextAt(getResource(), twoMinutesThreeSecondAfter).toString()
         ).isEqualTo("02:03 after lunch")
@@ -78,10 +79,10 @@ public class AsWireComplicationTextTest {
 
     @Test
     public fun timeDifferenceText_CountDownTimeReference() {
-        val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
+        val referenceInstant = Instant.parse("2020-12-30T10:15:30.001Z")
         val text = TimeDifferenceComplicationText.Builder(
             TimeDifferenceStyle.STOPWATCH,
-            CountDownTimeReference(referenceMillis)
+            CountDownTimeReference(referenceInstant)
         )
             .setText("^1 before lunch")
             .setDisplayAsNow(false)
@@ -95,11 +96,12 @@ public class AsWireComplicationTextTest {
                     .setSurroundingText("^1 before lunch")
                     .setShowNowText(false)
                     .setMinimumUnit(TimeUnit.SECONDS)
-                    .setReferencePeriodStartMillis(referenceMillis)
+                    .setReferencePeriodStartMillis(referenceInstant.toEpochMilli())
                     .build()
             )
 
-        val twoMinutesThreeSecondBefore = referenceMillis - 2.minutes - 3.seconds
+        val twoMinutesThreeSecondBefore =
+            Instant.ofEpochMilli(referenceInstant.toEpochMilli() - 2.minutes - 3.seconds)
         assertThat(
             text.getTextAt(getResource(), twoMinutesThreeSecondBefore).toString()
         ).isEqualTo("02:03 before lunch")
@@ -134,26 +136,34 @@ public class FromWireComplicationTextTest {
         val wireText = WireComplicationText.plainText("abc")
         val text = wireText.toApiComplicationText()
 
-        assertThat(text.getTextAt(getResource(), 0)).isEqualTo("abc")
-        assertThat(text.getNextChangeTime(0)).isEqualTo(Long.MAX_VALUE)
+        assertThat(text.getTextAt(getResource(), Instant.EPOCH))
+            .isEqualTo("abc")
+        assertThat(text.getNextChangeTime(Instant.EPOCH))
+            .isEqualTo(Instant.ofEpochMilli(Long.MAX_VALUE))
         assertThat(text.isAlwaysEmpty()).isFalse()
-        assertThat(text.returnsSameText(0, Long.MAX_VALUE)).isTrue()
+        assertThat(
+            text.returnsSameText(
+                Instant.EPOCH,
+                Instant.ofEpochMilli(Long.MAX_VALUE)
+            )
+        ).isTrue()
     }
 
     @Test
     public fun timeDifferenceText() {
-        val startPointMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
+        val startPoint = Instant.parse("2020-12-30T10:15:30.001Z")
         val wireText = WireTimeDifferenceBuilder()
             .setStyle(WireComplicationText.DIFFERENCE_STYLE_STOPWATCH)
             .setSurroundingText("^1 before lunch")
             .setShowNowText(false)
             .setMinimumUnit(TimeUnit.SECONDS)
-            .setReferencePeriodEndMillis(startPointMillis)
+            .setReferencePeriodEndMillis(startPoint.toEpochMilli())
             .build()
 
         val text = wireText.toApiComplicationText()
 
-        val twoMinutesThreeSecondAfter = startPointMillis + 2.minutes + 3.seconds
+        val twoMinutesThreeSecondAfter =
+            Instant.ofEpochMilli(startPoint.toEpochMilli() + 2.minutes + 3.seconds)
         assertThat(
             text.getTextAt(
                 getResource(),
@@ -161,14 +171,16 @@ public class FromWireComplicationTextTest {
             ).toString()
         ).isEqualTo("02:03 before lunch")
         assertThat(text.getNextChangeTime(twoMinutesThreeSecondAfter))
-            .isEqualTo(twoMinutesThreeSecondAfter + 1.seconds)
+            .isEqualTo(
+                Instant.ofEpochMilli(twoMinutesThreeSecondAfter.toEpochMilli() + 1.seconds)
+            )
         assertThat(text.isAlwaysEmpty()).isFalse()
-        assertThat(text.returnsSameText(twoMinutesThreeSecondAfter, startPointMillis)).isFalse()
+        assertThat(text.returnsSameText(twoMinutesThreeSecondAfter, startPoint)).isFalse()
     }
 
     @Test
     public fun timeFormatText() {
-        val dateTimeMillis = Instant.parse("2020-12-30T10:15:20.00Z").toEpochMilli()
+        val dateTime = Instant.parse("2020-12-30T10:15:20.00Z")
         val wireText = WireTimeFormatBuilder()
             .setFormat("h:m")
             .setStyle(WireComplicationText.FORMAT_STYLE_UPPER_CASE)
@@ -178,23 +190,33 @@ public class FromWireComplicationTextTest {
 
         val text = wireText.toApiComplicationText()
 
-        assertThat(text.getTextAt(getResource(), dateTimeMillis).toString())
+        assertThat(text.getTextAt(getResource(), dateTime).toString())
             .isEqualTo("10:15 in London")
-        assertThat(text.getNextChangeTime(dateTimeMillis))
-            .isEqualTo(dateTimeMillis + 40.seconds)
+        assertThat(text.getNextChangeTime(dateTime))
+            .isEqualTo(Instant.ofEpochMilli(dateTime.toEpochMilli() + 40.seconds))
         assertThat(text.isAlwaysEmpty()).isFalse()
-        assertThat(text.returnsSameText(dateTimeMillis, dateTimeMillis + 20.seconds)).isTrue()
-        assertThat(text.returnsSameText(dateTimeMillis, dateTimeMillis + 60.seconds)).isFalse()
+        assertThat(
+            text.returnsSameText(
+                dateTime,
+                Instant.ofEpochMilli(dateTime.toEpochMilli() + 20.seconds)
+            )
+        ).isTrue()
+        assertThat(
+            text.returnsSameText(
+                dateTime,
+                Instant.ofEpochMilli(dateTime.toEpochMilli() + 60.seconds)
+            )
+        ).isFalse()
     }
 
     @Test
     public fun testGetMinimumTimeUnit_WithValidTimeDependentTextObject() {
         val minimumTimeUnit = TimeUnit.SECONDS
 
-        val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
+        val referenceInstant = Instant.parse("2020-12-30T10:15:30.001Z")
         val text = TimeDifferenceComplicationText.Builder(
             TimeDifferenceStyle.STOPWATCH,
-            CountUpTimeReference(referenceMillis)
+            CountUpTimeReference(referenceInstant)
         )
             .setMinimumTimeUnit(minimumTimeUnit)
             .build()
@@ -204,12 +226,11 @@ public class FromWireComplicationTextTest {
 
     @Test
     public fun testGetMinimumTimeUnit_WithoutTimeDependentTextObject() {
-        val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
+        val referenceInstant = Instant.parse("2020-12-30T10:15:30.001Z")
         val text = TimeDifferenceComplicationText.Builder(
             TimeDifferenceStyle.STOPWATCH,
-            CountUpTimeReference(referenceMillis)
-        )
-            .build()
+            CountUpTimeReference(referenceInstant)
+        ).build()
 
         assertNull(text.getMinimumTimeUnit())
     }

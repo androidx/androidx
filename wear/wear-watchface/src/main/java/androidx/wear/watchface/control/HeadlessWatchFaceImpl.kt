@@ -100,7 +100,7 @@ internal class HeadlessWatchFaceImpl(
     override fun getPreviewReferenceTimeMillis() =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "HeadlessWatchFaceImpl.getPreviewReferenceTimeMillis"
-        ) { watchFaceImpl -> watchFaceImpl.previewReferenceTimeMillis }
+        ) { watchFaceImpl -> watchFaceImpl.previewReferenceInstant.toEpochMilli() }
 
     override fun getComplicationState() =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
