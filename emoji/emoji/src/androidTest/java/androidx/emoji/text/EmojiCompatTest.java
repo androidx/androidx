@@ -833,6 +833,21 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testUpdateEditorInfoAttrs_makesBundleIfNull() {
+        final EditorInfo editorInfo = new EditorInfo();
+        editorInfo.extras = null;
+        EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(false);
+        EmojiCompat.reset(config);
+        EmojiCompat.get().updateEditorInfoAttrs(editorInfo);
+
+        final Bundle extras = editorInfo.extras;
+        assertTrue(extras.containsKey(EmojiCompat.EDITOR_INFO_METAVERSION_KEY));
+        assertTrue(extras.getInt(EmojiCompat.EDITOR_INFO_METAVERSION_KEY) > 0);
+        assertTrue(extras.containsKey(EmojiCompat.EDITOR_INFO_REPLACE_ALL_KEY));
+    }
+
+    @Test
     @SdkSuppress(maxSdkVersion = 18)
     public void testHandleDeleteSurroundingText_pre19() {
         final TestString testString = new TestString(EMOJI_SINGLE_CODEPOINT);
