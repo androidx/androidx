@@ -22,11 +22,11 @@ import androidx.appsearch.app.AppSearchSchema
 import androidx.appsearch.app.AppSearchSession
 import androidx.appsearch.app.GenericDocument
 import androidx.appsearch.app.PutDocumentsRequest
-import androidx.appsearch.app.SearchResult
-import androidx.appsearch.app.SearchResults
 import androidx.appsearch.app.SearchSpec
 import androidx.appsearch.app.SetSchemaRequest
 import androidx.appsearch.localstorage.LocalStorage
+import androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess
+import androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -249,7 +249,7 @@ public class AnnotationProcessorKtTest {
     }
 
     @Test
-    public fun testAnnotationProcessor() {
+    fun testAnnotationProcessor() {
         session.setSchema(
             SetSchemaRequest.Builder()
                 .addDocumentClasses(Card::class.java, Gift::class.java).build()
@@ -259,8 +259,11 @@ public class AnnotationProcessorKtTest {
         val inputDocument = createPopulatedGift()
 
         // Index the Gift document and query it.
-        session.put(PutDocumentsRequest.Builder().addDocuments(inputDocument).build())
-            .get().checkSuccess()
+        checkIsBatchResultSuccess(
+            session.put(
+                PutDocumentsRequest.Builder().addDocuments(inputDocument).build()
+            )
+        )
         val searchResults = session.search("", SearchSpec.Builder().build())
         val documents = convertSearchResultsToDocuments(searchResults)
         assertThat(documents).hasSize(1)
@@ -271,7 +274,7 @@ public class AnnotationProcessorKtTest {
     }
 
     @Test
-    public fun testGenericDocumentConversion() {
+    fun testGenericDocumentConversion() {
         val inGift = createPopulatedGift()
         val genericDocument1 = GenericDocument.fromDocumentClass(inGift)
         val genericDocument2 = GenericDocument.fromDocumentClass(inGift)
@@ -324,17 +327,5 @@ public class AnnotationProcessorKtTest {
             unboxByteArr = byteArrayOf(1, 2, 3),
             card = card1
         )
-    }
-
-    private fun convertSearchResultsToDocuments(
-        searchResults: SearchResults
-    ): List<GenericDocument> {
-        var page = searchResults.nextPage.get()
-        val results = mutableListOf<SearchResult>()
-        while (page.isNotEmpty()) {
-            results.addAll(page)
-            page = searchResults.nextPage.get()
-        }
-        return results.map { it.genericDocument }
     }
 }
