@@ -156,5 +156,33 @@ package androidx.glance.unit {
     method public static operator float times(int, float other);
   }
 
+  @androidx.compose.runtime.Immutable public final class DpSize {
+    ctor public DpSize(float width, float height);
+    method @androidx.compose.runtime.Stable public operator float component1();
+    method @androidx.compose.runtime.Stable public operator float component2();
+    method public androidx.glance.unit.DpSize copy(optional float width, optional float height);
+    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize div(int other);
+    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize div(float other);
+    method public float getHeight();
+    method public float getWidth();
+    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize minus(androidx.glance.unit.DpSize other);
+    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize plus(androidx.glance.unit.DpSize other);
+    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize times(int other);
+    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize times(float other);
+    property public final float height;
+    property public final float width;
+    field public static final androidx.glance.unit.DpSize.Companion Companion;
+  }
+
+  public static final class DpSize.Companion {
+    method public androidx.glance.unit.DpSize getZero();
+    property public final androidx.glance.unit.DpSize Zero;
+  }
+
+  public final class DpSizeKt {
+    method @androidx.compose.runtime.Stable public static operator androidx.glance.unit.DpSize times(int, androidx.glance.unit.DpSize size);
+    method @androidx.compose.runtime.Stable public static operator androidx.glance.unit.DpSize times(float, androidx.glance.unit.DpSize size);
+  }
+
 }
 

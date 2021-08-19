@@ -33,7 +33,7 @@
     <string name="mcv2_error_dialog_button" msgid="5940167897992933850">"ओके"</string>
     <string name="mcv2_back_button_desc" msgid="1540894858499118373">"मागे जा"</string>
     <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"बटणांच्या मागील सूचीवर परत जा"</string>
-    <string name="mcv2_overflow_right_button_desc" msgid="7388732945289831383">"आणखी बटणे पाहा"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="7388732945289831383">"आणखी बटणे पहा"</string>
     <string name="mcv2_seek_bar_desc" msgid="24915699029009384">"प्लेबॅकची प्रगती"</string>
     <string name="mcv2_settings_button_desc" msgid="811917224044739656">"सेटिंग्ज"</string>
     <string name="mcv2_cc_is_on" msgid="5427119422911561783">"सबटायटल सुरू आहे. लपवण्यासाठी क्लिक करा."</string>

@@ -22,8 +22,6 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
-import android.os.Handler
-import android.os.Looper
 import android.support.wearable.watchface.SharedMemoryImage
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
@@ -60,7 +58,7 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.Test
@@ -68,9 +66,7 @@ import org.junit.runner.RunWith
 
 // This service constructs a WatchFace with a task that's posted on the UI thread.
 internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
-    private val mainThreadCoroutineScope = CoroutineScope(
-        Handler(Looper.getMainLooper()).asCoroutineDispatcher()
-    )
+    private val mainThreadCoroutineScope = CoroutineScope(Dispatchers.Main.immediate)
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,

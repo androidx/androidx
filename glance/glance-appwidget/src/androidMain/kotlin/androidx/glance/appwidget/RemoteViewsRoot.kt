@@ -1,5 +1,6 @@
+@file:OptIn(GlanceInternalApi::class)
 /*
- * Copyright (C) <YEAR> The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,12 @@
  * limitations under the License.
  */
 
-/**
- * Insert package level documentation here
- */
-package <PACKAGE>;
+package androidx.glance.appwidget
+
+import androidx.glance.EmittableWithChildren
+import androidx.glance.GlanceInternalApi
+import androidx.glance.Modifier
+
+internal class RemoteViewsRoot : EmittableWithChildren() {
+    override var modifier: Modifier = Modifier
+}

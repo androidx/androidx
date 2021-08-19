@@ -103,6 +103,30 @@ def mv_dir(src_path_dir, dst_path_dir):
         return None
     return dst_path_dir
 
+def rename_file(src_file, new_file_name):
+    """Renames a file from src_file to new_file_name, within the same directory.
+
+    Args:
+        src_file: the source file, which must exist
+        new_file_name: the new file name
+    """
+    if not os.path.exists(src_file):
+        print_e('mv file error: Source file %s does not exist.' % src_file)
+        return None
+    # Check that destination directory already exists
+    parent_src_file_dir = os.path.dirname(src_file)
+    new_file_path = os.path.join(parent_src_file_dir, new_file_name)
+    if os.path.exists(new_file_path):
+        print_e('mv file error: Source file %s already exists.' % new_file_path)
+        return None
+    try:
+        os.rename(src_file, new_file_path)
+    except OSError as error:
+        print_e('FAIL: Unable to rename %s to destination %s' % (src_file, new_file_path))
+        print_e(error)
+        return None
+    return new_file_path
+
 def generate_package_name(group_id, artifact_id):
     final_group_id_word = group_id.split(".")[-1]
     artifact_id_suffix = artifact_id.replace(final_group_id_word, "")
@@ -229,11 +253,14 @@ def get_full_artifact_path(group_id, artifact_id):
     group_id_path = get_group_id_path(group_id)
     return group_id_path + "/" + artifact_id
 
-def get_package_info_file_dir(group_id, artifact_id):
-    """Generates the full package_info.java filepath
+def get_package_documentation_file_dir(group_id, artifact_id):
+    """Generates the full package documentation directory
 
     Given androidx.foo.bar:bar-qux, the structure will be:
     frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/package-info.java
+
+    or for Kotlin:
+    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/<group>-<artifact>-documentation.md
 
     Args:
         group_id: group_id of the new library
@@ -244,13 +271,49 @@ def get_package_info_file_dir(group_id, artifact_id):
                         group_id.replace(".", "/")
     return full_artifact_path + group_id_subpath
 
-def create_directories(group_id, artifact_id):
+def get_package_documentation_filename(group_id, artifact_id, is_kotlin_project):
+    """Generates the documentation filename
+
+    Given androidx.foo.bar:bar-qux, the structure will be:
+    package-info.java
+
+    or for Kotlin:
+    <group>-<artifact>-documentation.md
+
+    Args:
+        group_id: group_id of the new library
+        artifact_id: group_id of the new library
+        is_kotlin_project: whether or not the library is a kotin project
+    """
+    if is_kotlin_project:
+        formatted_group_id = group_id.replace(".", "-")
+        return "%s-%s-documentation.md" % (formatted_group_id, artifact_id)
+    else:
+        return "package-info.java"
+
+def ask_if_kotlin_project(group_id, artifact_id):
+    """Asks the user if the project is a kotlin or java project
+    """
+    if "compose" in group_id or "compose" in artifact_id:
+        return True
+    elif ask_yes_or_no("Is this a kotlin project?"):
+        return True
+    else:
+        # Confirm that the user is intentionally using java.
+        ask_yes_or_no("All new androidx projects are expected and encouraged "
+                      "to use Kotlin. Java projects should only be used if "
+                      "there is a business need to do so. "
+                      "Please ack to proceed:")
+        return False
+
+def create_directories(group_id, artifact_id, is_kotlin_project):
     """Creates the standard directories for the given group_id and artifact_id.
 
     Given androidx.foo.bar:bar-qux, the structure will be:
     frameworks/support/foo/bar/bar-qux/build.gradle
     frameworks/support/foo/bar/bar-qux/src/main/AndroidManifest.xml
     frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/package-info.java
+    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/artifact-documentation.md
     frameworks/support/foo/bar/bar-qux/src/androidTest/AndroidManifest.xml
     frameworks/support/foo/bar/bar-qux/api/current.txt
 
@@ -271,14 +334,9 @@ def create_directories(group_id, artifact_id):
     if "compose" in group_id or "compose" in artifact_id:
         print("Auto-detected Compose project.")
         cp(SAMPLE_COMPOSE_SRC_FP, full_artifact_path)
-    elif ask_yes_or_no("Is this a kotlin project?"):
+    elif is_kotlin_project:
         cp(SAMPLE_KOTLIN_SRC_FP, full_artifact_path)
     else:
-        # Confirm that the user is intentionally using java.
-        ask_yes_or_no("All new androidx projects are expected and encouraged "
-                      "to use Kotlin. Java projects should only be used if "
-                      "there is a business need to do so. "
-                      "Please ack to proceed:")
         cp(SAMPLE_JAVA_SRC_FP, full_artifact_path)
 
     # Java only libraries have no dependency on android.
@@ -304,10 +362,15 @@ def create_directories(group_id, artifact_id):
     else:
         project_description = ask_project_description()
 
-    # Rename the package-info directory
-    full_package_info_dir = get_package_info_file_dir(group_id, artifact_id)
-    full_package_info_path = full_package_info_dir + "/package-info.java"
-    mv_dir(full_artifact_path + "/src/main/groupId", full_package_info_dir)
+    # Set up the package documentation.
+    full_package_docs_dir = get_package_documentation_file_dir(group_id, artifact_id)
+    package_docs_filename = get_package_documentation_filename(group_id, artifact_id, is_kotlin_project)
+    full_package_docs_file = os.path.join(full_package_docs_dir, package_docs_filename)
+    # Kotlin projects use -documentation.md files, so we need to rename it appropriately.
+    if is_kotlin_project:
+        rename_file(full_artifact_path + "/src/main/groupId/artifactId-documentation.md",
+                    package_docs_filename)
+    mv_dir(full_artifact_path + "/src/main/groupId", full_package_docs_dir)
 
     # Populate the library type
     library_type = get_library_type(artifact_id)
@@ -318,18 +381,19 @@ def create_directories(group_id, artifact_id):
     sed("<YEAR>", year, full_artifact_path + "/build.gradle")
     sed("<YEAR>", year, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
     sed("<YEAR>", year, full_artifact_path + "/src/main/AndroidManifest.xml")
-    sed("<YEAR>", year, full_package_info_path)
+    sed("<YEAR>", year, full_package_docs_file)
     # Populate the PACKAGE
     package = generate_package_name(group_id, artifact_id)
     sed("<PACKAGE>", package, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
     sed("<PACKAGE>", package, full_artifact_path + "/src/main/AndroidManifest.xml")
-    sed("<PACKAGE>", package, full_package_info_path)
+    sed("<PACKAGE>", package, full_package_docs_file)
     # Populate the VERSION macro
     group_id_version_macro = get_group_id_version_macro(group_id)
     sed("<GROUPID>", group_id_version_macro, full_artifact_path + "/build.gradle")
     # Update the name and description in the build.gradle
     sed("<NAME>", group_id + ":" + artifact_id, full_artifact_path + "/build.gradle")
     sed("<DESCRIPTION>", project_description, full_artifact_path + "/build.gradle")
+
 
 def get_new_settings_gradle_line(group_id, artifact_id):
     """Generates the line needed for frameworks/support/settings.gradle.
@@ -576,7 +640,7 @@ def is_group_id_atomic(group_id):
     # The group id does not exist yet, so just default to false.
     return False
 
-def print_todo_list(group_id, artifact_id):
+def print_todo_list(group_id, artifact_id, is_kotlin_project):
     """Prints to the todo list once the script has finished.
 
     There are some pieces that can not be automated or require human eyes.
@@ -590,8 +654,9 @@ def print_todo_list(group_id, artifact_id):
     build_gradle_path = get_full_artifact_path(group_id, artifact_id) + \
                         "/build.gradle"
     owners_file_path = get_group_id_path(group_id) + "/OWNERS"
-    package_info_path = get_package_info_file_dir(group_id, artifact_id) + \
-                        "/package-info.java"
+    package_docs_path = os.path.join(
+        get_package_documentation_file_dir(group_id, artifact_id),
+        get_package_documentation_filename(group_id, artifact_id, is_kotlin_project))
     print("---\n")
     print("Created the project.  The following TODOs need to be completed by "
           "you:\n")
@@ -605,8 +670,8 @@ def print_todo_list(group_id, artifact_id):
           "\n\t\t" + build_gradle_path)
     print("\t4. Fill out the project/module name in the build.gradle:"
           "\n\t\t" + build_gradle_path)
-    print("\t5. Update the project/module package-info.java file:"
-          "\n\t\t" + package_info_path)
+    print("\t5. Update the project/module package documentation:"
+          "\n\t\t" + package_docs_path)
 
 def main(args):
     # Parse arguments and check for existence of build ID or file
@@ -617,20 +682,19 @@ def main(args):
     if not validate_name(args.group_id, args.artifact_id):
         sys.exit(1)
 
-    create_directories(args.group_id, args.artifact_id)
+    is_kotlin_project = ask_if_kotlin_project(args.group_id, args.artifact_id)
+    create_directories(args.group_id, args.artifact_id, is_kotlin_project)
     update_settings_gradle(args.group_id, args.artifact_id)
     insert_new_group_id_into_library_versions_kt(args.group_id,
                                                  args.artifact_id)
     update_docs_tip_of_tree_build_grade(args.group_id, args.artifact_id)
     print("Created directories. \nRunning updateApi for the new "
           "library, this may take a minute...", end='')
-    print_todo_list(args.group_id, args.artifact_id)
-    return
     if run_update_api(args.group_id, args.artifact_id):
         print("done.")
     else:
         print("failed.  Please investigate manually.")
-    print_todo_list(args.group_id, args.artifact_id)
+    print_todo_list(args.group_id, args.artifact_id, is_kotlin_project)
 
 if __name__ == '__main__':
     main(sys.argv)

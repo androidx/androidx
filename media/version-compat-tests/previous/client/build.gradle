@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation("androidx.media:media:1.3.0")
+    androidTestImplementation("androidx.media:media:1.4.1")
     androidTestImplementation(project(":media:version-compat-tests:lib"))
 
     androidTestImplementation(libs.testExtJunit)

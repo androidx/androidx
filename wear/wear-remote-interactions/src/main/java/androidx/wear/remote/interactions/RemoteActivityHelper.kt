@@ -40,9 +40,9 @@ import java.util.concurrent.Executors
  * The following example opens play store for the given app on another device:
  *
  * ```
- * val remoteIntentHelper = RemoteIntentHelper(context, executor)
+ * val remoteActivityHelper = RemoteActivityHelper(context, executor)
  *
- * val result = remoteIntentHelper.startRemoteActivity(
+ * val result = remoteActivityHelper.startRemoteActivity(
  *     new Intent(Intent.ACTION_VIEW).setData(
  *         Uri.parse("http://play.google.com/store/apps/details?id=com.example.myapp")
  *     ),

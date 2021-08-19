@@ -230,12 +230,14 @@ import java.util.List;
         intent.setComponent(new ComponentName(mServiceInstance, mServiceInstance.getClass()));
         intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
 
-        if (Build.VERSION.SDK_INT >= 26 && action != ACTION_PAUSE) {
+        if (Build.VERSION.SDK_INT >= 26 && action != ACTION_PAUSE && action != ACTION_STOP) {
             return ClassVerificationHelper.PendingIntent.Api26.getForegroundService(
-                    mServiceInstance, keyCode /* requestCode */, intent, 0 /* flags */);
+                    mServiceInstance, keyCode /* requestCode */, intent,
+                    PendingIntent.FLAG_IMMUTABLE);
         } else {
             return PendingIntent.getService(
-                    mServiceInstance, keyCode /* requestCode */, intent, 0 /* flags */);
+                    mServiceInstance, keyCode /* requestCode */, intent,
+                    Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
         }
     }
 
