@@ -102,8 +102,11 @@ class Alarms {
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent delayMet = CommandHandler.createDelayMetIntent(context, workSpecId);
-        PendingIntent pendingIntent = PendingIntent.getService(
-                context, alarmId, delayMet, PendingIntent.FLAG_NO_CREATE);
+        int flags = PendingIntent.FLAG_NO_CREATE;
+        if (Build.VERSION.SDK_INT >= 23) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        PendingIntent pendingIntent = PendingIntent.getService(context, alarmId, delayMet, flags);
         if (pendingIntent != null && alarmManager != null) {
             Logger.get().debug(TAG, String.format(
                     "Cancelling existing alarm with (workSpecId, systemId) (%s, %s)",
@@ -120,9 +123,12 @@ class Alarms {
             long triggerAtMillis) {
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= 23) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
         Intent delayMet = CommandHandler.createDelayMetIntent(context, workSpecId);
-        PendingIntent pendingIntent = PendingIntent.getService(
-                context, alarmId, delayMet, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getService(context, alarmId, delayMet, flags);
         if (alarmManager != null) {
             if (Build.VERSION.SDK_INT >= 19) {
                 alarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);
