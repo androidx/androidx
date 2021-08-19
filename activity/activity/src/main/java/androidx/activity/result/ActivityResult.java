@@ -26,7 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * A container for an activity result as obtained form {@link Activity#onActivityResult}
+ * A container for an activity result as obtained from {@link Activity#onActivityResult}
  *
  * @see Activity#onActivityResult
  */
