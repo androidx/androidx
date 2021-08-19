@@ -30,9 +30,11 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
 
 dependencies {
+    implementation project(path: ':annotation:annotation')
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
+    api("androidx.annotation:annotation:1.1.0")
 
     implementation(libs.kotlinStdlib)
     implementation(project(":compose:runtime:runtime"))
@@ -40,6 +42,10 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinCoroutinesTest)
 }
 
 android {
