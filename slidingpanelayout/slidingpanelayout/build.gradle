@@ -11,7 +11,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.core:core:1.1.0")
     api("androidx.customview:customview:1.1.0")
-    implementation("androidx.window:window:1.0.0-alpha10")
+    implementation(project(":window:window"))
     implementation ("androidx.transition:transition:1.4.1")
 
     androidTestImplementation(libs.testExtJunit)
@@ -20,7 +20,7 @@ dependencies {
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(':internal-testutils-runtime'))
-    androidTestImplementation("androidx.window:window-testing:1.0.0-alpha10")
+    androidTestImplementation(project(":window:window-testing"))
 }
 
 androidx {
