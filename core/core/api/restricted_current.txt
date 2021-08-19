@@ -2065,6 +2065,25 @@ package androidx.core.os {
 
 package androidx.core.provider {
 
+  public final class DocumentsContractCompat {
+    method public static android.net.Uri? buildChildDocumentsUri(String, String?);
+    method public static android.net.Uri? buildChildDocumentsUriUsingTree(android.net.Uri, String);
+    method public static android.net.Uri? buildDocumentUri(String, String);
+    method public static android.net.Uri? buildDocumentUriUsingTree(android.net.Uri, String);
+    method public static android.net.Uri? buildTreeDocumentUri(String, String);
+    method public static android.net.Uri? createDocument(android.content.ContentResolver, android.net.Uri, String, String) throws java.io.FileNotFoundException;
+    method public static String? getDocumentId(android.net.Uri);
+    method public static String? getTreeDocumentId(android.net.Uri);
+    method public static boolean isDocumentUri(android.content.Context, android.net.Uri?);
+    method public static boolean isTreeUri(android.net.Uri);
+    method public static boolean removeDocument(android.content.ContentResolver, android.net.Uri, android.net.Uri) throws java.io.FileNotFoundException;
+    method public static android.net.Uri? renameDocument(android.content.ContentResolver, android.net.Uri, String) throws java.io.FileNotFoundException;
+  }
+
+  public static final class DocumentsContractCompat.DocumentCompat {
+    field public static final int FLAG_VIRTUAL_DOCUMENT = 512; // 0x200
+  }
+
   public final class FontRequest {
     ctor public FontRequest(String, String, String, java.util.List<java.util.List<byte[]!>!>);
     ctor public FontRequest(String, String, String, @ArrayRes int);
