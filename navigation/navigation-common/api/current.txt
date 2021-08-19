@@ -379,12 +379,12 @@ package androidx.navigation {
     ctor public NavType(boolean isNullableAllowed);
     method public static androidx.navigation.NavType<?> fromArgType(String? type, String? packageName);
     method public abstract operator T? get(android.os.Bundle bundle, String key);
-    method public abstract String getName();
+    method public String getName();
     method public boolean isNullableAllowed();
     method public abstract T! parseValue(String value);
     method public abstract void put(android.os.Bundle bundle, String key, T? value);
     property public boolean isNullableAllowed;
-    property public abstract String name;
+    property public String name;
     field public static final androidx.navigation.NavType<boolean[]> BoolArrayType;
     field public static final androidx.navigation.NavType<java.lang.Boolean> BoolType;
     field public static final androidx.navigation.NavType.Companion Companion;
@@ -411,7 +411,6 @@ package androidx.navigation {
   public static final class NavType.ParcelableArrayType<D extends android.os.Parcelable> extends androidx.navigation.NavType<D[]> {
     ctor public NavType.ParcelableArrayType(Class<D> type);
     method public D![]? get(android.os.Bundle bundle, String key);
-    method public String getName();
     method public D![] parseValue(String value);
     method public void put(android.os.Bundle bundle, String key, D![]? value);
     property public String name;
@@ -420,7 +419,6 @@ package androidx.navigation {
   public static final class NavType.ParcelableType<D> extends androidx.navigation.NavType<D> {
     ctor public NavType.ParcelableType(Class<D> type);
     method public D? get(android.os.Bundle bundle, String key);
-    method public String getName();
     method public D! parseValue(String value);
     method public void put(android.os.Bundle bundle, String key, D? value);
     property public String name;
@@ -429,7 +427,6 @@ package androidx.navigation {
   public static final class NavType.SerializableArrayType<D extends java.io.Serializable> extends androidx.navigation.NavType<D[]> {
     ctor public NavType.SerializableArrayType(Class<D> type);
     method public D![]? get(android.os.Bundle bundle, String key);
-    method public String getName();
     method public D![] parseValue(String value);
     method public void put(android.os.Bundle bundle, String key, D![]? value);
     property public String name;
@@ -438,7 +435,6 @@ package androidx.navigation {
   public static class NavType.SerializableType<D extends java.io.Serializable> extends androidx.navigation.NavType<D> {
     ctor public NavType.SerializableType(Class<D> type);
     method public D? get(android.os.Bundle bundle, String key);
-    method public String getName();
     method public D parseValue(String value);
     method public void put(android.os.Bundle bundle, String key, D value);
     property public String name;
