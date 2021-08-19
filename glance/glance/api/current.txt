@@ -126,6 +126,31 @@ package androidx.glance.layout {
     method public static androidx.glance.Modifier wrapWidth(androidx.glance.Modifier);
   }
 
+  public final inline class FontStyle {
+    ctor public FontStyle();
+  }
+
+  public static final class FontStyle.Companion {
+    method public int getItalic();
+    method public int getNormal();
+    method public java.util.List<androidx.glance.layout.FontStyle> values();
+    property public final int Italic;
+    property public final int Normal;
+  }
+
+  public final inline class FontWeight {
+    ctor public FontWeight();
+  }
+
+  public static final class FontWeight.Companion {
+    method public int getBold();
+    method public int getMedium();
+    method public int getNormal();
+    property public final int Bold;
+    property public final int Medium;
+    property public final int Normal;
+  }
+
   public final class PaddingKt {
     method public static androidx.glance.Modifier absolutePadding(androidx.glance.Modifier, optional float left, optional float top, optional float right, optional float bottom);
     method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float start, optional float top, optional float end, optional float bottom);
@@ -135,6 +160,36 @@ package androidx.glance.layout {
 
   public final class RowKt {
     method @androidx.compose.runtime.Composable public static void Row(optional androidx.glance.Modifier modifier, optional int horizontalAlignment, optional int verticalAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final inline class TextDecoration {
+    ctor public TextDecoration();
+  }
+
+  public static final class TextDecoration.Companion {
+    method public int combine(java.util.List<androidx.glance.layout.TextDecoration> decorations);
+    method public int getLineThrough();
+    method public int getNone();
+    method public int getUnderline();
+    property public final int LineThrough;
+    property public final int None;
+    property public final int Underline;
+  }
+
+  public final class TextKt {
+    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.Modifier modifier, optional androidx.glance.layout.TextStyle? style);
+  }
+
+  @androidx.compose.runtime.Immutable public final class TextStyle {
+    ctor public TextStyle(optional androidx.glance.unit.Sp? size, optional androidx.glance.layout.FontWeight? fontWeight, optional androidx.glance.layout.FontStyle? fontStyle, optional androidx.glance.layout.TextDecoration? textDecoration);
+    method public androidx.glance.layout.FontStyle? getFontStyle();
+    method public androidx.glance.layout.FontWeight? getFontWeight();
+    method public androidx.glance.unit.Sp? getSize();
+    method public androidx.glance.layout.TextDecoration? getTextDecoration();
+    property public final androidx.glance.layout.FontStyle? fontStyle;
+    property public final androidx.glance.layout.FontWeight? fontWeight;
+    property public final androidx.glance.unit.Sp? size;
+    property public final androidx.glance.layout.TextDecoration? textDecoration;
   }
 
 }
@@ -222,6 +277,24 @@ package androidx.glance.unit {
   public final class DpSizeKt {
     method @androidx.compose.runtime.Stable public static operator androidx.glance.unit.DpSize times(int, androidx.glance.unit.DpSize size);
     method @androidx.compose.runtime.Stable public static operator androidx.glance.unit.DpSize times(float, androidx.glance.unit.DpSize size);
+  }
+
+  public final inline class Sp implements java.lang.Comparable<androidx.glance.unit.Sp> {
+    ctor public Sp();
+    method public operator int compareTo(float other);
+    method public float getValue();
+    property public final float value;
+  }
+
+  public final class SpKt {
+    method public static inline float getSp(int);
+    method public static inline float getSp(double);
+    method public static inline float getSp(float);
+    method public static float max(float a, float b);
+    method public static float min(float a, float b);
+    method public static operator float times(float, float other);
+    method public static operator float times(double, float other);
+    method public static operator float times(int, float other);
   }
 
 }
