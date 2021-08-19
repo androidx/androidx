@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
 
+import android.annotation.TargetApi;
 import android.location.LocationRequest;
 import android.os.Build.VERSION;
 import android.os.SystemClock;
@@ -96,6 +97,7 @@ public class LocationRequestCompatTest {
     }
 
     @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
+    @TargetApi(31)
     @Test
     public void testConversion_19Plus() throws Exception {
         LocationRequestCompat.Builder builder = new LocationRequestCompat.Builder(0);
@@ -187,6 +189,7 @@ public class LocationRequestCompatTest {
                 builder.build().toLocationRequest().getIntervalMillis());
     }
 
+    @TargetApi(31)
     private static String getProvider(LocationRequest request)
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         if (sGetProviderMethod == null) {
@@ -197,6 +200,7 @@ public class LocationRequestCompatTest {
         return (String) sGetProviderMethod.invoke(request);
     }
 
+    @TargetApi(31)
     private static long getInterval(LocationRequest request)
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         if (sGetIntervalMethod == null) {
@@ -207,6 +211,7 @@ public class LocationRequestCompatTest {
         return (Long) Preconditions.checkNotNull(sGetIntervalMethod.invoke(request));
     }
 
+    @TargetApi(31)
     private static long getFastestInterval(LocationRequest request)
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         if (sGetFastestIntervalMethod == null) {
@@ -218,6 +223,7 @@ public class LocationRequestCompatTest {
         return (Long) Preconditions.checkNotNull(sGetFastestIntervalMethod.invoke(request));
     }
 
+    @TargetApi(31)
     private static long getExpireAt(LocationRequest request)
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         if (sGetExpireAtMethod == null) {
@@ -229,6 +235,7 @@ public class LocationRequestCompatTest {
     }
 
     @RequiresApi(30)
+    @TargetApi(31)
     private static long getExpireIn(LocationRequest request)
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         if (sGetExpireInMethod == null) {
@@ -239,6 +246,7 @@ public class LocationRequestCompatTest {
         return (Long) Preconditions.checkNotNull(sGetExpireInMethod.invoke(request));
     }
 
+    @TargetApi(31)
     private static int getNumUpdates(LocationRequest request)
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         if (sGetNumUpdatesMethod == null) {
@@ -249,6 +257,7 @@ public class LocationRequestCompatTest {
         return (Integer) Preconditions.checkNotNull(sGetNumUpdatesMethod.invoke(request));
     }
 
+    @TargetApi(31)
     private static float getSmallestDisplacement(LocationRequest request)
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         if (sGetSmallestDisplacementMethod == null) {
