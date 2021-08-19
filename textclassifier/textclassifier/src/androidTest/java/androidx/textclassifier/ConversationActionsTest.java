@@ -47,7 +47,8 @@ public class ConversationActionsTest {
 
     private static final Bundle EXTRAS = new Bundle();
     private static final PendingIntent PENDING_INTENT = PendingIntent.getActivity(
-            InstrumentationRegistry.getInstrumentation().getTargetContext(), 0, new Intent(), 0);
+            InstrumentationRegistry.getInstrumentation().getTargetContext(), 0, new Intent(),
+            PendingIntent.FLAG_IMMUTABLE);
 
     private static final RemoteActionCompat REMOTE_ACTION = new RemoteActionCompat(
             IconCompat.createWithData(new byte[0], 0, 0),
