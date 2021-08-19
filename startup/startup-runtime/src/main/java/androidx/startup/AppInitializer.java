@@ -69,7 +69,10 @@ public final class AppInitializer {
      * @param context The application context
      */
     AppInitializer(@NonNull Context context) {
-        mContext = context.getApplicationContext();
+        // We cannot always rely on getApplicationContext()
+        // More context: b/196959015
+        Context applicationContext = context.getApplicationContext();
+        mContext = applicationContext == null ? context : applicationContext;
         mDiscovered = new HashSet<>();
         mInitialized = new HashMap<>();
     }
