@@ -20,6 +20,9 @@
     <dimen name="car_app_default_focus_ring_stroke_width_focused">6dp</dimen>
     <dimen name="car_app_default_no_content_focus_background_corner_radius">16dp</dimen>
 
+    <!-- body2 -->
+    <dimen name="car_app_error_message_font_size">28dp</dimen>
+
     <dimen name="car_app_focus_ring_stroke_width_hovered">4dp</dimen>
     <dimen name="car_app_icon_size">64dp</dimen>
     <dimen name="car_app_no_content_view_focus_ring_padding">24dp</dimen>
