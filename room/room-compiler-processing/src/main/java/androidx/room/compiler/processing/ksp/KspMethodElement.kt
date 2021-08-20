@@ -41,7 +41,7 @@ internal sealed class KspMethodElement(
 
     @OptIn(KspExperimental::class)
     override val name: String by lazy {
-        env.resolver.safeGetJvmName(declaration)
+        env.resolver.getJvmName(declaration) ?: declaration.simpleName.asString()
     }
 
     override val executableType: XMethodType by lazy {
