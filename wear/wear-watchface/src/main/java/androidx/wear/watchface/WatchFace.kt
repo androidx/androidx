@@ -870,13 +870,6 @@ public class WatchFaceImpl @UiThread constructor(
         watchFaceHostApi.invalidate()
     }
 
-    /** Clears all [ComplicationData]. */
-    @UiThread
-    internal fun clearComplicationData() {
-        complicationSlotsManager.clearComplicationData()
-        watchFaceHostApi.invalidate()
-    }
-
     /**
      * Called when a tap or touch related event occurs. Detects taps on [ComplicationSlot]s and
      * triggers the associated action.
