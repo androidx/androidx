@@ -26,16 +26,24 @@ import androidx.glance.layout.Dimension
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
+import androidx.glance.layout.EmittableText
+import androidx.glance.layout.FontStyle
+import androidx.glance.layout.FontWeight
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
+import androidx.glance.layout.TextDecoration
 import androidx.glance.layout.WidthModifier
 import androidx.glance.wear.layout.BackgroundModifier
 import androidx.wear.tiles.ColorBuilders.argb
 import androidx.wear.tiles.DimensionBuilders
 import androidx.wear.tiles.DimensionBuilders.dp
 import androidx.wear.tiles.DimensionBuilders.expand
+import androidx.wear.tiles.DimensionBuilders.sp
 import androidx.wear.tiles.DimensionBuilders.wrap
 import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD
+import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM
+import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START
@@ -160,6 +168,46 @@ private fun translateEmittableColumn(
     }
 }
 
+private fun translateEmittableText(element: EmittableText): LayoutElementBuilders.LayoutElement {
+    // Does it have a width or height set? If so, we need to wrap it in a Box.
+    val width = element.modifier.getWidth()
+    val height = element.modifier.getHeight()
+
+    val textBuilder = LayoutElementBuilders.Text.Builder()
+        .setText(element.text)
+
+    element.style?.let { style ->
+        val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
+
+        style.size?.let { fontStyleBuilder.setSize(sp(it.value)) }
+        style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
+        style.fontWeight?.let {
+            fontStyleBuilder.setWeight(
+                when (it) {
+                    FontWeight.Normal -> FONT_WEIGHT_NORMAL
+                    FontWeight.Medium -> FONT_WEIGHT_MEDIUM
+                    FontWeight.Bold -> FONT_WEIGHT_BOLD
+                    else -> throw IllegalArgumentException("Unknown font weight $it")
+                }
+            )
+        }
+        style.textDecoration?.let { fontStyleBuilder.setUnderline(it == TextDecoration.Underline) }
+
+        textBuilder.setFontStyle(fontStyleBuilder.build())
+    }
+
+    return if (width !is Dimension.Wrap || height !is Dimension.Wrap) {
+        LayoutElementBuilders.Box.Builder()
+            .setWidth(width.toContainerDimension())
+            .setHeight(height.toContainerDimension())
+            .setModifiers(translateModifiers(element.modifier))
+            .addContent(textBuilder.build())
+            .build()
+    } else {
+        textBuilder.setModifiers(translateModifiers(element.modifier)).build()
+    }
+}
+
 private fun translateModifiers(modifier: Modifier): ModifiersBuilders.Modifiers = modifier
     .foldOut(ModifiersBuilders.Modifiers.Builder()) { element, builder ->
         when (element) {
@@ -182,6 +230,7 @@ internal fun translateComposition(element: Emittable): LayoutElementBuilders.Lay
         is EmittableBox -> translateEmittableBox(element)
         is EmittableRow -> translateEmittableRow(element)
         is EmittableColumn -> translateEmittableColumn(element)
+        is EmittableText -> translateEmittableText(element)
         else -> throw IllegalArgumentException("Unknown element $element")
     }
 }

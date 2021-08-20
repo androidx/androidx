@@ -51,6 +51,11 @@ android {
     }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+
+    lintOptions {
+        // TODO(b/191286558): Remove when lint is fixed.
+        disable "UnsafeOptInUsageError", "UnsafeOptInUsageWarning"
+    }
 }
 
 androidx {
