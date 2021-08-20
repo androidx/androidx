@@ -239,17 +239,12 @@ class XAnnotationBoxTest(
                     .let { other ->
                         assertThat(other.value.value).isEqualTo("other single")
                     }
-                if (invocation.isKsp) {
-                    // TODO fix when KSP support them
-                    //  https://github.com/google/ksp/issues/356
-                } else {
-                    annotation.getAsAnnotationBoxArray<OtherAnnotation>("otherAnnotationArray")
-                        .let { boxArray ->
-                            assertThat(boxArray).hasLength(2)
-                            assertThat(boxArray[0].value.value).isEqualTo("other list 1")
-                            assertThat(boxArray[1].value.value).isEqualTo("other list 2")
-                        }
-                }
+                annotation.getAsAnnotationBoxArray<OtherAnnotation>("otherAnnotationArray")
+                    .let { boxArray ->
+                        assertThat(boxArray).hasLength(2)
+                        assertThat(boxArray[0].value.value).isEqualTo("other list 1")
+                        assertThat(boxArray[1].value.value).isEqualTo("other list 2")
+                    }
             }
         }
     }
@@ -625,26 +620,21 @@ class XAnnotationBoxTest(
             listOf("JavaSubject", "KotlinSubject")
                 .map(invocation.processingEnv::requireTypeElement)
                 .forEach { subject ->
-                    if (invocation.isKsp && preCompiled) {
-                        // TODO remove once https://github.com/google/ksp/issues/356 is fixed
-                        // KSP cannot read array of annotation values in compiled code
-                    } else {
-                        val annotations = subject.getAnnotations(
+                    val annotations = subject.getAnnotations(
+                        RepeatableJavaAnnotation::class
+                    )
+                    assertThat(
+                        subject.hasAnnotation(
                             RepeatableJavaAnnotation::class
                         )
-                        assertThat(
-                            subject.hasAnnotation(
-                                RepeatableJavaAnnotation::class
-                            )
-                        ).isTrue()
-                        val values = annotations
-                            .map {
-                                it.value.value
-                            }
-                        assertWithMessage(subject.qualifiedName)
-                            .that(values)
-                            .containsExactly("x", "y", "z")
-                    }
+                    ).isTrue()
+                    val values = annotations
+                        .map {
+                            it.value.value
+                        }
+                    assertWithMessage(subject.qualifiedName)
+                        .that(values)
+                        .containsExactly("x", "y", "z")
                 }
         }
     }
@@ -673,26 +663,21 @@ class XAnnotationBoxTest(
             listOf("JavaSubject", "KotlinSubject")
                 .map(invocation.processingEnv::requireTypeElement)
                 .forEach { subject ->
-                    if (invocation.isKsp && preCompiled) {
-                        // TODO remove once https://github.com/google/ksp/issues/356 is fixed
-                        // KSP cannot read array of annotation values in compiled code
-                    } else {
-                        val annotations = subject.getAnnotations(
+                    val annotations = subject.getAnnotations(
+                        RepeatableJavaAnnotation::class
+                    )
+                    assertThat(
+                        subject.hasAnnotation(
                             RepeatableJavaAnnotation::class
                         )
-                        assertThat(
-                            subject.hasAnnotation(
-                                RepeatableJavaAnnotation::class
-                            )
-                        ).isTrue()
-                        val values = annotations
-                            .map {
-                                it.value.value
-                            }
-                        assertWithMessage(subject.qualifiedName)
-                            .that(values)
-                            .containsExactly("x")
-                    }
+                    ).isTrue()
+                    val values = annotations
+                        .map {
+                            it.value.value
+                        }
+                    assertWithMessage(subject.qualifiedName)
+                        .that(values)
+                        .containsExactly("x")
                 }
         }
     }

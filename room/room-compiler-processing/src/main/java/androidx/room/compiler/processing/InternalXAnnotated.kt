@@ -29,7 +29,6 @@ internal interface InternalXAnnotated : XAnnotated {
      * this internal wrapper, we handle that inconsistency by finding the container class and
      * asking implementers to implement the 2 arg version instead.
      *
-     * see: https://github.com/google/ksp/issues/356
      * see: https://github.com/google/ksp/issues/358
      * see: https://youtrack.jetbrains.com/issue/KT-12794
      *
