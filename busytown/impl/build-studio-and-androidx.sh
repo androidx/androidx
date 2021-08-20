@@ -49,6 +49,7 @@ function buildStudio() {
 buildStudio
 
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=buildVersion = ).*"`
+export LINT_VERSION=`perl -nle'print $& while m{(?<=baseVersion = ).*}g' $TOOLS_DIR/buildSrc/base/version.properties`
 export GRADLE_PLUGIN_VERSION=`perl -nle'print $& while m{(?<=buildVersion = ).*}g' $TOOLS_DIR/buildSrc/base/version.properties`
 export GRADLE_PLUGIN_REPO="$STUDIO_DIR/out/repo:$STUDIO_DIR/prebuilts/tools/common/m2/repository"
 export JAVA_HOME="$(pwd)/prebuilts/jdk/jdk11/$PREBUILT_JDK/"
