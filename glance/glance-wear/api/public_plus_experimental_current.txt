@@ -2,7 +2,6 @@
 package androidx.glance.wear {
 
   public final class WearCompositionTranslatorKt {
-    method @androidx.glance.GlanceInternalApi public static androidx.wear.tiles.LayoutElementBuilders.LayoutElement translateComposition(androidx.glance.Emittable element);
   }
 
 }

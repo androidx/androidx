@@ -21,8 +21,17 @@ import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
+import androidx.glance.layout.Column
+import androidx.glance.layout.Row
+import androidx.glance.layout.expandHeight
+import androidx.glance.layout.expandWidth
+import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.width
+import androidx.glance.unit.Color
 import androidx.glance.unit.dp
+import androidx.glance.wear.layout.background
+import androidx.wear.tiles.DimensionBuilders
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
@@ -59,7 +68,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateAlignment() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Box(contentAlignment = Alignment.Center) {}
         }
@@ -106,6 +115,143 @@ class WearCompositionTranslatorTest {
         assertThat(padding.top!!.value).isEqualTo(2f)
         assertThat(padding.end!!.value).isEqualTo(3f)
         assertThat(padding.bottom!!.value).isEqualTo(4f)
+    }
+
+    @Test
+    fun canTranslateBackgroundModifier() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Box(modifier = Modifier.background(Color(0x11223344))) {}
+        }
+
+        val innerBox =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
+        val background = requireNotNull(innerBox.modifiers!!.background)
+
+        assertThat(background.color!!.argb).isEqualTo(0x11223344)
+    }
+
+    @Test
+    fun canTranslateRow() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
+                Box(contentAlignment = Alignment.TopCenter) {}
+                Box(contentAlignment = Alignment.BottomEnd) {}
+            }
+        }
+
+        val innerRow =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Row
+
+        assertThat(innerRow.verticalAlignment!!.value).isEqualTo(VERTICAL_ALIGN_CENTER)
+
+        val leaf0 = innerRow.contents[0] as LayoutElementBuilders.Box
+        val leaf1 = innerRow.contents[1] as LayoutElementBuilders.Box
+
+        assertThat(leaf0.verticalAlignment!!.value).isEqualTo(VERTICAL_ALIGN_TOP)
+        assertThat(leaf0.horizontalAlignment!!.value).isEqualTo(HORIZONTAL_ALIGN_CENTER)
+
+        assertThat(leaf1.verticalAlignment!!.value).isEqualTo(VERTICAL_ALIGN_BOTTOM)
+        assertThat(leaf1.horizontalAlignment!!.value).isEqualTo(HORIZONTAL_ALIGN_END)
+    }
+
+    @Test
+    fun rowWithHorizontalAlignmentInflatesInColumn() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Row(
+                verticalAlignment = Alignment.Vertical.CenterVertically,
+                horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
+                modifier = Modifier.expandWidth().height(100.dp).background(Color(0x11223344))
+            ) {}
+        }
+
+        val innerColumn =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Column
+        val innerRow = innerColumn.contents[0] as LayoutElementBuilders.Row
+
+        assertThat(innerColumn.horizontalAlignment!!.value).isEqualTo(HORIZONTAL_ALIGN_CENTER)
+
+        // Column should inherit the size of the inner Row
+        assertThat(innerColumn.width).isInstanceOf(
+            DimensionBuilders.ExpandedDimensionProp::class.java
+        )
+        assertThat((innerColumn.height as DimensionBuilders.DpProp).value).isEqualTo(100f)
+
+        // Column should also inherit the modifiers
+        assertThat(innerColumn.modifiers!!.background!!.color!!.argb).isEqualTo(0x11223344)
+
+        // The row should have a wrapped width, but still use the height
+        assertThat(innerRow.width).isInstanceOf(
+            DimensionBuilders.WrappedDimensionProp::class.java
+        )
+        assertThat((innerRow.height as DimensionBuilders.DpProp).value).isEqualTo(100f)
+
+        // And no modifiers.
+        assertThat(innerRow.modifiers).isNull()
+
+        // Should have the vertical alignment set still though
+        assertThat(innerRow.verticalAlignment!!.value).isEqualTo(VERTICAL_ALIGN_CENTER)
+    }
+
+    @Test
+    fun canTranslateColumn() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Column(horizontalAlignment = Alignment.Horizontal.CenterHorizontally) {
+                Box(contentAlignment = Alignment.TopCenter) {}
+                Box(contentAlignment = Alignment.BottomEnd) {}
+            }
+        }
+
+        val innerColumn =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Column
+
+        assertThat(innerColumn.horizontalAlignment!!.value).isEqualTo(HORIZONTAL_ALIGN_CENTER)
+
+        val leaf0 = innerColumn.contents[0] as LayoutElementBuilders.Box
+        val leaf1 = innerColumn.contents[1] as LayoutElementBuilders.Box
+
+        assertThat(leaf0.verticalAlignment!!.value).isEqualTo(VERTICAL_ALIGN_TOP)
+        assertThat(leaf0.horizontalAlignment!!.value).isEqualTo(HORIZONTAL_ALIGN_CENTER)
+
+        assertThat(leaf1.verticalAlignment!!.value).isEqualTo(VERTICAL_ALIGN_BOTTOM)
+        assertThat(leaf1.horizontalAlignment!!.value).isEqualTo(HORIZONTAL_ALIGN_END)
+    }
+
+    @Test
+    fun columnWithVerticalAlignmentInflatesInRow() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Column(
+                verticalAlignment = Alignment.Vertical.CenterVertically,
+                horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
+                modifier = Modifier.expandHeight().width(100.dp).background(Color(0x11223344))
+            ) {}
+        }
+
+        val innerRow =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Row
+        val innerColumn = innerRow.contents[0] as LayoutElementBuilders.Column
+
+        assertThat(innerRow.verticalAlignment!!.value).isEqualTo(VERTICAL_ALIGN_CENTER)
+
+        // Row should inherit the size of the inner Row
+        assertThat((innerRow.width as DimensionBuilders.DpProp).value).isEqualTo(100f)
+        assertThat(innerRow.height).isInstanceOf(
+            DimensionBuilders.ExpandedDimensionProp::class.java
+        )
+
+        // Row should also inherit the modifiers
+        assertThat(innerRow.modifiers!!.background!!.color!!.argb).isEqualTo(0x11223344)
+
+        // The Column should have a wrapped width, but still use the height
+        assertThat((innerColumn.width as DimensionBuilders.DpProp).value).isEqualTo(100f)
+        assertThat(innerColumn.height).isInstanceOf(
+            DimensionBuilders.WrappedDimensionProp::class.java
+        )
+
+        // And no modifiers.
+        assertThat(innerColumn.modifiers).isNull()
+
+        // Should have the horizontal alignment set still though
+        assertThat(innerColumn.horizontalAlignment!!.value).isEqualTo(HORIZONTAL_ALIGN_CENTER)
     }
 
     private suspend fun runAndTranslate(
