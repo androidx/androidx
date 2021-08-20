@@ -42,7 +42,6 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.icu.util.Calendar;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationText;
 import android.view.SurfaceHolder;
@@ -71,6 +70,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
 import kotlin.coroutines.Continuation;
@@ -753,11 +753,11 @@ public class ComplicationDrawableTest {
                             CanvasType.SOFTWARE, 16L) {
                         @Override
                         public void renderHighlightLayer(@NonNull Canvas canvas,
-                                @NonNull Rect bounds, @NonNull Calendar calendar) {}
+                                @NonNull Rect bounds, @NonNull ZonedDateTime zonedDateTime) {}
 
                         @Override
                         public void render(@NonNull Canvas canvas, @NonNull Rect bounds,
-                                @NonNull Calendar calendar) {}
+                                @NonNull ZonedDateTime zonedDateTime) {}
                     }
             );
         }
