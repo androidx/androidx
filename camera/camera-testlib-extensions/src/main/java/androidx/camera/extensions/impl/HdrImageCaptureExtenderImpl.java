@@ -15,6 +15,8 @@
  */
 package androidx.camera.extensions.impl;
 
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF;
+
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
@@ -51,6 +53,9 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     private static final int NORMAL_STAGE_ID = 1;
     private static final int OVER_STAGE_ID = 2;
     private static final int SESSION_STAGE_ID = 101;
+    private static final long UNDER_EXPOSURE_TIME = TimeUnit.MILLISECONDS.toNanos(8);
+    private static final long NORMAL_EXPOSURE_TIME = TimeUnit.MILLISECONDS.toNanos(16);
+    private static final long OVER_EXPOSURE_TIME = TimeUnit.MILLISECONDS.toNanos(32);
 
     public HdrImageCaptureExtenderImpl() {
     }
@@ -63,7 +68,35 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @Nullable CameraCharacteristics cameraCharacteristics) {
         // Requires API 23 for ImageWriter
-        return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M;
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M) {
+            return false;
+        }
+
+        if (cameraCharacteristics == null) {
+            return false;
+        }
+
+        Range<Long> exposureTimeRange =
+                cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_EXPOSURE_TIME_RANGE);
+
+        if (exposureTimeRange == null || !exposureTimeRange.contains(
+                Range.create(UNDER_EXPOSURE_TIME, OVER_EXPOSURE_TIME))) {
+            return false;
+        }
+
+        // The device needs to support CONTROL_AE_MODE_OFF for the testing CaptureStages
+        int[] availableAeModes =
+                cameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
+
+        if (availableAeModes != null) {
+            for (int mode : availableAeModes) {
+                if (mode == CONTROL_AE_MODE_OFF) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -74,17 +107,17 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         captureStageUnder.addCaptureRequestParameters(CaptureRequest.CONTROL_AE_MODE,
                 CaptureRequest.CONTROL_AE_MODE_OFF);
         captureStageUnder.addCaptureRequestParameters(CaptureRequest.SENSOR_EXPOSURE_TIME,
-                TimeUnit.MILLISECONDS.toNanos(8));
+                UNDER_EXPOSURE_TIME);
 
         // Normal exposed capture stage
         SettableCaptureStage captureStageNormal = new SettableCaptureStage(NORMAL_STAGE_ID);
         captureStageNormal.addCaptureRequestParameters(CaptureRequest.SENSOR_EXPOSURE_TIME,
-                TimeUnit.MILLISECONDS.toNanos(16));
+                NORMAL_EXPOSURE_TIME);
 
         // Over exposed capture stage
         SettableCaptureStage captureStageOver = new SettableCaptureStage(OVER_STAGE_ID);
         captureStageOver.addCaptureRequestParameters(CaptureRequest.SENSOR_EXPOSURE_TIME,
-                TimeUnit.MILLISECONDS.toNanos(32));
+                OVER_EXPOSURE_TIME);
 
         List<CaptureStageImpl> captureStages = new ArrayList<>();
         captureStages.add(captureStageUnder);
