@@ -455,6 +455,20 @@ This is handled automatically by the `updateApi` Gradle task:
 If you change the public APIs without updating the API file, your module will
 still build **but** your CL will fail Treehugger presubmit checks.
 
+#### What are all these files in `api/`? {#updating-public-apis-glossary}
+
+Historical API surfaces are tracked for compatibility and docs generation
+purposes. For each version -- including `current` to represent the tip-of-tree
+version -- we record three different types of API surfaces.
+
+*   `<version>.txt`: Public API surface, tracked for compatibility
+*   `restricted_<version>.txt`: `@RestrictTo` API surface, tracked for
+    compatibility where necessary (see
+    [Restricted APIs](api_guidelines.md#restricted-api))
+*   `public_plus_experimental_<version>.txt`: Public API surface plus
+    `@RequiresOptIn` experimental API surfaces used for documentation (see
+    [Experimental APIs](api_guidelines.md#experimental-api)) and API review
+
 ### Release notes & the `Relnote:` tag {#relnote}
 
 Prior to releasing, release notes are pre-populated using a script and placed
