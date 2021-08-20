@@ -23,6 +23,7 @@ package androidx.emoji2.text {
     method @CheckResult public CharSequence? process(CharSequence?, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int, int);
     method public void registerInitCallback(androidx.emoji2.text.EmojiCompat.InitCallback);
     method public void unregisterInitCallback(androidx.emoji2.text.EmojiCompat.InitCallback);
+    method public void updateEditorInfo(android.view.inputmethod.EditorInfo);
     field public static final String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
     field public static final String EDITOR_INFO_REPLACE_ALL_KEY = "android.support.text.emoji.emojiCompat_replaceAll";
     field public static final int LOAD_STATE_DEFAULT = 3; // 0x3

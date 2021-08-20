@@ -24,6 +24,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
@@ -973,20 +974,27 @@ public class EmojiCompat {
      * Updates the EditorInfo attributes in order to communicate information to Keyboards. When
      * used on devices running API 18 or below, does not update EditorInfo attributes.
      *
+     * This is called from EditText integrations that use EmojiEditTextHelper. Custom
+     * widgets that allow IME not subclassing EditText should call this method when creating an
+     * input connection.
+     *
+     * When EmojiCompat is not in {@link #LOAD_STATE_SUCCEEDED}, this method has no effect.
+     *
      * @param outAttrs EditorInfo instance passed to
      *                 {@link android.widget.TextView#onCreateInputConnection(EditorInfo)}
      *
      * @see #EDITOR_INFO_METAVERSION_KEY
      * @see #EDITOR_INFO_REPLACE_ALL_KEY
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
+    public void updateEditorInfo(@NonNull final EditorInfo outAttrs) {
         //noinspection ConstantConditions
-        if (isInitialized() && outAttrs != null && outAttrs.extras != null) {
-            mHelper.updateEditorInfoAttrs(outAttrs);
+        if (!isInitialized() || outAttrs == null) {
+            return;
         }
+        if (outAttrs.extras == null) {
+            outAttrs.extras = new Bundle();
+        }
+        mHelper.updateEditorInfoAttrs(outAttrs);
     }
 
     /**
