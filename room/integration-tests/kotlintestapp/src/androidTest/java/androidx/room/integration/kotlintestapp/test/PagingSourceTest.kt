@@ -43,6 +43,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.base.MainThread
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.testutils.FilteringExecutor
+import androidx.testutils.withTestTimeout
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,17 +64,11 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -948,81 +944,11 @@ class PagingSourceTest {
         val changeCount: Int = 0
     )
 
-    /**
-     * An executor that can block some known runnables. We use it to slow down database
-     * invalidation events.
-     */
-    private class FilteringExecutor : Executor {
-        private val delegate = Executors.newSingleThreadExecutor()
-        private val deferred = mutableListOf<Runnable>()
-        private val deferredSize = MutableStateFlow(0)
-        private val lock = ReentrantLock()
-
-        var filterFunction: (Runnable) -> Boolean = { true }
-            set(value) {
-                field = value
-                reEnqueueDeferred()
-            }
-
-        suspend fun awaitDeferredSizeAtLeast(min: Int) = withTestTimeout {
-            deferredSize.mapLatest {
-                it >= min
-            }.first()
-        }
-
-        private fun reEnqueueDeferred() {
-            val copy = lock.withLock {
-                val copy = deferred.toMutableList()
-                deferred.clear()
-                deferredSize.value = 0
-                copy
-            }
-            copy.forEach(this::execute)
-        }
-
-        fun deferredSize(): Int {
-            return deferred.size
-        }
-
-        fun executeAll() {
-            while (deferred.isNotEmpty()) {
-                deferred.removeFirst().run()
-            }
-        }
-
-        fun executeLatestDeferred() {
-            deferred.removeLast().run()
-        }
-
-        override fun execute(command: Runnable) {
-            lock.withLock {
-                if (filterFunction(command)) {
-                    delegate.execute(command)
-                } else {
-                    deferred.add(command)
-                    deferredSize.value += 1
-                }
-            }
-        }
-    }
-
     companion object {
         private val CONFIG = PagingConfig(
             pageSize = 3,
             initialLoadSize = 9,
             enablePlaceholders = true,
         )
-    }
-}
-
-private suspend fun <T> withTestTimeout(block: suspend () -> T): T {
-    try {
-        return withTimeout(
-            timeMillis = TimeUnit.SECONDS.toMillis(3)
-        ) {
-            block()
-        }
-    } catch (err: Throwable) {
-        throw AssertionError("didn't complete in expected time", err)
     }
 }
