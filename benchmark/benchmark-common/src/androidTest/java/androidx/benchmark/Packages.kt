@@ -22,4 +22,5 @@ object Packages {
     val TEST: String = InstrumentationRegistry.getInstrumentation()
         .context
         .packageName
+    val FAKE = "com.notalive.package.notarealapp"
 }

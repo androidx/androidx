@@ -17,21 +17,39 @@
 package androidx.benchmark
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import org.junit.After
 import org.junit.Assert
 import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ShellTest {
+    @Before
+    @After
+    fun setup() {
+        if (Build.VERSION.SDK_INT >= 21) {
+            // ensure we don't leak background processes
+            Shell.terminateProcessesAndWait(
+                KILL_WAIT_POLL_PERIOD_MS,
+                KILL_WAIT_POLL_MAX_COUNT,
+                BACKGROUND_SPINNING_PROCESS_NAME
+            )
+        }
+    }
+
     @Test
     fun optionalCommand_ls() {
         // command isn't important, it's just something that's not `echo`, and guaranteed to print
@@ -213,6 +231,163 @@ class ShellTest {
         assertNotNull(Shell.isPackageAlive(Packages.TEST))
 
         // this made up one shouldn't be
-        assertNotNull(Shell.isPackageAlive("com.notalive.package.notarealapp"))
+        assertNotNull(Shell.isPackageAlive(Packages.FAKE))
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun pidof() {
+        assertNotNull(pidof(Packages.TEST))
+        assertNull(pidof(Packages.FAKE))
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun isPidAlive() {
+        val pid = pidof(Packages.TEST)!!
+        assertTrue(Shell.isProcessAlive(pid, Packages.TEST))
+
+        // if either package name OR pid doesn't match, return false
+        assertFalse(Shell.isProcessAlive(pid, Packages.FAKE))
+        assertFalse(Shell.isProcessAlive(pid + 1, Packages.TEST))
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun killTermProcessesAndWait() {
+        // validate that killTermProcessesAndWait kills bg process
+        val backgroundProcess = getBackgroundSpinningProcess()
+        assertTrue(backgroundProcess.isAlive())
+        Shell.terminateProcessesAndWait(
+            KILL_WAIT_POLL_PERIOD_MS,
+            KILL_WAIT_POLL_MAX_COUNT,
+            backgroundProcess
+        )
+        assertFalse(backgroundProcess.isAlive())
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun killTermProcessesAndWait_allowBackground() {
+        val backgroundProcess1 = getBackgroundSpinningProcess()
+        val backgroundProcess2 = getBackgroundSpinningProcess()
+
+        assertTrue(backgroundProcess1.isAlive())
+        assertTrue(backgroundProcess2.isAlive())
+
+        Shell.terminateProcessesAndWait(
+            KILL_WAIT_POLL_PERIOD_MS,
+            KILL_WAIT_POLL_MAX_COUNT,
+            backgroundProcess1
+        )
+
+        // Only process 1 should be killed
+        assertFalse(backgroundProcess1.isAlive())
+        assertTrue(backgroundProcess2.isAlive())
+
+        Shell.terminateProcessesAndWait(
+            KILL_WAIT_POLL_PERIOD_MS,
+            KILL_WAIT_POLL_MAX_COUNT,
+            backgroundProcess2
+        )
+
+        // Now both are killed
+        assertFalse(backgroundProcess1.isAlive())
+        assertFalse(backgroundProcess2.isAlive())
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun killTermProcessesAndWait_multi() {
+        val backgroundProcess1 = getBackgroundSpinningProcess()
+        val backgroundProcess2 = getBackgroundSpinningProcess()
+
+        assertTrue(backgroundProcess1.isAlive())
+        assertTrue(backgroundProcess2.isAlive())
+
+        Shell.terminateProcessesAndWait(
+            KILL_WAIT_POLL_PERIOD_MS,
+            KILL_WAIT_POLL_MAX_COUNT,
+            backgroundProcess1,
+            backgroundProcess2
+        )
+
+        // both processes should be killed
+        assertFalse(backgroundProcess1.isAlive())
+        assertFalse(backgroundProcess2.isAlive())
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun killTermAllAndWait() {
+        val backgroundProcess1 = getBackgroundSpinningProcess()
+        val backgroundProcess2 = getBackgroundSpinningProcess()
+
+        assertTrue(backgroundProcess1.isAlive())
+        assertTrue(backgroundProcess2.isAlive())
+
+        Shell.terminateProcessesAndWait(
+            KILL_WAIT_POLL_PERIOD_MS,
+            KILL_WAIT_POLL_MAX_COUNT,
+            BACKGROUND_SPINNING_PROCESS_NAME
+        )
+
+        assertFalse(backgroundProcess1.isAlive())
+        assertFalse(backgroundProcess2.isAlive())
+    }
+
+    @RequiresApi(21)
+    private fun pidof(packageName: String): Int? {
+        if (Build.VERSION.SDK_INT >= 24) {
+            // On API 23 (first version to offer it) we observe that 'pidof'
+            // returns list of all processes :|
+            return Shell.executeCommand("pidof $packageName").trim().toIntOrNull()
+        }
+        val psLineForPackage: String? = Shell.executeScript("ps | grep $packageName")
+            .split("\r?\n")
+            .firstOrNull { it.trim().endsWith(" $packageName") }
+
+        // e.g.
+        // "root      8803  1173  3696   864   813fcf0c b0144fea S logcat"
+        return psLineForPackage
+            ?.split(Regex("\\s+"))
+            ?.get(1)
+            ?.toIntOrNull()
+    }
+
+    companion object {
+        const val KILL_WAIT_POLL_PERIOD_MS = 50L
+        const val KILL_WAIT_POLL_MAX_COUNT = 50
+
+        /**
+         * Run the shell command "yes" as a background process to enable testing process killing /
+         * liveness checks.
+         *
+         * TODO: support this down to API 21, and lower RequiresApi for associated tests
+         */
+        @RequiresApi(23)
+        fun getBackgroundSpinningProcess(): Shell.ProcessPid {
+            val pid = Shell.executeScript(
+                """
+                    $BACKGROUND_SPINNING_PROCESS_NAME > /dev/null 2> /dev/null &
+                    echo $!
+                """.trimIndent()
+            )
+                .trim()
+                .toIntOrNull()
+            assertNotNull(pid)
+            return Shell.ProcessPid(BACKGROUND_SPINNING_PROCESS_NAME, pid)
+        }
+
+        /**
+         * Command and name of process for background task used in several tests.
+         *
+         * We use "yes" here, as it's available back to 23.
+         *
+         * Also tried "sleep 20", but this resulted in the Shell.executeCommand not completing
+         * until after the sleep terminated, which made it not useful.
+         */
+        @RequiresApi(23)
+        val BACKGROUND_SPINNING_PROCESS_NAME = "yes"
     }
 }

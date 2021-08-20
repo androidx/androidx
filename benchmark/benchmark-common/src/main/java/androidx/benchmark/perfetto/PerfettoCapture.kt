@@ -24,13 +24,7 @@ import androidx.benchmark.userspaceTrace
 import java.io.File
 
 /**
- * Enables capturing a Perfetto trace from a test on Q+ devices.
- *
- * It's possible to support API 28, but there are a few issues to resolve:
- * - Use binary config protos
- * - May need to distribute perfetto binary, with atrace workaround
- * - App tags are not available, due to lack of `<profileable shell=true>`. Can potentially hack
- * around this for individual tags within test infra as needed.
+ * Enables capturing a Perfetto trace
  *
  * @suppress
  */
@@ -42,14 +36,7 @@ public class PerfettoCapture(
 
     private val helper: PerfettoHelper = PerfettoHelper(unbundled)
 
-    /**
-     * Kill perfetto process, if it is running.
-     */
-    public fun cancel() {
-        if (helper.isPerfettoRunning()) {
-            helper.stopPerfetto()
-        }
-    }
+    public fun isRunning() = helper.isRunning()
 
     /**
      * Start collecting perfetto trace.
@@ -86,9 +73,6 @@ public class PerfettoCapture(
     public fun stop(destinationPath: String) = userspaceTrace("stop perfetto") {
         // Wait time determined empirically by running a trivial startup test (3 iterations) 200
         // times, and validating no metric capture failures.
-        if (!helper.stopCollecting(500, destinationPath)) {
-            // TODO: move internal failures to be exceptions
-            throw IllegalStateException("Unable to store perfetto trace in $destinationPath")
-        }
+        helper.stopCollecting(500, destinationPath)
     }
 }
