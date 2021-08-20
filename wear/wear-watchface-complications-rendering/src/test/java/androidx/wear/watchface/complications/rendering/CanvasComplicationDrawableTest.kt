@@ -19,8 +19,6 @@ package androidx.wear.watchface.complications.rendering
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.icu.util.Calendar
-import android.icu.util.TimeZone
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.DrawMode
@@ -33,6 +31,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @RunWith(ComplicationsTestRunner::class)
 public class CanvasComplicationDrawableTest {
@@ -43,7 +43,8 @@ public class CanvasComplicationDrawableTest {
     private val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
     private val bounds = Rect(0, 0, 100, 100)
     private val canvas = Canvas(bitmap)
-    private val calendar = Calendar.getInstance(TimeZone.GMT_ZONE)
+    private val zonedDateTime =
+        ZonedDateTime.ofInstant(Instant.ofEpochMilli(1234), ZoneId.of("UTC"))
     private val canvasComplicationDrawable = CanvasComplicationDrawable(
         complicationDrawable,
         watchState.asWatchState(),
@@ -56,7 +57,7 @@ public class CanvasComplicationDrawableTest {
         canvasComplicationDrawable.render(
             canvas,
             bounds,
-            calendar,
+            zonedDateTime,
             RenderParameters(
                 DrawMode.AMBIENT,
                 setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
@@ -70,7 +71,7 @@ public class CanvasComplicationDrawableTest {
         canvasComplicationDrawable.render(
             canvas,
             bounds,
-            calendar,
+            zonedDateTime,
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
@@ -87,7 +88,7 @@ public class CanvasComplicationDrawableTest {
         canvasComplicationDrawable.render(
             canvas,
             bounds,
-            calendar,
+            zonedDateTime,
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
@@ -101,11 +102,10 @@ public class CanvasComplicationDrawableTest {
 
     @Test
     public fun render_currentTimeMillis() {
-        calendar.timeInMillis = 1234
         canvasComplicationDrawable.render(
             canvas,
             bounds,
-            calendar,
+            zonedDateTime,
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
@@ -126,20 +126,31 @@ public class CanvasComplicationDrawableTest {
             mapOf(slotId to TapEvent(50, 50, Instant.ofEpochMilli(1100)))
         )
 
-        calendar.timeInMillis = 1099
-        canvasComplicationDrawable.render(canvas, bounds, calendar, renderParameters, slotId)
+        val t1099 = ZonedDateTime.ofInstant(Instant.ofEpochMilli(1099), ZoneId.of("UTC"))
+        canvasComplicationDrawable.render(canvas, bounds, t1099, renderParameters, slotId)
         assertThat(complicationDrawable.isHighlighted).isFalse()
 
-        calendar.timeInMillis = 1100
-        canvasComplicationDrawable.render(canvas, bounds, calendar, renderParameters, slotId)
+        val t1100 = ZonedDateTime.ofInstant(Instant.ofEpochMilli(1100), ZoneId.of("UTC"))
+        canvasComplicationDrawable.render(canvas, bounds, t1100, renderParameters, slotId)
         assertThat(complicationDrawable.isHighlighted).isTrue()
 
-        calendar.timeInMillis = 1099 + CanvasComplicationDrawable.COMPLICATION_HIGHLIGHT_DURATION_MS
-        canvasComplicationDrawable.render(canvas, bounds, calendar, renderParameters, slotId)
+        val t1099_plus = ZonedDateTime.ofInstant(
+            Instant.ofEpochMilli(
+                1099 + CanvasComplicationDrawable.COMPLICATION_HIGHLIGHT_DURATION_MS
+            ),
+            ZoneId.of("UTC")
+        )
+
+        canvasComplicationDrawable.render(canvas, bounds, t1099_plus, renderParameters, slotId)
         assertThat(complicationDrawable.isHighlighted).isTrue()
 
-        calendar.timeInMillis = 1100 + CanvasComplicationDrawable.COMPLICATION_HIGHLIGHT_DURATION_MS
-        canvasComplicationDrawable.render(canvas, bounds, calendar, renderParameters, slotId)
+        val t1100_plus = ZonedDateTime.ofInstant(
+            Instant.ofEpochMilli(
+                1100 + CanvasComplicationDrawable.COMPLICATION_HIGHLIGHT_DURATION_MS
+            ),
+            ZoneId.of("UTC")
+        )
+        canvasComplicationDrawable.render(canvas, bounds, t1100_plus, renderParameters, slotId)
         assertThat(complicationDrawable.isHighlighted).isFalse()
     }
 }

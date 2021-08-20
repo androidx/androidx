@@ -16,7 +16,7 @@
 
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.icu.util.Calendar
+
 import android.view.SurfaceHolder
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.ComplicationSlotsManager
@@ -35,6 +35,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.mockito.Mockito
 import java.time.Instant
+import java.time.ZonedDateTime
 
 private val REFERENCE_PREVIEW_TIME = Instant.ofEpochMilli(123456L)
 
@@ -49,9 +50,9 @@ private class FakeRenderer(
     CanvasType.SOFTWARE,
     16
 ) {
-    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+    override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
-    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 }
 
 private class TestAsyncListenableWatchFaceService :

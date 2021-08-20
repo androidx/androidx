@@ -27,8 +27,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
-import android.icu.util.Calendar
-import android.icu.util.TimeZone
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -78,7 +76,6 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.fail
@@ -92,6 +89,8 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -153,7 +152,7 @@ internal class SimpleDigitalWatchFaceRenderer(
     }
     val mTimeText = TEST_TIME
 
-    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         mPaint.color = Color.BLACK
         canvas.drawRect(bounds, mPaint)
         mPaint.color = Color.WHITE
@@ -167,7 +166,7 @@ internal class SimpleDigitalWatchFaceRenderer(
         )
     }
 
-    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         renderParameters.highlightLayer?.backgroundTint?.let { canvas.drawColor(it) }
     }
 
@@ -327,6 +326,7 @@ public class WatchFaceServiceImageTest {
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
             100000,
+            ZoneId.of("UTC"),
             surfaceHolder,
             true, // Not direct boot.
             null
@@ -345,11 +345,6 @@ public class WatchFaceServiceImageTest {
 
         engineWrapper =
             canvasAnalogWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.uiThreadCoroutineScope.launch {
-            // Set the timezone so it doesn't matter where the bots are running.
-            engineWrapper.deferredWatchFaceImpl.await().calendar.timeZone =
-                TimeZone.getTimeZone("UTC")
-        }
     }
 
     private fun initControllableWatchFace() {
@@ -383,11 +378,6 @@ public class WatchFaceServiceImageTest {
 
         engineWrapper =
             testControllableWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.uiThreadCoroutineScope.launch {
-            // Set the timezone so it doesn't matter where the bots are running.
-            engineWrapper.deferredWatchFaceImpl.await().calendar.timeZone =
-                TimeZone.getTimeZone("UTC")
-        }
     }
 
     private fun initGles2WatchFace() {
@@ -395,6 +385,7 @@ public class WatchFaceServiceImageTest {
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
             100000,
+            ZoneId.of("UTC"),
             surfaceHolder,
             null
         )
@@ -408,11 +399,6 @@ public class WatchFaceServiceImageTest {
         setPendingWallpaperInteractiveWatchFaceInstance()
 
         engineWrapper = glesWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.uiThreadCoroutineScope.launch {
-            // Set the timezone so it doesn't matter where the bots are running.
-            engineWrapper.deferredWatchFaceImpl.await().calendar.timeZone =
-                TimeZone.getTimeZone("UTC")
-        }
     }
 
     private fun setPendingWallpaperInteractiveWatchFaceInstance() {
@@ -842,6 +828,7 @@ public class WatchFaceServiceImageTest {
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
             100000,
+            ZoneId.of("UTC"),
             surfaceHolder,
             false, // Direct boot.
             WallpaperInteractiveWatchFaceInstanceParams(

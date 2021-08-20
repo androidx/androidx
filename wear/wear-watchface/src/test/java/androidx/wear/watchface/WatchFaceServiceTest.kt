@@ -22,6 +22,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Insets
 import android.graphics.Rect
 import android.graphics.RectF
@@ -123,6 +124,7 @@ public class WatchFaceServiceTest {
 
     init {
         `when`(surfaceHolder.surfaceFrame).thenReturn(ONE_HUNDRED_BY_ONE_HUNDRED_RECT)
+        `when`(surfaceHolder.lockHardwareCanvas()).thenReturn(Canvas())
     }
 
     private companion object {
@@ -630,7 +632,7 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun onDraw_calendar_setFromSystemTime() {
+    public fun onDraw_zonedDateTime_setFromSystemTime() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -640,11 +642,11 @@ public class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
         watchFaceImpl.onDraw()
-        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1000L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
     }
 
     @Test
-    public fun onDraw_calendar_affectedCorrectly_with2xMockTime() {
+    public fun onDraw_zonedDateTime_affectedCorrectly_with2xMockTime() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -663,16 +665,16 @@ public class WatchFaceServiceTest {
 
         // Time should not diverge initially.
         watchFaceImpl.onDraw()
-        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1000L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
 
         // However 1000ms of real time should result in 2000ms observed by onDraw.
         testWatchFaceService.mockSystemTimeMillis = 2000L
         watchFaceImpl.onDraw()
-        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(3000L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(3000L)
     }
 
     @Test
-    public fun onDraw_calendar_affectedCorrectly_withMockTimeWrapping() {
+    public fun onDraw_zonedDateTime_affectedCorrectly_withMockTimeWrapping() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -692,31 +694,31 @@ public class WatchFaceServiceTest {
 
         // Time in millis observed by onDraw should wrap betwween 1000 and 2000.
         watchFaceImpl.onDraw()
-        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1000L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
 
         testWatchFaceService.mockSystemTimeMillis = 1250L
         watchFaceImpl.onDraw()
-        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1500L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1500L)
 
         testWatchFaceService.mockSystemTimeMillis = 1499L
         watchFaceImpl.onDraw()
-        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1998L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1998L)
 
         testWatchFaceService.mockSystemTimeMillis = 1500L
         watchFaceImpl.onDraw()
-        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1000L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
 
         testWatchFaceService.mockSystemTimeMillis = 1750L
         watchFaceImpl.onDraw()
-        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1500L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1500L)
 
         testWatchFaceService.mockSystemTimeMillis = 1999L
         watchFaceImpl.onDraw()
-        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1998L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1998L)
 
         testWatchFaceService.mockSystemTimeMillis = 2000L
         watchFaceImpl.onDraw()
-        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1000L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
     }
 
     private fun tapAt(x: Int, y: Int) {

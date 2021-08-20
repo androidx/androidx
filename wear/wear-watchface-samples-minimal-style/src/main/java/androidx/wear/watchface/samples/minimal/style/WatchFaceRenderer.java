@@ -21,7 +21,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Rect;
-import android.icu.util.Calendar;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
@@ -35,6 +34,7 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -68,13 +68,14 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
     }
 
     @Override
-    public void render(@NotNull Canvas canvas, @NotNull Rect rect, @NotNull Calendar calendar) {
-        mTimeRenderer.render(canvas, rect, calendar, getRenderParameters());
+    public void render(@NotNull Canvas canvas, @NotNull Rect rect,
+            @NotNull ZonedDateTime zonedDateTime) {
+        mTimeRenderer.render(canvas, rect, zonedDateTime, getRenderParameters());
     }
 
     @Override
     public void renderHighlightLayer(@NonNull Canvas canvas, @NonNull Rect bounds,
-            @NonNull Calendar calendar) {
+            @NonNull ZonedDateTime zonedDateTime) {
         RenderParameters.HighlightLayer highlightLayer = getRenderParameters().getHighlightLayer();
         canvas.drawColor(highlightLayer.getBackgroundTint());
         mHighlightPaint.setColor(highlightLayer.getHighlightTint());
@@ -96,7 +97,7 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
 
     private interface TimeRenderer {
         void render(
-                @NotNull Canvas canvas, @NotNull Rect rect, @NotNull Calendar calendar,
+                @NotNull Canvas canvas, @NotNull Rect rect, @NotNull ZonedDateTime zonedDateTime,
                 RenderParameters renderParameters);
     }
 
@@ -114,14 +115,14 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
 
         @Override
         public void render(
-                @NotNull Canvas canvas, @NotNull Rect rect, @NotNull Calendar calendar,
+                @NotNull Canvas canvas, @NotNull Rect rect, @NotNull ZonedDateTime zonedDateTime,
                 RenderParameters renderParameters) {
             mPaint.setColor(Color.BLACK);
             canvas.drawRect(rect, mPaint);
             mPaint.setColor(Color.WHITE);
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-            int second = calendar.get(Calendar.SECOND);
+            int hour = zonedDateTime.getHour() % 12;
+            int minute = zonedDateTime.getMinute();
+            int second = zonedDateTime.getSecond();
             mTimeText[0] = DIGITS[hour / 10];
             mTimeText[1] = DIGITS[hour % 10];
             mTimeText[2] = second % 2 == 0 ? ':' : ' ';
@@ -185,12 +186,12 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
 
         @Override
         public void render(
-                @NotNull Canvas canvas, @NotNull Rect rect, @NotNull Calendar calendar,
+                @NotNull Canvas canvas, @NotNull Rect rect, @NotNull ZonedDateTime zonedDateTime,
                 RenderParameters renderParameters) {
             boolean isActive = renderParameters.getDrawMode() != DrawMode.AMBIENT;
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-            int second = calendar.get(Calendar.SECOND);
+            int hour = zonedDateTime.getHour() % 12;
+            int minute = zonedDateTime.getMinute();
+            int second = zonedDateTime.getSecond();
 
             if (isActive) {
                 mPaint.setColor(Color.rgb(64 + 192 * second / 60, 0, 0));

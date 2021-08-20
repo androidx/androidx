@@ -20,7 +20,6 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
-import android.icu.util.Calendar
 import android.os.Bundle
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
@@ -39,6 +38,7 @@ import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.RenderParameters.HighlightedElement
 import java.time.Instant
+import java.time.ZonedDateTime
 
 /**
  * Interface for rendering complicationSlots onto a [Canvas]. These should be created by
@@ -70,7 +70,7 @@ public interface CanvasComplication {
      *
      * @param canvas The [Canvas] to render into
      * @param bounds A [Rect] describing the bounds of the complication
-     * @param calendar The current [Calendar]
+     * @param zonedDateTime The [ZonedDateTime] to render with
      * @param renderParameters The current [RenderParameters]
      * @param slotId The Id of the [ComplicationSlot] being rendered
      */
@@ -78,7 +78,7 @@ public interface CanvasComplication {
     public fun render(
         canvas: Canvas,
         bounds: Rect,
-        calendar: Calendar,
+        zonedDateTime: ZonedDateTime,
         renderParameters: RenderParameters,
         slotId: Int
     )
@@ -91,14 +91,14 @@ public interface CanvasComplication {
      * @param canvas The [Canvas] to render into
      * @param bounds A [Rect] describing the bounds of the complication
      * @param boundsType The [ComplicationSlotBoundsType] of the complication
-     * @param calendar The current [Calendar]
+     * @param zonedDateTime The [ZonedDateTime] to render the highlight with
      * @param color The color to render the highlight with
      */
     public fun drawHighlight(
         canvas: Canvas,
         bounds: Rect,
         @ComplicationSlotBoundsType boundsType: Int,
-        calendar: Calendar,
+        zonedDateTime: ZonedDateTime,
         @ColorInt color: Int
     )
 
@@ -619,17 +619,17 @@ public class ComplicationSlot internal constructor(
      * Watch faces should use this method to render a complication. Note the system may call this.
      *
      * @param canvas The [Canvas] to render into
-     * @param calendar The current [Calendar]
+     * @param zonedDateTime The [ZonedDateTime] to render with
      * @param renderParameters The current [RenderParameters]
      */
     @UiThread
     public fun render(
         canvas: Canvas,
-        calendar: Calendar,
+        zonedDateTime: ZonedDateTime,
         renderParameters: RenderParameters
     ) {
         val bounds = computeBounds(Rect(0, 0, canvas.width, canvas.height))
-        renderer.render(canvas, bounds, calendar, renderParameters, id)
+        renderer.render(canvas, bounds, zonedDateTime, renderParameters, id)
     }
 
     /**
@@ -637,13 +637,13 @@ public class ComplicationSlot internal constructor(
      * layer pass. Note the system may call this.
      *
      * @param canvas The [Canvas] to render into
-     * @param calendar The current [Calendar]
+     * @param zonedDateTime The [ZonedDateTime] to render with
      * @param renderParameters The current [RenderParameters]
      */
     @UiThread
     public fun renderHighlightLayer(
         canvas: Canvas,
-        calendar: Calendar,
+        zonedDateTime: ZonedDateTime,
         renderParameters: RenderParameters
     ) {
         // It's only sensible to render a highlight for non-fixed ComplicationSlots because you
@@ -659,7 +659,7 @@ public class ComplicationSlot internal constructor(
                     canvas,
                     bounds,
                     boundsType,
-                    calendar,
+                    zonedDateTime,
                     renderParameters.highlightLayer.highlightTint
                 )
             }
@@ -670,7 +670,7 @@ public class ComplicationSlot internal constructor(
                         canvas,
                         bounds,
                         boundsType,
-                        calendar,
+                        zonedDateTime,
                         renderParameters.highlightLayer.highlightTint
                     )
                 }

@@ -27,7 +27,6 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
-import android.icu.util.Calendar
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -113,6 +112,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
 import java.time.Instant
+import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.MILLISECONDS
@@ -255,7 +255,7 @@ public class TestHeadlessWatchFaceService : WatchFaceService() {
             CanvasType.SOFTWARE,
             100
         ) {
-            override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
                 when (currentUserStyleRepository.userStyle[colorStyleSetting]!!) {
                     redStyleOption -> canvas.drawColor(Color.RED)
                     greenStyleOption -> canvas.drawColor(Color.GREEN)
@@ -263,7 +263,11 @@ public class TestHeadlessWatchFaceService : WatchFaceService() {
                 }
             }
 
-            override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {
                 // NOP
             }
         }
@@ -2082,12 +2086,16 @@ public class EditorSessionTest {
                         watchState, CanvasType.SOFTWARE,
                         16
                     ) {
-                        override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+                        override fun render(
+                            canvas: Canvas,
+                            bounds: Rect,
+                            zonedDateTime: ZonedDateTime
+                        ) {}
 
                         override fun renderHighlightLayer(
                             canvas: Canvas,
                             bounds: Rect,
-                            calendar: Calendar
+                            zonedDateTime: ZonedDateTime
                         ) {
                         }
                     }
@@ -2096,7 +2104,6 @@ public class EditorSessionTest {
                 watchState,
                 currentUserStyleRepository,
                 ComplicationSlotsManager(emptyList(), currentUserStyleRepository),
-                Calendar.getInstance(),
                 BroadcastsObserver(
                     watchState,
                     mockWatchFaceHostApi,

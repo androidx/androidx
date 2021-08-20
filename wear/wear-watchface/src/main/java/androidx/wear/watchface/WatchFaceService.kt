@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.icu.util.Calendar
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -1357,7 +1356,6 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 complicationSlotsManager.watchState = watchState
 
-                val calendar = Calendar.getInstance()
                 val deferredWatchFace = CompletableDeferred<WatchFace>()
                 val initStyleAndComplicationsDone = CompletableDeferred<Unit>()
 
@@ -1366,7 +1364,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 // createWatchFace.
                 uiThreadCoroutineScope.launch {
                     createWatchFaceImpl(
-                        calendar,
                         complicationSlotsManager,
                         currentUserStyleRepository,
                         deferredWatchFace,
@@ -1441,7 +1438,6 @@ public abstract class WatchFaceService : WallpaperService() {
          */
         @UiThread
         private suspend fun createWatchFaceImpl(
-            calendar: Calendar,
             complicationSlotsManager: ComplicationSlotsManager,
             currentUserStyleRepository: CurrentUserStyleRepository,
             deferredWatchFace: CompletableDeferred<WatchFace>,
@@ -1481,7 +1477,6 @@ public abstract class WatchFaceService : WallpaperService() {
                     watchState,
                     currentUserStyleRepository,
                     complicationSlotsManager,
-                    calendar,
                     broadcastsObserver,
                     broadcastsReceiver
                 )

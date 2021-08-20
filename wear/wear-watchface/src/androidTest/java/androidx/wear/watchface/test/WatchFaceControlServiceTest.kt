@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.icu.util.Calendar
 import android.os.Build
 import android.support.wearable.watchface.SharedMemoryImage
 import android.view.SurfaceHolder
@@ -67,6 +66,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.ZonedDateTime
 
 // This service constructs a WatchFace with a task that's posted on the UI thread.
 internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
@@ -87,12 +87,12 @@ internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
                 CanvasType.SOFTWARE,
                 16
             ) {
-                override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    calendar: Calendar
+                    zonedDateTime: ZonedDateTime
                 ) {}
             }
         )

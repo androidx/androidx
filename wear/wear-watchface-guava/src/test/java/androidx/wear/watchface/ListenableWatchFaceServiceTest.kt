@@ -18,7 +18,6 @@ package androidx.wear.watchface
 
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -34,6 +33,7 @@ import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
 import java.time.Instant
+import java.time.ZonedDateTime
 
 private val REFERENCE_PREVIEW_TIME = Instant.ofEpochMilli(123456L)
 
@@ -54,12 +54,16 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
                     CanvasType.SOFTWARE,
                     16
                 ) {
-                    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+                    override fun render(
+                        canvas: Canvas,
+                        bounds: Rect,
+                        zonedDateTime: ZonedDateTime
+                    ) {}
 
                     override fun renderHighlightLayer(
                         canvas: Canvas,
                         bounds: Rect,
-                        calendar: Calendar
+                        zonedDateTime: ZonedDateTime
                     ) {}
                 }
             ).apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
