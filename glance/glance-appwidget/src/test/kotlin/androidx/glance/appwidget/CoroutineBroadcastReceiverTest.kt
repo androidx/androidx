@@ -26,7 +26,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import org.junit.Test
@@ -45,15 +45,20 @@ class CoroutineBroadcastReceiverTest {
 
     private class TestBroadcast : BroadcastReceiver() {
         val extraValue = AtomicReference("")
-        val job = AtomicReference<Job>()
         val broadcastExecuted = CountDownLatch(1)
+        val scopeCancelled = CountDownLatch(1)
 
         override fun onReceive(context: Context, intent: Intent) {
             goAsync {
                 extraValue.set(intent.getStringExtra(EXTRA_STRING))
                 launch {
-                    awaitCancellation()
-                }.also { job.set(it) }
+                    try {
+                        awaitCancellation()
+                    } catch (ex: CancellationException) {
+                        scopeCancelled.countDown()
+                        throw ex
+                    }
+                }
                 broadcastExecuted.countDown()
             }
         }
@@ -75,8 +80,10 @@ class CoroutineBroadcastReceiverTest {
         assertWithMessage("Broadcast receiver did not execute")
             .that(broadcastReceiver.broadcastExecuted.await(1, TimeUnit.SECONDS))
             .isTrue()
+        assertWithMessage("Coroutine scope did not get cancelled")
+            .that(broadcastReceiver.scopeCancelled.await(1, TimeUnit.SECONDS))
+            .isTrue()
         assertThat(broadcastReceiver.extraValue.get()).isEqualTo(value)
-        assertThat(broadcastReceiver.job.get().isCancelled).isTrue()
     }
 
     private companion object {
