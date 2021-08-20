@@ -16,6 +16,7 @@
 
 package androidx.fragment.lint
 
+import androidx.fragment.lint.stubs.DIALOG_FRAGMENT
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
@@ -181,24 +182,21 @@ src/foo/TestFragment.java:16: Warning: Use of LayoutInflater.from(requireContext
 
     @Test
     fun `java expect clean non dialog fragment`() {
-        lint().files(fragmentStubJava)
-            .allowCompilationErrors(true) // b/193540422
+        lint().files(fragmentStubJava, DIALOG_FRAGMENT)
             .run()
             .expectClean()
     }
 
     @Test
     fun `java expect clean dialog fragment`() {
-        lint().files(dialogFragmentCorrectImplementationStubJava)
-            .allowCompilationErrors(true) // b/193540422
+        lint().files(dialogFragmentCorrectImplementationStubJava, DIALOG_FRAGMENT)
             .run()
             .expectClean()
     }
 
     @Test
     fun `kotlin expect fail dialog fragment`() {
-        lint().files(dialogFragmentStubKotlin)
-            .allowCompilationErrors(true) // b/193540422
+        lint().files(dialogFragmentStubKotlin, DIALOG_FRAGMENT)
             .run()
             .expect(
                 """
@@ -213,16 +211,14 @@ src/foo/TestFragment.kt:13: Warning: Use of LayoutInflater.from(Context) detecte
 
     @Test
     fun `kotlin expect clean non dialog fragment`() {
-        lint().files(fragmentStubKotlin)
-            .allowCompilationErrors(true) // b/193540422
+        lint().files(fragmentStubKotlin, DIALOG_FRAGMENT)
             .run()
             .expectClean()
     }
 
     @Test
     fun `kotlin expect clean dialog fragment`() {
-        lint().files(dialogFragmentCorrectImplementationStubKotlin)
-            .allowCompilationErrors(true) // b/193540422
+        lint().files(dialogFragmentCorrectImplementationStubKotlin, DIALOG_FRAGMENT)
             .run()
             .expectClean()
     }
