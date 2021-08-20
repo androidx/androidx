@@ -14,6 +14,7 @@ android {
 
 dependencies {
     api(project(":lifecycle:lifecycle-common"))
+
     api("androidx.arch.core:core-common:2.1.0")
     // necessary for IJ to resolve dependencies.
     api("androidx.annotation:annotation:1.1.0")

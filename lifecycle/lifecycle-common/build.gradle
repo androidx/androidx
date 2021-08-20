@@ -27,6 +27,10 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-common-java8"))
+    }
 }
 
 androidx {
