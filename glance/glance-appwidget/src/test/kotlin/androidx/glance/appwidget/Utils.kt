@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 @OptIn(GlanceInternalApi::class)
 internal suspend fun runTestingComposition(content: @Composable () -> Unit): RemoteViewsRoot =
     coroutineScope {
-        val root = RemoteViewsRoot()
+        val root = RemoteViewsRoot(10)
         val applier = Applier(root)
         val recomposer = Recomposer(currentCoroutineContext())
         val composition = Composition(applier, recomposer)

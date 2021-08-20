@@ -18,8 +18,12 @@
 package androidx.glance
 
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
+import java.lang.IllegalArgumentException
+import kotlin.test.assertFailsWith
 
+@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
 class ApplierTest {
 
     @Test
@@ -86,6 +90,24 @@ class ApplierTest {
         assertThat(root.children[0]).isInstanceOf(LeafEmittable::class.java)
     }
 
+    @Test
+    fun limitDepth() {
+        val root = RootEmittable(maxDepth = 1)
+        val applier = Applier(root)
+
+        applier.insertTopDown(0, LeafEmittable())
+        val m = MiddleEmittable()
+        applier.insertTopDown(1, m)
+        applier.down(m)
+        val ex = assertFailsWith<IllegalArgumentException> {
+            applier.insertTopDown(0, LeafEmittable())
+        }
+        assertThat(ex.message).isEqualTo(
+            "Too many embedded views for the current surface. " +
+                "The maximum depth is: 1"
+        )
+    }
+
     private companion object {
         fun updateApplier(applier: Applier) {
             val middle = MiddleEmittable()
@@ -98,7 +120,7 @@ class ApplierTest {
     }
 }
 
-private class RootEmittable : EmittableWithChildren() {
+private class RootEmittable(maxDepth: Int = Int.MAX_VALUE) : EmittableWithChildren(maxDepth) {
     override var modifier: Modifier = Modifier
 }
 

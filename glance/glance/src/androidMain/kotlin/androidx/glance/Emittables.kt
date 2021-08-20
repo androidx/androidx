@@ -22,7 +22,9 @@ public interface Emittable {
 }
 
 @GlanceInternalApi
-public abstract class EmittableWithChildren : Emittable {
+public abstract class EmittableWithChildren(
+    internal var maxDepth: Int = Int.MAX_VALUE
+) : Emittable {
     public val children: MutableList<Emittable> = mutableListOf<Emittable>()
 
     protected fun childrenToString(): String =

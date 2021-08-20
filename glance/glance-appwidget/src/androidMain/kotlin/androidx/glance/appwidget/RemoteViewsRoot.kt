@@ -21,6 +21,10 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 
-internal class RemoteViewsRoot : EmittableWithChildren() {
+/**
+ * Root view, with a maximum depth. No default value is specified, as the exact value depends on
+ * specific circumstances.
+ */
+internal class RemoteViewsRoot(maxDepth: Int) : EmittableWithChildren(maxDepth) {
     override var modifier: Modifier = Modifier
 }
