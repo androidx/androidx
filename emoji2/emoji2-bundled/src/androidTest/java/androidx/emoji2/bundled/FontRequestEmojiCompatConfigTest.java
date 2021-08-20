@@ -43,9 +43,8 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.ContentObserver;
+import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.HandlerThread;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -72,6 +71,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @LargeTest
@@ -199,6 +200,7 @@ public class FontRequestEmojiCompatConfigTest {
         };
         doReturn(new FontFamilyResult(STATUS_OK, fonts)).when(mFontProviderHelper).fetchFonts(
                 any(Context.class), any(FontRequest.class));
+        doReturn(mock(Typeface.class)).when(mFontProviderHelper).buildTypeface(any(), any());
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
         final TestFontRequestEmojiCompatConfig config =
                 new TestFontRequestEmojiCompatConfig(mContext, mFontRequest, mFontProviderHelper);
@@ -273,14 +275,11 @@ public class FontRequestEmojiCompatConfigTest {
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
         final WaitingRetryPolicy retryPolicy = spy(new WaitingRetryPolicy(500, 1));
 
-        HandlerThread thread = new HandlerThread("testThread");
-        thread.start();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         try {
-            Handler handler = new Handler(thread.getLooper());
-
             final TestFontRequestEmojiCompatConfig config = new TestFontRequestEmojiCompatConfig(
                     mContext, mFontRequest, mFontProviderHelper);
-            config.setHandler(handler).setRetryPolicy(retryPolicy);
+            config.setLoadingExecutor(executor).setRetryPolicy(retryPolicy);
 
             config.loadForTests(callback);
             retryPolicy.await(DEFAULT_TIMEOUT_MILLIS);
@@ -289,7 +288,7 @@ public class FontRequestEmojiCompatConfigTest {
             verify(retryPolicy, atLeastOnce()).getRetryDelay();
 
             // To avoid race condition, change the fetchFonts result on the handler thread.
-            handler.post(new Runnable() {
+            executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -311,7 +310,7 @@ public class FontRequestEmojiCompatConfigTest {
             verify(callback, never()).onLoaded(any(MetadataRepo.class));
             verify(callback, times(1)).onFailed(any(Throwable.class));
         } finally {
-            thread.quit();
+            executor.shutdown();
         }
     }
 
@@ -327,17 +326,15 @@ public class FontRequestEmojiCompatConfigTest {
         };
         doReturn(new FontFamilyResult(STATUS_OK, fonts)).when(mFontProviderHelper).fetchFonts(
                 any(Context.class), any(FontRequest.class));
+        doReturn(mock(Typeface.class)).when(mFontProviderHelper).buildTypeface(any(), any());
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
         final WaitingRetryPolicy retryPolicy = spy(new WaitingRetryPolicy(500, 1));
 
-        HandlerThread thread = new HandlerThread("testThread");
-        thread.start();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         try {
-            Handler handler = new Handler(thread.getLooper());
-
             final TestFontRequestEmojiCompatConfig config = new TestFontRequestEmojiCompatConfig(
                     mContext, mFontRequest, mFontProviderHelper);
-            config.setHandler(handler).setRetryPolicy(retryPolicy);
+            config.setLoadingExecutor(executor).setRetryPolicy(retryPolicy);
 
             config.loadForTests(callback);
             retryPolicy.await(DEFAULT_TIMEOUT_MILLIS);
@@ -351,7 +348,7 @@ public class FontRequestEmojiCompatConfigTest {
             };
 
             // To avoid race condition, change the fetchFonts result on the handler thread.
-            handler.post(new Runnable() {
+            executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -368,7 +365,7 @@ public class FontRequestEmojiCompatConfigTest {
             verify(callback, times(1)).onLoaded(any(MetadataRepo.class));
             verify(callback, never()).onFailed(any(Throwable.class));
         } finally {
-            thread.quit();
+            executor.shutdown();
         }
     }
 
@@ -383,16 +380,15 @@ public class FontRequestEmojiCompatConfigTest {
         };
         doReturn(new FontFamilyResult(STATUS_OK, fonts)).when(mFontProviderHelper).fetchFonts(
                 any(Context.class), any(FontRequest.class));
+        doReturn(mock(Typeface.class)).when(mFontProviderHelper).buildTypeface(any(), any());
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
         final WaitingRetryPolicy retryPolicy = spy(new WaitingRetryPolicy(500, 2));
 
-        HandlerThread thread = new HandlerThread("testThread");
-        thread.start();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         try {
-            Handler handler = new Handler(thread.getLooper());
             final TestFontRequestEmojiCompatConfig config = new TestFontRequestEmojiCompatConfig(
                     mContext, mFontRequest, mFontProviderHelper);
-            config.setHandler(handler).setRetryPolicy(retryPolicy);
+            config.setLoadingExecutor(executor).setRetryPolicy(retryPolicy);
 
             ArgumentCaptor<ContentObserver> observerCaptor =
                     ArgumentCaptor.forClass(ContentObserver.class);
@@ -413,7 +409,7 @@ public class FontRequestEmojiCompatConfigTest {
                     mFontProviderHelper).fetchFonts(any(Context.class), any(FontRequest.class));
 
             final ContentObserver observer = observerCaptor.getValue();
-            handler.post(new Runnable() {
+            executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     observer.onChange(false /* self change */, uri);
@@ -424,7 +420,7 @@ public class FontRequestEmojiCompatConfigTest {
             verify(callback, times(1)).onLoaded(any(MetadataRepo.class));
             verify(callback, never()).onFailed(any(Throwable.class));
         } finally {
-            thread.quit();
+            executor.shutdown();
         }
     }
 
@@ -439,16 +435,15 @@ public class FontRequestEmojiCompatConfigTest {
         };
         doReturn(new FontFamilyResult(STATUS_OK, fonts)).when(mFontProviderHelper).fetchFonts(
                 any(Context.class), any(FontRequest.class));
+        doReturn(mock(Typeface.class)).when(mFontProviderHelper).buildTypeface(any(), any());
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
         final WaitingRetryPolicy retryPolicy = spy(new WaitingRetryPolicy(500, 2));
 
-        HandlerThread thread = new HandlerThread("testThread");
-        thread.start();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         try {
-            Handler handler = new Handler(thread.getLooper());
             final TestFontRequestEmojiCompatConfig config = new TestFontRequestEmojiCompatConfig(
                     mContext, mFontRequest, mFontProviderHelper);
-            config.setRetryPolicy(retryPolicy).setHandler(handler);
+            config.setRetryPolicy(retryPolicy).setLoadingExecutor(executor);
 
             ArgumentCaptor<ContentObserver> observerCaptor =
                     ArgumentCaptor.forClass(ContentObserver.class);
@@ -469,7 +464,7 @@ public class FontRequestEmojiCompatConfigTest {
                     mFontProviderHelper).fetchFonts(any(Context.class), any(FontRequest.class));
 
             final ContentObserver observer = observerCaptor.getValue();
-            handler.post(new Runnable() {
+            executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     observer.onChange(false /* self change */, uri);
@@ -480,7 +475,7 @@ public class FontRequestEmojiCompatConfigTest {
             verify(callback, never()).onLoaded(any(MetadataRepo.class));
             verify(callback, times(1)).onFailed(any(Throwable.class));
         } finally {
-            thread.quit();
+            executor.shutdown();
         }
     }
 
