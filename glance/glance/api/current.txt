@@ -140,6 +140,8 @@ package androidx.glance.layout {
 
   public final inline class FontWeight {
     ctor public FontWeight();
+    method public int getValue();
+    property public final int value;
   }
 
   public static final class FontWeight.Companion {

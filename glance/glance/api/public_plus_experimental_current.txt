@@ -31,7 +31,7 @@ package androidx.glance {
     property public final java.util.List<androidx.glance.Emittable> children;
   }
 
-  @kotlin.RequiresOptIn(message="This API is used for the implementation of androidx.glance, and should " + "not be used by API consumers.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface GlanceInternalApi {
+  @kotlin.RequiresOptIn(message="This API is used for the implementation of androidx.glance, and should " + "not be used by API consumers.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface GlanceInternalApi {
   }
 
   @androidx.compose.runtime.Stable public interface Modifier {
@@ -232,6 +232,8 @@ package androidx.glance.layout {
 
   public final inline class FontWeight {
     ctor public FontWeight();
+    method public int getValue();
+    property public final int value;
   }
 
   public static final class FontWeight.Companion {
