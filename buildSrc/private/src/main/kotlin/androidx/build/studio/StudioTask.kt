@@ -198,7 +198,8 @@ abstract class StudioTask : DefaultTask() {
                 // This environment variable is read by AndroidXRootPlugin to ensure that
                 // Studio-initiated Gradle tasks are run against the same version of AGP that was
                 // used to start Studio, which prevents version mismatch after repo sync.
-                "EXPECTED_AGP_VERSION" to ANDROID_GRADLE_PLUGIN_VERSION
+                "EXPECTED_AGP_VERSION" to ANDROID_GRADLE_PLUGIN_VERSION,
+                "ALLOW_PUBLIC_REPOS" to "true"
             )
 
             // Append to the existing environment variables set by gradlew and the user.
