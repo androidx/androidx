@@ -18,6 +18,11 @@ package androidx.glance {
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.Modifier.Element,? super R,? extends R> operation);
   }
 
+  public final class CompositionLocalsKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.unit.DpSize> getLocalSize();
+  }
+
   @androidx.glance.GlanceInternalApi public interface Emittable {
     method public androidx.glance.Modifier getModifier();
     method public void setModifier(androidx.glance.Modifier modifier);

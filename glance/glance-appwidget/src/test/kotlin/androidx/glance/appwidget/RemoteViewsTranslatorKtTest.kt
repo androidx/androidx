@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Typeface
 import android.os.Build
-import android.os.Parcel
 import android.text.SpannedString
 import android.text.TextUtils
 import android.text.style.StrikethroughSpan
@@ -30,7 +29,6 @@ import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -80,7 +78,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateBox() = fakeCoroutineScope.runBlockingTest {
         val rv = runAndTranslate { Box {} }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
         assertThat(view.childCount).isEqualTo(0)
@@ -91,7 +89,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = runAndTranslate {
             Box(contentAlignment = Alignment.BottomEnd) { }
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
         assertThat(view.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
@@ -105,7 +103,7 @@ class RemoteViewsTranslatorKtTest {
                 Box(contentAlignment = Alignment.BottomEnd) {}
             }
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
         assertThat(view.childCount).isEqualTo(2)
@@ -123,7 +121,7 @@ class RemoteViewsTranslatorKtTest {
             Box(contentAlignment = Alignment.Center) {}
             Box(contentAlignment = Alignment.BottomEnd) {}
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
         assertThat(view.childCount).isEqualTo(2)
@@ -147,7 +145,7 @@ class RemoteViewsTranslatorKtTest {
                 )
             ) { }
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(dpToPixel(4.dp))
@@ -168,7 +166,7 @@ class RemoteViewsTranslatorKtTest {
                 )
             ) { }
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(dpToPixel(5.dp))
@@ -189,7 +187,7 @@ class RemoteViewsTranslatorKtTest {
                 )
             ) { }
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(dpToPixel(4.dp))
@@ -203,7 +201,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = runAndTranslate {
             Text("test")
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<TextView>(view)
         assertThat(view.text.toString()).isEqualTo("test")
@@ -218,7 +216,7 @@ class RemoteViewsTranslatorKtTest {
                 style = TextStyle(fontWeight = FontWeight.Medium, size = 12.sp),
             )
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<TextView>(view)
         assertThat(view.textSize).isEqualTo(spToPixel(12.sp))
@@ -240,7 +238,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = runAndTranslate {
             Text("test", style = TextStyle(textDecoration = TextDecoration.LineThrough))
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<TextView>(view)
         val content = view.text as SpannedString
@@ -253,7 +251,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = runAndTranslate {
             Text("test", style = TextStyle(textDecoration = TextDecoration.Underline))
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<TextView>(view)
         val content = view.text as SpannedString
@@ -267,7 +265,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = runAndTranslate {
             Text("test", style = TextStyle(fontStyle = FontStyle.Italic))
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<TextView>(view)
         val content = view.text as SpannedString
@@ -296,7 +294,7 @@ class RemoteViewsTranslatorKtTest {
                 ),
             )
         }
-        val view = applyRemoteViews(rv)
+        val view = context.applyRemoteViews(rv)
 
         assertIs<TextView>(view)
         val content = view.text as SpannedString
@@ -352,18 +350,6 @@ class RemoteViewsTranslatorKtTest {
             }
         )
         return runAndTranslate(rtlContext, content)
-    }
-
-    private fun applyRemoteViews(rv: RemoteViews): View {
-        val p = Parcel.obtain()
-        return try {
-            rv.writeToParcel(p, 0)
-            p.setDataPosition(0)
-            val parceled = RemoteViews(p)
-            parceled.apply(context, FrameLayout(context))
-        } finally {
-            p.recycle()
-        }
     }
 
     private fun dpToPixel(dp: Dp) =

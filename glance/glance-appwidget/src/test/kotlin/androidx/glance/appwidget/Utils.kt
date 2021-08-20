@@ -16,6 +16,11 @@
 
 package androidx.glance.appwidget
 
+import android.content.Context
+import android.os.Parcel
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.RemoteViews
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
@@ -44,3 +49,16 @@ internal suspend fun runTestingComposition(content: @Composable () -> Unit): Rem
 
         root
     }
+
+/** Create the view out of a RemoteViews. */
+internal fun Context.applyRemoteViews(rv: RemoteViews): View {
+    val p = Parcel.obtain()
+    return try {
+        rv.writeToParcel(p, 0)
+        p.setDataPosition(0)
+        val parceled = RemoteViews(p)
+        parceled.apply(this, FrameLayout(this))
+    } finally {
+        p.recycle()
+    }
+}
