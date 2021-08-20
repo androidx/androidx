@@ -25,63 +25,67 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
- * Parameters to control the scaling of the contents of a [ScalingLazyColumn]. The contents
- * of a [ScalingLazyColumn] are scaled down (made smaller) as they move further from the center
- * of the viewport. This scaling gives a "fisheye" effect with the contents in the center being
- * larger and therefore more prominent.
+ * Parameters to control the scaling of the contents of a [ScalingLazyColumn].
  *
- * Items in the center of the component's viewport will be full sized and with normal transparency.
- * As items move further from the center of the viewport they get smaller and become transparent.
+ * Items in the ScalingLazyColumn have scaling and alpha effects applied to them depending on
+ * their position in the viewport. The closer to the edge (top or bottom) of the viewport that
+ * they are the greater the down scaling and transparency that is applied. Note that scaling and
+ * transparency effects are applied from the center of the viewport (full size and normal
+ * transparency) towards the edge (items can be smaller and more transparent).
  *
- * The scaling parameters allow for larger items to start being scaled closer to the center than
- * smaller items. This allows for larger items to scale over a bigger transition area giving a more
- * visually pleasing effect.
+ * Deciding how much scaling and alpha to apply is based on the position and size of the item
+ * and on a series of properties that are used to determine the transition area for each item.
  *
- * Scaling transitions take place between a transition line and the edge of the screen. The trigger
- * for an item to start being scaled is when its most central edge, the item's edge that is furthest
- * from the screen edge, passing across the item's transition line. The amount of scaling to apply is
- * a function of the how far the item has moved through its transition area. An interpolator is
- * applied to allow for the scaling to follow a bezier curve.
+ * The transition area is defined by the edge of the screen and a transition line which is
+ * calculated for each item in the list. The items transition line is based upon its size with
+ * the potential for larger list items to start their transition earlier (closer to the center)
+ * than smaller items.
  *
- * There are 4 properties that are used to determine an item's scaling transition point.
+ * [minTransitionArea] and [maxTransitionArea] are both in the range [0f..1f] and are
+ * the fraction of the distance between the edge of the viewport and the center of
+ * the viewport. E.g. a value of 0.2f for minTransitionArea and 0.75f for maxTransitionArea
+ * determines that all transition lines will fall between 1/5th (20%) and 3/4s (75%) of the
+ * distance between the viewport edge and center.
  *
- * [maxTransitionArea] and [minTransitionArea] define the range in which all item scaling lines sit.
- * The largest items will start to scale at the [maxTransitionArea] and the smallest items will
- * start to scale at the [minTransitionArea].
+ * The size of the each item is used to determine where within the transition area range
+ * minTransitionArea..maxTransitionArea the actual transition line will be. [minElementHeight]
+ * and [maxElementHeight] are used along with the item height (as a fraction of the viewport
+ * height in the range [0f..1f]) to find the transition line. So if the items size is 0.25f
+ * (25%) of way between minElementSize..maxElementSize then the transition line will be 0.25f
+ * (25%) of the way between minTransitionArea..maxTransitionArea.
  *
- * The [minTransitionArea] and [maxTransitionArea] apply either side of the center line of the
- * viewport creating 2 transition areas one at the top/start the other at the bottom/end.
- * So a [maxTransitionArea] value of 0.6f on a Viewport of size 320 dp will give start transition
- * line for scaling at (320 / 2) * 0.6 = 96 dp from the top/start and bottom/end edges of the
- * viewport. Similarly [minTransitionArea] gives the point at which the scaling transition area
- * ends, e.g. a value of 0.2 with the same 320 dp screen gives an min scaling transition area line
- * of (320 / 2) * 0.2 = 32 dp from top/start and bottom/end. So in this example we have two
- * transition areas in the ranges [32.dp,96.dp] and [224.dp (320.dp-96.d),288.dp (320.dp-32.dp)].
+ * A list item smaller than minElementHeight is rounded up to minElementHeight and larger than
+ * maxElementHeight is rounded down to maxElementHeight. Whereabouts the items height sits
+ * between minElementHeight..maxElementHeight is then used to determine where the transition
+ * line sits between minTransitionArea..maxTransition area.
  *
- * Deciding for a specific content item exactly where its transition line will be within the
- * ([minTransitionArea], [maxTransitionArea]) transition area is determined by its height as a
- * fraction of the viewport height and the properties [minElementHeight] and [maxElementHeight],
- * also defined as a fraction of the viewport height.
+ * If an item is smaller than or equal to minElementSize its transition line with be at
+ * minTransitionArea and if it is larger than or equal to maxElementSize its transition line
+ * will be  at maxTransitionArea.
  *
- * If an item is smaller than [minElementHeight] it is treated as is [minElementHeight] and if
- * larger than [maxElementHeight] then it is treated as if [maxElementHeight].
+ * For example, if we take the default values for minTransitionArea = 0.2f and
+ * maxTransitionArea = 0.6f and minElementSize = 0.2f and maxElementSize= 0.8f then an item
+ * with a height of 0.4f (40%) of the viewport height is one third of way between
+ * minElementSize and maxElementSize, (0.4f - 0.2f) / (0.8f - 0.2f) = 0.33f. So its transition
+ * line would be one third of way between 0.2f and 0.6f, transition line = 0.2f + (0.6f -
+ * 0.2f) * 0.33f = 0.33f.
  *
- * Given the size of an item where it sits between [minElementHeight] and [maxElementHeight] is used
- * to determine what fraction of the transition area to use. For example if [minElementHeight] is
- * 0.2 and [maxElementHeight] is 0.8 then a component item that is 0.4 (40%) of the size of the
- * viewport would start to scale when it was 0.333 (33.3%) of the way through the transition area,
- * (0.4 - 0.2) / (0.8 - 0.2) = 0.2 / 0.6 = 0.333.
+ * Once the position of the transition line is established we now have a transition area
+ * for the item, e.g. in the example above the item will start/finish its transitions when it
+ * is 0.33f (33%) of the distance from the edge of the viewport and will start/finish its
+ * transitions at the viewport edge.
  *
- * Taking the example transition area above that means that the scaling line for the item would be a
- * third of the way between 32.dp and 96.dp. 32.dp + ((96.dp-32.dp) * 0.333) = 53.dp. So this item
- * would start to scale when it moved from the center across the 53.dp line and its scaling would be
- * between 53.dp and 0.dp.
+ * The scaleInterpolator is used to determine how much of the scaling and alpha to apply
+ * as the item transits through the transition area.
+ *
+ * The edge of the item furthest from the edge of the screen is used as a scaling trigger
+ * point for each item.
  */
 public interface ScalingParams {
     /**
      * What fraction of the full size of the item to scale it by when most
-     * scaled, e.g. at the viewport edge. A value between [0.0,1.0], so a value of 0.2f means
-     * to scale an item to 20% of its normal size.
+     * scaled, e.g. at the edge of the viewport. A value between [0f,1f], so a value of 0.2f
+     * means to scale an item to 20% of its normal size.
      */
 //    @FloatRange(
 //        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
@@ -89,9 +93,9 @@ public interface ScalingParams {
     val edgeScale: Float
 
     /**
-     * What fraction of the full transparency of the item to scale it by when
-     * most scaled, e.g. at the viewport edge. A value between [0.0,1.0], so a value of 0.2f
-     * means to set the alpha of an item to 20% of its normal value.
+     * What fraction of the full transparency of the item to draw it with
+     * when closest to the edge of the screen. A value between [0f,1f], so a value of
+     * 0.2f means to set the alpha of an item to 20% of its normal value.
      */
 //    @FloatRange(
 //        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
@@ -99,10 +103,11 @@ public interface ScalingParams {
     val edgeAlpha: Float
 
     /**
-     * The minimum element height as a fraction of the viewport size to use
-     * for determining the transition point within ([minTransitionArea], [maxTransitionArea]) that a
-     * given content item will start to be scaled. Items smaller than [minElementHeight] will be
-     * treated as if [minElementHeight]. Must be less than or equal to [maxElementHeight].
+     * The maximum element height as a ratio of the viewport size to use
+     * for determining the transition point within ([minTransitionArea], [maxTransitionArea])
+     * that a given content item will start to be transitioned. Items larger than [maxElementHeight]
+     * will be treated as if [maxElementHeight]. Must be greater than or equal to
+     * [minElementHeight].
      */
 //    @FloatRange(
 //        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
@@ -110,10 +115,11 @@ public interface ScalingParams {
     val minElementHeight: Float
 
     /**
-     * The minimum element height as a fraction of the viewport size to use
-     * for determining the transition point within ([minTransitionArea], [maxTransitionArea]) that a
-     * given content item will start to be scaled. Items smaller than [minElementHeight] will be
-     * treated as if [minElementHeight]. Must be less than or equal to [maxElementHeight].
+     * The maximum element height as a ratio of the viewport size to use
+     * for determining the transition point within ([minTransitionArea], [maxTransitionArea])
+     * that a given content item will start to be transitioned. Items larger than [maxElementHeight]
+     * will be treated as if [maxElementHeight]. Must be greater than or equal to
+     * [minElementHeight].
      */
 //    @FloatRange(
 //        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
@@ -121,9 +127,10 @@ public interface ScalingParams {
     val maxElementHeight: Float
 
     /**
-     * The lower bound of the scaling transition area, closest to the edge
-     * of the component. Defined as a fraction of the distance between the viewport center line and
-     * viewport edge of the component. Must be less than or equal to [maxTransitionArea].
+     * The lower bound of the transition line area, closest to the
+     * edge of the viewport. Defined as a fraction (value between 0f..1f) of the distance between
+     * the viewport edge and viewport center line. Must be less than or equal to
+     * [maxTransitionArea].
      */
 //    @FloatRange(
 //        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
@@ -131,9 +138,9 @@ public interface ScalingParams {
     val minTransitionArea: Float
 
     /**
-     * The upper bound of the scaling transition area, closest to the center
-     * of the component. Defined as a fraction of the distance between the viewport center line and
-     * viewport edge of the component. Must be greater
+     * The upper bound of the transition line area, closest to the
+     * center of the viewport. The fraction (value between 0f..1f) of the distance
+     * between the viewport edge and viewport center line. Must be greater
      * than or equal to [minTransitionArea].
      */
 //    @FloatRange(
@@ -148,13 +155,18 @@ public interface ScalingParams {
     val scaleInterpolator: Easing
 
     /**
-     * Determine the offset/extra padding (in pixels) that is used to define a space for additional
-     * items that should be considered for drawing on the screen as the scaling of the visible
-     * items in viewport is calculated. This additional padding area means that more items will
-     * materialized and therefore be in scope for being drawn in the viewport if the scaling of
-     * other elements means that there is additional space at the top and bottom of the viewport
-     * that can be used. The default value is a fifth of the viewport height allowing an
-     * additional 20% of the viewport height above and below the viewport.
+     * The additional padding to consider above and below the
+     * viewport of a [ScalingLazyColumn] when considering which items to draw in the viewport. If
+     * set to 0 then no additional padding will be provided and only the items which would appear
+     * in the viewport before any scaling is applied will be considered for drawing, this may
+     * leave blank space at the top and bottom of the viewport where the next available item
+     * could have been drawn once other items have been scaled down in size. The larger this
+     * value is set to will allow for more content items to be considered for drawing in the
+     * viewport, however there is a performance cost associated with materializing items that are
+     * subsequently not drawn. The higher/more extreme the scaling parameters that are applied to
+     * the [ScalingLazyColumn] the more padding may be needed to ensure there are always enough
+     * content items available to be rendered. By default will be 20% of the maxHeight of the
+     * viewport above and below the content.
      *
      * @param viewportConstraints the viewports constraints
      */
