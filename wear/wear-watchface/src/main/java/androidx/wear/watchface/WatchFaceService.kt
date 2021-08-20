@@ -870,7 +870,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 // It's unlikely an ambient tick would be sent to a watch face that hasn't loaded
                 // yet. The watch face will render at least once upon loading so we don't need to do
                 // anything special here.
-                getWatchFaceImplOrNull()?.renderer?.invalidate()
+                invalidate()
                 ambientUpdateWakelock.acquire(SURFACE_DRAW_TIMEOUT_MS)
             }
         }
