@@ -22,19 +22,10 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
 import androidx.glance.Applier
 import androidx.glance.GlanceInternalApi
-import androidx.glance.Modifier
 import androidx.glance.layout.EmittableBox
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
-
-inline fun <reified T> Modifier.findModifier(): T? = this.foldOut<T?>(null) { cur, acc ->
-    if (cur is T) {
-        cur
-    } else {
-        acc
-    }
-}
 
 @OptIn(GlanceInternalApi::class)
 suspend fun runTestingComposition(content: @Composable () -> Unit): EmittableBox = coroutineScope {
