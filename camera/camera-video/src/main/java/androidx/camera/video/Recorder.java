@@ -1286,7 +1286,8 @@ public final class Recorder implements VideoOutput {
     @SuppressLint("WrongConstant")
     @ExecutedBy("mSequentialExecutor")
     private void setupMediaMuxer(@NonNull OutputOptions options) throws IOException {
-        int outputFormat = getObservableData(mMediaSpec).getOutputFormat();
+        int muxerOutputFormat = MediaSpec.outputFormatToMuxerFormat(
+                getObservableData(mMediaSpec).getOutputFormat());
         switch (options.getType()) {
             case OutputOptions.OPTIONS_TYPE_FILE:
                 if (!(options instanceof FileOutputOptions)) {
@@ -1294,8 +1295,7 @@ public final class Recorder implements VideoOutput {
                 }
                 FileOutputOptions fileOutputOptions = (FileOutputOptions) options;
                 mMediaMuxer = new MediaMuxer(
-                        fileOutputOptions.getFile().getAbsolutePath(),
-                        outputFormat);
+                        fileOutputOptions.getFile().getAbsolutePath(), muxerOutputFormat);
                 break;
             case OutputOptions.OPTIONS_TYPE_FILE_DESCRIPTOR:
                 if (!(options instanceof FileDescriptorOutputOptions)) {
@@ -1306,8 +1306,7 @@ public final class Recorder implements VideoOutput {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     mMediaMuxer = Api26Impl.createMediaMuxer(
                             fileDescriptorOutputOptions.getParcelFileDescriptor()
-                                    .getFileDescriptor(),
-                            outputFormat);
+                                    .getFileDescriptor(), muxerOutputFormat);
                 } else {
                     throw new IOException(
                             "MediaMuxer doesn't accept FileDescriptor as output destination.");
@@ -1339,13 +1338,13 @@ public final class Recorder implements VideoOutput {
                     if (parentFile != null && !parentFile.mkdirs()) {
                         Logger.w(TAG, "Failed to create folder for " + path);
                     }
-                    mMediaMuxer = new MediaMuxer(path, outputFormat);
+                    mMediaMuxer = new MediaMuxer(path, muxerOutputFormat);
                 } else {
                     ParcelFileDescriptor fileDescriptor =
                             mediaStoreOutputOptions.getContentResolver().openFileDescriptor(
                                     mOutputUri, "rw");
                     mMediaMuxer = Api26Impl.createMediaMuxer(fileDescriptor.getFileDescriptor(),
-                            outputFormat);
+                            muxerOutputFormat);
                     fileDescriptor.close();
                 }
                 break;
