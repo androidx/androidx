@@ -140,4 +140,34 @@ private class FakeFoldingFeature(
             "Bounding rectangle must start at the top or left window edge for folding features"
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as FakeFoldingFeature
+
+        if (bounds != other.bounds) return false
+        if (isSeparating != other.isSeparating) return false
+        if (occlusionType != other.occlusionType) return false
+        if (orientation != other.orientation) return false
+        if (state != other.state) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = bounds.hashCode()
+        result = 31 * result + isSeparating.hashCode()
+        result = 31 * result + occlusionType.hashCode()
+        result = 31 * result + orientation.hashCode()
+        result = 31 * result + state.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "${FakeFoldingFeature::class.java.simpleName} { bounds = $bounds, isSeparating = " +
+            "$isSeparating, occlusionType = $occlusionType, orientation = $orientation, state = " +
+            "$state"
+    }
 }
