@@ -61,7 +61,6 @@ androidx {
     name = "Android Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.WEAR_TILES
-    mavenVersion = LibraryVersions.WEAR_TILES
     inceptionYear = "2020"
     description = "Android Wear Tiles"
 }

@@ -116,7 +116,6 @@ androidx {
     name = "Wear Tiles Proto"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR_TILES
-    mavenVersion = LibraryVersions.WEAR_TILES
     inceptionYear = "2020"
     description = "Jarjar the generated proto and proto-lite dependency for use by " +
             "wear-tiles."
