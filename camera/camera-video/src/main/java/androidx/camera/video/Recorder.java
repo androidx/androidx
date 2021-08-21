@@ -40,7 +40,6 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Size;
-import android.util.SparseArray;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -313,14 +312,12 @@ public final class Recorder implements VideoOutput {
     //                      Members only accessed on mSequentialExecutor                          //
     ////////////////////////////////////////////////////////////////////////////////////////////////
     private RecordingRecord mInProgressRecording = null;
-    private boolean mInProgressRecordingStopping = false;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    boolean mInProgressRecordingStopping = false;
     private boolean mAudioInitialized = false;
     private SurfaceRequest.TransformationInfo mSurfaceTransformationInfo = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final List<ListenableFuture<Void>> mEncodingFutures = new ArrayList<>();
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final SparseArray<CallbackToFutureAdapter.Completer<Void>> mEncodingCompleters =
-            new SparseArray<>();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Integer mAudioTrackIndex = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -336,7 +333,11 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     EncoderImpl mVideoEncoder = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    OutputConfig mVideoOutputConfig = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     EncoderImpl mAudioEncoder = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    OutputConfig mAudioOutputConfig = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     AudioState mAudioState = AudioState.INITIALIZING;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -354,6 +355,10 @@ public final class Recorder implements VideoOutput {
     int mRecordingStopError = ERROR_UNKNOWN;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     AudioState mCachedAudioState;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    EncodedData mPendingFirstVideoData = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    EncodedData mPendingFirstAudioData = null;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec) {
@@ -1223,23 +1228,59 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void startMediaMuxer() {
-        Futures.addCallback(Futures.allAsList(mEncodingFutures),
-                new FutureCallback<List<Void>>() {
-                    @Override
-                    public void onSuccess(@Nullable List<Void> result) {
-                        finalizeInProgressRecording(mRecordingStopError, null);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        finalizeInProgressRecording(ERROR_ENCODING_FAILED, t);
-                    }
-                }, mSequentialExecutor);
-        if (mMediaMuxer == null) {
-            throw new AssertionError("MediaMuxer should not be null.");
+    void setupAndStartMediaMuxer(@NonNull RecordingRecord recordingToStart) {
+        if (mMediaMuxer != null) {
+            throw new AssertionError("Unable to set up media muxer when one already exists.");
         }
-        mMediaMuxer.start();
+
+        if (isAudioEnabled() && mPendingFirstAudioData == null) {
+            throw new AssertionError("Audio is enabled but no audio sample is ready. Cannot start"
+                    + " media muxer.");
+        }
+
+        if (mPendingFirstVideoData == null) {
+            throw new AssertionError("Media muxer cannot be started without an encoded video "
+                    + "frame.");
+        }
+
+        try (EncodedData videoDataToWrite = mPendingFirstVideoData; EncodedData audioDataToWrite =
+                mPendingFirstAudioData) {
+            mPendingFirstVideoData = null;
+            mPendingFirstAudioData = null;
+            // Make sure we can write the first audio and video data without hitting the file size
+            // limit. Otherwise we will be left with a malformed (empty) track on stop.
+            long firstDataSize = videoDataToWrite.size();
+            if (audioDataToWrite != null) {
+                firstDataSize += audioDataToWrite.size();
+            }
+            if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
+                    && firstDataSize > mFileSizeLimitInBytes) {
+                Logger.d(TAG,
+                        String.format("Initial data exceeds file size limit %d > %d", firstDataSize,
+                                mFileSizeLimitInBytes));
+                onInProgressRecordingInternalError(recordingToStart, ERROR_FILE_SIZE_LIMIT_REACHED);
+                return;
+            }
+
+            try {
+                setupMediaMuxer(recordingToStart.getOutputOptions());
+            } catch (IOException e) {
+                onInProgressRecordingInternalError(recordingToStart, ERROR_INVALID_OUTPUT_OPTIONS);
+                return;
+            }
+
+            mVideoTrackIndex = mMediaMuxer.addTrack(mVideoOutputConfig.getMediaFormat());
+            if (isAudioEnabled()) {
+                mAudioTrackIndex = mMediaMuxer.addTrack(mAudioOutputConfig.getMediaFormat());
+            }
+            mMediaMuxer.start();
+
+            // Write first data to ensure tracks are not empty
+            writeVideoData(videoDataToWrite, recordingToStart);
+            if (audioDataToWrite != null) {
+                writeAudioData(audioDataToWrite, recordingToStart);
+            }
+        }
     }
 
     @SuppressLint("WrongConstant")
@@ -1344,13 +1385,6 @@ public final class Recorder implements VideoOutput {
                     : AudioState.DISABLED);
         }
 
-        try {
-            setupMediaMuxer(mInProgressRecording.getOutputOptions());
-        } catch (IOException e) {
-            finalizeInProgressRecording(ERROR_INVALID_OUTPUT_OPTIONS, e);
-            return;
-        }
-
         initEncoderCallbacks(recordingToStart);
         if (isAudioEnabled()) {
             mAudioSource.start();
@@ -1365,183 +1399,253 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     private void initEncoderCallbacks(@NonNull RecordingRecord recordingToStart) {
-        mVideoEncoder.setEncoderCallback(new EncoderCallback() {
-            @ExecutedBy("mSequentialExecutor")
-            @Override
-            public void onEncodeStart() {
-                // No-op.
-            }
+        mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    mVideoEncoder.setEncoderCallback(new EncoderCallback() {
+                        @ExecutedBy("mSequentialExecutor")
+                        @Override
+                        public void onEncodeStart() {
+                            // No-op.
+                        }
 
-            @ExecutedBy("mSequentialExecutor")
-            @Override
-            public void onEncodeStop() {
-                mEncodingCompleters.get(mVideoTrackIndex).set(null);
-            }
+                        @ExecutedBy("mSequentialExecutor")
+                        @Override
+                        public void onEncodeStop() {
+                            completer.set(null);
+                        }
 
-            @ExecutedBy("mSequentialExecutor")
-            @Override
-            public void onEncodeError(@NonNull EncodeException e) {
-                mEncodingCompleters.get(mVideoTrackIndex).setException(e);
-            }
+                        @ExecutedBy("mSequentialExecutor")
+                        @Override
+                        public void onEncodeError(@NonNull EncodeException e) {
+                            completer.setException(e);
+                        }
 
-            @ExecutedBy("mSequentialExecutor")
-            @Override
-            public void onEncodedData(@NonNull EncodedData encodedData) {
-                try (EncodedData encodedDataToClose = encodedData) {
-                    if (mVideoTrackIndex == null) {
-                        // Throw an exception if the data comes before the track is added.
-                        throw new AssertionError(
-                                "Video data comes before the track is added to MediaMuxer.");
-                    }
-                    if (isAudioEnabled() && mAudioTrackIndex == null) {
-                        Logger.d(TAG, "Drop video data since audio track hasn't been added.");
-                        return;
-                    }
-                    // If the first video data is not a key frame, MediaMuxer#writeSampleData
-                    // will drop it. It will cause incorrect estimated record bytes and should
-                    // be dropped.
-                    if (mFirstRecordingVideoDataTimeUs == 0L && !encodedData.isKeyFrame()) {
-                        Logger.d(TAG, "Drop video data since first video data is no key frame.");
-                        mVideoEncoder.requestKeyFrame();
-                        return;
-                    }
+                        @ExecutedBy("mSequentialExecutor")
+                        @Override
+                        public void onEncodedData(@NonNull EncodedData encodedData) {
+                            // If the media muxer doesn't yet exist, we may need to create and
+                            // start it. Otherwise we can write the data.
+                            if (mMediaMuxer == null) {
+                                if (!mInProgressRecordingStopping) {
+                                    // Clear any previously pending video data since we now
+                                    // have newer data.
+                                    boolean cachedDataDropped = false;
+                                    if (mPendingFirstVideoData != null) {
+                                        cachedDataDropped = true;
+                                        mPendingFirstVideoData.close();
+                                        mPendingFirstVideoData = null;
+                                    }
 
-                    long newRecordingBytes = mRecordingBytes + encodedData.size();
-                    if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
-                            && newRecordingBytes > mFileSizeLimitInBytes) {
-                        Logger.d(TAG,
-                                String.format("Reach file size limit %d > %d", newRecordingBytes,
-                                        mFileSizeLimitInBytes));
-                        onInProgressRecordingInternalError(recordingToStart,
-                                ERROR_FILE_SIZE_LIMIT_REACHED);
-                        return;
-                    }
+                                    if (encodedData.isKeyFrame()) {
+                                        // We have a keyframe. Cache it in case we need to wait
+                                        // for audio data.
+                                        mPendingFirstVideoData = encodedData;
+                                        // If first pending audio data exists or audio is
+                                        // disabled, we can start the muxer.
+                                        if (!isAudioEnabled() || mPendingFirstAudioData != null) {
+                                            Logger.d(TAG, "Received video keyframe. Starting "
+                                                    + "muxer...");
+                                            setupAndStartMediaMuxer(recordingToStart);
+                                        } else {
+                                            if (cachedDataDropped) {
+                                                Logger.d(TAG, "Replaced cached video keyframe "
+                                                        + "with newer keyframe.");
+                                            } else {
+                                                Logger.d(TAG, "Cached video keyframe while we wait "
+                                                        + "for first audio sample before starting "
+                                                        + "muxer.");
+                                            }
+                                        }
+                                    } else {
+                                        // If the video data is not a key frame,
+                                        // MediaMuxer#writeSampleData will drop it. It will
+                                        // cause incorrect estimated record bytes and should
+                                        // be dropped.
+                                        if (cachedDataDropped) {
+                                            Logger.d(TAG, "Dropped cached keyframe since we have "
+                                                    + "new video data and have not yet received "
+                                                    + "audio data.");
+                                        }
+                                        Logger.d(TAG, "Dropped video data since muxer has not yet "
+                                                + "started and data is not a keyframe.");
+                                        mVideoEncoder.requestKeyFrame();
+                                        encodedData.close();
+                                    }
+                                } else {
+                                    // Recording is stopping before muxer has been started.
+                                    Logger.d(TAG, "Drop video data since recording is stopping.");
+                                    encodedData.close();
+                                }
+                            } else {
+                                // MediaMuxer is already started, write the data.
+                                try (EncodedData videoDataToWrite = encodedData) {
+                                    writeVideoData(videoDataToWrite, recordingToStart);
+                                }
+                            }
+                        }
 
-                    mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
-                            encodedData.getBufferInfo());
-
-                    mRecordingBytes = newRecordingBytes;
-
-                    if (mFirstRecordingVideoDataTimeUs == 0L) {
-                        mFirstRecordingVideoDataTimeUs = encodedData.getPresentationTimeUs();
-                    }
-                    mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
-                            encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
-
-                    updateInProgressStatusEvent();
-                }
-            }
-
-            @ExecutedBy("mSequentialExecutor")
-            @Override
-            public void onOutputConfigUpdate(@NonNull OutputConfig outputConfig) {
-                if (mVideoTrackIndex == null) {
-                    if (mMediaMuxer == null) {
-                        throw new AssertionError("MediaMuxer should not be null.");
-                    }
-                    mVideoTrackIndex = mMediaMuxer.addTrack(outputConfig.getMediaFormat());
-                    mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
-                            completer -> {
-                                mEncodingCompleters.put(mVideoTrackIndex, completer);
-                                return "videoEncodingFuture";
-                            }));
-                }
-                if (isAudioEnabled() && mAudioTrackIndex == null) {
-                    // The audio is enabled but audio track hasn't been configured.
-                    return;
-                }
-                startMediaMuxer();
-            }
-        }, mSequentialExecutor);
+                        @ExecutedBy("mSequentialExecutor")
+                        @Override
+                        public void onOutputConfigUpdate(@NonNull OutputConfig outputConfig) {
+                            mVideoOutputConfig = outputConfig;
+                        }
+                    }, mSequentialExecutor);
+                    return "videoEncodingFuture";
+                }));
 
         if (isAudioEnabled()) {
-            mAudioEncoder.setEncoderCallback(new EncoderCallback() {
-                @ExecutedBy("mSequentialExecutor")
-                @Override
-                public void onEncodeStart() {
-                    // No-op.
-                }
-
-                @ExecutedBy("mSequentialExecutor")
-                @Override
-                public void onEncodeStop() {
-                    mEncodingCompleters.get(mAudioTrackIndex).set(null);
-                }
-
-                @ExecutedBy("mSequentialExecutor")
-                @Override
-                public void onEncodeError(@NonNull EncodeException e) {
-                    // If the audio encoder encounters error, update the status event to notify
-                    // users.
-                    // Then continue recording without audio data.
-                    setAudioState(AudioState.ENCODER_ERROR);
-                    updateInProgressStatusEvent();
-                    mEncodingCompleters.get(mAudioTrackIndex).set(null);
-                }
-
-                @ExecutedBy("mSequentialExecutor")
-                @Override
-                public void onEncodedData(@NonNull EncodedData encodedData) {
-                    try (EncodedData encodedDataToClose = encodedData) {
-                        if (mAudioState == AudioState.DISABLED) {
-                            throw new IllegalStateException(
-                                    "Audio is not enabled but audio encoded data is produced.");
-                        } else if (mAudioState == AudioState.RECORDING
-                                || mAudioState == AudioState.SOURCE_SILENCED) {
-                            if (mAudioTrackIndex == null) {
-                                // Throw an exception if the data comes before the track is added.
-                                throw new IllegalStateException(
-                                        "Audio data comes before the track is added to MediaMuxer"
-                                                + ".");
-                            }
-                            if (mVideoTrackIndex == null) {
-                                Logger.d(TAG,
-                                        "Drop audio data since video track hasn't been added.");
-                                return;
+            mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
+                    completer -> {
+                        mAudioEncoder.setEncoderCallback(new EncoderCallback() {
+                            @ExecutedBy("mSequentialExecutor")
+                            @Override
+                            public void onEncodeStart() {
+                                // No-op.
                             }
 
-                            long newRecordingBytes = mRecordingBytes + encodedData.size();
-                            if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
-                                    && mRecordingBytes + encodedData.size()
-                                    > mFileSizeLimitInBytes) {
-                                Logger.d(TAG,
-                                        String.format("Reach file size limit %d > %d",
-                                                newRecordingBytes,
-                                                mFileSizeLimitInBytes));
-                                onInProgressRecordingInternalError(recordingToStart,
-                                        ERROR_FILE_SIZE_LIMIT_REACHED);
-                                return;
+                            @ExecutedBy("mSequentialExecutor")
+                            @Override
+                            public void onEncodeStop() {
+                                completer.set(null);
                             }
 
-                            mMediaMuxer.writeSampleData(mAudioTrackIndex,
-                                    encodedData.getByteBuffer(),
-                                    encodedData.getBufferInfo());
+                            @ExecutedBy("mSequentialExecutor")
+                            @Override
+                            public void onEncodeError(@NonNull EncodeException e) {
+                                // If the audio encoder encounters error, update the status event
+                                // to notify users. Then continue recording without audio data.
+                                setAudioState(AudioState.ENCODER_ERROR);
+                                updateInProgressStatusEvent();
+                                completer.set(null);
+                            }
 
-                            mRecordingBytes = newRecordingBytes;
-                        }
-                    }
-                }
+                            @ExecutedBy("mSequentialExecutor")
+                            @Override
+                            public void onEncodedData(@NonNull EncodedData encodedData) {
+                                if (mAudioState == AudioState.DISABLED) {
+                                    throw new AssertionError(
+                                            "Audio is not enabled but audio encoded data is "
+                                                    + "produced.");
+                                }
 
-                @ExecutedBy("mSequentialExecutor")
-                @Override
-                public void onOutputConfigUpdate(@NonNull OutputConfig outputConfig) {
-                    if (isAudioEnabled() && mAudioTrackIndex == null) {
-                        if (mMediaMuxer == null) {
-                            throw new AssertionError("MediaMuxer should not be null.");
-                        }
-                        mAudioTrackIndex = mMediaMuxer.addTrack(outputConfig.getMediaFormat());
-                        mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
-                                completer -> {
-                                    mEncodingCompleters.put(mAudioTrackIndex, completer);
-                                    return "audioEncodingFuture";
-                                }));
-                    }
-                    if (mVideoTrackIndex != null) {
-                        startMediaMuxer();
-                    }
-                }
-            }, mSequentialExecutor);
+                                // If the media muxer doesn't yet exist, we may need to create and
+                                // start it. Otherwise we can write the data.
+                                if (mMediaMuxer == null) {
+                                    if (!mInProgressRecordingStopping) {
+                                        boolean cachedDataDropped = false;
+                                        if (mPendingFirstAudioData != null) {
+                                            cachedDataDropped = true;
+                                            mPendingFirstAudioData.close();
+                                            mPendingFirstAudioData = null;
+                                        }
+
+                                        mPendingFirstAudioData = encodedData;
+                                        if (mPendingFirstVideoData != null) {
+                                            // Both audio and data are ready. Start the muxer.
+                                            Logger.d(TAG, "Received audio data. Starting muxer...");
+                                            setupAndStartMediaMuxer(recordingToStart);
+                                        } else {
+                                            if (cachedDataDropped) {
+                                                Logger.d(TAG, "Replaced cached audio data with "
+                                                        + "newer data.");
+                                            } else {
+                                                Logger.d(TAG, "Cached audio data while we wait for "
+                                                        + "video keyframe before starting muxer.");
+                                            }
+                                        }
+                                    } else {
+                                        // Recording is stopping before muxer has been started.
+                                        Logger.d(TAG,
+                                                "Drop audio data since recording is stopping.");
+                                        encodedData.close();
+                                    }
+                                } else {
+                                    try (EncodedData audioDataToWrite = encodedData) {
+                                        writeAudioData(audioDataToWrite, recordingToStart);
+                                    }
+                                }
+                            }
+
+                            @ExecutedBy("mSequentialExecutor")
+                            @Override
+                            public void onOutputConfigUpdate(@NonNull OutputConfig outputConfig) {
+                                mAudioOutputConfig = outputConfig;
+                            }
+                        }, mSequentialExecutor);
+                        return "audioEncodingFuture";
+                    }));
         }
+
+        Futures.addCallback(Futures.allAsList(mEncodingFutures),
+                new FutureCallback<List<Void>>() {
+                    @Override
+                    public void onSuccess(@Nullable List<Void> result) {
+                        finalizeInProgressRecording(mRecordingStopError, null);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        finalizeInProgressRecording(ERROR_ENCODING_FAILED, t);
+                    }
+                },
+                // Can use direct executor since completers are always completed on sequential
+                // executor.
+                CameraXExecutors.directExecutor());
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void writeVideoData(@NonNull EncodedData encodedData,
+            @NonNull RecordingRecord recording) {
+        if (mVideoTrackIndex == null) {
+            // Throw an exception if the data comes before the track is added.
+            throw new AssertionError(
+                    "Video data comes before the track is added to MediaMuxer.");
+        }
+
+        long newRecordingBytes = mRecordingBytes + encodedData.size();
+        if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
+                && newRecordingBytes > mFileSizeLimitInBytes) {
+            Logger.d(TAG,
+                    String.format("Reach file size limit %d > %d", newRecordingBytes,
+                            mFileSizeLimitInBytes));
+            onInProgressRecordingInternalError(recording, ERROR_FILE_SIZE_LIMIT_REACHED);
+            return;
+        }
+
+        mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
+                encodedData.getBufferInfo());
+
+        mRecordingBytes = newRecordingBytes;
+
+        if (mFirstRecordingVideoDataTimeUs == 0L) {
+            mFirstRecordingVideoDataTimeUs = encodedData.getPresentationTimeUs();
+        }
+        mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
+                encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
+
+        updateInProgressStatusEvent();
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void writeAudioData(@NonNull EncodedData encodedData,
+            @NonNull RecordingRecord recording) {
+
+        long newRecordingBytes = mRecordingBytes + encodedData.size();
+        if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
+                && newRecordingBytes > mFileSizeLimitInBytes) {
+            Logger.d(TAG,
+                    String.format("Reach file size limit %d > %d",
+                            newRecordingBytes,
+                            mFileSizeLimitInBytes));
+            onInProgressRecordingInternalError(recording, ERROR_FILE_SIZE_LIMIT_REACHED);
+            return;
+        }
+
+        mMediaMuxer.writeSampleData(mAudioTrackIndex,
+                encodedData.getByteBuffer(),
+                encodedData.getBufferInfo());
+
+        mRecordingBytes = newRecordingBytes;
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -1582,7 +1686,15 @@ public final class Recorder implements VideoOutput {
             mInProgressRecordingStopping = true;
             mRecordingStopError = stopError;
             if (isAudioEnabled()) {
+                if (mPendingFirstAudioData != null) {
+                    mPendingFirstAudioData.close();
+                    mPendingFirstAudioData = null;
+                }
                 mAudioEncoder.stop();
+            }
+            if (mPendingFirstVideoData != null) {
+                mPendingFirstVideoData.close();
+                mPendingFirstVideoData = null;
             }
             mVideoEncoder.stop();
         }
@@ -1593,10 +1705,12 @@ public final class Recorder implements VideoOutput {
         if (mAudioEncoder != null) {
             mAudioEncoder.release();
             mAudioEncoder = null;
+            mAudioOutputConfig = null;
         }
         if (mVideoEncoder != null) {
             mVideoEncoder.release();
             mVideoEncoder = null;
+            mVideoOutputConfig = null;
         }
         if (mAudioSource != null) {
             mAudioSource.release();
@@ -1652,14 +1766,17 @@ public final class Recorder implements VideoOutput {
         if (mMediaMuxer != null) {
             try {
                 mMediaMuxer.stop();
+                mMediaMuxer.release();
             } catch (IllegalStateException e) {
-                Logger.e(TAG, "MediaMuxer failed to stop with error: " + e.getMessage());
+                Logger.e(TAG, "MediaMuxer failed to stop or release with error: " + e.getMessage());
                 if (errorToSend == ERROR_NONE) {
                     errorToSend = ERROR_UNKNOWN;
                 }
             }
-            mMediaMuxer.release();
             mMediaMuxer = null;
+        } else if (errorToSend == ERROR_NONE) {
+            // Muxer was never started, so recording has no data.
+            errorToSend = ERROR_NO_VALID_DATA;
         }
 
         OutputOptions outputOptions = mInProgressRecording.getOutputOptions();
@@ -1683,7 +1800,6 @@ public final class Recorder implements VideoOutput {
         mAudioTrackIndex = null;
         mVideoTrackIndex = null;
         mEncodingFutures.clear();
-        mEncodingCompleters.clear();
         mOutputUri = Uri.EMPTY;
         mRecordingBytes = 0L;
         mRecordingDurationNs = 0L;
