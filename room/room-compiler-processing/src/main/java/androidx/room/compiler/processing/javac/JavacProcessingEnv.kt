@@ -77,6 +77,7 @@ internal class JavacProcessingEnv(
         // Note, to support Java Modules we would need to use "getAllPackageElements",
         // but that is only available in Java 9+.
         val packageElement = delegate.elementUtils.getPackageElement(packageName)
+            ?: return emptyList()
 
         return packageElement.enclosedElements
             .filterIsInstance<TypeElement>()

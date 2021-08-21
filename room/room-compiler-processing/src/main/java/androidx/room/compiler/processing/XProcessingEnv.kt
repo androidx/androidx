@@ -157,7 +157,8 @@ interface XProcessingEnv {
      * @param packageName the package name to look up.
      *
      * @return A list of [XTypeElement] with matching package name. This will return declarations
-     * from both dependencies and source.
+     * from both dependencies and source. If the package is not found an empty list will be
+     * returned.
      */
     fun getTypeElementsFromPackage(packageName: String): List<XTypeElement>
 
