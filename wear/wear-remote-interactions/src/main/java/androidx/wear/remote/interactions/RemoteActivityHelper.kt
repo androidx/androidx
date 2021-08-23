@@ -17,6 +17,7 @@ package androidx.wear.remote.interactions
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources.NotFoundException
 import android.os.Bundle
 import android.os.Parcel
 import android.os.ResultReceiver
@@ -212,36 +213,44 @@ public class RemoteActivityHelper(
 
         if (nodeId != null) {
             nodeClient.getCompanionPackageForNode(nodeId)
-                .addOnCompleteListener(
+                .addOnSuccessListener(
                     executor
                 ) { taskPackageName ->
-                    val packageName = taskPackageName.result ?: DEFAULT_PACKAGE
-                    callback.intentCreated(
-                        createIntent(
-                            intent,
-                            RemoteIntentResultReceiver(completer, numNodes = 1),
-                            nodeId,
-                            packageName
+                    val packageName = taskPackageName ?: DEFAULT_PACKAGE
+
+                    if (packageName.isEmpty()) {
+                        callback.onFailure(NotFoundException("Device $nodeId is not connected"))
+                    } else {
+                        callback.intentCreated(
+                            createIntent(
+                                intent,
+                                RemoteIntentResultReceiver(completer, numNodes = 1),
+                                nodeId,
+                                packageName
+                            )
                         )
-                    )
+                    }
                 }.addOnFailureListener(executor) { callback.onFailure(it) }
             return
         }
 
-        nodeClient.connectedNodes.addOnCompleteListener(
+        nodeClient.connectedNodes.addOnSuccessListener(
             executor
-        ) { taskConnectedNodes ->
-            val connectedNodes = taskConnectedNodes.result
-            val resultReceiver = RemoteIntentResultReceiver(completer, connectedNodes.size)
-            for (node in connectedNodes) {
-                nodeClient.getCompanionPackageForNode(node.id).addOnCompleteListener(
-                    executor
-                ) { taskPackageName ->
-                    val packageName = taskPackageName.result ?: DEFAULT_PACKAGE
-                    callback.intentCreated(
-                        createIntent(intent, resultReceiver, node.id, packageName)
-                    )
-                }.addOnFailureListener(executor) { callback.onFailure(it) }
+        ) { connectedNodes ->
+            if (connectedNodes.size == 0) {
+                callback.onFailure(NotFoundException("No devices connected"))
+            } else {
+                val resultReceiver = RemoteIntentResultReceiver(completer, connectedNodes.size)
+                for (node in connectedNodes) {
+                    nodeClient.getCompanionPackageForNode(node.id).addOnSuccessListener(
+                        executor
+                    ) { taskPackageName ->
+                        val packageName = taskPackageName ?: DEFAULT_PACKAGE
+                        callback.intentCreated(
+                            createIntent(intent, resultReceiver, node.id, packageName)
+                        )
+                    }.addOnFailureListener(executor) { callback.onFailure(it) }
+                }
             }
         }.addOnFailureListener(executor) { callback.onFailure(it) }
     }
