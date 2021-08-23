@@ -16,6 +16,7 @@
 
 package androidx.room.integration.testapp.dao;
 
+import androidx.collection.ArrayMap;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -250,9 +251,20 @@ public interface MusicDao {
     @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
     ImmutableMap<Artist, Long> getAllArtistsWithAlbumCoverYear();
 
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(valueColumn = "mImageYear")
+    @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+    ArrayMap<Artist, Long> getAllArtistsWithAlbumCoverYearArrayMap();
+
     @MapInfo(keyColumn = "mImageYear")
     @RawQuery
     ImmutableMap<Long, Artist> getAllAlbumCoverYearToArtistsWithRawQuery(SupportSQLiteQuery query);
+
+    @MapInfo(keyColumn = "mImageYear")
+    @RawQuery
+    ArrayMap<Long, Artist> getAllAlbumCoverYearToArtistsWithRawQueryArrayMap(
+            SupportSQLiteQuery query
+    );
 
     @MapInfo(keyColumn = "mAlbumCover", valueColumn = "mIsActive")
     @Query("SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image.mArtistInImage")
