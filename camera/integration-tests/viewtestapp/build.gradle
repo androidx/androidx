@@ -15,18 +15,16 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePluginKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
+    id("AndroidXComposePlugin")
 }
 
 apply(from: "../../camera-view/dependencies.gradle")
-
-AndroidXComposePluginKt.configureComposePluginForAndroidx(project)
 
 android {
     defaultConfig {

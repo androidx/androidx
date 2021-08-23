@@ -43,7 +43,7 @@ class ComposeUiFragment : Fragment() {
 
         return ComposeView(requireContext()).apply {
             setContent {
-                addPreviewView(
+                AddPreviewView(
                     cameraProvider,
                     previewView
                 )
@@ -52,7 +52,7 @@ class ComposeUiFragment : Fragment() {
     }
 
     @Composable
-    private fun addPreviewView(cameraProvider: ProcessCameraProvider, previewView: PreviewView) {
+    private fun AddPreviewView(cameraProvider: ProcessCameraProvider, previewView: PreviewView) {
         previewView.layoutParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
