@@ -250,7 +250,7 @@ dependencies {
     docs("androidx.wear.tiles:tiles:1.0.0-alpha10")
     docs("androidx.wear.tiles:tiles-renderer:1.0.0-alpha10")
     docs("androidx.wear.tiles:tiles-testing:1.0.0-alpha10")
-    docs("androidx.wear:wear:1.2.0-beta01")
+    docs("androidx.wear:wear:1.2.0-rc01")
     stubs(fileTree(dir: "../wear/wear_stubs/", include: ["com.google.android.wearable-stubs.jar"]))
     docs("androidx.wear:wear-complications-data:1.0.0-alpha20")
     docs("androidx.wear:wear-complications-data-source:1.0.0-alpha20")
