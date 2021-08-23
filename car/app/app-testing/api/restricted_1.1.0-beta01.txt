@@ -7,7 +7,6 @@ package androidx.car.app.testing {
 
   public class ScreenController {
     ctor public ScreenController(androidx.car.app.Screen);
-    ctor @Deprecated public ScreenController(androidx.car.app.testing.TestCarContext, androidx.car.app.Screen);
     method public androidx.car.app.Screen getScreen();
     method public Object? getScreenResult();
     method public java.util.List<androidx.car.app.model.Template!> getTemplatesReturned();
