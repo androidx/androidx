@@ -97,7 +97,7 @@ jobs:
           AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|\([^ ]\+\)|--changedFilePath=\1|g'`
           echo "::set-output name=files::$AFFECTED_FILES"
       - name: "ktlint"
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-command-action@v1.4.1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
@@ -157,7 +157,7 @@ jobs:
       - name: "./gradlew findAffectedModules"
         id: find-affected-modules
         if: ${{ needs.lint.outputs.affectedFileArgs != '' }}
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-command-action@v1.4.1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
@@ -176,7 +176,7 @@ jobs:
           AFFECTED_MODULE_COUNT=`grep -c ".*" ${{ github.workspace }}/affected.txt || true`
           echo "::set-output name=count::$AFFECTED_MODULE_COUNT"
       - name: "./gradlew buildOnServer buildTestApks"
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-command-action@v1.4.1
         if: ${{ steps.affected-module-count.outputs.count > 0 }}
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
