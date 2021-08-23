@@ -22,17 +22,25 @@ import androidx.glance.Modifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
+import androidx.glance.layout.FontStyle
+import androidx.glance.layout.FontWeight
 import androidx.glance.layout.Row
+import androidx.glance.layout.Text
+import androidx.glance.layout.TextDecoration
+import androidx.glance.layout.TextStyle
 import androidx.glance.layout.expandHeight
 import androidx.glance.layout.expandWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.unit.Color
 import androidx.glance.unit.dp
+import androidx.glance.unit.sp
 import androidx.glance.wear.layout.background
 import androidx.wear.tiles.DimensionBuilders
 import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM
@@ -252,6 +260,50 @@ class WearCompositionTranslatorTest {
 
         // Should have the horizontal alignment set still though
         assertThat(innerColumn.horizontalAlignment!!.value).isEqualTo(HORIZONTAL_ALIGN_CENTER)
+    }
+
+    @Test
+    fun canInflateText() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            val style = TextStyle(
+                size = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                textDecoration = TextDecoration.Underline
+            )
+            Text("Hello World", modifier = Modifier.padding(1.dp), style = style)
+        }
+
+        val innerText = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Text
+
+        assertThat(innerText.text!!.value).isEqualTo("Hello World")
+        assertThat(innerText.fontStyle!!.size!!.value).isEqualTo(16f)
+        assertThat(innerText.fontStyle!!.italic!!.value).isTrue()
+        assertThat(innerText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
+        assertThat(innerText.fontStyle!!.underline!!.value).isTrue()
+    }
+
+    @Test
+    fun textWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Text("Hello World", modifier = Modifier.size(100.dp).padding(10.dp))
+        }
+
+        val innerBox = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Box
+        val innerText = innerBox.contents[0] as LayoutElementBuilders.Text
+
+        assertThat(innerBox.width is DimensionBuilders.DpProp)
+        assertThat((innerBox.width as DimensionBuilders.DpProp).value).isEqualTo(100f)
+        assertThat(innerBox.height is DimensionBuilders.DpProp)
+        assertThat((innerBox.height as DimensionBuilders.DpProp).value).isEqualTo(100f)
+
+        // Modifiers should apply to the Box
+        assertThat(innerBox.modifiers!!.padding).isNotNull()
+
+        // ... and not to the Text
+        assertThat(innerText.modifiers?.padding).isNull()
     }
 
     private suspend fun runAndTranslate(
