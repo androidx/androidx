@@ -279,6 +279,27 @@ public fun macrobenchmarkWithStartupMode(
                 killProcess()
                 // drop app pages from page cache to ensure it is loaded from disk, from scratch
                 dropKernelPageCache()
+                // Clear profile caches when possible.
+
+                // Benchmarks get faster over time as ART can create profiles for future
+                // optimizations; JIT methods/classes, and persist the compiled code to disk `N`
+                // seconds after startup. This information affects subsequent benchmark runs.
+
+                // Only Cold startup benchmarks kill the target process, allowing us to reset
+                // compilation state; and only `CompilationMode.None` benchmarks can be
+                // 'inexpensively' recompiled in this way  (i.e. without running warmup, or
+                // recompiling, since it's just a compile --reset).
+                //
+                // Empirically, this is also the  scenario most significantly affected by this
+                // JIT persistence, so we optimize  specifically for measurement correctness in
+                // this scenario.
+                if (compilationMode == CompilationMode.None) {
+                    compilationMode.compile(packageName) {
+                        // This is only compiling for Compilation.None
+                        // So passing an empty block as a measureBlock is inconsequential.
+                        throw IllegalStateException("block never used for CompilationMode.None")
+                    }
+                }
             } else if (startupMode != null && firstIterationAfterCompile) {
                 // warmup process by running the measure block once unmeasured
                 measureBlock()

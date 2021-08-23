@@ -102,8 +102,7 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
     Thread.sleep(1000)
     if (this == CompilationMode.None || this == CompilationMode.Interpreted) {
         return // nothing to do
-    }
-    if (this == CompilationMode.BaselineProfile) {
+    } else if (this == CompilationMode.BaselineProfile) {
         // For baseline profiles, if the ProfileInstaller library is included in the APK, then we
         // triggering this broadcast will cause the baseline profile to get installed
         // synchronously, instead of waiting for the
@@ -125,9 +124,15 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
                         "must be in order to use CompilationMode.BaselineProfile."
                 )
             }
-            ProfileInstaller.RESULT_INSTALL_SUCCESS,
+            ProfileInstaller.RESULT_INSTALL_SUCCESS -> {
+                // success !
+            }
             ProfileInstaller.RESULT_ALREADY_INSTALLED -> {
-                // success!
+                throw RuntimeException(
+                    "Unable to install baseline profiles. This most likely means that the latest " +
+                        "version of the profileinstaller library is not being used. Please " +
+                        "use the latest profileinstaller library version."
+                )
             }
             ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION -> {
                 throw RuntimeException("Baseline profiles aren't supported on this device version")
@@ -153,8 +158,7 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
         // Compile
         compilePackage(packageName)
         Log.d(TAG, "$packageName is compiled.")
-    }
-    if (this is CompilationMode.SpeedProfile) {
+    } else if (this is CompilationMode.SpeedProfile) {
         repeat(this.warmupIterations) {
             block()
         }
