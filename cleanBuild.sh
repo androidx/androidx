@@ -47,7 +47,7 @@ function confirm() {
 confirm
 
 scriptDir="$(cd $(dirname $0) && pwd)"
-checkoutDir="$(cd $scriptDir/../.. && pwd)"
+checkoutDir="$(cd $(git rev-parse --show-toplevel) && pwd)"
 export OUT_DIR="$checkoutDir/out"
 
 ./gradlew --clean $goals

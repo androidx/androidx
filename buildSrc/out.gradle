@@ -25,7 +25,8 @@ def chooseOutDir(subdir = "") {
     if (outDir == null) {
         def checkoutRoot = System.getProperty("CHECKOUT_ROOT")
         if (checkoutRoot == null) {
-            checkoutRoot = new File("${buildscript.sourceFile.parent}/../../..")
+            def workingDir = new File(buildscript.sourceFile.parent)
+            checkoutRoot = new File("git rev-parse --show-toplevel".execute([], workingDir).text)
         }
         outDir = new File("${checkoutRoot}/out${subdir}")
         project.ext.buildSrcOut = new File("${checkoutRoot}/out/buildSrc")
