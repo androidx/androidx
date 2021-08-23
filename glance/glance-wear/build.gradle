@@ -43,6 +43,15 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
+
+    androidTestImplementation(project(":core:core"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(project(":wear:tiles:tiles-renderer"))
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
 }
 
 android {
@@ -55,6 +64,10 @@ android {
     lintOptions {
         // TODO(b/191286558): Remove when lint is fixed.
         disable "UnsafeOptInUsageError", "UnsafeOptInUsageWarning"
+    }
+
+    sourceSets {
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/glance/glance-wear"
     }
 }
 
