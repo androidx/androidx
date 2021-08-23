@@ -49,6 +49,18 @@ object COMMON {
         loadJavaCode("common/input/Artist.java", "foo.bar.Artist")
     }
 
+    val CONVERTER by lazy {
+        loadJavaCode("common/input/DateConverter.java", "foo.bar.DateConverter")
+    }
+
+    val IMAGE_FORMAT by lazy {
+        loadJavaCode("common/input/ImageFormat.java", "foo.bar.ImageFormat")
+    }
+
+    val IMAGE by lazy {
+        loadJavaCode("common/input/Image.java", "foo.bar.Image")
+    }
+
     val SONG by lazy {
         loadJavaCode("common/input/Song.java", "foo.bar.Song")
     }
