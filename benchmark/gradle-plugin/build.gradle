@@ -64,3 +64,10 @@ androidx {
     inceptionYear = "2019"
     description = "Android Benchmark Gradle Plugin"
 }
+
+tasks {
+    validatePlugins {
+        failOnWarning.set(true)
+        enableStricterValidation.set(true)
+    }
+}
