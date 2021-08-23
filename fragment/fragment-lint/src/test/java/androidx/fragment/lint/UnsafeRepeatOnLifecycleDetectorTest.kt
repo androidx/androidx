@@ -55,18 +55,8 @@ class UnsafeRepeatOnLifecycleDetectorTest(private val config: TestConfig) {
                 ),
                 TestConfig(
                     "Fragment()",
-                    "lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    true
-                ),
-                TestConfig(
-                    "Fragment()",
                     "getViewLifecycleOwner().repeatOnLifecycle(Lifecycle.State.STARTED) { }",
                     false
-                ),
-                TestConfig(
-                    "Fragment()",
-                    "getLifecycleOwner().repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    true
                 ),
                 TestConfig(
                     "Fragment()",
@@ -75,33 +65,23 @@ class UnsafeRepeatOnLifecycleDetectorTest(private val config: TestConfig) {
                 ),
                 TestConfig(
                     "Fragment()",
-                    "lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    true
-                ),
-                TestConfig(
-                    "Fragment()",
                     "getViewLifecycleOwner().lifecycle." +
                         "repeatOnLifecycle(Lifecycle.State.STARTED) { }",
                     false
                 ),
                 TestConfig(
-                    "Fragment()",
-                    "getLifecycleOwner().lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }",
-                    true
-                ),
-                TestConfig(
                     "BaseFragment(), FragmentListener",
-                    "getLifecycleOwner().lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }",
+                    "repeatOnLifecycle(Lifecycle.State.STARTED) { }",
                     true
                 ),
                 TestConfig(
                     "FragmentListener, OtherFragmentListener, BaseFragment()",
-                    "getLifecycleOwner().lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }",
+                    "repeatOnLifecycle(Lifecycle.State.STARTED) { }",
                     true
                 ),
                 TestConfig(
                     "DialogFragment()",
-                    "getLifecycleOwner().lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }",
+                    "repeatOnLifecycle(Lifecycle.State.STARTED) { }",
                     false
                 ),
             )
@@ -138,7 +118,7 @@ class UnsafeRepeatOnLifecycleDetectorTest(private val config: TestConfig) {
                 TestFiles.kt(TEMPLATE.format(config.fragmentExtensions, config.apiCall))
             )
             .issues(UnsafeRepeatOnLifecycleDetector.ISSUE)
-            .allowCompilationErrors(true) // b/193540422
+            .allowCompilationErrors(false)
             .run()
 
         if (config.shouldWarn) {
