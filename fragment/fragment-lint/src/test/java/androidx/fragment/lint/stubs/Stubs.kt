@@ -54,11 +54,19 @@ private val FRAGMENT = java(
     """
 )
 
-private val DIALOG_FRAGMENT = java(
+internal val DIALOG_FRAGMENT = java(
     """
     package androidx.fragment.app;
 
     public class DialogFragment extends Fragment { }
+"""
+)
+
+internal val ALERT_DIALOG = java(
+    """
+    package androidx.appcompat.app;
+
+    public class AlertDialog { }
 """
 )
 
