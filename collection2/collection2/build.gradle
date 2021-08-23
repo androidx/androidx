@@ -176,10 +176,3 @@ def japicmpProvider = tasks.register("japicmp", JapicmpTask) { task ->
 
 // TODO(b/190741472): runErrorProne is currently broken.
 runErrorProne.enabled = false
-
-// Workaround for b/193558867 , remove after updating MPP to 1.6
-afterEvaluate {
-    tasks.named("jar") { javaJar ->
-        javaJar.archiveName = "unused"
-    }
-}

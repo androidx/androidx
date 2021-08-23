@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXPluginKt
 import androidx.build.BuildOnServerKt
 import androidx.build.BuildServerConfigurationKt
 
@@ -53,7 +52,7 @@ def copyReleaseApk = tasks.register("copyReleaseApk", Copy) { task ->
     }
     task.include("*.apk")
     task.rename { fileName ->
-        "${AndroidXPluginKt.asFilenamePrefix(project.path)}_$fileName"
+        "${project.path.substring(1).replace(':', '-')}_$fileName"
     }
     task.destinationDir =
             new File(BuildServerConfigurationKt.getDistributionDirectory(project), "apks")
