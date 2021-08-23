@@ -17,6 +17,7 @@
 package androidx.room.solver.query.result
 
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CollectionTypeNames.ARRAY_MAP
 import androidx.room.ext.L
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
@@ -28,7 +29,8 @@ class MapQueryResultAdapter(
     override val valueTypeArg: XType,
     private val keyRowAdapter: RowAdapter,
     private val valueRowAdapter: RowAdapter,
-    private val valueCollectionType: XType?
+    private val valueCollectionType: XType?,
+    isArrayMap: Boolean = false
 ) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)), MultimapQueryResultAdapter {
     private val declaredToConcreteCollection = mapOf<ClassName, ClassName>(
         ClassName.get(List::class.java) to ClassName.get(ArrayList::class.java),
@@ -54,14 +56,14 @@ class MapQueryResultAdapter(
     }
 
     private val mapType = ParameterizedTypeName.get(
-        ClassName.get(Map::class.java),
+        if (isArrayMap) ARRAY_MAP else ClassName.get(Map::class.java),
         keyTypeArg.typeName,
         declaredValueType
     )
 
     // LinkedHashMap is used as impl to preserve key ordering for ordered query results.
     private val mapImplType = ParameterizedTypeName.get(
-        ClassName.get(LinkedHashMap::class.java),
+        if (isArrayMap) ARRAY_MAP else ClassName.get(LinkedHashMap::class.java),
         keyTypeArg.typeName,
         declaredValueType
     )
