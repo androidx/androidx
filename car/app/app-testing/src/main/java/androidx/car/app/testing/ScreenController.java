@@ -30,7 +30,6 @@ import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.LifecycleOwner;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,30 +64,6 @@ public class ScreenController {
                     "Screen should be created with TestCarContext for testing");
         }
         mTestCarContext = carContext;
-
-        mLifecycleOwner = new TestLifecycleOwner();
-        mLifecycleOwner.getRegistry().addObserver(new ScreenLifecycleObserver());
-    }
-
-    /**
-     * Creates a ScreenController to control a {@link Screen} for testing.
-     *
-     * @throws NullPointerException if either {@code testCarContext} or {@code screen} are null
-     * @deprecated use {@link ScreenController#ScreenController(Screen)} instead
-     */
-    @Deprecated
-    public ScreenController(@NonNull TestCarContext testCarContext, @NonNull Screen screen) {
-        mScreen = requireNonNull(screen);
-        mTestCarContext = requireNonNull(testCarContext);
-
-        // Use reflection to inject the TestCarContext into the Screen.
-        try {
-            Field field = Screen.class.getDeclaredField("mCarContext");
-            field.setAccessible(true);
-            field.set(screen, testCarContext);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to set a test car context for testing", e);
-        }
 
         mLifecycleOwner = new TestLifecycleOwner();
         mLifecycleOwner.getRegistry().addObserver(new ScreenLifecycleObserver());
