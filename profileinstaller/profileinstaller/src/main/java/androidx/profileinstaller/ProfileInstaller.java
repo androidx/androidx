@@ -428,6 +428,44 @@ public class ProfileInstaller {
             @NonNull Executor executor,
             @NonNull DiagnosticsCallback diagnostics
     ) {
+        writeProfile(context, executor, diagnostics, false);
+    }
+
+    /**
+     * Try to write the profile from assets into the ART aot profile directory.
+     *
+     * You do not need to call this method if {@link ProfileInstallerInitializer} is enabled for
+     * your application.
+     *
+     * If you disable the initializer, you should call this method within 5-10 seconds of app
+     * launch, to ensure that art can use the generated profile.
+     *
+     * This should always be called after the first screen is shown to the user, to avoid
+     * delaying application startup to install AOT profiles.
+     *
+     * It is encouraged that you call this method during <b>every</b> app startup to ensure
+     * profiles are written correctly after app upgrades, or if the profile failed to write on the
+     * previous launch.
+     *
+     * Profiles will be correctly formatted based on the current API level of the device, and only
+     * installed if profileinstaller can determine that it is safe to do so.
+     *
+     * If the profile is not written, no action needs to be taken unlesss {@code
+     * forceWriteProfile} is {@code true}.
+     *
+     * @param context context to read assets from
+     * @param executor the executor to run the diagnostic events through
+     * @param diagnostics an object which will receive diagnostic information about the installation
+     * @param forceWriteProfile an override to always install the profile
+     *
+     */
+    @WorkerThread
+    static void writeProfile(
+            @NonNull Context context,
+            @NonNull Executor executor,
+            @NonNull DiagnosticsCallback diagnostics,
+            boolean forceWriteProfile
+    ) {
         Context appContext = context.getApplicationContext();
         String packageName = appContext.getPackageName();
         ApplicationInfo appInfo = appContext.getApplicationInfo();
@@ -442,8 +480,8 @@ public class ProfileInstaller {
             return;
         }
         File filesDir = context.getFilesDir();
-
-        if (!hasAlreadyWrittenProfileForThisInstall(packageInfo, filesDir, diagnostics)) {
+        if (forceWriteProfile
+                || !hasAlreadyWrittenProfileForThisInstall(packageInfo, filesDir, diagnostics)) {
             transcodeAndWrite(assetManager, packageName, packageInfo, filesDir, apkName, executor,
                     diagnostics);
         }
