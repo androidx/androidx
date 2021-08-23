@@ -723,7 +723,7 @@ public object ToggleChipDefaults {
      * The default size of the spacing between an icon and a text when they are used inside a
      * [ToggleChip].
      */
-    internal val IconSpacing = 8.dp
+    internal val IconSpacing = 6.dp
 
     /**
      * The default size of the spacing between a toggle icon and text when they are used
