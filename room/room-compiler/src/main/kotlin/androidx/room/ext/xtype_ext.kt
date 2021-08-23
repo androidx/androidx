@@ -66,15 +66,9 @@ fun XType.isNotByte() = !isByte()
  * super class level and continues to look for these declared methods.
  */
 fun XType.implementsEqualsAndHashcode(): Boolean {
-    if (this.typeName.isPrimitive) return true
-    if (this.typeName.isBoxedPrimitive) return true
-    if (this.typeName == CommonTypeNames.STRING) return true
-    if (this.isTypeOf(ByteArray::class)) return true
-    if (this.isArray() && this.isByte()) return true
+    if (this.isSupportedMapTypeArg()) return true
 
     val typeElement = this.typeElement ?: return false
-
-    if (this.typeElement!!.isEnum()) return true
     if (typeElement.className == ClassName.OBJECT) {
         return false
     }
@@ -91,8 +85,22 @@ fun XType.implementsEqualsAndHashcode(): Boolean {
             it.parameters.count() == 0
     }
 
-    if (hasEquals && hasHashCode) {
-        return true
-    }
+    if (hasEquals && hasHashCode) return true
+
     return typeElement.superType?.let { it.implementsEqualsAndHashcode() } ?: false
+}
+
+/**
+ * Checks if the class of the provided type is one of the types supported in Dao functions with a
+ * Map or Multimap return type.
+ */
+fun XType.isSupportedMapTypeArg(): Boolean {
+    if (this.typeName.isPrimitive) return true
+    if (this.typeName.isBoxedPrimitive) return true
+    if (this.typeName == CommonTypeNames.STRING) return true
+    if (this.isTypeOf(ByteArray::class)) return true
+    if (this.isArray() && this.isByte()) return true
+    val typeElement = this.typeElement ?: return false
+    if (typeElement.isEnum()) return true
+    return false
 }

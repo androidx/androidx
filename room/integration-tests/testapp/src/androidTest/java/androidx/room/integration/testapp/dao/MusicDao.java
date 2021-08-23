@@ -246,7 +246,6 @@ public interface MusicDao {
     ImmutableMap<Artist, ByteBuffer> getAllArtistsWithAlbumCoversRawQuery(SupportSQLiteQuery query);
 
     @RewriteQueriesToDropUnusedColumns
-
     @MapInfo(valueColumn = "mImageYear")
     @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
     ImmutableMap<Artist, Long> getAllArtistsWithAlbumCoverYear();
