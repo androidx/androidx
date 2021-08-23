@@ -636,7 +636,7 @@ public object ChipDefaults {
      * The default size of the spacing between an icon and a text when they are used inside a
      * [Chip].
      */
-    internal val IconSpacing = 8.dp
+    internal val IconSpacing = 6.dp
 
     /**
      * Creates a [ChipColors] that represents the default background and content colors used in
