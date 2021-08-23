@@ -19,6 +19,7 @@ package androidx.room.solver
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isEnum
+import androidx.room.ext.CollectionTypeNames.ARRAY_MAP
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.isEntityElement
@@ -572,7 +573,9 @@ class TypeAdapterStore private constructor(
                 valueRowAdapter = valueRowAdapter,
                 immutableClassName = immutableClassName
             )
-        } else if (typeMirror.isTypeOf(java.util.Map::class)) {
+        } else if (typeMirror.isTypeOf(java.util.Map::class) ||
+            typeMirror.rawType.typeName == ARRAY_MAP
+        ) {
             val keyTypeArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
             val mapValueTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
 
@@ -623,7 +626,8 @@ class TypeAdapterStore private constructor(
                         valueTypeArg = valueTypeArg,
                         keyRowAdapter = keyRowAdapter,
                         valueRowAdapter = valueRowAdapter,
-                        valueCollectionType = mapValueTypeArg
+                        valueCollectionType = mapValueTypeArg,
+                        isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP
                     )
                 } else {
                     context.logger.e(
@@ -655,7 +659,8 @@ class TypeAdapterStore private constructor(
                     valueTypeArg = mapValueTypeArg,
                     keyRowAdapter = keyRowAdapter,
                     valueRowAdapter = valueRowAdapter,
-                    valueCollectionType = null
+                    valueCollectionType = null,
+                    isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP
                 )
             }
         }

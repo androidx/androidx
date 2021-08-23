@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
+import androidx.collection.ArrayMap;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.testing.TestLifecycleOwner;
@@ -932,6 +933,37 @@ public class MultimapQueryTest {
         assertThat(
                 imageToArtistsMap.keySet()).containsExactlyElementsIn(Arrays.asList(2006L, 1973L)
         );
+    }
+
+    @Test
+    public void testImageYearToArtistRawQueryArrayMap() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ArrayMap<Long, Artist> imageToArtistsMap =
+                mMusicDao.getAllAlbumCoverYearToArtistsWithRawQueryArrayMap(
+                        new SimpleSQLiteQuery(
+                                "SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image"
+                                        + ".mArtistInImage"
+                        )
+                );
+
+        assertThat(imageToArtistsMap.get(2006L)).isEqualTo(mRhcp);
+        assertThat(
+                imageToArtistsMap.keySet()).containsExactlyElementsIn(Arrays.asList(2006L, 1973L)
+        );
+    }
+
+
+    @Test
+    public void testArtistToImageYearArrayMap() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        ArrayMap<Artist, Long> artistNameToImagesMap =
+                mMusicDao.getAllArtistsWithAlbumCoverYearArrayMap();
+
+        assertThat(artistNameToImagesMap.get(mRhcp)).isEqualTo(2006L);
     }
 
     @Test
