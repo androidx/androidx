@@ -40,7 +40,7 @@ import java.util.Map;
  * The purpose of the ViewModel is to acquire and keep the information that is necessary for an
  * Activity or a Fragment. The Activity or the Fragment should be able to observe changes in the
  * ViewModel. ViewModels usually expose this information via {@link LiveData} or Android Data
- * Binding. You can also use any observability construct from you favorite framework.
+ * Binding. You can also use any observability construct from your favorite framework.
  * <p>
  * ViewModel's only responsibility is to manage the data for the UI. It <b>should never</b> access
  * your view hierarchy or hold a reference back to the Activity or the Fragment.
