@@ -16,7 +16,6 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -52,7 +51,6 @@ tasks.register("jarTestLibrarySource", Jar).configure {
 androidx {
     name = "Android Lifecycles Compiler"
     type = LibraryType.ANNOTATION_PROCESSOR
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycles annotation processor"
