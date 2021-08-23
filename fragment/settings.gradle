@@ -24,3 +24,9 @@ selectProjectsFromAndroidX({ name ->
     if (name == ":internal-testutils-truth") return true
     return false
 })
+
+// Workaround for b/197253160; sets the projectDir for automatically generated
+// parent project to non-existent folder as it would normally conflict with the
+// root project with adverse affects.
+project(":fragment").projectDir = new File("." + rootProject.name)
+
