@@ -27,7 +27,7 @@ plugins {
 dependencies {
     implementation(gradleApi())
     testImplementation(libs.junit)
-    implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/build/libs/buildSrc.jar")))
+    implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/private/build/libs/private.jar")))
 }
 
 // Also do style checking of the buildSrc project from within this project too
