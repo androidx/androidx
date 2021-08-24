@@ -529,7 +529,7 @@ public abstract class CameraController {
 
     private void stopListeningToRotationEvents() {
         getDisplayManager().unregisterDisplayListener(mDisplayRotationListener);
-        mRotationProvider.removeAllListeners();
+        mRotationProvider.removeListener(mDeviceRotationListener);
     }
 
     private DisplayManager getDisplayManager() {
