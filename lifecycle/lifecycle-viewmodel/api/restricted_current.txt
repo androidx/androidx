@@ -44,25 +44,13 @@ package androidx.lifecycle {
     method public <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract static class ViewModelProvider.KeyedFactory extends androidx.lifecycle.ViewModelProvider.OnRequeryFactory implements androidx.lifecycle.ViewModelProvider.Factory {
-    method public abstract <T extends androidx.lifecycle.ViewModel> T create(String key, Class<T> modelClass);
-    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
-  }
-
   public static class ViewModelProvider.NewInstanceFactory implements androidx.lifecycle.ViewModelProvider.Factory {
     ctor public ViewModelProvider.NewInstanceFactory();
     method public <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.lifecycle.ViewModelProvider.NewInstanceFactory getInstance();
     field public static final androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion Companion;
   }
 
   public static final class ViewModelProvider.NewInstanceFactory.Companion {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.lifecycle.ViewModelProvider.NewInstanceFactory getInstance();
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.lifecycle.ViewModelProvider.NewInstanceFactory instance;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static class ViewModelProvider.OnRequeryFactory {
-    method public void onRequery(androidx.lifecycle.ViewModel viewModel);
   }
 
   public final class ViewModelProviderKt {
