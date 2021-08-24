@@ -86,7 +86,7 @@ class CameraInfoAdapter @Inject constructor(
     override fun getTorchState(): LiveData<Int> = cameraState.torchStateLiveData
 
     @SuppressLint("UnsafeOptInUsageError")
-    override fun getExposureState(): ExposureState = cameraState.exposureStateLiveData.value!!
+    override fun getExposureState(): ExposureState = cameraState.exposureState
 
     override fun getCameraState(): LiveData<CameraState> {
         Log.warn { "TODO: CameraState is not yet supported." }
