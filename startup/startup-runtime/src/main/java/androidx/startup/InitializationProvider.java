@@ -31,11 +31,21 @@ import androidx.annotation.Nullable;
  * initializes them before {@link Application#onCreate()}.
  */
 public class InitializationProvider extends ContentProvider {
+
     @Override
     public final boolean onCreate() {
         Context context = getContext();
         if (context != null) {
-            AppInitializer.getInstance(context).discoverAndInitialize();
+            // Many Initializer's expect the `applicationContext` to be non-null. This
+            // typically happens when `android:sharedUid` is used. In such cases, we postpone
+            // initialization altogether, and rely on lazy init.
+            // More context: b/196959015
+            Context applicationContext = context.getApplicationContext();
+            if (applicationContext != null) {
+                AppInitializer.getInstance(context).discoverAndInitialize();
+            } else {
+                StartupLogger.w("Deferring initialization because `applicationContext` is null.");
+            }
         } else {
             throw new StartupException("Context cannot be null");
         }
