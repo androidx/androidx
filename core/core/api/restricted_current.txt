@@ -369,6 +369,7 @@ package androidx.core.app {
     field public static final String EXTRA_PROGRESS_MAX = "android.progressMax";
     field public static final String EXTRA_REMOTE_INPUT_HISTORY = "android.remoteInputHistory";
     field public static final String EXTRA_SELF_DISPLAY_NAME = "android.selfDisplayName";
+    field public static final String EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED = "android.showBigPictureWhenCollapsed";
     field public static final String EXTRA_SHOW_CHRONOMETER = "android.showChronometer";
     field public static final String EXTRA_SHOW_WHEN = "android.showWhen";
     field public static final String EXTRA_SMALL_ICON = "android.icon";
@@ -491,6 +492,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.Bitmap?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setBigContentTitle(CharSequence?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setSummaryText(CharSequence?);
+    method @RequiresApi(31) public androidx.core.app.NotificationCompat.BigPictureStyle showBigPictureWhenCollapsed(boolean);
   }
 
   public static class NotificationCompat.BigTextStyle extends androidx.core.app.NotificationCompat.Style {
