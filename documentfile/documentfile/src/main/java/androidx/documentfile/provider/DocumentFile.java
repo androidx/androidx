@@ -24,6 +24,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.provider.DocumentsContractCompat;
 
 import java.io.File;
 
@@ -132,16 +133,16 @@ public abstract class DocumentFile {
     @Nullable
     public static DocumentFile fromTreeUri(@NonNull Context context, @NonNull Uri treeUri) {
         if (Build.VERSION.SDK_INT >= 21) {
-            String documentId = DocumentsContractApi.getTreeDocumentId(treeUri);
-            if (DocumentsContractApi.isDocumentUri(context, treeUri)) {
-                documentId = DocumentsContractApi.getDocumentId(treeUri);
+            String documentId = DocumentsContractCompat.getTreeDocumentId(treeUri);
+            if (DocumentsContractCompat.isDocumentUri(context, treeUri)) {
+                documentId = DocumentsContractCompat.getDocumentId(treeUri);
             }
             if (documentId == null) {
                 throw new IllegalArgumentException(
                         "Could not get document ID from Uri: " + treeUri);
             }
             Uri treeDocumentUri =
-                    DocumentsContractApi.buildDocumentUriUsingTree(treeUri, documentId);
+                    DocumentsContractCompat.buildDocumentUriUsingTree(treeUri, documentId);
             if (treeDocumentUri == null) {
                 throw new NullPointerException(
                         "Failed to build documentUri from a tree: " + treeUri);
@@ -157,7 +158,7 @@ public abstract class DocumentFile {
      * {@link android.provider.DocumentsProvider}.
      */
     public static boolean isDocumentUri(@NonNull Context context, @Nullable Uri uri) {
-        return DocumentsContractApi.isDocumentUri(context, uri);
+        return DocumentsContractCompat.isDocumentUri(context, uri);
     }
 
     /**
