@@ -1765,6 +1765,7 @@ class NavControllerTest {
         args.putString(testKey, testValue)
 
         var destinationListenerExecuted = false
+        val currentBackStackEntry = navController.currentBackStackEntry
 
         navController.navigate(R.id.self, args)
 
@@ -1780,6 +1781,9 @@ class NavControllerTest {
         val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(destinationListenerExecuted).isTrue()
+        assertThat(navController.currentBackStackEntry).isNotSameInstanceAs(
+            currentBackStackEntry
+        )
     }
 
     @UiThreadTest
@@ -1798,6 +1802,7 @@ class NavControllerTest {
         args.putString(testKey, testValue)
 
         var destinationListenerExecuted = false
+        val currentBackStackEntry = navController.currentBackStackEntry
 
         navController.navigate(
             R.id.start_test, args,
@@ -1818,6 +1823,9 @@ class NavControllerTest {
         val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(destinationListenerExecuted).isTrue()
+        assertThat(navController.currentBackStackEntry).isNotSameInstanceAs(
+            currentBackStackEntry
+        )
     }
 
     @UiThreadTest
@@ -1839,6 +1847,7 @@ class NavControllerTest {
         args.putString(testKey, testValue)
 
         var destinationListenerExecuted = false
+        val currentBackStackEntry = navController.currentBackStackEntry
 
         navController.navigate(
             R.id.start_test_with_default_arg, args,
@@ -1862,6 +1871,9 @@ class NavControllerTest {
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(returnedArgs?.getBoolean("defaultArg", false)).isTrue()
         assertThat(destinationListenerExecuted).isTrue()
+        assertThat(navController.currentBackStackEntry).isNotSameInstanceAs(
+            currentBackStackEntry
+        )
     }
 
     @UiThreadTest

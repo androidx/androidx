@@ -17,6 +17,7 @@
 package androidx.navigation
 
 import android.os.Bundle
+import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -133,15 +134,16 @@ public abstract class NavigatorState {
         pop(popUpTo, saveState)
     }
 
-    public open fun onLaunchSingleTop() {
-        // We need to create a new object and change the value of the back stack to something
-        // different so that Kotlin allows it to be a new object with the same values.
-        // TODO: We should change to just assign to itself this once b/196267358 is addressed
-        val updatedBackStack = mutableListOf<NavBackStackEntry>().apply {
-            addAll(_backStack.value)
-        }
+    /**
+     * Informational callback indicating that the given [backStackEntry] has been
+     * affected by a [NavOptions.shouldLaunchSingleTop] operation.
+     */
+    @CallSuper
+    public open fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
+        // We update the back stack here because we don't want to leave it to the navigator since
+        // it might be using transitions.
         _backStack.value = _backStack.value - _backStack.value.last()
-        _backStack.value = updatedBackStack
+        _backStack.value = _backStack.value + backStackEntry
     }
 
     /**
