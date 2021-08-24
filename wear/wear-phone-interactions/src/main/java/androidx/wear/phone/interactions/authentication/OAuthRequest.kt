@@ -61,6 +61,8 @@ public class OAuthRequest internal constructor(
          */
         public const val WEAR_REDIRECT_URL_PREFIX_CN: String =
             "https://wear.googleapis-cn.com/3p_auth/"
+
+        internal const val REDIRECT_URI_KEY: String = "redirect_uri"
     }
 
     /**
@@ -145,7 +147,7 @@ public class OAuthRequest internal constructor(
              */
             appendQueryParameter(
                 requestUriBuilder,
-                "redirect_uri",
+                REDIRECT_URI_KEY,
                 Uri.withAppendedPath(
                     if (redirectUrl == null) {
                         if (WearTypeHelper.isChinaBuild(context)) {
@@ -230,6 +232,12 @@ public class OAuthRequest internal constructor(
             }
         }
     }
+
+    /**
+     * The redirect url the companion app is registered to.
+     */
+    // It is save to put non-null check here as it is always set in the builder.
+    public fun redirectUrl(): String = requestUrl.getQueryParameter(REDIRECT_URI_KEY)!!
 
     internal fun toBundle(): Bundle = Bundle().apply {
         putParcelable(RemoteAuthClient.KEY_REQUEST_URL, requestUrl)
