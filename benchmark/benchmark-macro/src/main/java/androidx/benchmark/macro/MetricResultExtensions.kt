@@ -22,13 +22,13 @@ import androidx.benchmark.MetricResult
 /**
  * Merge the Map<String, Long> results from each iteration into one List<MetricResult>
  */
-internal fun List<Map<String, Long>>.mergeToMetricResults(
+internal fun List<Map<String, Double>>.mergeToMetricResults(
     @Suppress("UNUSED_PARAMETER") tracePaths: List<String>
 ): List<MetricResult> {
     val setOfAllKeys = flatMap { it.keys }.toSet()
 
     // build Map<String, List<Long>>
-    val listResults: Map<String, List<Long>> = setOfAllKeys.associateWith { key ->
+    val listResults: Map<String, List<Double>> = setOfAllKeys.associateWith { key ->
         mapIndexedNotNull { iteration, resultMap ->
             if (resultMap.keys != setOfAllKeys) {
                 // TODO: assert that metrics are always captured (b/193827052)
@@ -42,6 +42,6 @@ internal fun List<Map<String, Long>>.mergeToMetricResults(
 
     // transform to List<MetricResult>, sorted by metric name
     return listResults.map { (metricName, values) ->
-        MetricResult(metricName, values.toLongArray())
-    }.sortedBy { it.stats.name }
+        MetricResult(name = metricName, data = values)
+    }.sortedBy { it.name }
 }

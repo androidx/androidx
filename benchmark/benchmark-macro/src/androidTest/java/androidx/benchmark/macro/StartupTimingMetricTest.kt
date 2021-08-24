@@ -135,7 +135,7 @@ class StartupTimingMetricTest {
         // check known values
         val hasStartupMetrics = "startupMs" in metrics.metrics
         assertEquals(hasStartupMetrics, true)
-        assertEquals(54L, metrics.metrics["startupMs"])
+        assertEquals(54.82037, metrics.metrics["startupMs"]!!, 0.0001)
         assertEquals(4131145997215L, metrics.timelineStart)
         assertEquals(4131200817585L, metrics.timelineEnd)
     }
