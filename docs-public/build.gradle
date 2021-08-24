@@ -273,7 +273,7 @@ dependencies {
     docs("androidx.webkit:webkit:1.4.0")
     docs("androidx.window:window:1.0.0-beta01")
     stubs(fileTree(dir: "../window/stubs/", include: ["window-sidecar-release-0.1.0-alpha01.aar"]))
-    stubs(project(":window:window-extensions"))
+    stubs("androidx.window:window-extensions:1.0.0-alpha01")
     docs("androidx.window:window-java:1.0.0-beta01")
     docs("androidx.window:window-rxjava2:1.0.0-beta01")
     docs("androidx.window:window-rxjava3:1.0.0-beta01")
