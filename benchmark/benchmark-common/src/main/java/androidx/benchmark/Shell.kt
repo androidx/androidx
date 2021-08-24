@@ -19,6 +19,8 @@ package androidx.benchmark
 import android.os.Build
 import android.os.Looper
 import android.os.ParcelFileDescriptor.AutoCloseInputStream
+import android.os.SystemClock
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
@@ -189,17 +191,92 @@ object Shell {
 
     @RequiresApi(21)
     fun isPackageAlive(packageName: String): Boolean {
+        return getPidsForProcess(packageName).isNotEmpty()
+    }
+
+    @RequiresApi(21)
+    fun getPidsForProcess(processName: String): List<Int> {
         if (Build.VERSION.SDK_INT >= 24) {
             // On API 23 (first version to offer it) we observe that 'pidof'
             // returns list of all processes :|
-            return executeCommand("pidof $packageName").isNotBlank()
+            return executeCommand("pidof $processName")
+                .trim()
+                .split(Regex("\\s+"))
+                .filter { it.isNotEmpty() }
+                .map {
+                    it.toInt()
+                }
         }
 
         // Can't use ps -A on older platforms, arg isn't supported.
         // Can't simply run ps, since it gets truncated
-        return executeScript("ps | grep $packageName")
-            .split("\r?\n")
-            .any { it.trim().endsWith(" $packageName") }
+        return executeScript("ps | grep $processName")
+            .split(Regex("\r?\n"))
+            .map { it.trim() }
+            .filter { it.endsWith(" $processName") }
+            .map {
+                // map to int - split, and take 2nd column (PID)
+                it.split(Regex("\\s+"))[1]
+                    .toInt()
+            }
+    }
+
+    /**
+     * Checks if a process is alive, given a specified pid **and** process name.
+     *
+     * Both must match in order to return true.
+     */
+    @RequiresApi(21)
+    fun isProcessAlive(pid: Int, processName: String): Boolean {
+        return executeCommand("ps $pid")
+            .split(Regex("\r?\n"))
+            .any { it.trim().endsWith(" $processName") }
+    }
+
+    @RequiresApi(21)
+    data class ProcessPid(val processName: String, val pid: Int) {
+        fun isAlive() = isProcessAlive(pid, processName)
+    }
+
+    @RequiresApi(21)
+    fun terminateProcessesAndWait(
+        waitPollPeriodMs: Long,
+        waitPollMaxCount: Int,
+        processName: String
+    ) {
+        val processes = getPidsForProcess(processName).map { pid ->
+            ProcessPid(pid = pid, processName = processName)
+        }
+        terminateProcessesAndWait(
+            waitPollPeriodMs = waitPollPeriodMs,
+            waitPollMaxCount = waitPollMaxCount,
+            *processes.toTypedArray()
+        )
+    }
+
+    @RequiresApi(21)
+    fun terminateProcessesAndWait(
+        waitPollPeriodMs: Long,
+        waitPollMaxCount: Int,
+        vararg processes: ProcessPid
+    ) {
+        processes.forEach {
+            val stopOutput = executeCommand("kill -TERM ${it.pid}")
+            Log.d(BenchmarkState.TAG, "kill -TERM command output - $stopOutput")
+        }
+
+        var runningProcesses = processes.toList()
+        repeat(waitPollMaxCount) {
+            runningProcesses = runningProcesses.filter { isProcessAlive(it.pid, it.processName) }
+            if (runningProcesses.isEmpty()) {
+                return
+            }
+            userspaceTrace("wait for $runningProcesses to die") {
+                SystemClock.sleep(waitPollPeriodMs)
+            }
+            Log.d(BenchmarkState.TAG, "Waiting $waitPollPeriodMs ms for $runningProcesses to die")
+        }
+        throw IllegalStateException("Failed to stop $runningProcesses")
     }
 }
 
@@ -232,13 +309,13 @@ private object ShellImpl {
     ): Pair<String, String?> {
         // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
         // so we copy to /data/local/tmp
-        val externalDir = androidx.benchmark.Outputs.dirUsableByAppAndShell
-        val writableScriptFile = java.io.File.createTempFile("temporaryScript", ".sh", externalDir)
+        val externalDir = Outputs.dirUsableByAppAndShell
+        val writableScriptFile = File.createTempFile("temporaryScript", ".sh", externalDir)
         val runnableScriptPath = "/data/local/tmp/" + writableScriptFile.name
 
         // only create/read/delete stdin/stderr files if they are needed
         val stdinFile = stdin?.run {
-            java.io.File.createTempFile("temporaryStdin", null, externalDir)
+            File.createTempFile("temporaryStdin", null, externalDir)
         }
         val stderrPath = if (includeStderr) {
             // we use a modified runnableScriptPath (as opposed to externalDir) because some shell
@@ -263,7 +340,7 @@ private object ShellImpl {
             // Note: we don't check for return values from the below, since shell based file
             // permission errors generally crash our process.
             executeCommand("cp ${writableScriptFile.absolutePath} $runnableScriptPath")
-            androidx.benchmark.Shell.chmodExecutable(runnableScriptPath)
+            Shell.chmodExecutable(runnableScriptPath)
 
             val stdout = executeCommand(runnableScriptPath)
             val stderr = stderrPath?.run { executeCommand("cat $stderrPath") }

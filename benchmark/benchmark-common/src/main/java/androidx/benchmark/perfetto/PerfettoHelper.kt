@@ -21,8 +21,8 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.benchmark.Shell
 import androidx.benchmark.DeviceInfo.deviceSummaryString
+import androidx.benchmark.Shell
 import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import org.jetbrains.annotations.TestOnly
@@ -46,6 +46,8 @@ public class PerfettoHelper(
                 "$LOWEST_BUNDLED_VERSION_SUPPORTED or greater."
         }
     }
+
+    var perfettoPid: Int? = null
 
     private fun perfettoStartupException(label: String, cause: Exception?): IllegalStateException {
         return IllegalStateException(
@@ -73,18 +75,14 @@ public class PerfettoHelper(
             "Perfetto config cannot be empty."
         }
 
+        require(perfettoPid == null) {
+            "Perfetto instance is already running"
+        }
+
         try {
             // Cleanup already existing perfetto process.
             Log.i(LOG_TAG, "Cleanup perfetto before starting.")
-            if (isPerfettoRunning()) {
-                Log.i(LOG_TAG, "Perfetto tracing is already running. Stopping perfetto.")
-                if (!stopPerfetto()) {
-                    throw perfettoStartupException(
-                        "Unable to stop Perfetto trace capture",
-                        null
-                    )
-                }
-            }
+            stopAllPerfettoProcesses()
 
             // The actual location of the config path.
             val actualConfigPath = if (unbundled) {
@@ -102,23 +100,31 @@ public class PerfettoHelper(
             val output = Shell.executeCommand("rm $outputPath")
             Log.i(LOG_TAG, "Perfetto output file cleanup - $output")
 
-            // Setup `traced` and `traced_probes` if necessary.
-            setupTracedAndProbes()
-
             // Perfetto
             val perfettoCmd = perfettoCommand(actualConfigPath, isTextProtoConfig)
             Log.i(LOG_TAG, "Starting perfetto tracing with cmd: $perfettoCmd")
-            val perfettoCmdOutput = Shell.executeScript(perfettoCmd)
+            val perfettoCmdOutput = Shell.executeScript(perfettoCmd).trim()
             Log.i(LOG_TAG, "Perfetto pid - $perfettoCmdOutput")
+            perfettoPid = perfettoCmdOutput.toInt()
         } catch (ioe: IOException) {
             throw perfettoStartupException("Unable to start perfetto tracing", ioe)
         }
 
-        if (!isPerfettoRunning()) {
-            throw perfettoStartupException("Perfetto tracing failed to start. ", null)
+        if (!isRunning()) {
+            throw perfettoStartupException("Perfetto tracing failed to start.", null)
         }
+        Log.i(LOG_TAG, "Perfetto tracing started successfully with pid $perfettoPid.")
+    }
 
-        Log.i(LOG_TAG, "Perfetto tracing started successfully.")
+    /**
+     * Check if this PerfettoHelper's perfetto process is running or not.
+     *
+     * @return true if perfetto is running otherwise false.
+     */
+    public fun isRunning(): Boolean {
+        return perfettoPid?.let {
+            Shell.isProcessAlive(it, perfettoProcessName)
+        } ?: false
     }
 
     /**
@@ -129,7 +135,7 @@ public class PerfettoHelper(
      * @param destinationFile file to copy the perfetto output trace.
      * @return true if the trace collection is successful otherwise false.
      */
-    public fun stopCollecting(waitTimeInMsecs: Long, destinationFile: String): Boolean {
+    public fun stopCollecting(waitTimeInMsecs: Long, destinationFile: String) {
         // Wait for the dump interval before stopping the trace.
         userspaceTrace("Wait for perfetto flush") {
             Log.i(LOG_TAG, "Waiting for $waitTimeInMsecs millis before stopping perfetto.")
@@ -138,24 +144,14 @@ public class PerfettoHelper(
 
         // Stop the perfetto and copy the output file.
         Log.i(LOG_TAG, "Stopping perfetto.")
-        try {
-            var stopped = userspaceTrace("stop perfetto process") { stopPerfetto() }
-            if (unbundled) {
-                Log.i(LOG_TAG, "Stopping `traced` and `traced_probes`.")
-                stopped = stopped.or(stopProcess(getProcessId(TRACED)))
-                stopped = stopped.or(stopProcess(getProcessId(TRACED_PROBES)))
-            }
-            if (!stopped) {
-                Log.e(LOG_TAG, "Perfetto failed to stop.")
-                return false
-            }
-            Log.i(LOG_TAG, "Writing to $destinationFile.")
-            return userspaceTrace("copy trace to output dir") {
-                copyFileOutput(destinationFile)
-            }
-        } catch (ioe: IOException) {
-            Log.e(LOG_TAG, "Unable to stop the perfetto tracing due to " + ioe.message, ioe)
-            return false
+
+        userspaceTrace("stop perfetto process") {
+            stopPerfetto()
+        }
+
+        Log.i(LOG_TAG, "Writing to $destinationFile.")
+        userspaceTrace("copy trace to output dir") {
+            copyFileOutput(destinationFile)
         }
     }
 
@@ -164,38 +160,19 @@ public class PerfettoHelper(
      *
      * @return true if perfetto is stopped successfully.
      */
-    @Throws(IOException::class)
-    public fun stopPerfetto(): Boolean = stopProcess(getProcessId(PERFETTO))
+    public fun stopPerfetto() {
+        val pid = perfettoPid
 
-    /**
-     * Check if perfetto process is running or not.
-     *
-     * @return true if perfetto is running otherwise false.
-     */
-    public fun isPerfettoRunning(): Boolean {
-        val pid = getProcessId(PERFETTO)
-        return !pid.isNullOrEmpty()
-    }
-
-    /**
-     * Sets up `traced` and `traced_probes` if necessary.
-     */
-    private fun setupTracedAndProbes() {
-        if (!unbundled) {
-            return
-        }
-
-        // Run `traced` and `traced_probes` in background mode.
-
-        // Setup traced
-        val tracedCmd = "$UNBUNDLED_ENV_PREFIX $tracedShellPath --background"
-        Log.i(LOG_TAG, "Starting traced cmd: $tracedCmd")
-        Shell.executeScript(tracedCmd)
-
-        // Setup traced_probes
-        val tracedProbesCmd = "$UNBUNDLED_ENV_PREFIX $tracedProbesShellPath --background"
-        Log.i(LOG_TAG, "Starting traced_probes cmd: $tracedProbesCmd")
-        Shell.executeScript(tracedProbesCmd)
+        require(pid != null)
+        Shell.terminateProcessesAndWait(
+            waitPollPeriodMs = PERFETTO_KILL_WAIT_TIME_MS,
+            waitPollMaxCount = PERFETTO_KILL_WAIT_COUNT,
+            Shell.ProcessPid(
+                pid = pid,
+                processName = perfettoProcessName
+            )
+        )
+        perfettoPid = null
     }
 
     /**
@@ -210,7 +187,7 @@ public class PerfettoHelper(
             // Unbundled perfetto can read configuration from a file that it has permissions to
             // read from. This because it assumes the identity of the shell and therefore has
             // access to /data/local/tmp directory.
-            "$UNBUNDLED_ENV_PREFIX $perfettoShellPath --background" +
+            "$UNBUNDLED_ENV_PREFIX $unbundledPerfettoShellPath --background" +
                 " -c $configFilePath" +
                 " -o $outputPath"
         }
@@ -231,69 +208,6 @@ public class PerfettoHelper(
         } else {
             PERFETTO_TMP_OUTPUT_FILE
         }
-    }
-
-    /**
-     * @return the [String] process id for a given process name.
-     */
-    private fun getProcessId(processName: String): String? {
-        return try {
-            val processId = Shell.executeCommand("pidof $processName")
-            // We want to pick the most recent invocation of the command.
-            // This is because we may have more than once instance of the process.
-            val pid = processId.split(" ").lastOrNull()?.trim()
-            Log.d(LOG_TAG, "Process id is $pid")
-            pid
-        } catch (ioe: IOException) {
-            Log.i(LOG_TAG, "Unable to check process status due to $ioe.", ioe)
-            null
-        }
-    }
-
-    /**
-     * Utility method for stopping a process with a given `pid`.
-     *
-     * @return true if the process was stopped successfully.
-     */
-    private fun stopProcess(pid: String?): Boolean {
-        val stopOutput = Shell.executeCommand("kill -TERM $pid")
-        Log.i(LOG_TAG, "Stop command output - $stopOutput")
-        var waitCount = 0
-        while (isProcessRunning(pid)) {
-            Log.d(LOG_TAG, "Process ($pid) is running")
-            // timeout for process shutdown.
-            if (waitCount < PERFETTO_KILL_WAIT_COUNT) {
-                // Check every 100 millis if process stopped successfully.
-                userspaceTrace("wait for process kill") {
-                    SystemClock.sleep(PERFETTO_KILL_WAIT_TIME_MS)
-                }
-                waitCount++
-                continue
-            }
-            return false
-        }
-        Log.i(LOG_TAG, "Process stopped successfully.")
-        return true
-    }
-
-    /**
-     * Utility method for checking if a process with a given `pid` is still running.
-     *
-     * @return true if still running.
-     */
-    @Throws(IOException::class)
-    private fun isProcessRunning(pid: String?): Boolean {
-        if (pid.isNullOrEmpty()) {
-            return false
-        }
-
-        Log.d(LOG_TAG, "Checking if $pid is running")
-
-        if (Build.VERSION.SDK_INT <= 23) {
-            TODO("pid checking for api 23 and below not yet supported")
-        }
-        val output = Shell.executeCommand("ps -A $pid")
-        return output.contains(pid)
     }
 
     /**
@@ -348,6 +262,9 @@ public class PerfettoHelper(
         return true
     }
 
+    // Perfetto executable
+    private val perfettoProcessName = if (unbundled) "tracebox" else "perfetto"
+
     companion object {
         internal const val LOG_TAG = "PerfettoCapture"
 
@@ -365,9 +282,9 @@ public class PerfettoHelper(
         private const val PERFETTO_KILL_WAIT_COUNT = 30
 
         // Check if perfetto is stopped every 100 millis.
-        private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 100
+        private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 500
 
-        // Path where perfetto, traced, and traced_probes are copied to if API >= 21 and < 29
+        // Path where unbundled tracebox is copied to
         private const val UNBUNDLED_PERFETTO_ROOT_DIR = "/data/local/tmp"
 
         private const val UNBUNDLED_TEMP_OUTPUT_FILE =
@@ -384,15 +301,6 @@ public class PerfettoHelper(
         private val SUPPORTED_64_ABIS = setOf("arm64-v8a", "x86_64")
         private val SUPPORTED_32_ABIS = setOf("armeabi")
 
-        // Perfetto executable
-        private const val PERFETTO = "perfetto"
-
-        // Trace daemon
-        private const val TRACED = "traced"
-
-        // Traced probes
-        private const val TRACED_PROBES = "traced_probes"
-
         @TestOnly
         fun isAbiSupported(): Boolean {
             Log.d(LOG_TAG, "Supported ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
@@ -404,18 +312,8 @@ public class PerfettoHelper(
         }
 
         @get:TestOnly
-        val tracedProbesShellPath: String by lazy {
-            createExecutable(TRACED_PROBES)
-        }
-
-        @get:TestOnly
-        val tracedShellPath: String by lazy {
-            createExecutable(TRACED)
-        }
-
-        @get:TestOnly
-        val perfettoShellPath: String by lazy {
-            createExecutable(PERFETTO)
+        val unbundledPerfettoShellPath: String by lazy {
+            createExecutable("tracebox")
         }
 
         fun createExecutable(tool: String): String {
@@ -441,6 +339,16 @@ public class PerfettoHelper(
                 val instrumentation = InstrumentationRegistry.getInstrumentation()
                 val inputStream = instrumentation.context.assets.open("${tool}_$suffix")
                 return Shell.createRunnableExecutable(tool, inputStream)
+            }
+        }
+
+        public fun stopAllPerfettoProcesses() {
+            listOf("perfetto", "tracebox").forEach { processName ->
+                Shell.terminateProcessesAndWait(
+                    waitPollPeriodMs = PERFETTO_KILL_WAIT_TIME_MS,
+                    waitPollMaxCount = PERFETTO_KILL_WAIT_COUNT,
+                    processName
+                )
             }
         }
     }

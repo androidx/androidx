@@ -30,15 +30,7 @@ android {
     sourceSets {
         main.assets.srcDirs += new File(
                 SupportConfigKt.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/perfetto"
-        )
-        main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/traced"
-        )
-        main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/traced_probes"
+                "androidx/traceprocessor/tracebox"
         )
         androidTest.assets.srcDirs += new File(
                 SupportConfigKt.getPrebuiltsRoot(project),

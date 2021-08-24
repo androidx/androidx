@@ -93,6 +93,6 @@ internal fun PerfettoCapture.recordAndReportFile(traceName: String, block: () ->
             Log.d(PerfettoRule.TAG, "Finished recording to $destinationPath")
         }
     } finally {
-        cancel()
+        PerfettoHelper.stopAllPerfettoProcesses()
     }
 }

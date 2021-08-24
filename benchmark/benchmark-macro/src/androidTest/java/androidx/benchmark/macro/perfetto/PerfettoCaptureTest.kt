@@ -17,10 +17,10 @@
 package androidx.benchmark.macro.perfetto
 
 import android.graphics.Bitmap
-import android.os.Build
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -56,10 +56,7 @@ class PerfettoCaptureTest {
     @Before
     @After
     fun cleanup() {
-        PerfettoCapture(true).cancel()
-        if (Build.VERSION.SDK_INT >= LOWEST_BUNDLED_VERSION_SUPPORTED) {
-            PerfettoCapture(false).cancel()
-        }
+        PerfettoHelper.stopAllPerfettoProcesses()
     }
 
     @SdkSuppress(
@@ -129,17 +126,14 @@ class PerfettoCaptureTest {
         // We trigger and verify both bitmap trace section (res-tag), and then custom trace
         // section (app-tag) which makes it easier to identify when app-tag-specific issues arise
         assertEquals(
-            expected = 2,
-            actual = matchingSlices.size,
-            message = "Expect two matching slices, found " + matchingSlices.map { it.name }
+            listOf(BITMAP_TRACE_SECTION_LABEL, CUSTOM_TRACE_SECTION_LABEL),
+            matchingSlices.sortedBy { it.ts }.map { it.name }
         )
-        matchingSlices.first().apply {
-            assertEquals(BITMAP_TRACE_SECTION_LABEL, name)
-        }
-        matchingSlices.last().apply {
-            assertEquals(CUSTOM_TRACE_SECTION_LABEL, name)
-            assertTrue(dur > 15_000_000) // should be at least 15ms
-        }
+        matchingSlices
+            .single { it.name == CUSTOM_TRACE_SECTION_LABEL }
+            .apply {
+                assertTrue(dur > 15_000_000) // should be at least 15ms
+            }
     }
 
     companion object {
