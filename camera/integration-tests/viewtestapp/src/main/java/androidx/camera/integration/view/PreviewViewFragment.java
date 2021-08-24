@@ -37,12 +37,10 @@ import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.MeteringPoint;
@@ -166,7 +164,8 @@ public class PreviewViewFragment extends Fragment {
         }
     }
 
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+    @SuppressLint("UnsafeOptInUsageError")
     void setUpTargetRotationButton(@NonNull final ProcessCameraProvider cameraProvider,
             @NonNull final View rootView) {
         Button button = rootView.findViewById(R.id.target_rotation);
