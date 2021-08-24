@@ -9,6 +9,11 @@ package androidx.glance {
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.Modifier.Element,? super R,? extends R> operation);
   }
 
+  public final class CompositionLocalsKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.unit.DpSize> getLocalSize();
+  }
+
   @androidx.compose.runtime.Stable public interface Modifier {
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.Modifier.Element,java.lang.Boolean> predicate);
     method public boolean any(kotlin.jvm.functions.Function1<? super androidx.glance.Modifier.Element,java.lang.Boolean> predicate);
@@ -140,6 +145,8 @@ package androidx.glance.layout {
 
   public final inline class FontWeight {
     ctor public FontWeight();
+    method public int getValue();
+    property public final int value;
   }
 
   public static final class FontWeight.Companion {

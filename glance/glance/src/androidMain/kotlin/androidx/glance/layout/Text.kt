@@ -84,7 +84,10 @@ public class TextStyle(
  * Weight of a font.
  */
 @Suppress("INLINE_CLASS_DEPRECATED")
-public inline class FontWeight private constructor(private val weight: Int) {
+public inline class FontWeight private constructor(
+    /** numerical value for the weight (a number from 0 to 1000) **/
+    val value: Int,
+) {
     public companion object {
         public val Normal: FontWeight = FontWeight(400)
         public val Medium: FontWeight = FontWeight(500)
