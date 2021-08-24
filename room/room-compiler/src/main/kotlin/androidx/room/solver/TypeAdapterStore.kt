@@ -90,10 +90,8 @@ import androidx.room.solver.types.ByteArrayColumnTypeAdapter
 import androidx.room.solver.types.ByteBufferColumnTypeAdapter
 import androidx.room.solver.types.ColumnTypeAdapter
 import androidx.room.solver.types.CompositeAdapter
-import androidx.room.solver.types.CompositeTypeConverter
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.solver.types.EnumColumnTypeAdapter
-import androidx.room.solver.types.NoOpConverter
 import androidx.room.solver.types.PrimitiveBooleanToIntConverter
 import androidx.room.solver.types.PrimitiveColumnTypeAdapter
 import androidx.room.solver.types.StatementValueBinder
@@ -104,11 +102,10 @@ import androidx.room.vo.ShortcutQueryParameter
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableListMultimap
+import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.ImmutableSetMultimap
-import com.google.common.collect.ImmutableMap
 import com.squareup.javapoet.ClassName
-import java.util.LinkedList
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 /**
@@ -121,10 +118,8 @@ class TypeAdapterStore private constructor(
      * first type adapter has the highest priority
      */
     private val columnTypeAdapters: List<ColumnTypeAdapter>,
-    /**
-     * first converter has the highest priority
-     */
-    private val typeConverters: List<TypeConverter>
+
+    private val typeConverterStore: TypeConverterStore
 ) {
 
     companion object {
@@ -132,7 +127,7 @@ class TypeAdapterStore private constructor(
             return TypeAdapterStore(
                 context = context,
                 columnTypeAdapters = store.columnTypeAdapters,
-                typeConverters = store.typeConverters
+                typeConverterStore = store.typeConverterStore
             )
         }
 
@@ -172,7 +167,7 @@ class TypeAdapterStore private constructor(
                 .forEach(::addTypeConverter)
             return TypeAdapterStore(
                 context = context, columnTypeAdapters = adapters,
-                typeConverters = converters
+                typeConverterStore = TypeConverterStore(converters)
             )
         }
     }
@@ -306,20 +301,7 @@ class TypeAdapterStore private constructor(
      */
     @VisibleForTesting
     fun reverse(converter: TypeConverter): TypeConverter? {
-        return when (converter) {
-            is NoOpConverter -> converter
-            is CompositeTypeConverter -> {
-                val r1 = reverse(converter.conv1) ?: return null
-                val r2 = reverse(converter.conv2) ?: return null
-                CompositeTypeConverter(r2, r1)
-            }
-            else -> {
-                typeConverters.firstOrNull {
-                    it.from.isSameType(converter.to) &&
-                        it.to.isSameType(converter.from)
-                }
-            }
-        }
+        return typeConverterStore.reverse(converter)
     }
 
     /**
@@ -381,7 +363,7 @@ class TypeAdapterStore private constructor(
     }
 
     fun findTypeConverter(input: XType, output: XType): TypeConverter? {
-        return findTypeConverter(listOf(input), listOf(output))
+        return typeConverterStore.findTypeConverter(listOf(input), listOf(output))
     }
 
     fun findDeleteOrUpdateMethodBinder(typeMirror: XType): DeleteOrUpdateMethodBinder {
@@ -815,100 +797,16 @@ class TypeAdapterStore private constructor(
     }
 
     private fun findTypeConverter(input: XType, outputs: List<XType>): TypeConverter? {
-        return findTypeConverter(listOf(input), outputs)
+        return typeConverterStore.findTypeConverter(listOf(input), outputs)
     }
 
     private fun findTypeConverter(input: List<XType>, output: XType): TypeConverter? {
-        return findTypeConverter(input, listOf(output))
-    }
-
-    private fun findTypeConverter(
-        inputs: List<XType>,
-        outputs: List<XType>
-    ): TypeConverter? {
-        if (inputs.isEmpty()) {
-            return null
-        }
-        inputs.forEach { input ->
-            if (outputs.any { output -> input.isSameType(output) }) {
-                return NoOpConverter(input)
-            }
-        }
-
-        val excludes = arrayListOf<XType>()
-
-        val queue = LinkedList<TypeConverter>()
-        fun List<TypeConverter>.findMatchingConverter(): TypeConverter? {
-            // We prioritize exact match over assignable. To do that, this variable keeps any
-            // assignable match and if we cannot find exactly same type match, we'll return the
-            // assignable match.
-            var assignableMatchFallback: TypeConverter? = null
-            this.forEach { converter ->
-                outputs.forEach { output ->
-                    if (output.isSameType(converter.to)) {
-                        return converter
-                    } else if (assignableMatchFallback == null &&
-                        output.isAssignableFrom(converter.to)
-                    ) {
-                        // if we don't find exact match, we'll return this.
-                        assignableMatchFallback = converter
-                    }
-                }
-            }
-            return assignableMatchFallback
-        }
-        inputs.forEach { input ->
-            val candidates = getAllTypeConverters(input, excludes)
-            val match = candidates.findMatchingConverter()
-            if (match != null) {
-                return match
-            }
-            candidates.forEach {
-                excludes.add(it.to)
-                queue.add(it)
-            }
-        }
-        excludes.addAll(inputs)
-        while (queue.isNotEmpty()) {
-            val prev = queue.pop()
-            val from = prev.to
-            val candidates = getAllTypeConverters(from, excludes)
-            val match = candidates.findMatchingConverter()
-            if (match != null) {
-                return CompositeTypeConverter(prev, match)
-            }
-            candidates.forEach {
-                excludes.add(it.to)
-                queue.add(CompositeTypeConverter(prev, it))
-            }
-        }
-        return null
+        return typeConverterStore.findTypeConverter(input, listOf(output))
     }
 
     private fun getAllColumnAdapters(input: XType): List<ColumnTypeAdapter> {
         return columnTypeAdapters.filter {
             input.isSameType(it.out)
-        }
-    }
-
-    /**
-     * Returns all type converters that can receive input type and return into another type.
-     * The returned list is ordered by priority such that if we have an exact match, it is
-     * prioritized.
-     */
-    private fun getAllTypeConverters(input: XType, excludes: List<XType>): List<TypeConverter> {
-        // for input, check assignability because it defines whether we can use the method or not.
-        // for excludes, use exact match
-        return typeConverters.filter { converter ->
-            converter.from.isAssignableFrom(input) &&
-                !excludes.any { it.isSameType(converter.to) }
-        }.sortedByDescending {
-            // if it is the same, prioritize
-            if (it.from.isSameType(input)) {
-                2
-            } else {
-                1
-            }
         }
     }
 }
