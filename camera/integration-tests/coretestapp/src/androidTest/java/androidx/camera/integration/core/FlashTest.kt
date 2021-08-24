@@ -17,6 +17,8 @@
 package androidx.camera.integration.core
 
 import android.content.Context
+import android.graphics.SurfaceTexture
+import android.util.Size
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
@@ -29,6 +31,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.SurfaceTextureProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
@@ -95,44 +98,81 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
     @Test
     fun canCaptureWithFlashOn() {
         skipTestOnCameraPipeConfig()
-        canTakePictureWithFlashMode(ImageCapture.FLASH_MODE_ON)
+        canTakePicture(
+            flashMode = ImageCapture.FLASH_MODE_ON,
+            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+        )
     }
 
     @LabTestRule.LabTestRearCamera
     @Test
     fun canCaptureWithFlashAuto() {
         skipTestOnCameraPipeConfig()
-        canTakePictureWithFlashMode(ImageCapture.FLASH_MODE_AUTO)
+        canTakePicture(
+            flashMode = ImageCapture.FLASH_MODE_AUTO,
+            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+        )
     }
 
     // Camera gets stuck when taking pictures with flash ON or AUTO in dark environment. See
-    // b/193336562 and b/194046401 for details. The test simulates taking photo in a dark
-    // environment by allocating the devices that the rear camera is blocked. It needs to use the
-    // annotation @LabTestRule.LabTestFrontCamera and run the test with the rear camera.
+    // b/193336562 for details. The test simulates taking photo in a dark environment by
+    // allocating the devices that the rear camera is blocked. It needs to use the annotation
+    // @LabTestRule.LabTestFrontCamera and run the test with the rear camera.
     @LabTestRule.LabTestFrontCamera
     @Test
     fun canCaptureWithFlashOnInDarkEnvironment() {
         skipTestOnCameraPipeConfig()
-        canTakePictureWithFlashMode(ImageCapture.FLASH_MODE_ON)
+        canTakePicture(
+            flashMode = ImageCapture.FLASH_MODE_ON,
+            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+        )
     }
 
-    // The test simulates taking photo in a dark environment by allocating the devices that the
-    // rear camera is blocked. It needs to use the annotation @LabTestRule.LabTestFrontCamera and
-    // run the test with the rear camera.
     @LabTestRule.LabTestFrontCamera
     @Test
     fun canCaptureWithFlashAutoInDarkEnvironment() {
         skipTestOnCameraPipeConfig()
-        canTakePictureWithFlashMode(ImageCapture.FLASH_MODE_AUTO)
+        canTakePicture(
+            flashMode = ImageCapture.FLASH_MODE_AUTO,
+            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+        )
     }
 
-    private fun canTakePictureWithFlashMode(flashMode: Int) = runBlocking {
+    // Camera gets stuck when taking maximum quality mode picture with flash ON or AUTO in dark
+    // environment. See b/194046401 for details. The test simulates taking photo in a dark
+    // environment by allocating the devices that the rear camera is blocked. It needs to use the
+    // annotation @LabTestRule.LabTestFrontCamera and run the test with the rear camera.
+    @LabTestRule.LabTestFrontCamera
+    @Test
+    fun canCaptureMaxQualityPhoto_withFlashOn_inDarkEnvironment() {
+        skipTestOnCameraPipeConfig()
+        canTakePicture(
+            flashMode = ImageCapture.FLASH_MODE_ON,
+            captureMode = ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
+        )
+    }
+
+    @LabTestRule.LabTestFrontCamera
+    @Test
+    fun canCaptureMaxQualityPhoto_withFlashAuto_inDarkEnvironment() {
+        skipTestOnCameraPipeConfig()
+        canTakePicture(
+            flashMode = ImageCapture.FLASH_MODE_AUTO,
+            captureMode = ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
+        )
+    }
+
+    private fun canTakePicture(flashMode: Int, captureMode: Int) = runBlocking {
         val imageCapture = ImageCapture.Builder()
             .setFlashMode(flashMode)
+            .setCaptureMode(captureMode)
             .build()
 
         val preview = Preview.Builder().build()
 
+        withContext(Dispatchers.Main) {
+            preview.setSurfaceProvider(getSurfaceProvider())
+        }
         camera =
             CameraUtil.createCameraAndAttachUseCase(context, BACK_SELECTOR, imageCapture, preview)
 
@@ -153,6 +193,22 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
             "Setting the flash mode isn't supported on Camera-pipe-integration (b/185913412)",
             implName == CameraPipeConfig::class.simpleName
         )
+    }
+
+    private fun getSurfaceProvider(): Preview.SurfaceProvider {
+        return SurfaceTextureProvider.createSurfaceTextureProvider(object :
+                SurfaceTextureProvider.SurfaceTextureCallback {
+                override fun onSurfaceTextureReady(
+                    surfaceTexture: SurfaceTexture,
+                    resolution: Size
+                ) {
+                    // No-op
+                }
+
+                override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
+                    surfaceTexture.release()
+                }
+            })
     }
 
     private class FakeImageCaptureCallback(capturesCount: Int) :

@@ -77,6 +77,17 @@ public class AutoFlashAEModeDisablerTest {
     }
 
     @Test
+    public void changeOnAutoFlashToOn_onSamsungJ5() {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Samsung");
+        ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-J510FN");
+
+        int aeMode = new AutoFlashAEModeDisabler()
+                .getCorrectedAeMode(CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+
+        assertThat(aeMode).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON);
+    }
+
+    @Test
     public void keepAeAutoFlash_onSamsungOtherDevices() {
         ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Samsung");
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-A3XXX");

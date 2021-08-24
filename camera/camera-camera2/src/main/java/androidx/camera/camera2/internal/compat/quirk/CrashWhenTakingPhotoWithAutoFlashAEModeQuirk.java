@@ -27,17 +27,34 @@ import java.util.List;
  * Quirk caused by a device bug that occurs on certain devices, like the Samsung A3 devices. It
  * causes the a crash after taking a picture with a
  * {@link android.hardware.camera2.CameraCharacteristics#CONTROL_AE_MODE_ON_AUTO_FLASH}
- * auto-exposure mode. See https://issuetracker.google.com/157535165 and
- * https://issuetracker.google.com/161730578
+ * auto-exposure mode. See https://issuetracker.google.com/157535165,
+ * https://issuetracker.google.com/161730578 and
+ * https://issuetracker.google.com/194046401
  */
 public class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk implements Quirk {
-    static final List<String> AFFECTED_MODELS = Arrays.asList("5059X");
+    static final List<String> AFFECTED_MODELS = Arrays.asList(
+            // Enables on all Galaxy A3 devices.
+            "SM-A3000",
+            "SM-A3009",
+            "SM-A300F",
+            "SM-A300FU",
+            "SM-A300G",
+            "SM-A300H",
+            "SM-A300M",
+            "SM-A300X",
+            "SM-A300XU",
+            "SM-A300XZ",
+            "SM-A300Y",
+            "SM-A300YZ",
+
+            // Galaxy J5
+            "SM-J510FN",
+
+            // TCT Alcatel 1X
+            "5059X"
+    );
 
     static boolean load() {
-        // Enables it on all A3 models.
-        boolean isSamsungA3Models = "SAMSUNG".equals(Build.MANUFACTURER.toUpperCase())
-                && Build.MODEL.toUpperCase().startsWith("SM-A300");
-
-        return isSamsungA3Models || AFFECTED_MODELS.contains(Build.MODEL.toUpperCase());
+        return AFFECTED_MODELS.contains(Build.MODEL.toUpperCase());
     }
 }
