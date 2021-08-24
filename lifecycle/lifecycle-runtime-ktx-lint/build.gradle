@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -36,7 +36,6 @@ dependencies {
 androidx {
     name = "Android Lifecycles Lint Checks"
     type = LibraryType.LINT
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2019"
     description = "Android Lifecycles Lint Checks"
