@@ -40,12 +40,14 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * NavController manages app navigation within a [NavHost].
@@ -107,6 +109,29 @@ public open class NavController(
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val backQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
+    private val childToParentEntries = mutableMapOf<NavBackStackEntry, NavBackStackEntry>()
+    private val parentToChildCount = mutableMapOf<NavBackStackEntry, AtomicInteger>()
+
+    private fun linkChildToParent(child: NavBackStackEntry, parent: NavBackStackEntry) {
+        childToParentEntries[child] = parent
+        if (parentToChildCount[parent] == null) {
+            parentToChildCount[parent] = AtomicInteger(0)
+        }
+        parentToChildCount[parent]!!.incrementAndGet()
+    }
+
+    internal fun unlinkChildFromParent(child: NavBackStackEntry): NavBackStackEntry? {
+        val parent = childToParentEntries.remove(child) ?: return null
+        val count = parentToChildCount[parent]?.decrementAndGet()
+        if (count == 0) {
+            val navGraphNavigator: Navigator<out NavGraph> =
+                _navigatorProvider[parent.destination.navigatorName]
+            navigatorState[navGraphNavigator]?.markTransitionComplete(parent)
+            parentToChildCount.remove(parent)
+        }
+        return parent
+    }
+
     private val backStackMap = mutableMapOf<Int, String?>()
     private val backStackStates = mutableMapOf<String, ArrayDeque<NavBackStackEntryState>>()
     private var lifecycleOwner: LifecycleOwner? = null
@@ -280,9 +305,12 @@ public open class NavController(
             super.markTransitionComplete(entry)
             entrySavedState.remove(entry)
             if (!backQueue.contains(entry)) {
+                unlinkChildFromParent(entry)
                 // If the entry is no longer part of the backStack, we need to manually move
                 // it to DESTROYED, and clear its view model
-                entry.maxLifecycle = Lifecycle.State.DESTROYED
+                if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                    entry.maxLifecycle = Lifecycle.State.DESTROYED
+                }
                 if (!savedState) {
                     viewModel?.clear(entry.id)
                 }
@@ -591,7 +619,11 @@ public open class NavController(
         val navigator = navigatorProvider
             .getNavigator<Navigator<NavDestination>>(entry.destination.navigatorName)
         val state = navigatorState[navigator]
-        val transitioning = state?.transitionsInProgress?.value?.contains(entry)
+        // If we pop an entry with transitions, but not the graph, we will not make a call to
+        // popBackStackInternal, so the graph entry will not be marked as transitioning so we
+        // need to check if it still has children.
+        val transitioning = state?.transitionsInProgress?.value?.contains(entry) == true ||
+            parentToChildCount.containsKey(entry)
         if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
             if (saveState) {
                 // Move the state through STOPPED
@@ -599,13 +631,14 @@ public open class NavController(
                 // Then save the state of the NavBackStackEntry
                 savedState.addFirst(NavBackStackEntryState(entry))
             }
-            if (transitioning != true) {
+            if (!transitioning) {
                 entry.maxLifecycle = Lifecycle.State.DESTROYED
+                unlinkChildFromParent(entry)
             } else {
                 entry.maxLifecycle = Lifecycle.State.CREATED
             }
         }
-        if (!saveState && transitioning != true) {
+        if (!saveState && !transitioning) {
             viewModel?.clear(entry.id)
         }
     }
@@ -761,11 +794,8 @@ public open class NavController(
      */
     private fun dispatchOnDestinationChanged(): Boolean {
         // We never want to leave NavGraphs on the top of the stack
-        while (!backQueue.isEmpty() &&
-            backQueue.last().destination is NavGraph &&
-            popBackStackInternal(backQueue.last().destination.id, true)
-        ) {
-            // Keep popping
+        while (!backQueue.isEmpty() && backQueue.last().destination is NavGraph) {
+            popEntryFromBackStack(backQueue.last())
         }
         val lastBackStackEntry = backQueue.lastOrNull()
         if (lastBackStackEntry != null) {
@@ -840,7 +870,7 @@ public open class NavController(
                         .getNavigator<Navigator<*>>(entry.destination.navigatorName)
                     val state = navigatorState[navigator]
                     val transitioning = state?.transitionsInProgress?.value?.contains(entry)
-                    if (transitioning != true) {
+                    if (transitioning != true && parentToChildCount[entry]?.get() != 0) {
                         upwardStateTransitions[entry] = Lifecycle.State.RESUMED
                     } else {
                         upwardStateTransitions[entry] = Lifecycle.State.STARTED
@@ -1667,7 +1697,7 @@ public open class NavController(
                     hierarchy.addFirst(entry)
                     // Pop any orphaned copy of that navigation graph off the back stack
                     if (backQueue.isNotEmpty() && backQueue.last().destination === parent) {
-                        popBackStackInternal(parent.id, true)
+                        popEntryFromBackStack(backQueue.last())
                     }
                 }
                 destination = parent
@@ -1698,9 +1728,9 @@ public open class NavController(
         while (!backQueue.isEmpty() && backQueue.last().destination is NavGraph &&
             (backQueue.last().destination as NavGraph).findNode(
                     overlappingDestination.id, false
-                ) == null && popBackStackInternal(backQueue.last().destination.id, true)
+                ) == null
         ) {
-            // Keep popping
+            popEntryFromBackStack(backQueue.last())
         }
 
         // The _graph should always be on the top of the back stack after you navigate()
@@ -1728,6 +1758,15 @@ public open class NavController(
 
         // And finally, add the new destination
         backQueue.add(backStackEntry)
+
+        // Link the newly added hierarchy and entry with the parent NavBackStackEntry
+        // so that we can track how many destinations are associated with each NavGraph
+        (hierarchy + backStackEntry).forEach {
+            val parent = it.destination.parent
+            if (parent != null) {
+                linkChildToParent(it, getBackStackEntry(parent.id))
+            }
+        }
     }
 
     /**

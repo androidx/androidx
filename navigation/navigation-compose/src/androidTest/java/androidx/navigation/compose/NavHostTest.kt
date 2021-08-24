@@ -44,12 +44,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.contains
 import androidx.navigation.createGraph
 import androidx.navigation.navDeepLink
+import androidx.navigation.navigation
 import androidx.navigation.plusAssign
 import androidx.navigation.testing.TestNavHostController
 import androidx.savedstate.SavedStateRegistry
@@ -609,6 +611,38 @@ class NavHostTest {
         composeTestRule.onNodeWithText("test").assertExists()
     }
 
+    @Test
+    fun testGetGraphViewModel() {
+        lateinit var navController: NavHostController
+        lateinit var model: TestViewModel
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, first) {
+                composable(first) { }
+                navigation(second, "subGraph") {
+                    composable(second) {
+                        model = viewModel(remember { navController.getBackStackEntry("subGraph") })
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+        }
+
+        assertThat(model.wasCleared).isFalse()
+
+        composeTestRule.waitForIdle()
+
+        assertThat(model.wasCleared).isTrue()
+    }
+
     private fun createNavController(context: Context): TestNavHostController {
         val navController = TestNavHostController(context)
         val navigator = TestNavigator()
@@ -622,4 +656,10 @@ private const val second = "second"
 
 class TestViewModel : ViewModel() {
     var value: String = "nothing"
+    var wasCleared = false
+
+    override fun onCleared() {
+        super.onCleared()
+        wasCleared = true
+    }
 }
