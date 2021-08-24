@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Resources.NotFoundException
 import android.net.Uri
 import android.os.Looper
 import android.os.ResultReceiver
@@ -43,6 +44,7 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.robolectric.Shadows.shadowOf
@@ -356,6 +358,101 @@ class RemoteActivityHelperTest {
         assertTrue(intent.action == ACTION_REMOTE_INTENT)
         assertEquals(testExtraIntent, getTargetIntent(intent))
         assertEquals(testNodeId, getTargetNodeId(intent))
+    }
+
+    @Test
+    fun testStartRemoteActivity_getCompanionPackageErrorPropagates() {
+        setSystemFeatureWatch(false)
+        val receiver = TestBroadcastReceiver(RESULT_OK)
+        context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))
+
+        Mockito.`when`(mockNodeClient.getCompanionPackageForNode(any()))
+            .thenReturn(Tasks.forException(IllegalStateException("Error")))
+
+        val future = mRemoteActivityHelper.startRemoteActivity(testExtraIntent, testNodeId)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(future.isDone)
+
+        val actualException = assertThrows(ExecutionException::class.java) {
+            future.get()
+        }
+
+        assertTrue(actualException.cause is IllegalStateException)
+    }
+
+    @Test
+    fun testStartRemoteActivity_getConnectedNodesErrorPropagates() {
+        setSystemFeatureWatch(false)
+        val receiver = TestBroadcastReceiver(RESULT_OK)
+        context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))
+
+        Mockito.`when`(mockNodeClient.connectedNodes)
+            .thenReturn(Tasks.forException(IllegalStateException("Error")))
+
+        val future = mRemoteActivityHelper.startRemoteActivity(testExtraIntent)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(future.isDone)
+
+        val actualException = assertThrows(ExecutionException::class.java) {
+            future.get()
+        }
+
+        assertTrue(actualException.cause is IllegalStateException)
+    }
+
+    @Test
+    fun testStartRemoteActivity_noNodeId_getCompanionPackageErrorPropagates() {
+        setSystemFeatureWatch(false)
+        nodeClientReturnFakeConnectedNodes()
+        val receiver = TestBroadcastReceiver(RESULT_OK)
+        context.registerReceiver(receiver, IntentFilter(ACTION_REMOTE_INTENT))
+
+        Mockito.`when`(mockNodeClient.getCompanionPackageForNode(any()))
+            .thenReturn(Tasks.forException(IllegalStateException("Error")))
+
+        val future = mRemoteActivityHelper.startRemoteActivity(testExtraIntent)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(future.isDone)
+
+        val actualException = assertThrows(ExecutionException::class.java) {
+            future.get()
+        }
+
+        assertTrue(actualException.cause is IllegalStateException)
+    }
+
+    @Test
+    fun testStartRemoteActivity_nodeNotFound() {
+        setSystemFeatureWatch(false)
+        Mockito.`when`(mockNodeClient.getCompanionPackageForNode(any()))
+            .thenReturn(Tasks.forResult(""))
+
+        val future = mRemoteActivityHelper.startRemoteActivity(testExtraIntent, testNodeId)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(future.isDone)
+
+        val actualException = assertThrows(ExecutionException::class.java) {
+            future.get()
+        }
+
+        assertTrue(actualException.cause is NotFoundException)
+    }
+
+    @Test
+    fun testStartRemoveActivity_noNodes() {
+        setSystemFeatureWatch(false)
+        Mockito.`when`(mockNodeClient.connectedNodes)
+            .thenReturn(Tasks.forResult(listOf()))
+
+        val future = mRemoteActivityHelper.startRemoteActivity(testExtraIntent)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(future.isDone)
+
+        val actualException = assertThrows(ExecutionException::class.java) {
+            future.get()
+        }
+
+        assertTrue(actualException.cause is NotFoundException)
     }
 }
 
