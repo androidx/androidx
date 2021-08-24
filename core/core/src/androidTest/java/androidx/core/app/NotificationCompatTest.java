@@ -1378,6 +1378,25 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testBigPictureStyle_encodesAndRecoversShowBigPictureWhenCollapsed() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(bitmap)
+                        .showBigPictureWhenCollapsed(true)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        assertTrue(n.extras.getBoolean(Notification.EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED));
+        Notification recovered = Notification.Builder.recoverBuilder(mContext, n).build();
+        assertTrue(recovered.extras.getBoolean(Notification.EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED));
+    }
+
     @SdkSuppress(minSdkVersion = 24)
     @Test
     public void testBigPictureStyle_isRecovered() {
