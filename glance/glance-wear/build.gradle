@@ -36,13 +36,21 @@ dependencies {
     api(project(":wear:tiles:tiles"))
     
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesGuava)
     implementation(project(":compose:runtime:runtime"))
+    implementation "androidx.lifecycle:lifecycle-runtime:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-service:2.3.1"
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.robolectric)
+    // TODO(b/197638718): Remove when tiles-testing dependencies are fixed.
+    testImplementation(project(":wear:tiles:tiles-renderer"))
+    testImplementation(project(":wear:tiles:tiles-testing"))
 
     androidTestImplementation(project(":core:core"))
     androidTestImplementation(project(":test:screenshot:screenshot"))

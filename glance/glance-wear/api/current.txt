@@ -1,6 +1,14 @@
 // Signature format: 4.0
 package androidx.glance.wear {
 
+  public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
+    ctor public GlanceTileService();
+    method @androidx.compose.runtime.Composable public abstract void Content();
+    method protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
+    method public void onStart(android.content.Intent? intent, int startId);
+    method protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> onTileRequest(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
+  }
+
   public final class WearCompositionTranslatorKt {
   }
 
