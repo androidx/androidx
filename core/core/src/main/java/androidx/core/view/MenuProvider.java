@@ -41,8 +41,8 @@ public interface MenuProvider {
      * Called by the {@link MenuHost} when a {@link MenuItem} is selected from the menu.
      *
      * @param menuItem the menu item that was selected
-     * @return <code>true</code> if the given menu item is handled by this menu provider,
-     * <code>false</code> otherwise
+     * @return {@code true} if the given menu item is handled by this menu provider,
+     *         {@code false} otherwise
      */
     boolean onMenuItemSelected(@NonNull MenuItem menuItem);
 }

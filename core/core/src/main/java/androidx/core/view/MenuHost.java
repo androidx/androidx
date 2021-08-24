@@ -25,6 +25,8 @@ import androidx.lifecycle.LifecycleOwner;
  * A class that allows you to host and
  * keep track of {@link MenuProvider}s that will supply
  * {@link android.view.MenuItem}s to the app bar.
+ *
+ * @see MenuHostHelper
  */
 public interface MenuHost {
 
@@ -45,7 +47,7 @@ public interface MenuHost {
      * receives an {@link Lifecycle.Event.ON_DESTROY} event.
      *
      * @param provider the MenuProvider to be added
-     * @param owner    the Lifecycle owner that will determine the removal of the provider
+     * @param owner    the Lifecycle owner whose state will determine the removal of the provider
      */
     void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner);
 
@@ -58,7 +60,7 @@ public interface MenuHost {
      *
      * @param provider the MenuProvider to be added
      * @param state    the Lifecycle.State to check for automated addition/removal
-     * @param owner    the calling component's LifecycleOwner
+     * @param owner    the Lifecycle owner whose state will be used for automated addition/removal
      */
     @SuppressLint("LambdaLast")
     void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner,

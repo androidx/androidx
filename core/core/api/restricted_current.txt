@@ -2630,6 +2630,16 @@ package androidx.core.view {
     method public void removeMenuProvider(androidx.core.view.MenuProvider);
   }
 
+  public class MenuHostHelper {
+    ctor public MenuHostHelper(Runnable);
+    method public void addMenuProvider(androidx.core.view.MenuProvider);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
+    method public void onCreateMenu(android.view.Menu, android.view.MenuInflater);
+    method public boolean onMenuItemSelected(android.view.MenuItem);
+    method public void removeMenuProvider(androidx.core.view.MenuProvider);
+  }
+
   public final class MenuItemCompat {
     method @Deprecated public static boolean collapseActionView(android.view.MenuItem!);
     method @Deprecated public static boolean expandActionView(android.view.MenuItem!);
