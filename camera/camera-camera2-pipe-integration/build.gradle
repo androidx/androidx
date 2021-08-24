@@ -77,6 +77,7 @@ dependencies {
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(project(":internal-testutils-truth"))
 }
 
 android {

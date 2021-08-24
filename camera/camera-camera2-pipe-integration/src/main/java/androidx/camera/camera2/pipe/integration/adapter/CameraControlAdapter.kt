@@ -46,7 +46,6 @@ import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -174,25 +173,10 @@ class CameraControlAdapter @Inject constructor(
         warn { "TODO: cancelAfAndFinishFlashSequence is not yet supported" }
     }
 
-    @SuppressLint("UnsafeOptInUsageError")
-    override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> {
-        return threads.scope.async(start = CoroutineStart.UNDISPATCHED) {
-            useCaseManager.camera?.let {
-                evCompControl.evCompIndex = exposure
-                cameraStateAdapter.setExposureState(
-                    EvCompValue(
-                        evCompControl.supported,
-                        evCompControl.evCompIndex,
-                        evCompControl.range,
-                        evCompControl.step,
-                    )
-                )
-                return@async exposure
-            }
-            // TODO: Consider throwing instead? This is only reached if there's no camera.
-            evCompControl.evCompIndex
-        }.asListenableFuture()
-    }
+    override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> =
+        Futures.nonCancellationPropagating(
+            evCompControl.updateAsync(exposure).asListenableFuture()
+        )
 
     override fun submitStillCaptureRequests(captureConfigs: List<CaptureConfig>) {
         val camera = useCaseManager.camera
