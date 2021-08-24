@@ -34,6 +34,15 @@ import javax.inject.Inject
 
 import static androidx.build.dependencies.DependenciesKt.*
 
+buildscript {
+    dependencies {
+        // This dependency means that tasks in this project might become out-of-date whenever
+        // certain classes in buildSrc change, and should generally be avoided.
+        // See b/140265324 for more information
+        classpath(project.files("${project.rootProject.ext["outDir"]}/buildSrc/private/build/libs/private.jar"))
+    }
+}
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
