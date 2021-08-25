@@ -736,7 +736,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice()
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
@@ -762,11 +762,42 @@ public final class SupportedSurfaceCombinationTest {
                         mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
                         useCases,
                         mUseCaseConfigFactory);
-        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
-                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        new ArrayList<>(useCaseToConfigMap.values()));
+        supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                new ArrayList<>(useCaseToConfigMap.values()));
+    }
 
-        assertThat(suggestedResolutionMap).isNotEqualTo(3);
+    @Test(expected = IllegalArgumentException.class)
+    public void suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        // Legacy camera only support (PRIV, PREVIEW) + (PRIV, PREVIEW)
+        List<Pair<Integer, Size[]>> videoResolutionsPairs = Arrays.asList(
+                Pair.create(ImageFormat.PRIVATE, new Size[]{mRecordSize}));
+        List<Pair<Integer, Size[]>> previewResolutionsPairs = Arrays.asList(
+                Pair.create(ImageFormat.PRIVATE, new Size[]{mPreviewSize}));
+
+        VideoCapture videoCapture = new VideoCapture.Builder()
+                // Override the default max resolution in VideoCapture
+                .setMaxResolution(mRecordSize)
+                .setSupportedResolutions(videoResolutionsPairs)
+                .build();
+        Preview preview = new Preview.Builder()
+                .setSupportedResolutions(previewResolutionsPairs)
+                .build();
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(videoCapture);
+        useCases.add(preview);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
+                        mUseCaseConfigFactory);
+        supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                new ArrayList<>(useCaseToConfigMap.values()));
     }
 
     @Test
