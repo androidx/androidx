@@ -48,11 +48,13 @@ import javax.inject.Inject
  */
 @UseCaseCameraScope
 interface UseCaseCameraRequestControl {
-
+    /**
+     * The declaration order is the ordering to merge.
+     */
     enum class Type {
+        SESSION_CONFIG,
         DEFAULT,
         CAMERA2_CAMERA_CONTROL,
-        SESSION_CONFIG,
     }
 
     // Repeating parameters
@@ -117,16 +119,12 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         template: RequestTemplate?,
         listeners: Set<Request.Listener>
     ): Deferred<Unit> = synchronized(lock) {
-        if (infoBundleMap[type] == null) {
-            infoBundleMap[type] = InfoBundle()
-        }
-
-        infoBundleMap[type]?.let {
+        infoBundleMap.getOrPut(type) { InfoBundle() }.let {
             it.options.addAllCaptureRequestOptionsWithPriority(values, optionPriority)
             it.tags.putAll(tags)
             it.listeners.addAll(listeners)
         }
-        infoBundleMap.toMap()
+        infoBundleMap.merge()
     }.updateCameraStateAsync(
         streams = streams,
         template = template,
@@ -149,7 +147,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             tags.toMutableMap(),
             listeners.toMutableSet()
         )
-        infoBundleMap.toMap()
+        infoBundleMap.merge()
     }.updateCameraStateAsync(
         streams = streams,
         template = template,
@@ -209,48 +207,43 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         state.capture(requests)
     }
 
-    private fun Map<UseCaseCameraRequestControl.Type, InfoBundle>.updateCameraStateAsync(
+    /**
+     * The merge order is the same as the [UseCaseCameraRequestControl.Type] declaration order.
+     *
+     * Option merge: The earlier merged option in [Config.OptionPriority.OPTIONAL] could be
+     * overridden by later merged options.
+     * Tag merge: If there is the same tagKey but tagValue is different, the later merge would
+     * override the earlier one.
+     * Listener merge: merge the listeners into a set.
+     */
+    private fun Map<UseCaseCameraRequestControl.Type, InfoBundle>.merge(): InfoBundle =
+        InfoBundle().also {
+            UseCaseCameraRequestControl.Type.values().forEach { type ->
+                getOrElse(type) { InfoBundle() }.also { infoBundleInType ->
+                    it.options.insertAllOptions(infoBundleInType.options.mutableConfig)
+                    it.tags.putAll(infoBundleInType.tags)
+                    it.listeners.addAll(infoBundleInType.listeners)
+                }
+            }
+        }
+
+    private fun InfoBundle.toTagBundle(): TagBundle =
+        MutableTagBundle.create().also { tagBundle ->
+            tags.forEach { (tagKey, tagValue) ->
+                tagBundle.putTag(tagKey, tagValue)
+            }
+        }
+
+    private fun InfoBundle.updateCameraStateAsync(
         streams: Set<StreamId>? = null,
         template: RequestTemplate? = null,
     ) = state.updateAsync(
-        parameters = toParameter(),
+        parameters = options.build().toParameters(),
         appendParameters = false,
         internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
         appendInternalParameters = false,
         streams = streams,
         template = template,
-        listeners = getListeners(),
+        listeners = listeners,
     )
-
-    /**
-     * Merge and return all the request parameters from different types. it throws an exception
-     * If there are any parameter conflicts.
-     */
-    private fun Map<UseCaseCameraRequestControl.Type, InfoBundle>.toParameter() =
-        Camera2ImplConfig.Builder().also {
-            this.values.forEach { infoBundle ->
-                it.insertAllOptions(infoBundle.options.mutableConfig)
-            }
-        }.build().toParameters()
-
-    /**
-     * Merge all the tags together and store them in the TagBundle. It doesn't check the conflict
-     * of the tag key. i.e. doesn't check two different values but using the same key.
-     */
-    private fun Map<UseCaseCameraRequestControl.Type, InfoBundle>.toTagBundle(): TagBundle =
-        MutableTagBundle.create().also { tagBundle ->
-            this.values.map { it.tags }.forEach { requestTag ->
-                requestTag.forEach { (tagKey, tagValue) -> tagBundle.putTag(tagKey, tagValue) }
-            }
-        }
-
-    /**
-     * Merge and return the Request.listeners from different types.
-     */
-    private fun Map<UseCaseCameraRequestControl.Type, InfoBundle>.getListeners():
-        Set<Request.Listener> = mutableSetOf<Request.Listener>().also {
-            this.values.map { it.listeners }.forEach { listenerSet ->
-                it.addAll(listenerSet)
-            }
-        }
 }

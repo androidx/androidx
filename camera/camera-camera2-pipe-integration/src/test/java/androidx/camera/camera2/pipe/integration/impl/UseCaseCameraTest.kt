@@ -17,29 +17,17 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
-import android.view.Surface
-import androidx.camera.camera2.pipe.AeMode
-import androidx.camera.camera2.pipe.AfMode
-import androidx.camera.camera2.pipe.AwbMode
-import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.Lock3ABehavior
-import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
+import androidx.camera.camera2.pipe.integration.testing.FakeSurface
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
-import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import com.google.common.truth.Truth.assertThat
-import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
@@ -47,11 +35,12 @@ import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
-import java.util.concurrent.Semaphore
+import org.robolectric.annotation.internal.DoNotInstrument
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@DoNotInstrument
 class UseCaseCameraTest {
     private val surface = FakeSurface()
     private val surfaceToStreamMap: Map<DeferrableSurface, StreamId> = mapOf(surface to StreamId(0))
@@ -92,7 +81,7 @@ class UseCaseCameraTest {
             it.activeUseCases = setOf(fakeUseCase)
         }
         assumeTrue(
-            fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.tryAcquire(
+            fakeCameraGraph.fakeCameraGraphSession.repeatingRequestSemaphore.tryAcquire(
                 1, 3, TimeUnit.SECONDS
             )
         )
@@ -107,7 +96,7 @@ class UseCaseCameraTest {
 
         // Assert. The stopRepeating() should be called.
         assertThat(
-            fakeCameraGraph.fakeCameraGraphSession.stopRepeating.tryAcquire(
+            fakeCameraGraph.fakeCameraGraphSession.stopRepeatingSemaphore.tryAcquire(
                 1, 3, TimeUnit.SECONDS
             )
         ).isTrue()
@@ -121,125 +110,5 @@ private class FakeTestUseCase() : FakeUseCase(
     fun setupSessionConfig(sessionConfigBuilder: SessionConfig.Builder) {
         updateSessionConfig(sessionConfigBuilder.build())
         notifyActive()
-    }
-}
-
-private class FakeSurface : DeferrableSurface() {
-    override fun provideSurface(): ListenableFuture<Surface> {
-        return Futures.immediateFuture(null)
-    }
-}
-
-private class FakeCameraGraph : CameraGraph {
-    val fakeCameraGraphSession = FakeCameraGraphSession()
-
-    override val streams: StreamGraph
-        get() = throw NotImplementedError("Not used in testing")
-
-    override suspend fun acquireSession(): CameraGraph.Session {
-        return fakeCameraGraphSession
-    }
-
-    override fun acquireSessionOrNull(): CameraGraph.Session {
-        return fakeCameraGraphSession
-    }
-
-    override fun close() {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override fun setSurface(stream: StreamId, surface: Surface?) {
-        // No-op
-    }
-
-    override fun start() {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override fun stop() {
-        throw NotImplementedError("Not used in testing")
-    }
-}
-
-private class FakeCameraGraphSession : CameraGraph.Session {
-    val repeatingRequests = Semaphore(0)
-    val stopRepeating = Semaphore(0)
-
-    override fun abort() {
-        // No-op
-    }
-
-    override fun close() {
-        // No-op
-    }
-
-    override suspend fun lock3A(
-        aeMode: AeMode?,
-        afMode: AfMode?,
-        awbMode: AwbMode?,
-        aeRegions: List<MeteringRectangle>?,
-        afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?,
-        aeLockBehavior: Lock3ABehavior?,
-        afLockBehavior: Lock3ABehavior?,
-        awbLockBehavior: Lock3ABehavior?,
-        frameLimit: Int,
-        timeLimitNs: Long
-    ): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override suspend fun lock3AForCapture(frameLimit: Int, timeLimitNs: Long): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override fun setTorch(torchState: TorchState): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override fun startRepeating(request: Request) {
-        repeatingRequests.release()
-    }
-
-    override fun stopRepeating() {
-        stopRepeating.release()
-    }
-
-    override fun submit(request: Request) {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override fun submit(requests: List<Request>) {
-        // No-op
-    }
-
-    override suspend fun submit3A(
-        aeMode: AeMode?,
-        afMode: AfMode?,
-        awbMode: AwbMode?,
-        aeRegions: List<MeteringRectangle>?,
-        afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?
-    ): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override suspend fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override suspend fun unlock3APostCapture(): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override fun update3A(
-        aeMode: AeMode?,
-        afMode: AfMode?,
-        awbMode: AwbMode?,
-        aeRegions: List<MeteringRectangle>?,
-        afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?
-    ): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
     }
 }
