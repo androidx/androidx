@@ -22,6 +22,7 @@ import android.os.StrictMode
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.Sampled
 import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
@@ -44,6 +45,7 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
     private val PREFERENCE_STORE_FILE_NAME = "datastore_test_app"
     private val COUNTER_KEY = intPreferencesKey("counter")
 
+    @Sampled
     override fun onCreate(savedInstanceState: Bundle?) {
         // Strict mode allows us to check that no writes or reads are blocking the UI thread.
         StrictMode.setThreadPolicy(
@@ -60,6 +62,7 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
         setUpPreferenceStoreUi()
     }
 
+    @Sampled
     private fun setUpPreferenceStoreUi() {
         // Using preferenceStore:
         findViewById<Button>(R.id.counter_dec).setOnClickListener {
