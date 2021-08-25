@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
@@ -101,7 +102,7 @@ public class OAuthRequestResponseTest {
         setSystemFeatureChina(false)
         val codeChallenge = CodeChallenge(CodeVerifier())
         val requestBuilder = OAuthRequest.Builder(context)
-            .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
+            .setAuthProviderUrl(Uri.parse(authProviderUrl))
             .setClientId(clientId)
             .setCodeChallenge(codeChallenge)
 
@@ -119,7 +120,7 @@ public class OAuthRequestResponseTest {
         setSystemFeatureChina(true)
         val codeChallenge = CodeChallenge(CodeVerifier())
         val requestBuilder = OAuthRequest.Builder(context)
-            .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
+            .setAuthProviderUrl(Uri.parse(authProviderUrl))
             .setClientId(clientId)
             .setCodeChallenge(codeChallenge)
 
@@ -137,7 +138,7 @@ public class OAuthRequestResponseTest {
         setSystemFeatureChina(false)
         val codeChallenge = CodeChallenge(CodeVerifier())
         val requestBuilder = OAuthRequest.Builder(context)
-            .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
+            .setAuthProviderUrl(Uri.parse(authProviderUrl))
             .setClientId(clientId)
             .setRedirectUrl(Uri.parse(customRedirectUrl))
             .setCodeChallenge(codeChallenge)
@@ -156,7 +157,7 @@ public class OAuthRequestResponseTest {
         setSystemFeatureChina(true)
         val codeChallenge = CodeChallenge(CodeVerifier())
         val requestBuilder = OAuthRequest.Builder(context)
-            .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
+            .setAuthProviderUrl(Uri.parse(authProviderUrl))
             .setClientId(clientId)
             .setRedirectUrl(Uri.parse(customRedirectUrl))
             .setCodeChallenge(codeChallenge)
@@ -176,7 +177,7 @@ public class OAuthRequestResponseTest {
         val codeChallenge = CodeChallenge(CodeVerifier())
         val requestBuilder = OAuthRequest.Builder(context)
             .setAuthProviderUrl(
-                authProviderUrl = Uri.parse(
+                Uri.parse(
                     "$authProviderUrl?client_id=$clientId" +
                         "&redirect_uri=$redirectUrlWithPackageName" +
                         "&response_type=code" +
@@ -211,7 +212,7 @@ public class OAuthRequestResponseTest {
     public fun testRequestBuildFailureWithoutClientId() {
         setSystemFeatureChina(false)
         val builder = OAuthRequest.Builder(context)
-            .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
+            .setAuthProviderUrl(Uri.parse(authProviderUrl))
             .setCodeChallenge(CodeChallenge(CodeVerifier()))
 
         checkBuildFailure(
@@ -264,7 +265,7 @@ public class OAuthRequestResponseTest {
     public fun testRequestBuildFailureWithoutCodeChallenge() {
         setSystemFeatureChina(false)
         val builder = OAuthRequest.Builder(context)
-            .setAuthProviderUrl(authProviderUrl = Uri.parse(authProviderUrl))
+            .setAuthProviderUrl(Uri.parse(authProviderUrl))
             .setClientId(clientId)
 
         checkBuildFailure(
@@ -436,5 +437,70 @@ public class OAuthRequestResponseTest {
 
         assertThat(response2.errorCode).isEqualTo(RemoteAuthClient.ERROR_PHONE_UNAVAILABLE)
         assertThat(response2.responseUrl).isNull()
+    }
+
+    @Test
+    public fun testGetRedirectUrl() {
+        setSystemFeatureChina(false)
+        val codeChallenge = CodeChallenge(CodeVerifier())
+        val builder = OAuthRequest.Builder(context)
+            .setAuthProviderUrl(Uri.parse(authProviderUrl))
+            .setClientId(clientId)
+            .setCodeChallenge(codeChallenge)
+
+        // Building should always be successful and it's already tested in the previous tests, so
+        // no need for try-catch block as in #checkBuildFailure.
+        val request = builder.build()
+        assertThat(request.redirectUrl()).isEqualTo(redirectUrlWithPackageName)
+    }
+
+    @Test
+    public fun testGetRedirectUrl_cn() {
+        setSystemFeatureChina(true)
+        val codeChallenge = CodeChallenge(CodeVerifier())
+        val builder = OAuthRequest.Builder(context)
+            .setAuthProviderUrl(Uri.parse(authProviderUrl))
+            .setClientId(clientId)
+            .setCodeChallenge(codeChallenge)
+
+        // Building should always be successful and it's already tested in the previous tests, so
+        // no need for try-catch block as in #checkBuildFailure.
+        val request = builder.build()
+        assertThat(request.redirectUrl()).isEqualTo(redirectUrlWithPackageName_cn)
+    }
+
+    @Test
+    public fun testGetRedirectUrlWithCustomRedirectUri() {
+        setSystemFeatureChina(false)
+        val codeChallenge = CodeChallenge(CodeVerifier())
+        val builder = OAuthRequest.Builder(context)
+            .setAuthProviderUrl(Uri.parse(authProviderUrl))
+            .setClientId(clientId)
+            .setRedirectUrl(Uri.parse(customRedirectUrl))
+            .setCodeChallenge(codeChallenge)
+
+        // Building should always be successful and it's already tested in the previous tests, so
+        // no need for try-catch block as in #checkBuildFailure.
+        val request = builder.build()
+        assertThat(request.redirectUrl()).isEqualTo(customRedirectUrlWithPackageName)
+    }
+
+    @Test
+    public fun testGetRedirectUrl_builtWithConstructor() {
+        val requestUrl = Uri.parse(authProviderUrl).buildUpon()
+            .appendQueryParameter(OAuthRequest.REDIRECT_URI_KEY, customRedirectUrl).build()
+        val request = OAuthRequest(appPackageName, requestUrl)
+
+        assertThat(request.redirectUrl()).isEqualTo(customRedirectUrl)
+    }
+
+    @Test
+    public fun testGetRedirectUrl_builtWithConstructor_failure() {
+        val requestUrl = Uri.parse(authProviderUrl)
+        val request = OAuthRequest(appPackageName, requestUrl)
+
+        Assert.assertThrows(
+            NullPointerException::class.java
+        ) { request.redirectUrl() }
     }
 }
