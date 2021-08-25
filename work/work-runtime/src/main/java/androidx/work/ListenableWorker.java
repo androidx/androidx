@@ -254,7 +254,10 @@ public abstract class ListenableWorker {
     @NonNull
     public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
         SettableFuture<ForegroundInfo> future = SettableFuture.create();
-        future.setException(new IllegalStateException("Not implemented"));
+        String message =
+                "Expedited WorkRequests require a ListenableWorker to provide an implementation for"
+                        + " `getForegroundInfoAsync()`";
+        future.setException(new IllegalStateException(message));
         return future;
     }
 
