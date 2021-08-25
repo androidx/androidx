@@ -20,6 +20,8 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isEnum
 import androidx.room.ext.CollectionTypeNames.ARRAY_MAP
+import androidx.room.ext.CollectionTypeNames.INT_SPARSE_ARRAY
+import androidx.room.ext.CollectionTypeNames.LONG_SPARSE_ARRAY
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.isEntityElement
@@ -110,6 +112,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.ImmutableSetMultimap
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 /**
@@ -553,10 +556,31 @@ class TypeAdapterStore private constructor(
                 immutableClassName = immutableClassName
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class) ||
-            typeMirror.rawType.typeName == ARRAY_MAP
+            typeMirror.rawType.typeName == ARRAY_MAP ||
+            typeMirror.rawType.typeName == LONG_SPARSE_ARRAY ||
+            typeMirror.rawType.typeName == INT_SPARSE_ARRAY
         ) {
-            val keyTypeArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
-            val mapValueTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
+            val keyTypeArg = if (typeMirror.rawType.typeName == LONG_SPARSE_ARRAY) {
+                context.processingEnv.requireType(TypeName.LONG)
+            } else if (typeMirror.rawType.typeName == INT_SPARSE_ARRAY) {
+                context.processingEnv.requireType(TypeName.INT)
+            } else {
+                typeMirror.typeArguments[0].extendsBoundOrSelf()
+            }
+
+            val isSparseArray = if (typeMirror.rawType.typeName == LONG_SPARSE_ARRAY) {
+                LONG_SPARSE_ARRAY
+            } else if (typeMirror.rawType.typeName == INT_SPARSE_ARRAY) {
+                INT_SPARSE_ARRAY
+            } else {
+                null
+            }
+
+            val mapValueTypeArg = if (isSparseArray != null) {
+                typeMirror.typeArguments[0].extendsBoundOrSelf()
+            } else {
+                typeMirror.typeArguments[1].extendsBoundOrSelf()
+            }
 
             if (mapValueTypeArg.typeElement == null) {
                 context.logger.e(
@@ -606,7 +630,8 @@ class TypeAdapterStore private constructor(
                         keyRowAdapter = keyRowAdapter,
                         valueRowAdapter = valueRowAdapter,
                         valueCollectionType = mapValueTypeArg,
-                        isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP
+                        isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP,
+                        isSparseArray = isSparseArray
                     )
                 } else {
                     context.logger.e(
@@ -639,7 +664,8 @@ class TypeAdapterStore private constructor(
                     keyRowAdapter = keyRowAdapter,
                     valueRowAdapter = valueRowAdapter,
                     valueCollectionType = null,
-                    isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP
+                    isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP,
+                    isSparseArray = isSparseArray
                 )
             }
         }

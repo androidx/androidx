@@ -25,6 +25,8 @@ import android.content.Context;
 
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.collection.ArrayMap;
+import androidx.collection.LongSparseArray;
+import androidx.collection.SparseArrayCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.testing.TestLifecycleOwner;
@@ -933,6 +935,31 @@ public class MultimapQueryTest {
         assertThat(
                 imageToArtistsMap.keySet()).containsExactlyElementsIn(Arrays.asList(2006L, 1973L)
         );
+    }
+
+    @Test
+    public void testImageYearToArtistLongSparseArray() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        LongSparseArray<Artist> imageToArtistsMap =
+                mMusicDao.getAllAlbumCoverYearToArtistsWithLongSparseArray();
+
+        assertThat(imageToArtistsMap.size()).isEqualTo(2);
+        assertThat(imageToArtistsMap.get(1)).isEqualTo(mRhcp);
+    }
+
+    @Test
+    public void testImageYearToArtistSparseArrayCompat() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover);
+
+        SparseArrayCompat<Artist> imageToArtistsMap =
+                mMusicDao.getAllAlbumCoverYearToArtistsWithIntSparseArray();
+
+        assertThat(imageToArtistsMap.size()).isEqualTo(2);
+        assertThat(imageToArtistsMap.get(1)).isEqualTo(mRhcp);
+        assertThat(imageToArtistsMap.get(4)).isEqualTo(mPinkFloyd);
     }
 
     @Test
