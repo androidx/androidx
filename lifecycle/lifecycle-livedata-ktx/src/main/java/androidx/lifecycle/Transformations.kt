@@ -75,7 +75,7 @@ public inline fun <X, Y> LiveData<X>.map(crossinline transform: (X) -> Y): LiveD
  * ```
  */
 public inline fun <X, Y> LiveData<X>.switchMap(
-    crossinline transform: (X) -> LiveData<Y>
+    crossinline transform: (X) -> LiveData<Y>?
 ): LiveData<Y> = Transformations.switchMap(this) { transform(it) }
 
 /**
