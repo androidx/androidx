@@ -980,6 +980,9 @@ public class EmojiCompat {
      *
      * When EmojiCompat is not in {@link #LOAD_STATE_SUCCEEDED}, this method has no effect.
      *
+     * Calling this method on API levels below API 19 will have no effect, as EmojiCompat may
+     * never be configured. However, it is always safe to call, even on older API levels.
+     *
      * @param outAttrs EditorInfo instance passed to
      *                 {@link android.widget.TextView#onCreateInputConnection(EditorInfo)}
      *
