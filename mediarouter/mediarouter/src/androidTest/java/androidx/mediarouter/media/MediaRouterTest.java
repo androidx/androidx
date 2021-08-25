@@ -22,6 +22,8 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -83,6 +85,12 @@ public class MediaRouterTest {
     @After
     public void tearDown() throws Exception {
         mSession.release();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                MediaRouter.reset();
+            }
+        });
     }
 
     /**
@@ -263,6 +271,20 @@ public class MediaRouterTest {
         assertTrue(mPassiveScanCountDownLatch.await(1000 + TIME_OUT_MS, TimeUnit.MILLISECONDS));
     }
 
+    @Test
+    @UiThreadTest
+    public void testReset() {
+        assertNotNull(mRouter);
+        assertNotNull(MediaRouter.getGlobalRouter());
+
+        MediaRouter.reset();
+        assertNull(MediaRouter.getGlobalRouter());
+
+        MediaRouter newInstance = MediaRouter.getInstance(mContext);
+        assertNotNull(MediaRouter.getGlobalRouter());
+        assertFalse(newInstance.getRoutes().isEmpty());
+    }
+
     /**
      * Asserts that two Bundles are equal.
      */
@@ -311,8 +333,9 @@ public class MediaRouterTest {
 
         @Override
         public void onDiscoveryRequestChanged(MediaRouteDiscoveryRequest discoveryRequest) {
-            if (mIsActiveScan != discoveryRequest.isActiveScan()) {
-                mIsActiveScan = discoveryRequest.isActiveScan();
+            boolean isActiveScan = discoveryRequest != null && discoveryRequest.isActiveScan();
+            if (mIsActiveScan != isActiveScan) {
+                mIsActiveScan = isActiveScan;
                 if (mIsActiveScan) {
                     mActiveScanCountDownLatch.countDown();
                 } else {
