@@ -59,6 +59,7 @@ public class ImageUtilTest {
     private static final Rational ASPECT_RATIO = new Rational(WIDTH, HEIGHT);
     private static final int CROP_WIDTH = 100;
     private static final int CROP_HEIGHT = 100;
+    private static final int DEFAULT_JPEG_QUALITY = 100;
     private static final String JPEG_IMAGE_DATA_BASE_64 =
             "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB"
                     + "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEB"
@@ -117,15 +118,15 @@ public class ImageUtilTest {
     }
 
     @Test
-    public void canTransformImageToByteArray() throws ImageUtil.CodecFailedException {
-        byte[] byteArray = ImageUtil.imageToJpegByteArray(mImage);
+    public void canTransformJpegImageToByteArray() {
+        byte[] byteArray = ImageUtil.jpegImageToJpegByteArray(mImage);
         assertThat(byteArray).isEqualTo(mDataByteArray);
     }
 
     @Test
-    public void canCropByteArray() throws ImageUtil.CodecFailedException {
-        byte[] byteArray = ImageUtil.cropByteArray(mDataByteArray,
-                new Rect(0, 0, CROP_WIDTH, CROP_HEIGHT));
+    public void canCropJpegByteArray() throws ImageUtil.CodecFailedException {
+        byte[] byteArray = ImageUtil.jpegImageToJpegByteArray(mImage,
+                new Rect(0, 0, CROP_WIDTH, CROP_HEIGHT), DEFAULT_JPEG_QUALITY);
         Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
         assertEquals(CROP_WIDTH, bitmap.getWidth());
         assertEquals(CROP_HEIGHT, bitmap.getHeight());

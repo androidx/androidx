@@ -17,10 +17,12 @@
 package androidx.camera.core;
 
 import android.content.ContentValues;
+import android.graphics.ImageFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.utils.Exif;
@@ -52,25 +54,33 @@ final class ImageSaver implements Runnable {
     private final ImageProxy mImage;
     // The orientation of the image
     private final int mOrientation;
+    // The compression quality level of the output JPEG image
+    private final int mJpegQuality;
     // The target location to save the image to.
     @NonNull
     private final ImageCapture.OutputFileOptions mOutputFileOptions;
     // The executor to call back on
+    @NonNull
     private final Executor mUserCallbackExecutor;
     // The callback to call on completion
+    @NonNull
     private final OnImageSavedCallback mCallback;
+    // The executor to handle the I/O operations
+    @NonNull
     private final Executor mSequentialIoExecutor;
 
     ImageSaver(
-            ImageProxy image,
+            @NonNull ImageProxy image,
             @NonNull ImageCapture.OutputFileOptions outputFileOptions,
             int orientation,
-            Executor userCallbackExecutor,
-            Executor sequentialIoExecutor,
-            OnImageSavedCallback callback) {
+            @IntRange(from = 1, to = 100) int jpegQuality,
+            @NonNull Executor userCallbackExecutor,
+            @NonNull Executor sequentialIoExecutor,
+            @NonNull OnImageSavedCallback callback) {
         mImage = image;
         mOutputFileOptions = outputFileOptions;
         mOrientation = orientation;
+        mJpegQuality = jpegQuality;
         mCallback = callback;
         mUserCallbackExecutor = userCallbackExecutor;
         mSequentialIoExecutor = sequentialIoExecutor;
@@ -114,7 +124,7 @@ final class ImageSaver implements Runnable {
         Exception exception = null;
         try (ImageProxy imageToClose = mImage;
              FileOutputStream output = new FileOutputStream(tempFile)) {
-            byte[] bytes = ImageUtil.imageToJpegByteArray(mImage);
+            byte[] bytes = imageToJpegByteArray(mImage, mJpegQuality);
             output.write(bytes);
 
             // Create new exif based on the original exif.
@@ -167,6 +177,30 @@ final class ImageSaver implements Runnable {
             return null;
         }
         return tempFile;
+    }
+
+    @NonNull
+    private byte[] imageToJpegByteArray(@NonNull ImageProxy image, @IntRange(from = 1,
+            to = 100) int jpegQuality) throws CodecFailedException {
+        boolean shouldCropImage = ImageUtil.shouldCropImage(image);
+        int imageFormat = image.getFormat();
+
+        if (imageFormat == ImageFormat.JPEG) {
+            if (!shouldCropImage) {
+                // When cropping is unnecessary, the byte array doesn't need to be decoded and
+                // re-encoded again. Therefore, jpegQuality is unnecessary in this case.
+                return ImageUtil.jpegImageToJpegByteArray(image);
+            } else {
+                return ImageUtil.jpegImageToJpegByteArray(image, image.getCropRect(), jpegQuality);
+            }
+        } else if (imageFormat == ImageFormat.YUV_420_888) {
+            return ImageUtil.yuvImageToJpegByteArray(image, shouldCropImage ? image.getCropRect() :
+                    null, jpegQuality);
+        } else {
+            Logger.w(TAG, "Unrecognized image format: " + imageFormat);
+        }
+
+        return null;
     }
 
     /**
