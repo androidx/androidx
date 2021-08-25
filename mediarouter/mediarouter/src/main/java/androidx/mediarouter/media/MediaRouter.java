@@ -294,6 +294,32 @@ public final class MediaRouter {
     }
 
     /**
+     * Resets all internal state for testing.
+     * <p>
+     * After calling this method, the caller should stop using the existing media router instances.
+     * Instead, the caller should create a new media router instance again by calling
+     * {@link #getInstance(Context)}.
+     * <p>
+     * Note that the following classes' instances need to be recreated after calling this method,
+     * as these classes store the media router instance on their constructor:
+     * <ul>
+     *     <li>{@link androidx.mediarouter.app.MediaRouteActionProvider}
+     *     <li>{@link androidx.mediarouter.app.MediaRouteButton}
+     *     <li>{@link androidx.mediarouter.app.MediaRouteChooserDialog}
+     *     <li>{@link androidx.mediarouter.app.MediaRouteControllerDialog}
+     *     <li>{@link androidx.mediarouter.app.MediaRouteDiscoveryFragment}
+     * </ul>
+     */
+    @VisibleForTesting
+    public static void reset() {
+        if (sGlobal == null) {
+            return;
+        }
+        sGlobal.reset();
+        sGlobal = null;
+    }
+
+    /**
      * Gets the initialized global router.
      * Please make sure this is called in the main thread.
      */
@@ -2496,6 +2522,25 @@ public final class MediaRouter {
             mRegisteredProviderWatcher = new RegisteredMediaRouteProviderWatcher(
                     mApplicationContext, this);
             mRegisteredProviderWatcher.start();
+        }
+
+        void reset() {
+            if (!mIsInitialized) {
+                return;
+            }
+            mRegisteredProviderWatcher.stop();
+            mActiveScanThrottlingHelper.reset();
+
+            setMediaSessionCompat(null);
+            for (RemoteControlClientRecord record : mRemoteControlClients) {
+                record.disconnect();
+            }
+
+            List<ProviderInfo> providers = new ArrayList<>(mProviders);
+            for (ProviderInfo providerInfo : providers) {
+                removeProvider(providerInfo.mProviderInstance);
+            }
+            mCallbackHandler.removeCallbacksAndMessages(null);
         }
 
         public MediaRouter getRouter(Context context) {
