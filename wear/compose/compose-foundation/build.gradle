@@ -108,7 +108,6 @@ androidx {
     name = "Android Wear Compose Foundation"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.WEAR_COMPOSE
-    mavenVersion = LibraryVersions.WEAR_COMPOSE
     inceptionYear = "2021"
     description = "WearOS Compose Foundation Library. This library makes it easier for developers" +
             "to write Jetpack Compose applications for Wearable devices by providing " +

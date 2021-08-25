@@ -50,7 +50,6 @@ androidx {
     name = "AndroidX AppSearch Debug View Sample App"
     type = LibraryType.SAMPLES
     mavenGroup = LibraryGroups.APPSEARCH
-    mavenVersion = LibraryVersions.APPSEARCH
     inceptionYear = "2021"
     description = "Contains a sample app for integrating the Androidx AppSearch Debug View"
 }

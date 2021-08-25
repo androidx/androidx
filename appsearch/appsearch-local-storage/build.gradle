@@ -90,7 +90,6 @@ androidx {
     name = "AppSearch Local Storage"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.APPSEARCH
-    mavenVersion = LibraryVersions.APPSEARCH
     inceptionYear = "2020"
     description =
         "An implementation of AppSearchSession which uses local app storage and a local copy of " +
