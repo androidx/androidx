@@ -208,9 +208,20 @@ final class SupportedSurfaceCombination {
         return SurfaceConfig.create(configType, configSize);
     }
 
+    /**
+     * Finds the suggested resolutions of the newly added UseCaseConfig.
+     *
+     * @param existingSurfaces the existing surfaces.
+     * @param newUseCaseConfigs newly added UseCaseConfig.
+     * @return the suggested resolutions, which is a mapping from UseCaseConfig to the suggested
+     * resolution.
+     * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
+     * found. This may be due to no available output size or no available surface combination.
+     */
+    @NonNull
     Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
-            List<SurfaceConfig> existingSurfaces, List<UseCaseConfig<?>> newUseCaseConfigs) {
-        Map<UseCaseConfig<?>, Size> suggestedResolutionsMap = new HashMap<>();
+            @NonNull List<SurfaceConfig> existingSurfaces,
+            @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
 
         // Get the index order list by the use case priority for finding stream configuration
         List<Integer> useCasesPriorityOrder = getUseCasesPriorityOrder(newUseCaseConfigs);
@@ -227,6 +238,7 @@ final class SupportedSurfaceCombination {
         List<List<Size>> allPossibleSizeArrangements =
                 getAllPossibleSizeArrangements(supportedOutputSizesList);
 
+        Map<UseCaseConfig<?>, Size> suggestedResolutionsMap = null;
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (List<Size> possibleSizeList : allPossibleSizeArrangements) {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
@@ -242,6 +254,7 @@ final class SupportedSurfaceCombination {
 
             // Check whether the SurfaceConfig combination can be supported
             if (checkSupported(surfaceConfigList)) {
+                suggestedResolutionsMap = new HashMap<>();
                 for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
                     suggestedResolutionsMap.put(
                             useCaseConfig,
@@ -252,7 +265,14 @@ final class SupportedSurfaceCombination {
                 break;
             }
         }
-
+        if (suggestedResolutionsMap == null) {
+            throw new IllegalArgumentException(
+                    "No supported surface combination is found for camera device - Id : "
+                            + mCameraId + " and Hardware level: " + mHardwareLevel
+                            + ". May be the specified resolution is too large and not supported."
+                            + " Existing surfaces: " + existingSurfaces
+                            + " New configs: " + newUseCaseConfigs);
+        }
         return suggestedResolutionsMap;
     }
 
