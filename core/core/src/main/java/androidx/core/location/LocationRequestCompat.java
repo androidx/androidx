@@ -209,9 +209,15 @@ public final class LocationRequestCompat {
         return mMaxUpdateDelayMillis;
     }
 
+    /**
+     * Converts an instance to an equivalent {@link LocationRequest}.
+     *
+     * @return platform class object
+     * @see LocationRequest
+     */
     @RequiresApi(31)
     @NonNull
-    LocationRequest toLocationRequest() {
+    public LocationRequest toLocationRequest() {
         return new LocationRequest.Builder(mIntervalMillis)
                 .setQuality(mQuality)
                 .setMinUpdateIntervalMillis(mMinUpdateIntervalMillis)
@@ -222,70 +228,82 @@ public final class LocationRequestCompat {
                 .build();
     }
 
+    /**
+     * Converts an instance to an equivalent {@link LocationRequest}, with the provider field of
+     * the resulting LocationRequest set to the provider argument provided to this method.
+     *
+     * <p>May throw an {@link UnsupportedOperationException} on some SDKs if various reflective
+     * operations fail. This should only occur on non-standard Android devices, and thus should
+     * be rare.
+     *
+     * @return platform class object
+     * @see LocationRequest
+     */
     @SuppressWarnings("JavaReflectionMemberAccess")
     @RequiresApi(19)
     @NonNull
-    LocationRequest toLocationRequest(@NonNull String provider)
-            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public LocationRequest toLocationRequest(@NonNull String provider) {
         if (VERSION.SDK_INT >= 31) {
             return toLocationRequest();
-        } else if (VERSION.SDK_INT >= 19) {
-            if (sCreateFromDeprecatedProviderMethod == null) {
-                sCreateFromDeprecatedProviderMethod = LocationRequest.class.getDeclaredMethod(
-                        "createFromDeprecatedProvider", String.class, long.class, float.class,
-                        boolean.class);
-                sCreateFromDeprecatedProviderMethod.setAccessible(true);
-            }
-
-            LocationRequest request =
-                    (LocationRequest) sCreateFromDeprecatedProviderMethod.invoke(null, provider,
-                            mIntervalMillis,
-                            mMinUpdateDistanceMeters, false);
-            if (request == null) {
-                // should never happen
-                throw new InvocationTargetException(new NullPointerException());
-            }
-
-            if (sSetQualityMethod == null) {
-                sSetQualityMethod = LocationRequest.class.getDeclaredMethod(
-                        "setQuality", int.class);
-                sSetQualityMethod.setAccessible(true);
-            }
-            sSetQualityMethod.invoke(request, mQuality);
-
-            if (getMinUpdateIntervalMillis() != mIntervalMillis) {
-                if (sSetFastestIntervalMethod == null) {
-                    sSetFastestIntervalMethod = LocationRequest.class.getDeclaredMethod(
-                            "setFastestInterval", long.class);
-                    sSetFastestIntervalMethod.setAccessible(true);
+        } else {
+            try {
+                if (sCreateFromDeprecatedProviderMethod == null) {
+                    sCreateFromDeprecatedProviderMethod = LocationRequest.class.getDeclaredMethod(
+                            "createFromDeprecatedProvider", String.class, long.class, float.class,
+                            boolean.class);
+                    sCreateFromDeprecatedProviderMethod.setAccessible(true);
                 }
 
-                sSetFastestIntervalMethod.invoke(request, mMinUpdateIntervalMillis);
-            }
-
-            if (mMaxUpdates < Integer.MAX_VALUE) {
-                if (sSetNumUpdatesMethod == null) {
-                    sSetNumUpdatesMethod = LocationRequest.class.getDeclaredMethod(
-                            "setNumUpdates", int.class);
-                    sSetNumUpdatesMethod.setAccessible(true);
+                LocationRequest request =
+                        (LocationRequest) sCreateFromDeprecatedProviderMethod.invoke(null, provider,
+                                mIntervalMillis,
+                                mMinUpdateDistanceMeters, false);
+                if (request == null) {
+                    throw new UnsupportedOperationException();
                 }
 
-                sSetNumUpdatesMethod.invoke(request, mMaxUpdates);
-            }
+                if (sSetQualityMethod == null) {
+                    sSetQualityMethod = LocationRequest.class.getDeclaredMethod(
+                            "setQuality", int.class);
+                    sSetQualityMethod.setAccessible(true);
+                }
+                sSetQualityMethod.invoke(request, mQuality);
 
-            if (mDurationMillis < Long.MAX_VALUE) {
-                if (sSetExpireInMethod == null) {
-                    sSetExpireInMethod = LocationRequest.class.getDeclaredMethod(
-                            "setExpireIn", long.class);
-                    sSetExpireInMethod.setAccessible(true);
+                if (getMinUpdateIntervalMillis() != mIntervalMillis) {
+                    if (sSetFastestIntervalMethod == null) {
+                        sSetFastestIntervalMethod = LocationRequest.class.getDeclaredMethod(
+                                "setFastestInterval", long.class);
+                        sSetFastestIntervalMethod.setAccessible(true);
+                    }
+
+                    sSetFastestIntervalMethod.invoke(request, mMinUpdateIntervalMillis);
                 }
 
-                sSetExpireInMethod.invoke(request, mDurationMillis);
+                if (mMaxUpdates < Integer.MAX_VALUE) {
+                    if (sSetNumUpdatesMethod == null) {
+                        sSetNumUpdatesMethod = LocationRequest.class.getDeclaredMethod(
+                                "setNumUpdates", int.class);
+                        sSetNumUpdatesMethod.setAccessible(true);
+                    }
+
+                    sSetNumUpdatesMethod.invoke(request, mMaxUpdates);
+                }
+
+                if (mDurationMillis < Long.MAX_VALUE) {
+                    if (sSetExpireInMethod == null) {
+                        sSetExpireInMethod = LocationRequest.class.getDeclaredMethod(
+                                "setExpireIn", long.class);
+                        sSetExpireInMethod.setAccessible(true);
+                    }
+
+                    sSetExpireInMethod.invoke(request, mDurationMillis);
+                }
+
+                return request;
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                throw new UnsupportedOperationException(e);
             }
-            return request;
         }
-
-        throw new NoClassDefFoundError();
     }
 
     @Override
