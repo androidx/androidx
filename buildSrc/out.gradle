@@ -17,7 +17,7 @@
 def init = new Properties()
 ext.init = init
 
-def chooseOutDir(subdir = "") {
+def chooseOutDir() {
     /*
      * The OUT_DIR is a temporary directory you can use to put things during the build.
      */
@@ -27,7 +27,7 @@ def chooseOutDir(subdir = "") {
         if (checkoutRoot == null) {
             checkoutRoot = new File("${buildscript.sourceFile.parent}/../../..")
         }
-        outDir = new File("${checkoutRoot}/out${subdir}")
+        outDir = new File("${checkoutRoot}/out")
     } else {
         outDir = new File(outDir)
     }
