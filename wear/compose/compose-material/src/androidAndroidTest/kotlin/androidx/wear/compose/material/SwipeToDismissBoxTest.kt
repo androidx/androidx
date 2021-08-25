@@ -67,7 +67,7 @@ class SwipeToDismissBoxTest {
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
-                Text("Test")
+                Text("Testing")
             }
         }
 

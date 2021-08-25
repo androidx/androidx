@@ -327,7 +327,7 @@ package androidx.wear.compose.material {
   }
 
   public final class SwipeToDismissBoxKt {
-    method @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static void SwipeToDismissBox(androidx.wear.compose.material.SwipeToDismissBoxState state, optional androidx.compose.ui.Modifier modifier, optional long scrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean hasBackground, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static void SwipeToDismissBox(androidx.wear.compose.material.SwipeToDismissBoxState state, optional androidx.compose.ui.Modifier modifier, optional long backgroundScrimColor, optional long contentScrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean hasBackground, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static androidx.wear.compose.material.SwipeToDismissBoxState rememberSwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.SwipeDismissTarget,java.lang.Boolean> confirmStateChange);
   }
 
