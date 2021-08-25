@@ -36,6 +36,26 @@ import java.nio.charset.Charset
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Shell {
+    /**
+     * Returns true if the line from ps output contains the given process/package name.
+     *
+     * NOTE: On API 25 and earlier, the processName of unbundled executables will include the
+     * relative path they were invoked from:
+     *
+     * ```
+     * root      10065 10061 14848  3932  poll_sched 7bcaf1fc8c S /data/local/tmp/tracebox
+     * root      10109 1     11552  1140  poll_sched 78c86eac8c S ./tracebox
+     * ```
+     *
+     * On higher API levels, the process name will simply be e.g. "tracebox".
+     *
+     * As this function is also used for package names (which never have a leading `/`), we
+     * simply check for either.
+     */
+    private fun psLineContainsProcess(psOutputLine: String, processName: String): Boolean {
+        return psOutputLine.endsWith(" $processName") || psOutputLine.endsWith("/$processName")
+    }
+
     fun connectUiAutomation() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ShellImpl // force initialization
@@ -213,7 +233,7 @@ object Shell {
         return executeScript("ps | grep $processName")
             .split(Regex("\r?\n"))
             .map { it.trim() }
-            .filter { it.endsWith(" $processName") }
+            .filter { psLineContainsProcess(psOutputLine = it, processName = processName) }
             .map {
                 // map to int - split, and take 2nd column (PID)
                 it.split(Regex("\\s+"))[1]
@@ -230,7 +250,7 @@ object Shell {
     fun isProcessAlive(pid: Int, processName: String): Boolean {
         return executeCommand("ps $pid")
             .split(Regex("\r?\n"))
-            .any { it.trim().endsWith(" $processName") }
+            .any { psLineContainsProcess(psOutputLine = it, processName = processName) }
     }
 
     @RequiresApi(21)

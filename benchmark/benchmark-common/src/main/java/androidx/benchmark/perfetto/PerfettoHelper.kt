@@ -160,7 +160,7 @@ public class PerfettoHelper(
      *
      * @return true if perfetto is stopped successfully.
      */
-    public fun stopPerfetto() {
+    private fun stopPerfetto() {
         val pid = perfettoPid
 
         require(pid != null)
@@ -187,7 +187,7 @@ public class PerfettoHelper(
             // Unbundled perfetto can read configuration from a file that it has permissions to
             // read from. This because it assumes the identity of the shell and therefore has
             // access to /data/local/tmp directory.
-            "$UNBUNDLED_ENV_PREFIX $unbundledPerfettoShellPath --background" +
+            "$unbundledPerfettoShellPath --background" +
                 " -c $configFilePath" +
                 " -o $outputPath"
         }
@@ -289,13 +289,6 @@ public class PerfettoHelper(
 
         private const val UNBUNDLED_TEMP_OUTPUT_FILE =
             "$UNBUNDLED_PERFETTO_ROOT_DIR/trace_output.pb"
-
-        // The environment variables necessary for unbundled perfetto (unnamed domain sockets).
-        // We need unnamed sockets here because SELinux dictates that we cannot use real, file
-        // based, domain sockets on Platform versions prior to S.
-        private const val UNBUNDLED_ENV_PREFIX =
-            "PERFETTO_PRODUCER_SOCK_NAME=@macrobenchmark_producer " +
-                "PERFETTO_CONSUMER_SOCK_NAME=@macrobenchmark_consumer"
 
         // A set of supported ABIs
         private val SUPPORTED_64_ABIS = setOf("arm64-v8a", "x86_64")

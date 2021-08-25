@@ -16,7 +16,6 @@
 
 package androidx.benchmark.macro.perfetto
 
-import android.graphics.Bitmap
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
@@ -37,7 +36,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -47,7 +45,7 @@ import kotlin.test.assertFailsWith
  * Note: this test is defined in benchmark-macro instead of benchmark-common so that it can
  * validate trace contents with PerfettoTraceProcessor
  */
-@SdkSuppress(minSdkVersion = 28) // Lowering blocked by b/131359446
+@SdkSuppress(minSdkVersion = 23)
 @RunWith(AndroidJUnit4::class)
 class PerfettoCaptureTest {
     @get:Rule
@@ -60,7 +58,7 @@ class PerfettoCaptureTest {
     }
 
     @SdkSuppress(
-        minSdkVersion = 28, // must redeclare, or minSdkVersion from this annotation (unset) wins
+        minSdkVersion = 21,
         maxSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED - 1
     )
     @SmallTest
@@ -82,18 +80,6 @@ class PerfettoCaptureTest {
     @Test
     fun captureAndValidateTrace_unbundled() = captureAndValidateTrace(unbundled = true)
 
-    /** Trigger tracing that doesn't require app tracing tag enabled */
-    private fun triggerBitmapTraceSection() {
-        val outFile = File.createTempFile("tempJpg", "jpg")
-        try {
-            Bitmap
-                .createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-                .compress(Bitmap.CompressFormat.JPEG, 100, outFile.outputStream())
-        } finally {
-            outFile.delete()
-        }
-    }
-
     private fun captureAndValidateTrace(unbundled: Boolean) {
         assumeTrue(isAbiSupported())
 
@@ -109,36 +95,33 @@ class PerfettoCaptureTest {
         // TODO: figure out why this sleep (200ms+) is needed - possibly related to b/194105203
         Thread.sleep(500)
 
-        triggerBitmapTraceSection()
-        trace(CUSTOM_TRACE_SECTION_LABEL) {
-            // Tracing non-trivial duration for manual debugging/verification
-            Thread.sleep(20)
-        }
+        // Tracing non-trivial duration for manual debugging/verification
+        trace(CUSTOM_TRACE_SECTION_LABEL_1) { Thread.sleep(20) }
+        trace(CUSTOM_TRACE_SECTION_LABEL_2) { Thread.sleep(20) }
 
         perfettoCapture.stop(traceFilePath)
 
         val matchingSlices = PerfettoTraceProcessor.querySlices(
             absoluteTracePath = traceFilePath,
-            CUSTOM_TRACE_SECTION_LABEL,
-            BITMAP_TRACE_SECTION_LABEL
+            CUSTOM_TRACE_SECTION_LABEL_1,
+            CUSTOM_TRACE_SECTION_LABEL_2
         )
 
-        // We trigger and verify both bitmap trace section (res-tag), and then custom trace
-        // section (app-tag) which makes it easier to identify when app-tag-specific issues arise
+        // Note: this test avoids validating platform-triggered trace sections, to avoid flakes
+        // from legitimate (and coincidental) platform use during test.
         assertEquals(
-            listOf(BITMAP_TRACE_SECTION_LABEL, CUSTOM_TRACE_SECTION_LABEL),
+            listOf(CUSTOM_TRACE_SECTION_LABEL_1, CUSTOM_TRACE_SECTION_LABEL_2),
             matchingSlices.sortedBy { it.ts }.map { it.name }
         )
         matchingSlices
-            .single { it.name == CUSTOM_TRACE_SECTION_LABEL }
-            .apply {
-                assertTrue(dur > 15_000_000) // should be at least 15ms
+            .forEach {
+                assertTrue(it.dur > 15_000_000) // should be at least 15ms
             }
     }
 
     companion object {
-        const val CUSTOM_TRACE_SECTION_LABEL = "PerfettoCaptureTest"
-        const val BITMAP_TRACE_SECTION_LABEL = "Bitmap.compress"
+        const val CUSTOM_TRACE_SECTION_LABEL_1 = "PerfettoCaptureTest_1"
+        const val CUSTOM_TRACE_SECTION_LABEL_2 = "PerfettoCaptureTest_2"
     }
 }
 
