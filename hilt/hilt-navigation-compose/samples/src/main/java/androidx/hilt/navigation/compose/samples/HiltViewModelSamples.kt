@@ -20,6 +20,7 @@ package androidx.hilt.navigation.compose.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.navigation.compose.NavHost
@@ -47,14 +48,12 @@ fun NestedNavComposable() {
     NavHost(navController, startDestination = "Parent") {
         navigation(startDestination = "InnerRouteA", route = "Parent") {
             composable("InnerRouteA") {
-                val viewModel = hiltViewModel<ParentViewModel>(
-                    navController.getBackStackEntry("Parent")
-                )
+                val parentEntry = remember { navController.getBackStackEntry("Parent") }
+                val viewModel = hiltViewModel<ParentViewModel>(parentEntry)
             }
             composable("InnerRouteB") {
-                val viewModel = hiltViewModel<ParentViewModel>(
-                    navController.getBackStackEntry("Parent")
-                )
+                val parentEntry = remember { navController.getBackStackEntry("Parent") }
+                val viewModel = hiltViewModel<ParentViewModel>(parentEntry)
             }
         }
     }
