@@ -24,36 +24,36 @@ import androidx.wear.tiles.TileBuilders;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * Client to connect and interact with a TileProviderService.
+ * Client to connect and interact with a TileService.
  */
-public interface TileProviderClient {
-    /** Gets the API version supported by the connected TileProviderService. */
+public interface TileClient {
+    /** Gets the API version supported by the connected TileService. */
     @NonNull
     ListenableFuture<Integer> requestApiVersion();
 
-    /** Request a tile payload from the connected TileProviderService. */
+    /** Request a tile payload from the connected TileService. */
     @NonNull
     ListenableFuture<TileBuilders.Tile> requestTile(
             @NonNull RequestBuilders.TileRequest requestParams);
 
-    /** Request a resource bundle from the connected TileProviderService. */
+    /** Request a resource bundle from the connected TileService. */
     @NonNull
     ListenableFuture<ResourceBuilders.Resources> requestResources(
             @NonNull RequestBuilders.ResourcesRequest requestParams);
 
-    /** Send a Tile Added notification to the connected TileProviderService. */
+    /** Send a Tile Added notification to the connected TileService. */
     @NonNull
     ListenableFuture<Void> sendOnTileAddedEvent();
 
-    /** Send a Tile Removed notification to the connected TileProviderService. */
+    /** Send a Tile Removed notification to the connected TileService. */
     @NonNull
     ListenableFuture<Void> sendOnTileRemovedEvent();
 
-    /** Send a Tile Enter notification to the connected TileProviderService. */
+    /** Send a Tile Enter notification to the connected TileService. */
     @NonNull
     ListenableFuture<Void> sendOnTileEnterEvent();
 
-    /** Send a Tile Leave notification to the connected TileProviderService. */
+    /** Send a Tile Leave notification to the connected TileService. */
     @NonNull
     ListenableFuture<Void> sendOnTileLeaveEvent();
 }

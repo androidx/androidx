@@ -23,7 +23,7 @@ import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileProvider
-import androidx.wear.tiles.TileProviderService
+import androidx.wear.tiles.TileService
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import org.junit.Before
@@ -35,17 +35,17 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(TilesTestingTestRunner::class)
 @DoNotInstrument
-public class TestTileProviderClientTest {
+public class TestTileClientTest {
     private companion object {
         private val RESOURCES_VERSION = "10"
     }
-    private val fakeTileProvider = FakeTileProviderService()
-    private lateinit var clientUnderTest: TestTileProviderClient<FakeTileProviderService>
+    private val fakeTileService = FakeTileService()
+    private lateinit var clientUnderTest: TestTileClient<FakeTileService>
 
     @Before
     public fun setUp() {
         val executor = InlineExecutorService()
-        clientUnderTest = TestTileProviderClient(fakeTileProvider, executor)
+        clientUnderTest = TestTileClient(fakeTileService, executor)
     }
 
     @Test
@@ -84,10 +84,10 @@ public class TestTileProviderClientTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(f.isDone).isTrue()
-        assertThat(fakeTileProvider.onTileAddFired).isTrue()
-        assertThat(fakeTileProvider.onTileRemoveFired).isFalse()
-        assertThat(fakeTileProvider.onTileEnterFired).isFalse()
-        assertThat(fakeTileProvider.onTileLeaveFired).isFalse()
+        assertThat(fakeTileService.onTileAddFired).isTrue()
+        assertThat(fakeTileService.onTileRemoveFired).isFalse()
+        assertThat(fakeTileService.onTileEnterFired).isFalse()
+        assertThat(fakeTileService.onTileLeaveFired).isFalse()
     }
 
     @Test
@@ -97,10 +97,10 @@ public class TestTileProviderClientTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(f.isDone).isTrue()
-        assertThat(fakeTileProvider.onTileAddFired).isFalse()
-        assertThat(fakeTileProvider.onTileRemoveFired).isTrue()
-        assertThat(fakeTileProvider.onTileEnterFired).isFalse()
-        assertThat(fakeTileProvider.onTileLeaveFired).isFalse()
+        assertThat(fakeTileService.onTileAddFired).isFalse()
+        assertThat(fakeTileService.onTileRemoveFired).isTrue()
+        assertThat(fakeTileService.onTileEnterFired).isFalse()
+        assertThat(fakeTileService.onTileLeaveFired).isFalse()
     }
 
     @Test
@@ -110,10 +110,10 @@ public class TestTileProviderClientTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(f.isDone).isTrue()
-        assertThat(fakeTileProvider.onTileAddFired).isFalse()
-        assertThat(fakeTileProvider.onTileRemoveFired).isFalse()
-        assertThat(fakeTileProvider.onTileEnterFired).isTrue()
-        assertThat(fakeTileProvider.onTileLeaveFired).isFalse()
+        assertThat(fakeTileService.onTileAddFired).isFalse()
+        assertThat(fakeTileService.onTileRemoveFired).isFalse()
+        assertThat(fakeTileService.onTileEnterFired).isTrue()
+        assertThat(fakeTileService.onTileLeaveFired).isFalse()
     }
 
     @Test
@@ -123,13 +123,13 @@ public class TestTileProviderClientTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(f.isDone).isTrue()
-        assertThat(fakeTileProvider.onTileAddFired).isFalse()
-        assertThat(fakeTileProvider.onTileRemoveFired).isFalse()
-        assertThat(fakeTileProvider.onTileEnterFired).isFalse()
-        assertThat(fakeTileProvider.onTileLeaveFired).isTrue()
+        assertThat(fakeTileService.onTileAddFired).isFalse()
+        assertThat(fakeTileService.onTileRemoveFired).isFalse()
+        assertThat(fakeTileService.onTileEnterFired).isFalse()
+        assertThat(fakeTileService.onTileLeaveFired).isTrue()
     }
 
-    public inner class FakeTileProviderService : TileProviderService() {
+    public inner class FakeTileService : TileService() {
         internal var onTileAddFired = false
         internal var onTileRemoveFired = false
         internal var onTileEnterFired = false

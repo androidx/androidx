@@ -979,8 +979,8 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.TimelineBuilders.Timeline);
   }
 
-  public abstract class TileProviderService extends android.app.Service {
-    ctor public TileProviderService();
+  public abstract class TileService extends android.app.Service {
+    ctor public TileService();
     method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
     method public android.os.IBinder? onBind(android.content.Intent);
     method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
@@ -995,7 +995,7 @@ package androidx.wear.tiles {
   }
 
   public interface TileUpdateRequester {
-    method public void requestUpdate(Class<? extends androidx.wear.tiles.TileProviderService>);
+    method public void requestUpdate(Class<? extends androidx.wear.tiles.TileService>);
   }
 
   @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TilesExperimental {

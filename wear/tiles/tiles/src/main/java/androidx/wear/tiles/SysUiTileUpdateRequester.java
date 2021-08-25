@@ -64,9 +64,9 @@ class SysUiTileUpdateRequester implements TileUpdateRequester {
     }
 
     @Override
-    public void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider) {
+    public void requestUpdate(@NonNull Class<? extends TileService> tileService) {
         synchronized (mLock) {
-            mPendingServices.add(tileProvider);
+            mPendingServices.add(tileService);
 
             if (mBindInProgress) {
                 // Something else kicked off the bind; let that carry on binding.

@@ -31,7 +31,7 @@ public final class RequestBuilders {
     private RequestBuilders() {}
 
     /**
-     * Parameters passed to a {@link androidx.wear.tiles.TileBuilders.Tile} provider when the
+     * Parameters passed to a {@link androidx.wear.tiles.TileBuilders.Tile} service when the
      * renderer is requesting a new version of the tile.
      */
     public static final class TileRequest {
@@ -105,7 +105,7 @@ public final class RequestBuilders {
     }
 
     /**
-     * Parameters passed to a {@link androidx.wear.tiles.TileBuilders.Tile} provider when the
+     * Parameters passed to a {@link androidx.wear.tiles.TileBuilders.Tile} service when the
      * renderer is requesting a specific resource version.
      */
     public static final class ResourcesRequest {

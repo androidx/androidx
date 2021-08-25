@@ -62,15 +62,15 @@ public class CompositeTileUpdateRequesterTest {
     }
 
     private class FakeUpdateRequester implements TileUpdateRequester {
-        @Nullable Class<? extends TileProviderService> mCalledService = null;
+        @Nullable Class<? extends TileService> mCalledService = null;
 
         @Override
-        public void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider) {
-            this.mCalledService = tileProvider;
+        public void requestUpdate(@NonNull Class<? extends TileService> tileService) {
+            this.mCalledService = tileService;
         }
     }
 
-    private class FakeService extends TileProviderService {
+    private class FakeService extends TileService {
         @NonNull
         @Override
         protected ListenableFuture<TileBuilders.Tile> onTileRequest(

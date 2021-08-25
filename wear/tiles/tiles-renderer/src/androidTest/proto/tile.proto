@@ -25,6 +25,6 @@ message Tile {
   // can be considered to be "fresh". The platform will attempt to refresh
   // your tile at some point in the future after this interval has lapsed. A
   // value of 0 here signifies that auto-refreshes should not be used (i.e. you
-  // will manually request updates via TileProviderService#getRequester).
+  // will manually request updates via TileService#getRequester).
   uint64 freshness_interval_millis = 4;
 }

@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.wear.tiles.client {
 
-  public interface TileProviderClient {
+  public interface TileClient {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> requestApiVersion();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile!> requestTile(androidx.wear.tiles.RequestBuilders.TileRequest);
@@ -15,9 +15,9 @@ package androidx.wear.tiles.client {
 
 package androidx.wear.tiles.connection {
 
-  public final class DefaultTileProviderClient implements androidx.wear.tiles.client.TileProviderClient {
-    ctor public DefaultTileProviderClient(android.content.Context context, android.content.ComponentName componentName, kotlinx.coroutines.CoroutineScope coroutineScope, kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
-    ctor public DefaultTileProviderClient(android.content.Context context, android.content.ComponentName componentName, java.util.concurrent.Executor executor);
+  public final class DefaultTileClient implements androidx.wear.tiles.client.TileClient {
+    ctor public DefaultTileClient(android.content.Context context, android.content.ComponentName componentName, kotlinx.coroutines.CoroutineScope coroutineScope, kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
+    ctor public DefaultTileClient(android.content.Context context, android.content.ComponentName componentName, java.util.concurrent.Executor executor);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer> requestApiVersion();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> requestTile(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
