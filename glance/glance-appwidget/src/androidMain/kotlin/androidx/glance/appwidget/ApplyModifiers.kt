@@ -36,14 +36,14 @@ private fun applyPadding(
     val displayMetrics = resources.displayMetrics
     val isRtl = modifier.rtlAware &&
         resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
-    val start = modifier.start.toPixel(displayMetrics)
-    val end = modifier.end.toPixel(displayMetrics)
+    val start = modifier.start.toPixels(displayMetrics)
+    val end = modifier.end.toPixels(displayMetrics)
     rv.setViewPadding(
         R.id.glanceView,
         if (isRtl) end else start,
-        modifier.top.toPixel(displayMetrics),
+        modifier.top.toPixels(displayMetrics),
         if (isRtl) start else end,
-        modifier.bottom.toPixel(displayMetrics),
+        modifier.bottom.toPixels(displayMetrics),
     )
 }
 
@@ -55,5 +55,5 @@ internal fun applyModifiers(context: Context, rv: RemoteViews, modifiers: Modifi
     }
 }
 
-private fun Dp.toPixel(displayMetrics: DisplayMetrics) =
+internal fun Dp.toPixels(displayMetrics: DisplayMetrics) =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics).toInt()
