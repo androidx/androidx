@@ -151,32 +151,88 @@ public object ScalingLazyColumnDefaults {
      * Creates a [ScalingParams] that represents the scaling and alpha properties for a
      * [ScalingLazyColumn].
      *
+     * Items in the ScalingLazyColumn have scaling and alpha effects applied to them depending on
+     * their position in the viewport. The closer to the edge (top or bottom) of the viewport that
+     * they are the greater the down scaling and transparency that is applied. Note that scaling and
+     * transparency effects are applied from the center of the viewport (full size and normal
+     * transparency) towards the edge (items can be smaller and more transparent).
+     *
+     * Deciding how much scaling and alpha to apply is based on the position and size of the item
+     * and on a series of properties that are used to determine the transition area for each item.
+     *
+     * The transition area is defined by the edge of the screen and a transition line which is
+     * calculated for each item in the list. The items transition line is based upon its size with
+     * the potential for larger list items to start their transition earlier (closer to the center)
+     * than smaller items.
+     *
+     * [minTransitionArea] and [maxTransitionArea] are both in the range [0f..1f] and are
+     * the fraction of the distance between the edge of the viewport and the center of
+     * the viewport. E.g. a value of 0.2f for minTransitionArea and 0.75f for maxTransitionArea
+     * determines that all transition lines will fall between 1/5th (20%) and 3/4s (75%) of the
+     * distance between the viewport edge and center.
+     *
+     * The size of the each item is used to determine where within the transition area range
+     * minTransitionArea..maxTransitionArea the actual transition line will be. [minElementHeight]
+     * and [maxElementHeight] are used along with the item height (as a fraction of the viewport
+     * height in the range [0f..1f]) to find the transition line. So if the items size is 0.25f
+     * (25%) of way between minElementSize..maxElementSize then the transition line will be 0.25f
+     * (25%) of the way between minTransitionArea..maxTransitionArea.
+     *
+     * A list item smaller than minElementHeight is rounded up to minElementHeight and larger than
+     * maxElementHeight is rounded down to maxElementHeight. Whereabouts the items height sits
+     * between minElementHeight..maxElementHeight is then used to determine where the transition
+     * line sits between minTransitionArea..maxTransition area.
+     *
+     * If an item is smaller than or equal to minElementSize its transition line with be at
+     * minTransitionArea and if it is larger than or equal to maxElementSize its transition line
+     * will be  at maxTransitionArea.
+     *
+     * For example, if we take the default values for minTransitionArea = 0.2f and
+     * maxTransitionArea = 0.6f and minElementSize = 0.2f and maxElementSize= 0.8f then an item
+     * with a height of 0.4f (40%) of the viewport height is one third of way between
+     * minElementSize and maxElementSize, (0.4f - 0.2f) / (0.8f - 0.2f) = 0.33f. So its transition
+     * line would be one third of way between 0.2f and 0.6f, transition line = 0.2f + (0.6f -
+     * 0.2f) * 0.33f = 0.33f.
+     *
+     * Once the position of the transition line is established we now have a transition area
+     * for the item, e.g. in the example above the item will start/finish its transitions when it
+     * is 0.33f (33%) of the distance from the edge of the viewport and will start/finish its
+     * transitions at the viewport edge.
+     *
+     * The scaleInterpolator is used to determine how much of the scaling and alpha to apply
+     * as the item transits through the transition area.
+     *
+     * The edge of the item furthest from the edge of the screen is used as a scaling trigger
+     * point for each item.
+     *
      * @param edgeScale What fraction of the full size of the item to scale it by when most
-     * scaled, e.g. at the [minTransitionArea] line. A value between [0.0,1.0], so a value of 0.2f
+     * scaled, e.g. at the edge of the viewport. A value between [0f,1f], so a value of 0.2f
      * means to scale an item to 20% of its normal size.
      *
-     * @param edgeAlpha What fraction of the full transparency of the item to scale it by when
-     * most scaled, e.g. at the [minTransitionArea] line. A value between [0.0,1.0], so a value of
+     * @param edgeAlpha What fraction of the full transparency of the item to draw it with
+     * when closest to the edge of the screen. A value between [0f,1f], so a value of
      * 0.2f means to set the alpha of an item to 20% of its normal value.
      *
      * @param minElementHeight The minimum element height as a ratio of the viewport size to use
      * for determining the transition point within ([minTransitionArea], [maxTransitionArea])
-     * that a given content item will start to be scaled. Items smaller than [minElementHeight]
-     * will be treated as if [minElementHeight]. Must be less than or equal to [maxElementHeight].
+     * that a given content item will start to be transitioned. Items smaller than
+     * [minElementHeight] will be treated as if [minElementHeight]. Must be less than or equal to
+     * [maxElementHeight].
      *
      * @param maxElementHeight The maximum element height as a ratio of the viewport size to use
      * for determining the transition point within ([minTransitionArea], [maxTransitionArea])
-     * that a given content item will start to be scaled. Items larger than [maxElementHeight]
+     * that a given content item will start to be transitioned. Items larger than [maxElementHeight]
      * will be treated as if [maxElementHeight]. Must be greater than or equal to
      * [minElementHeight].
      *
-     * @param minTransitionArea The lower bound of the scaling transition area, closest to the
-     * edge of the component. Defined as a ratio of the distance between the viewport center line
-     * and viewport edge of the list component. Must be less than or equal to [maxTransitionArea].
+     * @param minTransitionArea The lower bound of the transition line area, closest to the
+     * edge of the viewport. Defined as a fraction (value between 0f..1f) of the distance between
+     * the viewport edge and viewport center line. Must be less than or equal to
+     * [maxTransitionArea].
      *
-     * @param maxTransitionArea The upper bound of the scaling transition area, closest to the
-     * center of the component. The is a ratio of the distance between the viewport center line and
-     * viewport edge of the list component. Must be greater
+     * @param maxTransitionArea The upper bound of the transition line area, closest to the
+     * center of the viewport. The fraction (value between 0f..1f) of the distance
+     * between the viewport edge and viewport center line. Must be greater
      * than or equal to [minTransitionArea].
      *
      * @param scaleInterpolator An interpolator to use to determine how to apply scaling as a
