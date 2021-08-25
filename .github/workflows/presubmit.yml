@@ -47,10 +47,10 @@ jobs:
       affectedFileArgs: ${{ steps.affected-file-args.outputs.files }}
     steps:
       - name: Pull request format
-        uses: 'androidx/check-pr-format-action@main'
+        uses: 'dlam/check-pr-format-action@main'
         with:
           # Enforces a `Test: <stanza>` in the pull request
-          checks: '["(.*)?Test:(.*)?"]'
+          checks: '["^\\s*Test:.*$"]'
 
       - name: "Setup JDK 11"
         id: setup-java
