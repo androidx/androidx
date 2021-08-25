@@ -42,6 +42,9 @@ dependencies {
     androidTestImplementation(libs.testExtJunitKtx)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+
+    lintChecks(projectOrArtifact(":activity:activity-compose-lint"))
+    lintPublish(projectOrArtifact(":activity:activity-compose-lint"))
 }
 
 androidx {
