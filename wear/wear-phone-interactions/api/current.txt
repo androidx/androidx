@@ -34,6 +34,7 @@ package androidx.wear.phone.interactions.authentication {
   public final class OAuthRequest {
     method public String getPackageName();
     method public android.net.Uri getRequestUrl();
+    method public String redirectUrl();
     property public final String packageName;
     property public final android.net.Uri requestUrl;
     field public static final androidx.wear.phone.interactions.authentication.OAuthRequest.Companion Companion;
