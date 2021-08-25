@@ -34,9 +34,9 @@ import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileEnterEventData
 import androidx.wear.tiles.TileLeaveEventData
 import androidx.wear.tiles.TileProvider
-import androidx.wear.tiles.TileProviderService
+import androidx.wear.tiles.TileService
 import androidx.wear.tiles.TileRemoveEventData
-import androidx.wear.tiles.client.TileProviderClient
+import androidx.wear.tiles.client.TileClient
 import androidx.wear.tiles.proto.ResourceProto
 import androidx.wear.tiles.proto.TileProto
 import androidx.wear.tiles.protobuf.InvalidProtocolBufferException
@@ -54,18 +54,18 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * Implementation of [TileProviderClient] which can connect to a `TileProviderService` in either the
- * local process, or in a remote app.
+ * Implementation of [TileClient] which can connect to a `TileService` in either the local
+ * process, or in a remote app.
  *
  * This implementation will only stay connected for as long as required. Each call will cause this
- * client to connect to the `TileProviderService`, and call the specified remote method. It will
- * then disconnect again after one second of inactivity (so calls in quick succession will share
- * the same binder).
+ * client to connect to the `TileService`, and call the specified remote method. It will then
+ * disconnect again after one second of inactivity (so calls in quick succession will share the
+ * same binder).
  *
- * Note that there is a timeout of 10s when connecting to the `TileProviderService`, and a
- * timeout of 30s for [requestTile] and [requestResources] to return a payload.
+ * Note that there is a timeout of 10s when connecting to the `TileService`, and a timeout of 30s
+ * for [requestTile] and [requestResources] to return a payload.
  */
-public class DefaultTileProviderClient : TileProviderClient {
+public class DefaultTileClient : TileClient {
     internal companion object {
         @VisibleForTesting
         internal const val TIMEOUT_MILLIS = 30000L // 30s
@@ -95,12 +95,12 @@ public class DefaultTileProviderClient : TileProviderClient {
     private val connectionBinder: TilesConnectionBinder
 
     /**
-     * Build an instance of [DefaultTileProviderClient] for use with a coroutine dispatcher.
+     * Build an instance of [DefaultTileClient] for use with a coroutine dispatcher.
      *
-     * @param context The application context to use when binding to the [TileProviderService].
-     * @param componentName The [ComponentName] of the [TileProviderService] to bind to.
+     * @param context The application context to use when binding to the [TileService].
+     * @param componentName The [ComponentName] of the [TileService] to bind to.
      * @param coroutineScope A [CoroutineScope] to use when dispatching calls to the
-     *   [TileProviderService]. Cancelling the passed [CoroutineScope] will also cancel any pending
+     *   [TileService]. Cancelling the passed [CoroutineScope] will also cancel any pending
      *   work in this class.
      * @param coroutineDispatcher A [CoroutineDispatcher] to use when dispatching work from this
      *   class.
@@ -118,11 +118,11 @@ public class DefaultTileProviderClient : TileProviderClient {
     }
 
     /**
-     * Build an instance of [DefaultTileProviderClient] for use with a given [Executor].
+     * Build an instance of [DefaultTileClient] for use with a given [Executor].
      *
-     * @param context The application context to use when binding to the [TileProviderService].
-     * @param componentName The [ComponentName] of the [TileProviderService] to bind to.
-     * @param executor An [Executor] to use when dispatching calls to the [TileProviderService].
+     * @param context The application context to use when binding to the [TileService].
+     * @param componentName The [ComponentName] of the [TileService] to bind to.
+     * @param executor An [Executor] to use when dispatching calls to the [TileService].
      */
     public constructor(context: Context, componentName: ComponentName, executor: Executor) {
         this.coroutineDispatcher = executor.asCoroutineDispatcher()

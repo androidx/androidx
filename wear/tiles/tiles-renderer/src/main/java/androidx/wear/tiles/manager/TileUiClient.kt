@@ -37,7 +37,7 @@ import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.StateBuilders
 import androidx.wear.tiles.TimelineBuilders
 import androidx.wear.tiles.checkers.TimelineChecker
-import androidx.wear.tiles.connection.DefaultTileProviderClient
+import androidx.wear.tiles.connection.DefaultTileClient
 import androidx.wear.tiles.renderer.TileRenderer
 import androidx.wear.tiles.timeline.TilesTimelineManager
 import kotlinx.coroutines.CoroutineScope
@@ -51,7 +51,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
 /**
- * UI client for a single tile. This handles binding to a Tile Provider, and inflating the given
+ * UI client for a single tile. This handles binding to a Tile Service, and inflating the given
  * tile contents into the provided parentView. This also handles requested updates, re-fetching the
  * tile on-demand.
  *
@@ -73,7 +73,7 @@ public class TileUiClient(
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
     private val timelineChecker = TimelineChecker()
 
-    private val tilesConnection = DefaultTileProviderClient(
+    private val tilesConnection = DefaultTileClient(
         context = context,
         componentName = component,
         coroutineScope = coroutineScope,
@@ -97,7 +97,7 @@ public class TileUiClient(
 
     /**
      * Initialize this {@link TileManager}. This will cause the {@link TileManager} to connect to
-     * the tile provider and request the first tile. It will also trigger any requested updates.
+     * the tile service and request the first tile. It will also trigger any requested updates.
      */
     @MainThread
     public fun connect() {
@@ -117,7 +117,7 @@ public class TileUiClient(
 
     /**
      * Shut down this {@link TileManager}. This will cancel any scheduled updates, and close the
-     * connection with the tile provider.
+     * connection with the tile service.
      */
     @MainThread
     override fun close() {

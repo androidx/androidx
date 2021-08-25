@@ -55,21 +55,21 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-public class TileProviderServiceTest {
+public class TileServiceTest {
     private static final int TILE_ID = 42;
 
     @Rule public final Expect expect = Expect.create();
 
     // This is a little nasty, but we need to ensure that the version is injected by
-    // TileProviderService. For that, we need the builder form (for DummyTileProviderService to
-    // return), and the protobuf form (to compare against, which also includes the version).
+    // TileService. For that, we need the builder form (for FakeTileProviderService to return),
+    // and the protobuf form (to compare against, which also includes the version).
     private static final TileBuilders.Tile DUMMY_TILE_TO_RETURN =
             new TileBuilders.Tile.Builder().setResourcesVersion("5").build();
     private static final Tile DUMMY_TILE_PROTOBUF =
             Tile.newBuilder().setResourcesVersion("5").setSchemaVersion(Version.CURRENT).build();
 
     private TileProvider mTileProviderServiceStub;
-    private ServiceController<DummyTileProviderService> mDummyTileProviderServiceServiceController;
+    private ServiceController<FakeTileService> mFakeTileServiceController;
 
     @Mock private TileCallback mMockTileCallback;
     @Mock private ResourcesCallback mMockResourcesCallback;
@@ -79,16 +79,16 @@ public class TileProviderServiceTest {
         mMockTileCallback = mock(TileCallback.class);
         mMockResourcesCallback = mock(ResourcesCallback.class);
 
-        mDummyTileProviderServiceServiceController =
-                Robolectric.buildService(DummyTileProviderService.class);
+        mFakeTileServiceController =
+                Robolectric.buildService(FakeTileService.class);
 
-        Intent i = new Intent(TileProviderService.ACTION_BIND_TILE_PROVIDER);
-        IBinder binder = mDummyTileProviderServiceServiceController.get().onBind(i);
+        Intent i = new Intent(TileService.ACTION_BIND_TILE_PROVIDER);
+        IBinder binder = mFakeTileServiceController.get().onBind(i);
         mTileProviderServiceStub = TileProvider.Stub.asInterface(binder);
     }
 
     @Test
-    public void tileProvider_tileRequest() throws Exception {
+    public void tileService_tileRequest() throws Exception {
         mTileProviderServiceStub.onTileRequest(
                 5,
                 new TileRequestData(
@@ -109,7 +109,7 @@ public class TileProviderServiceTest {
 
     @Ignore("Disabled due to b/179074319")
     @Test
-    public void tileProvider_resourcesRequest() throws Exception {
+    public void tileService_resourcesRequest() throws Exception {
         final String resourcesVersion = "HELLO WORLD";
 
         ResourcesRequestData resourcesRequestData =
@@ -135,49 +135,49 @@ public class TileProviderServiceTest {
     }
 
     @Test
-    public void tileProvider_onTileAdd() throws Exception {
+    public void tileService_onTileAdd() throws Exception {
         EventProto.TileAddEvent addRequest = EventProto.TileAddEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileAddEvent(
                 new TileAddEventData(addRequest.toByteArray(), TileAddEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
 
-        expect.that(mDummyTileProviderServiceServiceController.get().mOnTileAddCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mOnTileAddCalled).isTrue();
     }
 
     @Test
-    public void tileProvider_onTileRemove() throws Exception {
+    public void tileService_onTileRemove() throws Exception {
         EventProto.TileRemoveEvent removeRequest = EventProto.TileRemoveEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileRemoveEvent(
                 new TileRemoveEventData(
                         removeRequest.toByteArray(), TileRemoveEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
 
-        expect.that(mDummyTileProviderServiceServiceController.get().mOnTileRemoveCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mOnTileRemoveCalled).isTrue();
     }
 
     @Test
-    public void tileProvider_onTileEnter() throws Exception {
+    public void tileService_onTileEnter() throws Exception {
         EventProto.TileEnterEvent enterRequest = EventProto.TileEnterEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileEnterEvent(
                 new TileEnterEventData(
                         enterRequest.toByteArray(), TileEnterEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
 
-        expect.that(mDummyTileProviderServiceServiceController.get().mOnTileEnterCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mOnTileEnterCalled).isTrue();
     }
 
     @Test
-    public void tileProvider_onTileLeave() throws Exception {
+    public void tileService_onTileLeave() throws Exception {
         EventProto.TileLeaveEvent leaveRequest = EventProto.TileLeaveEvent.getDefaultInstance();
         mTileProviderServiceStub.onTileLeaveEvent(
                 new TileLeaveEventData(
                         leaveRequest.toByteArray(), TileLeaveEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
 
-        expect.that(mDummyTileProviderServiceServiceController.get().mOnTileLeaveCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mOnTileLeaveCalled).isTrue();
     }
 
-    public static class DummyTileProviderService extends TileProviderService {
+    public static class FakeTileService extends TileService {
         boolean mOnTileAddCalled = false;
         boolean mOnTileRemoveCalled = false;
         boolean mOnTileEnterCalled = false;

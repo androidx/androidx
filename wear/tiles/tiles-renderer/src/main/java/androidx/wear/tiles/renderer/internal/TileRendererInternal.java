@@ -68,7 +68,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
-import androidx.wear.tiles.TileProviderService;
+import androidx.wear.tiles.TileService;
 import androidx.wear.tiles.proto.ActionProto.Action;
 import androidx.wear.tiles.proto.ActionProto.AndroidActivity;
 import androidx.wear.tiles.proto.ActionProto.AndroidExtra;
@@ -813,7 +813,7 @@ public final class TileRendererInternal {
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             if (!clickableId.isEmpty()) {
-                i.putExtra(TileProviderService.EXTRA_CLICKABLE_ID, clickableId);
+                i.putExtra(TileService.EXTRA_CLICKABLE_ID, clickableId);
             }
 
             for (Map.Entry<String, AndroidExtra> entry : activity.getKeyToExtraMap().entrySet()) {

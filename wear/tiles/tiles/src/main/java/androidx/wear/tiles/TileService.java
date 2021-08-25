@@ -51,22 +51,22 @@ import java.util.concurrent.ExecutionException;
 /**
  * Base class for a service providing data for an app tile.
  *
- * <p>A provider service must implement {@link #onTileRequest} and {@link #onResourcesRequest} to
+ * <p>A tile service must implement {@link #onTileRequest} and {@link #onResourcesRequest} to
  * respond to requests for updates from the system.
  *
- * <p>The manifest declaration of this service must include an intent filter for {@link
- * #ACTION_BIND_TILE_PROVIDER}.
+ * <p>The manifest declaration of this service must include an intent filter for
+ * {@code androidx.wear.tiles.action.BIND_TILE_PROVIDER}.
  *
- * <p>The manifest entry should also include {@code
- * android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"} to ensure that
- * only the system can bind to it.
+ * <p>The manifest entry should also include
+ * {@code android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"} to
+ * ensure that only the system can bind to it.
  */
-public abstract class TileProviderService extends Service {
+public abstract class TileService extends Service {
 
-    private static final String TAG = "TileProviderService";
+    private static final String TAG = "TileService";
 
     /**
-     * The intent action used to send update requests to the provider. Tile provider services must
+     * The intent action used to send update requests to the service. Tile services must
      * declare an intent filter for this action in the manifest.
      */
     public static final String ACTION_BIND_TILE_PROVIDER =
@@ -82,7 +82,7 @@ public abstract class TileProviderService extends Service {
     public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
 
     /**
-     * Called when the system is requesting a new timeline from this Tile Provider. The returned
+     * Called when the system is requesting a new timeline from this Tile Service. The returned
      * future must complete after at most 10 seconds from the moment this method is called (exact
      * timeout length subject to change).
      *
@@ -95,7 +95,7 @@ public abstract class TileProviderService extends Service {
     protected abstract ListenableFuture<Tile> onTileRequest(@NonNull TileRequest requestParams);
 
     /**
-     * Called when the system is requesting a resource bundle from this Tile Provider. The returned
+     * Called when the system is requesting a resource bundle from this Tile Service. The returned
      * future must complete after at most 10 seconds from the moment this method is called (exact
      * timeout length subject to change).
      *
@@ -110,7 +110,7 @@ public abstract class TileProviderService extends Service {
             @NonNull ResourcesRequest requestParams);
 
     /**
-     * Called when a tile provided by this Tile Provider is added to the carousel.
+     * Called when a tile provided by this Tile Service is added to the carousel.
      *
      * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
      *
@@ -120,7 +120,7 @@ public abstract class TileProviderService extends Service {
     protected void onTileAddEvent(@NonNull TileAddEvent requestParams) {}
 
     /**
-     * Called when a tile provided by this Tile Provider is removed from the carousel.
+     * Called when a tile provided by this Tile Service is removed from the carousel.
      *
      * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
      *
@@ -130,7 +130,7 @@ public abstract class TileProviderService extends Service {
     protected void onTileRemoveEvent(@NonNull TileRemoveEvent requestParams) {}
 
     /**
-     * Called when a tile provided by this Tile Provider becomes into view, on screen.
+     * Called when a tile provided by this Tile Service becomes into view, on screen.
      *
      * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
      *
@@ -140,7 +140,7 @@ public abstract class TileProviderService extends Service {
     protected void onTileEnterEvent(@NonNull TileEnterEvent requestParams) {}
 
     /**
-     * Called when a tile provided by this Tile Provider goes out of view, on screen.
+     * Called when a tile provided by this Tile Service goes out of view, on screen.
      *
      * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
      *
@@ -150,8 +150,8 @@ public abstract class TileProviderService extends Service {
     protected void onTileLeaveEvent(@NonNull TileLeaveEvent requestParams) {}
 
     /**
-     * Gets an instance of {@link TileUpdateRequester} to allow a Tile Provider to notify the tile's
-     * renderer that it should request a new Timeline from this {@link TileProviderService}.
+     * Gets an instance of {@link TileUpdateRequester} to allow a Tile Service to notify the tile's
+     * renderer that it should request a new Timeline from this {@link TileService}.
      *
      * @param context The application context.
      */
@@ -183,11 +183,11 @@ public abstract class TileProviderService extends Service {
     @SuppressWarnings("ExecutorTaskName")
     private static class TileProviderWrapper extends TileProvider.Stub {
 
-        private final WeakReference<TileProviderService> mServiceRef;
+        private final WeakReference<TileService> mServiceRef;
         private final Handler mHandler;
 
-        TileProviderWrapper(TileProviderService tileProviderService, Handler handler) {
-            mServiceRef = new WeakReference<>(tileProviderService);
+        TileProviderWrapper(TileService tileService, Handler handler) {
+            mServiceRef = new WeakReference<>(tileService);
             this.mHandler = handler;
         }
 
@@ -201,8 +201,8 @@ public abstract class TileProviderService extends Service {
                 int tileId, TileRequestData requestParams, TileCallback callback) {
             mHandler.post(
                     () -> {
-                        TileProviderService tileProviderService = mServiceRef.get();
-                        if (tileProviderService != null) {
+                        TileService tileService = mServiceRef.get();
+                        if (tileService != null) {
                             if (requestParams.getVersion() != TileRequestData.VERSION_PROTOBUF) {
                                 Log.e(
                                         TAG,
@@ -224,7 +224,7 @@ public abstract class TileProviderService extends Service {
                             }
 
                             ListenableFuture<Tile> tileFuture =
-                                    tileProviderService.onTileRequest(tileRequest);
+                                    tileService.onTileRequest(tileRequest);
 
                             tileFuture.addListener(
                                     () -> {
@@ -258,8 +258,8 @@ public abstract class TileProviderService extends Service {
                 int tileId, ResourcesRequestData requestParams, ResourcesCallback callback) {
             mHandler.post(
                     () -> {
-                        TileProviderService tileProviderService = mServiceRef.get();
-                        if (tileProviderService != null) {
+                        TileService tileService = mServiceRef.get();
+                        if (tileService != null) {
                             if (requestParams.getVersion()
                                     != ResourcesRequestData.VERSION_PROTOBUF) {
                                 Log.e(
@@ -282,7 +282,7 @@ public abstract class TileProviderService extends Service {
                             }
 
                             ListenableFuture<Resources> resourcesFuture =
-                                    tileProviderService.onResourcesRequest(req);
+                                    tileService.onResourcesRequest(req);
 
                             resourcesFuture.addListener(
                                     () -> {
@@ -313,9 +313,9 @@ public abstract class TileProviderService extends Service {
         public void onTileAddEvent(TileAddEventData data) {
             mHandler.post(
                     () -> {
-                        TileProviderService tileProviderService = mServiceRef.get();
+                        TileService tileService = mServiceRef.get();
 
-                        if (tileProviderService != null) {
+                        if (tileService != null) {
                             if (data.getVersion() != TileAddEventData.VERSION_PROTOBUF) {
                                 Log.e(
                                         TAG,
@@ -329,7 +329,7 @@ public abstract class TileProviderService extends Service {
                                         TileAddEvent.fromProto(
                                                 EventProto.TileAddEvent.parseFrom(
                                                         data.getContents()));
-                                tileProviderService.onTileAddEvent(evt);
+                                tileService.onTileAddEvent(evt);
                             } catch (InvalidProtocolBufferException ex) {
                                 Log.e(TAG, "Error deserializing TileAddEvent payload.", ex);
                             }
@@ -341,9 +341,9 @@ public abstract class TileProviderService extends Service {
         public void onTileRemoveEvent(TileRemoveEventData data) {
             mHandler.post(
                     () -> {
-                        TileProviderService tileProviderService = mServiceRef.get();
+                        TileService tileService = mServiceRef.get();
 
-                        if (tileProviderService != null) {
+                        if (tileService != null) {
                             if (data.getVersion() != TileRemoveEventData.VERSION_PROTOBUF) {
                                 Log.e(
                                         TAG,
@@ -357,7 +357,7 @@ public abstract class TileProviderService extends Service {
                                         TileRemoveEvent.fromProto(
                                                 EventProto.TileRemoveEvent.parseFrom(
                                                         data.getContents()));
-                                tileProviderService.onTileRemoveEvent(evt);
+                                tileService.onTileRemoveEvent(evt);
                             } catch (InvalidProtocolBufferException ex) {
                                 Log.e(TAG, "Error deserializing TileRemoveEvent payload.", ex);
                             }
@@ -369,9 +369,9 @@ public abstract class TileProviderService extends Service {
         public void onTileEnterEvent(TileEnterEventData data) {
             mHandler.post(
                     () -> {
-                        TileProviderService tileProviderService = mServiceRef.get();
+                        TileService tileService = mServiceRef.get();
 
-                        if (tileProviderService != null) {
+                        if (tileService != null) {
                             if (data.getVersion() != TileEnterEventData.VERSION_PROTOBUF) {
                                 Log.e(
                                         TAG,
@@ -385,7 +385,7 @@ public abstract class TileProviderService extends Service {
                                         TileEnterEvent.fromProto(
                                                 EventProto.TileEnterEvent.parseFrom(
                                                         data.getContents()));
-                                tileProviderService.onTileEnterEvent(evt);
+                                tileService.onTileEnterEvent(evt);
                             } catch (InvalidProtocolBufferException ex) {
                                 Log.e(TAG, "Error deserializing TileEnterEvent payload.", ex);
                             }
@@ -397,9 +397,9 @@ public abstract class TileProviderService extends Service {
         public void onTileLeaveEvent(TileLeaveEventData data) {
             mHandler.post(
                     () -> {
-                        TileProviderService tileProviderService = mServiceRef.get();
+                        TileService tileService = mServiceRef.get();
 
-                        if (tileProviderService != null) {
+                        if (tileService != null) {
                             if (data.getVersion() != TileLeaveEventData.VERSION_PROTOBUF) {
                                 Log.e(
                                         TAG,
@@ -413,7 +413,7 @@ public abstract class TileProviderService extends Service {
                                         TileLeaveEvent.fromProto(
                                                 EventProto.TileLeaveEvent.parseFrom(
                                                         data.getContents()));
-                                tileProviderService.onTileLeaveEvent(evt);
+                                tileService.onTileLeaveEvent(evt);
                             } catch (InvalidProtocolBufferException ex) {
                                 Log.e(TAG, "Error deserializing TileLeaveEvent payload.", ex);
                             }
