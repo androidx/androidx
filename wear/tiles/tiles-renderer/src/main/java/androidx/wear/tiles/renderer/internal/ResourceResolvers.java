@@ -224,7 +224,7 @@ public class ResourceResolvers {
         return errorFuture;
     }
 
-    /** Builder for ResourceProviders */
+    /** Builder for ResourceResolvers */
     public static final class Builder {
         @NonNull private final ResourceProto.Resources mProtoResources;
         @Nullable private AndroidImageResourceByResIdResolver mAndroidImageResourceByResIdResolver;

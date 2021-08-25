@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
+import androidx.wear.tiles.TileService;
 import androidx.wear.tiles.proto.ResourceProto;
 
 /** Utility class to get {@link ResourceResolvers} populated with standard options. */
@@ -50,7 +51,7 @@ public class StandardResourceResolvers {
 
     /**
      * Get a builder pre-populated with resolvers for the resources of a {@link
-     * androidx.wear.tiles.TileProviderService}, hosted within another app on the device.
+     * TileService}, hosted within another app on the device.
      *
      * <p>Use {@code setFooAccessor} calls to change the pre-populated ones or add others.
      *

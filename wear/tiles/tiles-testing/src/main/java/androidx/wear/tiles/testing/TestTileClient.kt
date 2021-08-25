@@ -24,9 +24,9 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
-import androidx.wear.tiles.TileProviderService
-import androidx.wear.tiles.client.TileProviderClient
-import androidx.wear.tiles.connection.DefaultTileProviderClient
+import androidx.wear.tiles.TileService
+import androidx.wear.tiles.client.TileClient
+import androidx.wear.tiles.connection.DefaultTileClient
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -35,29 +35,30 @@ import org.robolectric.android.controller.ServiceController
 import java.util.concurrent.Executor
 
 /**
- * TileProviderClient for testing purposes. This will pass calls through to the given instance of
- * [TileProviderService], handling all the service binding (via Robolectric), and
+ * [TileClient] for testing purposes. This will pass calls through to the given instance of
+ * [TileService], handling all the service binding (via Robolectric), and
  * serialization/deserialization.
  *
  * Note that this class will not drive the full service lifecycle for the passed service instance.
  * On the first call to any of these methods, it will call your service's [Service.onCreate] method,
- * however, it will never call [Service.onDestroy]. Equally, where [DefaultTileProviderClient] will
+ * however, it will never call [Service.onDestroy]. Equally, where [DefaultTileClient] will
  * unbind after a period of time, potentially destroying the service, this class wil Client will
  * unbind, but not destroy the service. If you wish to test service destruction, you can instead
  * call [Service.onDestroy] on the passed in `service` instance.
  */
-public class TestTileProviderClient<T : TileProviderService> : TileProviderClient {
+public class TestTileClient<T : TileService> :
+    TileClient {
     private val controller: ServiceController<T>
     private val componentName: ComponentName
-    private val innerTileProvider: DefaultTileProviderClient
+    private val innerTileService: DefaultTileClient
     private var hasBound = false
 
     /**
-     * Build a [TestTileProviderClient] for use with a coroutine dispatcher.
+     * Build a [TestTileClient] for use with a coroutine dispatcher.
      *
-     * @param service An instance of the [TileProviderService] class to bind to.
+     * @param service An instance of the [TileService] class to bind to.
      * @param coroutineScope A [CoroutineScope] to use when dispatching calls to the
-     *   [TileProviderService]. Cancelling the passed [CoroutineScope] will also cancel any pending
+     *   [TileService]. Cancelling the passed [CoroutineScope] will also cancel any pending
      *   work in this class.
      * @param coroutineDispatcher A [CoroutineDispatcher] to use when dispatching work from this
      *   class.
@@ -67,13 +68,13 @@ public class TestTileProviderClient<T : TileProviderService> : TileProviderClien
         coroutineScope: CoroutineScope,
         coroutineDispatcher: CoroutineDispatcher
     ) {
-        val bindIntent = Intent(TileProviderService.ACTION_BIND_TILE_PROVIDER)
+        val bindIntent = Intent(TileService.ACTION_BIND_TILE_PROVIDER)
         this.componentName = ComponentName(getApplicationContext(), service.javaClass)
 
         bindIntent.component = componentName
         this.controller = ServiceController.of(service, bindIntent)
 
-        this.innerTileProvider = DefaultTileProviderClient(
+        this.innerTileService = DefaultTileClient(
             getApplicationContext(),
             componentName,
             coroutineScope,
@@ -82,19 +83,19 @@ public class TestTileProviderClient<T : TileProviderService> : TileProviderClien
     }
 
     /**
-     * Build a [TestTileProviderClient] for use with a given [Executor]
+     * Build a [TestTileClient] for use with a given [Executor]
      *
-     * @param service An instance of the [TileProviderService] class to bind to.
-     * @param executor An [Executor] to use when dispatching calls to the [TileProviderService].
+     * @param service An instance of the [TileService] class to bind to.
+     * @param executor An [Executor] to use when dispatching calls to the [TileService].
      */
     public constructor(service: T, executor: Executor) {
-        val bindIntent = Intent(TileProviderService.ACTION_BIND_TILE_PROVIDER)
+        val bindIntent = Intent(TileService.ACTION_BIND_TILE_PROVIDER)
         this.componentName = ComponentName(getApplicationContext(), service.javaClass)
 
         bindIntent.component = componentName
         this.controller = ServiceController.of(service, bindIntent)
 
-        this.innerTileProvider = DefaultTileProviderClient(
+        this.innerTileService = DefaultTileClient(
             getApplicationContext(),
             componentName,
             executor
@@ -103,41 +104,41 @@ public class TestTileProviderClient<T : TileProviderService> : TileProviderClien
 
     override fun requestApiVersion(): ListenableFuture<Int> {
         maybeBind()
-        return innerTileProvider.requestApiVersion()
+        return innerTileService.requestApiVersion()
     }
 
     override fun requestTile(
         requestParams: RequestBuilders.TileRequest
     ): ListenableFuture<TileBuilders.Tile> {
         maybeBind()
-        return innerTileProvider.requestTile(requestParams)
+        return innerTileService.requestTile(requestParams)
     }
 
     override fun requestResources(
         requestParams: RequestBuilders.ResourcesRequest
     ): ListenableFuture<ResourceBuilders.Resources> {
         maybeBind()
-        return innerTileProvider.requestResources(requestParams)
+        return innerTileService.requestResources(requestParams)
     }
 
     override fun sendOnTileAddedEvent(): ListenableFuture<Void?> {
         maybeBind()
-        return innerTileProvider.sendOnTileAddedEvent()
+        return innerTileService.sendOnTileAddedEvent()
     }
 
     override fun sendOnTileRemovedEvent(): ListenableFuture<Void?> {
         maybeBind()
-        return innerTileProvider.sendOnTileRemovedEvent()
+        return innerTileService.sendOnTileRemovedEvent()
     }
 
     override fun sendOnTileEnterEvent(): ListenableFuture<Void?> {
         maybeBind()
-        return innerTileProvider.sendOnTileEnterEvent()
+        return innerTileService.sendOnTileEnterEvent()
     }
 
     override fun sendOnTileLeaveEvent(): ListenableFuture<Void?> {
         maybeBind()
-        return innerTileProvider.sendOnTileLeaveEvent()
+        return innerTileService.sendOnTileLeaveEvent()
     }
 
     private fun maybeBind() {

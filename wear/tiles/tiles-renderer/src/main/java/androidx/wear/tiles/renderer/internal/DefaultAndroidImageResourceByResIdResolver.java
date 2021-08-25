@@ -34,7 +34,7 @@ public class DefaultAndroidImageResourceByResIdResolver
     /**
      * Constructor.
      *
-     * @param androidResources An Android Resources instance for the tile provider's package. This
+     * @param androidResources An Android Resources instance for the tile service's package. This
      *     is normally obtained from {@code PackageManager#getResourcesForApplication}.
      */
     public DefaultAndroidImageResourceByResIdResolver(@NonNull Resources androidResources) {

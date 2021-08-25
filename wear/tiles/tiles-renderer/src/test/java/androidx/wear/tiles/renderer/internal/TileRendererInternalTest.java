@@ -38,7 +38,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
-import androidx.wear.tiles.TileProviderService;
+import androidx.wear.tiles.TileService;
 import androidx.wear.tiles.TilesTestRunner;
 import androidx.wear.tiles.proto.ActionProto.Action;
 import androidx.wear.tiles.proto.ActionProto.AndroidActivity;
@@ -982,7 +982,7 @@ public class TileRendererInternalTest {
 
         Intent i = TileRendererInternal.buildLaunchActionIntent(launchAction, testId);
 
-        expect.that(i.getStringExtra(TileProviderService.EXTRA_CLICKABLE_ID)).isEqualTo(testId);
+        expect.that(i.getStringExtra(TileService.EXTRA_CLICKABLE_ID)).isEqualTo(testId);
     }
 
     @Test
@@ -995,7 +995,7 @@ public class TileRendererInternalTest {
 
         Intent i = TileRendererInternal.buildLaunchActionIntent(launchAction, "");
 
-        expect.that(i.hasExtra(TileProviderService.EXTRA_CLICKABLE_ID)).isFalse();
+        expect.that(i.hasExtra(TileService.EXTRA_CLICKABLE_ID)).isFalse();
     }
 
     @Test
