@@ -159,6 +159,25 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void MaterialTheme(optional androidx.wear.compose.material.Colors colors, optional androidx.wear.compose.material.Typography typography, optional androidx.wear.compose.material.Shapes shapes, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  public final class PositionIndicatorKt {
+    method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.compose.foundation.ScrollState scrollState, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection);
+    method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.wear.compose.material.ScalingLazyColumnState scalingLazyColumnState, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection);
+    method @androidx.compose.runtime.Composable public static void PositionIndicator(float rsbRatio, optional androidx.compose.ui.Modifier modifier, optional long color, optional boolean reverseDirection);
+    method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.wear.compose.material.PositionIndicatorState state, float indicatorHeight, float indicatorWidth, float paddingRight, optional androidx.compose.ui.Modifier modifier, optional long color, optional long background, optional boolean autoHide, optional boolean reverseDirection);
+  }
+
+  @androidx.compose.runtime.Stable public interface PositionIndicatorState {
+    method public float indicatorPosition();
+    method public float indicatorSize(float scrollableContainerHeight);
+  }
+
+  public final class Resources_androidKt {
+  }
+
+  public final class ScaffoldKt {
+    method @androidx.compose.runtime.Composable public static void Scaffold(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? vignette, optional kotlin.jvm.functions.Function0<kotlin.Unit>? positionIndicator, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
   public final class ScalingLazyColumnDefaults {
     method public androidx.wear.compose.material.ScalingParams scalingParams(optional float edgeScale, optional float edgeAlpha, optional float minElementHeight, optional float maxElementHeight, optional float minTransitionArea, optional float maxTransitionArea, optional androidx.compose.animation.core.Easing scaleInterpolator, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Constraints,java.lang.Integer> viewportVerticalOffsetResolver);
     field public static final androidx.wear.compose.material.ScalingLazyColumnDefaults INSTANCE;
@@ -344,6 +363,23 @@ package androidx.wear.compose.material {
   }
 
   public final class TypographyKt {
+  }
+
+  public final class VignetteKt {
+    method @androidx.compose.runtime.Composable public static void Vignette(int vignetteValue, optional androidx.compose.ui.Modifier modifier);
+  }
+
+  public final inline class VignetteValue {
+    ctor public VignetteValue();
+  }
+
+  public static final class VignetteValue.Companion {
+    method public int getBoth();
+    method public int getBottom();
+    method public int getTop();
+    property public final int Both;
+    property public final int Bottom;
+    property public final int Top;
   }
 
 }
