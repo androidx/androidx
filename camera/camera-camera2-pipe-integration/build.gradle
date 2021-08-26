@@ -46,7 +46,7 @@ dependencies {
     api(project(":camera:camera-core"))
 
     // Classes and types that are only needed at runtime
-    implementation(project(":lifecycle:lifecycle-livedata-ktx"))
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(libs.kotlinCoroutinesGuava)
     implementation(libs.kotlinStdlib)

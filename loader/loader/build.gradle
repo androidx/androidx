@@ -13,7 +13,7 @@ dependencies {
     implementation("androidx.collection:collection:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
