@@ -286,6 +286,12 @@ package androidx.wear.compose.material {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
   }
 
+  public final class TimeTextKt {
+  }
+
+  public final class TimeUpdateControllerKt {
+  }
+
   @androidx.compose.runtime.Stable public interface ToggleButtonColors {
     method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> backgroundColor(boolean enabled, boolean checked);
     method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> contentColor(boolean enabled, boolean checked);
