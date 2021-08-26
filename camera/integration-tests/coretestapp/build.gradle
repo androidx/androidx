@@ -99,7 +99,7 @@ dependencies {
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-runtime"))
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
