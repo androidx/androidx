@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
+import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
@@ -81,6 +82,14 @@ val WearMaterialDemos = DemoCategory(
                     SimpleScalingLazyColumnWithContentPadding()
                 },
                 ComposableDemo("List Headers") { ScalingLazyColumnWithHeaders() },
+            )
+        ),
+        DemoCategory(
+            "Scaffold",
+            listOf(
+                ComposableDemo("Scaffold with Scrollbar") {
+                    SimpleScaffoldWithScrollIndicator()
+                },
             )
         )
     ),
