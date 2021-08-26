@@ -24,7 +24,7 @@ import android.text.SpannedString
 import android.text.TextUtils
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
-import android.text.style.TypefaceSpan
+import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Gravity
@@ -222,13 +222,13 @@ class RemoteViewsTranslatorKtTest {
         assertThat(view.textSize).isEqualTo(spToPixel(12.sp))
         val content = view.text as SpannedString
         assertThat(content.toString()).isEqualTo("test")
-        if (Build.VERSION.SDK_INT >= 28) {
-            content.checkSingleSpan<TypefaceSpan> {
-                assertThat(it.typeface).isEqualTo(Typeface.create(Typeface.DEFAULT, 500, false))
-            }
-        } else {
-            content.checkSingleSpan<StyleSpan> {
-                assertThat(it.style).isEqualTo(Typeface.BOLD)
+        content.checkSingleSpan<TextAppearanceSpan> {
+            if (Build.VERSION.SDK_INT >= 29) {
+                assertThat(it.textFontWeight).isEqualTo(FontWeight.Medium.value)
+                // Note: textStyle is always set, but to NORMAL if unspecified
+                assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
+            } else {
+                assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
             }
         }
     }
@@ -260,7 +260,6 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    @Config(sdk = [23, 29])
     fun canTranslateText_withStyleItalic() = fakeCoroutineScope.runBlockingTest {
         val rv = runAndTranslate {
             Text("test", style = TextStyle(fontStyle = FontStyle.Italic))
@@ -270,14 +269,8 @@ class RemoteViewsTranslatorKtTest {
         assertIs<TextView>(view)
         val content = view.text as SpannedString
         assertThat(content.toString()).isEqualTo("test")
-        if (Build.VERSION.SDK_INT >= 28) {
-            content.checkSingleSpan<TypefaceSpan> {
-                assertThat(it.typeface).isEqualTo(Typeface.create(Typeface.DEFAULT, 400, true))
-            }
-        } else {
-            content.checkSingleSpan<StyleSpan> {
-                assertThat(it.style).isEqualTo(Typeface.ITALIC)
-            }
+        content.checkSingleSpan<StyleSpan> {
+            assertThat(it.style).isEqualTo(Typeface.ITALIC)
         }
     }
 
@@ -299,16 +292,19 @@ class RemoteViewsTranslatorKtTest {
         assertIs<TextView>(view)
         val content = view.text as SpannedString
         assertThat(content.toString()).isEqualTo("test")
-        assertThat(content.getSpans(0, content.length, Any::class.java)).hasLength(3)
+        assertThat(content.getSpans(0, content.length, Any::class.java)).hasLength(4)
         content.checkHasSingleTypedSpan<UnderlineSpan> { }
         content.checkHasSingleTypedSpan<StrikethroughSpan> { }
-        if (Build.VERSION.SDK_INT >= 28) {
-            content.checkHasSingleTypedSpan<TypefaceSpan> {
-                assertThat(it.typeface).isEqualTo(Typeface.create(Typeface.DEFAULT, 700, true))
-            }
-        } else {
-            content.checkHasSingleTypedSpan<StyleSpan> {
-                assertThat(it.style).isEqualTo(Typeface.BOLD_ITALIC)
+        content.checkHasSingleTypedSpan<StyleSpan> {
+            assertThat(it.style).isEqualTo(Typeface.ITALIC)
+        }
+        content.checkHasSingleTypedSpan<TextAppearanceSpan> {
+            if (Build.VERSION.SDK_INT >= 29) {
+                assertThat(it.textFontWeight).isEqualTo(FontWeight.Bold.value)
+                // Note: textStyle is always set, but to NORMAL if unspecified
+                assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
+            } else {
+                assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
             }
         }
     }

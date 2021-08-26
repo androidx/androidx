@@ -18,6 +18,12 @@ package androidx.glance.appwidget {
     method public final suspend Object? update(android.content.Context context, androidx.glance.appwidget.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
   }
 
+  public abstract class GlanceAppWidgetReceiver extends android.appwidget.AppWidgetProvider {
+    ctor public GlanceAppWidgetReceiver();
+    method public abstract androidx.glance.appwidget.GlanceAppWidget getGlanceAppWidget();
+    property public abstract androidx.glance.appwidget.GlanceAppWidget glanceAppWidget;
+  }
+
   public interface GlanceId {
   }
 
