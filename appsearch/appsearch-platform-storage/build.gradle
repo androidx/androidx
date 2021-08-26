@@ -40,7 +40,6 @@ androidx {
     name = "AppSearch Platform Storage"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.APPSEARCH
-    mavenVersion = LibraryVersions.APPSEARCH
     inceptionYear = "2021"
     description =
         "An implementation of AppSearchSession which uses the AppSearch service on Android S+"

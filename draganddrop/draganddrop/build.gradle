@@ -31,7 +31,6 @@ dependencies {
 androidx {
     name = "AndroidX Drag and Drop Library"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.DRAGANDDROP
     mavenGroup = LibraryGroups.DRAGANDDROP
     inceptionYear = "2021"
     description = "This library makes it easy for developers to accept data dragged-and-dropped from another app, and show a consistent affordance."

@@ -64,7 +64,6 @@ androidx {
     name = 'AndroidX AppSearch'
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.APPSEARCH
-    mavenVersion = LibraryVersions.APPSEARCH
     inceptionYear = '2019'
     description = 'AndroidX AppSearch - App Indexing'
 }
