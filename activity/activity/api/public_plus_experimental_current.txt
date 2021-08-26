@@ -1,9 +1,12 @@
 // Signature format: 4.0
 package androidx.activity {
 
-  public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+  public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int);
+    method public void addMenuProvider(androidx.core.view.MenuProvider);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
     method public final void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
     method public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
@@ -12,6 +15,7 @@ package androidx.activity {
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method public void invalidateMenu();
     method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
     method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
@@ -19,6 +23,7 @@ package androidx.activity {
     method public android.content.Context? peekAvailableContext();
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public void removeMenuProvider(androidx.core.view.MenuProvider);
     method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
     method @Deprecated public void startActivityForResult(android.content.Intent!, int);
     method @Deprecated public void startActivityForResult(android.content.Intent!, int, android.os.Bundle?);

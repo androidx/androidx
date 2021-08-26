@@ -32,6 +32,9 @@
             android:name="androidx.activity.LazyOverrideLifecycleComponentActivity"
             android:exported="true" />
         <activity
+            android:name="androidx.activity.ComponentActivity"
+            android:exported="true" />
+        <activity
             android:name="androidx.activity.ReportFullyDrawnActivity"
             android:exported="true" />
         <activity

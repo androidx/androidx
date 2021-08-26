@@ -391,7 +391,7 @@ includeProject(":concurrent:concurrent-futures", "concurrent/concurrent-futures"
 includeProject(":concurrent:concurrent-futures-ktx", "concurrent/concurrent-futures-ktx", [BuildType.MAIN])
 includeProject(":contentpager:contentpager", "contentpager/contentpager", [BuildType.MAIN])
 includeProject(":coordinatorlayout:coordinatorlayout", "coordinatorlayout/coordinatorlayout", [BuildType.MAIN])
-includeProject(":core:core", "core/core", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":core:core", "core/core", [BuildType.MAIN, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
 includeProject(":core:core-animation", "core/core-animation", [BuildType.MAIN])
 includeProject(":core:core-animation-integration-tests:testapp", "core/core-animation-integration-tests/testapp", [BuildType.MAIN])
 includeProject(":core:core-animation-testing", "core/core-animation-testing", [BuildType.MAIN])
@@ -633,7 +633,7 @@ includeProject(":vectordrawable:vectordrawable", "vectordrawable/vectordrawable"
 includeProject(":vectordrawable:vectordrawable-animated", "vectordrawable/vectordrawable-animated", [BuildType.MAIN])
 includeProject(":vectordrawable:vectordrawable-seekable", "vectordrawable/vectordrawable-seekable", [BuildType.MAIN])
 includeProject(":versionedparcelable:versionedparcelable", "versionedparcelable/versionedparcelable", [BuildType.MAIN])
-includeProject(":versionedparcelable:versionedparcelable-compiler", "versionedparcelable/versionedparcelable-compiler", [BuildType.MAIN, BuildType.MEDIA, BuildType.WEAR])
+includeProject(":versionedparcelable:versionedparcelable-compiler", "versionedparcelable/versionedparcelable-compiler", [BuildType.MAIN, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
 includeProject(":viewpager2:integration-tests:testapp", "viewpager2/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":viewpager2:viewpager2", "viewpager2/viewpager2", [BuildType.MAIN])
 includeProject(":viewpager:viewpager", "viewpager/viewpager", [BuildType.MAIN])
@@ -745,7 +745,7 @@ includeProject(":internal-testutils-macrobenchmark", "testutils/testutils-macrob
 includeProject(":internal-testutils-navigation", "testutils/testutils-navigation", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":internal-testutils-paging", "testutils/testutils-paging", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
-includeProject(":internal-testutils-mockito", "testutils/testutils-mockito", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":internal-testutils-mockito", "testutils/testutils-mockito", [BuildType.MAIN, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
 
 /////////////////////////////
 //
