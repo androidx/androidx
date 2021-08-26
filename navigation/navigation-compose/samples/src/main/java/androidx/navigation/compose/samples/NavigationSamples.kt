@@ -16,6 +16,8 @@
 
 package androidx.navigation.compose.samples
 
+import android.os.Bundle
+import android.os.Parcelable
 import androidx.annotation.Sampled
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -42,12 +44,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int) {
     object Profile : Screen("profile", R.string.profile)
@@ -243,3 +250,25 @@ private val phrases = listOf(
     "Fight Fire With Fire",
     "Go For Broke"
 )
+
+@Serializable
+@Parcelize
+@Suppress("BanParcelableUsage")
+data class SearchParameters(val searchQuery: String, val filters: List<String>) : Parcelable
+
+class SearchParametersType : NavType<SearchParameters>(isNullableAllowed = false) {
+    override fun put(bundle: Bundle, key: String, value: SearchParameters) {
+        bundle.putParcelable(key, value)
+    }
+
+    override fun get(bundle: Bundle, key: String): SearchParameters {
+        return bundle.getParcelable<SearchParameters>(key) as SearchParameters
+    }
+
+    override fun parseValue(value: String): SearchParameters {
+        return Json.decodeFromString(value)
+    }
+
+    // Only required when using Navigation 2.4.0-alpha07 and lower
+    override val name = "SearchParameters"
+}
