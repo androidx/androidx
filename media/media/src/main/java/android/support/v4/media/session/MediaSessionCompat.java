@@ -2927,136 +2927,158 @@ public class MediaSessionCompat {
         }
 
         void sendVolumeInfoChanged(ParcelableVolumeInfo info) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onVolumeInfoChanged(info);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onVolumeInfoChanged(info);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
             }
-            mControllerCallbacks.finishBroadcast();
         }
 
         private void sendSessionDestroyed() {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onSessionDestroyed();
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onSessionDestroyed();
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
+                mControllerCallbacks.kill();
             }
-            mControllerCallbacks.finishBroadcast();
-            mControllerCallbacks.kill();
         }
 
         private void sendEvent(String event, Bundle extras) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onEvent(event, extras);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onEvent(event, extras);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
             }
-            mControllerCallbacks.finishBroadcast();
         }
 
         private void sendState(PlaybackStateCompat state) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onPlaybackStateChanged(state);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onPlaybackStateChanged(state);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
             }
-            mControllerCallbacks.finishBroadcast();
         }
 
         private void sendMetadata(MediaMetadataCompat metadata) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onMetadataChanged(metadata);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onMetadataChanged(metadata);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
             }
-            mControllerCallbacks.finishBroadcast();
         }
 
         private void sendQueue(List<QueueItem> queue) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onQueueChanged(queue);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onQueueChanged(queue);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
             }
-            mControllerCallbacks.finishBroadcast();
         }
 
         private void sendQueueTitle(CharSequence queueTitle) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onQueueTitleChanged(queueTitle);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onQueueTitleChanged(queueTitle);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
             }
-            mControllerCallbacks.finishBroadcast();
         }
 
         private void sendCaptioningEnabled(boolean enabled) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onCaptioningEnabledChanged(enabled);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onCaptioningEnabledChanged(enabled);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
             }
-            mControllerCallbacks.finishBroadcast();
         }
 
         private void sendRepeatMode(int repeatMode) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onRepeatModeChanged(repeatMode);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onRepeatModeChanged(repeatMode);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
             }
-            mControllerCallbacks.finishBroadcast();
         }
 
         private void sendShuffleMode(int shuffleMode) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onShuffleModeChanged(shuffleMode);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onShuffleModeChanged(shuffleMode);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
             }
-            mControllerCallbacks.finishBroadcast();
         }
 
         private void sendExtras(Bundle extras) {
-            int size = mControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onExtrasChanged(extras);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onExtrasChanged(extras);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mControllerCallbacks.finishBroadcast();
             }
-            mControllerCallbacks.finishBroadcast();
         }
 
         class MediaSessionStub extends IMediaSession.Stub {
@@ -3876,15 +3898,17 @@ public class MediaSessionCompat {
         @Override
         public void sendSessionEvent(String event, Bundle extras) {
             if (android.os.Build.VERSION.SDK_INT < 23) {
-                int size = mExtraControllerCallbacks.beginBroadcast();
-                for (int i = size - 1; i >= 0; i--) {
-                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
-                    try {
-                        cb.onEvent(event, extras);
-                    } catch (RemoteException e) {
+                synchronized (mLock) {
+                    int size = mExtraControllerCallbacks.beginBroadcast();
+                    for (int i = size - 1; i >= 0; i--) {
+                        IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                        try {
+                            cb.onEvent(event, extras);
+                        } catch (RemoteException e) {
+                        }
                     }
+                    mExtraControllerCallbacks.finishBroadcast();
                 }
-                mExtraControllerCallbacks.finishBroadcast();
             }
             mSessionFwk.sendSessionEvent(event, extras);
         }
@@ -3920,15 +3944,17 @@ public class MediaSessionCompat {
         @Override
         public void setPlaybackState(PlaybackStateCompat state) {
             mPlaybackState = state;
-            int size = mExtraControllerCallbacks.beginBroadcast();
-            for (int i = size - 1; i >= 0; i--) {
-                IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
-                try {
-                    cb.onPlaybackStateChanged(state);
-                } catch (RemoteException e) {
+            synchronized (mLock) {
+                int size = mExtraControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onPlaybackStateChanged(state);
+                    } catch (RemoteException e) {
+                    }
                 }
+                mExtraControllerCallbacks.finishBroadcast();
             }
-            mExtraControllerCallbacks.finishBroadcast();
             mSessionFwk.setPlaybackState(
                     state == null ? null : (PlaybackState) state.getPlaybackState());
         }
@@ -3983,15 +4009,17 @@ public class MediaSessionCompat {
         public void setCaptioningEnabled(boolean enabled) {
             if (mCaptioningEnabled != enabled) {
                 mCaptioningEnabled = enabled;
-                int size = mExtraControllerCallbacks.beginBroadcast();
-                for (int i = size - 1; i >= 0; i--) {
-                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
-                    try {
-                        cb.onCaptioningEnabledChanged(enabled);
-                    } catch (RemoteException e) {
+                synchronized (mLock) {
+                    int size = mExtraControllerCallbacks.beginBroadcast();
+                    for (int i = size - 1; i >= 0; i--) {
+                        IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                        try {
+                            cb.onCaptioningEnabledChanged(enabled);
+                        } catch (RemoteException e) {
+                        }
                     }
+                    mExtraControllerCallbacks.finishBroadcast();
                 }
-                mExtraControllerCallbacks.finishBroadcast();
             }
         }
 
@@ -3999,15 +4027,17 @@ public class MediaSessionCompat {
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
             if (mRepeatMode != repeatMode) {
                 mRepeatMode = repeatMode;
-                int size = mExtraControllerCallbacks.beginBroadcast();
-                for (int i = size - 1; i >= 0; i--) {
-                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
-                    try {
-                        cb.onRepeatModeChanged(repeatMode);
-                    } catch (RemoteException e) {
+                synchronized (mLock) {
+                    int size = mExtraControllerCallbacks.beginBroadcast();
+                    for (int i = size - 1; i >= 0; i--) {
+                        IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                        try {
+                            cb.onRepeatModeChanged(repeatMode);
+                        } catch (RemoteException e) {
+                        }
                     }
+                    mExtraControllerCallbacks.finishBroadcast();
                 }
-                mExtraControllerCallbacks.finishBroadcast();
             }
         }
 
@@ -4015,15 +4045,17 @@ public class MediaSessionCompat {
         public void setShuffleMode(@PlaybackStateCompat.ShuffleMode int shuffleMode) {
             if (mShuffleMode != shuffleMode) {
                 mShuffleMode = shuffleMode;
-                int size = mExtraControllerCallbacks.beginBroadcast();
-                for (int i = size - 1; i >= 0; i--) {
-                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
-                    try {
-                        cb.onShuffleModeChanged(shuffleMode);
-                    } catch (RemoteException e) {
+                synchronized (mLock) {
+                    int size = mExtraControllerCallbacks.beginBroadcast();
+                    for (int i = size - 1; i >= 0; i--) {
+                        IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                        try {
+                            cb.onShuffleModeChanged(shuffleMode);
+                        } catch (RemoteException e) {
+                        }
                     }
+                    mExtraControllerCallbacks.finishBroadcast();
                 }
-                mExtraControllerCallbacks.finishBroadcast();
             }
         }
 
