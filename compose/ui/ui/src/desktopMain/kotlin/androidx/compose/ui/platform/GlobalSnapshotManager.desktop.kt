@@ -39,11 +39,12 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 internal object GlobalSnapshotManager {
     private val started = AtomicBoolean(false)
+    private val uiScope = CoroutineScope(Dispatchers.Swing)
 
     fun ensureStarted() {
         if (started.compareAndSet(false, true)) {
             val channel = Channel<Unit>(Channel.CONFLATED)
-            CoroutineScope(Dispatchers.Swing).launch {
+            uiScope.launch {
                 channel.consumeEach {
                     Snapshot.sendApplyNotifications()
                 }
