@@ -24,6 +24,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaRecorder
 import android.os.Build
+import android.os.SystemClock
 import android.util.Log
 import android.util.Size
 import android.view.Surface
@@ -71,6 +72,7 @@ import org.mockito.Mockito.verify
 import org.mockito.invocation.InvocationOnMock
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 private const val TAG = "VideoEncoderTest"
 
@@ -292,6 +294,26 @@ class VideoEncoderTest {
         verify(videoEncoderCallback, timeout(15000L).atLeastOnce()).onEncodedData(captor.capture())
 
         assertThat(isKeyFrame(captor.allValues.first().bufferInfo)).isTrue()
+    }
+
+    @Test
+    fun bufferTimeIsUptime() {
+        // Skip test if the difference between uptime and realtime is too close to avoid test flaky.
+        // Note: Devices such as lab devices always have usb-plugged, so the uptime and realtime
+        // may always be the same and be skipped.
+        // TODO(b/199486135): Find a way to make the uptime differ from realtime in lab devices
+        assumeTrue(abs(SystemClock.elapsedRealtime() - SystemClock.uptimeMillis()) > 3000)
+
+        videoEncoder.start()
+        val captor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(captor.capture())
+
+        val bufferTimeUs = captor.value.presentationTimeUs
+        val uptimeUs = TimeUnit.MILLISECONDS.toMicros(SystemClock.uptimeMillis())
+        val realtimeUs = TimeUnit.MILLISECONDS.toMicros(SystemClock.elapsedRealtime())
+        val isCloseToUptime = abs(bufferTimeUs - uptimeUs) <= abs(bufferTimeUs - realtimeUs)
+
+        assertThat(isCloseToUptime).isTrue()
     }
 
     private fun initVideoEncoder() {

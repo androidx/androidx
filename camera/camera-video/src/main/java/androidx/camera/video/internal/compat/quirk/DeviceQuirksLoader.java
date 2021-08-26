@@ -48,6 +48,9 @@ public class DeviceQuirksLoader {
         if (DeactivateEncoderSurfaceBeforeStopEncoderQuirk.load()) {
             quirks.add(new DeactivateEncoderSurfaceBeforeStopEncoderQuirk());
         }
+        if (CameraUseInconsistentTimebaseQuirk.load()) {
+            quirks.add(new CameraUseInconsistentTimebaseQuirk());
+        }
 
         return quirks;
     }
