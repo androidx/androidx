@@ -522,6 +522,7 @@ includeProject(":navigation:navigation-common-ktx", "navigation/navigation-commo
 includeProject(":navigation:navigation-compose", "navigation/navigation-compose", [BuildType.COMPOSE])
 includeProject(":navigation:navigation-compose:navigation-compose-samples", "navigation/navigation-compose/samples", [BuildType.COMPOSE])
 includeProject(":navigation:navigation-compose:integration-tests:navigation-demos", "navigation/navigation-compose/integration-tests/navigation-demos", [BuildType.COMPOSE])
+includeProject(":navigation:navigation-compose-lint", "navigation/navigation-compose-lint", [BuildType.COMPOSE])
 includeProject(":navigation:navigation-dynamic-features-fragment", "navigation/navigation-dynamic-features-fragment", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-dynamic-features-runtime", "navigation/navigation-dynamic-features-runtime", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-fragment", "navigation/navigation-fragment", [BuildType.MAIN, BuildType.FLAN])
