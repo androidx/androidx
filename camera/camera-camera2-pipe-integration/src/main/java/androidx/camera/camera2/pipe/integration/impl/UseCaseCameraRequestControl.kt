@@ -58,6 +58,31 @@ interface UseCaseCameraRequestControl {
     }
 
     // Repeating parameters
+    /**
+     *  Append a new option to update the repeating request.
+     *
+     *  This method will:
+     *  (1) Stores [values], [tags] and [listeners] by [type] respectively. The new inputs
+     *  above will append to the values that store as the same [type], the existing values that
+     *  don't conflict with the new inputs will not be cleared. If the [type] isn't set, it will
+     *  treat the new inputs as the [Type.DEFAULT]
+     *  (2) Update the repeating request by merging all the [values], [tags] and [listeners] from
+     *  all the defined types.
+     *
+     *  @param type the type of the input parameter, the possible value could be one of the [Type]
+     *  @param values the new [CaptureRequest.Key] and value will be append to the repeating request
+     *  @param optionPriority is the priority option that would be used to determine whether
+     *  the new value can override the existing value or not. This is default to
+     *  [Config.OptionPriority.OPTIONAL]
+     *  @param tags the option tag that could be appended to the repeating request, its effect is
+     *  similar to the [CaptureRequest.Builder.setTag].
+     *  @param streams Specify a list of streams that would be updated. Leave the value in empty
+     *  will use the [streams] that is previously specified. The update can only be processed
+     *  after specifying 1 or more valid streams.
+     *  @param template The [RequestTemplate] will be used for the requests. Leave the value in
+     *  empty will use the [RequestTemplate] that is previously specified.
+     *  @param listeners to receive the capture results.
+     */
     fun appendParametersAsync(
         type: Type = Type.DEFAULT,
         values: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
@@ -67,6 +92,28 @@ interface UseCaseCameraRequestControl {
         template: RequestTemplate? = null,
         listeners: Set<Request.Listener> = emptySet()
     ): Deferred<Unit>
+
+    /**
+     *  Use a new [config] to update the repeating request.
+     *
+     *  This method will:
+     *  (1) Stores [config], [tags] and [listeners] by [type] respectively. The new inputs above
+     *  will take place of the existing value of the [type]. If the [type] isn't set, it will
+     *  override the config which is stored as the [Type.DEFAULT].
+     *  (2) Update the repeating request by merging all the [config], [tags] and [listeners] from
+     *  all the defined types.
+     *
+     *  @param type the type of the input [config]
+     *  @param config the new config values will be used to update the repeating request.
+     *  @param tags the option tag that could be appended to the repeating request, its effect is
+     *  similar to the [CaptureRequest.Builder.setTag].
+     *  @param streams Specify a list of streams that would be updated. Leave the value in empty
+     *  will use the [streams] that is previously specified. The update can only be processed
+     *  after specifying 1 or more valid streams.
+     *  @param template The [RequestTemplate] will be used for the requests. Leave the value in
+     *  empty will use the [RequestTemplate] that is previously specified.
+     *  @param listeners to receive the capture results.
+     */
     fun setConfigAsync(
         type: Type = Type.DEFAULT,
         config: Config? = null,
@@ -75,6 +122,13 @@ interface UseCaseCameraRequestControl {
         template: RequestTemplate? = null,
         listeners: Set<Request.Listener> = emptySet()
     ): Deferred<Unit>
+
+    /**
+     *  Use a new [SessionConfig] to update the repeating request.
+     *
+     *  The method will get the info from the [sessionConfig] to update the repeating
+     *  request.
+     */
     fun setSessionConfigAsync(
         sessionConfig: SessionConfig,
     ): Deferred<Unit>
@@ -173,7 +227,9 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         return setConfigAsync(
             type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
             config = sessionConfig.implementationOptions,
+            tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
             listeners = setOf(repeatingListeners),
+            template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
             streams = repeatingStreamIds,
         )
     }
@@ -231,6 +287,13 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         MutableTagBundle.create().also { tagBundle ->
             tags.forEach { (tagKey, tagValue) ->
                 tagBundle.putTag(tagKey, tagValue)
+            }
+        }
+
+    private fun TagBundle.toMap(): Map<String, Any> =
+        mutableMapOf<String, Any>().also {
+            listKeys().forEach { tagKey ->
+                it[tagKey] = getTag(tagKey) as Any
             }
         }
 
