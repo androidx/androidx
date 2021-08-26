@@ -48,6 +48,9 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+
+    lintChecks(projectOrArtifact(":navigation:navigation-compose-lint"))
+    lintPublish(projectOrArtifact(":navigation:navigation-compose-lint"))
 }
 
 androidx {
