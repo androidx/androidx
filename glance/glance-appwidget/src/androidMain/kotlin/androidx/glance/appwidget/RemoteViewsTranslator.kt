@@ -19,20 +19,17 @@ package androidx.glance.appwidget
 
 import android.content.Context
 import android.graphics.Typeface
-import android.os.Build
 import android.text.ParcelableSpan
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
-import android.text.style.TypefaceSpan
+import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.widget.RemoteViews
-import androidx.annotation.DoNotInline
 import androidx.annotation.LayoutRes
-import androidx.annotation.RequiresApi
 import androidx.glance.Emittable
 import androidx.glance.GlanceInternalApi
 import androidx.glance.layout.Alignment
@@ -92,11 +89,11 @@ private fun translateEmittableBox(context: Context, element: EmittableBox): Remo
 private fun translateEmittableText(context: Context, element: EmittableText): RemoteViews =
     remoteViews(context, R.layout.text_layout)
         .also { rv ->
-            rv.setText(element.text, element.style)
+            rv.setText(context, element.text, element.style)
             applyModifiers(context, rv, element.modifier)
         }
 
-private fun RemoteViews.setText(text: String, style: TextStyle?) {
+private fun RemoteViews.setText(context: Context, text: String, style: TextStyle?) {
     if (style == null) {
         setTextViewText(R.id.glanceView, text)
         return
@@ -113,33 +110,19 @@ private fun RemoteViews.setText(text: String, style: TextStyle?) {
             spans.add(UnderlineSpan())
         }
     }
-    val isItalic = style.fontStyle == FontStyle.Italic
-    val fontWeight = style.fontWeight ?: FontWeight.Normal
-    if (isItalic || fontWeight != FontWeight.Normal) {
-        spans.add(createStyleSpan(fontWeight, isItalic = isItalic))
+    style.fontStyle?.let {
+        spans.add(StyleSpan(if (it == FontStyle.Italic) Typeface.ITALIC else Typeface.NORMAL))
+    }
+    style.fontWeight?.let {
+        val textAppearance = when (it) {
+            FontWeight.Bold -> R.style.TextAppearance_Bold
+            FontWeight.Medium -> R.style.TextAppearance_Medium
+            else -> R.style.TextAppearance_Normal
+        }
+        spans.add(TextAppearanceSpan(context, textAppearance))
     }
     spans.forEach { span ->
         content.setSpan(span, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
     setTextViewText(R.id.glanceView, content)
-}
-
-private fun createStyleSpan(fontWeight: FontWeight, isItalic: Boolean): ParcelableSpan {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        return Api28Impl.createStyleSpan(fontWeight, isItalic)
-    }
-    val boldStyle = if (fontWeight in listOf(FontWeight.Medium, FontWeight.Bold)) {
-        Typeface.BOLD
-    } else {
-        Typeface.NORMAL
-    }
-    val italicStyle = if (isItalic) Typeface.ITALIC else Typeface.NORMAL
-    return StyleSpan(boldStyle or italicStyle)
-}
-
-@RequiresApi(Build.VERSION_CODES.P)
-private object Api28Impl {
-    @DoNotInline
-    fun createStyleSpan(fontWeight: FontWeight, isItalic: Boolean): ParcelableSpan =
-        TypefaceSpan(Typeface.create(Typeface.DEFAULT, fontWeight.value, isItalic))
 }
