@@ -24,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":activity:activity"))
+    api("androidx.activity:activity:1.3.1")
     api(project(":wear:wear-watchface"))
     api(project(":wear:wear-watchface-editor"))
     api(project(":wear:wear-watchface-editor-guava"))
