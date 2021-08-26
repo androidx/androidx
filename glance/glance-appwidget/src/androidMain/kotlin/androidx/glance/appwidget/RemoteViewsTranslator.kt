@@ -19,6 +19,7 @@ package androidx.glance.appwidget
 
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Build
 import android.text.ParcelableSpan
 import android.text.SpannableString
 import android.text.Spanned
@@ -29,11 +30,16 @@ import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.widget.RemoteViews
+import androidx.annotation.DoNotInline
 import androidx.annotation.LayoutRes
+import androidx.annotation.RequiresApi
 import androidx.glance.Emittable
+import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceInternalApi
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
+import androidx.glance.layout.EmittableColumn
+import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
 import androidx.glance.layout.FontStyle
 import androidx.glance.layout.FontWeight
@@ -50,6 +56,8 @@ internal fun translateComposition(context: Context, element: RemoteViewsRoot): R
 private fun translateChild(context: Context, element: Emittable): RemoteViews {
     return when (element) {
         is EmittableBox -> translateEmittableBox(context, element)
+        is EmittableRow -> translateEmittableRow(context, element)
+        is EmittableColumn -> translateEmittableColumn(context, element)
         is EmittableText -> translateEmittableText(context, element)
         else -> throw IllegalArgumentException("Unknown element type ${element::javaClass}")
     }
@@ -83,6 +91,46 @@ private fun translateEmittableBox(context: Context, element: EmittableBox): Remo
             applyModifiers(context, rv, element.modifier)
             element.children.forEach {
                 rv.addView(R.id.glanceView, translateChild(context, it))
+            }
+        }
+
+private fun translateEmittableRow(context: Context, element: EmittableRow): RemoteViews =
+    remoteViews(context, R.layout.row_layout)
+        .also { rv ->
+            rv.setInt(
+                R.id.glanceView,
+                "setGravity",
+                element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
+            )
+            applyModifiers(context, rv, element.modifier)
+            rv.removeAllViews(R.id.glanceView)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Api31Impl.addChildViews(context, element, rv)
+            } else {
+                element.children.forEach {
+                    rv.addView(R.id.glanceView, translateChild(context, it))
+                }
+            }
+        }
+
+private fun translateEmittableColumn(context: Context, element: EmittableColumn): RemoteViews =
+    remoteViews(context, R.layout.column_layout)
+        .also { rv ->
+            rv.setInt(
+                R.id.glanceView,
+                "setGravity",
+                element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
+            )
+            applyModifiers(context, rv, element.modifier)
+            rv.removeAllViews(R.id.glanceView)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Api31Impl.addChildViews(context, element, rv)
+            } else {
+                element.children.forEach {
+                    rv.addView(R.id.glanceView, translateChild(context, it))
+                }
             }
         }
 
@@ -125,4 +173,14 @@ private fun RemoteViews.setText(context: Context, text: String, style: TextStyle
         content.setSpan(span, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
     setTextViewText(R.id.glanceView, content)
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object Api31Impl {
+    @DoNotInline
+    fun addChildViews(context: Context, element: EmittableWithChildren, remoteViews: RemoteViews) {
+        element.children.forEachIndexed { index, child ->
+            remoteViews.addStableView(R.id.glanceView, translateChild(context, child), index)
+        }
+    }
 }
