@@ -21,8 +21,11 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.impl.CAMERAX_TAG_BUNDLE
+import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
+import androidx.camera.camera2.pipe.integration.impl.toParameters
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
 import java.util.concurrent.Executor
 
@@ -35,17 +38,20 @@ class CaptureConfigAdapter(
     private val callbackExecutor: Executor,
 ) {
 
-    fun mapToRequest(captureConfig: CaptureConfig): Request {
+    fun mapToRequest(
+        captureConfig: CaptureConfig,
+        sessionConfigOptions: Config,
+    ): Request {
         val surfaces = captureConfig.surfaces
         check(surfaces.isNotEmpty()) {
             "Attempted to issue a capture without surfaces using $captureConfig"
         }
 
-        // TODO: It's assumed a single surface is used per use case, even though capture requests
-        //  can support multiple surfaces. Look into potentially bridging the gap between the two
-        //  in this layer.
-        val streamId = surfaceToStreamMap[surfaces.single()]
-        checkNotNull(streamId) { "Attempted to issue a capture with an unrecognized surface." }
+        val streamIdList = surfaces.map {
+            checkNotNull(surfaceToStreamMap[it]) {
+                "Attempted to issue a capture with an unrecognized surface."
+            }
+        }
 
         val callbacks = CameraCallbackMap().apply {
             captureConfig.cameraCaptureCallbacks.forEach { callback ->
@@ -53,32 +59,33 @@ class CaptureConfigAdapter(
             }
         }
 
-        val parameters = mutableMapOf<CaptureRequest.Key<*>, Any>()
         val configOptions = captureConfig.implementationOptions
+        val optionBuilder = Camera2ImplConfig.Builder()
 
-        // Add potential capture options set through Camera2 interop
-        // TODO: When adding support for Camera2 interop, ensure interop options are correctly
-        //  being added to the capture request
-        for (configOption in configOptions.listOptions()) {
-            val requestKey = configOption.token as? CaptureRequest.Key<*> ?: continue
-            val value = configOptions.retrieveOption(configOption) ?: continue
-            parameters[requestKey] = value
-        }
+        // The override priority for implementation options
+        // P1 Single capture options
+        // P2 SessionConfig options
+        optionBuilder.insertAllOptions(sessionConfigOptions)
+        optionBuilder.insertAllOptions(configOptions)
 
         // Add capture options defined in CaptureConfig
         if (configOptions.containsOption(CaptureConfig.OPTION_ROTATION)) {
-            parameters[CaptureRequest.JPEG_ORIENTATION] =
+            optionBuilder.setCaptureRequestOption(
+                CaptureRequest.JPEG_ORIENTATION,
                 configOptions.retrieveOption(CaptureConfig.OPTION_ROTATION)!!
+            )
         }
         if (configOptions.containsOption(CaptureConfig.OPTION_JPEG_QUALITY)) {
-            parameters[CaptureRequest.JPEG_QUALITY] =
+            optionBuilder.setCaptureRequestOption(
+                CaptureRequest.JPEG_QUALITY,
                 configOptions.retrieveOption(CaptureConfig.OPTION_JPEG_QUALITY)!!.toByte()
+            )
         }
 
         return Request(
-            streams = listOf(streamId),
+            streams = streamIdList,
             listeners = listOf(callbacks),
-            parameters = parameters,
+            parameters = optionBuilder.build().toParameters(),
             extras = mapOf(CAMERAX_TAG_BUNDLE to captureConfig.tagBundle),
             template = RequestTemplate(captureConfig.templateType)
         )
