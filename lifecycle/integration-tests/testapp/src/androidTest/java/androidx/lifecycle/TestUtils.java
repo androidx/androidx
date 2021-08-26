@@ -112,6 +112,7 @@ class TestUtils {
                 latch.countDown();
             } else {
                 owner.getLifecycle().addObserver(new LifecycleObserver() {
+                    @SuppressWarnings("deprecation")
                     @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
                     public void onStateChanged(LifecycleOwner provider) {
                         if (provider.getLifecycle().getCurrentState() == state) {

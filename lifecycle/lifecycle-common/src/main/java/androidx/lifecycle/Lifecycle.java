@@ -39,42 +39,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * before {@link android.app.Activity#onStop onStop} is called.
  * This gives you certain guarantees on which state the owner is in.
  * <p>
- * If you use <b>Java 8 Language</b>, then observe events with {@link DefaultLifecycleObserver}.
- * To include it you should add {@code "androidx.lifecycle:lifecycle-common-java8:<version>"} to
- * your build.gradle file.
- * <pre>
- * class TestObserver implements DefaultLifecycleObserver {
- *     {@literal @}Override
- *     public void onCreate(LifecycleOwner owner) {
- *         // your code
- *     }
- * }
- * </pre>
- * If you use <b>Java 7 Language</b>, Lifecycle events are observed using annotations.
- * Once Java 8 Language becomes mainstream on Android, annotations will be deprecated, so between
- * {@link DefaultLifecycleObserver} and annotations,
- * you must always prefer {@code DefaultLifecycleObserver}.
- * <pre>
- * class TestObserver implements LifecycleObserver {
- *   {@literal @}OnLifecycleEvent(ON_STOP)
- *   void onStopped() {}
- * }
- * </pre>
- * <p>
- * Observer methods can receive zero or one argument.
- * If used, the first argument must be of type {@link LifecycleOwner}.
- * Methods annotated with {@link Event#ON_ANY} can receive the second argument, which must be
- * of type {@link Event}.
- * <pre>
- * class TestObserver implements LifecycleObserver {
- *   {@literal @}OnLifecycleEvent(ON_CREATE)
- *   void onCreated(LifecycleOwner source) {}
- *   {@literal @}OnLifecycleEvent(ON_ANY)
- *   void onAny(LifecycleOwner source, Event event) {}
- * }
- * </pre>
- * These additional parameters are provided to allow you to conveniently observe multiple providers
- * and events without tracking them manually.
+ * To observe lifecycle events call {@link #addObserver(LifecycleObserver)} passing an object
+ * that implements either {@link DefaultLifecycleObserver} or {@link LifecycleEventObserver}.
  */
 public abstract class Lifecycle {
 

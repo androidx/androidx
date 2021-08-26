@@ -31,9 +31,8 @@ import androidx.biometric.BiometricManager.Authenticators;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
@@ -723,15 +722,15 @@ public class BiometricPrompt {
      * A lifecycle observer that clears the client callback reference held by a
      * {@link BiometricViewModel} when the lifecycle owner is destroyed.
      */
-    private static class ResetCallbackObserver implements LifecycleObserver {
+    private static class ResetCallbackObserver implements DefaultLifecycleObserver {
         @NonNull private final WeakReference<BiometricViewModel> mViewModelRef;
 
         ResetCallbackObserver(@NonNull BiometricViewModel viewModel) {
             mViewModelRef = new WeakReference<>(viewModel);
         }
 
-        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        public void resetCallback() {
+        @Override
+        public void onDestroy(@NonNull LifecycleOwner owner) {
             if (mViewModelRef.get() != null) {
                 mViewModelRef.get().resetClientCallback();
             }

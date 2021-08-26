@@ -17,11 +17,11 @@
 package androidx.lifecycle.observers;
 
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.OnLifecycleEvent;
 
+@SuppressWarnings("deprecation")
 public class DerivedWithNewMethods extends Base {
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     void onStop() {
 
     }
