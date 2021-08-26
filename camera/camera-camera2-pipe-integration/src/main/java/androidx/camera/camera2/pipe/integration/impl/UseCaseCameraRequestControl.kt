@@ -258,9 +258,11 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
     }
 
     override fun issueSingleCapture(captureSequence: List<CaptureConfig>) {
-        val requests = captureSequence.map { configAdapter.mapToRequest(it) }
-        // TODO(b/194243796): Need to append repeating parameters to the capture request.
-        state.capture(requests)
+        val sessionConfigOptions = synchronized(lock) {
+            infoBundleMap.merge()
+        }.options.build()
+
+        state.capture(captureSequence.map { configAdapter.mapToRequest(it, sessionConfigOptions) })
     }
 
     /**
