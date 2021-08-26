@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import android.annotation.TargetApi
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Typeface
@@ -29,6 +30,7 @@ import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -37,8 +39,10 @@ import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
+import androidx.glance.layout.Column
 import androidx.glance.layout.FontStyle
 import androidx.glance.layout.FontWeight
+import androidx.glance.layout.Row
 import androidx.glance.layout.Text
 import androidx.glance.layout.TextDecoration
 import androidx.glance.layout.TextStyle
@@ -194,6 +198,248 @@ class RemoteViewsTranslatorKtTest {
         assertThat(view.paddingRight).isEqualTo(dpToPixel(5.dp))
         assertThat(view.paddingTop).isEqualTo(dpToPixel(6.dp))
         assertThat(view.paddingBottom).isEqualTo(dpToPixel(7.dp))
+    }
+
+    @Test
+    fun canTranslateRow() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate { Row { } }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.childCount).isEqualTo(0)
+    }
+
+    @Test
+    fun canTranslateColumn() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate { Column { } }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.childCount).isEqualTo(0)
+    }
+
+    @Test
+    @TargetApi(24)
+    fun canTranslateRowWithAlignment() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Row(
+                horizontalAlignment = Alignment.End,
+                verticalAlignment = Alignment.Bottom
+            ) { }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+    }
+
+    @Test
+    @TargetApi(24)
+    fun canTranslateColumnWithAlignment() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Column(
+                horizontalAlignment = Alignment.Start,
+                verticalAlignment = Alignment.Bottom
+            ) { }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.gravity).isEqualTo(Gravity.BOTTOM or Gravity.START)
+    }
+
+    @Test
+    @TargetApi(24)
+    fun canTranslateRowWithChildren() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Row {
+                Row(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalAlignment = Alignment.CenterVertically
+                ) { }
+                Row(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalAlignment = Alignment.Top
+                ) { }
+                Row(
+                    horizontalAlignment = Alignment.End,
+                    verticalAlignment = Alignment.Bottom
+                ) { }
+            }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.childCount).isEqualTo(3)
+        val child1 = view.getChildAt(0)
+        assertIs<LinearLayout>(child1)
+        assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
+        val child2 = view.getChildAt(1)
+        assertIs<LinearLayout>(child2)
+        assertThat(child2.gravity).isEqualTo(Gravity.CENTER or Gravity.TOP)
+        val child3 = view.getChildAt(2)
+        assertIs<LinearLayout>(child3)
+        assertThat(child3.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+    }
+
+    @Test
+    @TargetApi(24)
+    fun canTranslateColumnWithChildren() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Column {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalAlignment = Alignment.CenterVertically
+                ) { }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalAlignment = Alignment.Top
+                ) { }
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalAlignment = Alignment.Bottom
+                ) { }
+            }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.childCount).isEqualTo(3)
+        val child1 = view.getChildAt(0)
+        assertIs<LinearLayout>(child1)
+        assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
+        val child2 = view.getChildAt(1)
+        assertIs<LinearLayout>(child2)
+        assertThat(child2.gravity).isEqualTo(Gravity.CENTER or Gravity.TOP)
+        val child3 = view.getChildAt(2)
+        assertIs<LinearLayout>(child3)
+        assertThat(child3.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+    }
+
+    @Test
+    fun canTranslateRowPaddingModifier() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Row(
+                modifier = Modifier.padding(
+                    start = 17.dp,
+                    end = 16.dp,
+                    top = 15.dp,
+                    bottom = 14.dp,
+                )
+            ) { }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.paddingLeft).isEqualTo(dpToPixel(17.dp))
+        assertThat(view.paddingRight).isEqualTo(dpToPixel(16.dp))
+        assertThat(view.paddingTop).isEqualTo(dpToPixel(15.dp))
+        assertThat(view.paddingBottom).isEqualTo(dpToPixel(14.dp))
+    }
+
+    @Test
+    fun canTranslateColumnPaddingModifier() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Column(
+                modifier = Modifier.padding(
+                    start = 13.dp,
+                    end = 12.dp,
+                    top = 11.dp,
+                    bottom = 10.dp,
+                )
+            ) { }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.paddingLeft).isEqualTo(dpToPixel(13.dp))
+        assertThat(view.paddingRight).isEqualTo(dpToPixel(12.dp))
+        assertThat(view.paddingTop).isEqualTo(dpToPixel(11.dp))
+        assertThat(view.paddingBottom).isEqualTo(dpToPixel(10.dp))
+    }
+
+    @Test
+    fun canTranslateRowPaddingRTL() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslateInRtl {
+            Row(
+                modifier = Modifier.padding(
+                    start = 4.dp,
+                    end = 5.dp,
+                    top = 6.dp,
+                    bottom = 7.dp,
+                )
+            ) { }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.paddingLeft).isEqualTo(dpToPixel(5.dp))
+        assertThat(view.paddingRight).isEqualTo(dpToPixel(4.dp))
+        assertThat(view.paddingTop).isEqualTo(dpToPixel(6.dp))
+        assertThat(view.paddingBottom).isEqualTo(dpToPixel(7.dp))
+    }
+
+    @Test
+    fun canTranslateColumnPaddingRTL() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslateInRtl {
+            Column(
+                modifier = Modifier.padding(
+                    start = 8.dp,
+                    end = 9.dp,
+                    top = 10.dp,
+                    bottom = 11.dp,
+                )
+            ) { }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.paddingLeft).isEqualTo(dpToPixel(9.dp))
+        assertThat(view.paddingRight).isEqualTo(dpToPixel(8.dp))
+        assertThat(view.paddingTop).isEqualTo(dpToPixel(10.dp))
+        assertThat(view.paddingBottom).isEqualTo(dpToPixel(11.dp))
+    }
+
+    @Test
+    fun canTranslateRowAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslateInRtl {
+            Row(
+                modifier = Modifier.absolutePadding(
+                    left = 12.dp,
+                    right = 13.dp,
+                    top = 14.dp,
+                    bottom = 15.dp,
+                )
+            ) { }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.paddingLeft).isEqualTo(dpToPixel(12.dp))
+        assertThat(view.paddingRight).isEqualTo(dpToPixel(13.dp))
+        assertThat(view.paddingTop).isEqualTo(dpToPixel(14.dp))
+        assertThat(view.paddingBottom).isEqualTo(dpToPixel(15.dp))
+    }
+
+    @Test
+    fun canTranslateColumnAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslateInRtl {
+            Column(
+                modifier = Modifier.absolutePadding(
+                    left = 16.dp,
+                    right = 17.dp,
+                    top = 18.dp,
+                    bottom = 19.dp,
+                )
+            ) { }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.paddingLeft).isEqualTo(dpToPixel(16.dp))
+        assertThat(view.paddingRight).isEqualTo(dpToPixel(17.dp))
+        assertThat(view.paddingTop).isEqualTo(dpToPixel(18.dp))
+        assertThat(view.paddingBottom).isEqualTo(dpToPixel(19.dp))
     }
 
     @Test
