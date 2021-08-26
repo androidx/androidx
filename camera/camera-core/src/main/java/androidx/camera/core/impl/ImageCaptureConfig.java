@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import android.graphics.ImageFormat;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -59,6 +60,8 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
             Option.create("camerax.core.imageCapture.useSoftwareJpegEncoder", boolean.class);
     public static final Option<Integer> OPTION_FLASH_TYPE =
             Option.create("camerax.core.imageCapture.flashType", int.class);
+    public static final Option<Integer> OPTION_JPEG_COMPRESSION_QUALITY =
+            Option.create("camerax.core.imageCapture.jpegCompressionQuality", int.class);
 
     // *********************************************************************************************
 
@@ -259,6 +262,30 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     @ImageCapture.FlashType
     public int getFlashType() {
         return retrieveOption(OPTION_FLASH_TYPE);
+    }
+
+    /**
+     * Returns the JPEG compression quality setting.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @IntRange(from = 1, to = 100)
+    public int getJpegQuality(@IntRange(from = 1, to = 100) int valueIfMissing) {
+        return retrieveOption(OPTION_JPEG_COMPRESSION_QUALITY, valueIfMissing);
+    }
+
+
+    /**
+     * Returns the JPEG compression quality setting.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @IntRange(from = 1, to = 100)
+    public int getJpegQuality() {
+        return retrieveOption(OPTION_JPEG_COMPRESSION_QUALITY);
     }
 
     // Implementations of IO default methods

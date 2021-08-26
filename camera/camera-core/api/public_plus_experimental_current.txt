@@ -211,6 +211,7 @@ package androidx.camera.core {
   @RequiresApi(21) public final class ImageCapture extends androidx.camera.core.UseCase {
     method public int getCaptureMode();
     method public int getFlashMode();
+    method @IntRange(from=1, to=100) public int getJpegQuality();
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public int getTargetRotation();
     method public void setCropAspectRatio(android.util.Rational);
@@ -236,6 +237,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageCapture.Builder setCaptureMode(int);
     method public androidx.camera.core.ImageCapture.Builder setFlashMode(int);
     method public androidx.camera.core.ImageCapture.Builder setIoExecutor(java.util.concurrent.Executor);
+    method public androidx.camera.core.ImageCapture.Builder setJpegQuality(@IntRange(from=1, to=100) int);
     method public androidx.camera.core.ImageCapture.Builder setTargetAspectRatio(int);
     method public androidx.camera.core.ImageCapture.Builder setTargetName(String);
     method public androidx.camera.core.ImageCapture.Builder setTargetResolution(android.util.Size);

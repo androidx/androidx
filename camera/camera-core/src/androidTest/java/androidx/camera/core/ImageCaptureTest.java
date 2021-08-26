@@ -24,11 +24,15 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.provider.MediaStore;
 import android.util.Rational;
 import android.util.Size;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -46,6 +50,7 @@ import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.exifinterface.media.ExifInterface;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -138,7 +143,7 @@ public class ImageCaptureTest {
 
     @Test
     public void onCaptureCancelled_onErrorCAMERA_CLOSED() {
-        ImageCapture imageCapture = createImageCapture();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
 
         mInstrumentation.runOnMainSync(() -> {
             try {
@@ -169,7 +174,7 @@ public class ImageCaptureTest {
 
     @Test
     public void onRequestFailed_OnErrorCAPTURE_FAILED() {
-        ImageCapture imageCapture = createImageCapture();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
 
         mInstrumentation.runOnMainSync(() -> {
             try {
@@ -200,27 +205,98 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public void captureWithMinLatency_jpegQualityIs95() {
-        List<CaptureConfig> captureConfigs =
-                captureWithCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
+    public void captureWithMinLatencyByImageCapturedCallback_jpegQualityIs95() {
+        ImageCapture imageCapture = new ImageCapture.Builder().setCaptureMode(
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).build();
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageCapturedCallback.class);
         assertThat(hasJpegQuality(captureConfigs, 95)).isTrue();
     }
 
     @Test
-    public void captureWithMaxQuality_jpegQualityIs100() {
-        List<CaptureConfig> captureConfigs =
-                captureWithCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY);
+    public void captureWithMaxQualityByImageCapturedCallback_jpegQualityIs100() {
+        ImageCapture imageCapture = new ImageCapture.Builder().setCaptureMode(
+                ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY).build();
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageCapturedCallback.class);
         assertThat(hasJpegQuality(captureConfigs, 100)).isTrue();
     }
 
-    @NonNull
-    private List<CaptureConfig> captureWithCaptureMode(
-            @ImageCapture.CaptureMode int captureMode) {
-        // Arrange.
-        ImageCapture imageCapture = new ImageCapture.Builder()
-                .setCaptureMode(captureMode)
-                .build();
+    @Test
+    public void captureWithMinLatencyByImageCapturedCallback_jpegQualityOverwrittenBy100() {
+        int jpegQuality = 100;
+        ImageCapture imageCapture = new ImageCapture.Builder().setCaptureMode(
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).setJpegQuality(jpegQuality).build();
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageCapturedCallback.class);
+        assertThat(hasJpegQuality(captureConfigs, jpegQuality)).isTrue();
+    }
 
+    @Test
+    public void captureWithMaxQualityByImageCapturedCallback_jpegQualityOverwrittenBy1() {
+        int jpegQuality = 1;
+        ImageCapture imageCapture = new ImageCapture.Builder().setCaptureMode(
+                ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY).setJpegQuality(jpegQuality).build();
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageCapturedCallback.class);
+        assertThat(hasJpegQuality(captureConfigs, jpegQuality)).isTrue();
+    }
+
+    @Test
+    public void captureWithoutCropSettingByImageSavedCallback_jpegQualitySameAsSettingValue() {
+        int jpegQuality = 50;
+        ImageCapture imageCapture = new ImageCapture.Builder().setJpegQuality(jpegQuality).build();
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageSavedCallback.class);
+        assertThat(hasJpegQuality(captureConfigs, jpegQuality)).isTrue();
+    }
+
+    @Test
+    public void captureWithCropAspectRatioByImageSavedCallback_jpegQualityIs100() {
+        int jpegQuality = 50;
+        ImageCapture imageCapture = new ImageCapture.Builder().setJpegQuality(jpegQuality).build();
+        imageCapture.setCropAspectRatio(new Rational(1, 1));
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageSavedCallback.class);
+        assertThat(hasJpegQuality(captureConfigs, 100)).isTrue();
+    }
+
+    @Test
+    public void captureWithCropAspectRatioByImageCapturedCallback_jpegQualitySameAsSettingValue() {
+        int jpegQuality = 50;
+        ImageCapture imageCapture = new ImageCapture.Builder().setJpegQuality(jpegQuality).build();
+        imageCapture.setCropAspectRatio(new Rational(1, 1));
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageCapturedCallback.class);
+        assertThat(hasJpegQuality(captureConfigs, jpegQuality)).isTrue();
+    }
+
+    @Test
+    public void captureWithViewPortByImageSavedCallback_jpegQualityIs100() {
+        mCameraUseCaseAdapter.setViewPort(new ViewPort.Builder(new Rational(1, 1),
+                Surface.ROTATION_0).build());
+        int jpegQuality = 50;
+        ImageCapture imageCapture = new ImageCapture.Builder().setJpegQuality(jpegQuality).build();
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageSavedCallback.class);
+        assertThat(hasJpegQuality(captureConfigs, 100)).isTrue();
+    }
+
+    @Test
+    public void captureWithViewPortByImageCapturedCallback_jpegQualitySameAsSettingValue() {
+        mCameraUseCaseAdapter.setViewPort(new ViewPort.Builder(new Rational(1, 1),
+                Surface.ROTATION_0).build());
+        int jpegQuality = 50;
+        ImageCapture imageCapture = new ImageCapture.Builder().setJpegQuality(jpegQuality).build();
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageCapturedCallback.class);
+        assertThat(hasJpegQuality(captureConfigs, jpegQuality)).isTrue();
+    }
+
+    @NonNull
+    private List<CaptureConfig> captureImage(@NonNull ImageCapture imageCapture,
+            @NonNull Class<?> callbackClass) {
+        // Arrange.
         mInstrumentation.runOnMainSync(() -> {
             try {
                 mCameraUseCaseAdapter.addUseCases(Collections.singleton(imageCapture));
@@ -233,7 +309,7 @@ public class ImageCaptureTest {
         // Sets repeating capture result to the imageCapture's session config repeating capture
         // callbacks to make ImageCapture#preTakePicture can be completed when capture mode is
         // set as CAPTURE_MODE_MAXIMIZE_QUALITY.
-        if (captureMode == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY) {
+        if (imageCapture.getCaptureMode() == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY) {
             FakeCameraCaptureResult fakeCameraCaptureResult = new FakeCameraCaptureResult();
             fakeCameraCaptureResult.setAfState(CameraCaptureMetaData.AfState.LOCKED_FOCUSED);
             fakeCameraCaptureResult.setAeState(CameraCaptureMetaData.AeState.CONVERGED);
@@ -257,8 +333,26 @@ public class ImageCaptureTest {
 
         // Act.
         mInstrumentation.runOnMainSync(
-                () -> imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
-                        mock(ImageCapture.OnImageCapturedCallback.class)));
+                () -> {
+                    if (callbackClass == ImageCapture.OnImageCapturedCallback.class) {
+                        imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
+                                mock(ImageCapture.OnImageCapturedCallback.class));
+                    } else if (callbackClass == ImageCapture.OnImageSavedCallback.class) {
+                        ContentResolver contentResolver =
+                                ApplicationProvider.getApplicationContext().getContentResolver();
+                        ContentValues contentValues = new ContentValues();
+                        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+                        imageCapture.takePicture(new ImageCapture.OutputFileOptions.Builder(
+                                        contentResolver,
+                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                        contentValues).build(),
+                                CameraXExecutors.mainThreadExecutor(),
+                                mock(ImageCapture.OnImageSavedCallback.class));
+                    } else {
+                        throw new IllegalArgumentException("Unexpected callback type for taking "
+                                + "picture!");
+                    }
+                });
 
         // Assert.
         @SuppressWarnings("unchecked")
@@ -273,6 +367,16 @@ public class ImageCaptureTest {
         }
 
         return captureConfigs;
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void throwIllegalArgumentException_setInvalidJpegQuality0() {
+        new ImageCapture.Builder().setJpegQuality(0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void throwIllegalArgumentException_setInvalidJpegQuality101() {
+        new ImageCapture.Builder().setJpegQuality(101);
     }
 
     @Test
@@ -373,7 +477,8 @@ public class ImageCaptureTest {
     @Test
     public void setFlashModeDuringPictureTaken() throws InterruptedException {
         // Arrange.
-        ImageCapture imageCapture = createImageCapture();
+        ImageCapture imageCapture =
+                new ImageCapture.Builder().setFlashMode(ImageCapture.FLASH_MODE_OFF).build();
 
         mInstrumentation.runOnMainSync(() -> {
             try {
@@ -439,16 +544,5 @@ public class ImageCaptureTest {
             }
         }
         return false;
-    }
-
-    private ImageCapture createImageCapture() {
-        return new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-                .setCaptureOptionUnpacker((config, builder) -> {
-                })
-                .setSessionOptionUnpacker((config, builder) -> {
-                })
-                .build();
     }
 }
