@@ -197,7 +197,7 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
             var impl: ExtensionInterfaceCompat? = null
             // Falling back to Sidecar
             try {
-                if (isExtensionVersionSupported(SidecarCompat.sidecarVersion)) {
+                if (isSidecarVersionSupported(SidecarCompat.sidecarVersion)) {
                     impl = SidecarCompat(context)
                     if (!impl.validateExtensionInterface()) {
                         if (DEBUG) {
@@ -221,15 +221,15 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
         }
 
         /**
-         * Checks if the Extension version provided on this device is supported by the current
+         * Checks if the Sidecar version provided on this device is supported by the current
          * version of the library.
          */
         @VisibleForTesting
-        fun isExtensionVersionSupported(extensionVersion: Version?): Boolean {
-            if (extensionVersion == null) {
+        fun isSidecarVersionSupported(sidecarVersion: Version?): Boolean {
+            if (sidecarVersion == null) {
                 return false
             }
-            return Version.VERSION_0_1 == extensionVersion
+            return sidecarVersion >= Version.VERSION_0_1
         }
 
         /**

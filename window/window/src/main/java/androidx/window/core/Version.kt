@@ -74,12 +74,10 @@ internal class Version private constructor(
         return result
     }
 
-    companion object {
+    internal companion object {
         val UNKNOWN = Version(0, 0, 0, "")
-        @JvmField
         val VERSION_0_1 = Version(0, 1, 0, "")
         val VERSION_1_0 = Version(1, 0, 0, "")
-        @JvmField
         val CURRENT = VERSION_1_0
         private const val VERSION_PATTERN_STRING = "(\\d+)(?:\\.(\\d+))(?:\\.(\\d+))(?:-(.+))?"
 
