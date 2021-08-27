@@ -35,9 +35,9 @@ dependencies {
 
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.compose.runtime:runtime:1.0.1")
 
     implementation(libs.kotlinStdlib)
-    implementation(project(":compose:runtime:runtime"))
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)

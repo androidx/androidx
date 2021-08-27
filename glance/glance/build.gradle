@@ -32,8 +32,9 @@ AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformE
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
+    api("androidx.compose.runtime:runtime:1.0.1")
+
     implementation(libs.kotlinStdlib)
-    implementation(project(":compose:runtime:runtime"))
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
