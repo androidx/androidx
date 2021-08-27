@@ -309,7 +309,9 @@ public final class MediaRouter {
      *     <li>{@link androidx.mediarouter.app.MediaRouteControllerDialog}
      *     <li>{@link androidx.mediarouter.app.MediaRouteDiscoveryFragment}
      * </ul>
+     * Please make sure this is called in the main thread.
      */
+    @MainThread
     @VisibleForTesting
     public static void reset() {
         if (sGlobal == null) {
