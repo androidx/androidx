@@ -26,7 +26,18 @@ def chooseOutDir(subdir = "") {
         def checkoutRoot = System.getProperty("CHECKOUT_ROOT")
         if (checkoutRoot == null) {
             def workingDir = new File(buildscript.sourceFile.parent)
-            checkoutRoot = new File("git rev-parse --show-toplevel".execute([], workingDir).text)
+            // Note: Using String.execute() causes exit code 148, so we use ProcessBuilder instead.
+            def repoProcess = new ProcessBuilder()
+                .command("repo", "help")
+                .directory(workingDir)
+                .start()
+            def isRepoCheckout = repoProcess.waitFor() == 0
+            if (isRepoCheckout) {
+                checkoutRoot = new File("${buildscript.sourceFile.parent}/../../..")
+            } else {
+                checkoutRoot = new File("git rev-parse --show-toplevel".execute([], workingDir).text)
+            }
+
         }
         outDir = new File("${checkoutRoot}/out${subdir}")
         project.ext.buildSrcOut = new File("${checkoutRoot}/out/buildSrc")
