@@ -16,8 +16,43 @@ package androidx.glance.wear {
 
 package androidx.glance.wear.layout {
 
+  public final inline class AnchorType {
+    ctor public AnchorType();
+  }
+
+  public static final class AnchorType.Companion {
+    method public int getCenter();
+    method public int getEnd();
+    method public int getStart();
+    property public final int Center;
+    property public final int End;
+    property public final int Start;
+  }
+
   public final class BackgroundKt {
     method public static androidx.glance.Modifier background(androidx.glance.Modifier, int color);
+  }
+
+  public final class CurvedRowKt {
+    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.Modifier modifier, optional float anchor, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.layout.CurvedRowScope,kotlin.Unit> content);
+  }
+
+  public final class CurvedRowScope {
+    ctor public CurvedRowScope();
+    method @androidx.compose.runtime.Composable public void CurvedText(String text, optional androidx.glance.Modifier modifier, optional androidx.glance.layout.TextStyle? textStyle);
+  }
+
+  public final inline class RadialAlignment {
+    ctor public RadialAlignment();
+  }
+
+  public static final class RadialAlignment.Companion {
+    method public int getCenter();
+    method public int getInner();
+    method public int getOuter();
+    property public final int Center;
+    property public final int Inner;
+    property public final int Outer;
   }
 
 }
