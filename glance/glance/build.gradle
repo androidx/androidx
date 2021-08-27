@@ -54,7 +54,7 @@ android {
 androidx {
     name = "Glance Core Library"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
