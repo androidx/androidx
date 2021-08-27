@@ -69,6 +69,7 @@ public class Pager<Key : Any, Value : Any>
      * you should use the [cachedIn] operator which multicasts the [Flow] in a way that returns a
      * new instance of [PagingData] with cached data pre-loaded.
      */
+    @OptIn(androidx.paging.ExperimentalPagingApi::class)
     public val flow: Flow<PagingData<Value>> = PageFetcher(
         pagingSourceFactory = if (
             pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>

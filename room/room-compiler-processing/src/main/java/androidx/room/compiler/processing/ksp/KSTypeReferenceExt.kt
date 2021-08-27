@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSReferenceElement
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
@@ -64,6 +65,8 @@ private class NoLocationTypeReference(
         get() = emptySet()
     override val origin: Origin
         get() = Origin.SYNTHETIC
+    override val parent: KSNode?
+        get() = null
 
     override fun <D, R> accept(visitor: KSVisitor<D, R>, data: D): R {
         return visitor.visitTypeReference(this, data)
