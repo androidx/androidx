@@ -50,7 +50,7 @@ interface ScalingLazyColumnItemInfo {
     val scale: Float
 
     /**
-     * How much alpha should be applied to the item, between 0 and 1
+     * How much alpha has been applied to the item, between 0 and 1
      */
     val alpha: Float
 }
