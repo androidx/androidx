@@ -64,6 +64,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
+@ExperimentalPagingApi
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PageFetcherSnapshotTest {
