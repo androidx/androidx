@@ -92,29 +92,27 @@ internal class MetricsContainer(
      *
      * Call exactly once at the end of a benchmark.
      */
-    fun captureFinished(maxIterations: Int): List<Stats> {
-        for (eachArray in data) { // do this at the end for efficiency
-            for (i in 0..eachArray.lastIndex) {
-                eachArray[i] = eachArray[i] / maxIterations
-            }
-        }
-        doLog()
-        return metrics.mapIndexed { i, it -> Stats(data[i], it.name) }
-    }
+    fun captureFinished(maxIterations: Int): List<MetricResult> {
+        return data.mapIndexed { index, longMeasurementArray ->
+            val metric = metrics[index]
 
-    private fun doLog() {
-        metrics.forEachIndexed { i, metric ->
-            data[i].toList().chunked(10)
+            // convert to floats and divide by iter count here for efficiency
+            val scaledMeasurements = longMeasurementArray
+                .map { it / maxIterations.toDouble() }
+
+            scaledMeasurements.chunked(10)
                 .forEachIndexed { chunkNum, chunk ->
                     Log.d(
                         BenchmarkState.TAG,
                         metric.name + "[%2d:%2d]: %s".format(
                             chunkNum * 10,
                             (chunkNum + 1) * 10,
-                            chunk.joinToString()
+                            chunk.joinToString(" ") { it.toLong().toString() }
                         )
                     )
                 }
+
+            MetricResult(metric.name, scaledMeasurements)
         }
     }
 }

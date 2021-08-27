@@ -79,7 +79,7 @@ public class FrameTimingMetric : Metric() {
      * This both converts `snake_case_format` to `camelCaseFormat`, and renames for clarity.
      *
      * Note that these will still output to inst results in snake_case, with `MetricNameUtils`
-     * via [androidx.benchmark.Stats.putInBundle].
+     * via [androidx.benchmark.MetricResult.putInBundle].
      */
     private val keyRenameMap = mapOf(
         "frame_render_time_percentile_50" to "frameTime50thPercentileMs",
@@ -122,10 +122,7 @@ public class FrameTimingMetric : Metric() {
                 val keyWithoutPrefix = it.key.removePrefix(prefix)
 
                 if (keyWithoutPrefix != it.key && keyRenameMap.containsKey(keyWithoutPrefix)) {
-                    // note - this conversion truncates
-                    val newValue = it.value.toLong()
-                    @Suppress("MapGetWithNotNullAssertionOperator")
-                    keyRenameMap[keyWithoutPrefix]!! to newValue
+                    keyRenameMap[keyWithoutPrefix]!! to it.value
                 } else {
                     throw IllegalStateException("Unexpected key ${it.key}")
                 }
@@ -157,7 +154,7 @@ public class StartupTimingMetric : Metric() {
 }
 
 internal data class MetricsWithUiState(
-    val metrics: Map<String, Long>,
+    val metrics: Map<String, Double>,
     val timelineStart: Long? = null,
     val timelineEnd: Long? = null
 ) {

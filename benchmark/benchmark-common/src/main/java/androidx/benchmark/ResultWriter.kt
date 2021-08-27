@@ -133,12 +133,12 @@ public object ResultWriter {
         return endObject()
     }
 
-    private fun JsonWriter.statsObject(
-        stats: Stats
+    private fun JsonWriter.metricResultObject(
+        metricResult: MetricResult
     ): JsonWriter {
-        name("minimum").value(stats.min)
-        name("maximum").value(stats.max)
-        name("median").value(stats.median)
+        name("minimum").value(metricResult.min.toFloat())
+        name("maximum").value(metricResult.max.toFloat())
+        name("median").value(metricResult.median.toFloat())
         return this
     }
 
@@ -146,11 +146,11 @@ public object ResultWriter {
         metricResults: List<MetricResult>
     ): JsonWriter {
         beginObject()
-        metricResults.forEach {
-            name(it.stats.name).beginObject()
-            statsObject(it.stats)
+        metricResults.forEach { metricResult ->
+            name(metricResult.name).beginObject()
+            metricResultObject(metricResult)
             name("runs").beginArray()
-            it.data.forEach { value(it) }
+            metricResult.data.forEach { value(it) }
             endArray()
             endObject()
         }

@@ -132,7 +132,7 @@ class PerfettoResultsParserTest {
                 "androidx.benchmark.macro.test"
             ),
             MetricsWithUiState(
-                metrics = mapOf("startupMs" to 149),
+                metrics = mapOf("startupMs" to 149.438504),
                 timelineStart = 345883080735887,
                 timelineEnd = 345883230174391
             )
@@ -148,8 +148,8 @@ class PerfettoResultsParserTest {
             ),
             MetricsWithUiState(
                 metrics = mapOf(
-                    "startupMs" to 149,
-                    "fullyDrawnMs" to 204
+                    "startupMs" to 149.438504,
+                    "fullyDrawnMs" to 204.445333
                 ),
                 timelineStart = 345883080735887,
                 timelineEnd = 345883230174391

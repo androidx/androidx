@@ -16,10 +16,9 @@
 
 package androidx.benchmark.macro
 
+import androidx.benchmark.MetricResult
 import androidx.benchmark.Outputs
-import androidx.benchmark.Stats
 import java.util.Collections
-import kotlin.math.max
 
 /**
  * Returns a pair of ideSummaryStrings - v1 (pre Arctic-fox) and v2 (Arctic-fox+)
@@ -34,28 +33,35 @@ import kotlin.math.max
 internal fun ideSummaryStrings(
     warningLines: String,
     benchmarkName: String,
-    statsList: List<Stats>,
+    metricResults: List<MetricResult>,
     absoluteTracePaths: List<String>
 ): Pair<String, String> {
-    require(statsList.isNotEmpty()) { "Require non-empty list of stats." }
+    require(metricResults.isNotEmpty()) { "Require non-empty list of metric results." }
 
-    val maxLabelLength = Collections.max(statsList.map { it.name.length })
+    val maxLabelLength = Collections.max(metricResults.map { it.name.length })
+
+    fun Double.toDisplayString() = "%,.1f".format(this)
 
     // max string length of any printed min/median/max is the largest max value seen. used to pad.
-    val maxValueLength = statsList
-        .map { it.max }
-        .reduce { acc, maxValue -> max(acc, maxValue) }
-        .toString().length
+    val maxValueLength = metricResults
+        .maxOf { it.max }
+        .toDisplayString().length
 
     fun ideSummaryString(
-        transform: (name: String, min: String, median: String, max: String, stats: Stats) -> String
+        transform: (
+            name: String,
+            min: String,
+            median: String,
+            max: String,
+            metricResult: MetricResult
+        ) -> String
     ): String {
-        return warningLines + benchmarkName + "\n" + statsList.joinToString("\n") {
+        return warningLines + benchmarkName + "\n" + metricResults.joinToString("\n") {
             transform(
                 it.name.padStart(maxLabelLength),
-                it.min.toString().padStart(maxValueLength),
-                it.median.toString().padStart(maxValueLength),
-                it.max.toString().padStart(maxValueLength),
+                it.min.toDisplayString().padStart(maxValueLength),
+                it.median.toDisplayString().padStart(maxValueLength),
+                it.max.toDisplayString().padStart(maxValueLength),
                 it
             )
         } + "\n"
@@ -69,11 +75,11 @@ internal fun ideSummaryStrings(
         first = ideSummaryString { name, min, median, max, _ ->
             "  $name   min $min,   median $median,   max $max"
         },
-        second = ideSummaryString { name, min, median, max, stats ->
+        second = ideSummaryString { name, min, median, max, metricResult ->
             "  $name" +
-                "   [min $min](file://${relativeTracePaths[stats.minIndex]})," +
-                "   [median $median](file://${relativeTracePaths[stats.medianIndex]})," +
-                "   [max $max](file://${relativeTracePaths[stats.maxIndex]})"
+                "   [min $min](file://${relativeTracePaths[metricResult.minIndex]})," +
+                "   [median $median](file://${relativeTracePaths[metricResult.medianIndex]})," +
+                "   [max $max](file://${relativeTracePaths[metricResult.maxIndex]})"
         } + "    Traces: Iteration " + relativeTracePaths.mapIndexed { index, path ->
             "[$index](file://$path)"
         }.joinToString(separator = " ") + "\n"

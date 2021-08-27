@@ -19,7 +19,7 @@ package androidx.benchmark
 import android.opengl.Matrix
 
 internal object ThrottleDetector {
-    private var initNs = 0L
+    private var initNs = 0.0
 
     /**
      * Copies 400K, 10 times.
@@ -32,7 +32,7 @@ internal object ThrottleDetector {
         }
     }
 
-    private fun measureWorkNs(): Long {
+    private fun measureWorkNs(): Double {
         // Access a non-trivial amount of data to try and 'reset' any cache state.
         // Have observed this to give more consistent performance when clocks are unlocked.
         copySomeData()
@@ -54,7 +54,7 @@ internal object ThrottleDetector {
      * Called to calculate throttling baseline, will be ignored after first call.
      */
     fun computeThrottleBaseline() {
-        if (initNs == 0L) {
+        if (initNs == 0.0) {
             initNs = measureWorkNs()
         }
     }
@@ -64,7 +64,7 @@ internal object ThrottleDetector {
      * inaccurate initial measurement is suspected.
      */
     fun resetThrottleBaseline() {
-        initNs = 0L
+        initNs = 0.0
     }
 
     /**
@@ -72,7 +72,7 @@ internal object ThrottleDetector {
      * of single-threaded CPU work.
      */
     fun isDeviceThermalThrottled(): Boolean {
-        if (initNs == 0L) {
+        if (initNs == 0.0) {
             // not initialized, so assume not throttled.
             return false
         }

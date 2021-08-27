@@ -31,11 +31,11 @@ class MetricResultExtensionsTest {
         assertEquals(
             expected = listOf(
                 // note, bar sorted first
-                MetricResult("bar", longArrayOf(1)),
-                MetricResult("foo", longArrayOf(0))
+                MetricResult("bar", listOf(1.0)),
+                MetricResult("foo", listOf(0.0))
             ),
             actual = listOf(
-                mapOf("foo" to 0L, "bar" to 1L)
+                mapOf("foo" to 0.0, "bar" to 1.0)
             ).mergeToMetricResults(tracePaths = emptyList())
         )
     }
@@ -45,13 +45,13 @@ class MetricResultExtensionsTest {
         assertEquals(
             expected = listOf(
                 // note, bar sorted first
-                MetricResult("bar", longArrayOf(101, 301, 201)),
-                MetricResult("foo", longArrayOf(100, 300, 200))
+                MetricResult("bar", listOf(101.0, 301.0, 201.0)),
+                MetricResult("foo", listOf(100.0, 300.0, 200.0))
             ),
             actual = listOf(
-                mapOf("foo" to 100L, "bar" to 101L),
-                mapOf("foo" to 300L, "bar" to 301L),
-                mapOf("foo" to 200L, "bar" to 201L),
+                mapOf("foo" to 100.0, "bar" to 101.0),
+                mapOf("foo" to 300.0, "bar" to 301.0),
+                mapOf("foo" to 200.0, "bar" to 201.0),
             ).mergeToMetricResults(tracePaths = emptyList())
         )
     }
@@ -60,13 +60,13 @@ class MetricResultExtensionsTest {
     fun mergeToMetricResults_missingKey() {
         assertEquals(
             expected = listOf(
-                MetricResult("bar", longArrayOf(101, 201)),
-                MetricResult("foo", longArrayOf(100, 200))
+                MetricResult("bar", listOf(101.0, 201.0)),
+                MetricResult("foo", listOf(100.0, 200.0))
             ),
             actual = listOf(
-                mapOf("foo" to 100L, "bar" to 101L),
-                mapOf("foo" to 300L), // bar missing! Skip this iteration!
-                mapOf("foo" to 200L, "bar" to 201L),
+                mapOf("foo" to 100.0, "bar" to 101.0),
+                mapOf("foo" to 300.0), // bar missing! Skip this iteration!
+                mapOf("foo" to 200.0, "bar" to 201.0),
             ).mergeToMetricResults(
                 tracePaths = listOf("trace1.trace", "trace2.trace", "trace3.trace")
             )

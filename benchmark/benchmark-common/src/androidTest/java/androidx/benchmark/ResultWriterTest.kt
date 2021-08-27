@@ -35,7 +35,7 @@ public class ResultWriterTest {
     private val metricResults = listOf(
         MetricResult(
             name = "timeNs",
-            data = longArrayOf(100L, 101L, 102L)
+            data = listOf(100.0, 101.0, 102.0)
         )
     )
 
@@ -103,13 +103,13 @@ public class ResultWriterTest {
                         "totalRunTimeNs": 900000000,
                         "metrics": {
                             "timeNs": {
-                                "minimum": 100,
-                                "maximum": 102,
-                                "median": 101,
+                                "minimum": 100.0,
+                                "maximum": 102.0,
+                                "median": 101.0,
                                 "runs": [
-                                    100,
-                                    101,
-                                    102
+                                    100.0,
+                                    101.0,
+                                    102.0
                                 ]
                             }
                         },
@@ -124,13 +124,13 @@ public class ResultWriterTest {
                         "totalRunTimeNs": 900000000,
                         "metrics": {
                             "timeNs": {
-                                "minimum": 100,
-                                "maximum": 102,
-                                "median": 101,
+                                "minimum": 100.0,
+                                "maximum": 102.0,
+                                "median": 101.0,
                                 "runs": [
-                                    100,
-                                    101,
-                                    102
+                                    100.0,
+                                    101.0,
+                                    102.0
                                 ]
                             }
                         },

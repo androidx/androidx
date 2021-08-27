@@ -19,7 +19,6 @@ package androidx.benchmark
 import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
-import java.text.NumberFormat
 
 /**
  * Provides a way to capture all the instrumentation results which needs to be reported.
@@ -87,14 +86,19 @@ public object InstrumentationResults {
 
     // NOTE: this summary line will use default locale to determine separators. As
     // this line is only meant for human eyes, we don't worry about consistency here.
-    internal fun ideSummaryLine(key: String, nanos: Long, allocations: Long?): String {
-        val numberFormat = NumberFormat.getNumberInstance()
+    internal fun ideSummaryLine(key: String, nanos: Double, allocations: Double?): String {
         return listOfNotNull(
-            // 13 alignment is enough for ~10 seconds
-            "%13s ns".format(numberFormat.format(nanos)),
+            // for readability, report nanos with 10ths only if less than 100
+            if (nanos >= 100.0) {
+                // 13 alignment is enough for ~10 seconds
+                "%,13d   ns".format(nanos.toLong())
+            } else {
+                // 13 + 2(.X) to match alignment above
+                "%,15.1f ns".format(nanos)
+            },
             // 9 alignment is enough for ~10 million allocations
             allocations?.run {
-                "%8s allocs".format(numberFormat.format(allocations))
+                "%8d allocs".format(allocations.toInt())
             },
             key
         ).joinToString("    ")
@@ -128,7 +132,7 @@ public object InstrumentationResults {
         }
     }
 
-    internal fun ideSummaryLineWrapped(key: String, nanos: Long, allocations: Long?): String {
+    internal fun ideSummaryLineWrapped(key: String, nanos: Double, allocations: Double?): String {
         val warningLines =
             Errors.acquireWarningStringForLogging()?.split("\n") ?: listOf()
         return (warningLines + ideSummaryLine(key, nanos, allocations))
