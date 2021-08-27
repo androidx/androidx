@@ -14,9 +14,8 @@
   limitations under the License.
   -->
 
-<resources>
-    <id name="glanceView"/>
-    <id name="glanceListView1"/>
-    <id name="glanceListView2"/>
-    <id name="glanceListView3"/>
-</resources>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@id/glanceView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" />

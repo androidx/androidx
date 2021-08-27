@@ -32,6 +32,9 @@ package androidx.glance.appwidget {
   public interface GlanceId {
   }
 
+  public final class RemoteLazyListViewsTranslatorKt {
+  }
+
   public final class RemoteViewsTranslatorKt {
   }
 
@@ -51,6 +54,31 @@ package androidx.glance.appwidget {
 
   public static final class SizeMode.Single implements androidx.glance.appwidget.SizeMode {
     field public static final androidx.glance.appwidget.SizeMode.Single INSTANCE;
+  }
+
+}
+
+package androidx.glance.appwidget.layout {
+
+  @androidx.glance.appwidget.layout.LazyScopeMarker public interface LazyItemScope {
+  }
+
+  public final class LazyListKt {
+    method @androidx.compose.runtime.Composable public static void LazyColumn(optional androidx.glance.Modifier modifier, optional int horizontalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.appwidget.layout.LazyListScope,kotlin.Unit> content);
+  }
+
+  @androidx.glance.appwidget.layout.LazyScopeMarker public interface LazyListScope {
+    method public void item(optional long itemId, kotlin.jvm.functions.Function1<? super androidx.glance.appwidget.layout.LazyItemScope,kotlin.Unit> content);
+    method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Long> itemId, kotlin.jvm.functions.Function2<? super androidx.glance.appwidget.layout.LazyItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
+    field public static final androidx.glance.appwidget.layout.LazyListScope.Companion Companion;
+    field public static final long UnspecifiedItemId = -9223372036854775808L; // 0x8000000000000000L
+  }
+
+  public static final class LazyListScope.Companion {
+    field public static final long UnspecifiedItemId = -9223372036854775808L; // 0x8000000000000000L
+  }
+
+  @kotlin.DslMarker public @interface LazyScopeMarker {
   }
 
 }

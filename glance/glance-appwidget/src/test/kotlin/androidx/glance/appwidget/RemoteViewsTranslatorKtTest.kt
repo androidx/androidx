@@ -30,13 +30,17 @@ import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.ListView
 import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
+import androidx.glance.appwidget.layout.LazyColumn
+import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -62,7 +66,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.lang.IllegalArgumentException
 import java.util.Locale
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
 @OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
@@ -583,6 +589,88 @@ class RemoteViewsTranslatorKtTest {
                 assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
             } else {
                 assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
+            }
+        }
+    }
+
+    @Test
+    fun canTranslateLazyColumn_emptyList() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            LazyColumn { }
+        }
+
+        assertIs<ListView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
+    fun canTranslateLazyColumn_withItem() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            LazyColumn {
+                item { Text("First") }
+                item { Row { Text("Second") } }
+            }
+        }
+
+        assertIs<ListView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
+    fun canTranslateLazyColumn_withMultiChildItem() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            LazyColumn {
+                item {
+                    Text("First")
+                    Text("Second")
+                }
+            }
+        }
+
+        assertIs<ListView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
+    fun canTranslateLazyColumn_withMaximumUnreservedItemId() = fakeCoroutineScope.runBlockingTest {
+        runAndTranslate {
+            LazyColumn {
+                item(ReservedItemIdRangeEnd + 1) { Text("First") }
+            }
+        }
+    }
+
+    @Test
+    fun cannotTranslateLazyColumn_failsWithReservedItemId() = fakeCoroutineScope.runBlockingTest {
+        assertFailsWith<IllegalArgumentException> {
+            runAndTranslate {
+                LazyColumn {
+                    item(ReservedItemIdRangeEnd) { Text("First") }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun canTranslateLazyColumn_maximumLists() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            LazyColumn { }
+            LazyColumn { }
+            LazyColumn { }
+        }
+
+        val rootLayout = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+        assertThat(rootLayout.childCount).isEqualTo(3)
+        assertThat(rootLayout.getChildAt(0).id).isEqualTo(R.id.glanceListView1)
+        assertThat(rootLayout.getChildAt(1).id).isEqualTo(R.id.glanceListView2)
+        assertThat(rootLayout.getChildAt(2).id).isEqualTo(R.id.glanceListView3)
+    }
+
+    @Test
+    fun cannotTranslateLazyColumn_tooManyLists() = fakeCoroutineScope.runBlockingTest {
+        assertFailsWith<IllegalArgumentException> {
+            runAndTranslate {
+                LazyColumn { }
+                LazyColumn { }
+                LazyColumn { }
+                LazyColumn { }
             }
         }
     }
