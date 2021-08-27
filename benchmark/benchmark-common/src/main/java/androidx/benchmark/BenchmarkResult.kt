@@ -19,21 +19,6 @@ package androidx.benchmark
 import androidx.annotation.RestrictTo
 
 /**
- * Data for a single metric from a single benchmark test method run.
- * @suppress
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class MetricResult(
-    val data: List<Long>,
-    val stats: Stats
-) {
-    public constructor(
-        name: String,
-        data: LongArray
-    ) : this(data.toList(), Stats(data, name))
-}
-
-/**
  * Data capture from a single benchmark test method run.
  *
  * Each field directly corresponds to JSON output, though not every JSON object may be
@@ -52,14 +37,7 @@ public data class BenchmarkResult(
     val thermalThrottleSleepSeconds: Long,
     val warmupIterations: Int
 ) {
-    public fun getStats(which: String): Stats {
-        return metrics.first { it.stats.name == which }.stats
-    }
-}
-
-internal fun metricResultList(stats: List<Stats>, data: List<LongArray>): List<MetricResult> {
-    require(stats.size == data.size)
-    return stats.mapIndexed { index, currentStats ->
-        MetricResult(data[index].toList(), currentStats)
+    public fun getMetricResult(which: String): MetricResult {
+        return metrics.first { it.name == which }
     }
 }

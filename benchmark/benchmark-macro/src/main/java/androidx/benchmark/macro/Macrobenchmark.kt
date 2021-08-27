@@ -214,16 +214,15 @@ private fun macrobenchmark(
             """.trimIndent()
         }
         InstrumentationResults.instrumentationReport {
-            val statsList = metricResults.map { it.stats }
             val (summaryV1, summaryV2) = ideSummaryStrings(
                 warningMessage,
                 uniqueName,
-                statsList,
+                metricResults,
                 tracePaths
             )
             ideSummaryRecord(summaryV1 = summaryV1, summaryV2 = summaryV2)
             warningMessage = "" // warning only printed once
-            statsList.forEach { it.putInBundle(bundle, suppressionState?.prefix ?: "") }
+            metricResults.forEach { it.putInBundle(bundle, suppressionState?.prefix ?: "") }
         }
 
         val warmupIterations = if (compilationMode is CompilationMode.SpeedProfile) {

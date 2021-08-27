@@ -77,12 +77,12 @@ public class BenchmarkStateTest {
         }
         // The point of these asserts are to verify that pause/resume work, and that metrics that
         // come out are reasonable, not perfect - this isn't always run in stable perf environments
-        val medianTime = state.getReport().getStats("timeNs").median
+        val medianTime = state.getReport().getMetricResult("timeNs").median.toLong()
         assertTrue(
             "median time (ns) $medianTime should be roughly 300us",
             medianTime in us2ns(280)..us2ns(900)
         )
-        val medianAlloc = state.getReport().getStats("allocationCount").median
+        val medianAlloc = state.getReport().getMetricResult("allocationCount").median.toInt()
         assertTrue(
             "median allocs $medianAlloc should be approximately 40",
             medianAlloc in 40..50
@@ -200,7 +200,7 @@ public class BenchmarkStateTest {
             while (keepRunning()) {
                 // nothing, we're ignoring numbers
             }
-        }.getFullStatusReport(key = "foo", includeStats = true)
+        }.getFullStatusReport(key = "foo", reportMetrics = true)
 
         assertTrue(
             (bundle.get("android.studio.display.benchmark") as String).contains("foo")
@@ -223,7 +223,7 @@ public class BenchmarkStateTest {
     public fun notStarted() {
         val initialPriority = ThreadPriority.get()
         try {
-            BenchmarkState().getReport().getStats("timeNs").median
+            BenchmarkState().getReport().getMetricResult("timeNs").median
             fail("expected exception")
         } catch (e: IllegalStateException) {
             assertEquals(initialPriority, ThreadPriority.get())
@@ -237,7 +237,7 @@ public class BenchmarkStateTest {
         try {
             BenchmarkState().run {
                 keepRunning()
-                getReport().getStats("timeNs").median
+                getReport().getMetricResult("timeNs").median
             }
             fail("expected exception")
         } catch (e: IllegalStateException) {
@@ -267,7 +267,7 @@ public class BenchmarkStateTest {
             metrics = listOf(
                 MetricResult(
                     name = "timeNs",
-                    data = longArrayOf(100, 200, 300)
+                    data = listOf(100.0, 200.0, 300.0)
                 )
             ),
             repeatIterations = 1,

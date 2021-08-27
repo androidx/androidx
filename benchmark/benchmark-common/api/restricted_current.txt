@@ -16,9 +16,6 @@ package androidx.benchmark {
   public final class ArgumentsKt {
   }
 
-  public final class BenchmarkResultKt {
-  }
-
   public final class BenchmarkState {
     method public boolean keepRunning();
     method @kotlin.PublishedApi internal boolean keepRunningInternal();
