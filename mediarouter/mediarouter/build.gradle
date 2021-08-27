@@ -38,6 +38,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(project(":media:version-compat-tests:lib"))
+    androidTestImplementation(project(":mediarouter:mediarouter-testing"))
 }
 
 android {

@@ -17,6 +17,7 @@
 package androidx.mediarouter.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -294,7 +295,7 @@ public final class MediaRouter {
     }
 
     /**
-     * Resets all internal state for testing.
+     * Resets all internal state for testing. Should be only used for testing purpose.
      * <p>
      * After calling this method, the caller should stop using the existing media router instances.
      * Instead, the caller should create a new media router instance again by calling
@@ -310,10 +311,11 @@ public final class MediaRouter {
      *     <li>{@link androidx.mediarouter.app.MediaRouteDiscoveryFragment}
      * </ul>
      * Please make sure this is called in the main thread.
+     * @hide
      */
     @MainThread
-    @VisibleForTesting
-    public static void reset() {
+    @RestrictTo(LIBRARY_GROUP)
+    public static void resetGlobalRouter() {
         if (sGlobal == null) {
             return;
         }
