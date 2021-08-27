@@ -268,6 +268,8 @@ public final class Recorder implements VideoOutput {
     private static final Exception PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE =
             new RuntimeException("The video frame producer became inactive before any "
                     + "data was received.");
+    private static final int PENDING = 1;
+    private static final int NOT_PENDING = 0;
 
     private final MutableStateObservable<StreamState> mStreamState =
             MutableStateObservable.withInitialState(StreamState.INACTIVE);
@@ -341,7 +343,7 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     AudioState mAudioState = AudioState.INITIALIZING;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    Uri mOutputUri = Uri.EMPTY;
+    @NonNull Uri mOutputUri = Uri.EMPTY;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mRecordingBytes = 0L;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1321,11 +1323,16 @@ public final class Recorder implements VideoOutput {
 
                 ContentValues contentValues =
                         new ContentValues(mediaStoreOutputOptions.getContentValues());
-                mOutputUri = mediaStoreOutputOptions.getContentResolver().insert(
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    // Toggle on pending status for the video file.
+                    contentValues.put(MediaStore.Video.Media.IS_PENDING, PENDING);
+                }
+                Uri outputUri = mediaStoreOutputOptions.getContentResolver().insert(
                         mediaStoreOutputOptions.getCollection(), contentValues);
-                if (mOutputUri == null) {
+                if (outputUri == null) {
                     throw new IOException("Unable to create MediaStore entry.");
                 }
+                mOutputUri = outputUri;  // Guarantee mOutputUri is non-null value.
 
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     String path =
@@ -1781,6 +1788,12 @@ public final class Recorder implements VideoOutput {
 
         OutputOptions outputOptions = mInProgressRecording.getOutputOptions();
         RecordingStats stats = getInProgressRecordingStats();
+
+        if (outputOptions.getType() == OutputOptions.OPTIONS_TYPE_MEDIA_STORE) {
+            // Toggle off pending status for the video file.
+            finalizeMediaStoreFile((MediaStoreOutputOptions) outputOptions);
+        }
+
         OutputResults outputResults = OutputResults.of(mOutputUri);
         mInProgressRecording.updateVideoRecordEvent(errorToSend == ERROR_NONE
                 ? VideoRecordEvent.finalize(
@@ -2012,6 +2025,20 @@ public final class Recorder implements VideoOutput {
                             mInProgressRecording.getOutputOptions(),
                             getInProgressRecordingStats()));
         }
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    private void finalizeMediaStoreFile(@NonNull MediaStoreOutputOptions mediaStoreOutputOptions) {
+        if (mOutputUri.equals(Uri.EMPTY)) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Video.Media.IS_PENDING, NOT_PENDING);
+            mediaStoreOutputOptions.getContentResolver().update(mOutputUri, contentValues, null,
+                    null);
+        }
+        // TODO (b/198551531): Trigger MediaScannerConnection.scanFile to rescan.
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
