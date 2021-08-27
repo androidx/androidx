@@ -34,10 +34,10 @@ dependencies {
 
     api(project(":glance:glance"))
     api(project(":wear:tiles:tiles"))
-    
+    api("androidx.compose.runtime:runtime:1.0.1")
+
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
-    implementation(project(":compose:runtime:runtime"))
     implementation "androidx.lifecycle:lifecycle-runtime:2.3.1"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
     implementation "androidx.lifecycle:lifecycle-service:2.3.1"
