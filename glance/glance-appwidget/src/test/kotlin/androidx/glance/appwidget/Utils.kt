@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.os.Parcel
 import android.view.View
@@ -62,3 +63,8 @@ internal fun Context.applyRemoteViews(rv: RemoteViews): View {
         p.recycle()
     }
 }
+
+internal fun appWidgetProviderInfo(
+    builder: AppWidgetProviderInfo.() -> Unit
+): AppWidgetProviderInfo =
+    AppWidgetProviderInfo().apply(builder)
