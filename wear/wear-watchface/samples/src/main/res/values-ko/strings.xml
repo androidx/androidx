@@ -20,7 +20,7 @@
     <string name="red_style_name" msgid="3422019812492418917">"빨간색 스타일"</string>
     <string name="green_style_name" msgid="1807715891527319248">"녹색 스타일"</string>
     <string name="colors_style_setting" msgid="7410336396317170889">"색상"</string>
-    <string name="colors_style_setting_description" msgid="4961811355700378894">"시계 모드 색상"</string>
+    <string name="colors_style_setting_description" msgid="4961811355700378894">"시계 화면 색상"</string>
     <string name="colors_style_red" msgid="1284998271677973320">"빨간색"</string>
     <string name="colors_style_green" msgid="1327609154689015139">"녹색"</string>
     <string name="colors_style_blue" msgid="8619157586474982343">"파란색"</string>
