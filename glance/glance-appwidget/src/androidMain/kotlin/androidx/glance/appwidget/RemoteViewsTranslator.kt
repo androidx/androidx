@@ -34,7 +34,6 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.glance.Emittable
-import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceInternalApi
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
@@ -89,9 +88,7 @@ private fun translateEmittableBox(context: Context, element: EmittableBox): Remo
         .also { rv ->
             rv.setInt(R.id.glanceView, "setGravity", element.contentAlignment.toGravity())
             applyModifiers(context, rv, element.modifier)
-            element.children.forEach {
-                rv.addView(R.id.glanceView, translateChild(context, it))
-            }
+            rv.setChildren(context, R.id.glanceView, element.children)
         }
 
 private fun translateEmittableRow(context: Context, element: EmittableRow): RemoteViews =
@@ -103,15 +100,7 @@ private fun translateEmittableRow(context: Context, element: EmittableRow): Remo
                 element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
             )
             applyModifiers(context, rv, element.modifier)
-            rv.removeAllViews(R.id.glanceView)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                Api31Impl.addChildViews(context, element, rv)
-            } else {
-                element.children.forEach {
-                    rv.addView(R.id.glanceView, translateChild(context, it))
-                }
-            }
+            rv.setChildren(context, R.id.glanceView, element.children)
         }
 
 private fun translateEmittableColumn(context: Context, element: EmittableColumn): RemoteViews =
@@ -123,15 +112,7 @@ private fun translateEmittableColumn(context: Context, element: EmittableColumn)
                 element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
             )
             applyModifiers(context, rv, element.modifier)
-            rv.removeAllViews(R.id.glanceView)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                Api31Impl.addChildViews(context, element, rv)
-            } else {
-                element.children.forEach {
-                    rv.addView(R.id.glanceView, translateChild(context, it))
-                }
-            }
+            rv.setChildren(context, R.id.glanceView, element.children)
         }
 
 private fun translateEmittableText(context: Context, element: EmittableText): RemoteViews =
@@ -175,12 +156,33 @@ private fun RemoteViews.setText(context: Context, text: String, style: TextStyle
     setTextViewText(R.id.glanceView, content)
 }
 
+// Sets the emittables as children to the view. This first remove any previously added view, the
+// add a view per child, with a stable id if of Android S+. Currently the stable id is the index
+// of the child in the iterable.
+private fun RemoteViews.setChildren(
+    context: Context,
+    viewId: Int,
+    children: Iterable<Emittable>
+) {
+    removeAllViews(viewId)
+    children.forEachIndexed { index, child ->
+        addChildView(viewId, translateChild(context, child), index)
+    }
+}
+
+// Add stable view if on Android S+, otherwise simply add the view.
+private fun RemoteViews.addChildView(viewId: Int, childView: RemoteViews, stableId: Int) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        Api31Impl.addChildView(this, viewId, childView, stableId)
+        return
+    }
+    addView(viewId, childView)
+}
+
 @RequiresApi(Build.VERSION_CODES.S)
 private object Api31Impl {
     @DoNotInline
-    fun addChildViews(context: Context, element: EmittableWithChildren, remoteViews: RemoteViews) {
-        element.children.forEachIndexed { index, child ->
-            remoteViews.addStableView(R.id.glanceView, translateChild(context, child), index)
-        }
+    fun addChildView(rv: RemoteViews, viewId: Int, childView: RemoteViews, stableId: Int) {
+        rv.addStableView(viewId, childView, stableId)
     }
 }
