@@ -713,6 +713,11 @@ class FragmentStateManager {
         if (mFragment.mView == null) {
             return;
         }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(TAG,
+                    "Saving view state for fragment " + mFragment + " with view " + mFragment.mView
+            );
+        }
         SparseArray<Parcelable> mStateArray = new SparseArray<>();
         mFragment.mView.saveHierarchyState(mStateArray);
         if (mStateArray.size() > 0) {
