@@ -7,7 +7,7 @@ set -e
 # fetches prebuilts while also updating the version in androidX.
 
 # move to support dir
-cd "$(dirname $0)/.."
+cd "$(dirname $0)/../.."
 
 function usage {
     echo "error: $1"
