@@ -63,7 +63,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.util.Locale
-import kotlin.math.floor
 import kotlin.test.assertIs
 
 @OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
@@ -111,12 +110,45 @@ class RemoteViewsTranslatorKtTest {
 
         assertIs<RelativeLayout>(view)
         assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(0)).isInstanceOf(RelativeLayout::class.java)
-        assertThat(view.getChildAt(1)).isInstanceOf(RelativeLayout::class.java)
-        val child1 = view.getChildAt(0) as RelativeLayout
+        val child1 = view.getChildAt(0)
+        val child2 = view.getChildAt(1)
+        assertIs<RelativeLayout>(child1)
+        assertIs<RelativeLayout>(child2)
         assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
-        val child2 = view.getChildAt(1) as RelativeLayout
         assertThat(child2.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+    }
+
+    @Test
+    fun canReapplyTranslateBox() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Box {
+                Box(contentAlignment = Alignment.Center) {}
+                Box(contentAlignment = Alignment.BottomEnd) {}
+            }
+        }
+        val view = context.applyRemoteViews(rv)
+        assertIs<RelativeLayout>(view)
+        assertThat(view.childCount).isEqualTo(2)
+        val child1 = view.getChildAt(0)
+        val child2 = view.getChildAt(1)
+        assertIs<RelativeLayout>(child1)
+        assertIs<RelativeLayout>(child2)
+
+        rv.reapply(context, view)
+
+        assertIs<RelativeLayout>(view)
+        assertThat(view.childCount).isEqualTo(2)
+        val newChild1 = view.getChildAt(0)
+        val newChild2 = view.getChildAt(1)
+        assertIs<RelativeLayout>(newChild1)
+        assertIs<RelativeLayout>(newChild2)
+        assertThat(newChild1.gravity).isEqualTo(Gravity.CENTER)
+        assertThat(newChild2.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            assertThat(newChild1).isSameInstanceAs(child1)
+            assertThat(newChild2).isSameInstanceAs(child2)
+        }
     }
 
     @Test
@@ -129,11 +161,11 @@ class RemoteViewsTranslatorKtTest {
 
         assertIs<RelativeLayout>(view)
         assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(0)).isInstanceOf(RelativeLayout::class.java)
-        assertThat(view.getChildAt(1)).isInstanceOf(RelativeLayout::class.java)
-        val child1 = view.getChildAt(0) as RelativeLayout
+        val child1 = view.getChildAt(0)
+        val child2 = view.getChildAt(1)
+        assertIs<RelativeLayout>(child1)
+        assertIs<RelativeLayout>(child2)
         assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
-        val child2 = view.getChildAt(1) as RelativeLayout
         assertThat(child2.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
     }
 
@@ -152,10 +184,10 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
-        assertThat(view.paddingLeft).isEqualTo(dpToPixel(4.dp))
-        assertThat(view.paddingRight).isEqualTo(dpToPixel(5.dp))
-        assertThat(view.paddingTop).isEqualTo(dpToPixel(6.dp))
-        assertThat(view.paddingBottom).isEqualTo(dpToPixel(7.dp))
+        assertThat(view.paddingLeft).isEqualTo(4.dp.toPixels())
+        assertThat(view.paddingRight).isEqualTo(5.dp.toPixels())
+        assertThat(view.paddingTop).isEqualTo(6.dp.toPixels())
+        assertThat(view.paddingBottom).isEqualTo(7.dp.toPixels())
     }
 
     @Test
@@ -173,10 +205,10 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
-        assertThat(view.paddingLeft).isEqualTo(dpToPixel(5.dp))
-        assertThat(view.paddingRight).isEqualTo(dpToPixel(4.dp))
-        assertThat(view.paddingTop).isEqualTo(dpToPixel(6.dp))
-        assertThat(view.paddingBottom).isEqualTo(dpToPixel(7.dp))
+        assertThat(view.paddingLeft).isEqualTo(5.dp.toPixels())
+        assertThat(view.paddingRight).isEqualTo(4.dp.toPixels())
+        assertThat(view.paddingTop).isEqualTo(6.dp.toPixels())
+        assertThat(view.paddingBottom).isEqualTo(7.dp.toPixels())
     }
 
     @Test
@@ -194,10 +226,10 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
-        assertThat(view.paddingLeft).isEqualTo(dpToPixel(4.dp))
-        assertThat(view.paddingRight).isEqualTo(dpToPixel(5.dp))
-        assertThat(view.paddingTop).isEqualTo(dpToPixel(6.dp))
-        assertThat(view.paddingBottom).isEqualTo(dpToPixel(7.dp))
+        assertThat(view.paddingLeft).isEqualTo(4.dp.toPixels())
+        assertThat(view.paddingRight).isEqualTo(5.dp.toPixels())
+        assertThat(view.paddingTop).isEqualTo(6.dp.toPixels())
+        assertThat(view.paddingBottom).isEqualTo(7.dp.toPixels())
     }
 
     @Test
@@ -331,10 +363,10 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.paddingLeft).isEqualTo(dpToPixel(17.dp))
-        assertThat(view.paddingRight).isEqualTo(dpToPixel(16.dp))
-        assertThat(view.paddingTop).isEqualTo(dpToPixel(15.dp))
-        assertThat(view.paddingBottom).isEqualTo(dpToPixel(14.dp))
+        assertThat(view.paddingLeft).isEqualTo(17.dp.toPixels())
+        assertThat(view.paddingRight).isEqualTo(16.dp.toPixels())
+        assertThat(view.paddingTop).isEqualTo(15.dp.toPixels())
+        assertThat(view.paddingBottom).isEqualTo(14.dp.toPixels())
     }
 
     @Test
@@ -352,10 +384,10 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.paddingLeft).isEqualTo(dpToPixel(13.dp))
-        assertThat(view.paddingRight).isEqualTo(dpToPixel(12.dp))
-        assertThat(view.paddingTop).isEqualTo(dpToPixel(11.dp))
-        assertThat(view.paddingBottom).isEqualTo(dpToPixel(10.dp))
+        assertThat(view.paddingLeft).isEqualTo(13.dp.toPixels())
+        assertThat(view.paddingRight).isEqualTo(12.dp.toPixels())
+        assertThat(view.paddingTop).isEqualTo(11.dp.toPixels())
+        assertThat(view.paddingBottom).isEqualTo(10.dp.toPixels())
     }
 
     @Test
@@ -373,10 +405,10 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.paddingLeft).isEqualTo(dpToPixel(5.dp))
-        assertThat(view.paddingRight).isEqualTo(dpToPixel(4.dp))
-        assertThat(view.paddingTop).isEqualTo(dpToPixel(6.dp))
-        assertThat(view.paddingBottom).isEqualTo(dpToPixel(7.dp))
+        assertThat(view.paddingLeft).isEqualTo(5.dp.toPixels())
+        assertThat(view.paddingRight).isEqualTo(4.dp.toPixels())
+        assertThat(view.paddingTop).isEqualTo(6.dp.toPixels())
+        assertThat(view.paddingBottom).isEqualTo(7.dp.toPixels())
     }
 
     @Test
@@ -394,10 +426,10 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.paddingLeft).isEqualTo(dpToPixel(9.dp))
-        assertThat(view.paddingRight).isEqualTo(dpToPixel(8.dp))
-        assertThat(view.paddingTop).isEqualTo(dpToPixel(10.dp))
-        assertThat(view.paddingBottom).isEqualTo(dpToPixel(11.dp))
+        assertThat(view.paddingLeft).isEqualTo(9.dp.toPixels())
+        assertThat(view.paddingRight).isEqualTo(8.dp.toPixels())
+        assertThat(view.paddingTop).isEqualTo(10.dp.toPixels())
+        assertThat(view.paddingBottom).isEqualTo(11.dp.toPixels())
     }
 
     @Test
@@ -415,10 +447,10 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.paddingLeft).isEqualTo(dpToPixel(12.dp))
-        assertThat(view.paddingRight).isEqualTo(dpToPixel(13.dp))
-        assertThat(view.paddingTop).isEqualTo(dpToPixel(14.dp))
-        assertThat(view.paddingBottom).isEqualTo(dpToPixel(15.dp))
+        assertThat(view.paddingLeft).isEqualTo(12.dp.toPixels())
+        assertThat(view.paddingRight).isEqualTo(13.dp.toPixels())
+        assertThat(view.paddingTop).isEqualTo(14.dp.toPixels())
+        assertThat(view.paddingBottom).isEqualTo(15.dp.toPixels())
     }
 
     @Test
@@ -436,10 +468,10 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.paddingLeft).isEqualTo(dpToPixel(16.dp))
-        assertThat(view.paddingRight).isEqualTo(dpToPixel(17.dp))
-        assertThat(view.paddingTop).isEqualTo(dpToPixel(18.dp))
-        assertThat(view.paddingBottom).isEqualTo(dpToPixel(19.dp))
+        assertThat(view.paddingLeft).isEqualTo(16.dp.toPixels())
+        assertThat(view.paddingRight).isEqualTo(17.dp.toPixels())
+        assertThat(view.paddingTop).isEqualTo(18.dp.toPixels())
+        assertThat(view.paddingBottom).isEqualTo(19.dp.toPixels())
     }
 
     @Test
@@ -465,7 +497,7 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<TextView>(view)
-        assertThat(view.textSize).isEqualTo(spToPixel(12.sp))
+        assertThat(view.textSize).isEqualTo(12.sp.toPixels())
         val content = view.text as SpannedString
         assertThat(content.toString()).isEqualTo("test")
         content.checkSingleSpan<TextAppearanceSpan> {
@@ -594,11 +626,7 @@ class RemoteViewsTranslatorKtTest {
         return runAndTranslate(rtlContext, content)
     }
 
-    private fun dpToPixel(dp: Dp) =
-        floor(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.value, displayMetrics))
-            .toInt()
-
-    private fun spToPixel(sp: Sp) =
-        floor(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp.value, displayMetrics))
-            .toInt()
+    private fun Dp.toPixels() = toPixels(displayMetrics)
+    private fun Sp.toPixels() =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, displayMetrics).toInt()
 }
