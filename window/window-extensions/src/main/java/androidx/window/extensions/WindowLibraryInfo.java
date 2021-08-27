@@ -16,33 +16,18 @@
 
 package androidx.window.extensions;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.window.extensions.layout.ExtensionInterface;
 
 /**
- * A stub implementation for the class that will instantiate the Extension.
+ * A class to return global information about the library. From this class you can get the
+ * library version corresponding to the extensions jar. This is useful since multiple versions of
+ * extensions may have the same API.
  *
- * <p>This class should be implemented by OEM and deployed to the target devices.
- *
- * @see ExtensionInterface
+ * @see WindowLibraryInfo#getLibraryVersion()
  */
-public final class ExtensionProvider {
+public class WindowLibraryInfo {
 
-    private ExtensionProvider() {}
-
-    /**
-     * Instantiates the Extension for the use by the WindowManager library.
-     *
-     * <p>The library will instantiate the vendor implementation using this interface.
-     * @return A compatible version of the {@link ExtensionInterface} for the provided library
-     *         version string, or {@code null} if not available.
-     */
-    @Nullable
-    public static ExtensionInterface getExtensionImpl(@NonNull Context context) {
-        throw new UnsupportedOperationException("Stub, replace with implementation.");
+    private WindowLibraryInfo() {
     }
 
     /**
@@ -66,8 +51,8 @@ public final class ExtensionProvider {
      * @return the version that vendor supported in this device. The MAJOR.MINOR.PATCH format
      * should be used.
      */
-    @Nullable
-    public static String getApiVersion() {
+    @NonNull
+    public static String getLibraryVersion() {
         throw new UnsupportedOperationException("Stub, replace with implementation.");
     }
 }
