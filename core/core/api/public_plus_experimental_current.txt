@@ -1535,7 +1535,7 @@ package androidx.core.location {
     method @IntRange(from=0) public long getMinUpdateIntervalMillis();
     method public int getQuality();
     method @RequiresApi(31) public android.location.LocationRequest toLocationRequest();
-    method @RequiresApi(19) public android.location.LocationRequest toLocationRequest(String);
+    method @RequiresApi(19) public android.location.LocationRequest? toLocationRequest(String);
     field public static final long PASSIVE_INTERVAL = 9223372036854775807L; // 0x7fffffffffffffffL
     field public static final int QUALITY_BALANCED_POWER_ACCURACY = 102; // 0x66
     field public static final int QUALITY_HIGH_ACCURACY = 100; // 0x64
