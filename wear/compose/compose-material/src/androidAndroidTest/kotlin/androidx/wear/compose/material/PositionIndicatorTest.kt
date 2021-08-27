@@ -42,7 +42,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -52,14 +51,14 @@ public class PositionIndicatorTest {
 
     private var itemSizePx: Int = 50
     private var itemSizeDp: Dp = Dp.Infinity
-    private var defaultItemSpacingDp: Dp = 4.dp
-    private var defaultItemSpacingPx = Int.MAX_VALUE
+    private var itemSpacingPx = 6
+    private var itemSpacingDp: Dp = Dp.Infinity
 
     @Before
     fun before() {
         with(rule.density) {
             itemSizeDp = itemSizePx.toDp()
-            defaultItemSpacingPx = defaultItemSpacingDp.roundToPx()
+            itemSpacingDp = itemSpacingPx.toDp()
         }
     }
 
@@ -73,9 +72,10 @@ public class PositionIndicatorTest {
             positionIndicatorState = ScalingLazyColumnStateAdapter(state)
             ScalingLazyColumn(
                 state = state,
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
-                    .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
             ) {
             }
             PositionIndicator(
@@ -106,9 +106,10 @@ public class PositionIndicatorTest {
             positionIndicatorState = ScalingLazyColumnStateAdapter(state)
             ScalingLazyColumn(
                 state = state,
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
-                    .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
             ) {
                 items(3) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -133,7 +134,6 @@ public class PositionIndicatorTest {
     }
 
     @Test
-    @Ignore("1 pixel rounding error on some test AVDs b/197817612")
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSize() {
         lateinit var state: ScalingLazyColumnState
         lateinit var positionIndicatorState: PositionIndicatorState
@@ -144,11 +144,12 @@ public class PositionIndicatorTest {
             Box(modifier = Modifier.background(Color.Black)) {
                 ScalingLazyColumn(
                     state = state,
+                    verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
                     modifier = Modifier
                         .onSizeChanged { viewPortHeight = it.height }
                         .requiredHeight(
                             // Exactly the right size to hold 3 items with spacing
-                            itemSizeDp * 3f + defaultItemSpacingDp * 2f
+                            itemSizeDp * 3f + itemSpacingDp * 2f
                         )
                         .background(Color.Black),
                     scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
@@ -181,7 +182,7 @@ public class PositionIndicatorTest {
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
             }
 
             state.layoutInfo.assertWhollyVisibleItems(
@@ -198,7 +199,7 @@ public class PositionIndicatorTest {
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
             }
 
             state.layoutInfo.assertWhollyVisibleItems(
@@ -206,7 +207,7 @@ public class PositionIndicatorTest {
                 viewPortHeight = viewPortHeight
             )
 
-            // And that the indicator is at position 0.5 and of expected size
+            // And that the indicator is at position 1 and of expected size
             assertThat(
                 positionIndicatorState.indicatorPosition()
             ).isWithin(0.05f).of(1.0f)
@@ -227,7 +228,7 @@ public class PositionIndicatorTest {
             Column(
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
-                    .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
                     .verticalScroll(state = state)
             ) {
             }
@@ -260,7 +261,7 @@ public class PositionIndicatorTest {
             Column(
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
-                    .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
                     .verticalScroll(state = state, reverseScrolling = true)
             ) {
             }
@@ -294,9 +295,9 @@ public class PositionIndicatorTest {
             Column(
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
-                    .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
                     .verticalScroll(state = state),
-                verticalArrangement = Arrangement.spacedBy(defaultItemSpacingDp)
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp)
             ) {
                 Box(Modifier.requiredSize(itemSizeDp))
                 Box(Modifier.requiredSize(itemSizeDp))
@@ -331,9 +332,9 @@ public class PositionIndicatorTest {
             Column(
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
-                    .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
                     .verticalScroll(state = state, reverseScrolling = true),
-                verticalArrangement = Arrangement.spacedBy(defaultItemSpacingDp)
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp)
             ) {
                 Box(Modifier.requiredSize(itemSizeDp))
                 Box(Modifier.requiredSize(itemSizeDp))
@@ -369,11 +370,11 @@ public class PositionIndicatorTest {
             Column(
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
-                    .requiredHeight(itemSizeDp * 3f + defaultItemSpacingDp * 2f)
+                    .requiredHeight(itemSizeDp * 3f + itemSpacingDp * 2f)
                     .fillMaxWidth()
                     .verticalScroll(state = state)
                     .background(Color.Black),
-                verticalArrangement = Arrangement.spacedBy(defaultItemSpacingDp),
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
 
             ) {
                 Box(Modifier.requiredSize(itemSizeDp))
@@ -400,7 +401,7 @@ public class PositionIndicatorTest {
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
             }
 
             // And that the indicator is at position 0.5 and of expected size
@@ -412,7 +413,7 @@ public class PositionIndicatorTest {
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
             }
 
             // And that the indicator is at position 0.5 and of expected size
@@ -436,11 +437,11 @@ public class PositionIndicatorTest {
             Column(
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
-                    .requiredHeight(itemSizeDp * 3f + defaultItemSpacingDp * 2f)
+                    .requiredHeight(itemSizeDp * 3f + itemSpacingDp * 2f)
                     .fillMaxWidth()
                     .verticalScroll(state = state, reverseScrolling = true)
                     .background(Color.Black),
-                verticalArrangement = Arrangement.spacedBy(defaultItemSpacingDp),
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
             ) {
                 Box(Modifier.requiredSize(itemSizeDp))
                 Box(Modifier.requiredSize(itemSizeDp))
@@ -467,7 +468,7 @@ public class PositionIndicatorTest {
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
             }
 
             // And that the indicator is at position 0 and of expected size
@@ -479,7 +480,7 @@ public class PositionIndicatorTest {
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
             }
 
             // And that the indicator is at position 0.5 and of expected size
