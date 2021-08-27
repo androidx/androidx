@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.activity.result.contract.ActivityResultContract#getSynchronousResult(android.content.Context, I):
+    Method androidx.activity.result.contract.ActivityResultContract.getSynchronousResult has changed return type from androidx.activity.result.contract.ActivityResultContract.SynchronousResult<O!> to androidx.activity.result.contract.ActivityResultContract.SynchronousResult<O>
