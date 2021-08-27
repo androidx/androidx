@@ -33,9 +33,10 @@ package androidx.wear.phone.interactions.authentication {
 
   public final class OAuthRequest {
     method public String getPackageName();
+    method public String getRedirectUrl();
     method public android.net.Uri getRequestUrl();
-    method public String redirectUrl();
     property public final String packageName;
+    property public final String redirectUrl;
     property public final android.net.Uri requestUrl;
     field public static final androidx.wear.phone.interactions.authentication.OAuthRequest.Companion Companion;
     field public static final String WEAR_REDIRECT_URL_PREFIX = "https://wear.googleapis.com/3p_auth/";
