@@ -61,7 +61,7 @@ android {
 androidx {
     name = "Glance For App Widgets"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Glance-appwidgets allows developers to build layouts for Android AppWidgets " +
