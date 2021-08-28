@@ -21,7 +21,7 @@
     <string name="abc_action_bar_up_description" msgid="8388173803310557296">"ଉପରକୁ ନେଭିଗେଟ୍ କରନ୍ତୁ"</string>
     <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"ଅଧିକ ବିକଳ୍ପ"</string>
     <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"ସଂକୁଚିତ କରନ୍ତୁ"</string>
-    <string name="abc_searchview_description_search" msgid="3417662926640357176">"Search"</string>
+    <string name="abc_searchview_description_search" msgid="3417662926640357176">"ସନ୍ଧାନ କରନ୍ତୁ"</string>
     <string name="abc_search_hint" msgid="7208076849092622260">"ସର୍ଚ୍ଚ କରନ୍ତୁ…"</string>
     <string name="abc_searchview_description_query" msgid="693312494995508443">"ସର୍ଚ୍ଚ କ୍ୱେରୀ"</string>
     <string name="abc_searchview_description_clear" msgid="3741173234950517107">"କ୍ୱେରୀ ଖାଲି କରନ୍ତୁ"</string>
@@ -33,7 +33,7 @@
     <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"ଏହାଙ୍କ ସହ ସେୟାର୍‌ କରନ୍ତୁ"</string>
     <string name="abc_capital_on" msgid="884982626291842264">"ଚାଲୁ ଅଛି"</string>
     <string name="abc_capital_off" msgid="4215997306490295099">"ବନ୍ଦ"</string>
-    <string name="search_menu_title" msgid="6264217191555673260">"Search"</string>
+    <string name="search_menu_title" msgid="6264217191555673260">"ସନ୍ଧାନ କରନ୍ତୁ"</string>
     <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"ମେନୁ"</string>
     <string name="abc_menu_meta_shortcut_label" msgid="4192209724446364286">"Meta+"</string>
     <string name="abc_menu_ctrl_shortcut_label" msgid="2223301931652355242">"Ctrl+"</string>
