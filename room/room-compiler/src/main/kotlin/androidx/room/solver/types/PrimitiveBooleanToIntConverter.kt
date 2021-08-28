@@ -19,6 +19,7 @@ package androidx.room.solver.types
 import androidx.room.ext.L
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 
 /**
@@ -29,22 +30,18 @@ object PrimitiveBooleanToIntConverter {
         val tBoolean = processingEnvironment.requireType(TypeName.BOOLEAN)
         val tInt = processingEnvironment.requireType(TypeName.INT)
         return listOf(
-            object : TypeConverter(tBoolean, tInt) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().addStatement("$L = $L ? 1 : 0", outputVarName, inputVarName)
+            object : SingleStatementTypeConverter(tBoolean, tInt) {
+                override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                    return CodeBlock.of(
+                        "$L ? 1 : 0", inputVarName
+                    )
                 }
             },
-            object : TypeConverter(tInt, tBoolean) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().addStatement("$L = $L != 0", outputVarName, inputVarName)
+            object : SingleStatementTypeConverter(tInt, tBoolean) {
+                override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                    return CodeBlock.of(
+                        "$L != 0", inputVarName
+                    )
                 }
             }
         )
