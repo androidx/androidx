@@ -2670,31 +2670,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         // Flinging while the edge effect is active should affect the edge effect,
         // not scrolling.
-        boolean flung = false;
         if (velocityX != 0) {
             if (mLeftGlow != null && EdgeEffectCompat.getDistance(mLeftGlow) != 0) {
                 mLeftGlow.onAbsorb(-velocityX);
                 velocityX = 0;
-                flung = true;
             } else if (mRightGlow != null && EdgeEffectCompat.getDistance(mRightGlow) != 0) {
                 mRightGlow.onAbsorb(velocityX);
                 velocityX = 0;
-                flung = true;
             }
         }
         if (velocityY != 0) {
             if (mTopGlow != null && EdgeEffectCompat.getDistance(mTopGlow) != 0) {
                 mTopGlow.onAbsorb(-velocityY);
                 velocityY = 0;
-                flung = true;
             } else if (mBottomGlow != null && EdgeEffectCompat.getDistance(mBottomGlow) != 0) {
                 mBottomGlow.onAbsorb(velocityY);
                 velocityY = 0;
-                flung = true;
             }
         }
         if (velocityX == 0 && velocityY == 0) {
-            return true; // consumed all the velocity in the overscroll fling
+            return false; // consumed all the velocity in the overscroll fling
         }
 
         if (!dispatchNestedPreFling(velocityX, velocityY)) {
@@ -2721,7 +2716,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 return true;
             }
         }
-        return flung;
+        return false;
     }
 
     /**
