@@ -6,7 +6,7 @@
 
 set -e
 
-cd "$(dirname $0)/.."
+cd "$(dirname $0)/../.."
 
 if [ ! -f gradlew ]; then
     echo "./gradlew does not exist! Make sure I live under frameworks/support/room"
