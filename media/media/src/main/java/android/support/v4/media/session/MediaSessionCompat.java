@@ -73,6 +73,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
+import androidx.core.os.BuildCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
@@ -558,7 +559,7 @@ public class MediaSessionCompat {
             mediaButtonIntent.setComponent(mbrComponent);
             mbrIntent = PendingIntent.getBroadcast(context,
                     0/* requestCode, ignored */, mediaButtonIntent,
-                    Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0);
+                    BuildCompat.isAtLeastS() ? PendingIntent.FLAG_MUTABLE : 0);
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
