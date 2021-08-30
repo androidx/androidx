@@ -47,6 +47,10 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
         mCaptureResult = captureResult;
     }
 
+    public Camera2CameraCaptureResult(@NonNull CaptureResult captureResult) {
+        this(TagBundle.emptyBundle(), captureResult);
+    }
+
     /**
      * Converts the camera2 {@link CaptureResult#CONTROL_AF_MODE} to {@link AfMode}.
      *
