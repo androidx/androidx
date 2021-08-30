@@ -243,9 +243,9 @@ public final class DefaultEmojiCompatConfig {
          */
         @NonNull
         private static DefaultEmojiCompatConfigHelper getHelperForApi() {
-            if (Build.VERSION.SDK_INT > 28) {
+            if (Build.VERSION.SDK_INT >= 28) {
                 return new DefaultEmojiCompatConfigHelper_API28();
-            } else if (Build.VERSION.SDK_INT > 19) {
+            } else if (Build.VERSION.SDK_INT >= 19) {
                 return new DefaultEmojiCompatConfigHelper_API19();
             } else {
                 return new DefaultEmojiCompatConfigHelper();
