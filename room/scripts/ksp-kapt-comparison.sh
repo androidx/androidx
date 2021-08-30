@@ -1,26 +1,34 @@
 #!/bin/bash
 # This script runs kotlin test app compilation with ksp and kapt repeatedly to measure time spent for each of them.
-# Each build is a clean build for the test project
+# Each build is executed once first (to cache all other tasks), and then N times for just ksp/kapt tasks.
+set -e
 declare -A totals
 declare -A taskTotals
 
 function log {
     echo $1
 }
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PROJECT_DIR="$SCRIPT_DIR/.."
+# move to the project directory
+cd $PROJECT_DIR;
 
+KSP_TASK=":room:integration-tests:room-testapp-kotlin:kspWithKspDebugAndroidTestKotlin"
+KAPT_TASK=":room:integration-tests:room-testapp-kotlin:kaptGenerateStubsWithKaptDebugAndroidTestKotlin \
+    :room:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin"
 # parses the given profile file, extracts task durations that we are interested in and adds them to the global tracking
 # usage: parseTimes profileFileURI prefix
 function parseTimes {
-    filePath=$1
-    prefix=$2
+    local filePath=$1
+    local prefix=$2
     # get the times
-    result=`curl -s $filePath|grep :$prefix -A1`
-    total=0
-    taskName="ERROR-$prefix"
+    local result=`curl -s $filePath|grep :$prefix -A1`
+    local total=0
+    local taskName="ERROR-$prefix"
     while read -r line
         do
         if [[ "$line" == *"numeric"* ]]; then
-            taskTime=`echo $line|awk -F'[>s<]' '{print $5*1000}'`
+            local taskTime=`echo $line|awk -F'[>s<]' '{print $5*1000}'`
             total=$(($total + $taskTime))
             taskTotals[$taskName]=$((taskTotals[$taskName] + $taskTime))
         elif [[ "$line" == *":"* ]]; then
@@ -34,21 +42,21 @@ function parseTimes {
 # Runs the kotlin integration test app with either ksp or kapt then records the duration of tasks.
 # usage: runBuild ksp / runBuild kapt
 function runBuild {
-    type=$1
-    useKsp=-1
+    local type=$1
+    local task=""
     if [ "$type" = "ksp" ]; then
-        echo "will use ksp"
-        useKsp=1
+        task=$KSP_TASK
     elif [ "$type" = "kapt" ]; then
-        echo "will use kapt"
-        useKsp=0
+        task=$KAPT_TASK
     else
         echo "bad arg '$type'"
-        exit
+        exit 1
     fi
-    cmd="./gradlew --profile room:integration-tests:room-testapp-kotlin:clean room:integration-tests:room-testapp-kotlin:assembleAndroidTest -PuseKsp=$useKsp"
+    local cmd="./gradlew --no-daemon --init-script \
+        $SCRIPT_DIR/rerun-requested-task-init-script.gradle \
+        --profile $task"
     log "Executing $cmd"
-    profileFile=`$cmd|grep -v "androidx-plugin"|awk '/profiling report at:/ {print $6}'`
+    local profileFile=`$cmd|grep -v "buildSrc"|awk '/profiling report at:/ {print $6}'`
     log "result: $profileFile"
     parseTimes $profileFile $type
 }
@@ -56,7 +64,7 @@ function runBuild {
 # Runs the compilation with kapt and ksp for the given number of times
 # usage: runTest 3
 function runTest {
-    limit=$1
+    local limit=$1
     for (( c=1; c<=$limit; c++ ))
     do
         echo "run #$c of $limit"
@@ -74,7 +82,9 @@ function printData {
     done
 }
 
+# build once so all other tasks are cached
+./gradlew $KSP_TASK $KAPT_TASK
+
 runTest 10
 printData totals
 printData taskTotals
-
