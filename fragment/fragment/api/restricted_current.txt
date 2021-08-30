@@ -278,6 +278,7 @@ package androidx.fragment.app {
     method public void addFragmentOnAttachListener(androidx.fragment.app.FragmentOnAttachListener);
     method public void addOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public androidx.fragment.app.FragmentTransaction beginTransaction();
+    method public void clearBackStack(String);
     method public final void clearFragmentResult(String);
     method public final void clearFragmentResultListener(String);
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);

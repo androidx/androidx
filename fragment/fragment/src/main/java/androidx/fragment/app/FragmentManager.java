@@ -672,6 +672,23 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     /**
+     * Clears the back stack previously saved via {@link #saveBackStack(String)}. This
+     * will result in all of the transactions that made up that back stack to be thrown away,
+     * thus destroying any fragments that were added through those transactions. All state of
+     * those fragments will be cleared as part of this process. If no state was previously
+     * saved with the given name, this operation does nothing.
+     * <p>
+     * This function is asynchronous -- it enqueues the
+     * request to clear, but the action will not be performed until the application
+     * returns to its event loop.
+     *
+     * @param name The name of the back stack previously saved by {@link #saveBackStack(String)}.
+     */
+    public void clearBackStack(@NonNull String name) {
+        enqueueAction(new ClearBackStackState(name), false);
+    }
+
+    /**
      * Pop the top state off the back stack. This function is asynchronous -- it enqueues the
      * request to pop, but the action will not be performed until the application
      * returns to its event loop.
@@ -2133,6 +2150,32 @@ public abstract class FragmentManager implements FragmentResultOwner {
         return true;
     }
 
+    /**
+     * We have to handle a number of cases here:
+     * 1. We have no back stack state at all
+     * 2. We have previously saved the back stack state and we now only have the state
+     * 3. We are in the process of handling a saveBackStack() operation (it is in
+     * the set of records to be processed prior to this)
+     * 3a. We are in the process of handling a saveBackStack() and there are other
+     * FragmentTransactions queued up between that save and this clear (maybe even
+     * including a restoreBackStack operation).
+     *
+     * This comes together to mean that we can't actually 'clear' anything at the time
+     * when this particular method is called - instead, we need to enqueue exactly what
+     * records, etc. we need to do to get the back stack and state into the right state
+     * after they're all executed. This means 'clear' really means 'restore'+'pop' - as
+     * we 'pop' instead of 'save', any saved state (and ViewModels, etc.) will be cleared
+     * no matter what pending operations are enqueued up before or after this.
+     */
+    boolean clearBackStackState(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isRecordPop, @NonNull String name) {
+        boolean restoredBackStackState = restoreBackStackState(records, isRecordPop, name);
+        if (!restoredBackStackState) {
+            return false;
+        }
+        return popBackStackState(records, isRecordPop, name, -1, POP_BACK_STACK_INCLUSIVE);
+    }
+
     @SuppressWarnings({"unused", "WeakerAccess"}) /* synthetic access */
     boolean popBackStackState(@NonNull ArrayList<BackStackRecord> records,
             @NonNull ArrayList<Boolean> isRecordPop, @Nullable String name, int id, int flags) {
@@ -3232,6 +3275,21 @@ public abstract class FragmentManager implements FragmentResultOwner {
         public boolean generateOps(@NonNull ArrayList<BackStackRecord> records,
                 @NonNull ArrayList<Boolean> isRecordPop) {
             return saveBackStackState(records, isRecordPop, mName);
+        }
+    }
+
+    private class ClearBackStackState implements OpGenerator {
+
+        private final String mName;
+
+        ClearBackStackState(@NonNull String name) {
+            mName = name;
+        }
+
+        @Override
+        public boolean generateOps(@NonNull ArrayList<BackStackRecord> records,
+                @NonNull ArrayList<Boolean> isRecordPop) {
+            return clearBackStackState(records, isRecordPop, mName);
         }
     }
 
