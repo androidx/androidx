@@ -242,8 +242,10 @@ class FragmentStateManager {
         try {
             mMovingToState = true;
 
+            boolean stateWasChanged = false;
             int newState;
             while ((newState = computeExpectedState()) != mFragment.mState) {
+                stateWasChanged = true;
                 if (newState > mFragment.mState) {
                     // Moving upward
                     int nextStep = mFragment.mState + 1;
@@ -336,6 +338,22 @@ class FragmentStateManager {
                             detach();
                             break;
                     }
+                }
+            }
+            if (!stateWasChanged && mFragment.mState == Fragment.INITIALIZING) {
+                // If the state wasn't changed and the Fragment should be removed
+                // then we need to do the work of destroy()+detach() here
+                // to ensure the FragmentManager is in a cleaned up state
+                if (mFragment.mRemoving && !mFragment.isInBackStack() && !mFragment.mBeingSaved) {
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(TAG, "Cleaning up state of never attached fragment: " + mFragment);
+                    }
+                    mFragmentStore.getNonConfig().clearNonConfigState(mFragment);
+                    mFragmentStore.makeInactive(this);
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(TAG, "initState called for fragment: " + mFragment);
+                    }
+                    mFragment.initState();
                 }
             }
             if (mFragment.mHiddenChanged) {
