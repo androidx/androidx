@@ -98,8 +98,6 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
     // Clear profile between runs.
     Log.d(TAG, "Clearing profiles for $packageName")
     Shell.executeCommand("cmd package compile --reset $packageName")
-    // Wait for the --reset to take affect.
-    Thread.sleep(1000)
     if (this == CompilationMode.None || this == CompilationMode.Interpreted) {
         return // nothing to do
     } else if (this == CompilationMode.BaselineProfile) {
@@ -228,5 +226,4 @@ internal fun CompilationMode.compilePackage(packageName: String) {
         Log.d(TAG, "Received compile cmd response: $response")
         throw RuntimeException("Failed to compile $packageName ($response)")
     }
-    Thread.sleep(5000)
 }
