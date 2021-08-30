@@ -8,8 +8,7 @@ make simple changes in Android Studio, and upload commits to Gerrit for review.
 This page does **not** cover best practices for the content of changes. Please
 see [Life of a Jetpack Feature](loaf.md) for details on developing and releasing
 a library, [API Guidelines](api_guidelines.md) for best practices regarding
-public APIs, or [Policies and Processes](policies.md) for an overview of the
-constraints placed on changes.
+public APIs and an overview of the constraints placed on changes.
 
 ## Workstation setup {#setup}
 
@@ -380,8 +379,7 @@ task:
 ```
 
 To generate offline docs use '-PofflineDocs=true' parameter. Places the
-documentation in
-`{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/javadoc`
+documentation in `{androidx-main}/out/androidx/docs-tip-of-tree/build/javadoc`
 
 #### KotlinDocs
 
