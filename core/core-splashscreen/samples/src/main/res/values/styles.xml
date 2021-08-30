@@ -23,10 +23,11 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen.IconBackground">
         <item name="windowSplashScreenBackground">@color/splashScreenBackground</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_icon</item>
         <item name="windowSplashScreenAnimationDuration">2000</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/splashscreen_icon_background</item>
         <item name="postSplashScreenTheme">@style/Theme.App</item>
     </style>
 </resources>

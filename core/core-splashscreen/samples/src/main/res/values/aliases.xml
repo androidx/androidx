@@ -14,7 +14,6 @@
   limitations under the License.
   -->
 
-<inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/android"
-    android:inset="25%">
-</inset>
+<resources>
+    <drawable name="splashscreen_icon">@drawable/android</drawable>
+</resources>
