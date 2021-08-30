@@ -461,6 +461,12 @@ public final class SessionConfig {
                     captureConfig.getImplementationOptions());
         }
 
+        /** Clears all surfaces from the set which the session writes to. */
+        public void clearSurfaces() {
+            mSurfaces.clear();
+            mCaptureConfigBuilder.clearSurfaces();
+        }
+
         /** Check if the set of SessionConfig that have been combined are valid */
         public boolean isValid() {
             return mTemplateSet && mValid;
