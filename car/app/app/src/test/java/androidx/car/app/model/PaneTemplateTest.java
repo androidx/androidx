@@ -44,6 +44,34 @@ public class PaneTemplateTest {
     }
 
     @Test
+    public void pane_action_unsupportedSpans_throws() {
+        CharSequence title1 = TestUtils.getCharSequenceWithClickableSpan("Title");
+        Action action1 = new Action.Builder().setTitle(title1).build();
+        Pane pane1 = getPane().addAction(action1).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PaneTemplate.Builder(pane1).setTitle("Title").build());
+
+        CarText title2 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        Action action2 = new Action.Builder().setTitle(title2).build();
+        Pane pane2 = getPane().addAction(action2).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PaneTemplate.Builder(pane2).setTitle("Title").build());
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title3 = TestUtils.getCharSequenceWithColorSpan("Title");
+        Action action3 = new Action.Builder().setTitle(title3).build();
+        Pane pane3 = getPane().addAction(action3).build();
+        new PaneTemplate.Builder(pane3).setTitle("Title").build();
+
+        CarText title4 = TestUtils.getCarTextVariantsWithColorSpan("Title");
+        Action action4 = new Action.Builder().setTitle(title4).build();
+        Pane pane4 = getPane().addAction(action4).build();
+        new PaneTemplate.Builder(pane4).setTitle("Title").build();
+    }
+
+    @Test
     public void pane_moreThanMaxTexts_throws() {
         Row rowExceedsMaxTexts =
                 new Row.Builder().setTitle("Title").addText("text1").addText("text2").addText(
@@ -96,16 +124,28 @@ public class PaneTemplateTest {
     @Test
     public void createInstance_noHeaderTitleOrAction_throws() {
         assertThrows(IllegalStateException.class,
-                () -> new PaneTemplate.Builder(getPane()).build());
+                () -> new PaneTemplate.Builder(getPane().build()).build());
 
         // Positive cases.
-        new PaneTemplate.Builder(getPane()).setTitle("Title").build();
-        new PaneTemplate.Builder(getPane()).setHeaderAction(Action.BACK).build();
+        new PaneTemplate.Builder(getPane().build()).setTitle("Title").build();
+        new PaneTemplate.Builder(getPane().build()).setHeaderAction(Action.BACK).build();
+    }
+
+    @Test
+    public void createInstance_header_unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PaneTemplate.Builder(getPane().build()).setTitle(title));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        new PaneTemplate.Builder(getPane().build()).setTitle(title2).build();
     }
 
     @Test
     public void createInstance_setPane() {
-        Pane pane = getPane();
+        Pane pane = getPane().build();
         PaneTemplate template = new PaneTemplate.Builder(pane).setTitle("Title").build();
         assertThat(template.getPane()).isEqualTo(pane);
     }
@@ -115,7 +155,7 @@ public class PaneTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        new PaneTemplate.Builder(getPane())
+                        new PaneTemplate.Builder(getPane().build())
                                 .setHeaderAction(
                                         new Action.Builder().setTitle("Action").setOnClickListener(
                                                 () -> {
@@ -124,7 +164,7 @@ public class PaneTemplateTest {
 
     @Test
     public void createInstance_setHeaderAction() {
-        PaneTemplate template = new PaneTemplate.Builder(getPane()).setHeaderAction(
+        PaneTemplate template = new PaneTemplate.Builder(getPane().build()).setHeaderAction(
                 Action.BACK).build();
         assertThat(template.getHeaderAction()).isEqualTo(Action.BACK);
     }
@@ -133,7 +173,7 @@ public class PaneTemplateTest {
     public void createInstance_setActionStrip() {
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         PaneTemplate template =
-                new PaneTemplate.Builder(getPane()).setTitle("Title").setActionStrip(
+                new PaneTemplate.Builder(getPane().build()).setTitle("Title").setActionStrip(
                         actionStrip).build();
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);
     }
@@ -224,9 +264,9 @@ public class PaneTemplateTest {
                                 "bar").build());
     }
 
-    private static Pane getPane() {
+    private static Pane.Builder getPane() {
         Row row1 = new Row.Builder().setTitle("Bananas").build();
         Row row2 = new Row.Builder().setTitle("Oranges").build();
-        return new Pane.Builder().addRow(row1).addRow(row2).build();
+        return new Pane.Builder().addRow(row1).addRow(row2);
     }
 }

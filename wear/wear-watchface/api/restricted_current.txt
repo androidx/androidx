@@ -33,14 +33,11 @@ package androidx.wear.watchface {
   }
 
   public interface CanvasComplication {
-    method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationSlotBoundsType int boundsType, android.icu.util.Calendar calendar, @ColorInt int color);
-    method public androidx.wear.complications.data.ComplicationData? getData();
-    method public boolean isHighlighted();
-    method public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
+    method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @androidx.wear.watchface.ComplicationSlotBoundsType int boundsType, java.time.ZonedDateTime zonedDateTime, @ColorInt int color);
+    method public androidx.wear.complications.data.ComplicationData getData();
+    method public void loadData(androidx.wear.complications.data.ComplicationData complicationData, boolean loadDrawablesAsynchronous);
     method @WorkerThread public default void onRendererCreated(androidx.wear.watchface.Renderer renderer);
-    method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method public void setIsHighlighted(boolean p);
-    property public abstract boolean isHighlighted;
+    method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters, int slotId);
   }
 
   public static interface CanvasComplication.InvalidateCallback {
@@ -51,39 +48,62 @@ package androidx.wear.watchface {
     method @WorkerThread public androidx.wear.watchface.CanvasComplication create(androidx.wear.watchface.WatchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ComplicationDataSourceChooserIntent {
+    method public static android.content.Intent createComplicationDataSourceChooserIntent(android.content.ComponentName, int, @android.support.wearable.complications.ComplicationData.ComplicationType int...);
+    method public static void startProviderChooserActivity(android.content.Context, android.content.ComponentName, int, @android.support.wearable.complications.ComplicationData.ComplicationType int...);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_COMPLICATION_ID = "android.support.wearable.complications.EXTRA_COMPLICATION_ID";
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_PENDING_INTENT = "android.support.wearable.complications.EXTRA_PENDING_INTENT";
+    field public static final String EXTRA_PROVIDER_INFO = "android.support.wearable.complications.EXTRA_PROVIDER_INFO";
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_SUPPORTED_TYPES = "android.support.wearable.complications.EXTRA_SUPPORTED_TYPES";
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_WATCHFACE_INSTANCE_ID = "androidx.wear.complications.EXTRA_WATCHFACE_INSTANCE_ID";
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_WATCH_FACE_COMPONENT_NAME = "android.support.wearable.complications.EXTRA_WATCH_FACE_COMPONENT_NAME";
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.N) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
+    ctor public ComplicationHelperActivity();
+    method public static android.content.Intent createComplicationDataSourceChooserHelperIntent(android.content.Context, android.content.ComponentName, int, java.util.Collection<androidx.wear.complications.data.ComplicationType!>, String?);
+    method public static android.content.Intent createPermissionRequestHelperIntent(android.content.Context, android.content.ComponentName);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_PERMISSION_REQUEST_ONLY = "android.support.wearable.complications.ACTION_PERMISSION_REQUEST_ONLY";
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_REQUEST_UPDATE_ALL_ACTIVE = "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL_ACTIVE";
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_START_PROVIDER_CHOOSER = "android.support.wearable.complications.ACTION_START_PROVIDER_CHOOSER";
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_WATCH_FACE_COMPONENT = "android.support.wearable.complications.EXTRA_WATCH_FACE_COMPONENT";
+    field public static boolean skipPermissionCheck;
+    field public static boolean useTestComplicationDataSourceChooserActivity;
+  }
+
   public final class ComplicationSlot {
     method public android.graphics.Rect computeBounds(android.graphics.Rect screen);
-    method public static androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy);
-    method public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
-    method public static androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.ComplicationSlotBounds bounds);
+    method public static androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy);
+    method public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
+    method public static androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.ComplicationSlotBounds bounds);
     method @UiThread public int getAccessibilityTraversalIndex();
     method public int getBoundsType();
     method public androidx.wear.watchface.CanvasComplicationFactory getCanvasComplicationFactory();
     method public androidx.wear.watchface.ObservableWatchData<androidx.wear.complications.data.ComplicationData> getComplicationData();
     method @UiThread public androidx.wear.complications.ComplicationSlotBounds getComplicationSlotBounds();
     method public android.os.Bundle getConfigExtras();
-    method @UiThread public androidx.wear.complications.DefaultComplicationProviderPolicy getDefaultProviderPolicy();
-    method @UiThread public androidx.wear.complications.data.ComplicationType getDefaultProviderType();
+    method @UiThread public androidx.wear.complications.DefaultComplicationDataSourcePolicy getDefaultDataSourcePolicy();
+    method @UiThread public androidx.wear.complications.data.ComplicationType getDefaultDataSourceType();
+    method public boolean getFixedComplicationDataSource();
     method public int getId();
+    method public boolean getInitiallyEnabled();
     method public androidx.wear.watchface.CanvasComplication getRenderer();
     method @UiThread public java.util.List<androidx.wear.complications.data.ComplicationType> getSupportedTypes();
     method public androidx.wear.watchface.ComplicationTapFilter getTapFilter();
-    method public boolean isActiveAt(long dateTimeMillis);
+    method public boolean isActiveAt(java.time.Instant instant);
     method @UiThread public boolean isEnabled();
-    method public boolean isFixedComplicationProvider();
-    method public boolean isInitiallyEnabled();
-    method @UiThread public void render(android.graphics.Canvas canvas, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method @UiThread public void renderHighlightLayer(android.graphics.Canvas canvas, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
+    method @UiThread public void render(android.graphics.Canvas canvas, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
+    method @UiThread public void renderHighlightLayer(android.graphics.Canvas canvas, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
     property @UiThread public final int accessibilityTraversalIndex;
     property public final int boundsType;
     property public final androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory;
     property public final androidx.wear.watchface.ObservableWatchData<androidx.wear.complications.data.ComplicationData> complicationData;
     property @UiThread public final androidx.wear.complications.ComplicationSlotBounds complicationSlotBounds;
     property public final android.os.Bundle configExtras;
-    property @UiThread public final androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy;
-    property @UiThread public final androidx.wear.complications.data.ComplicationType defaultProviderType;
+    property @UiThread public final androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;
+    property @UiThread public final androidx.wear.complications.data.ComplicationType defaultDataSourceType;
     property @UiThread public final boolean enabled;
-    property public final boolean fixedComplicationProvider;
+    property public final boolean fixedComplicationDataSource;
     property public final int id;
     property public final boolean initiallyEnabled;
     property public final androidx.wear.watchface.CanvasComplication renderer;
@@ -96,27 +116,41 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.ComplicationSlot build();
     method public androidx.wear.watchface.ComplicationSlot.Builder setAccessibilityTraversalIndex(int accessibilityTraversalIndex);
     method public androidx.wear.watchface.ComplicationSlot.Builder setConfigExtras(android.os.Bundle extras);
-    method public androidx.wear.watchface.ComplicationSlot.Builder setDefaultProviderType(androidx.wear.complications.data.ComplicationType defaultProviderType);
+    method public androidx.wear.watchface.ComplicationSlot.Builder setDefaultDataSourceType(androidx.wear.complications.data.ComplicationType defaultDataSourceType);
     method public androidx.wear.watchface.ComplicationSlot.Builder setEnabled(boolean enabled);
-    method public androidx.wear.watchface.ComplicationSlot.Builder setFixedComplicationProvider(boolean fixedComplicationProvider);
+    method public androidx.wear.watchface.ComplicationSlot.Builder setFixedComplicationDataSource(boolean fixedComplicationDataSource);
   }
 
   public static final class ComplicationSlot.Companion {
-    method public androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy);
-    method public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
-    method public androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.ComplicationSlotBounds bounds);
+    method public androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy);
+    method public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
+    method public androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.ComplicationSlotBounds bounds);
+  }
+
+  @IntDef({androidx.wear.watchface.ComplicationSlotBoundsType.ROUND_RECT, androidx.wear.watchface.ComplicationSlotBoundsType.BACKGROUND, androidx.wear.watchface.ComplicationSlotBoundsType.EDGE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public @interface ComplicationSlotBoundsType {
+    field public static final int BACKGROUND = 1; // 0x1
+    field public static final androidx.wear.watchface.ComplicationSlotBoundsType.Companion Companion;
+    field public static final int EDGE = 2; // 0x2
+    field public static final int ROUND_RECT = 0; // 0x0
+  }
+
+  public static final class ComplicationSlotBoundsType.Companion {
+    field public static final int BACKGROUND = 1; // 0x1
+    field public static final int EDGE = 2; // 0x2
+    field public static final int ROUND_RECT = 0; // 0x0
   }
 
   public final class ComplicationSlotsManager {
     ctor public ComplicationSlotsManager(java.util.Collection<androidx.wear.watchface.ComplicationSlot> complicationSlotCollection, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
     method @UiThread public void addTapListener(androidx.wear.watchface.ComplicationSlotsManager.TapCallback tapCallback);
-    method @UiThread public void displayPressedAnimation(int complicationSlotId);
     method public operator androidx.wear.watchface.ComplicationSlot? get(int id);
     method public androidx.wear.watchface.ComplicationSlot? getBackgroundComplicationSlot();
     method public androidx.wear.watchface.ComplicationSlot? getComplicationSlotAt(@Px int x, @Px int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> getComplicationSlots();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> getLastComplicationTapDownEvents();
     method @UiThread public void removeTapListener(androidx.wear.watchface.ComplicationSlotsManager.TapCallback tapCallback);
     property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> complicationSlots;
+    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @VisibleForTesting public androidx.wear.watchface.WatchState watchState;
   }
 
@@ -136,7 +170,7 @@ package androidx.wear.watchface {
     method public android.graphics.Rect getBounds();
     method public android.app.PendingIntent? getTapAction();
     method public androidx.wear.complications.data.ComplicationText getText();
-    method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
+    method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
     property public final android.graphics.Rect bounds;
     property public final android.app.PendingIntent? tapAction;
     property public final androidx.wear.complications.data.ComplicationText text;
@@ -161,13 +195,13 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging();
     method public boolean isHeadless();
     method public androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Boolean> isVisible();
-    method public void setAnalogPreviewReferenceTimeMillis(long p);
+    method public void setAnalogPreviewReferenceTimeMillis(long analogPreviewReferenceTimeMillis);
     method public void setChinHeight(@Px int value);
-    method public void setDigitalPreviewReferenceTimeMillis(long p);
-    method public void setHasBurnInProtection(boolean p);
-    method public void setHasLowBitAmbient(boolean p);
-    method public void setHeadless(boolean p);
-    method public void setInterruptionFilter(androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Integer> p);
+    method public void setDigitalPreviewReferenceTimeMillis(long digitalPreviewReferenceTimeMillis);
+    method public void setHasBurnInProtection(boolean hasBurnInProtection);
+    method public void setHasLowBitAmbient(boolean hasLowBitAmbient);
+    method public void setHeadless(boolean isHeadless);
+    method public void setInterruptionFilter(androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Integer> interruptionFilter);
     property public final long analogPreviewReferenceTimeMillis;
     property @Px public final int chinHeight;
     property public final long digitalPreviewReferenceTimeMillis;
@@ -183,7 +217,7 @@ package androidx.wear.watchface {
   public abstract sealed class ObservableWatchData<T> {
     method @UiThread public final void addObserver(androidx.wear.watchface.Observer<T> observer);
     method @UiThread public T getValue();
-    method @UiThread public final T getValueOr(T p);
+    method @UiThread public final T getValueOr(T default);
     method @UiThread public final boolean hasValue();
     method @UiThread public final void removeObserver(androidx.wear.watchface.Observer<T> observer);
     method @UiThread protected void setValue(T v);
@@ -205,15 +239,18 @@ package androidx.wear.watchface {
   }
 
   public final class RenderParameters {
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer, optional java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents);
     ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer);
     ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RenderParameters(androidx.wear.watchface.data.RenderParametersWireFormat wireFormat);
     method public androidx.wear.watchface.DrawMode getDrawMode();
     method public androidx.wear.watchface.RenderParameters.HighlightLayer? getHighlightLayer();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> getLastComplicationTapDownEvents();
     method public java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> getWatchFaceLayers();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.data.RenderParametersWireFormat toWireFormat();
     property public final androidx.wear.watchface.DrawMode drawMode;
     property public final androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer;
+    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents;
     property public final java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers;
     field public static final androidx.wear.watchface.RenderParameters.Companion Companion;
     field public static final androidx.wear.watchface.RenderParameters DEFAULT_INTERACTIVE;
@@ -265,7 +302,7 @@ package androidx.wear.watchface {
     method @UiThread protected void onRenderParametersChanged(androidx.wear.watchface.RenderParameters renderParameters);
     method public final void postInvalidate();
     method public final void setAdditionalContentDescriptionLabels(java.util.Collection<kotlin.Pair<java.lang.Integer,androidx.wear.watchface.ContentDescriptionLabel>> value);
-    method public final void setInteractiveDrawModeUpdateDelayMillis(long p);
+    method public final void setInteractiveDrawModeUpdateDelayMillis(long interactiveDrawModeUpdateDelayMillis);
     method @UiThread public boolean shouldAnimate();
     property public final java.util.Collection<kotlin.Pair<java.lang.Integer,androidx.wear.watchface.ContentDescriptionLabel>> additionalContentDescriptionLabels;
     property public final float centerX;
@@ -278,8 +315,10 @@ package androidx.wear.watchface {
 
   public abstract static class Renderer.CanvasRenderer extends androidx.wear.watchface.Renderer {
     ctor @WorkerThread public Renderer.CanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis);
-    method @UiThread public abstract void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
-    method @UiThread public abstract void renderHighlightLayer(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
+    method @UiThread public void init();
+    method @UiThread public abstract void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, java.time.ZonedDateTime zonedDateTime);
+    method @UiThread public abstract void renderHighlightLayer(android.graphics.Canvas canvas, android.graphics.Rect bounds, java.time.ZonedDateTime zonedDateTime);
+    method public void uiThreadInitInternal$metalava_module();
   }
 
   public abstract static class Renderer.GlesRenderer extends androidx.wear.watchface.Renderer {
@@ -290,14 +329,14 @@ package androidx.wear.watchface {
     method public final android.opengl.EGLConfig getEglConfig();
     method public final android.opengl.EGLDisplay getEglDisplay();
     method public final android.opengl.EGLContext getEglUiThreadContext();
-    method @WorkerThread public final void makeBackgroundThreadContextCurrent();
-    method @UiThread public final void makeUiThreadContextCurrent();
-    method @WorkerThread public void onGlContextCreated();
-    method @UiThread public void onGlSurfaceCreated(@Px int width, @Px int height);
-    method @UiThread public abstract void render(android.icu.util.Calendar calendar);
-    method @UiThread public abstract void renderHighlightLayer(android.icu.util.Calendar calendar);
-    method public final void setEglConfig(android.opengl.EGLConfig p);
-    method public final void setEglDisplay(android.opengl.EGLDisplay p);
+    method @WorkerThread public void onBackgroundThreadGlContextCreated();
+    method @UiThread public void onUiThreadGlSurfaceCreated(@Px int width, @Px int height);
+    method @UiThread public abstract void render(java.time.ZonedDateTime zonedDateTime);
+    method @UiThread public abstract void renderHighlightLayer(java.time.ZonedDateTime zonedDateTime);
+    method @WorkerThread public final void runBackgroundThreadGlCommands(Runnable runnable);
+    method @UiThread public final void runUiThreadGlCommands(Runnable runnable);
+    method public final void setEglConfig(android.opengl.EGLConfig eglConfig);
+    method public final void setEglDisplay(android.opengl.EGLDisplay eglDisplay);
     property public final android.opengl.EGLContext eglBackgroundThreadContext;
     property public final android.opengl.EGLConfig eglConfig;
     property public final android.opengl.EGLDisplay eglDisplay;
@@ -316,23 +355,34 @@ package androidx.wear.watchface {
     method public boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
   }
 
+  public final class TapEvent {
+    ctor public TapEvent(@Px int xPos, @Px int yPos, java.time.Instant tapTime);
+    method public java.time.Instant getTapTime();
+    method public int getXPos();
+    method public int getYPos();
+    property public final java.time.Instant tapTime;
+    property public final int xPos;
+    property public final int yPos;
+  }
+
   public final class WatchFace {
     ctor public WatchFace(int watchFaceType, androidx.wear.watchface.Renderer renderer);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread @VisibleForTesting public static void clearAllEditorDelegates();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public static suspend Object? createHeadlessSessionDelegate(android.content.ComponentName componentName, androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams params, android.content.Context context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace.EditorDelegate> p);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public static kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFace.EditorDelegate> getOrCreateEditorDelegate(android.content.ComponentName componentName);
-    method public Long? getOverridePreviewReferenceTimeMillis();
+    method public java.time.Instant? getOverridePreviewReferenceInstant();
     method public androidx.wear.watchface.Renderer getRenderer();
     method public int getWatchFaceType();
     method public static boolean isLegacyWatchFaceOverlayStyleSupported();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public static void registerEditorDelegate(android.content.ComponentName componentName, androidx.wear.watchface.WatchFace.EditorDelegate editorDelegate);
     method public androidx.wear.watchface.WatchFace setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
-    method public androidx.wear.watchface.WatchFace setOverridePreviewReferenceTimeMillis(@IntRange(from=0) long previewReferenceTimeMillis);
+    method public androidx.wear.watchface.WatchFace setOverridePreviewReferenceInstant(java.time.Instant previewReferenceTimeMillis);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.watchface.WatchFace setSystemTimeProvider(androidx.wear.watchface.WatchFace.SystemTimeProvider systemTimeProvider);
     method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
-    method public void setWatchFaceType(int p);
+    method public void setWatchFaceType(int watchFaceType);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
-    property public final Long? overridePreviewReferenceTimeMillis;
+    property public final java.time.Instant? overridePreviewReferenceInstant;
     property public final androidx.wear.watchface.Renderer renderer;
     property public final int watchFaceType;
     field public static final androidx.wear.watchface.WatchFace.Companion Companion;
@@ -340,22 +390,25 @@ package androidx.wear.watchface {
 
   public static final class WatchFace.Companion {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread @VisibleForTesting public void clearAllEditorDelegates();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public suspend Object? createHeadlessSessionDelegate(android.content.ComponentName componentName, androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams params, android.content.Context context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace.EditorDelegate> p);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFace.EditorDelegate> getOrCreateEditorDelegate(android.content.ComponentName componentName);
     method public boolean isLegacyWatchFaceOverlayStyleSupported();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public void registerEditorDelegate(android.content.ComponentName componentName, androidx.wear.watchface.WatchFace.EditorDelegate editorDelegate);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface WatchFace.EditorDelegate {
+    method public android.os.Handler getBackgroundThreadHandler();
     method public androidx.wear.watchface.ComplicationSlotsManager getComplicationSlotsManager();
-    method public long getPreviewReferenceTimeMillis();
+    method public java.time.Instant getPreviewReferenceInstant();
     method public android.graphics.Rect getScreenBounds();
     method public androidx.wear.watchface.style.UserStyle getUserStyle();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method public void onDestroy();
-    method public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? slotIdToComplicationData);
-    method public void setUserStyle(androidx.wear.watchface.style.UserStyle p);
+    method public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? slotIdToComplicationData);
+    method public void setUserStyle(androidx.wear.watchface.style.UserStyle userStyle);
+    property public abstract android.os.Handler backgroundThreadHandler;
     property public abstract androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager;
-    property public abstract long previewReferenceTimeMillis;
+    property public abstract java.time.Instant previewReferenceInstant;
     property public abstract android.graphics.Rect screenBounds;
     property public abstract androidx.wear.watchface.style.UserStyle userStyle;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
@@ -366,8 +419,8 @@ package androidx.wear.watchface {
     ctor public WatchFace.LegacyWatchFaceOverlayStyle(int viewProtectionMode, int statusBarGravity, boolean tapEventsAccepted);
     method public int getAccentColor();
     method public int getStatusBarGravity();
+    method public boolean getTapEventsAccepted();
     method public int getViewProtectionMode();
-    method public boolean isTapEventsAccepted();
     property public final int accentColor;
     property public final int statusBarGravity;
     property public final boolean tapEventsAccepted;
@@ -376,10 +429,11 @@ package androidx.wear.watchface {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface WatchFace.SystemTimeProvider {
     method public long getSystemTimeMillis();
+    method public java.time.ZoneId getSystemTimeZoneId();
   }
 
   public static interface WatchFace.TapListener {
-    method @UiThread public void onTap(int tapType, @Px int xPos, @Px int yPos);
+    method @UiThread public void onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WatchFaceHostApi {
@@ -389,14 +443,15 @@ package androidx.wear.watchface {
     method public android.os.Handler getUiThreadHandler();
     method @UiThread public void invalidate();
     method public void setActiveComplicationSlots(int[] complicationSlotIds);
-    method public void setDefaultComplicationProviderWithFallbacks(int complicationSlotId, java.util.List<android.content.ComponentName>? providers, @androidx.wear.complications.SystemProviders.ProviderId int fallbackSystemProvider, int type);
+    method public void setDefaultComplicationDataSourceWithFallbacks(int complicationSlotId, java.util.List<android.content.ComponentName>? dataSources, @androidx.wear.complications.SystemDataSources.DataSourceId int fallbackSystemProvider, int type);
     method public void updateContentDescriptionLabels();
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class WatchFaceImpl {
-    ctor @UiThread public WatchFaceImpl(androidx.wear.watchface.WatchFace watchface, androidx.wear.watchface.WatchFaceHostApi watchFaceHostApi, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, android.icu.util.Calendar calendar, androidx.wear.watchface.BroadcastsObserver broadcastsObserver, androidx.wear.watchface.BroadcastsReceiver? broadcastsReceiver);
-    method public long getPreviewReferenceTimeMillis();
-    property public final long previewReferenceTimeMillis;
+    ctor @UiThread public WatchFaceImpl(androidx.wear.watchface.WatchFace watchface, androidx.wear.watchface.WatchFaceHostApi watchFaceHostApi, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.BroadcastsObserver broadcastsObserver, androidx.wear.watchface.BroadcastsReceiver? broadcastsReceiver);
+    method public java.time.Instant getPreviewReferenceInstant();
+    method public void setComplicationSlotsManager(androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
+    property public final java.time.Instant previewReferenceInstant;
   }
 
   public final class WatchFaceKt {
@@ -422,12 +477,15 @@ package androidx.wear.watchface {
     ctor public WatchFaceService.EngineWrapper(android.os.Handler uiThreadHandler, android.os.Handler backgroundThreadHandler, boolean headless);
     method public android.os.Handler getBackgroundThreadHandler();
     method public android.content.Context getContext();
+    method public kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFaceImpl> getDeferredWatchFaceImpl();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getInitialUserStyle();
     method public android.os.Handler getUiThreadHandler();
     method public void invalidate();
     method public void setActiveComplicationSlots(int[] complicationSlotIds);
-    method public void setDefaultComplicationProviderWithFallbacks(int complicationSlotId, java.util.List<android.content.ComponentName>? providers, @androidx.wear.complications.SystemProviders.ProviderId int fallbackSystemProvider, int type);
+    method public void setDefaultComplicationDataSourceWithFallbacks(int complicationSlotId, java.util.List<android.content.ComponentName>? dataSources, @androidx.wear.complications.SystemDataSources.DataSourceId int fallbackSystemProvider, int type);
+    method public void setDeferredWatchFaceImpl(kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFaceImpl> deferredWatchFaceImpl);
     method @UiThread public void updateContentDescriptionLabels();
+    property public final kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFaceImpl> deferredWatchFaceImpl;
   }
 
   public final class WatchFaceServiceKt {
@@ -438,9 +496,9 @@ package androidx.wear.watchface {
     method public long getAnalogPreviewReferenceTimeMillis();
     method @Px public int getChinHeight();
     method public long getDigitalPreviewReferenceTimeMillis();
+    method public boolean getHasBurnInProtection();
+    method public boolean getHasLowBitAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Integer> getInterruptionFilter();
-    method public boolean hasBurnInProtection();
-    method public boolean hasLowBitAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient();
     method public boolean isHeadless();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible();
@@ -464,12 +522,14 @@ package androidx.wear.watchface.control {
     method public android.os.IBinder! asBinder();
     method public androidx.wear.watchface.control.IHeadlessWatchFace? createHeadlessWatchFaceInstance(androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams params);
     method public int getApiVersion();
+    method public androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat![]? getComplicationSlotMetadata(androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams params);
     method public androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat![]? getDefaultProviderPolicies(androidx.wear.watchface.control.data.DefaultProviderPoliciesParams params);
     method public androidx.wear.watchface.editor.EditorService getEditorService();
     method public androidx.wear.watchface.control.IInteractiveWatchFace? getInteractiveWatchFaceInstance(String instanceId);
     method public androidx.wear.watchface.control.IInteractiveWatchFace? getOrCreateInteractiveWatchFace(androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams params, androidx.wear.watchface.control.IPendingInteractiveWatchFace callback);
+    method public androidx.wear.watchface.style.data.UserStyleSchemaWireFormat? getUserStyleSchema(androidx.wear.watchface.control.data.GetUserStyleSchemaParams params);
     method public boolean onTransact(int, android.os.Parcel!, android.os.Parcel!, int) throws android.os.RemoteException;
-    field public static final int API_VERSION = 2; // 0x2
+    field public static final int API_VERSION = 3; // 0x3
   }
 
   @RequiresApi(27) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @VisibleForTesting public class WatchFaceControlService extends android.app.Service {
@@ -496,6 +556,7 @@ package androidx.wear.watchface.editor {
     method public void addCloseCallback(androidx.wear.watchface.editor.EditorService.CloseCallback closeCallback);
     method public android.os.IBinder! asBinder();
     method public void broadcastEditorState(androidx.wear.watchface.editor.data.EditorStateWireFormat editorState);
+    method public void clearCloseCallbacks();
     method public void closeEditor();
     method public int getApiVersion();
     method public boolean onTransact(int, android.os.Parcel!, android.os.Parcel!, int) throws android.os.RemoteException;

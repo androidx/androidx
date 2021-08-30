@@ -16,82 +16,130 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.integration.demos.common.ActivityDemo
-import androidx.compose.integration.demos.common.ComposableDemo
-import androidx.compose.integration.demos.common.Demo
-import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.SwipeDismissTarget
+import androidx.wear.compose.material.SwipeToDismissBox
+import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 @Composable
+@ExperimentalWearMaterialApi
 fun DemoApp(
     currentDemo: Demo,
-    onNavigateToDemo: (Demo) -> Unit,
+    parentDemo: Demo?,
+    onNavigateTo: (Demo) -> Unit,
+    onNavigateBack: () -> Unit,
 ) {
-    DemoContent(currentDemo, onNavigateToDemo)
+    DisplayDemo(currentDemo, parentDemo, onNavigateTo, onNavigateBack)
 }
 
 @Composable
-private fun DemoContent(
-    currentDemo: Demo,
-    onNavigate: (Demo) -> Unit,
+@ExperimentalWearMaterialApi
+private fun DisplayDemo(
+    demo: Demo,
+    parentDemo: Demo?,
+    onNavigateTo: (Demo) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
-    Crossfade(currentDemo) { demo ->
-        DisplayDemo(demo, onNavigate)
-    }
-}
-
-@Composable
-private fun DisplayDemo(demo: Demo, onNavigate: (Demo) -> Unit) {
     when (demo) {
         is ActivityDemo<*> -> {
             /* should never get here as activity demos are not added to the backstack*/
         }
-        is ComposableDemo -> demo.content()
-        is DemoCategory -> DisplayDemoList(demo, onNavigate)
+        is ComposableDemo -> {
+            SwipeToDismissBox(
+                state = swipeDismissStateWithNavigation(onNavigateBack),
+                background = {
+                    if (parentDemo != null) {
+                        DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
+                    }
+                }
+            ) {
+                demo.content(onNavigateBack)
+            }
+        }
+        is DemoCategory -> {
+            DisplayDemoList(demo, parentDemo, onNavigateTo, onNavigateBack)
+        }
     }
 }
 
 @Composable
-private fun DisplayDemoList(category: DemoCategory, onNavigate: (Demo) -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+@ExperimentalWearMaterialApi
+internal fun DisplayDemoList(
+    category: DemoCategory,
+    parentDemo: Demo?,
+    onNavigateTo: (Demo) -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    SwipeToDismissBox(
+        state = swipeDismissStateWithNavigation(onNavigateBack),
+        background = {
+            if (parentDemo != null) {
+                DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
+            }
+        }
     ) {
-        Spacer(modifier = Modifier.size(16.dp))
-        Text(
-            text = category.title,
-            style = MaterialTheme.typography.caption1,
-            color = Color.White
-        )
-        Spacer(modifier = Modifier.size(4.dp))
-        category.demos.forEach { demo ->
-            CompactChip(
-                onClick = { onNavigate(demo) },
-                colors = ChipDefaults.secondaryChipColors(),
-                label = {
-                    Text(
-                        text = demo.title,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                },
-                modifier = Modifier.width(100.dp)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(
+                text = category.title,
+                style = MaterialTheme.typography.caption1,
+                color = Color.White
             )
+            Spacer(modifier = Modifier.size(4.dp))
+            category.demos.forEach { demo ->
+                CompactChip(
+                    onClick = { onNavigateTo(demo) },
+                    colors = ChipDefaults.secondaryChipColors(),
+                    label = {
+                        Text(
+                            text = demo.title,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(
+                        start = 10.dp,
+                        end = 10.dp,
+                        bottom = 4.dp
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.size(16.dp))
         }
     }
+}
+
+@Composable
+@ExperimentalWearMaterialApi
+internal fun swipeDismissStateWithNavigation(
+    onNavigateBack: () -> Unit
+): SwipeToDismissBoxState {
+    val state = rememberSwipeToDismissBoxState()
+    LaunchedEffect(state.currentValue) {
+        if (state.currentValue == SwipeDismissTarget.Dismissal) {
+            state.snapTo(SwipeDismissTarget.Original)
+            onNavigateBack()
+        }
+    }
+    return state
 }

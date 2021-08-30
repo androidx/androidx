@@ -19,18 +19,17 @@ package androidx.room.compiler.processing.util
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
+import androidx.room.compiler.processing.util.compiler.compile
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
 import androidx.room.compiler.processing.util.runner.JavacCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.KaptCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.KspCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.TestCompilationParameters
+import com.google.common.io.Files
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
-import com.tschuchort.compiletesting.KotlinCompilation
-import com.tschuchort.compiletesting.kspArgs
-import com.tschuchort.compiletesting.symbolProcessorProviders
-import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.annotation.processing.Processor
 
@@ -41,21 +40,23 @@ private fun runTests(
 ) {
     val runCount = runners.count { runner ->
         if (runner.canRun(params)) {
-            val compilationResult = runner.compile(params)
-            val subject = CompilationResultSubject.assertThat(compilationResult)
-            // if any assertion failed, throw first those.
-            subject.assertNoProcessorAssertionErrors()
-            compilationResult.processor.invocationInstances.forEach {
-                it.runPostCompilationChecks(subject)
-            }
-            assertWithMessage(
-                "compilation should've run the processor callback at least once"
-            ).that(
-                compilationResult.processor.invocationInstances
-            ).isNotEmpty()
+            withTempDir { tmpDir ->
+                val compilationResult = runner.compile(tmpDir, params)
+                val subject = CompilationResultSubject.assertThat(compilationResult)
+                // if any assertion failed, throw first those.
+                subject.assertNoProcessorAssertionErrors()
+                compilationResult.processor.invocationInstances.forEach {
+                    it.runPostCompilationChecks(subject)
+                }
+                assertWithMessage(
+                    "compilation should've run the processor callback at least once"
+                ).that(
+                    compilationResult.processor.invocationInstances
+                ).isNotEmpty()
 
-            subject.assertCompilationResult()
-            subject.assertAllExpectedRoundsAreCompleted()
+                subject.assertCompilationResult()
+                subject.assertAllExpectedRoundsAreCompleted()
+            }
             true
         } else {
             false
@@ -88,7 +89,7 @@ fun runProcessorTestWithoutKsp(
             sources = sources,
             classpath = classpath,
             options = options,
-            handlers = listOf(handler)
+            handlers = listOf(handler),
         ),
         JavacCompilationTestRunner,
         KaptCompilationTestRunner
@@ -183,7 +184,7 @@ fun runProcessorTest(
     runTests(
         params = TestCompilationParameters(
             sources = sources,
-            classpath = classpath,
+            classpath = classpath.distinct(),
             options = options,
             handlers = handlers
         ),
@@ -306,8 +307,9 @@ fun runKspTest(
 }
 
 /**
- * Compiles the given set of sources into a temporary folder and returns the output classes
- * directory.
+ * Compiles the given set of sources into a temporary folder and returns the full classpath that
+ * includes both the compilation output and dependencies.
+ *
  * @param sources The list of source files to compile
  * @param options The annotation processor arguments
  * @param annotationProcessors The list of Java annotation processors to run with compilation
@@ -321,24 +323,35 @@ fun compileFiles(
     annotationProcessors: List<Processor> = emptyList(),
     symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
     javacArguments: List<String> = emptyList()
-): File {
-    val outputStream = ByteArrayOutputStream()
-    val compilation = KotlinCompilationUtil.prepareCompilation(
-        sources = sources,
-        outputStream = outputStream
+): List<File> {
+    val workingDir = Files.createTempDir()
+    val result = compile(
+        workingDir = workingDir,
+        arguments = TestCompilationArguments(
+            sources = sources,
+            kaptProcessors = annotationProcessors,
+            symbolProcessorProviders = symbolProcessorProviders,
+            processorOptions = options,
+            javacArguments = javacArguments
+        )
     )
-    if (annotationProcessors.isNotEmpty()) {
-        compilation.kaptArgs.putAll(options)
+    assertThat(result.success).isTrue()
+    return result.outputClasspath + getSystemClasspathFiles()
+}
+
+/**
+ * Runs a block in a temporary directory and cleans it up afterwards.
+ *
+ * This method intentionally returns Unit to make it harder to return something that might
+ * reference the temporary directory.
+ */
+private inline fun withTempDir(
+    block: (tmpDir: File) -> Unit
+) {
+    val tmpDir = Files.createTempDir()
+    try {
+        return block(tmpDir)
+    } finally {
+        tmpDir.deleteRecursively()
     }
-    if (symbolProcessorProviders.isNotEmpty()) {
-        compilation.kspArgs.putAll(options)
-    }
-    compilation.javacArguments.addAll(javacArguments)
-    compilation.annotationProcessors = annotationProcessors
-    compilation.symbolProcessorProviders = symbolProcessorProviders
-    val result = compilation.compile()
-    check(result.exitCode == KotlinCompilation.ExitCode.OK) {
-        "compilation failed: ${outputStream.toString(Charsets.UTF_8)}"
-    }
-    return compilation.classesDir
 }

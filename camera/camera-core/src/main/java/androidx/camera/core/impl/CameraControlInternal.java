@@ -61,16 +61,16 @@ public interface CameraControlInternal extends CameraControl {
     ListenableFuture<CameraCaptureResult> triggerAf();
 
     /**
-     * Performs a AE Precapture trigger.
+     * Starts a flash sequence.
      *
      * @return a {@link ListenableFuture} which completes when the request is completed.
      * Cancelling the ListenableFuture is a no-op.
      */
     @NonNull
-    ListenableFuture<CameraCaptureResult> triggerAePrecapture();
+    ListenableFuture<Void> startFlashSequence();
 
-    /** Cancel AF trigger AND/OR AE Precapture trigger.* */
-    void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger);
+    /** Cancels AF trigger AND/OR finishes flash sequence.* */
+    void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger, boolean finishFlashSequence);
 
     /**
      * Set a exposure compensation to the camera
@@ -84,9 +84,9 @@ public interface CameraControlInternal extends CameraControl {
     ListenableFuture<Integer> setExposureCompensationIndex(int exposure);
 
     /**
-     * Performs capture requests.
+     * Performs still capture requests.
      */
-    void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
+    void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
 
     /**
      * Gets the current SessionConfig.
@@ -145,12 +145,13 @@ public interface CameraControlInternal extends CameraControl {
 
         @Override
         @NonNull
-        public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
-            return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
+        public ListenableFuture<Void> startFlashSequence() {
+            return Futures.immediateFuture(null);
         }
 
         @Override
-        public void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {
+        public void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger,
+                boolean finishFlashSequence) {
         }
 
         @NonNull
@@ -160,7 +161,7 @@ public interface CameraControlInternal extends CameraControl {
         }
 
         @Override
-        public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+        public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         }
 
         @NonNull

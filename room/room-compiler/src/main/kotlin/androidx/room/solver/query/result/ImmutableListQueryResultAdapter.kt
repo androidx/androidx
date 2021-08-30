@@ -26,11 +26,11 @@ import com.squareup.javapoet.ParameterizedTypeName
 
 class ImmutableListQueryResultAdapter(
     private val typeArg: XType,
-    rowAdapter: RowAdapter
-) : QueryResultAdapter(rowAdapter) {
+    private val rowAdapter: RowAdapter
+) : QueryResultAdapter(listOf(rowAdapter)) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            rowAdapter?.onCursorReady(cursorVarName, scope)
+            rowAdapter.onCursorReady(cursorVarName, scope)
             val collectionType = ParameterizedTypeName
                 .get(ClassName.get(ImmutableList::class.java), typeArg.typeName)
             val immutableListBuilderType = ParameterizedTypeName
@@ -44,7 +44,7 @@ class ImmutableListQueryResultAdapter(
             val tmpVarName = scope.getTmpVar("_item")
             beginControlFlow("while($L.moveToNext())", cursorVarName).apply {
                 addStatement("final $T $L", typeArg.typeName, tmpVarName)
-                rowAdapter?.convert(tmpVarName, cursorVarName, scope)
+                rowAdapter.convert(tmpVarName, cursorVarName, scope)
                 addStatement("$L.add($L)", immutableListBuilderName, tmpVarName)
             }
             endControlFlow()
@@ -52,7 +52,7 @@ class ImmutableListQueryResultAdapter(
                 "final $T $L = $L.build()",
                 collectionType, outVarName, immutableListBuilderName
             )
-            rowAdapter?.onCursorFinished()?.invoke(scope)
+            rowAdapter.onCursorFinished()?.invoke(scope)
         }
     }
 }

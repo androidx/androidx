@@ -21,15 +21,15 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.S
 import androidx.room.ext.T
+import androidx.room.ext.capitalize
+import androidx.room.ext.stripNonJava
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Entity
 import androidx.room.vo.FieldWithIndex
-import capitalize
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
-import stripNonJava
 import java.util.Locale
 import javax.lang.model.element.Modifier.PRIVATE
 

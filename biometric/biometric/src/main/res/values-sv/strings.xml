@@ -27,7 +27,7 @@
     <string name="default_error_msg" msgid="4776854077120974966">"Okänt fel"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"Användaren har avbrutit autentiseringen."</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Använd lösenord"</string>
-    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Pinkod, grafiskt lösenord eller lösenord har inte angetts."</string>
-    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Enheten har inte stöd för pinkod, lösenord eller grafiskt lösenord."</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Pinkod, mönster eller lösenord har inte angetts."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Enheten har inte stöd för pinkod, lösenord eller mönster."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ikon för fingeravtryck"</string>
 </resources>

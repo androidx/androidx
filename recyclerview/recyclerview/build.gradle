@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.3.2")
+    api project(":core:core")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.customview:customview:1.0.0")
 
@@ -24,6 +24,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(":internal-testutils-espresso"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-common"))
@@ -47,6 +48,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
         testInstrumentationRunner "androidx.testutils.ActivityRecyclingAndroidJUnitRunner"
+        multiDexEnabled true
     }
 }
 

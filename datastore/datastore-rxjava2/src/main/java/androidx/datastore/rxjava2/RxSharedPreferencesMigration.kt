@@ -46,6 +46,9 @@ public interface RxSharedPreferencesMigration<T> {
      * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
      * the current data. The function must return the migrated data.
      *
+     * If SharedPreferences is empty or does not contain any keys which you specified, this
+     * callback will not run.
+     *
      * @param sharedPreferencesView the current state of the SharedPreferences
      * @param currentData the most recently persisted data
      * @return a Single of the updated data

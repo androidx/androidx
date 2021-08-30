@@ -18,8 +18,12 @@
     <string name="drawer_close">Close Navigation Drawer</string>
     <string name="bottom_navigation">Bottom Nav</string>
     <string name="home">Home</string>
+    <string name="twopane">Two Pane</string>
     <string name="first">First: {myarg}</string>
     <string name="second">Second: {myarg}</string>
+    <string name="third">Third: {myarg}</string>
+    <string name="fourth">Fourth: {myarg}</string>
+    <string name="fifth">Fifth: {myarg}</string>
     <string name="learn_more">Learn More</string>
     <string name="learn_more_positive">Thanks</string>
     <string name="learn_more_neutral">Learn about Android</string>

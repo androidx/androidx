@@ -29,6 +29,7 @@ import android.os.Build.VERSION;
 import android.os.IBinder;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceControlViewHost.SurfacePackage;
 import android.view.SurfaceView;
@@ -66,6 +67,8 @@ public final class TemplateSurfaceView extends SurfaceView {
 
     @Nullable
     ISurfaceControl mSurfaceControl;
+    @Nullable
+    SurfacePackage mSurfacePackage;
     private boolean mIsInInputMode;
 
     // Package public to avoid synthetic accessor
@@ -216,6 +219,11 @@ public final class TemplateSurfaceView extends SurfaceView {
         }
     }
 
+    /** Notifies that there has been a text selection update. */
+    public void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart, int newSelEnd) {
+        mInputMethodManager.updateSelection(this, oldSelStart, oldSelEnd, newSelStart, newSelEnd);
+    }
+
     @Override
     public boolean onCheckIsTextEditor() {
         return mIsInInputMode;
@@ -240,7 +248,7 @@ public final class TemplateSurfaceView extends SurfaceView {
         requireNonNull(mViewModel);
 
         if (SUPPORTS_SURFACE_CONTROL && surfacePackage instanceof SurfacePackage) {
-            Api30Impl.setSurfacePackage(this, (SurfacePackage) surfacePackage);
+            setSurfacePackage((SurfacePackage) surfacePackage);
         } else if (surfacePackage instanceof LegacySurfacePackage) {
             setSurfacePackage((LegacySurfacePackage) surfacePackage);
         } else {
@@ -250,9 +258,9 @@ public final class TemplateSurfaceView extends SurfaceView {
     }
 
     /**
-     * Updates the surface control with the {@link LegacySurfacePackage}.
+     * Updates the surface control with the {@link LegacySurfacePackage}
      *
-     * This control is used to communicate the UI events and focus with the host.
+     * This is used in Android API level 29 to communicate UI events and focus with the host.
      */
     @SuppressLint({"ClickableViewAccessibility"})
     private void setSurfacePackage(LegacySurfacePackage surfacePackage) {
@@ -264,6 +272,24 @@ public final class TemplateSurfaceView extends SurfaceView {
                 surfaceControl.setSurfaceWrapper(Bundleable.create(surfaceWrapper)));
         mSurfaceControl = surfaceControl;
         setOnTouchListener((view, event) -> handleTouchEvent(event));
+    }
+
+    /**
+     * Updates the surface control with the {@link SurfacePackage}.
+     *
+     * This is used in Android API level 30+ to communicate UI events with a remote
+     * {@link SurfaceView}
+     */
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    private void setSurfacePackage(SurfacePackage surfacePackage) {
+        // Although the Javadoc in SurfaceView#setChildSurfacePackage suggests that SurfaceView
+        // should take care of releasing the SurfacePackage, we have found cases where a manual
+        // release is necessary.
+        if (mSurfacePackage != null) {
+            Api30Impl.releaseSurfacePackage(mSurfacePackage);
+        }
+        mSurfacePackage = surfacePackage;
+        Api30Impl.setSurfacePackage(this, (SurfacePackage) surfacePackage);
     }
 
     @Override
@@ -293,6 +319,17 @@ public final class TemplateSurfaceView extends SurfaceView {
         return false;
     }
 
+    @Override
+    public boolean dispatchKeyEvent(@NonNull KeyEvent event) {
+        ISurfaceControl surfaceControl = mSurfaceControl;
+        if (surfaceControl != null) {
+            requireNonNull(mServiceDispatcher).dispatch("onKeyEvent",
+                    () -> surfaceControl.onKeyEvent(event));
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
     @RequiresApi(Build.VERSION_CODES.R)
     private static class Api30Impl {
         private Api30Impl() {
@@ -306,6 +343,11 @@ public final class TemplateSurfaceView extends SurfaceView {
         @DoNotInline
         static void setSurfacePackage(TemplateSurfaceView view, SurfacePackage surfacePackage) {
             view.setChildSurfacePackage(surfacePackage);
+        }
+
+        @DoNotInline
+        public static void releaseSurfacePackage(SurfacePackage surfacePackage) {
+            surfacePackage.release();
         }
     }
 }

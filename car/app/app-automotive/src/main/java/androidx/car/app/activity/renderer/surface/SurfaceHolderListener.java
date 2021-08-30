@@ -73,7 +73,9 @@ public class SurfaceHolderListener implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+        requireNonNull(holder);
         mIsSurfaceAvailable = false;
+        notifySurfaceDestroyed();
     }
 
     private void notifySurfaceCreated() {
@@ -90,6 +92,15 @@ public class SurfaceHolderListener implements SurfaceHolder.Callback {
         if (surfaceListener != null) {
             mServiceDispatcher.dispatch("onSurfaceChanged",
                     () -> surfaceListener.onSurfaceChanged(
+                            Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper())));
+        }
+    }
+
+    private void notifySurfaceDestroyed() {
+        ISurfaceListener surfaceListener = mSurfaceListener;
+        if (surfaceListener != null) {
+            mServiceDispatcher.dispatchNoFail("onSurfaceDestroyed",
+                    () -> surfaceListener.onSurfaceDestroyed(
                             Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper())));
         }
     }

@@ -25,13 +25,16 @@ import java.io.File;
 /**
  * A class to store the result to a given file.
  *
- * <p> The file could be in a path where the application has permission to write in.
+ * <p>The file must be in a path where the application has permission to write in.
+ *
+ * <p>To use a {@link android.os.ParcelFileDescriptor} as an output desination instead of a
+ * {@link File}, use {@link FileDescriptorOutputOptions}.
  */
 @AutoValue
 public abstract class FileOutputOptions extends OutputOptions {
 
     FileOutputOptions() {
-        super(Type.FILE);
+        super(OPTIONS_TYPE_FILE);
     }
 
     /** Returns a builder for this FileOutputOptions. */
@@ -45,7 +48,7 @@ public abstract class FileOutputOptions extends OutputOptions {
      * Gets the limit for the file length in bytes.
      */
     @Override
-    public abstract int getFileSizeLimit();
+    public abstract long getFileSizeLimit();
 
     /** Gets the File instance */
     @NonNull
@@ -53,11 +56,13 @@ public abstract class FileOutputOptions extends OutputOptions {
 
     /** The builder of the {@link FileOutputOptions}. */
     @AutoValue.Builder
+    @SuppressWarnings("StaticFinalBuilder")
     public abstract static class Builder {
         Builder() {
         }
 
-        /** Defines how to store the result. */
+        /** Defines the file used to store the result. */
+        @SuppressWarnings("StreamFiles") // FileDescriptor API is in FileDescriptorOutputOptions
         @NonNull
         public abstract Builder setFile(@NonNull File file);
 
@@ -68,7 +73,7 @@ public abstract class FileOutputOptions extends OutputOptions {
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
          */
         @NonNull
-        public abstract Builder setFileSizeLimit(int bytes);
+        public abstract Builder setFileSizeLimit(long bytes);
 
         /** Builds the FileOutputOptions instance. */
         @NonNull

@@ -18,8 +18,13 @@ package androidx.camera.camera2.internal.compat;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -84,5 +89,25 @@ public class CameraCharacteristicsCompatTest {
         // SENSOR_ORIENTATION is not set.
         assertThat(characteristicsCompat.get(CameraCharacteristics.SENSOR_ORIENTATION))
                 .isNull();
+    }
+
+    @Config(minSdk = 28)
+    @RequiresApi(28)
+    @Test
+    public void getPhysicalCameraIds_invokeCameraCharacteristics_api28() {
+        CameraCharacteristics cameraCharacteristics = mock(CameraCharacteristics.class);
+        CameraCharacteristicsCompat characteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
+
+        characteristicsCompat.getPhysicalCameraIds();
+        verify(cameraCharacteristics).getPhysicalCameraIds();
+    }
+
+    @Config(maxSdk = 27)
+    @Test
+    public void getPhysicalCameraIds_returnEmptyList_below28() {
+        CameraCharacteristicsCompat characteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCharacteristics);
+        assertThat(characteristicsCompat.getPhysicalCameraIds()).isEmpty();
     }
 }

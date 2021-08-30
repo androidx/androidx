@@ -49,17 +49,24 @@ private val FRAGMENT = java(
 
     public class Fragment implements LifecycleOwner {
         public LifecycleOwner getViewLifecycleOwner() {}
-        public LifecycleOwner getLifecycleOwner() {}
         public Lifecycle getLifecycle() {}
     }
     """
 )
 
-private val DIALOG_FRAGMENT = java(
+internal val DIALOG_FRAGMENT = java(
     """
     package androidx.fragment.app;
 
     public class DialogFragment extends Fragment { }
+"""
+)
+
+internal val ALERT_DIALOG = java(
+    """
+    package androidx.appcompat.app;
+
+    public class AlertDialog { }
 """
 )
 
@@ -154,25 +161,12 @@ private val COROUTINES = TestFiles.kt(
 private val REPEAT_ON_LIFECYCLE = TestFiles.kt(
     "androidx/lifecycle/RepeatOnLifecycle.kt",
     """
-        package androidx.lifecycle;
+        package androidx.lifecycle
 
-        import androidx.lifecycle.Lifecycle
-        import androidx.lifecycle.LifecycleOwner
-        import kotlinx.coroutines.CoroutineScope
-
-        public suspend fun Lifecycle.repeatOnLifecycle(
+        public fun LifecycleOwner.repeatOnLifecycle(
             state: Lifecycle.State,
             block: suspend CoroutineScope.() -> Unit
-        ) {
-            throw Error()
-        }
-
-        public suspend fun LifecycleOwner.repeatOnLifecycle(
-            state: Lifecycle.State,
-            block: suspend CoroutineScope.() -> Unit
-        ) {
-            throw Error()
-        }
+        ) { }
     """
 ).indented().within("src")
 

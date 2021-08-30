@@ -32,7 +32,6 @@ import androidx.compose.ui.focus.FocusDirection.Companion.Previous
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusManagerImpl
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.DesktopCanvas
 import androidx.compose.ui.input.key.Key.Companion.Back
@@ -56,8 +55,10 @@ import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.pointer.TestPointerInputEventData
 import androidx.compose.ui.layout.RootMeasurePolicy
 import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.node.HitTestResult
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
@@ -100,6 +101,8 @@ internal class DesktopOwner(
     // TODO(demin): support RTL
     override val layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
+    override val sharedDrawScope = LayoutNodeDrawScope()
+
     private val semanticsModifier = SemanticsModifierCore(
         id = SemanticsModifierCore.generateSemanticsId(),
         mergeDescendants = false,
@@ -107,7 +110,10 @@ internal class DesktopOwner(
         properties = {}
     )
 
-    private val _focusManager: FocusManagerImpl = FocusManagerImpl()
+    private val _focusManager: FocusManagerImpl = FocusManagerImpl().apply {
+        // TODO(demin): support RTL [onRtlPropertiesChanged]
+        layoutDirection = LayoutDirection.Ltr
+    }
     override val focusManager: FocusManager
         get() = _focusManager
 
@@ -154,9 +160,6 @@ internal class DesktopOwner(
         container.register(this)
         snapshotObserver.startObserving()
         root.attach(this)
-        if (isFocusable) {
-            container.focusedOwner = this
-        }
         _focusManager.takeFocus()
     }
 
@@ -186,9 +189,6 @@ internal class DesktopOwner(
 
     override val viewConfiguration: ViewConfiguration = DesktopViewConfiguration(density)
 
-    val keyboard: Keyboard?
-        get() = container.keyboard
-
     override fun sendKeyEvent(keyEvent: KeyEvent): Boolean {
         when {
             keyEvent.nativeKeyEvent.id == java.awt.event.KeyEvent.KEY_TYPED ->
@@ -197,8 +197,7 @@ internal class DesktopOwner(
                 container.platformInputService.charKeyPressed = false
         }
 
-        return keyInputModifier.processKeyInput(keyEvent) ||
-            keyboard?.processKeyInput(keyEvent) ?: false
+        return keyInputModifier.processKeyInput(keyEvent)
     }
 
     override var showLayoutBounds = false
@@ -296,10 +295,6 @@ internal class DesktopOwner(
         }
     }
 
-    override fun requestRectangleOnScreen(rect: Rect) {
-        // TODO: Scroll the owner to bring the specified rectangle into view.
-    }
-
     override fun calculatePositionInWindow(localPosition: Offset): Offset = localPosition
 
     override fun calculateLocalPosition(positionInWindow: Offset): Offset = positionInWindow
@@ -342,7 +337,7 @@ internal class DesktopOwner(
     internal fun onMouseScroll(position: Offset, event: MouseScrollEvent) {
         measureAndLayout()
 
-        val inputFilters = mutableListOf<PointerInputFilter>()
+        val inputFilters = HitTestResult<PointerInputFilter>()
         root.hitTest(position, inputFilters)
 
         for (
@@ -357,7 +352,7 @@ internal class DesktopOwner(
     }
 
     private var oldMoveFilters = listOf<PointerMoveEventFilter>()
-    private var newMoveFilters = mutableListOf<PointerInputFilter>()
+    private val newMoveFilters = HitTestResult<PointerInputFilter>()
 
     internal fun onPointerMove(position: Offset) {
         // TODO: do we actually need that?
@@ -397,7 +392,7 @@ internal class DesktopOwner(
         }
 
         oldMoveFilters = newMoveFilters.filterIsInstance<PointerMoveEventFilter>()
-        newMoveFilters = mutableListOf()
+        newMoveFilters.clear()
     }
 
     internal fun onPointerEnter(position: Offset) {
@@ -416,7 +411,7 @@ internal class DesktopOwner(
             }
         }
         oldMoveFilters = newMoveFilters.filterIsInstance<PointerMoveEventFilter>()
-        newMoveFilters = mutableListOf()
+        newMoveFilters.clear()
     }
 
     internal fun onPointerExit() {
@@ -427,6 +422,6 @@ internal class DesktopOwner(
             }
         }
         oldMoveFilters = listOf()
-        newMoveFilters = mutableListOf()
+        newMoveFilters.clear()
     }
 }

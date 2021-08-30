@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-NullableCollection: androidx.wear.watchface.editor.EditorRequest#getInitialUserStyle():
-    Return type of method androidx.wear.watchface.editor.EditorRequest.getInitialUserStyle() is a nullable collection (`java.util.Map`); must be non-null

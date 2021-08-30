@@ -10,6 +10,7 @@ attr fontProviderSystemFontFamily
 attr fontStyle
 attr fontVariationSettings
 attr fontWeight
+attr lStar
 attr queryPatterns
 attr shortcutMatchRequired
 attr ttcIndex

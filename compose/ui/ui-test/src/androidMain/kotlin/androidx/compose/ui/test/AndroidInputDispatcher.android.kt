@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.test
 
-import android.os.SystemClock
+import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
@@ -28,14 +28,13 @@ import android.view.MotionEvent.ACTION_UP
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.ViewRootForTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 internal actual fun createInputDispatcher(
     testContext: TestContext,
     root: RootForTest
 ): InputDispatcher {
     require(root is ViewRootForTest) {
-        "InputDispatcher currently only supports dispatching to ViewRootForTest, not to " +
+        "InputDispatcher only supports dispatching to ViewRootForTest, not to " +
             root::class.java.simpleName
     }
     val view = root.view
@@ -49,35 +48,30 @@ internal class AndroidInputDispatcher(
 ) : InputDispatcher(testContext, root) {
 
     private val batchLock = Any()
-    // Batched events are generated just-in-time, given the "lateness" of the dispatching (see
-    // sendAllSynchronous), so enqueue generators rather than instantiated events
     private var batchedEvents = mutableListOf<MotionEvent>()
     private var acceptEvents = true
-    private var firstEventTime = Long.MAX_VALUE
-    private val previousLastEventTime = partialGesture?.lastEventTime
-
-    override val now: Long get() = SystemClock.uptimeMillis()
+    private var currentClockTime = currentTime
 
     override fun PartialGesture.enqueueDown(pointerId: Int) {
-        batchMotionEvent(
+        enqueueTouchEvent(
             if (lastPositions.size == 1) ACTION_DOWN else ACTION_POINTER_DOWN,
             lastPositions.keys.sorted().indexOf(pointerId)
         )
     }
 
     override fun PartialGesture.enqueueMove() {
-        batchMotionEvent(ACTION_MOVE, 0)
+        enqueueTouchEvent(ACTION_MOVE, 0)
     }
 
     override fun PartialGesture.enqueueUp(pointerId: Int) {
-        batchMotionEvent(
+        enqueueTouchEvent(
             if (lastPositions.size == 1) ACTION_UP else ACTION_POINTER_UP,
             lastPositions.keys.sorted().indexOf(pointerId)
         )
     }
 
     override fun PartialGesture.enqueueCancel() {
-        batchMotionEvent(ACTION_CANCEL, 0)
+        enqueueTouchEvent(ACTION_CANCEL, 0)
     }
 
     /**
@@ -87,22 +81,22 @@ internal class AndroidInputDispatcher(
      * @see MotionEvent.getAction
      * @see MotionEvent.getActionIndex
      */
-    private fun PartialGesture.batchMotionEvent(action: Int, actionIndex: Int) {
+    private fun PartialGesture.enqueueTouchEvent(action: Int, actionIndex: Int) {
         val entries = lastPositions.entries.sortedBy { it.key }
-        batchMotionEvent(
-            downTime,
-            lastEventTime,
-            action,
-            actionIndex,
-            List(entries.size) { entries[it].value },
-            List(entries.size) { entries[it].key }
+        enqueueTouchEvent(
+            downTime = downTime,
+            eventTime = currentTime,
+            action = action,
+            actionIndex = actionIndex,
+            coordinates = List(entries.size) { entries[it].value },
+            pointerIds = List(entries.size) { entries[it].key }
         )
     }
 
     /**
      * Generates an event with the given parameters.
      */
-    private fun batchMotionEvent(
+    private fun enqueueTouchEvent(
         downTime: Long,
         eventTime: Long,
         action: Int,
@@ -112,7 +106,7 @@ internal class AndroidInputDispatcher(
     ) {
         synchronized(batchLock) {
             check(acceptEvents) {
-                "Can't enqueue event (" +
+                "Can't enqueue touch event (" +
                     "downTime=$downTime, " +
                     "eventTime=$eventTime, " +
                     "action=$action, " +
@@ -120,9 +114,6 @@ internal class AndroidInputDispatcher(
                     "pointerIds=$pointerIds, " +
                     "coordinates=$coordinates" +
                     "), events have already been (or are being) dispatched or disposed"
-            }
-            if (firstEventTime == Long.MAX_VALUE) {
-                firstEventTime = eventTime
             }
             val positionInScreen = if (root != null) {
                 val array = intArrayOf(0, 0)
@@ -138,7 +129,10 @@ internal class AndroidInputDispatcher(
                     /* action = */ action + (actionIndex shl ACTION_POINTER_INDEX_SHIFT),
                     /* pointerCount = */ coordinates.size,
                     /* pointerProperties = */ Array(coordinates.size) {
-                        MotionEvent.PointerProperties().apply { id = pointerIds[it] }
+                        MotionEvent.PointerProperties().apply {
+                            id = pointerIds[it]
+                            toolType = MotionEvent.TOOL_TYPE_FINGER
+                        }
                     },
                     /* pointerCoords = */ Array(coordinates.size) {
                         MotionEvent.PointerCoords().apply {
@@ -148,11 +142,11 @@ internal class AndroidInputDispatcher(
                     },
                     /* metaState = */ 0,
                     /* buttonState = */ 0,
-                    /* xPrecision = */ 0f,
-                    /* yPrecision = */ 0f,
+                    /* xPrecision = */ 1f,
+                    /* yPrecision = */ 1f,
                     /* deviceId = */ 0,
                     /* edgeFlags = */ 0,
-                    /* source = */ 0,
+                    /* source = */ InputDevice.SOURCE_TOUCHSCREEN,
                     /* flags = */ 0
                 ).apply {
                     offsetLocation(-positionInScreen.x, -positionInScreen.y)
@@ -167,13 +161,11 @@ internal class AndroidInputDispatcher(
         testContext.testOwner.runOnUiThread {
             checkAndStopAcceptingEvents()
 
-            var lastEventTime = (previousLastEventTime ?: firstEventTime)
             batchedEvents.forEach { event ->
                 // Before injecting the next event, pump the clock
                 // by the difference between this and the last event
-                pumpClock(
-                    event.eventTime - lastEventTime.also { lastEventTime = event.eventTime }
-                )
+                advanceClockTime(event.eventTime - currentClockTime)
+                currentClockTime = event.eventTime
                 sendAndRecycleEvent(event)
             }
         }
@@ -181,9 +173,9 @@ internal class AndroidInputDispatcher(
         // dispatcher, so we don't have to reset firstEventTime after use
     }
 
-    @OptIn(InternalTestApi::class, ExperimentalCoroutinesApi::class)
-    private fun pumpClock(millis: Long) {
-        // Don't bother calling the method if there's nothing to advance
+    @OptIn(InternalTestApi::class)
+    private fun advanceClockTime(millis: Long) {
+        // Don't bother advancing the clock if there's nothing to advance
         if (millis > 0) {
             testContext.testOwner.mainClock.advanceTimeBy(millis, ignoreFrameDuration = true)
         }

@@ -40,11 +40,18 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinTest)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
 }
 
 android {
     defaultConfig {
-        minSdkVersion 25
+        minSdkVersion 26
     }
 
     // Use Robolectric 4.+

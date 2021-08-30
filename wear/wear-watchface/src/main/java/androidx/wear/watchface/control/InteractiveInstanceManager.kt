@@ -17,11 +17,12 @@
 package androidx.wear.watchface.control
 
 import android.annotation.SuppressLint
-import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 /** Keeps track of [InteractiveWatchFaceImpl]s. */
 internal class InteractiveInstanceManager {
@@ -106,13 +107,29 @@ internal class InteractiveInstanceManager {
 
         /** Can be called on any thread. */
         @SuppressLint("SyntheticAccessor")
-        @RequiresApi(27)
         fun getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
             value: PendingWallpaperInteractiveWatchFaceInstance
         ): IInteractiveWatchFace? {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 val instance = instances[value.params.instanceId]
                 return if (instance != null) {
+                    // The system on reboot will use this to connect to an existing watch face, we
+                    // need to ensure there isn't a skew between the style the watch face actually
+                    // has and what the system thinks we should have. Note runBlocking is safe here
+                    // because we never await.
+                    val engine = instance.impl.engine
+                    runBlocking {
+                        withContext(engine.uiThreadCoroutineScope.coroutineContext) {
+                            if (engine.deferredWatchFaceImpl.isCompleted) {
+                                // setUserStyle awaits deferredWatchFaceImpl but it's completed.
+                                engine.setUserStyle(value.params.userStyle)
+                            } else {
+                                // Defer the UI update until deferredWatchFaceImpl is about to
+                                // complete.
+                                engine.pendingUserStyle = value.params.userStyle
+                            }
+                        }
+                    }
                     instance.impl
                 } else {
                     TraceEvent("Set pendingWallpaperInteractiveWatchFaceInstance").use {

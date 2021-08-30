@@ -115,7 +115,7 @@ final class ProcessingSurface extends DeferrableSurface {
     ProcessingSurface(int width, int height, int format, @Nullable Handler handler,
             @NonNull CaptureStage captureStage, @NonNull CaptureProcessor captureProcessor,
             @NonNull DeferrableSurface outputSurface, @NonNull String tagBundleKey) {
-
+        super(new Size(width, height), format);
         mResolution = new Size(width, height);
 
         if (handler != null) {

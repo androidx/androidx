@@ -433,4 +433,7 @@ interface BooksDao {
     }
 
     suspend fun concreteSuspendFunctionWithParams(num: Int, text: String) = "$num - $text"
+
+    // This is a private method to validate b/194706278
+    private fun getNullAuthor(): Author? = null
 }

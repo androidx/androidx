@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition()`"
+        errorLine1="class TrackingTransition : Transition(), TargetTracking {"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingTransition.kt"
+            line="36"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `android.transition.Transition`"
+        errorLine1="class TrackingTransition : Transition(), TargetTracking {"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingTransition.kt"
+            line="36"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `android.transition.TransitionValues#values`"
+        errorLine1="        transitionValues.values[PROP] = 0"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingTransition.kt"
+            line="46"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `android.transition.TransitionValues#values`"
+        errorLine1="        transitionValues.values[PROP] = 1"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingTransition.kt"
+            line="50"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.TransitionValues#equals`"
+        errorLine1="        if (startValues != null) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingTransition.kt"
+            line="58"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `android.transition.TransitionValues#view`"
+        errorLine1="            exitingTargets.add(startValues.view)"
+        errorLine2="                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingTransition.kt"
+            line="59"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.TransitionValues#equals`"
+        errorLine1="        if (endValues != null) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingTransition.kt"
+            line="61"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `android.transition.TransitionValues#view`"
+        errorLine1="            enteringTargets.add(endValues.view)"
+        errorLine2="                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingTransition.kt"
+            line="62"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.transition.Transition#getEpicenter`"
+        errorLine1="        if (epicenter != null) {"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingTransition.kt"
+            line="64"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.transition.Transition#getEpicenter`"
+        errorLine1="            capturedEpicenter.set(Rect(epicenter))"
+        errorLine2="                                       ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingTransition.kt"
+            line="65"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `android.transition.Visibility`"
+        errorLine1="public class TrackingVisibility extends Visibility implements TargetTracking {"
+        errorLine2="                                        ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingVisibility.java"
+            line="37"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `android.transition.TransitionValues#view`"
+        errorLine1="        mEnteringTargets.add(endValues.view);"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingVisibility.java"
+            line="51"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.transition.Transition#getEpicenter`"
+        errorLine1="        Rect epicenter = getEpicenter();"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingVisibility.java"
+            line="52"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 19 (current min is 14): `android.transition.TransitionValues#view`"
+        errorLine1="        mExitingTargets.add(startValues.view);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingVisibility.java"
+            line="64"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.transition.Transition#getEpicenter`"
+        errorLine1="        Rect epicenter = getEpicenter();"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TrackingVisibility.java"
+            line="65"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        enterTransition.addListener(listener)"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="56"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        enterTransition.addListener(listener)"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="56"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        sharedElementEnter.addListener(listener)"
+        errorLine2="                           ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="57"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        sharedElementEnter.addListener(listener)"
+        errorLine2="                           ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="57"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        reenterTransition.addListener(listener)"
+        errorLine2="                          ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="58"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        reenterTransition.addListener(listener)"
+        errorLine2="                          ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="58"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        exitTransition.addListener(listener)"
+        errorLine2="                       ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="59"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        exitTransition.addListener(listener)"
+        errorLine2="                       ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="59"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        returnTransition.addListener(listener)"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="60"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        returnTransition.addListener(listener)"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="60"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        sharedElementReturn.addListener(listener)"
+        errorLine2="                            ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="61"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `android.transition.Transition#addListener`"
+        errorLine1="        sharedElementReturn.addListener(listener)"
+        errorLine2="                            ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="61"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `android.transition.Transition.TransitionListener`"
+        errorLine1=") : Transition.TransitionListener {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/TransitionFragment.kt"
+            line="80"
+            column="5"/>
+    </issue>
+
+</issues>

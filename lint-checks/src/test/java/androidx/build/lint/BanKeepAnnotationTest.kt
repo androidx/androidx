@@ -46,4 +46,21 @@ src/androidx/KeepAnnotationUsageJava.java:21: Error: Uses @Keep annotation [BanK
 
         check(*input).expect(expected)
     }
+    @Test
+    fun `Detection of Keep annotation in Kotlin sources`() {
+        val input = arrayOf(
+            ktSample("androidx.KeepAnnotationUsageKotlin"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/KeepAnnotationUsageKotlin.kt:21: Error: Uses @Keep annotation [BanKeepAnnotation]
+@Keep
+~~~~~
+1 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
 }

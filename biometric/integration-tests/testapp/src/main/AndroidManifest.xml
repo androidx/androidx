@@ -28,6 +28,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/biometric_test_app_name"
+            android:exported="true"
             android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,11 +39,13 @@
         <activity
             android:name=".BiometricPromptTestActivity"
             android:label="@string/biometric_prompt_test_title"
+            android:exported="false"
             android:theme="@style/Theme.AppCompat.Light" />
 
         <activity
             android:name=".AuthPromptTestActivity"
             android:label="@string/auth_prompt_test_title"
+            android:exported="false"
             android:theme="@style/Theme.AppCompat.Light" />
     </application>
 </manifest>

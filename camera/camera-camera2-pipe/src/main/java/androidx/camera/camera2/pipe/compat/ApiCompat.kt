@@ -188,6 +188,7 @@ internal object Api26Compat {
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
+@Suppress("DEPRECATION")
 internal object Api28Compat {
     @JvmStatic
     @Throws(CameraAccessException::class)

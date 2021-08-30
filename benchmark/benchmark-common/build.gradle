@@ -1,0 +1,80 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+import androidx.build.SupportConfigKt
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+    id("com.squareup.wire")
+}
+
+android {
+    sourceSets {
+        main.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/tracebox"
+        )
+        androidTest.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/testdata"
+        )
+    }
+}
+
+wire {
+    kotlin {}
+
+    // prune unused config components which have deprecated fields
+    prune 'perfetto.protos.TraceConfig.IncidentReportConfig'
+    prune 'perfetto.protos.ProcessStatsConfig.Quirks'
+
+    sourcePath {
+        srcDir 'src/main/proto'
+    }
+}
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.0.0")
+    implementation("androidx.tracing:tracing-ktx:1.0.0")
+    implementation(libs.testMonitor)
+    implementation(libs.wireRuntime)
+
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.kotlinTest)
+}
+
+androidx {
+    name = "Android Benchmark - Common"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.BENCHMARK
+    inceptionYear = "2018"
+    description = "Android Benchmark - Common"
+}
+
+// Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental"]
+    }
+}

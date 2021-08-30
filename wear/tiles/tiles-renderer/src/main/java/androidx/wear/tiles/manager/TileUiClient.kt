@@ -36,7 +36,8 @@ import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.StateBuilders
 import androidx.wear.tiles.TimelineBuilders
-import androidx.wear.tiles.connection.DefaultTileProviderClient
+import androidx.wear.tiles.checkers.TimelineChecker
+import androidx.wear.tiles.connection.DefaultTileClient
 import androidx.wear.tiles.renderer.TileRenderer
 import androidx.wear.tiles.timeline.TilesTimelineManager
 import kotlinx.coroutines.CoroutineScope
@@ -50,7 +51,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
 /**
- * UI client for a single tile. This handles binding to a Tile Provider, and inflating the given
+ * UI client for a single tile. This handles binding to a Tile Service, and inflating the given
  * tile contents into the provided parentView. This also handles requested updates, re-fetching the
  * tile on-demand.
  *
@@ -70,8 +71,9 @@ public class TileUiClient(
 
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
+    private val timelineChecker = TimelineChecker()
 
-    private val tilesConnection = DefaultTileProviderClient(
+    private val tilesConnection = DefaultTileClient(
         context = context,
         componentName = component,
         coroutineScope = coroutineScope,
@@ -95,7 +97,7 @@ public class TileUiClient(
 
     /**
      * Initialize this {@link TileManager}. This will cause the {@link TileManager} to connect to
-     * the tile provider and request the first tile. It will also trigger any requested updates.
+     * the tile service and request the first tile. It will also trigger any requested updates.
      */
     @MainThread
     public fun connect() {
@@ -115,7 +117,7 @@ public class TileUiClient(
 
     /**
      * Shut down this {@link TileManager}. This will cancel any scheduled updates, and close the
-     * connection with the tile provider.
+     * connection with the tile service.
      */
     @MainThread
     override fun close() {
@@ -133,37 +135,42 @@ public class TileUiClient(
     }
 
     private suspend fun requestTile(
-        state: StateBuilders.State = StateBuilders.State.builder().build()
+        state: StateBuilders.State = StateBuilders.State.Builder().build()
     ) = coroutineScope {
         withContext(Dispatchers.Main) {
             val tileRequest = RequestBuilders.TileRequest
-                .builder()
+                .Builder()
                 .setState(state)
                 .setDeviceParameters(buildDeviceParameters())
                 .build()
 
-            val tile = tilesConnection.tileRequest(tileRequest).await()
+            val tile = tilesConnection.requestTile(tileRequest).await()
 
             if (tile.resourcesVersion.isNotEmpty() &&
                 tile.resourcesVersion != tileResources?.version
             ) {
                 val resourcesRequest = RequestBuilders.ResourcesRequest
-                    .builder()
+                    .Builder()
                     .setVersion(tile.resourcesVersion)
                     .setDeviceParameters(buildDeviceParameters())
                     .build()
 
-                tileResources = tilesConnection.resourcesRequest(resourcesRequest).await()
+                tileResources = tilesConnection.requestResources(resourcesRequest).await()
             }
 
             timelineManager?.apply {
                 close()
             }
 
+            // Check the tile and raise any validation errors.
+            if (tile.timeline != null) {
+                timelineChecker.doCheck(tile.timeline!!)
+            }
+
             val localTimelineManager = TilesTimelineManager(
                 context.getSystemService(AlarmManager::class.java),
                 System::currentTimeMillis,
-                tile.timeline ?: TimelineBuilders.Timeline.builder().build(),
+                tile.timeline ?: TimelineBuilders.Timeline.Builder().build(),
                 0,
                 ContextCompat.getMainExecutor(context),
                 { _, layout -> updateContents(layout) }
@@ -205,7 +212,7 @@ public class TileUiClient(
     private fun buildDeviceParameters(): DeviceParametersBuilders.DeviceParameters {
         val displayMetrics: DisplayMetrics = context.resources.displayMetrics
         val isScreenRound: Boolean = context.resources.configuration.isScreenRound
-        return DeviceParametersBuilders.DeviceParameters.builder()
+        return DeviceParametersBuilders.DeviceParameters.Builder()
             .setScreenWidthDp(Math.round(displayMetrics.widthPixels / displayMetrics.density))
             .setScreenHeightDp(Math.round(displayMetrics.heightPixels / displayMetrics.density))
             .setScreenDensity(displayMetrics.density)

@@ -167,7 +167,7 @@ public class Camera2CameraImplForceOpenCameraTest {
         // Build camera info from cameraId
         val camera2CameraInfo = Camera2CameraInfoImpl(
             cameraId,
-            cameraManagerCompat.getCameraCharacteristicsCompat(cameraId)
+            cameraManagerCompat
         )
 
         // Initialize camera instance

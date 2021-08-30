@@ -173,7 +173,7 @@ class DaoProcessor(
                 }
             }
         } else {
-            emptyList()
+            emptySequence()
         }
 
         val constructors = element.getConstructors()
@@ -206,9 +206,9 @@ class DaoProcessor(
             insertionMethods = insertionMethods,
             deletionMethods = deletionMethods,
             updateMethods = updateMethods,
-            transactionMethods = transactionMethods,
+            transactionMethods = transactionMethods.toList(),
             delegatingMethods = delegatingMethods,
-            kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates,
+            kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates.toList(),
             constructorParamType = constructorParamType
         )
     }

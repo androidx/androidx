@@ -18,6 +18,8 @@ package androidx.room.compiler.processing.ksp.synthetic
 
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
+import com.google.devtools.ksp.symbol.KSPropertyGetter
+import com.google.devtools.ksp.symbol.KSPropertySetter
 import com.squareup.javapoet.TypeVariableName
 
 /**
@@ -48,23 +50,24 @@ internal sealed class KspSyntheticPropertyMethodType(
             element: KspSyntheticPropertyMethodElement,
             container: XType?
         ): XMethodType {
-            return when (element) {
-                is KspSyntheticPropertyMethodElement.Getter ->
+            return when (element.accessor) {
+                is KSPropertyGetter ->
                     Getter(
                         origin = element,
                         containingType = container
                     )
-                is KspSyntheticPropertyMethodElement.Setter ->
+                is KSPropertySetter ->
                     Setter(
                         origin = element,
                         containingType = container
                     )
+                else -> error("Unexpected accessor type for $element (${element.accessor})")
             }
         }
     }
 
     private class Getter(
-        origin: KspSyntheticPropertyMethodElement.Getter,
+        origin: KspSyntheticPropertyMethodElement,
         containingType: XType?
     ) : KspSyntheticPropertyMethodType(
         origin = origin,
@@ -80,7 +83,7 @@ internal sealed class KspSyntheticPropertyMethodType(
     }
 
     private class Setter(
-        origin: KspSyntheticPropertyMethodElement.Setter,
+        origin: KspSyntheticPropertyMethodElement,
         containingType: XType?
     ) : KspSyntheticPropertyMethodType(
         origin = origin,

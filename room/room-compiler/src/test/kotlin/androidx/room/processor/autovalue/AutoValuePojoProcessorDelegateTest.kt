@@ -114,7 +114,7 @@ class AutoValuePojoProcessorDelegateTest {
         )
         runProcessorTest(
             sources = emptyList(),
-            classpath = listOf(libraryClasspath),
+            classpath = libraryClasspath,
         ) { invocation: XTestInvocation ->
             PojoProcessor.createFor(
                 context = invocation.context,

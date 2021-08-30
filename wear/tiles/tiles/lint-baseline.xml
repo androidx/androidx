@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 25): `java.util.List#of`"
+        errorLine1="                        List.of(mFakeUpdateRequester1, mFakeUpdateRequester2));"
+        errorLine2="                             ~~">
+        <location
+            file="src/test/java/androidx/wear/tiles/CompositeTileUpdateRequesterTest.java"
+            line="53"
+            column="30"/>
+    </issue>
+
+</issues>

@@ -120,5 +120,5 @@ if [ "$clean" == "true" ]; then
   ./cleanBuild.sh -y studio
 else
   # ask gradle to launch studio
-  ./gradlew studio
+  ./gradlew :studio
 fi

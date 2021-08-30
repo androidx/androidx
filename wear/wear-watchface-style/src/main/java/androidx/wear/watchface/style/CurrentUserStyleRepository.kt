@@ -23,27 +23,49 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
- * The users style choices represented as a map of [UserStyleSetting] to
- * [UserStyleSetting.Option]. This is intended for use by the WatchFace and the [selectedOptions]
- * map keys are the same objects as in the [UserStyleSchema]. This means you can't serialize a
- * UserStyle directly, instead you need to use a [UserStyleData] (see [toUserStyleData]).
+ * An immutable representation of user style choices that maps each [UserStyleSetting] to
+ * [UserStyleSetting.Option].
+ *
+ * This is intended for use by the WatchFace and entries are the same as the ones specified in
+ * the [UserStyleSchema]. This means you can't serialize a UserStyle directly, instead you need
+ * to use a [UserStyleData] (see [toUserStyleData]).
+ *
+ * To modify the user style, you should call [toMutableUserStyle] and construct a new [UserStyle]
+ * instance with [MutableUserStyle.toUserStyle].
  *
  * @param selectedOptions The [UserStyleSetting.Option] selected for each [UserStyleSetting]
+ * @param copySelectedOptions Whether to create a copy of the provided [selectedOptions]. If
+ * `false`, no mutable copy of the [selectedOptions] map should be retained outside this class.
  */
-public class UserStyle(
-    public val selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>
-) {
+public class UserStyle private constructor(
+    selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>,
+    copySelectedOptions: Boolean
+) : Iterable<Map.Entry<UserStyleSetting, UserStyleSetting.Option>> {
+    private val selectedOptions =
+        if (copySelectedOptions) HashMap(selectedOptions) else selectedOptions
+
     /**
-     * Constructs a UserStyle with a deep copy of the [selectedOptions].
-     *
-     * @param userStyle The [UserStyle] to copy.
+     * Constructs a copy of the [UserStyle]. It is backed by the same map.
      */
-    public constructor(userStyle: UserStyle) : this(HashMap(userStyle.selectedOptions))
+    public constructor(userStyle: UserStyle) : this(userStyle.selectedOptions, false)
+
+    /**
+     * Constructs a [UserStyle] with the given selected options for each setting.
+     *
+     * A copy of the [selectedOptions] map will be created, so that changed to the map will not be
+     * reflected by this object.
+     */
+    public constructor(
+        selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>
+    ) : this(selectedOptions, true)
+
+    /** The number of entries in the style. */
+    val size: Int by selectedOptions::size
 
     /**
      * Constructs a [UserStyle] from a [UserStyleData] and the [UserStyleSchema]. Unrecognized
      * style settings will be ignored. Unlisted style settings will be initialized with that
-     * settings default option.
+     * setting's default option.
      *
      * @param userStyle The [UserStyle] represented as a [UserStyleData].
      * @param styleSchema The [UserStyleSchema] for this UserStyle, describes how we interpret
@@ -72,6 +94,13 @@ public class UserStyle(
     /** Returns the style as a [UserStyleData]. */
     public fun toUserStyleData(): UserStyleData = UserStyleData(toMap())
 
+    /** Returns a mutable instance initialized with the same mapping. */
+    public fun toMutableUserStyle(): MutableUserStyle = MutableUserStyle(this)
+
+    /** Iterator over the elements of the user style. */
+    override fun iterator(): Iterator<Map.Entry<UserStyleSetting, UserStyleSetting.Option>> =
+        selectedOptions.iterator()
+
     /** Returns the style as a [Map]<[String], [ByteArray]>. */
     private fun toMap(): Map<String, ByteArray> =
         selectedOptions.entries.associate { it.key.id.value to it.value.id.value }
@@ -80,15 +109,161 @@ public class UserStyle(
     public operator fun get(setting: UserStyleSetting): UserStyleSetting.Option? =
         selectedOptions[setting]
 
+    /**
+     * Returns the [UserStyleSetting.Option] for [settingId] if there is one or `null` otherwise.
+     * Note this is an O(n) operation.
+     */
+    public operator fun get(settingId: UserStyleSetting.Id): UserStyleSetting.Option? =
+        selectedOptions.firstNotNullOfOrNull { if (it.key.id == settingId) it.value else null }
+
     override fun toString(): String =
-        "[" + selectedOptions.entries.joinToString(
+        "UserStyle[" + selectedOptions.entries.joinToString(
+            transform = { "${it.key.id} -> ${it.value}" }
+        ) + "]"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as UserStyle
+
+        if (selectedOptions != other.selectedOptions) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return selectedOptions.hashCode()
+    }
+
+    internal companion object {
+        /**
+         * Merges the content of [overrides] with [base].
+         *
+         * This function merges the content of [base] by overriding any setting that is in [base]
+         * with the corresponding options from [overrides].
+         *
+         * Any setting in [overrides] that is not set in [base] will be ignored. Any setting that is
+         * not present in [overrides] but it is in [base] will be kept unmodified.
+         *
+         * Returns the merged [UserStyle] or null if the merged [UserStyle] is not different from
+         * [base], i.e., if applying the [overrides] does not change any of the [base] settings.
+         */
+        @JvmStatic
+        internal fun merge(base: UserStyle, overrides: UserStyle): UserStyle? {
+            // Created only if there are changes to apply.
+            var merged: MutableUserStyle? = null
+            for ((setting, option) in overrides.selectedOptions) {
+                // Ignore an unrecognized setting.
+                val currentOption = base[setting] ?: continue
+                if (currentOption != option) {
+                    merged = merged ?: base.toMutableUserStyle()
+                    merged[setting] = option
+                }
+            }
+            return merged?.toUserStyle()
+        }
+    }
+}
+
+/**
+ * A mutable [UserStyle]. This must be converted back to a [UserStyle] by calling [toUserStyle].
+ */
+public class MutableUserStyle internal constructor(userStyle: UserStyle) :
+    Iterable<Map.Entry<UserStyleSetting, UserStyleSetting.Option>> {
+    /** The map from the available settings and the selected option. */
+    private val selectedOptions = HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
+        for ((setting, option) in userStyle) {
+            this[setting] = option
+        }
+    }
+
+    /** The number of entries in the style. */
+    val size: Int get() = selectedOptions.size
+
+    /** Iterator over the elements of the user style. */
+    override fun iterator(): Iterator<Map.Entry<UserStyleSetting, UserStyleSetting.Option>> =
+        selectedOptions.iterator()
+
+    /** Returns the [UserStyleSetting.Option] for [setting] if there is one or `null` otherwise. */
+    public operator fun get(setting: UserStyleSetting): UserStyleSetting.Option? =
+        selectedOptions[setting]
+
+    /**
+     * Returns the [UserStyleSetting.Option] for [settingId] if there is one or `null` otherwise.
+     * Note this is an O(n) operation.
+     */
+    public operator fun get(settingId: UserStyleSetting.Id): UserStyleSetting.Option? =
+        selectedOptions.firstNotNullOfOrNull { if (it.key.id == settingId) it.value else null }
+
+    /**
+     * Sets the [UserStyleSetting.Option] for [setting] to the given [option].
+     */
+    public operator fun set(setting: UserStyleSetting, option: UserStyleSetting.Option) {
+        selectedOptions[setting] = option
+    }
+
+    /**
+     * Sets the [UserStyleSetting.Option] for the setting with the given [settingId] to the given
+     * [option].
+     */
+    public operator fun set(settingId: UserStyleSetting.Id, option: UserStyleSetting.Option) {
+        getSettingForId(settingId)?.let { selectedOptions[it] = option }
+    }
+
+    /**
+     * Sets the [UserStyleSetting.Option] for [setting] to the option
+     * with the given [optionId].
+     */
+    public operator fun set(setting: UserStyleSetting, optionId: UserStyleSetting.Option.Id) {
+        getOptionForId(setting, optionId)?.let { selectedOptions[setting] = it }
+    }
+
+    /**
+     * Sets the [UserStyleSetting.Option] for the setting with the given [settingId] to the option
+     * with the given [optionId].
+     */
+    public operator fun set(settingId: UserStyleSetting.Id, optionId: UserStyleSetting.Option.Id) {
+        getSettingForId(settingId)?.let { setting ->
+            getOptionForId(setting, optionId)?.let { option ->
+                selectedOptions[setting] = option
+            }
+        }
+    }
+
+    /** Converts this instance to an immutable [UserStyle] with the same mapping. */
+    public fun toUserStyle(): UserStyle = UserStyle(selectedOptions)
+
+    private fun getSettingForId(settingId: UserStyleSetting.Id): UserStyleSetting? {
+        for (setting in selectedOptions.keys) {
+            if (setting.id == settingId) {
+                return setting
+            }
+        }
+        return null
+    }
+
+    private fun getOptionForId(
+        setting: UserStyleSetting,
+        optionId: UserStyleSetting.Option.Id
+    ): UserStyleSetting.Option? {
+        for (option in setting.options) {
+            if (option.id == optionId) {
+                return option
+            }
+        }
+        return null
+    }
+
+    override fun toString(): String =
+        "MutableUserStyle[" + selectedOptions.entries.joinToString(
             transform = { "${it.key.id} -> ${it.value}" }
         ) + "]"
 }
 
 /**
  * A form of [UserStyle] which is easy to serialize. This is intended for use by the watch face
- * clients and the editor where we can't practically use [UserStyle] due to it's limitations.
+ * clients and the editor where we can't practically use [UserStyle] due to its limitations.
  */
 public class UserStyleData(
     public val userStyleMap: Map<String, ByteArray>
@@ -144,8 +319,7 @@ public class UserStyleData(
  * @param userStyleSettings The user configurable style categories associated with this watch face.
  * Empty if the watch face doesn't support user styling. Note we allow at most one
  * [UserStyleSetting.ComplicationSlotsUserStyleSetting] and one
- * [UserStyleSetting.CustomValueUserStyleSetting]
- * in the list.
+ * [UserStyleSetting.CustomValueUserStyleSetting] in the list.
  */
 public class UserStyleSchema(
     public val userStyleSettings: List<UserStyleSetting>
@@ -203,15 +377,13 @@ public class CurrentUserStyleRepository(
     public val schema: UserStyleSchema
 ) {
     /** A listener for observing [UserStyle] changes. */
-    public interface UserStyleChangeListener {
+    public fun interface UserStyleChangeListener {
         /** Called whenever the [UserStyle] changes. */
         @UiThread
         public fun onUserStyleChanged(userStyle: UserStyle)
     }
 
     private val styleListeners = HashSet<UserStyleChangeListener>()
-
-    private val idToStyleSetting = schema.userStyleSettings.associateBy { it.id.value }
 
     /**
      * The current [UserStyle]. Assigning to this property triggers immediate
@@ -228,30 +400,19 @@ public class CurrentUserStyleRepository(
         get
         @UiThread
         set(style) {
-            var changed = false
-            val hashmap =
-                field.selectedOptions as HashMap<UserStyleSetting, UserStyleSetting.Option>
-            for ((setting, option) in style.selectedOptions) {
-                // Ignore an unrecognized setting.
-                val localSetting = idToStyleSetting[setting.id.value] ?: continue
-                val styleSetting = field.selectedOptions[localSetting] ?: continue
-                if (styleSetting.id.value != option.id.value) {
-                    changed = true
+            val merged = UserStyle.merge(field, style)
+            merged?.let {
+                field = it
+                for (styleListener in styleListeners) {
+                    styleListener.onUserStyleChanged(field)
                 }
-                hashmap[localSetting] = option
-            }
-
-            if (!changed) {
-                return
-            }
-
-            for (styleListener in styleListeners) {
-                styleListener.onUserStyleChanged(field)
             }
         }
 
     /**
      * Adds a [UserStyleChangeListener] which is called immediately and whenever the style changes.
+     *
+     * NB the order in which ambient vs style changes are reported is not guaranteed.
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")

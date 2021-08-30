@@ -44,7 +44,7 @@ class DiffException(val errorMessage: String) : RuntimeException(errorMessage)
  * Contains the changes detected between the two schema versions provided.
  */
 data class SchemaDiffResult(
-    val addedColumns: Map<String, AutoMigration.AddedColumn>,
+    val addedColumns: LinkedHashMap<String, AutoMigration.AddedColumn>,
     val deletedColumns: List<AutoMigration.DeletedColumn>,
     val addedTables: Set<AutoMigration.AddedTable>,
     val renamedTables: Map<String, String>,
@@ -95,7 +95,7 @@ class SchemaDiffer(
 
     // Map of columns that have been added in the database, keyed by the column name, note that
     // the table these columns have been added to will not contain any complex schema changes.
-    private val addedColumns = mutableMapOf<String, AutoMigration.AddedColumn>()
+    private val addedColumns = linkedMapOf<String, AutoMigration.AddedColumn>()
     private val deletedColumns = deleteColumnEntries
 
     /**

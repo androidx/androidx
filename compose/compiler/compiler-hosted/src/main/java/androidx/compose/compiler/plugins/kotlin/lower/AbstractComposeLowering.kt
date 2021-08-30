@@ -16,6 +16,7 @@
 
 package androidx.compose.compiler.plugins.kotlin.lower
 
+import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import androidx.compose.compiler.plugins.kotlin.KtxNameConventions
 import androidx.compose.compiler.plugins.kotlin.allowsComposableCalls
@@ -34,7 +35,6 @@ import org.jetbrains.kotlin.builtins.getFunctionalClassKind
 import org.jetbrains.kotlin.builtins.getReceiverTypeFromFunctionType
 import org.jetbrains.kotlin.builtins.getReturnTypeFromFunctionType
 import org.jetbrains.kotlin.builtins.getValueParameterTypesFromFunctionType
-import org.jetbrains.kotlin.cfg.index
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.ParameterDescriptor
+import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor
 import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
@@ -125,10 +126,8 @@ import org.jetbrains.kotlin.ir.types.isUnit
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.types.toKotlinType
 import org.jetbrains.kotlin.ir.types.typeWith
-import org.jetbrains.kotlin.ir.util.ConstantValueGenerator
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
-import org.jetbrains.kotlin.ir.util.TypeTranslator
 import org.jetbrains.kotlin.ir.util.constructedClass
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.getArguments
@@ -145,6 +144,7 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi2ir.generators.TypeTranslatorImpl
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.DescriptorFactory
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
@@ -156,7 +156,8 @@ import org.jetbrains.kotlin.utils.DFS
 abstract class AbstractComposeLowering(
     val context: IrPluginContext,
     val symbolRemapper: DeepCopySymbolRemapper,
-    val bindingTrace: BindingTrace
+    val bindingTrace: BindingTrace,
+    val metrics: ModuleMetrics
 ) : IrElementTransformerVoid(), ModuleLoweringPass {
 
     var inlinedFunctions: Set<InlineLambdaInfo> = setOf()
@@ -169,17 +170,11 @@ abstract class AbstractComposeLowering(
 
     @ObsoleteDescriptorBasedAPI
     protected val typeTranslator =
-        TypeTranslator(
+        TypeTranslatorImpl(
             context.symbolTable,
             context.languageVersionSettings,
-            context.builtIns
-        ).apply {
-            constantValueGenerator = ConstantValueGenerator(
-                context.moduleDescriptor,
-                context.symbolTable
-            )
-            constantValueGenerator.typeTranslator = this
-        }
+            context.moduleDescriptor
+        )
 
     protected val builtIns = context.irBuiltIns
 
@@ -1280,4 +1275,11 @@ val IrConstructorCall.annotationClass get() =
     } else {
         // on jvm we can rely on type, but the owner can be unbound
         type.classOrNull
+    }
+
+fun ParameterDescriptor.index(): Int =
+    when (this) {
+        is ReceiverParameterDescriptor -> -1
+        is ValueParameterDescriptor -> index
+        else -> error("expected either receiver or value parameter, but got: $this")
     }

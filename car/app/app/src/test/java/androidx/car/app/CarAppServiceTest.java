@@ -81,6 +81,7 @@ public final class CarAppServiceTest {
 
     private CarAppService mCarAppService;
     private Intent mIntentSet;
+    private SessionController mSessionController;
     @Captor
     ArgumentCaptor<Bundleable> mBundleableArgumentCaptor;
 
@@ -103,7 +104,8 @@ public final class CarAppServiceTest {
                         mCarContext = TestCarContext.createCarContext(
                                 ApplicationProvider.getApplicationContext());
                         Session session = createTestSession();
-                        SessionController.of(session, mCarContext);
+                        mSessionController = new SessionController(session, mCarContext,
+                                new Intent());
                         return session;
                     }
                 };
@@ -112,10 +114,12 @@ public final class CarAppServiceTest {
                 "blah");
         mCarAppService.setAppInfo(appInfo);
 
-        // Sets a default handshake info. OnAppCreate depends on this being non-null.
+        // Sets default handshake and host info. OnAppCreate depends on these being non-null.
         String hostPackageName = "com.google.projection.gearhead";
         HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName,
                 CarAppApiLevels.getLatest());
+        HostInfo hostInfo = new HostInfo(hostPackageName, 1);
+        mCarAppService.setHostInfo(hostInfo);
         mCarAppService.setHandshakeInfo(handshakeInfo);
     }
 
@@ -155,6 +159,21 @@ public final class CarAppServiceTest {
         assertThat(
                 mCarAppService.getCurrentSession().getCarContext().getCarAppApiLevel()).isEqualTo(
                 hostApiLevel);
+    }
+
+    @Test
+    public void onAppCreate_updatesContextHostInfo()
+            throws RemoteException, BundlerException, InterruptedException {
+        String hostPackageName = "com.google.projection.gearhead";
+        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
+        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, CarAppApiLevels.LEVEL_1);
+
+        mCarAppService.setCurrentSession(null);
+        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mMockOnDoneCallback);
+        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
+
+        assertThat(mCarAppService.getCurrentSession()
+                .getCarContext().getHostInfo().getPackageName()).isEqualTo(hostPackageName);
     }
 
     @Test
@@ -303,6 +322,7 @@ public final class CarAppServiceTest {
         HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, CarAppApiLevels.LEVEL_1);
 
         carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mMockOnDoneCallback);
+        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
 
         assertThat(mCarAppService.getHostInfo().getPackageName()).isEqualTo(hostPackageName);
     }

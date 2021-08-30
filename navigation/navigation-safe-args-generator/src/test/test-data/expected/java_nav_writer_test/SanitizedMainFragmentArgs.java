@@ -1,19 +1,3 @@
-/*
- * Copyright 2018 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package a.b;
 
 import android.os.Bundle;
@@ -130,6 +114,25 @@ public class SanitizedMainFragmentArgs implements NavArgs {
         return __result;
     }
 
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public SavedStateHandle toSavedStateHandle() {
+        SavedStateHandle __result = new SavedStateHandle();
+        if (arguments.containsKey("name.with.dot")) {
+            int nameWithDot = (int) arguments.get("name.with.dot");
+            __result.set("name.with.dot", nameWithDot);
+        }
+        if (arguments.containsKey("name_with_underscore")) {
+            int nameWithUnderscore = (int) arguments.get("name_with_underscore");
+            __result.set("name_with_underscore", nameWithUnderscore);
+        }
+        if (arguments.containsKey("name with spaces")) {
+            int nameWithSpaces = (int) arguments.get("name with spaces");
+            __result.set("name with spaces", nameWithSpaces);
+        }
+        return __result;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -178,11 +181,11 @@ public class SanitizedMainFragmentArgs implements NavArgs {
                 + "}";
     }
 
-    public static class Builder {
+    public static final class Builder {
         private final HashMap arguments = new HashMap();
 
         @SuppressWarnings("unchecked")
-        public Builder(SanitizedMainFragmentArgs original) {
+        public Builder(@NonNull SanitizedMainFragmentArgs original) {
             this.arguments.putAll(original.arguments);
         }
 
@@ -220,17 +223,17 @@ public class SanitizedMainFragmentArgs implements NavArgs {
             return this;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getNameWithDot() {
             return (int) arguments.get("name.with.dot");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getNameWithUnderscore() {
             return (int) arguments.get("name_with_underscore");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getNameWithSpaces() {
             return (int) arguments.get("name with spaces");
         }

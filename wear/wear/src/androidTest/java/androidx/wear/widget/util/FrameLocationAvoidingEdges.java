@@ -15,7 +15,10 @@
  */
 package androidx.wear.widget.util;
 
+import android.graphics.Insets;
+import android.os.Build;
 import android.view.View;
+import android.view.WindowInsets;
 
 import androidx.test.espresso.action.CoordinatesProvider;
 import androidx.test.espresso.action.GeneralLocation;
@@ -29,30 +32,44 @@ import androidx.test.espresso.action.GeneralLocation;
  * initiative "Navigation gestures".</p>
  */
 public enum FrameLocationAvoidingEdges implements CoordinatesProvider {
-    CENTER_LEFT_AVOIDING_EDGE(GeneralLocation.CENTER_LEFT, Constants.OFFSET_FROM_EDGE, 0.0f),
+    CENTER_LEFT_AVOIDING_EDGE(GeneralLocation.CENTER_LEFT, 1.0f, 0.0f),
     BOTTOM_CENTER_AVOIDING_EDGE(GeneralLocation.BOTTOM_CENTER, 0.0f,
-            -(Constants.OFFSET_FROM_EDGE)),
-    TOP_RIGHT_AVOIDING_CORNER(GeneralLocation.TOP_RIGHT, -(Constants.OFFSET_FROM_EDGE),
-            (Constants.OFFSET_FROM_EDGE)),
-    BOTTOM_RIGHT_AVOIDING_CORNER(GeneralLocation.BOTTOM_RIGHT, -(Constants.OFFSET_FROM_EDGE),
-            -(Constants.OFFSET_FROM_EDGE));
+            -1.0f),
+    TOP_RIGHT_AVOIDING_CORNER(GeneralLocation.TOP_RIGHT, -1.0f,
+            1.0f),
+    BOTTOM_RIGHT_AVOIDING_CORNER(GeneralLocation.BOTTOM_RIGHT, -1.0f,
+            -1.0f);
 
     private final CoordinatesProvider mOriginalProvider;
-    private final float mXAdjust;
-    private final float mYAdjust;
+    private final float mXAdjustMultiplier;
+    private final float mYAdjustMultiplier;
 
-    FrameLocationAvoidingEdges(CoordinatesProvider originalProvider, float xAdjust,
-            float yAdjust) {
+    FrameLocationAvoidingEdges(CoordinatesProvider originalProvider, float xAdjustMultiplier,
+            float yAdjustMultiplier) {
         mOriginalProvider = originalProvider;
-        mXAdjust = xAdjust;
-        mYAdjust = yAdjust;
+        mXAdjustMultiplier = xAdjustMultiplier;
+        mYAdjustMultiplier = yAdjustMultiplier;
     }
 
     @Override
     public float[] calculateCoordinates(View view) {
+        float xOffset = Constants.OFFSET_FROM_EDGE;
+        float yOffset = Constants.OFFSET_FROM_EDGE;
+
+        // On later platforms, use the real insets so we don't end up with flakes if the behaviour
+        // changes in the future.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Insets insets = view.getRootWindowInsets().getInsets(
+                    WindowInsets.Type.systemGestures());
+
+            // Hacky, but in gesture nav, the L/R offsets should be the same, and the bottom region
+            // should also be large enough to clear the top gesture region.
+            xOffset = insets.left;
+            yOffset = insets.bottom;
+        }
         float[] calculateCoordinates = mOriginalProvider.calculateCoordinates(view);
-        calculateCoordinates[0] = calculateCoordinates[0] + mXAdjust;
-        calculateCoordinates[1] = calculateCoordinates[1] + mYAdjust;
+        calculateCoordinates[0] = calculateCoordinates[0] + (xOffset * mXAdjustMultiplier);
+        calculateCoordinates[1] = calculateCoordinates[1] + (yOffset * mYAdjustMultiplier);
         return calculateCoordinates;
     }
 

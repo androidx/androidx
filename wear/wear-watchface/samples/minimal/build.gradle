@@ -40,15 +40,15 @@ androidx {
 
 android {
     defaultConfig {
-        minSdkVersion 25
+        minSdkVersion 26
     }
 
     buildTypes {
-	release {
-	    minifyEnabled true
-	    shrinkResources true
-	    proguardFiles getDefaultProguardFile('proguard-android.txt')
-	}
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
+        }
     }
 
     compileOptions {

@@ -78,9 +78,16 @@ public class EncodedDataImpl implements EncodedData {
         return mBufferInfo.presentationTimeUs;
     }
 
+    /** {@inheritDoc} */
     @Override
     public long size() {
         return mBufferInfo.size;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isKeyFrame() {
+        return (mBufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0;
     }
 
     /** {@inheritDoc} */

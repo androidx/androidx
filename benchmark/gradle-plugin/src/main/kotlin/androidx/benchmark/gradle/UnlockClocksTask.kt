@@ -22,7 +22,12 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
+import org.gradle.work.DisableCachingByDefault
 
+@Suppress("UnstableApiUsage")
+@DisableCachingByDefault(
+    because = "UnlockClocks affects device state, and may be modified/reset outside of this task"
+)
 open class UnlockClocksTask : DefaultTask() {
     init {
         group = "Android"

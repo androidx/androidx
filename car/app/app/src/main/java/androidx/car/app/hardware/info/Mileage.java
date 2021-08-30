@@ -15,6 +15,8 @@
  */
 package androidx.car.app.hardware.info;
 
+import static androidx.car.app.hardware.common.CarUnit.CarDistanceUnit;
+
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Keep;
@@ -32,17 +34,17 @@ import java.util.Objects;
 @RequiresCarApi(3)
 public final class Mileage {
     @Keep
-    @NonNull
-    private final CarValue<Float> mOdometer;
+    @Nullable
+    private final CarValue<Float> mOdometerMeters;
 
     @Keep
     @NonNull
-    private final CarValue<Integer> mDistanceDisplayUnit;
+    private final CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
 
     /** Returns the value of the odometer from the car hardware in meters. */
     @NonNull
-    public CarValue<Float> getOdometer() {
-        return requireNonNull(mOdometer);
+    public CarValue<Float> getOdometerMeters() {
+        return requireNonNull(mOdometerMeters);
     }
 
     /**
@@ -51,7 +53,7 @@ public final class Mileage {
      * <p>See {@link CarUnit} for possible distance values.
      */
     @NonNull
-    public CarValue<Integer> getDistanceDisplayUnit() {
+    public CarValue<@CarDistanceUnit Integer> getDistanceDisplayUnit() {
         return requireNonNull(mDistanceDisplayUnit);
     }
 
@@ -59,7 +61,7 @@ public final class Mileage {
     @NonNull
     public String toString() {
         return "[ odometer: "
-                + mOdometer
+                + getOdometerMeters()
                 + ", distance display unit: "
                 + mDistanceDisplayUnit
                 + "]";
@@ -67,7 +69,7 @@ public final class Mileage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mOdometer, mDistanceDisplayUnit);
+        return Objects.hash(getOdometerMeters(), mDistanceDisplayUnit);
     }
 
     @Override
@@ -80,25 +82,26 @@ public final class Mileage {
         }
         Mileage otherMileage = (Mileage) other;
 
-        return Objects.equals(mOdometer, otherMileage.mOdometer)
+        return Objects.equals(getOdometerMeters(), otherMileage.getOdometerMeters())
                 && Objects.equals(mDistanceDisplayUnit, otherMileage.mDistanceDisplayUnit);
     }
 
     Mileage(Builder builder) {
-        mOdometer = requireNonNull(builder.mOdometer);
+        mOdometerMeters = requireNonNull(builder.mOdometerMeters);
         mDistanceDisplayUnit = requireNonNull(builder.mDistanceDisplayUnit);
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Mileage() {
-        mOdometer = CarValue.UNIMPLEMENTED_FLOAT;
+        mOdometerMeters = CarValue.UNIMPLEMENTED_FLOAT;
         mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
     }
 
     /** A builder of {@link Mileage}. */
     public static final class Builder {
-        CarValue<Float> mOdometer = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Integer> mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<Float> mOdometerMeters = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit =
+                CarValue.UNIMPLEMENTED_INTEGER;
 
         /**
          * Sets the odometer value in meters.
@@ -106,8 +109,8 @@ public final class Mileage {
          * @throws NullPointerException if {@code odometer} is {@code null}
          */
         @NonNull
-        public Builder setOdometer(@NonNull CarValue<Float> odometer) {
-            mOdometer = requireNonNull(odometer);
+        public Builder setOdometerMeters(@NonNull CarValue<Float> odometerMeters) {
+            mOdometerMeters = requireNonNull(odometerMeters);
             return this;
         }
 
@@ -119,7 +122,8 @@ public final class Mileage {
          * @throws NullPointerException if {@code mileageDisplayUnit} is {@code null}
          */
         @NonNull
-        public Builder setDistanceDisplayUnit(@NonNull CarValue<Integer> mileageDisplayUnit) {
+        public Builder setDistanceDisplayUnit(
+                @NonNull CarValue<@CarDistanceUnit Integer> mileageDisplayUnit) {
             mDistanceDisplayUnit = requireNonNull(mileageDisplayUnit);
             return this;
         }

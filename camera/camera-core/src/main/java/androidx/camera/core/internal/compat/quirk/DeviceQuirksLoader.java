@@ -42,10 +42,6 @@ public class DeviceQuirksLoader {
             quirks.add(new ImageCaptureRotationOptionQuirk());
         }
 
-        if (ImageCaptureWashedOutImageQuirk.load()) {
-            quirks.add(new ImageCaptureWashedOutImageQuirk());
-        }
-
         return quirks;
     }
 }

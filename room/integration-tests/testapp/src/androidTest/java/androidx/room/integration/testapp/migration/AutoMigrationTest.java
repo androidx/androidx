@@ -16,8 +16,10 @@
 
 package androidx.room.integration.testapp.migration;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+
+import static com.google.common.truth.Truth.assertThat;
+
+import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
 import androidx.room.migration.Migration;
@@ -54,7 +56,10 @@ public class AutoMigrationTest {
     // Run this to create the very 1st version of the db.
     public void createFirstVersion() throws IOException {
         SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 1);
-        db.execSQL("INSERT INTO Entity1 (id, name) VALUES (1, 'row1')");
+        db.execSQL("INSERT INTO Entity9 (id, name) VALUES (1, 'row1')");
+        db.execSQL("INSERT INTO Entity9 (id, name) VALUES (2, 'row2')");
+        db.execSQL("INSERT INTO Entity27 (id27) VALUES (3)");
+        db.execSQL("INSERT INTO Entity27 (id27) VALUES (5)");
         db.close();
     }
 
@@ -67,7 +72,25 @@ public class AutoMigrationTest {
                 true
         );
         final TableInfo info = TableInfo.read(db, AutoMigrationDb.Entity1.TABLE_NAME);
-        assertThat(info.columns.size(), is(3));
+        assertThat(info.columns.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void goFromV1ToV3() throws IOException {
+        createFirstVersion();
+        try {
+            SupportSQLiteDatabase db = helper.runMigrationsAndValidate(
+                    TEST_DB,
+                    3,
+                    true
+            );
+        } catch (IllegalStateException e) {
+            assertThat(e.getMessage()).isEqualTo("Foreign key violation(s) detected in 'Entity9'."
+                    + "\nNumber of different violations discovered: 1"
+                    + "\nNumber of rows in violation: 2"
+                    + "\nViolation(s) detected in the following constraint(s):\n"
+                    + "\tParent Table = Entity27, Foreign Key Constraint Index = 0\n");
+        }
     }
 
     /**
@@ -75,12 +98,17 @@ public class AutoMigrationTest {
      */
     @Test
     public void testAutoMigrationsNotProcessedBeforeCustomMigrations() throws IOException {
-        helper.runMigrationsAndValidate(
-                TEST_DB,
-                2,
-                true,
-                MIGRATION_1_2
-        );
+        createFirstVersion();
+        try {
+            helper.runMigrationsAndValidate(
+                    TEST_DB,
+                    2,
+                    true,
+                    MIGRATION_1_2
+            );
+        } catch (SQLiteException e) {
+            assertThat(e.getMessage()).containsMatch("no such table: Entity0");
+        }
     }
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {

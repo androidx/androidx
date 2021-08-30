@@ -43,15 +43,15 @@ internal expect fun createInputDispatcher(
  * * [enqueueSwipes]
  *
  * Partial gestures:
- * * [enqueueDown]
- * * [enqueueMove]
- * * [enqueueUp]
- * * [enqueueCancel]
- * * [movePointer]
- * * [getCurrentPosition]
+ * * [enqueueTouchDown]
+ * * [enqueueTouchMove]
+ * * [enqueueTouchUp]
+ * * [enqueueTouchCancel]
+ * * [updateTouchPointer]
+ * * [getCurrentTouchPosition]
  *
  * Chaining methods:
- * * [enqueueDelay]
+ * * [advanceEventTime]
  */
 internal abstract class InputDispatcher(
     private val testContext: TestContext,
@@ -59,34 +59,24 @@ internal abstract class InputDispatcher(
 ) {
     companion object {
         /**
-         * The minimum time between two successive injected MotionEvents, 10 milliseconds.
+         * The default time between two successively injected events, 10 milliseconds.
          * Ideally, the value should reflect a realistic pointer input sample rate, but that
          * depends on too many factors. Instead, the value is chosen comfortably below the
          * targeted frame rate (60 fps, equating to a 16ms period).
          */
         var eventPeriodMillis = 10L
             internal set
-
-        /**
-         * Indicates that [nextDownTime] is not set
-         */
-        private const val DownTimeNotSet = -1L
     }
 
     /**
-     * The down time of the next gesture, if a gesture will follow the one that is currently in
-     * progress. If [DownTimeNotSet], the down time will be set to the current time when the
-     * first down event is enqueued for the next gesture. It will only be [DownTimeNotSet] if
-     * this is the first of one or more chained gestures, which is the usual case. A chained
-     * gesture is for example a double click, which consists of a click, a delay and another
-     * click.
+     * The eventTime of the next event.
      */
-    protected var nextDownTime = DownTimeNotSet
+    protected var currentTime = testContext.currentTime
 
     /**
-     * The state of the current gesture in progress. If `null`, no gesture is in progress. This
-     * state contains the current position of all pointer ids, the current time of the event, and
-     * whether or not pointers have moved without having enqueued the corresponding move event.
+     * The state of the current touch gesture. If `null`, no touch gesture is in progress. This
+     * state contains the current position of all pointer ids and whether or not pointers have
+     * moved without having enqueued the corresponding move event.
      */
     protected var partialGesture: PartialGesture? = null
 
@@ -94,18 +84,12 @@ internal abstract class InputDispatcher(
      * Indicates if a gesture is in progress or not. A gesture is in progress if at least one
      * finger is (still) touching the screen.
      */
-    val isGestureInProgress: Boolean
+    val isTouchInProgress: Boolean
         get() = partialGesture != null
-
-    /**
-     * The current time, in the time scale used by gesture events.
-     */
-    protected abstract val now: Long
 
     init {
         val state = testContext.states.remove(root)
-        if (state?.partialGesture != null) {
-            nextDownTime = state.nextDownTime
+        if (state != null) {
             partialGesture = state.partialGesture
         }
     }
@@ -114,60 +98,36 @@ internal abstract class InputDispatcher(
         if (root != null) {
             testContext.states[root] =
                 InputDispatcherState(
-                    nextDownTime,
                     partialGesture
                 )
         }
     }
 
+    @OptIn(InternalTestApi::class)
+    private val TestContext.currentTime get() = testOwner.mainClock.currentTime
+
     /**
-     * Generates the downTime of the next gesture with the given [durationMillis]. The gesture's
-     * [durationMillis] is necessary to facilitate chaining of gestures: if another gesture is made
-     * after the next one, it will start exactly [durationMillis] after the start of the next
-     * gesture. Always use this method to determine the downTime of the [down event][enqueueDown]
-     * of a gesture.
+     * Increases the current event time by [durationMillis]. Note that [enqueueTouchMove] and
+     * [enqueueTouchCancel] also increase the current time by 10ms.
      *
-     * If the duration is unknown when calling this method, use a duration of zero and update
-     * with [moveNextDownTime] when the duration is known, or use [moveNextDownTime]
-     * incrementally if the gesture unfolds gradually.
+     * @param durationMillis The duration of the delay. Must be positive
      */
-    private fun generateDownTime(durationMillis: Long): Long {
-        val downTime = if (nextDownTime == DownTimeNotSet) {
-            now
-        } else {
-            nextDownTime
+    fun advanceEventTime(durationMillis: Long = eventPeriodMillis) {
+        require(durationMillis >= 0) {
+            "duration of a delay can only be positive, not $durationMillis"
         }
-        nextDownTime = downTime + durationMillis
-        return downTime
+        currentTime += durationMillis
     }
 
     /**
-     * Moves the start time of the next gesture ahead by the given [durationMillis]. Does not affect
-     * any event time from the current gesture. Use this when the expected duration passed to
-     * [generateDownTime] has changed.
-     */
-    private fun moveNextDownTime(durationMillis: Long) {
-        generateDownTime(durationMillis)
-    }
-
-    /**
-     * Increases the eventTime with the given [time]. Also pushes the downTime for the next
-     * chained gesture by the same amount to facilitate chaining.
-     */
-    private fun PartialGesture.increaseEventTime(time: Long = eventPeriodMillis) {
-        moveNextDownTime(time)
-        lastEventTime += time
-    }
-
-    /**
-     * During a partial gesture, returns the position of the last touch event of the given
-     * [pointerId]. Returns `null` if no partial gesture is in progress for that [pointerId].
+     * During a touch gesture, returns the position of the last touch event of the given
+     * [pointerId]. Returns `null` if no touch gesture is in progress for that [pointerId].
      *
      * @param pointerId The id of the pointer for which to return the current position
      * @return The current position of the pointer with the given [pointerId], or `null` if the
      * pointer is not currently in use
      */
-    fun getCurrentPosition(pointerId: Int): Offset? {
+    fun getCurrentTouchPosition(pointerId: Int): Offset? {
         return partialGesture?.lastPositions?.get(pointerId)
     }
 
@@ -179,9 +139,9 @@ internal abstract class InputDispatcher(
      * @param position The coordinate of the click
      */
     fun enqueueClick(position: Offset) {
-        enqueueDown(0, position)
-        enqueueMove()
-        enqueueUp(0)
+        enqueueTouchDown(0, position)
+        enqueueTouchMove()
+        enqueueTouchUp(0)
     }
 
     /**
@@ -256,7 +216,7 @@ internal abstract class InputDispatcher(
 
         // Send down events
         curves.forEachIndexed { i, curve ->
-            enqueueDown(i, curve(startTime))
+            enqueueTouchDown(i, curve(startTime))
         }
 
         // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
@@ -275,7 +235,7 @@ internal abstract class InputDispatcher(
 
         // And end with up events
         repeat(curves.size) {
-            enqueueUp(it)
+            enqueueTouchUp(it)
         }
     }
 
@@ -305,50 +265,30 @@ internal abstract class InputDispatcher(
             val progress = step / steps.toFloat()
             val t = androidx.compose.ui.util.lerp(t0, tN, progress)
             fs.forEachIndexed { i, f ->
-                movePointer(i, f(t))
+                updateTouchPointer(i, f(t))
             }
-            enqueueMove(t - tPrev)
+            enqueueTouchMove(t - tPrev)
             tPrev = t
         }
     }
 
     /**
-     * Adds a delay between the end of the last full or current partial gesture of the given
-     * [durationMillis]. Guarantees that the first event time of the next gesture will be exactly
-     * [durationMillis] later then if that gesture would be injected without this delay, provided
-     * that the next gesture is started using the same [InputDispatcher] instance as the one used to
-     * end the last gesture.
+     * Generates a down touch event at [position] for the pointer with the given [pointerId],
+     * starting a new partial gesture. A partial gesture can only be started if none was currently
+     * ongoing for that pointer. Pointer ids may be reused during the same gesture. The generated
+     * touch event is enqueued in this [InputDispatcher] and will be sent when [sendAllSynchronous]
+     * is called at the end of [performGesture].
      *
-     * Note: this does not affect the time of the next event for the _current_ partial gesture,
-     * using [enqueueMove], [enqueueUp] and [enqueueCancel], but it will affect the time of the
-     * _next_ gesture (including partial gestures started with [enqueueDown]).
-     *
-     * @param durationMillis The duration of the delay. Must be positive
-     */
-    fun enqueueDelay(durationMillis: Long) {
-        require(durationMillis >= 0) {
-            "duration of a delay can only be positive, not $durationMillis"
-        }
-        moveNextDownTime(durationMillis)
-    }
-
-    /**
-     * Generates a down event at [position] for the pointer with the given [pointerId], starting
-     * a new partial gesture. A partial gesture can only be started if none was currently ongoing
-     * for that pointer. Pointer ids may be reused during the same gesture. The generated event
-     * is enqueued in this [InputDispatcher] and will be sent when [sendAllSynchronous] is called
-     * at the end of [performGesture].
-     *
-     * It is possible to mix partial gestures with full gestures (e.g. generate a [click]
-     * [enqueueClick] during a partial gesture), as long as you make sure that the default
+     * It is possible to mix partial gestures with full gestures (e.g. generate a
+     * [click][enqueueClick] during a partial gesture), as long as you make sure that the default
      * pointer id (id=0) is free to be used by the full gesture.
      *
      * A full gesture starts with a down event at some position (with this method) that indicates
-     * a finger has started touching the screen, followed by zero or more [down][enqueueDown],
-     * [move][enqueueMove] and [up][enqueueUp] events that respectively indicate that another
-     * finger started touching the screen, a finger moved around or a finger was lifted up from
-     * the screen. A gesture is finished when [up][enqueueUp] lifts the last remaining finger
-     * from the screen, or when a single [cancel][enqueueCancel] event is generated.
+     * a finger has started touching the screen, followed by zero or more [down][enqueueTouchDown],
+     * [move][enqueueTouchMove] and [up][enqueueTouchUp] events that respectively indicate that
+     * another finger started touching the screen, a finger moved around or a finger was lifted up
+     * from the screen. A gesture is finished when [up][enqueueTouchUp] lifts the last remaining
+     * finger from the screen, or when a single [cancel][enqueueTouchCancel] event is generated.
      *
      * Partial gestures don't have to be defined all in the same [performGesture] block, but
      * keep in mind that while the gesture is not complete, all code you execute in between
@@ -362,12 +302,12 @@ internal abstract class InputDispatcher(
      * @param pointerId The id of the pointer, can be any number not yet in use by another pointer
      * @param position The coordinate of the down event
      *
-     * @see movePointer
-     * @see enqueueMove
-     * @see enqueueUp
-     * @see enqueueCancel
+     * @see updateTouchPointer
+     * @see enqueueTouchMove
+     * @see enqueueTouchUp
+     * @see enqueueTouchCancel
      */
-    fun enqueueDown(pointerId: Int, position: Offset) {
+    fun enqueueTouchDown(pointerId: Int, position: Offset) {
         var gesture = partialGesture
 
         // Check if this pointer is not already down
@@ -375,11 +315,12 @@ internal abstract class InputDispatcher(
             "Cannot send DOWN event, a gesture is already in progress for pointer $pointerId"
         }
 
+        // Send a MOVE event if pointers have changed since the last event
         gesture?.flushPointerUpdates()
 
         // Start a new gesture, or add the pointerId to the existing gesture
         if (gesture == null) {
-            gesture = PartialGesture(generateDownTime(0), position, pointerId)
+            gesture = PartialGesture(currentTime, position, pointerId)
             partialGesture = gesture
         } else {
             gesture.lastPositions[pointerId] = position
@@ -390,18 +331,22 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a move event [delay] milliseconds after the previous injected event of this
+     * Generates a move touch event [delay] milliseconds after the previous injected event of this
      * gesture, without moving any of the pointers. The default [delay] is [10 milliseconds]
      * [eventPeriodMillis]. Use this to commit all changes in pointer location made
-     * with [movePointer]. The generated event will contain the current position of all pointers.
-     * It is enqueued in this [InputDispatcher] and will be sent when [sendAllSynchronous] is
-     * called at the end of [performGesture]. See [enqueueDown] for more information on how to
-     * make complete gestures from partial gestures.
+     * with [updateTouchPointer]. The generated event will contain the current position of all
+     * pointers. It is enqueued in this [InputDispatcher] and will be sent when
+     * [sendAllSynchronous] is called at the end of [performGesture]. See [enqueueTouchDown] for
+     * documentation on creating touch gestures.
      *
      * @param delay The time in milliseconds between the previously injected event and the move
      * event. [10 milliseconds][eventPeriodMillis] by default.
+     * @see enqueueTouchDown
+     * @see updateTouchPointer
+     * @see enqueueTouchUp
+     * @see enqueueTouchCancel
      */
-    fun enqueueMove(delay: Long = eventPeriodMillis) {
+    fun enqueueTouchMove(delay: Long = eventPeriodMillis) {
         val gesture = checkNotNull(partialGesture) {
             "Cannot send MOVE event, no gesture is in progress"
         }
@@ -409,29 +354,30 @@ internal abstract class InputDispatcher(
             "Cannot send MOVE event with a delay of $delay ms"
         }
 
-        gesture.increaseEventTime(delay)
+        advanceEventTime(delay)
         gesture.enqueueMove()
         gesture.hasPointerUpdates = false
     }
 
     /**
      * Updates the position of the pointer with the given [pointerId] to the given [position],
-     * but does not generate a move event. Use this to move multiple pointers simultaneously. To
-     * generate the next move event, which will contain the current position of _all_ pointers
-     * (not just the moved ones), call [enqueueMove] without arguments. If you move one or more
-     * pointers and then call [enqueueDown] or [enqueueUp], without calling [enqueueMove] first,
-     * a move event will be generated right before that down or up event. See [enqueueDown] for
-     * more information on how to make complete gestures from partial gestures.
+     * but does not generate a move touch event. Use this to move multiple pointers
+     * simultaneously. To generate the next move touch event, which will contain the current
+     * position of _all_ pointers (not just the moved ones), call [enqueueTouchMove] without
+     * arguments. If you move one or more pointers and then call [enqueueTouchDown] or
+     * [enqueueTouchUp], without calling [enqueueTouchMove] first, a move event will be generated
+     * right before that down or up event. See [enqueueTouchDown] for documentation on creating
+     * touch gestures.
      *
-     * @param pointerId The id of the pointer to move, as supplied in [enqueueDown]
+     * @param pointerId The id of the pointer to move, as supplied in [enqueueTouchDown]
      * @param position The position to move the pointer to
      *
-     * @see enqueueDown
-     * @see enqueueMove
-     * @see enqueueUp
-     * @see enqueueCancel
+     * @see enqueueTouchDown
+     * @see enqueueTouchMove
+     * @see enqueueTouchUp
+     * @see enqueueTouchCancel
      */
-    fun movePointer(pointerId: Int, position: Offset) {
+    fun updateTouchPointer(pointerId: Int, position: Offset) {
         val gesture = partialGesture
 
         // Check if this pointer is in the gesture
@@ -447,22 +393,22 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates an up event for the given [pointerId] at the current position of that pointer,
-     * [delay] milliseconds after the previous injected event of this gesture. The default
-     * [delay] is 0 milliseconds. The generated event is enqueued in this [InputDispatcher] and
-     * will be sent when [sendAllSynchronous] is called at the end of [performGesture]. See
-     * [enqueueDown] for more information on how to make complete gestures from partial gestures.
+     * Generates an up touch event for the given [pointerId] at the current position of that
+     * pointer, [delay] milliseconds after the previous injected event of this gesture. The default
+     * [delay] is 0 milliseconds. The generated touch event is enqueued in this [InputDispatcher]
+     * and will be sent when [sendAllSynchronous] is called at the end of [performGesture]. See
+     * [enqueueTouchDown] for documentation on creating touch gestures.
      *
-     * @param pointerId The id of the pointer to lift up, as supplied in [enqueueDown]
+     * @param pointerId The id of the pointer to lift up, as supplied in [enqueueTouchDown]
      * @param delay The time in milliseconds between the previously injected event and the move
      * event. 0 milliseconds by default.
      *
-     * @see enqueueDown
-     * @see movePointer
-     * @see enqueueMove
-     * @see enqueueCancel
+     * @see enqueueTouchDown
+     * @see updateTouchPointer
+     * @see enqueueTouchMove
+     * @see enqueueTouchCancel
      */
-    fun enqueueUp(pointerId: Int, delay: Long = 0) {
+    fun enqueueTouchUp(pointerId: Int, delay: Long = 0) {
         val gesture = partialGesture
 
         // Check if this pointer is in the gesture
@@ -477,7 +423,7 @@ internal abstract class InputDispatcher(
         }
 
         gesture.flushPointerUpdates()
-        gesture.increaseEventTime(delay)
+        advanceEventTime(delay)
 
         // First send the UP event
         gesture.enqueueUp(pointerId)
@@ -490,21 +436,21 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a cancel event [delay] milliseconds after the previous injected event of this
-     * gesture. The default [delay] is [10 milliseconds][InputDispatcher.eventPeriodMillis]. The
-     * generated event is enqueued in this [InputDispatcher] and will be sent when
-     * [sendAllSynchronous] is called at the end of [performGesture]. See [enqueueDown] for more
-     * information on how to make complete gestures from partial gestures.
+     * Generates a cancel touch event [delay] milliseconds after the previous injected event of
+     * this gesture. The default [delay] is [10 milliseconds][InputDispatcher.eventPeriodMillis].
+     * The generated event is enqueued in this [InputDispatcher] and will be sent when
+     * [sendAllSynchronous] is called at the end of [performGesture]. See [enqueueTouchDown] for
+     * documentation on creating touch gestures.
      *
      * @param delay The time in milliseconds between the previously injected event and the cancel
      * event. [10 milliseconds][InputDispatcher.eventPeriodMillis] by default.
      *
-     * @see enqueueDown
-     * @see movePointer
-     * @see enqueueMove
-     * @see enqueueUp
+     * @see enqueueTouchDown
+     * @see updateTouchPointer
+     * @see enqueueTouchMove
+     * @see enqueueTouchUp
      */
-    fun enqueueCancel(delay: Long = eventPeriodMillis) {
+    fun enqueueTouchCancel(delay: Long = eventPeriodMillis) {
         val gesture = checkNotNull(partialGesture) {
             "Cannot send CANCEL event, no gesture is in progress"
         }
@@ -512,27 +458,26 @@ internal abstract class InputDispatcher(
             "Cannot send CANCEL event with a delay of $delay ms"
         }
 
-        gesture.increaseEventTime(delay)
+        advanceEventTime(delay)
         gesture.enqueueCancel()
         partialGesture = null
     }
 
     /**
-     * Sends all enqueued events and blocks while they are dispatched. Will suspend before
-     * dispatching an event until [now] is at least that event's timestamp. If an exception is
-     * thrown during the process, all events that haven't yet been dispatched will be dropped.
-     */
-    abstract fun sendAllSynchronous()
-
-    /**
-     * Generates a MOVE event with all pointer locations, if any of the pointers has been moved by
-     * [movePointer] since the last MOVE event.
+     * Generates a move event with all pointer locations, if any of the pointers has been moved by
+     * [updateTouchPointer] since the last move event.
      */
     private fun PartialGesture.flushPointerUpdates() {
         if (hasPointerUpdates) {
-            enqueueMove(eventPeriodMillis)
+            enqueueTouchMove(eventPeriodMillis)
         }
     }
+
+    /**
+     * Sends all enqueued events and blocks while they are dispatched. If an exception is
+     * thrown during the process, all events that haven't yet been dispatched will be dropped.
+     */
+    abstract fun sendAllSynchronous()
 
     protected abstract fun PartialGesture.enqueueDown(pointerId: Int)
 
@@ -550,19 +495,22 @@ internal abstract class InputDispatcher(
         onDispose()
     }
 
+    /**
+     * Override this method to take platform specific action when this dispatcher is disposed.
+     * E.g. to recycle event objects that the dispatcher still holds on to.
+     */
     protected open fun onDispose() {}
 }
 
 /**
  * The state of the current gesture. Contains the current position of all pointers and the
- * current time of the gesture.
+ * down time (start time) of the gesture. For the current time, see [InputDispatcher.currentTime].
  *
  * @param downTime The time of the first down event of this gesture
  * @param startPosition The position of the first down event of this gesture
  * @param pointerId The pointer id of the first down event of this gesture
  */
 internal class PartialGesture(val downTime: Long, startPosition: Offset, pointerId: Int) {
-    var lastEventTime: Long = downTime
     val lastPositions = mutableMapOf(Pair(pointerId, startPosition))
     var hasPointerUpdates: Boolean = false
 }
@@ -571,13 +519,9 @@ internal class PartialGesture(val downTime: Long, startPosition: Offset, pointer
  * The state of an [InputDispatcher], saved when the [GestureScope] is disposed and restored
  * when the [GestureScope] is recreated.
  *
- * @param nextDownTime The downTime of the start of the next gesture, when chaining gestures.
- * This property will only be restored if an incomplete gesture was in progress when the
- * state of the [InputDispatcher] was saved.
  * @param partialGesture The state of an incomplete gesture. If no gesture was in progress
  * when the state of the [InputDispatcher] was saved, this will be `null`.
  */
 internal data class InputDispatcherState(
-    val nextDownTime: Long,
     val partialGesture: PartialGesture?
 )

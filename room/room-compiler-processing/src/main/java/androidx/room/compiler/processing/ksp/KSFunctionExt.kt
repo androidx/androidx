@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 
@@ -43,8 +44,7 @@ internal fun KSFunctionDeclaration.returnXType(
         else -> error(
             """
             Unexpected overridee type for $this ($overridee).
-            Please file a bug with steps to reproduce.
-            https://issuetracker.google.com/issues/new?component=413107
+            Please file a bug at $ISSUE_TRACKER_LINK.
             """.trimIndent()
         )
     } ?: returnType

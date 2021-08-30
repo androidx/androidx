@@ -171,7 +171,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     @Override
     public void onPrepare() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_PREPARE, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -205,7 +204,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     @Override
     public void onPrepareFromUri(final Uri mediaUri, final Bundle extras) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -220,7 +218,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     @Override
     public void onPlay() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_PLAY, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -254,7 +251,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     @Override
     public void onPlayFromUri(final Uri mediaUri, final Bundle extras) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -269,7 +265,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     @Override
     public void onPause() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_PAUSE, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -288,7 +283,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
             public void run(ControllerInfo controller) throws RemoteException {
                 handleTaskOnExecutor(controller, null,
                         SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO, new SessionTask() {
-                            // TODO(b/138091975) Do not ignore the returned Future.
                             @SuppressWarnings("FutureReturnValueIgnored")
                             @Override
                             public void run(ControllerInfo controller) throws RemoteException {
@@ -303,7 +297,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     @Override
     public void onSeekTo(final long pos) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -316,7 +309,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     public void onSkipToNext() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -329,7 +321,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     public void onSkipToPrevious() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -341,7 +332,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     @Override
     public void onSetPlaybackSpeed(final float speed) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -354,7 +344,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     public void onSkipToQueueItem(final long queueId) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -432,7 +421,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     public void onSetRepeatMode(final int repeatMode) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SET_REPEAT_MODE,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -445,7 +433,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     public void onSetShuffleMode(final int shuffleMode) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -466,7 +453,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
         }
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -489,7 +475,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
         }
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -514,7 +499,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
     public void onRemoveQueueItemAt(final int index) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -645,14 +629,12 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Clos
             @NonNull RemoteSessionPlayer player) {
         return new VolumeProviderCompat(player.getVolumeControlType(), player.getMaxVolume(),
                 player.getVolume()) {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void onSetVolumeTo(int volume) {
                 player.setVolume(volume);
             }
 
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void onAdjustVolume(int direction) {

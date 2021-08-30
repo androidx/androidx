@@ -86,14 +86,14 @@ import java.util.Objects;
  * and touchpads, and calls the appropriate {@link SurfaceCallback} methods. Respond to the user
  * action to enter or exit the pan mode via {@link Builder#setPanModeListener(PanModeListener)}.
  *
- * If the app does not include this button in the map {@link ActionStrip}, the app will not
+ * <p>If the app does not include this button in the map {@link ActionStrip}, the app will not
  * receive the user input for panning gestures from {@link SurfaceCallback} methods, and the host
  * will exit any previously activated pan mode.
  *
- * The host may hide the pan button in some head units in which the user does not need it. Also, the
- * host may hide other UI components in the template while the user is in the pan mode.
+ * <p>The host may hide the pan button in some head units in which the user does not need it.
+ * Also, the host may hide other UI components in the template while the user is in the pan mode.
  *
- * Note that not all head units support touch gestures, and not all touch screens support
+ * <p>Note that not all head units support touch gestures, and not all touch screens support
  * multi-touch gestures. Therefore, some {@link SurfaceCallback} methods may not be called in
  * some cars. In order to support different head units, use the buttons in the map action strip
  * to provide necessary functionality, such as the zoom-in and zoom-out buttons.
@@ -301,7 +301,7 @@ public final class NavigationTemplate implements Template {
          * Sets the background color to use for the navigation information.
          *
          * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
-         *  factors, the color may be ignored by the host or overridden by the vehicle system.
+         * factors, the color may be ignored by the host or overridden by the vehicle system.
          */
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
@@ -358,6 +358,11 @@ public final class NavigationTemplate implements Template {
          *
          * <p>The host will draw the buttons in an area that is associated with map controls.
          *
+         * <p>If the app does not include the {@link Action#PAN} button in this
+         * {@link ActionStrip}, the app will not receive the user input for panning gestures from
+         * {@link SurfaceCallback} methods, and the host will exit any previously activated pan
+         * mode.
+         *
          * <h4>Requirements</h4>
          *
          * This template allows up to 4 {@link Action}s in its map {@link ActionStrip}. Only
@@ -379,6 +384,11 @@ public final class NavigationTemplate implements Template {
         /**
          * Sets a {@link PanModeListener} that notifies when the user enters and exits
          * the pan mode.
+         *
+         * <p>If the app does not include the {@link Action#PAN} button in the map
+         * {@link ActionStrip}, the app will not receive the user input for panning gestures from
+         * {@link SurfaceCallback} methods, and the host will exit any previously activated pan
+         * mode.
          *
          * @throws NullPointerException if {@code panModeListener} is {@code null}
          */

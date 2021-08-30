@@ -1,5 +1,3 @@
-import java.util.Locale
-
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -15,6 +13,10 @@ import java.util.Locale
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package androidx.room.ext
+
+import java.util.Locale
 
 private fun String.toCamelCase(): String {
     val split = this.split("_")

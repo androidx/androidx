@@ -16,8 +16,6 @@
 
 package androidx.camera.extensions.internal;
 
-import static androidx.camera.extensions.internal.ImageCaptureConfigProvider.OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE;
-
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
@@ -40,22 +38,12 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
-import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.extensions.ExtensionMode;
-import androidx.camera.extensions.ExtensionsErrorListener;
-import androidx.camera.extensions.ExtensionsManager;
-import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
-import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
-import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
-import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
-import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
-import androidx.core.util.Consumer;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -65,56 +53,26 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     private static final String TAG = "PreviewConfigProvider";
     static final Config.Option<Integer> OPTION_PREVIEW_CONFIG_PROVIDER_MODE = Config.Option.create(
             "camerax.extensions.previewConfigProvider.mode", Integer.class);
-    private PreviewExtenderImpl mImpl;
-    private Context mContext;
+    private final VendorExtender mVendorExtender;
+    private final Context mContext;
     @ExtensionMode.Mode
-    private int mEffectMode;
+    private final int mEffectMode;
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
-    public PreviewConfigProvider(@ExtensionMode.Mode int mode,
-            @NonNull CameraInfo cameraInfo, @NonNull Context context) {
-        try {
-            switch (mode) {
-                case ExtensionMode.BOKEH:
-                    mImpl = new BokehPreviewExtenderImpl();
-                    break;
-                case ExtensionMode.HDR:
-                    mImpl = new HdrPreviewExtenderImpl();
-                    break;
-                case ExtensionMode.NIGHT:
-                    mImpl = new NightPreviewExtenderImpl();
-                    break;
-                case ExtensionMode.BEAUTY:
-                    mImpl = new BeautyPreviewExtenderImpl();
-                    break;
-                case ExtensionMode.AUTO:
-                    mImpl = new AutoPreviewExtenderImpl();
-                    break;
-                case ExtensionMode.NONE:
-                default:
-                    return;
-            }
-        } catch (NoClassDefFoundError e) {
-            throw new IllegalArgumentException("Extension mode does not exist: " + mode);
-        }
+    public PreviewConfigProvider(
+            @ExtensionMode.Mode int mode,
+            @NonNull VendorExtender vendorExtender,
+            @NonNull Context context) {
         mEffectMode = mode;
+        mVendorExtender = vendorExtender;
         mContext = context;
-
-        String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
-        CameraCharacteristics cameraCharacteristics =
-                Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
-        mImpl.init(cameraId, cameraCharacteristics);
     }
 
     @NonNull
     @Override
     public PreviewConfig getConfig() {
-        if (mImpl == null) {
-            return new PreviewConfig(OptionsBundle.emptyBundle());
-        }
         Preview.Builder builder = new Preview.Builder();
-
-        updateBuilderConfig(builder, mEffectMode, mImpl, mContext);
+        updateBuilderConfig(builder, mEffectMode, mVendorExtender, mContext);
 
         return builder.getUseCaseConfig();
     }
@@ -122,98 +80,43 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     /**
      * Update extension related configs to the builder.
      */
-    private void updateBuilderConfig(@NonNull Preview.Builder builder,
-            @ExtensionMode.Mode int effectMode, @NonNull PreviewExtenderImpl impl,
+    void updateBuilderConfig(@NonNull Preview.Builder builder,
+            @ExtensionMode.Mode int effectMode, @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
-        PreviewEventAdapter previewEventAdapter;
-
-        switch (impl.getProcessorType()) {
-            case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:
-                AdaptingRequestUpdateProcessor adaptingRequestUpdateProcessor =
-                        new AdaptingRequestUpdateProcessor(impl);
-                builder.setImageInfoProcessor(adaptingRequestUpdateProcessor);
-                previewEventAdapter = new PreviewEventAdapter(impl, context,
-                        adaptingRequestUpdateProcessor);
-                break;
-            case PROCESSOR_TYPE_IMAGE_PROCESSOR:
-                AdaptingPreviewProcessor adaptingPreviewProcessor = new
-                        AdaptingPreviewProcessor((PreviewImageProcessorImpl) impl.getProcessor());
-                builder.setCaptureProcessor(adaptingPreviewProcessor);
-                previewEventAdapter = new PreviewEventAdapter(impl, context,
-                        adaptingPreviewProcessor);
-                break;
-            default:
-                previewEventAdapter = new PreviewEventAdapter(impl, context, null);
+        if (vendorExtender instanceof BasicVendorExtender) {
+            PreviewEventAdapter previewEventAdapter;
+            PreviewExtenderImpl previewExtenderImpl =
+                    ((BasicVendorExtender) vendorExtender).getPreviewExtenderImpl();
+            switch (previewExtenderImpl.getProcessorType()) {
+                case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:
+                    AdaptingRequestUpdateProcessor adaptingRequestUpdateProcessor =
+                            new AdaptingRequestUpdateProcessor(previewExtenderImpl);
+                    builder.setImageInfoProcessor(adaptingRequestUpdateProcessor);
+                    previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
+                            adaptingRequestUpdateProcessor);
+                    break;
+                case PROCESSOR_TYPE_IMAGE_PROCESSOR:
+                    AdaptingPreviewProcessor adaptingPreviewProcessor = new
+                            AdaptingPreviewProcessor(
+                            (PreviewImageProcessorImpl) previewExtenderImpl.getProcessor());
+                    builder.setCaptureProcessor(adaptingPreviewProcessor);
+                    previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
+                            adaptingPreviewProcessor);
+                    break;
+                default:
+                    previewEventAdapter = new PreviewEventAdapter(previewExtenderImpl, context,
+                            null);
+            }
+            new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
+                    new CameraEventCallbacks(previewEventAdapter));
+            builder.setUseCaseEventCallback(previewEventAdapter);
         }
 
-        new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
-                new CameraEventCallbacks(previewEventAdapter));
-        builder.setUseCaseEventCallback(previewEventAdapter);
-
-        try {
-            Consumer<Collection<UseCase>> attachedUseCasesUpdateListener =
-                    useCases -> checkImageCaptureEnabled(effectMode, useCases);
-            builder.setAttachedUseCasesUpdateListener(attachedUseCasesUpdateListener);
-        } catch (NoSuchMethodError e) {
-            // setAttachedUseCasesUpdateListener function may not exist in the used core library.
-            // Catches the NoSuchMethodError and make the extensions be able to be enabled but
-            // only the ExtensionsErrorListener does not work.
-            Logger.e(TAG, "Can't set attached use cases update listener.");
-        }
 
         builder.getMutableConfig().insertOption(OPTION_PREVIEW_CONFIG_PROVIDER_MODE, effectMode);
-        List<Pair<Integer, Size[]>> supportedResolutions = getSupportedResolutions(impl);
-        if (supportedResolutions != null) {
-            builder.setSupportedResolutions(supportedResolutions);
-        }
-    }
-
-    /**
-     * Get the resolutions.
-     */
-    @Nullable
-    private List<Pair<Integer, Size[]>> getSupportedResolutions(@NonNull PreviewExtenderImpl impl) {
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
-            return null;
-        }
-
-        try {
-            return impl.getSupportedResolutions();
-        } catch (NoSuchMethodError e) {
-            Logger.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
-            return null;
-        }
-    }
-
-    private void checkImageCaptureEnabled(@ExtensionMode.Mode int effectMode,
-            Collection<UseCase> activeUseCases) {
-        boolean isImageCaptureExtenderEnabled = false;
-        boolean isMismatched = false;
-
-        // In case all use cases are unbound when doing the check.
-        if (activeUseCases == null || activeUseCases.isEmpty()) {
-            return;
-        }
-
-        for (UseCase useCase : activeUseCases) {
-            int imageCaptureExtenderMode = useCase.getCurrentConfig().retrieveOption(
-                    OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE,
-                    ExtensionMode.NONE);
-
-            if (effectMode == imageCaptureExtenderMode) {
-                isImageCaptureExtenderEnabled = true;
-            } else if (imageCaptureExtenderMode != ExtensionMode.NONE) {
-                isMismatched = true;
-            }
-        }
-
-        if (isMismatched) {
-            ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorListener.ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
-        } else if (!isImageCaptureExtenderEnabled) {
-            ExtensionsManager.postExtensionsError(
-                    ExtensionsErrorListener.ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
-        }
+        List<Pair<Integer, Size[]>> supportedResolutions =
+                vendorExtender.getSupportedPreviewOutputResolutions();
+        builder.setSupportedResolutions(supportedResolutions);
     }
 
     /**

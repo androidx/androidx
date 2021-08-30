@@ -11,7 +11,7 @@ enum DevicePlatform {
   // Device platform is undefined.
   DEVICE_PLATFORM_UNDEFINED = 0;
 
-  // Device is a Wear OS by Google device.
+  // Device is a Wear OS device.
   DEVICE_PLATFORM_WEAR_OS = 1;
 }
 

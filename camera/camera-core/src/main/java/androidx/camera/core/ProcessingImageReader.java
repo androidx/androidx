@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * An {@link ImageReaderProxy} which takes one or more {@link android.media.Image}, processes it,
@@ -53,6 +54,12 @@ import java.util.concurrent.Executor;
  */
 class ProcessingImageReader implements ImageReaderProxy {
     private static final String TAG = "ProcessingImageReader";
+
+    // Exif metadata are restricted in size to 64 kB in JPEG images because according to
+    // the specification this information must be contained within a single JPEG APP1
+    // segment. (See: https://en.wikipedia.org/wiki/Exif)
+    private static final int EXIF_MAX_SIZE_BYTES = 64000;
+
     final Object mLock = new Object();
 
     // Callback when Image is ready from InputImageReader.
@@ -169,75 +176,41 @@ class ProcessingImageReader implements ImageReaderProxy {
 
     private final List<Integer> mCaptureIdList = new ArrayList<>();
 
-    ProcessingImageReader(int width, int height, int format, int maxImages,
-            @NonNull Executor postProcessExecutor,
-            @NonNull CaptureBundle captureBundle, @NonNull CaptureProcessor captureProcessor) {
-        this(width, height, format, maxImages, postProcessExecutor, captureBundle,
-                captureProcessor, format);
-    }
-
-    /**
-     * Create a {@link ProcessingImageReader} with specific configurations.
-     *
-     * @param width               Width of the ImageReader
-     * @param height              Height of the ImageReader
-     * @param inputFormat         Input image format
-     * @param maxImages           Maximum Image number the ImageReader can hold. The capacity should
-     *                            be greater than the captureBundle size in order to hold all the
-     *                            Images needed with this processing.
-     * @param postProcessExecutor The Executor to execute the post-process of the image result.
-     * @param captureBundle       The {@link CaptureBundle} includes the processing information
-     * @param captureProcessor    The {@link CaptureProcessor} to be invoked when the Images are
-     *                            ready
-     * @param outputFormat        Output image format
-     */
-    ProcessingImageReader(int width, int height, int inputFormat, int maxImages,
-            @NonNull Executor postProcessExecutor,
-            @NonNull CaptureBundle captureBundle, @NonNull CaptureProcessor captureProcessor,
-            int outputFormat) {
-        this(new MetadataImageReader(width, height, inputFormat, maxImages), postProcessExecutor,
-                captureBundle, captureProcessor, outputFormat);
-    }
-
-    ProcessingImageReader(@NonNull MetadataImageReader imageReader,
-            @NonNull Executor postProcExecutor,
-            @NonNull CaptureBundle capBundle,
-            @NonNull CaptureProcessor capProcessor) {
-        this(imageReader, postProcExecutor, capBundle, capProcessor, imageReader.getImageFormat());
-    }
-
-    ProcessingImageReader(@NonNull MetadataImageReader imageReader,
-            @NonNull Executor postProcessExecutor,
-            @NonNull CaptureBundle captureBundle,
-            @NonNull CaptureProcessor captureProcessor,
-            int outputFormat) {
-        if (imageReader.getMaxImages() < captureBundle.getCaptureStages().size()) {
+    ProcessingImageReader(@NonNull Builder builder) {
+        if (builder.mInputImageReader.getMaxImages()
+                < builder.mCaptureBundle.getCaptureStages().size()) {
             throw new IllegalArgumentException(
                     "MetadataImageReader is smaller than CaptureBundle.");
         }
 
-        mInputImageReader = imageReader;
+        mInputImageReader = builder.mInputImageReader;
 
         // For JPEG ImageReaders, the Surface that is created will have format BLOB which can
         // only be allocated with a height of 1. The output Image from the image reader will read
         // its dimensions from the JPEG data's EXIF in order to set the final dimensions.
-        int outputWidth = imageReader.getWidth();
-        int outputHeight = imageReader.getHeight();
-        if (outputFormat == ImageFormat.JPEG) {
-            outputWidth = imageReader.getWidth() * imageReader.getHeight();
+        int outputWidth = mInputImageReader.getWidth();
+        int outputHeight = mInputImageReader.getHeight();
+
+        if (builder.mOutputFormat == ImageFormat.JPEG) {
+            // The output JPEG compression quality is 100 when taking a picture in MAX_QUALITY
+            // mode. It might cause the compressed data size exceeds image's width * height.
+            // YUV_420_888 should be 1.5 times of image's width * height. The compressed data
+            // size shouldn't exceed it. Therefore, scales the output image reader byte buffer to
+            // 1.5 times when the JPEG compression quality setting is 100.
+            outputWidth = (int) (outputWidth * outputHeight * 1.5f) + EXIF_MAX_SIZE_BYTES;
             outputHeight = 1;
         }
         mOutputImageReader = new AndroidImageReaderProxy(
-                ImageReader.newInstance(outputWidth, outputHeight, outputFormat,
-                        imageReader.getMaxImages()));
+                ImageReader.newInstance(outputWidth, outputHeight, builder.mOutputFormat,
+                        mInputImageReader.getMaxImages()));
 
-        mPostProcessExecutor = postProcessExecutor;
-        mCaptureProcessor = captureProcessor;
-        mCaptureProcessor.onOutputSurface(mOutputImageReader.getSurface(), outputFormat);
+        mPostProcessExecutor = builder.mPostProcessExecutor;
+        mCaptureProcessor = builder.mCaptureProcessor;
+        mCaptureProcessor.onOutputSurface(mOutputImageReader.getSurface(), builder.mOutputFormat);
         mCaptureProcessor.onResolutionUpdate(
                 new Size(mInputImageReader.getWidth(), mInputImageReader.getHeight()));
 
-        setCaptureBundle(captureBundle);
+        setCaptureBundle(builder.mCaptureBundle);
     }
 
     @Override
@@ -448,6 +421,83 @@ class ProcessingImageReader implements ImageReaderProxy {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * The builder to create a {@link ProcessingImageReader} object.
+     */
+    static final class Builder {
+        @NonNull
+        protected final MetadataImageReader mInputImageReader;
+        @NonNull
+        protected final CaptureBundle mCaptureBundle;
+        @NonNull
+        protected final CaptureProcessor mCaptureProcessor;
+
+        protected int mOutputFormat;
+
+        @NonNull
+        protected Executor mPostProcessExecutor = Executors.newSingleThreadExecutor();
+
+        /**
+         * Create a {@link Builder} with specific configurations.
+         *
+         * @param imageReader      The input image reader.
+         * @param captureBundle    The {@link CaptureBundle} includes the processing information
+         * @param captureProcessor The {@link CaptureProcessor} to be invoked when the Images are
+         *                         ready
+         */
+        Builder(@NonNull MetadataImageReader imageReader, @NonNull CaptureBundle captureBundle,
+                @NonNull CaptureProcessor captureProcessor) {
+            mInputImageReader = imageReader;
+            mCaptureBundle = captureBundle;
+            mCaptureProcessor = captureProcessor;
+            mOutputFormat = imageReader.getImageFormat();
+        }
+
+        /**
+         * Create a {@link Builder} with specific configurations.
+         *
+         * @param width            Width of the ImageReader
+         * @param height           Height of the ImageReader
+         * @param inputFormat      Input image format
+         * @param maxImages        Maximum Image number the ImageReader can hold. The capacity
+         *                         should be greater than the captureBundle size in order to hold
+         *                         all the Images needed with this processing.
+         * @param captureBundle    The {@link CaptureBundle} includes the processing information
+         * @param captureProcessor The {@link CaptureProcessor} to be invoked when the Images are
+         *                         ready
+         */
+        Builder(int width, int height, int inputFormat, int maxImages,
+                @NonNull CaptureBundle captureBundle, @NonNull CaptureProcessor captureProcessor) {
+            this(new MetadataImageReader(width, height, inputFormat, maxImages), captureBundle,
+                    captureProcessor);
+        }
+
+        /**
+         * Sets an Executor to execute the post-process of the image result.
+         */
+        @NonNull
+        Builder setPostProcessExecutor(@NonNull Executor postProcessExecutor) {
+            mPostProcessExecutor = postProcessExecutor;
+            return this;
+        }
+
+        /**
+         * Sets the output image format.
+         */
+        @NonNull
+        Builder setOutputFormat(int outputFormat) {
+            mOutputFormat = outputFormat;
+            return this;
+        }
+
+        /**
+         * Builds an {@link ProcessingImageReader} from current configurations.
+         */
+        ProcessingImageReader build() {
+            return new ProcessingImageReader(this);
         }
     }
 }

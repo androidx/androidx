@@ -25,7 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.withActivity
 import com.google.android.play.core.splitinstall.SplitInstallManager
-import org.junit.Assert.assertNotNull
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -93,7 +93,7 @@ public class DynamicActivityNavigatorTest {
 
     @Test
     public fun createDestination() {
-        assertNotNull(navigator.createDestination())
+        assertThat(navigator.createDestination()).isNotNull()
     }
 }
 

@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.util
 
 import com.google.testing.compile.JavaFileObjects
-import com.tschuchort.compiletesting.SourceFile
 import org.intellij.lang.annotations.Language
 import java.io.File
 import javax.tools.JavaFileObject
@@ -29,10 +28,25 @@ sealed class Source {
     abstract val relativePath: String
     abstract val contents: String
     abstract fun toJFO(): JavaFileObject
-    abstract fun toKotlinSourceFile(srcRoot: File): SourceFile
 
     override fun toString(): String {
         return "SourceFile[$relativePath]"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Source) return false
+
+        if (relativePath != other.relativePath) return false
+        if (contents != other.contents) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = relativePath.hashCode()
+        result = 31 * result + contents.hashCode()
+        return result
     }
 
     class JavaSource(
@@ -46,15 +60,6 @@ sealed class Source {
             )
         }
 
-        override fun toKotlinSourceFile(srcRoot: File): SourceFile {
-            val outFile = srcRoot.resolve(relativePath)
-                .also {
-                    it.parentFile.mkdirs()
-                    it.writeText(contents)
-                }
-            return SourceFile.fromPath(outFile)
-        }
-
         override val relativePath
             get() = qName.replace(".", "/") + ".java"
     }
@@ -65,16 +70,6 @@ sealed class Source {
     ) : Source() {
         override fun toJFO(): JavaFileObject {
             throw IllegalStateException("cannot include kotlin code in javac compilation")
-        }
-
-        override fun toKotlinSourceFile(srcRoot: File): SourceFile {
-            val outFile = srcRoot.resolve(relativePath).also {
-                it.parentFile.mkdirs()
-                it.writeText(contents)
-            }
-            return SourceFile.fromPath(
-                outFile
-            )
         }
     }
 
@@ -147,7 +142,7 @@ sealed class Source {
             relativePath: String
         ): Source {
             check(file.exists()) {
-                "file does not exist: ${file.absolutePath}"
+                "file does not exist: ${file.canonicalPath}"
             }
             return when {
                 file.name.endsWith(".kt") -> loadKotlinSource(file, relativePath)

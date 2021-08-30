@@ -16,13 +16,13 @@
 
 package androidx.room.solver.types
 
-import androidx.room.ext.L
-import androidx.room.parser.SQLTypeAffinity
-import androidx.room.parser.SQLTypeAffinity.REAL
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.L
+import androidx.room.ext.capitalize
+import androidx.room.parser.SQLTypeAffinity
+import androidx.room.parser.SQLTypeAffinity.REAL
 import androidx.room.solver.CodeGenScope
-import capitalize
 import com.squareup.javapoet.TypeName.BYTE
 import com.squareup.javapoet.TypeName.CHAR
 import com.squareup.javapoet.TypeName.DOUBLE

@@ -161,6 +161,69 @@ class BaseDaoTest {
         }
     }
 
+    @Test
+    fun extendSameInterfaceTwice() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            import androidx.room.*
+
+            interface Parent<T> {
+                @Delete
+                fun delete(t: T)
+            }
+
+            interface Child1<T> : Parent<T> {
+                @Insert
+                fun insert(t: T)
+            }
+
+            interface Child2<T> : Parent<T> {
+                @Update
+                fun update(t: T)
+            }
+
+            @Entity
+            data class Data(
+                @PrimaryKey(autoGenerate = false)
+                val id: Long,
+                val data: String
+            )
+
+            @Dao
+            abstract class Dao1 : Child1<Data>, Child2<Data>, Parent<Data>
+
+            @Dao
+            abstract class Dao2 : Child1<Data>, Parent<Data>
+
+            @Dao
+            abstract class Dao3 : Child1<Data>, Parent<Data> {
+                @Delete
+                abstract override fun delete(t: Data)
+            }
+
+            abstract class MyDb : RoomDatabase() {
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(source)
+        ) { invocation ->
+            val dbElm = invocation.context.processingEnv
+                .requireTypeElement("MyDb")
+            val dbType = dbElm.type
+            // if we could create valid code, it is good, no need for assertions.
+            listOf("Dao1", "Dao2", "Dao3").forEach { name ->
+                val dao = invocation.processingEnv.requireTypeElement(name)
+                val processed = DaoProcessor(
+                    invocation.context, dao, dbType, null
+                ).process()
+                DaoWriter(processed, dbElm, invocation.processingEnv)
+                    .write(invocation.processingEnv)
+            }
+        }
+    }
+
     fun baseDao(code: String, handler: (Dao) -> Unit) {
         val baseClass = Source.java(
             "foo.bar.BaseDao",

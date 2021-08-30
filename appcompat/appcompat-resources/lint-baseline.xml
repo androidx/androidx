@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.graphics.drawable.Drawable#getColorFilter`"
+        errorLine1="        assertNotNull(ld.getDrawable(0).getColorFilter());"
+        errorLine2="                                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/TintResourcesTest.java"
+            line="79"
+            column="41"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -8,7 +19,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="92"
+            line="93"
             column="5"/>
     </issue>
 
@@ -19,7 +30,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="130"
+            line="131"
             column="5"/>
     </issue>
 
@@ -30,7 +41,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="134"
+            line="135"
             column="5"/>
     </issue>
 
@@ -41,7 +52,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="138"
+            line="139"
             column="5"/>
     </issue>
 
@@ -52,7 +63,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="161"
+            line="162"
             column="5"/>
     </issue>
 
@@ -63,7 +74,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="316"
+            line="317"
             column="5"/>
     </issue>
 
@@ -74,7 +85,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="337"
+            line="338"
             column="5"/>
     </issue>
 
@@ -85,7 +96,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="352"
+            line="353"
             column="5"/>
     </issue>
 
@@ -96,7 +107,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="380"
+            line="381"
             column="5"/>
     </issue>
 
@@ -107,7 +118,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="470"
+            line="471"
             column="5"/>
     </issue>
 
@@ -145,7 +156,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
-            line="164"
+            line="165"
             column="19"/>
     </issue>
 
@@ -156,7 +167,7 @@
         errorLine2="                                    ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
-            line="275"
+            line="276"
             column="37"/>
     </issue>
 
@@ -167,7 +178,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
-            line="604"
+            line="605"
             column="12"/>
     </issue>
 
@@ -409,7 +420,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="95"
+            line="96"
             column="32"/>
     </issue>
 
@@ -420,7 +431,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="130"
+            line="131"
             column="39"/>
     </issue>
 
@@ -431,7 +442,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="134"
+            line="135"
             column="25"/>
     </issue>
 
@@ -442,7 +453,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="470"
+            line="471"
             column="32"/>
     </issue>
 
@@ -453,7 +464,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="471"
+            line="472"
             column="24"/>
     </issue>
 

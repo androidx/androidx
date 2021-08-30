@@ -134,7 +134,7 @@ MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#setViewTex
 MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#swapCursor(android.database.Cursor):
     Missing nullability on method `swapCursor` return
 MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter#swapCursor(android.database.Cursor) parameter #0:
-    Missing nullability on parameter `c` in method `swapCursor`
+    Missing nullability on parameter `newCursor` in method `swapCursor`
 MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter.CursorToStringConverter#convertToString(android.database.Cursor):
     Missing nullability on method `convertToString` return
 MissingNullability: androidx.cursoradapter.widget.SimpleCursorAdapter.CursorToStringConverter#convertToString(android.database.Cursor) parameter #0:

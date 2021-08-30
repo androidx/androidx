@@ -72,7 +72,7 @@ class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : Zoo
         val sensorRect =
             cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
         val cropRect = computeCropRect(sensorRect, zoomRatio)
-        camera.setParameter(CaptureRequest.SCALER_CROP_REGION, cropRect)
+        camera.setParameterAsync(CaptureRequest.SCALER_CROP_REGION, cropRect)
     }
 
     private fun computeCropRect(sensorRect: Rect, zoomRatio: Float): Rect {
@@ -101,6 +101,6 @@ class AndroidRZoomCompat(private val range: Range<Float>) : ZoomCompat {
         camera: UseCaseCamera
     ) {
         require(zoomRatio in minZoom..maxZoom)
-        camera.setParameter(CaptureRequest.CONTROL_ZOOM_RATIO, zoomRatio)
+        camera.setParameterAsync(CaptureRequest.CONTROL_ZOOM_RATIO, zoomRatio)
     }
 }

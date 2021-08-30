@@ -54,6 +54,10 @@ public class NavDeepLink internal constructor(
 
     private var mimeTypePattern: Pattern? = null
 
+    /** Arguments present in the deep link, including both path and query arguments. */
+    internal val argumentsNames: List<String>
+        get() = arguments + paramArgMap.keys
+
     public var isExactDeepLink: Boolean = false
         /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -150,7 +154,7 @@ public class NavDeepLink internal constructor(
         deepLink: Uri,
         arguments: Map<String, NavArgument?>
     ): Bundle? {
-        val matcher = pattern!!.matcher(deepLink.toString())
+        val matcher = pattern?.matcher(deepLink.toString()) ?: return null
         if (!matcher.matches()) {
             return null
         }
@@ -192,6 +196,13 @@ public class NavDeepLink internal constructor(
                 }
             }
         }
+
+        // Check that all required arguments are present in bundle
+        for ((argName, argument) in arguments.entries) {
+            val argumentIsRequired = argument != null && !argument.isDefaultValuePresent
+            if (argumentIsRequired && !bundle.containsKey(argName)) return null
+        }
+
         return bundle
     }
 
@@ -262,13 +273,29 @@ public class NavDeepLink internal constructor(
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is NavDeepLink) return false
+        return uriPattern == other.uriPattern &&
+            action == other.action &&
+            mimeType == other.mimeType
+    }
+
+    override fun hashCode(): Int {
+        var result = 0
+        result = 31 * result + uriPattern.hashCode()
+        result = 31 * result + action.hashCode()
+        result = 31 * result + mimeType.hashCode()
+        return result
+    }
+
     /**
      * A builder for constructing [NavDeepLink] instances.
      */
     public class Builder {
 
         /** @suppress */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public constructor()
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public constructor()
 
         private var uriPattern: String? = null
         private var action: String? = null
@@ -386,13 +413,12 @@ public class NavDeepLink internal constructor(
             if (isParameterizedQuery) {
                 var matcher = Pattern.compile("(\\?)").matcher(uriPattern)
                 if (matcher.find()) {
-                    buildPathRegex(
+                    isExactDeepLink = buildPathRegex(
                         uriPattern.substring(0, matcher.start()),
                         uriRegex,
                         fillInPattern
                     )
                 }
-                isExactDeepLink = false
                 for (paramName in parameterizedUri.queryParameterNames) {
                     val argRegex = StringBuilder()
                     val queryParam = parameterizedUri.getQueryParameter(paramName) as String

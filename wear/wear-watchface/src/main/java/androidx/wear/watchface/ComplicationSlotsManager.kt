@@ -21,26 +21,22 @@ import android.app.PendingIntent.CanceledException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.icu.util.Calendar
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.complications.data.EmptyComplicationData
+import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
-import java.lang.ref.WeakReference
 
 private fun getComponentName(context: Context) = ComponentName(
     context.packageName,
@@ -85,12 +81,17 @@ public class ComplicationSlotsManager(
     public lateinit var watchState: WatchState
 
     private lateinit var watchFaceHostApi: WatchFaceHostApi
-    private lateinit var calendar: Calendar
     internal lateinit var renderer: Renderer
 
     /** A map of complication IDs to complicationSlots. */
     public val complicationSlots: Map<Int, ComplicationSlot> =
         complicationSlotCollection.associateBy(ComplicationSlot::id)
+
+    /**
+     * Map of [ComplicationSlot] id to the latest [TapType.DOWN] [TapEvent] that the
+     * ComplicationSlot received, if any.
+     */
+    public val lastComplicationTapDownEvents: Map<Int, TapEvent> = HashMap()
 
     private class InitialComplicationConfig(
         val complicationSlotBounds: ComplicationSlotBounds,
@@ -158,12 +159,10 @@ public class ComplicationSlotsManager(
     @WorkerThread
     internal fun init(
         watchFaceHostApi: WatchFaceHostApi,
-        calendar: Calendar,
         renderer: Renderer,
         complicationSlotInvalidateListener: ComplicationSlot.InvalidateListener
     ) = TraceEvent("ComplicationSlotsManager.init").use {
         this.watchFaceHostApi = watchFaceHostApi
-        this.calendar = calendar
         this.renderer = renderer
 
         for ((_, complication) in complicationSlots) {
@@ -219,22 +218,22 @@ public class ComplicationSlotsManager(
                     labelsDirty || complication.dataDirty || complication.complicationBoundsDirty ||
                     complication.accessibilityTraversalIndexDirty
 
-                if (complication.defaultProviderPolicyDirty ||
-                    complication.defaultProviderTypeDirty
+                if (complication.defaultDataSourcePolicyDirty ||
+                    complication.defaultDataSourceTypeDirty
                 ) {
-                    watchFaceHostApi.setDefaultComplicationProviderWithFallbacks(
+                    watchFaceHostApi.setDefaultComplicationDataSourceWithFallbacks(
                         complication.id,
-                        complication.defaultProviderPolicy.providersAsList(),
-                        complication.defaultProviderPolicy.systemProviderFallback,
-                        complication.defaultProviderType.toWireComplicationType()
+                        complication.defaultDataSourcePolicy.dataSourcesAsList(),
+                        complication.defaultDataSourcePolicy.systemDataSourceFallback,
+                        complication.defaultDataSourceType.toWireComplicationType()
                     )
                 }
 
                 complication.dataDirty = false
                 complication.complicationBoundsDirty = false
                 complication.supportedTypesDirty = false
-                complication.defaultProviderPolicyDirty = false
-                complication.defaultProviderTypeDirty = false
+                complication.defaultDataSourcePolicyDirty = false
+                complication.defaultDataSourceTypeDirty = false
             }
 
             complication.enabledDirty = false
@@ -270,35 +269,10 @@ public class ComplicationSlotsManager(
     @UiThread
     internal fun clearComplicationData() {
         for ((_, complication) in complicationSlots) {
-            complication.renderer.loadData(null, false)
+            complication.renderer.loadData(NoDataComplicationData(), false)
             (complication.complicationData as MutableObservableWatchData).value =
-                EmptyComplicationData()
+                NoDataComplicationData()
         }
-    }
-
-    /**
-     * Starts a short animation, briefly highlighting the complication to provide visual feedback
-     * when the user has tapped on it.
-     *
-     * @param complicationSlotId The ID of the complication slot to briefly highlight
-     */
-    @UiThread
-    public fun displayPressedAnimation(complicationSlotId: Int) {
-        val complication = requireNotNull(complicationSlots[complicationSlotId]) {
-            "No complication found with ID $complicationSlotId"
-        }
-        complication.setIsHighlighted(true)
-
-        val weakRef = WeakReference(this)
-        watchFaceHostApi.getUiThreadHandler().postDelayed(
-            {
-                // The watch face might go away before this can run.
-                if (weakRef.get() != null) {
-                    complication.setIsHighlighted(false)
-                }
-            },
-            WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS
-        )
     }
 
     /**
@@ -360,6 +334,11 @@ public class ComplicationSlotsManager(
         }
     }
 
+    @UiThread
+    internal fun onTapDown(complicationSlotId: Int, tapEvent: TapEvent) {
+        (lastComplicationTapDownEvents as HashMap)[complicationSlotId] = tapEvent
+    }
+
     /**
      * Adds a [TapCallback] which is called whenever the user interacts with a complication slot.
      */
@@ -380,6 +359,11 @@ public class ComplicationSlotsManager(
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("ComplicationSlotsManager:")
+        writer.println(
+            "lastComplicationTapDownEvents=" + lastComplicationTapDownEvents.map {
+                it.key.toString() + "->" + it.value
+            }.joinToString(", ")
+        )
         writer.increaseIndent()
         for ((_, complication) in complicationSlots) {
             complication.dump(writer)
@@ -397,9 +381,9 @@ public class ComplicationSlotsManager(
         complicationSlots.map {
             IdTypeAndDefaultProviderPolicyWireFormat(
                 it.key,
-                it.value.defaultProviderPolicy.providersAsList(),
-                it.value.defaultProviderPolicy.systemProviderFallback,
-                it.value.defaultProviderType.toWireComplicationType()
+                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
+                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
+                it.value.defaultDataSourceType.toWireComplicationType()
             )
         }.toTypedArray()
 }

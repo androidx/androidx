@@ -20,54 +20,58 @@ import androidx.wear.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Instant
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class TimeRangeTest {
     @Test
     public fun beforeGivenTime() {
-        val range = TimeRange.before(1000)
-        assertThat(range.contains(100)).isTrue()
-        assertThat(range.contains(999)).isTrue()
-        assertThat(range.contains(1000)).isTrue()
-        assertThat(range.contains(1001)).isFalse()
-        assertThat(range.contains(10000)).isFalse()
+        val range = TimeRange.before(Instant.ofEpochMilli(1000))
+        assertThat(range.contains(Instant.ofEpochMilli(100))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(999))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(1000))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(1001))).isFalse()
+        assertThat(range.contains(Instant.ofEpochMilli(10000))).isFalse()
     }
 
     @Test
     public fun afterGivenTime() {
-        val range = TimeRange.after(1000)
-        assertThat(range.contains(100)).isFalse()
-        assertThat(range.contains(999)).isFalse()
-        assertThat(range.contains(1000)).isTrue()
-        assertThat(range.contains(1001)).isTrue()
-        assertThat(range.contains(10000)).isTrue()
+        val range = TimeRange.after(Instant.ofEpochMilli(1000))
+        assertThat(range.contains(Instant.ofEpochMilli(100))).isFalse()
+        assertThat(range.contains(Instant.ofEpochMilli(999))).isFalse()
+        assertThat(range.contains(Instant.ofEpochMilli(1000))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(1001))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(10000))).isTrue()
     }
 
     @Test
     public fun betweenTwoTimes() {
-        val range = TimeRange.between(1000, 2000)
-        assertThat(range.contains(100)).isFalse()
-        assertThat(range.contains(999)).isFalse()
-        assertThat(range.contains(1000)).isTrue()
-        assertThat(range.contains(1001)).isTrue()
-        assertThat(range.contains(1999)).isTrue()
-        assertThat(range.contains(2000)).isTrue()
-        assertThat(range.contains(2001)).isFalse()
-        assertThat(range.contains(10000)).isFalse()
+        val range = TimeRange.between(
+            Instant.ofEpochMilli(1000),
+            Instant.ofEpochMilli(2000)
+        )
+        assertThat(range.contains(Instant.ofEpochMilli(100))).isFalse()
+        assertThat(range.contains(Instant.ofEpochMilli(999))).isFalse()
+        assertThat(range.contains(Instant.ofEpochMilli(1000))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(1001))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(1999))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(2000))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(2001))).isFalse()
+        assertThat(range.contains(Instant.ofEpochMilli(10000))).isFalse()
     }
 
     @Test
     public fun always() {
         var range = TimeRange.ALWAYS
-        assertThat(range.contains(0)).isTrue()
-        assertThat(range.contains(100)).isTrue()
-        assertThat(range.contains(999)).isTrue()
-        assertThat(range.contains(1000)).isTrue()
-        assertThat(range.contains(1001)).isTrue()
-        assertThat(range.contains(1999)).isTrue()
-        assertThat(range.contains(2000)).isTrue()
-        assertThat(range.contains(2001)).isTrue()
-        assertThat(range.contains(10000)).isTrue()
-        assertThat(range.contains(Long.MAX_VALUE)).isTrue()
+        assertThat(range.contains(Instant.EPOCH)).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(100))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(999))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(1000))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(1001))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(1999))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(2000))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(2001))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(10000))).isTrue()
+        assertThat(range.contains(Instant.ofEpochMilli(Long.MAX_VALUE))).isTrue()
     }
 }

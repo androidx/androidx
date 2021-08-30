@@ -19,6 +19,7 @@ package androidx.wear.widget.drawer;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.swipeDown;
+import static androidx.test.espresso.action.ViewActions.swipeLeft;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
@@ -48,6 +49,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.PerformException;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
@@ -518,6 +520,22 @@ public class WearableDrawerLayoutEspressoTest {
                 .perform(waitForMatchingView(withText("New Item"), MAX_WAIT_MS));
     }
 
+    @Test
+    public void flingInHorizontalScrollerDoesNotPeekDrawers() {
+        // Note that this test uses a different activity to implement the list...
+        ActivityScenario<DrawerRecyclerViewTestActivity> scenario =
+                ActivityScenario.launch(DrawerRecyclerViewTestActivity.class);
+
+        // Nothing should be peeking
+        onView(withId(R.id.recycler_navigation_drawer)).check(matches(isPeeking(false)));
+
+        onView(withId(R.id.recycler)).perform(swipeLeft());
+        onView(withId(R.id.recycler)).perform(waitForRecyclerToSettle(MAX_WAIT_MS));
+
+        // Drawers should not be peeking...
+        onView(withId(R.id.recycler_navigation_drawer)).check(matches(isPeeking(false)));
+    }
+
     private void scrollToPosition(final RecyclerView recyclerView, final int position) {
         recyclerView.post(new Runnable() {
             @Override
@@ -584,11 +602,15 @@ public class WearableDrawerLayoutEspressoTest {
     }
 
     private TypeSafeMatcher<View> isPeeking() {
+        return isPeeking(true);
+    }
+
+    private TypeSafeMatcher<View> isPeeking(boolean peeking) {
         return new TypeSafeMatcher<View>() {
             @Override
             protected boolean matchesSafely(View view) {
                 WearableDrawerView drawer = (WearableDrawerView) view;
-                return drawer.isPeeking();
+                return drawer.isPeeking() == peeking;
             }
 
             @Override
@@ -682,6 +704,45 @@ public class WearableDrawerLayoutEspressoTest {
                 final long endTime = startTime + millis;
                 do {
                     if (recycler.getAdapter().getItemCount() == targetCount) {
+                        return;
+                    }
+                    uiController.loopMainThreadForAtLeast(100); // at least 3 frames
+                } while (System.currentTimeMillis() < endTime);
+
+                // timeout happens
+                throw new PerformException.Builder()
+                        .withActionDescription(this.getDescription())
+                        .withViewDescription(HumanReadables.describe(view))
+                        .withCause(new TimeoutException())
+                        .build();
+            }
+        };
+    }
+
+    public ViewAction waitForRecyclerToSettle(final long millis) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(RecyclerView.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Waiting for Recycler ScrollState to be SCROLL_STATE_IDLE";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                if (!(view instanceof RecyclerView)) {
+                    return;
+                }
+
+                RecyclerView recycler = (RecyclerView) view;
+                uiController.loopMainThreadUntilIdle();
+                final long startTime = System.currentTimeMillis();
+                final long endTime = startTime + millis;
+                do {
+                    if (recycler.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
                         return;
                     }
                     uiController.loopMainThreadForAtLeast(100); // at least 3 frames

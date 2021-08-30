@@ -58,7 +58,7 @@ public abstract class Navigator<D : NavDestination> {
      * The state of the Navigator is the communication conduit between the Navigator
      * and the [NavController] that has called [onAttach].
      *
-     * It is the responsibility of the Navigator to call [NavigatorState.add]
+     * It is the responsibility of the Navigator to call [NavigatorState.push]
      * and [NavigatorState.pop] to in order to update the [NavigatorState.backStack] at
      * the appropriate times.
      *
@@ -122,27 +122,28 @@ public abstract class Navigator<D : NavDestination> {
                 null -> null
                 destination -> backStackEntry
                 else -> {
-                    backStackEntry.replaceArguments(
+                    state.createBackStackEntry(
+                        navigatedToDestination,
                         navigatedToDestination.addInDefaultArgs(backStackEntry.arguments)
                     )
-                    state.createBackStackEntry(navigatedToDestination, backStackEntry.arguments)
                 }
             }
         }.filterNotNull().forEach { backStackEntry ->
-            state.add(backStackEntry)
+            state.push(backStackEntry)
         }
     }
 
     /**
      * Informational callback indicating that the given [backStackEntry] has been
-     * affected by a [NavOptions.shouldLaunchSingleTop] operation. The entry's state
-     * and arguments have already been updated, but this callback can be used to synchronize
-     * any external state with this operation.
+     * affected by a [NavOptions.shouldLaunchSingleTop] operation. The entry provided is a new
+     * [NavBackStackEntry] instance with all the previous state of the old entry and possibly
+     * new arguments.
      */
     @Suppress("UNCHECKED_CAST")
     public open fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
         val destination = backStackEntry.destination as? D ?: return
         navigate(destination, null, navOptions { launchSingleTop = true }, null)
+        state.onLaunchSingleTop(backStackEntry)
     }
 
     /**

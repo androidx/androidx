@@ -27,7 +27,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
@@ -81,7 +80,7 @@ public class DynamicIncludeGraphNavigatorTest {
 
     @Test
     public fun createDestination() {
-        assertNotNull(navigator.createDestination())
+        assertThat(navigator.createDestination()).isNotNull()
     }
 
     @Test

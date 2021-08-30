@@ -91,6 +91,23 @@ class SchemaDifferTest {
     }
 
     @Test
+    fun testColumnsAddedInOrder() {
+        val schemaDiffResult = SchemaDiffer(
+            fromSchemaBundle = from.database,
+            toSchemaBundle = toColumnsAddedInOrder.database,
+            className = "MyAutoMigration",
+            renameColumnEntries = listOf(),
+            deleteColumnEntries = listOf(),
+            renameTableEntries = listOf(),
+            deleteTableEntries = listOf()
+        ).diffSchemas()
+        assertThat(schemaDiffResult.addedColumns["recordLabelId"]?.fieldBundle?.columnName)
+            .isEqualTo("recordLabelId")
+        assertThat(schemaDiffResult.addedColumns["artistId"]?.fieldBundle?.columnName)
+            .isEqualTo("artistId")
+    }
+
+    @Test
     fun testColumnAddedWithNoDefaultValue() {
         try {
             SchemaDiffer(
@@ -673,6 +690,105 @@ class SchemaDifferTest {
     )
 
     /**
+     * Adding multiple columns, preserving the order in which they have been added.
+     */
+
+    private val toColumnsAddedInOrder = SchemaBundle(
+        2,
+        DatabaseBundle(
+            2,
+            "",
+            listOf(
+                EntityBundle(
+                    "Song",
+                    "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, `artistId` " +
+                        "INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "recordLabelId",
+                            "recordLabelId",
+                            "INTEGER",
+                            true,
+                            "0"
+                        ),
+                        FieldBundle(
+                            "artistId",
+                            "artistId",
+                            "INTEGER",
+                            true,
+                            "0"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    emptyList(),
+                    emptyList()
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                )
+            ),
+            mutableListOf(),
+            mutableListOf()
+        )
+    )
+
+    /**
      * Renaming the length column to duration.
      */
     // TODO: We currently do not support column renames as we can't detect rename or deletion
@@ -1079,7 +1195,8 @@ class SchemaDifferTest {
                         IndexBundle(
                             "index1",
                             true,
-                            listOf("title"),
+                            emptyList<String>(),
+                            emptyList<String>(),
                             "CREATE UNIQUE INDEX IF NOT EXISTS `index1` ON `Song`" +
                                 "(`title`)"
                         )

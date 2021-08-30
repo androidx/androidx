@@ -72,6 +72,32 @@ private val Backdrop = Component(
     examples = BackdropExamples
 )
 
+private val Badge = Component(
+    id = 22,
+    name = "Badge",
+    description = "A badge can contain dynamic information, such as the presence of a new " +
+        "notification or a number of pending requests. Badges can be icon only or contain " +
+        "a short text.",
+    // No badge icon
+    tintIcon = true,
+    guidelinesUrl = "$ComponentGuidelinesUrl/bottom-navigation#behavior",
+    docsUrl = "$DocsUrl#badgebox",
+    sourceUrl = "$MaterialSourceUrl/Badge.kt",
+    examples = BadgeExamples
+)
+
+private val NavigationRail = Component(
+    id = 23,
+    name = "Navigation Rail",
+    description = "Navigation rails side navigation components allow movement between primary " +
+        "destinations in an app.",
+    icon = R.drawable.ic_navigation_rail,
+    guidelinesUrl = "$ComponentGuidelinesUrl/navigation-rail",
+    docsUrl = "$DocsUrl#navigationrail",
+    sourceUrl = "$MaterialSourceUrl/NavigationRail.kt",
+    examples = NavigationRailExamples
+)
+
 private val BottomNavigation = Component(
     id = 4,
     name = "Bottom navigation",
@@ -277,11 +303,15 @@ private val TextFields = Component(
     examples = TextFieldsExamples
 )
 
+// Next id = 24
+
 val Components = listOf(
     AppBarsBottom,
     AppBarsTop,
     Backdrop,
+    Badge,
     BottomNavigation,
+    NavigationRail,
     Buttons,
     ButtonsFloatingActionButton,
     Cards,

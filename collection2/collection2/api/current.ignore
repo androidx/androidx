@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+ChangedSuperclass: androidx.collection.ArrayMap:
+    Class androidx.collection.ArrayMap superclass changed from androidx.collection.SimpleArrayMap to java.lang.Object
+
+
+RemovedClass: androidx.collection.ArraySet:
+    Removed class androidx.collection.ArraySet
+RemovedClass: androidx.collection.CircularArray:
+    Removed class androidx.collection.CircularArray
+RemovedClass: androidx.collection.CircularIntArray:
+    Removed class androidx.collection.CircularIntArray
+RemovedClass: androidx.collection.LongSparseArray:
+    Removed class androidx.collection.LongSparseArray
+RemovedClass: androidx.collection.LruCache:
+    Removed class androidx.collection.LruCache
+RemovedClass: androidx.collection.SimpleArrayMap:
+    Removed class androidx.collection.SimpleArrayMap
+RemovedClass: androidx.collection.SparseArrayCompat:
+    Removed class androidx.collection.SparseArrayCompat
+
+
+RemovedMethod: androidx.collection.ArrayMap#ArrayMap(androidx.collection.SimpleArrayMap):
+    Removed constructor androidx.collection.ArrayMap(androidx.collection.SimpleArrayMap)

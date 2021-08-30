@@ -17,12 +17,17 @@
 package androidx.navigation.compose
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,11 +40,18 @@ import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.navigation.contains
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.contains
+import androidx.navigation.createGraph
+import androidx.navigation.navDeepLink
+import androidx.navigation.navigation
 import androidx.navigation.plusAssign
 import androidx.navigation.testing.TestNavHostController
 import androidx.savedstate.SavedStateRegistry
@@ -191,8 +203,8 @@ class NavHostTest {
         }
 
         composeTestRule.runOnIdle {
-            assertWithMessage("First destination should be current")
-                .that(navController.currentDestination?.route).isEqualTo("first")
+            assertWithMessage("Second destination should be current")
+                .that(navController.currentDestination?.route).isEqualTo("second")
         }
     }
 
@@ -244,7 +256,8 @@ class NavHostTest {
                 NavHostController(context).apply {
                     restoreState(savedState)
                     setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
-                    navigatorProvider.addNavigator(ComposeNavigator())
+                    navigatorProvider += ComposeNavigator()
+                    navigatorProvider += DialogNavigator()
                 }
             }
             if (state.value == 0) {
@@ -381,6 +394,255 @@ class NavHostTest {
         }
     }
 
+    @Test
+    fun setSameGraph() {
+        var currentGraph by mutableStateOf<NavGraph?>(null)
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            graph2 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            currentGraph = graph1
+            NavHost(navController, currentGraph!!)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate("Second")
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Current destination should be Second")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("Second")
+        }
+
+        composeTestRule.runOnIdle {
+            currentGraph = graph2
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Current destination should be Second")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("Second")
+        }
+    }
+
+    @Test
+    fun testNavHostCrossFade() {
+        lateinit var navController: NavHostController
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = first) {
+                composable(first) { BasicText(first) }
+                composable(second) { BasicText(second) }
+            }
+        }
+
+        val firstEntry = navController.currentBackStackEntry
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.runOnIdle {
+            assertThat(firstEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        assertThat(firstEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        // advance half way between the crossfade
+        composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
+
+        assertThat(firstEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        composeTestRule.onNodeWithText(first).assertExists()
+        composeTestRule.onNodeWithText(second).assertExists()
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.runOnIdle {
+            assertThat(firstEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.CREATED)
+            assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        val secondEntry = navController.currentBackStackEntry
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+        }
+
+        assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(secondEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+
+        // advance half way between the crossfade
+        composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
+
+        assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        assertThat(secondEntry?.lifecycle?.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+
+        composeTestRule.onNodeWithText(first).assertExists()
+        composeTestRule.onNodeWithText(second).assertExists()
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+            assertThat(secondEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.DESTROYED)
+        }
+    }
+
+    @Test
+    fun testNavHostCrossFadeDeeplink() {
+        lateinit var navController: NavHostController
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        composeTestRule.setContent {
+            // Add the flags to make NavController think this is a deep link
+            val activity = LocalContext.current as? Activity
+            activity?.intent?.run {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            }
+            navController = rememberNavController()
+            NavHost(navController, startDestination = first) {
+                composable(first) { BasicText(first) }
+                composable(
+                    second,
+                    deepLinks = listOf(navDeepLink { action = Intent.ACTION_MAIN })
+                ) {
+                    BasicText(second)
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        val firstEntry = navController.getBackStackEntry(first)
+        val secondEntry = navController.getBackStackEntry(second)
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.runOnIdle {
+            assertThat(firstEntry.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.CREATED)
+            assertThat(secondEntry.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
+    }
+
+    @Test
+    fun testStateSavedByCrossFade() {
+        lateinit var navController: NavHostController
+        lateinit var text: MutableState<String>
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, "start") {
+                composable("start") {
+                    text = rememberSaveable { mutableStateOf("") }
+                    Column {
+                        TextField(value = text.value, onValueChange = { text.value = it })
+                    }
+                }
+                composable("second") { }
+            }
+        }
+
+        composeTestRule.onNodeWithText("test").assertDoesNotExist()
+
+        text.value = "test"
+
+        composeTestRule.onNodeWithText("test").assertExists()
+
+        composeTestRule.runOnIdle {
+            navController.navigate("second") {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate("start") {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+
+        composeTestRule.onNodeWithText("test").assertExists()
+    }
+
+    @Test
+    fun testGetGraphViewModel() {
+        lateinit var navController: NavHostController
+        lateinit var model: TestViewModel
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, first) {
+                composable(first) { }
+                navigation(second, "subGraph") {
+                    composable(second) {
+                        model = viewModel(remember { navController.getBackStackEntry("subGraph") })
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+        }
+
+        assertThat(model.wasCleared).isFalse()
+
+        composeTestRule.waitForIdle()
+
+        assertThat(model.wasCleared).isTrue()
+    }
+
     private fun createNavController(context: Context): TestNavHostController {
         val navController = TestNavHostController(context)
         val navigator = TestNavigator()
@@ -389,6 +651,15 @@ class NavHostTest {
     }
 }
 
+private const val first = "first"
+private const val second = "second"
+
 class TestViewModel : ViewModel() {
     var value: String = "nothing"
+    var wasCleared = false
+
+    override fun onCleared() {
+        super.onCleared()
+        wasCleared = true
+    }
 }

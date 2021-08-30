@@ -17,7 +17,6 @@
 
 package androidx.compose.desktop.examples.windowapi
 
-import androidx.compose.desktop.ComposeWindow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -34,15 +33,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.asPainter
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.res.loadSvgPainter
+import androidx.compose.ui.res.useResource
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.AwtWindow
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Notification
-import androidx.compose.ui.window.OwnerWindowScope
 import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.TrayState
 import androidx.compose.ui.window.Window
@@ -66,8 +72,6 @@ import java.awt.FileDialog
 import java.awt.Frame
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import java.awt.image.BufferedImage
-import java.lang.Thread.currentThread
 import javax.imageio.ImageIO
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -306,7 +310,7 @@ fun customDialog() = GlobalScope.launchApplication {
 }
 
 @Composable
-private fun OwnerWindowScope.FileDialog(
+private fun FileDialog(
     onDismissRequest: (result: String?) -> Unit
 ) = AwtWindow(
     create = {
@@ -321,10 +325,9 @@ private fun OwnerWindowScope.FileDialog(
     },
     dispose = FileDialog::dispose
 )
-
 @OptIn(DelicateCoroutinesApi::class)
 fun setIcon() = GlobalScope.launchApplication {
-    var icon: BufferedImage? by remember { mutableStateOf(null) }
+    var icon: Painter? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
         delay(1000)
@@ -338,10 +341,29 @@ fun setIcon() = GlobalScope.launchApplication {
     Window(onCloseRequest = ::exitApplication, icon = icon) {}
 }
 
+@OptIn(DelicateCoroutinesApi::class)
+fun setAwtIcon() = GlobalScope.launchApplication {
+    var icon: Painter? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(Unit) {
+        icon = loadAwtIcon()?.asPainter()
+    }
+
+    Window(onCloseRequest = ::exitApplication, icon = icon) {}
+}
+
 @Suppress("BlockingMethodInNonBlockingContext")
 private suspend fun loadIcon() = withContext(Dispatchers.IO) {
+    val path = "androidx/compose/desktop/example/star.svg"
+    useResource(path) {
+        loadSvgPainter(it, Density(1f))
+    }
+}
+
+@Suppress("BlockingMethodInNonBlockingContext")
+private suspend fun loadAwtIcon() = withContext(Dispatchers.IO) {
     val path = "androidx/compose/desktop/example/tray.png"
-    ImageIO.read(currentThread().contextClassLoader.getResource(path))
+    useResource(path, ImageIO::read)
 }
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -522,22 +544,31 @@ fun saveWindowState() {
 @OptIn(DelicateCoroutinesApi::class)
 fun menu() = GlobalScope.launchApplication {
     var isSubmenuShowing by remember { mutableStateOf(false) }
+    val icon = remember {
+        runBlocking {
+            loadIcon()
+        }
+    }
 
     Window(
         onCloseRequest = ::exitApplication
     ) {
         MenuBar {
-            Menu("File") {
-                Item(
+            Menu("File", mnemonic = 'F') {
+                CheckboxItem(
                     "Toggle submenu",
-                    onClick = {
-                        isSubmenuShowing = !isSubmenuShowing
-                    }
+                    isSubmenuShowing,
+                    mnemonic = 'T',
+                    onCheckedChange = {
+                        isSubmenuShowing = it
+                    },
+                    shortcut = KeyShortcut(Key.T, ctrl = true)
                 )
                 if (isSubmenuShowing) {
-                    Menu("Submenu") {
+                    Menu("Submenu", mnemonic = 'S') {
                         Item(
                             "item1",
+                            icon = icon,
                             onClick = {
                                 println("item1")
                             }
@@ -550,9 +581,34 @@ fun menu() = GlobalScope.launchApplication {
                         )
                     }
                 }
+
+                var radioState by remember { mutableStateOf(0) }
+
+                Menu("RadioButton", mnemonic = 'R') {
+                    RadioButtonItem(
+                        "item1",
+                        selected = radioState == 0,
+                        onClick = {
+                            radioState = 0
+                        }
+                    )
+                    RadioButtonItem(
+                        "item2",
+                        selected = radioState == 1,
+                        onClick = {
+                            radioState = 1
+                        }
+                    )
+                }
+
                 Separator()
                 Item("Exit", onClick = this@launchApplication::exitApplication)
             }
+        }
+
+        Column {
+            TextField("Consume T Key", {}, Modifier.onKeyEvent { it.key == Key.T })
+            TextField("Don't consume", {})
         }
     }
 }

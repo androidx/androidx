@@ -167,6 +167,24 @@ public final class CarText {
     }
 
     /**
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(LIBRARY)
+    public List<SpanWrapper> getSpans() {
+        return mSpans;
+    }
+
+    /**
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(LIBRARY)
+    public List<List<SpanWrapper>> getSpansForVariants() {
+        return mSpansForVariants;
+    }
+
+    /**
      * Returns a shortened string from the input {@code text}.
      *
      * @hide
@@ -255,8 +273,11 @@ public final class CarText {
 
     /**
      * Wraps a span to send it to the host.
+     *
+     * @hide
      */
-    private static class SpanWrapper {
+    @RestrictTo(LIBRARY)
+    public static class SpanWrapper {
         @Keep
         private final int mStart;
         @Keep

@@ -56,13 +56,6 @@ def setupPlayground(settings, String relativePathToRoot) {
     }
     settings.ext.supportRootDir = supportRoot
     settings.rootProject.buildFileName = relativePathToBuild
-    settings.pluginManagement {
-        repositories {
-            google()
-            mavenCentral()
-            jcenter()
-        }
-    }
     settings.enableFeaturePreview("VERSION_CATALOGS")
     settings.dependencyResolutionManagement {
         versionCatalogs {
@@ -71,11 +64,10 @@ def setupPlayground(settings, String relativePathToRoot) {
             }
         }
     }
-    settings.includeBuild(new File(supportRoot, "androidx-plugin"))
     settings.includeProject(":lint-checks", new File(supportRoot, "lint-checks"))
     settings.includeProject(":lint-checks:integration-tests",
             new File(supportRoot, "lint-checks/integration-tests"))
-    settings.includeProject(":fakeannotations", new File(supportRoot,"fakeannotations"))
+    settings.includeProject(":fakeannotations", new File(supportRoot, "fakeannotations"))
     settings.includeProject(":internal-testutils-common",
             new File(supportRoot, "testutils/testutils-common"))
     settings.includeProject(":internal-testutils-gradle-plugin",
@@ -89,19 +81,21 @@ def setupPlayground(settings, String relativePathToRoot) {
  *               If filter returns true, it will be included in the build.
  */
 def selectProjectsFromAndroidX(filter) {
-    def includeProjectPattern = ~/.*includeProject\("(?<name>.*)", "(?<path>.*)"(.*)\).*/
+    // Multiline matcher for anything of the form:
+    //  includeProject(name, path, ...)
+    // where '...' is anything except the ')' character.
+    def includeProjectPattern = ~/(?m)^[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)",[\n\r\s]*"(?<path>[a-z0-9-\/]+)[^)]+\)$/
     def supportSettingsFile = new File(ext.supportRootDir, "settings.gradle")
-    supportSettingsFile.eachLine { line ->
-        def matcher = (line =~ includeProjectPattern)
+    def matcher = includeProjectPattern.matcher(supportSettingsFile.text)
+
+    while (matcher.find()) {
         // check if is an include project line, if so, extract project gradle path and
         // file system path and call the filter
-        if (matcher.matches()) {
-            def projectGradlePath = matcher.group("name")
-            def projectFilePath = matcher.group("path")
-            if (filter(projectGradlePath)) {
-                settings.includeProject(projectGradlePath,
-                        new File(ext.supportRootDir, projectFilePath))
-            }
+        def projectGradlePath = matcher.group("name")
+        def projectFilePath = matcher.group("path")
+        if (filter(projectGradlePath)) {
+            settings.includeProject(projectGradlePath,
+                    new File(ext.supportRootDir, projectFilePath))
         }
     }
 }
@@ -114,7 +108,7 @@ def isNeededForComposePlayground(name) {
     if (name == ":compose:lint:internal-lint-checks") return true
     if (name == ":compose:test-utils") return true
     if (name == ":compose:lint:common-test") return true
-    if (name == ":test-screenshot") return true
+    if (name == ":test:screenshot:screenshot") return true
     return false
 }
 
@@ -131,7 +125,7 @@ if (jvmVersion != "11") {
     def guidance;
     if (startParameter.projectProperties.containsKey("android.injected.invoked.from.ide")) {
         guidance = "Make sure to set the gradle JDK to JDK 11 in the project settings." +
-                   "(File -> Other Settings -> Default Project Structure)"
+                "(File -> Other Settings -> Default Project Structure)"
     } else {
         guidance = "Make sure your JAVA_HOME environment variable points to Java 11 JDK."
     }
@@ -141,3 +135,9 @@ if (jvmVersion != "11") {
             Current version: $jvmVersion
             Current JAVA HOME: ${System.getProperty("java.home")}""".stripIndent());
 }
+
+// allow public repositories
+System.setProperty("ALLOW_PUBLIC_REPOS", "true")
+
+// specify out dir location
+System.setProperty("CHECKOUT_ROOT", "${buildscript.sourceFile.parent}/..")

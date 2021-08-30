@@ -24,7 +24,6 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.accessibility.AccessibilityEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -117,6 +116,7 @@ public class ActionBarContextView extends AbsActionBarView {
     public void setTitle(CharSequence title) {
         mTitle = title;
         initTitle();
+        ViewCompat.setAccessibilityPaneTitle(this, title);
     }
 
     public void setSubtitle(CharSequence subtitle) {
@@ -358,19 +358,6 @@ public class ActionBarContextView extends AbsActionBarView {
     @Override
     public boolean shouldDelayChildPressedState() {
         return false;
-    }
-
-    @Override
-    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
-        if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            // Action mode started
-            event.setSource(this);
-            event.setClassName(getClass().getName());
-            event.setPackageName(getContext().getPackageName());
-            event.setContentDescription(mTitle);
-        } else {
-            super.onInitializeAccessibilityEvent(event);
-        }
     }
 
     public void setTitleOptional(boolean titleOptional) {

@@ -38,6 +38,9 @@ public class ComplicationSlotBounds(
     public constructor(bounds: RectF) : this(ComplicationType.values().associateWith { bounds })
 
     init {
+        require(perComplicationTypeBounds.size == ComplicationType.values().size) {
+            "ComplicationSlotBounds must contain entries for each ComplicationType"
+        }
         for (type in ComplicationType.values()) {
             require(perComplicationTypeBounds.containsKey(type)) {
                 "Missing bounds for $type"

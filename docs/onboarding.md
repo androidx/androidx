@@ -131,6 +131,14 @@ git config --global merge.renameLimit 999999
 git config --global diff.renameLimit 999999
 ```
 
+### To check out older source, use the superproject
+
+The
+[git superproject](https://android.googlesource.com/platform/superproject/+/androidx-main)
+contains a history of the matching exact commits of each git repository over
+time, and it can be
+[checked out directly via git](https://stackoverflow.com/questions/3796927/how-to-git-clone-including-submodules)
+
 ## Explore source code from a browser {#code-search}
 
 `androidx-main` has a publicly-accessible
@@ -226,6 +234,38 @@ NOTE If `repo upload` or any `git` command hangs and causes your CPU usage to
 skyrocket (e.g. your laptop fan sounds like a jet engine), then you may be
 hitting a rare issue with Git-on-Borg and HTTP/2. You can force `git` and `repo`
 to use HTTP/1.1 with `git config --global http.version HTTP/1.1`.
+
+### Fixing Kotlin code style errors
+
+`repo upload` automatically runs `ktlint`, which will cause the upload to fail
+if your code has style errors, which it reports on the command line like so:
+
+```
+[FAILED] ktlint_hook
+    [path]/MessageListAdapter.kt:36:69: Missing newline before ")"
+```
+
+To find and fix these errors, you can run ktlint locally, either in a console
+window or in the Terminal tool in Android Studio. Running in the Terminal tool
+is preferable because it will surface links to your source files/lines so you
+can easily navigate to the code to fix any problems.
+
+First, to run the tool and see all of the errors, run:
+
+`./gradlew module:submodule:ktlint`
+
+where module/submodule are the names used to refer to the module you want to
+check, such as `navigation:navigation-common`. You can also run ktlint on the
+entire project, but that takes longer as it is checking all active modules in
+your project.
+
+Many of the errors that ktlint finds can be automatically fixed by running
+ktlintFormat:
+
+`./gradlew module:submodule:ktlintFormat`
+
+ktlintFormat will report any remaining errors, but you can also run `ktlint`
+again at any time to see an updated list of the remaining errors.
 
 ## Building {#building}
 

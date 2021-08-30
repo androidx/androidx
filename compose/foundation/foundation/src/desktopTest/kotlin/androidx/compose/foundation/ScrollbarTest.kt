@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.gestures.LocalMouseScrollConfig
+import androidx.compose.foundation.gestures.MouseScrollableConfig
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -37,8 +39,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.mouse.MouseScrollEvent
 import androidx.compose.ui.input.mouse.MouseScrollOrientation
 import androidx.compose.ui.input.mouse.MouseScrollUnit
-import androidx.compose.ui.platform.DesktopPlatform
-import androidx.compose.ui.platform.LocalDesktopPlatform
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.GestureScope
@@ -403,6 +403,23 @@ class ScrollbarTest {
         }
     }
 
+    @Test
+    fun `drag lazy slider when it is hidden`() {
+        runBlocking(Dispatchers.Main) {
+            rule.setContent {
+                LazyTestBox(
+                    size = 100.dp, childSize = 20.dp, childCount = 1, scrollbarWidth = 10.dp
+                )
+            }
+            rule.awaitIdle()
+            rule.onNodeWithTag("scrollbar").performGesture {
+                instantSwipe(start = Offset(0f, 25f), end = Offset(0f, 50f))
+            }
+            rule.awaitIdle()
+            rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(0.dp)
+        }
+    }
+
     private suspend fun tryUntilSucceeded(block: suspend () -> Unit) {
         while (true) {
             try {
@@ -480,7 +497,7 @@ class ScrollbarTest {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     private fun LazyTestBox(
-        state: LazyListState,
+        state: LazyListState = rememberLazyListState(),
         size: Dp,
         childSize: Dp,
         childCount: Int,
@@ -525,7 +542,7 @@ class ScrollbarTest {
             unhoverColor = Color.Black,
             hoverColor = Color.Red
         ),
-        LocalDesktopPlatform provides DesktopPlatform.MacOS,
+        LocalMouseScrollConfig provides MouseScrollableConfig.MacOSCocoa,
         content = content
     )
 }

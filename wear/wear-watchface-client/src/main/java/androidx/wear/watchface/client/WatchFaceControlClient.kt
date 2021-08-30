@@ -21,8 +21,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.os.RemoteException
 import androidx.annotation.Px
-import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.utility.AsyncTraceEvent
@@ -37,7 +38,6 @@ import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
@@ -64,6 +64,7 @@ public interface WatchFaceControlClient : AutoCloseable {
          * a [ServiceStartFailureException] if the watch face dies during startup.
          */
         @JvmStatic
+        @Throws(ServiceNotBoundException::class, ServiceStartFailureException::class)
         public suspend fun createWatchFaceControlClient(
             context: Context,
             watchFacePackageName: String
@@ -93,12 +94,7 @@ public interface WatchFaceControlClient : AutoCloseable {
                     deferredService.completeExceptionally(ServiceStartFailureException())
                 }
             }
-            if (!context.bindService(
-                    intent,
-                    serviceConnection,
-                    Context.BIND_AUTO_CREATE or Context.BIND_IMPORTANT
-                )
-            ) {
+            if (!BindHelper.bindService(context, intent, serviceConnection)) {
                 traceEvent.close()
                 throw ServiceNotBoundException()
             }
@@ -128,6 +124,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @return The [InteractiveWatchFaceClient] or `null` if [instanceId] is unrecognized, or
      * [ServiceNotBoundException] if the WatchFaceControlService is not bound.
      */
+    @Throws(RemoteException::class)
     public fun getInteractiveWatchFaceClientInstance(
         instanceId: String
     ): InteractiveWatchFaceClient?
@@ -147,6 +144,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param surfaceHeight The height of screen shots taken by the [HeadlessWatchFaceClient]
      * @return The [HeadlessWatchFaceClient] or `null` if [watchFaceName] is unrecognized.
      */
+    @Throws(RemoteException::class)
     public fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
@@ -164,13 +162,15 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param id The ID for the requested [InteractiveWatchFaceClient].
      * @param deviceConfig The [DeviceConfig] for the wearable.
      * @param watchUiState The initial [WatchUiState] for the wearable.
-     * @param userStyle The initial style map encoded as [UserStyleData] (see [UserStyle]), or
-     * `null` if the default should be used.
+     * @param userStyle Optional [UserStyleData] to apply to the instance (whether or not it's
+     * created). If `null` then the pre-existing user style is preserved (if the instance is created
+     * this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
      * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
      * or `null` if unavailable.
      * @return The [InteractiveWatchFaceClient], this should be closed when finished.
      * @throws [ServiceStartFailureException] if the watchface dies during startup.
      */
+    @Throws(RemoteException::class)
     public suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
@@ -179,41 +179,43 @@ public interface WatchFaceControlClient : AutoCloseable {
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient
 
+    @Throws(RemoteException::class)
     public fun getEditorServiceClient(): EditorServiceClient
 
     /**
      * Returns a map of [androidx.wear.watchface.ComplicationSlot] id to the
-     * [DefaultComplicationProviderPolicyAndType] for each
+     * [DefaultComplicationDataSourcePolicyAndType] for each
      * [androidx.wear.watchface.ComplicationSlot] in the watchface corresponding to [watchFaceName].
      * Where possible a fast path is used that doesn't need to fully construct the corresponding
      * watch face.
      *
      * @param watchFaceName The [ComponentName] of the watch face to obtain the map of
-     * [DefaultComplicationProviderPolicyAndType]s for. It must be in the same APK the
+     * [DefaultComplicationDataSourcePolicyAndType]s for. It must be in the same APK the
      * WatchFaceControlClient is connected to. NB a single apk can contain multiple watch faces.
      */
-    public fun getDefaultComplicationProviderPoliciesAndType(
+    @Throws(RemoteException::class)
+    public fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
-    ): Map<Int, DefaultComplicationProviderPolicyAndType>
+    ): Map<Int, DefaultComplicationDataSourcePolicyAndType>
 }
 
 /**
- * A pair of [DefaultComplicationProviderPolicy] and [ComplicationType] describing the default state
- * of an [androidx.wear.watchface.ComplicationSlot].
+ * A pair of [DefaultComplicationDataSourcePolicy] and [ComplicationType] describing the default
+ * state of a [androidx.wear.watchface.ComplicationSlot].
  *
- * @param policy The [DefaultComplicationProviderPolicy] for the
+ * @param policy The [DefaultComplicationDataSourcePolicy] for the
  * [androidx.wear.watchface.ComplicationSlot].
  * @param type The default [ComplicationType] for the [androidx.wear.watchface.ComplicationSlot].
  */
-public class DefaultComplicationProviderPolicyAndType(
-    public val policy: DefaultComplicationProviderPolicy,
+public class DefaultComplicationDataSourcePolicyAndType(
+    public val policy: DefaultComplicationDataSourcePolicy,
     public val type: ComplicationType
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as DefaultComplicationProviderPolicyAndType
+        other as DefaultComplicationDataSourcePolicyAndType
 
         if (policy != other.policy) return false
         if (type != other.type) return false
@@ -253,12 +255,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         return service.createHeadlessWatchFaceInstance(
             HeadlessWatchFaceInstanceParams(
                 watchFaceName,
-                androidx.wear.watchface.data.DeviceConfig(
-                    deviceConfig.hasLowBitAmbient,
-                    deviceConfig.hasBurnInProtection,
-                    deviceConfig.analogPreviewReferenceTimeMillis,
-                    deviceConfig.digitalPreviewReferenceTimeMillis
-                ),
+                deviceConfig.asWireDeviceConfig(),
                 surfaceWidth,
                 surfaceHeight
             )
@@ -351,9 +348,9 @@ internal class WatchFaceControlClientImpl internal constructor(
         return EditorServiceClientImpl(service.editorService)
     }
 
-    override fun getDefaultComplicationProviderPoliciesAndType(
+    override fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
-    ): Map<Int, DefaultComplicationProviderPolicyAndType> = TraceEvent(
+    ): Map<Int, DefaultComplicationDataSourcePolicyAndType> = TraceEvent(
         "WatchFaceControlClientImpl.getDefaultProviderPolicies"
     ).use {
         requireNotClosed()
@@ -365,8 +362,8 @@ internal class WatchFaceControlClientImpl internal constructor(
                         it.id
                     },
                     {
-                        DefaultComplicationProviderPolicyAndType(
-                            DefaultComplicationProviderPolicy(
+                        DefaultComplicationDataSourcePolicyAndType(
+                            DefaultComplicationDataSourcePolicy(
                                 it.defaultProvidersToTry ?: emptyList(),
                                 it.fallbackSystemProvider
                             ),
@@ -386,9 +383,9 @@ internal class WatchFaceControlClientImpl internal constructor(
             // NB .use {} syntax doesn't compile here.
             try {
                 headlessClient.complicationSlotsState.mapValues {
-                    DefaultComplicationProviderPolicyAndType(
-                        it.value.defaultProviderPolicy,
-                        it.value.defaultProviderType
+                    DefaultComplicationDataSourcePolicyAndType(
+                        it.value.defaultDataSourcePolicy,
+                        it.value.defaultDataSourceType
                     )
                 }
             } finally {

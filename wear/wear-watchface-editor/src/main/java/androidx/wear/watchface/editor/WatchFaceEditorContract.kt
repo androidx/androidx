@@ -24,19 +24,58 @@ import android.content.Intent
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RequiresApi
+import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.EditorServiceClient
 import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchFaceId
+import androidx.wear.watchface.client.asApiDeviceConfig
+import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlin.jvm.Throws
+import java.time.Instant
 
 internal const val INSTANCE_ID_KEY: String = "INSTANCE_ID_KEY"
 internal const val COMPONENT_NAME_KEY: String = "COMPONENT_NAME_KEY"
+internal const val HEADLESS_DEVICE_CONFIG_KEY: String = "HEADLESS_DEVICE_CONFIG_KEY"
+internal const val RENDER_PARAMETERS_KEY: String = "RENDER_PARAMETERS_KEY"
+internal const val RENDER_TIME_MILLIS_KEY: String = "RENDER_TIME_MILLIS_KEY"
 internal const val USER_STYLE_KEY: String = "USER_STYLE_KEY"
 internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
+
+typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
+
+/**
+ * Parameters for an optional final screenshot taken by [EditorSession] upon exit and reported via
+ * [EditorState].
+ *
+ * @param renderParameters The [RenderParameters] to use when rendering the screen shot
+ * @param instant The [Instant] to render with.
+ */
+public class PreviewScreenshotParams(
+    public val renderParameters: RenderParameters,
+    public val instant: Instant
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PreviewScreenshotParams
+
+        if (renderParameters != other.renderParameters) return false
+        if (instant != other.instant) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = renderParameters.hashCode()
+        result = 31 * result + instant.hashCode()
+        return result
+    }
+}
 
 /**
  * The request sent by [WatchFaceEditorContract.createIntent].
@@ -48,6 +87,12 @@ internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
  * @param watchFaceId Unique ID for the instance of the watch face being edited, only defined for
  * Android R and beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName]
  * can have multiple instances.
+ * @param headlessDeviceConfig If `non-null` then this is the [DeviceConfig] to use when creating
+ * a headless instance to back the [EditorSession]. If `null` then the current interactive instance
+ * will be used. If there isn't one then the [EditorSession] won't launch until it's been created.
+ * @param previewScreenshotParams If `non-null` then [EditorSession] upon
+ * closing will render a screenshot with [PreviewScreenshotParams] using the existing interactive
+ * or headless instance which will be sent in [EditorState] to any registered clients.
  */
 public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
     public val watchFaceComponentName: ComponentName,
@@ -56,7 +101,9 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
 
     @get:RequiresApi(Build.VERSION_CODES.R)
     @RequiresApi(Build.VERSION_CODES.R)
-    public val watchFaceId: WatchFaceId
+    public val watchFaceId: WatchFaceId,
+    public val headlessDeviceConfig: DeviceConfig?,
+    public val previewScreenshotParams: PreviewScreenshotParams?
 ) {
     /**
      * Constructs an [EditorRequest] without a [WatchFaceId]. This is for use pre-android R.
@@ -76,7 +123,9 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
         watchFaceComponentName,
         editorPackageName,
         initialUserStyle,
-        WatchFaceId("")
+        WatchFaceId(""),
+        null,
+        null
     )
 
     public companion object {
@@ -88,32 +137,33 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
         @SuppressLint("NewApi")
         @JvmStatic
         @Throws(TimeoutCancellationException::class)
-        public fun createFromIntent(intent: Intent): EditorRequest {
-            val componentName =
-                intent.getParcelableExtra<ComponentName>(COMPONENT_NAME_KEY)!!
-            val editorPackageName = intent.getPackage() ?: ""
-            val instanceId = WatchFaceId(intent.getStringExtra(INSTANCE_ID_KEY) ?: "")
-            val userStyleKey = intent.getStringArrayExtra(USER_STYLE_KEY)
-            return componentName.let {
-                if (userStyleKey != null) {
-                    EditorRequest(
-                        componentName,
-                        editorPackageName,
-                        UserStyleData(
-                            HashMap<String, ByteArray>().apply {
-                                for (i in userStyleKey.indices) {
-                                    val userStyleValue =
-                                        intent.getByteArrayExtra(USER_STYLE_VALUES + i)!!
-                                    put(userStyleKey[i], userStyleValue)
-                                }
-                            }
-                        ),
-                        instanceId
-                    )
-                }
-                EditorRequest(componentName, editorPackageName, null, instanceId)
+        public fun createFromIntent(intent: Intent): EditorRequest = EditorRequest(
+            watchFaceComponentName = intent.getParcelableExtra<ComponentName>(COMPONENT_NAME_KEY)!!,
+            editorPackageName = intent.getPackage() ?: "",
+            initialUserStyle = intent.getStringArrayExtra(USER_STYLE_KEY)?.let {
+                UserStyleData(
+                    HashMap<String, ByteArray>().apply {
+                        for (i in it.indices) {
+                            val userStyleValue =
+                                intent.getByteArrayExtra(USER_STYLE_VALUES + i)!!
+                            put(it[i], userStyleValue)
+                        }
+                    }
+                )
+            },
+            watchFaceId = WatchFaceId(intent.getStringExtra(INSTANCE_ID_KEY) ?: ""),
+            headlessDeviceConfig = intent.getParcelableExtra<WireDeviceConfig>(
+                HEADLESS_DEVICE_CONFIG_KEY
+            )?.asApiDeviceConfig(),
+            previewScreenshotParams = intent.getParcelableExtra<RenderParametersWireFormat>(
+                RENDER_PARAMETERS_KEY
+            )?.let {
+                PreviewScreenshotParams(
+                    RenderParameters(it),
+                    Instant.ofEpochMilli(intent.getLongExtra(RENDER_TIME_MILLIS_KEY, 0))
+                )
             }
-        }
+        )
     }
 }
 
@@ -144,6 +194,11 @@ public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest
                 for ((index, value) in it.userStyleMap.values.withIndex()) {
                     putExtra(USER_STYLE_VALUES + index, value)
                 }
+            }
+            putExtra(HEADLESS_DEVICE_CONFIG_KEY, input.headlessDeviceConfig?.asWireDeviceConfig())
+            input.previewScreenshotParams?.let {
+                putExtra(RENDER_PARAMETERS_KEY, it.renderParameters.toWireFormat())
+                putExtra(RENDER_TIME_MILLIS_KEY, it.instant.toEpochMilli())
             }
         }
     }

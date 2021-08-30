@@ -18,15 +18,14 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
-import android.view.Surface
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.impl.CAMERAX_TAG_BUNDLE
+import androidx.camera.camera2.pipe.integration.testing.FakeSurface
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
-import androidx.camera.core.impl.DeferrableSurface
-import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.core.impl.TagBundle
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
-import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -129,10 +128,29 @@ class CaptureConfigAdapterTest {
         val rotation = request.parameters[CaptureRequest.JPEG_ORIENTATION]
         assertThat(rotation).isEqualTo(90)
     }
-}
 
-private class FakeSurface : DeferrableSurface() {
-    override fun provideSurface(): ListenableFuture<Surface> {
-        return Futures.immediateFuture(null)
+    @Test
+    fun shouldSetTagBundleToTheRequest() {
+        // Arrange
+        val surface = FakeSurface()
+        val configAdapter = CaptureConfigAdapter(
+            surfaceToStreamMap = mapOf(surface to StreamId(0)),
+            callbackExecutor = Executors.newSingleThreadExecutor()
+        )
+
+        val tagKey = "testTagKey"
+        val tagValue = "testTagValue"
+        val captureConfig = CaptureConfig.Builder().apply {
+            addSurface(surface)
+            addTag(tagKey, tagValue)
+        }.build()
+
+        // Act
+        val request = configAdapter.mapToRequest(captureConfig)
+
+        // Assert
+        assertThat(request.extras).containsKey(CAMERAX_TAG_BUNDLE)
+        val tagBundle = request.extras[CAMERAX_TAG_BUNDLE] as TagBundle
+        assertThat(tagBundle.getTag(tagKey)).isEqualTo(tagValue)
     }
 }

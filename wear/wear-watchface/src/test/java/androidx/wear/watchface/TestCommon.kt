@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.icu.util.Calendar
 import android.os.Handler
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationText
@@ -39,6 +38,8 @@ import androidx.wear.watchface.style.UserStyleSchema
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 internal class TestWatchFaceService(
     @WatchFaceType private val watchFaceType: Int,
@@ -60,6 +61,7 @@ internal class TestWatchFaceService(
         get() = mutableTappedComplicationIds
     var complicationSelected: Int? = null
     var mockSystemTimeMillis = 0L
+    var mockZoneId: ZoneId = ZoneId.of("UTC")
     var lastUserStyle: UserStyle? = null
     var renderer: TestRenderer? = null
 
@@ -69,7 +71,7 @@ internal class TestWatchFaceService(
     fun reset() {
         clearTappedState()
         complicationSelected = null
-        renderer?.lastOnDrawCalendar = null
+        renderer?.lastOnDrawZonedDateTime = null
         mockSystemTimeMillis = 0L
     }
 
@@ -115,9 +117,9 @@ internal class TestWatchFaceService(
         renderer = rendererFactory(surfaceHolder, currentUserStyleRepository, watchState)
         return WatchFace(watchFaceType, renderer!!)
             .setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-                override fun getSystemTimeMillis(): Long {
-                    return mockSystemTimeMillis
-                }
+                override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+                override fun getSystemTimeZoneId() = mockZoneId
             }).setTapListener(tapListener)
     }
 
@@ -220,19 +222,19 @@ public open class TestRenderer(
     CanvasType.HARDWARE,
     interactiveFrameRateMs
 ) {
-    public var lastOnDrawCalendar: Calendar? = null
+    public var lastOnDrawZonedDateTime: ZonedDateTime? = null
     public var lastRenderParameters: RenderParameters = RenderParameters.DEFAULT_INTERACTIVE
 
     override fun render(
         canvas: Canvas,
         bounds: Rect,
-        calendar: Calendar
+        zonedDateTime: ZonedDateTime
     ) {
-        lastOnDrawCalendar = calendar
+        lastOnDrawZonedDateTime = zonedDateTime
         lastRenderParameters = renderParameters
     }
 
-    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
     }
 }
 

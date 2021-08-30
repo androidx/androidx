@@ -15,6 +15,8 @@
  */
 package androidx.car.app.hardware.info;
 
+import static androidx.car.app.hardware.common.CarUnit.CarSpeedUnit;
+
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Keep;
@@ -34,16 +36,16 @@ import java.util.Objects;
 @RequiresCarApi(3)
 public final class Speed {
     @Keep
-    @NonNull
-    private final CarValue<Float> mRawSpeed;
+    @Nullable
+    private final CarValue<Float> mRawSpeedMetersPerSecond;
+
+    @Keep
+    @Nullable
+    private final CarValue<Float> mDisplaySpeedMetersPerSecond;
 
     @Keep
     @NonNull
-    private final CarValue<Float> mDisplaySpeed;
-
-    @Keep
-    @NonNull
-    private final CarValue<Integer> mSpeedDisplayUnit;
+    private final CarValue<@CarSpeedUnit Integer> mSpeedDisplayUnit;
 
     /**
      * Returns the raw speed of the car in meters/second.
@@ -52,14 +54,22 @@ public final class Speed {
      * backwards and zero when stopped.
      */
     @NonNull
-    public CarValue<Float> getRawSpeed() {
-        return requireNonNull(mRawSpeed);
+    public CarValue<Float> getRawSpeedMetersPerSecond() {
+        return requireNonNull(mRawSpeedMetersPerSecond);
     }
 
-    /** Returns the display speed of the car in meters/second. */
+    /**
+     * Returns the display speed of the car in meters/second.
+     *
+     * <p>Some cars display a slightly slower speed than the actual speed. This is usually
+     * displayed on the speedometer.
+     *
+     * <p>The value is positive when the vehicle is moving forward, negative when moving
+     * backwards and zero when stopped.
+     */
     @NonNull
-    public CarValue<Float> getDisplaySpeed() {
-        return requireNonNull(mDisplaySpeed);
+    public CarValue<Float> getDisplaySpeedMetersPerSecond() {
+        return requireNonNull(mDisplaySpeedMetersPerSecond);
     }
 
     /**
@@ -68,7 +78,7 @@ public final class Speed {
      * <p>See {@link CarUnit} for valid speed units.
      */
     @NonNull
-    public CarValue<Integer> getSpeedDisplayUnit() {
+    public CarValue<@CarSpeedUnit Integer> getSpeedDisplayUnit() {
         return requireNonNull(mSpeedDisplayUnit);
     }
 
@@ -76,9 +86,9 @@ public final class Speed {
     @NonNull
     public String toString() {
         return "[ raw speed: "
-                + mRawSpeed
+                + getRawSpeedMetersPerSecond()
                 + ", display speed: "
-                + mDisplaySpeed
+                + getDisplaySpeedMetersPerSecond()
                 + ", speed display unit: "
                 + mSpeedDisplayUnit
                 + "]";
@@ -86,7 +96,8 @@ public final class Speed {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mRawSpeed, mDisplaySpeed, mSpeedDisplayUnit);
+        return Objects.hash(getRawSpeedMetersPerSecond(), getDisplaySpeedMetersPerSecond(),
+                mSpeedDisplayUnit);
     }
 
     @Override
@@ -99,49 +110,52 @@ public final class Speed {
         }
         Speed otherSpeed = (Speed) other;
 
-        return Objects.equals(mRawSpeed, otherSpeed.mRawSpeed)
-                && Objects.equals(mDisplaySpeed, otherSpeed.mDisplaySpeed)
+        return Objects.equals(getRawSpeedMetersPerSecond(), otherSpeed.getRawSpeedMetersPerSecond())
+                && Objects.equals(getDisplaySpeedMetersPerSecond(),
+                otherSpeed.getDisplaySpeedMetersPerSecond())
                 && Objects.equals(mSpeedDisplayUnit, otherSpeed.mSpeedDisplayUnit);
     }
 
     Speed(Builder builder) {
-        mRawSpeed = requireNonNull(builder.mRawSpeed);
-        mDisplaySpeed = requireNonNull(builder.mDisplaySpeed);
+        mRawSpeedMetersPerSecond = requireNonNull(builder.mRawSpeedMetersPerSecond);
+        mDisplaySpeedMetersPerSecond = requireNonNull(builder.mDisplaySpeedMetersPerSecond);
         mSpeedDisplayUnit = requireNonNull(builder.mSpeedDisplayUnit);
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Speed() {
-        mRawSpeed = CarValue.UNIMPLEMENTED_FLOAT;
-        mDisplaySpeed = CarValue.UNIMPLEMENTED_FLOAT;
+        mRawSpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
+        mDisplaySpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
         mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
     }
 
     /** A builder of {@link Speed}. */
     public static final class Builder {
-        CarValue<Float> mRawSpeed = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Float> mDisplaySpeed = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Integer> mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<Float> mRawSpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Float> mDisplaySpeedMetersPerSecond = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<@CarSpeedUnit Integer> mSpeedDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
 
         /**
-         * Sets the raw speed.
+         * Sets the raw speed in meters per second.
          *
-         * @throws NullPointerException if {@code rawSpeed} is {@code null}
+         * @throws NullPointerException if {@code rawSpeedMetersPerSecond} is {@code null}
          */
         @NonNull
-        public Builder setRawSpeed(@NonNull CarValue<Float> rawSpeed) {
-            mRawSpeed = requireNonNull(rawSpeed);
+        public Builder setRawSpeedMetersPerSecond(
+                @NonNull CarValue<Float> rawSpeedMetersPerSecond) {
+            mRawSpeedMetersPerSecond = requireNonNull(rawSpeedMetersPerSecond);
             return this;
         }
 
         /**
-         * Sets the display speed. *
+         * Sets the display speed in meters per second. *
          *
-         * @throws NullPointerException if {@code displaySpeed} is {@code null}
+         * @throws NullPointerException if {@code displaySpeedMetersPerSecond} is {@code null}
          */
         @NonNull
-        public Builder setDisplaySpeed(@NonNull CarValue<Float> displaySpeed) {
-            mDisplaySpeed = requireNonNull(displaySpeed);
+        public Builder setDisplaySpeedMetersPerSecond(
+                @NonNull CarValue<Float> displaySpeedMetersPerSecond) {
+            mDisplaySpeedMetersPerSecond = requireNonNull(displaySpeedMetersPerSecond);
             return this;
         }
 
@@ -153,7 +167,8 @@ public final class Speed {
          * @throws NullPointerException if {@code speedDisplayUnit} is {@code null}
          */
         @NonNull
-        public Builder setSpeedDisplayUnit(@NonNull CarValue<Integer> speedDisplayUnit) {
+        public Builder setSpeedDisplayUnit(
+                @NonNull CarValue<@CarSpeedUnit Integer> speedDisplayUnit) {
             mSpeedDisplayUnit = requireNonNull(speedDisplayUnit);
             return this;
         }

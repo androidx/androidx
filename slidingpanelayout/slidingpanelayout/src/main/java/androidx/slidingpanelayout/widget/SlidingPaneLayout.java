@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
@@ -42,22 +43,21 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
-import androidx.core.util.Consumer;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.animation.PathInterpolatorCompat;
 import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
-import androidx.window.DisplayFeature;
-import androidx.window.FoldingFeature;
-import androidx.window.WindowBackend;
-import androidx.window.WindowLayoutInfo;
-import androidx.window.WindowManager;
+import androidx.transition.ChangeBounds;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
+import androidx.window.layout.FoldingFeature;
+import androidx.window.layout.WindowInfoRepository;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -243,7 +243,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     /**
      * Get the lock mode used to control over the swipe behavior.
      *
-     * @return
      * @see #setLockMode(int)
      */
     @LockMode
@@ -299,9 +298,13 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     private FoldingFeatureObserver.OnFoldingFeatureChangeListener mOnFoldingFeatureChangeListener =
             new FoldingFeatureObserver.OnFoldingFeatureChangeListener() {
                 @Override
-                public void onFoldingFeatureChange(
-                        @NonNull FoldingFeature foldingFeature) {
+                public void onFoldingFeatureChange(@NonNull FoldingFeature foldingFeature) {
                     mFoldingFeature = foldingFeature;
+                    // Start transition animation when folding feature changed
+                    Transition changeBounds = new ChangeBounds();
+                    changeBounds.setDuration(300L);
+                    changeBounds.setInterpolator(PathInterpolatorCompat.create(0.2f, 0, 0, 1));
+                    TransitionManager.beginDelayedTransition(SlidingPaneLayout.this, changeBounds);
                     requestLayout();
                 }
             };
@@ -331,16 +334,18 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
 
         try {
-            FoldingFeatureObserver foldingFeatureObserver = new FoldingFeatureObserver(context,
-                    null);
+            Activity activity = requireActivity(context);
+            WindowInfoRepository repo = WindowInfoRepository.getOrCreate(activity);
+            Executor mainExecutor = ContextCompat.getMainExecutor(activity);
+            FoldingFeatureObserver foldingFeatureObserver = new FoldingFeatureObserver(repo,
+                    mainExecutor);
             setFoldingFeatureObserver(foldingFeatureObserver);
         } catch (IllegalArgumentException exception) {
             // Disable fold detection.
         }
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    void setFoldingFeatureObserver(
+    private void setFoldingFeatureObserver(
             FoldingFeatureObserver foldingFeatureObserver) {
         mFoldingFeatureObserver = foldingFeatureObserver;
         mFoldingFeatureObserver.setOnFoldingFeatureChangeListener(
@@ -381,7 +386,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     /**
      * @return The ARGB-packed color value used to fade the sliding pane
-     *
      * @deprecated This field is no longer populated by SlidingPaneLayout.
      */
     @Deprecated
@@ -404,7 +408,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     /**
      * @return The ARGB-packed color value used to fade the fixed pane
-     *
      * @deprecated This field is no longer populated by SlidingPaneLayout
      */
     @Deprecated
@@ -419,10 +422,10 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * {@link #removePanelSlideListener(PanelSlideListener)} to remove a registered listener.
      *
      * @param listener Listener to notify when drawer events occur
-     * @deprecated Use {@link #addPanelSlideListener(PanelSlideListener)}
      * @see PanelSlideListener
      * @see #addPanelSlideListener(PanelSlideListener)
      * @see #removePanelSlideListener(PanelSlideListener)
+     * @deprecated Use {@link #addPanelSlideListener(PanelSlideListener)}
      */
     @Deprecated
     public void setPanelSlideListener(@Nullable PanelSlideListener listener) {
@@ -558,6 +561,26 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     @Override
+    public void addView(@NonNull View child, int index, @Nullable ViewGroup.LayoutParams params) {
+        if (getChildCount() == 1) {
+            // Wrap detail view inside a touch blocker container
+            View detailView = new TouchBlocker(child);
+            super.addView(detailView, index, params);
+            return;
+        }
+        super.addView(child, index, params);
+    }
+
+    @Override
+    public void removeView(@NonNull View view) {
+        if (view.getParent() instanceof TouchBlocker) {
+            super.removeView((View) view.getParent());
+            return;
+        }
+        super.removeView(view);
+    }
+
+    @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mFirstLayout = true;
@@ -587,35 +610,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        if (widthMode != MeasureSpec.EXACTLY) {
-            if (isInEditMode()) {
-                // Don't crash the layout editor. Consume all of the space if specified
-                // or pick a magic number from thin air otherwise.
-                // TODO Better communication with tools of this bogus state.
-                // It will crash on a real device.
-                if (widthMode == MeasureSpec.AT_MOST) {
-                    widthMode = MeasureSpec.EXACTLY;
-                } else if (widthMode == MeasureSpec.UNSPECIFIED) {
-                    widthMode = MeasureSpec.EXACTLY;
-                    widthSize = 300;
-                }
-            } else {
-                throw new IllegalStateException("Width must have an exact value or MATCH_PARENT");
-            }
-        } else if (heightMode == MeasureSpec.UNSPECIFIED) {
-            if (isInEditMode()) {
-                // Don't crash the layout editor. Pick a magic number from thin air instead.
-                // TODO Better communication with tools of this bogus state.
-                // It will crash on a real device.
-                if (heightMode == MeasureSpec.UNSPECIFIED) {
-                    heightMode = MeasureSpec.AT_MOST;
-                    heightSize = 300;
-                }
-            } else {
-                throw new IllegalStateException("Height must not be UNSPECIFIED");
-            }
-        }
-
         int layoutHeight = 0;
         int maxLayoutHeight = 0;
         switch (heightMode) {
@@ -629,7 +623,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         float weightSum = 0;
         boolean canSlide = false;
-        final int widthAvailable = widthSize - getPaddingLeft() - getPaddingRight();
+        final int widthAvailable = Math.max(widthSize - getPaddingLeft() - getPaddingRight(), 0);
         int widthRemaining = widthAvailable;
         final int childCount = getChildCount();
 
@@ -662,31 +656,30 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             int childWidthSpec;
             final int horizontalMargin = lp.leftMargin + lp.rightMargin;
 
+            int childWidthSize = Math.max(widthAvailable - horizontalMargin, 0);
+            // When the parent width spec is UNSPECIFIED, measure each of child to get its
+            // desired width.
             if (lp.width == LayoutParams.WRAP_CONTENT) {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
-                        MeasureSpec.AT_MOST);
+                childWidthSpec = MeasureSpec.makeMeasureSpec(childWidthSize,
+                        widthMode == MeasureSpec.UNSPECIFIED ? widthMode : MeasureSpec.AT_MOST);
             } else if (lp.width == LayoutParams.MATCH_PARENT) {
-                childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
-                        MeasureSpec.EXACTLY);
+                childWidthSpec = MeasureSpec.makeMeasureSpec(childWidthSize, widthMode);
             } else {
                 childWidthSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
             }
 
-            int childHeightSpec;
-            if (lp.height == LayoutParams.WRAP_CONTENT) {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight, MeasureSpec.AT_MOST);
-            } else if (lp.height == LayoutParams.MATCH_PARENT) {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight, MeasureSpec.EXACTLY);
-            } else {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
-            }
-
+            int childHeightSpec = getChildMeasureSpec(heightMeasureSpec,
+                    getPaddingTop() + getPaddingBottom(), lp.height);
             child.measure(childWidthSpec, childHeightSpec);
             final int childWidth = child.getMeasuredWidth();
             final int childHeight = child.getMeasuredHeight();
 
-            if (heightMode == MeasureSpec.AT_MOST && childHeight > layoutHeight) {
-                layoutHeight = Math.min(childHeight, maxLayoutHeight);
+            if (childHeight > layoutHeight) {
+                if (heightMode == MeasureSpec.AT_MOST) {
+                    layoutHeight = Math.min(childHeight, maxLayoutHeight);
+                } else if (heightMode == MeasureSpec.UNSPECIFIED) {
+                    layoutHeight = childHeight;
+                }
             }
 
             widthRemaining -= childWidth;
@@ -730,9 +723,18 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
                     newWidth = measuredWidth + addedWidth;
                     childWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
                 }
-                final int childHeightSpec = measureChildHeight(child, maxLayoutHeight);
+                final int childHeightSpec = measureChildHeight(child, heightMeasureSpec,
+                        getPaddingTop() + getPaddingBottom());
                 if (measuredWidth != newWidth) {
                     child.measure(childWidthSpec, childHeightSpec);
+                    final int childHeight = child.getMeasuredHeight();
+                    if (childHeight > layoutHeight) {
+                        if (heightMode == MeasureSpec.AT_MOST) {
+                            layoutHeight = Math.min(childHeight, maxLayoutHeight);
+                        } else if (heightMode == MeasureSpec.UNSPECIFIED) {
+                            layoutHeight = childHeight;
+                        }
+                    }
                 }
             }
         }
@@ -761,8 +763,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
                         MeasureSpec.AT_MOST);
                 child.measure(childWidthSpec, childHeightSpec);
                 if ((child.getMeasuredWidthAndState() & MEASURED_STATE_TOO_SMALL) == 1 || (
-                        ViewCompat.getMinimumWidth(child) != 0
-                                && splitView.width() < ViewCompat.getMinimumWidth(child))) {
+                        getMinimumWidth(child) != 0
+                                && splitView.width() < getMinimumWidth(child))) {
                     childWidthSpec = MeasureSpec.makeMeasureSpec(widthAvailable - horizontalMargin,
                             MeasureSpec.EXACTLY);
                     child.measure(childWidthSpec, childHeightSpec);
@@ -792,23 +794,22 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         }
     }
 
+    private static int getMinimumWidth(View child) {
+        if (child instanceof TouchBlocker) {
+            return ViewCompat.getMinimumWidth(((TouchBlocker) child).getChildAt(0));
+        }
+        return ViewCompat.getMinimumWidth(child);
+    }
+
     private static int measureChildHeight(@NonNull View child,
-            int maxLayoutHeight) {
+            int spec, int padding) {
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         final int childHeightSpec;
         final boolean skippedFirstPass = lp.width == 0 && lp.weight > 0;
         if (skippedFirstPass) {
             // This was skipped the first time; figure out a real height spec.
-            if (lp.height == LayoutParams.WRAP_CONTENT) {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,
-                        MeasureSpec.AT_MOST);
-            } else if (lp.height == LayoutParams.MATCH_PARENT) {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,
-                        MeasureSpec.EXACTLY);
-            } else {
-                childHeightSpec = MeasureSpec.makeMeasureSpec(lp.height,
-                        MeasureSpec.EXACTLY);
-            }
+            childHeightSpec = getChildMeasureSpec(spec, padding, lp.height);
+
         } else {
             childHeightSpec = MeasureSpec.makeMeasureSpec(
                     child.getMeasuredHeight(), MeasureSpec.EXACTLY);
@@ -878,7 +879,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             // offset for the next child, in order to avoid rendering the content under it.
             int nextXOffset = 0;
             if (mFoldingFeature != null
-                    && mFoldingFeature.getOrientation() == FoldingFeature.ORIENTATION_VERTICAL
+                    && mFoldingFeature.getOrientation() == FoldingFeature.Orientation.VERTICAL
                     && mFoldingFeature.isSeparating()) {
                 nextXOffset = mFoldingFeature.getBounds().width();
             }
@@ -1111,10 +1112,13 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     /**
-     * Check if the content in this layout cannot fully fit side by side and therefore
-     * the content pane can be slid back and forth.
+     * Check if both the list and detail view panes in this layout can fully fit side-by-side. If
+     * not, the content pane has the capability to slide back and forth. Note that the lock mode
+     * is not taken into account in this method. This method is typically used to determine
+     * whether the layout is showing two-pane or single-pane.
      *
-     * @return true if content in this layout can be slid open and closed
+     * @return true if both panes cannot fit side-by-side, and detail pane in this layout has
+     * the capability to slide back and forth.
      */
     public boolean isSlideable() {
         return mCanSlide;
@@ -1633,8 +1637,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         }
     }
 
-
-
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
         private static final int[] ATTRS = new int[]{
                 android.R.attr.layout_weight
@@ -1692,7 +1694,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     static class SavedState extends AbsSavedState {
         boolean isOpen;
-        @LockMode int mLockMode;
+        @LockMode
+        int mLockMode;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -1812,6 +1815,23 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         }
     }
 
+    private static class TouchBlocker extends FrameLayout {
+        TouchBlocker(View view) {
+            super(view.getContext());
+            addView(view);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            return true;
+        }
+
+        @Override
+        public boolean onGenericMotionEvent(MotionEvent event) {
+            return true;
+        }
+    }
+
     private class DisableLayerRunnable implements Runnable {
         final View mChildView;
 
@@ -1881,95 +1901,17 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         return foldRectInView;
     }
 
-    /**
-     * A device folding feature observer is used to notify listener when there is a folding feature
-     * change.
-     */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    static class FoldingFeatureObserver {
-        /**
-         * Interface definition for a callback to be invoked when there is a folding feature change
-         */
-        private interface OnFoldingFeatureChangeListener {
-            /**
-             * Callback method to update window layout when there is a folding feature change
-             */
-            void onFoldingFeatureChange(@NonNull FoldingFeature foldingFeature);
-        }
-
-        class LayoutStateChangeCallback implements Consumer<WindowLayoutInfo> {
-            private FoldingFeature mLastFoldingFeature;
-
-            @Override
-            public void accept(WindowLayoutInfo windowLayoutInfo) {
-                final FoldingFeature currentFoldingFeature = getFoldingFeature(windowLayoutInfo);
-                if (currentFoldingFeature != null) {
-                    // Update window layout when folding feature changed
-                    if (!currentFoldingFeature.equals(mLastFoldingFeature)) {
-                        dispatchOnFoldingFeatureChange(currentFoldingFeature);
-                    }
-                    mLastFoldingFeature = currentFoldingFeature;
-                }
+    private static Activity requireActivity(Context context) {
+        Context iterator = context;
+        while (iterator instanceof ContextWrapper) {
+            if (iterator instanceof Activity) {
+                return (Activity) iterator;
             }
-
-            private FoldingFeature getFoldingFeature(WindowLayoutInfo windowLayoutInfo) {
-                for (DisplayFeature displayFeature : windowLayoutInfo.getDisplayFeatures()) {
-                    if (displayFeature instanceof FoldingFeature) {
-                        return (FoldingFeature) displayFeature;
-                    }
-                }
-                return null;
-            }
+            iterator = ((ContextWrapper) iterator).getBaseContext();
         }
-
-        private WindowManager mWindowManager;
-        private Executor mExecutor;
-        private OnFoldingFeatureChangeListener mOnFoldingFeatureChangeListener;
-        private LayoutStateChangeCallback
-                mLayoutStateChangeCallback = new LayoutStateChangeCallback();
-
-        /**
-         * Create an instance of a folding feature observer
-         *
-         * @param context A visual context, such as an {@link Activity} or a {@link ContextWrapper}
-         * @param windowBackend A custom implementation of {@link WindowBackend} for testing
-         */
-        FoldingFeatureObserver(@NonNull Context context, @Nullable WindowBackend windowBackend) {
-            mWindowManager = windowBackend == null ? new WindowManager(context) :
-                    new WindowManager(context, windowBackend);
-            mExecutor = ContextCompat.getMainExecutor(context);
-        }
-
-        /**
-         * Register a listener that can be notified when there is a folding feature change.
-         *
-         * @param onFoldingFeatureChangeListener The listener to be added
-         */
-        void setOnFoldingFeatureChangeListener(
-                @NonNull OnFoldingFeatureChangeListener onFoldingFeatureChangeListener) {
-            mOnFoldingFeatureChangeListener = onFoldingFeatureChangeListener;
-        }
-
-        void dispatchOnFoldingFeatureChange(@NonNull FoldingFeature foldingFeature) {
-            if (mOnFoldingFeatureChangeListener == null) {
-                return;
-            }
-            mOnFoldingFeatureChangeListener.onFoldingFeatureChange(foldingFeature);
-        }
-
-        /**
-         * Registers a callback for layout changes of the window for the supplied {@link Activity}.
-         * Must be called only after the it is attached to the window.
-         */
-        void registerLayoutStateChangeCallback() {
-            mWindowManager.registerLayoutChangeCallback(mExecutor, mLayoutStateChangeCallback);
-        }
-
-        /**
-         * Unregisters a callback for window layout changes of the {@link Activity} window.
-         */
-        void unregisterLayoutStateChangeCallback() {
-            mWindowManager.unregisterLayoutChangeCallback(mLayoutStateChangeCallback);
-        }
+        throw new IllegalArgumentException("Used non-visual Context to obtain an instance of "
+                + "WindowManager. Please use an Activity or a ContextWrapper around one "
+                + "instead."
+        );
     }
 }

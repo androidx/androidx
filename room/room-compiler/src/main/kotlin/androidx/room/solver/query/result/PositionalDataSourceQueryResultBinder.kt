@@ -31,28 +31,18 @@ import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
 /**
- * Used by both Paging2 and Paging3 pipelines.
- *
- * Paging 3 might create data source on the main thread and does not have any strict
- * invalidation rules (e.g. query does not need to return as many records as it initially
- * counted).
- * Paging 2 always creates data source on a background thread and does not let data source
- * return less values then it counted. To achieve that, LimitOffsetDataSource always
- * synchronized invalidation trackers to the database, which is not necessary for Paging3.
- *
- * As a result, we change behavior based on whether we create the data source for paging 3 or 2.
- * In practice, [forPaging3] parameter controls whether LimitOffsetDataSource registers its observer
- * immediately (paging2) or not (paging3).
+ * Used by Paging2 pipeline
  */
 class PositionalDataSourceQueryResultBinder(
     val listAdapter: ListQueryResultAdapter?,
     val tableNames: Set<String>,
-    val forPaging3: Boolean,
 ) : QueryResultBinder(listAdapter) {
-    val itemTypeName: TypeName = listAdapter?.rowAdapter?.out?.typeName ?: TypeName.OBJECT
+    val itemTypeName: TypeName =
+        listAdapter?.rowAdapters?.firstOrNull()?.out?.typeName ?: TypeName.OBJECT
     val typeName: ParameterizedTypeName = ParameterizedTypeName.get(
         RoomTypeNames.LIMIT_OFFSET_DATA_SOURCE, itemTypeName
     )
+
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
@@ -66,7 +56,7 @@ class PositionalDataSourceQueryResultBinder(
         val tableNamesList = tableNames.joinToString("") { ", \"$it\"" }
         val spec = TypeSpec.anonymousClassBuilder(
             "$N, $L, $L, $L $L",
-            dbField, roomSQLiteQueryVar, inTransaction, !forPaging3, tableNamesList
+            dbField, roomSQLiteQueryVar, inTransaction, true, tableNamesList
         ).apply {
             superclass(typeName)
             addMethod(createConvertRowsMethod(scope))

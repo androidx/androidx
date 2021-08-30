@@ -132,15 +132,20 @@ class SuspendingPointerInputFilterTest {
 
     @Test
     fun testSyntheticCancelEvent(): Unit = runBlockingTest {
+        var currentEventAtEnd: PointerEvent? = null
         val filter = SuspendingPointerInputFilter(TestViewConfiguration())
         val results = Channel<PointerEvent>(Channel.UNLIMITED)
         launch {
             with(filter) {
                 awaitPointerEventScope {
-                    repeat(3) {
-                        results.trySend(awaitPointerEvent())
+                    try {
+                        repeat(3) {
+                            results.trySend(awaitPointerEvent())
+                        }
+                        results.close()
+                    } finally {
+                        currentEventAtEnd = currentEvent
                     }
-                    results.close()
                 }
             }
         }
@@ -196,6 +201,9 @@ class SuspendingPointerInputFilterTest {
             val actualEvent = received[index]
             PointerEventSubject.assertThat(actualEvent).isStructurallyEqualTo(expectedEvent)
         }
+        assertThat(currentEventAtEnd).isNotNull()
+        assertThat(currentEventAtEnd!!.changes.size).isEqualTo(1)
+        assertThat(currentEventAtEnd!!.changes[0].pressed).isFalse()
     }
 
     @Test
@@ -270,6 +278,33 @@ class SuspendingPointerInputFilterTest {
                 result
             )
         }
+    }
+
+    @Test(expected = PointerEventTimeoutCancellationException::class)
+    fun testWithTimeout() = runBlockingTest {
+        val filter = SuspendingPointerInputFilter(TestViewConfiguration())
+        filter.coroutineScope = this
+        with(filter) {
+            awaitPointerEventScope {
+                withTimeout(10) {
+                    awaitPointerEvent()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testWithTimeoutOrNull() = runBlockingTest {
+        val filter = SuspendingPointerInputFilter(TestViewConfiguration())
+        filter.coroutineScope = this
+        val result: PointerEvent? = with(filter) {
+            awaitPointerEventScope {
+                withTimeoutOrNull(10) {
+                    awaitPointerEvent()
+                }
+            }
+        }
+        assertThat(result).isNull()
     }
 }
 

@@ -123,6 +123,13 @@ class FragmentStore {
                 Fragment f = fragmentStateManager.getFragment();
                 boolean beingRemoved = f.mRemoving && !f.isInBackStack();
                 if (beingRemoved) {
+                    if (f.mBeingSaved && !mSavedState.containsKey(f.mWho)) {
+                        // In cases where the Fragment never got attached
+                        // (i.e., add transaction + saveBackStack())
+                        // we still want to save the bare minimum of state
+                        // relating to this Fragment
+                        fragmentStateManager.saveState();
+                    }
                     makeInactive(fragmentStateManager);
                 }
             }

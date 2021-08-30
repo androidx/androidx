@@ -22,14 +22,14 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
+import androidx.room.ext.capitalize
+import androidx.room.ext.stripNonJava
 import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.Entity
 import androidx.room.vo.columnNames
-import capitalize
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
-import stripNonJava
 import java.util.Arrays
 import java.util.HashMap
 import java.util.HashSet
@@ -108,14 +108,21 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
             )
             entity.indices.forEach { index ->
                 val columnNames = index.columnNames.joinToString(",") { "\"$it\"" }
+                val orders = if (index.orders.isEmpty()) {
+                    index.columnNames.map { "ASC" }.joinToString(",") { "\"$it\"" }
+                } else {
+                    index.orders.joinToString(",") { "\"$it\"" }
+                }
                 addStatement(
-                    "$L.add(new $T($S, $L, $T.asList($L)))",
+                    "$L.add(new $T($S, $L, $T.asList($L), $T.asList($L)))",
                     indicesSetVar,
                     RoomTypeNames.TABLE_INFO_INDEX,
                     index.name,
                     index.unique,
                     Arrays::class.typeName,
-                    columnNames
+                    columnNames,
+                    Arrays::class.typeName,
+                    orders,
                 )
             }
 

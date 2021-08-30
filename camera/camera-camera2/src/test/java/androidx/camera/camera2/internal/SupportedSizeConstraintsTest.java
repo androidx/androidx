@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
@@ -36,7 +35,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
-import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.core.CameraUnavailableException;
@@ -106,7 +104,7 @@ public class SupportedSizeConstraintsTest {
             };
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
-    private final CameraManagerCompat mCameraManager = CameraManagerCompat.from(mContext);
+    private final CameraManagerCompat mCameraManagerCompat = CameraManagerCompat.from(mContext);
 
     @Before
     public void setUp() throws IllegalAccessException {
@@ -144,7 +142,7 @@ public class SupportedSizeConstraintsTest {
         setupCamera();
 
         final SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(mContext, BACK_CAMERA_ID, mCameraManager,
+                new SupportedSurfaceCombination(mContext, BACK_CAMERA_ID, mCameraManagerCompat,
                         mMockCamcorderProfileHelper);
 
         List<Size> excludedSizes = Arrays.asList(
@@ -183,8 +181,8 @@ public class SupportedSizeConstraintsTest {
         shadowCharacteristics.set(
                 CameraCharacteristics.SENSOR_ORIENTATION, DEFAULT_SENSOR_ORIENTATION);
 
-        CameraManager cameraManager = (CameraManager) ApplicationProvider.getApplicationContext()
-                .getSystemService(Context.CAMERA_SERVICE);
+        CameraManager cameraManager =
+                (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
         ((ShadowCameraManager) Shadow.extract(cameraManager)).addCamera(BACK_CAMERA_ID,
                 characteristics);
 
@@ -202,8 +200,7 @@ public class SupportedSizeConstraintsTest {
         final FakeCameraFactory cameraFactory = new FakeCameraFactory();
         cameraFactory.insertCamera(lensFacingEnum, BACK_CAMERA_ID,
                 () -> new FakeCamera(BACK_CAMERA_ID, null,
-                        new Camera2CameraInfoImpl(BACK_CAMERA_ID,
-                                getCameraCharacteristicsCompat(BACK_CAMERA_ID))));
+                        new Camera2CameraInfoImpl(BACK_CAMERA_ID, mCameraManagerCompat)));
 
         initCameraX(cameraFactory);
     }
@@ -226,15 +223,5 @@ public class SupportedSizeConstraintsTest {
                 .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> cameraFactory)
                 .build();
         CameraX.initialize(mContext, cameraXConfig);
-    }
-
-    private CameraCharacteristicsCompat getCameraCharacteristicsCompat(String cameraId)
-            throws CameraAccessException {
-        CameraManager cameraManager =
-                (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
-                        Context.CAMERA_SERVICE);
-
-        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                cameraManager.getCameraCharacteristics(cameraId));
     }
 }

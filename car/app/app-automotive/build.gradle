@@ -23,12 +23,18 @@ plugins {
 }
 dependencies {
     api(project(":car:app:app"))
+    api(libs.guavaListenableFuture)
+    implementation(libs.guavaAndroid)
+    implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation("androidx.fragment:fragment:1.3.0")
     implementation("androidx.lifecycle:lifecycle-common-java8:2.2.0")
     implementation("androidx.annotation:annotation:1.1.0")
+    implementation(libs.autoValueAnnotations)
 
     annotationProcessor(libs.nullaway)
+    annotationProcessor(libs.autoValue)
 
+    testImplementation("junit:junit:4.13")
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
@@ -36,6 +42,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation("androidx.fragment:fragment-testing:1.2.3")
+    testImplementation project(path: ':car:app:app-testing')
 }
 
 android {
@@ -49,6 +56,10 @@ android {
     buildFeatures {
         aidl = true
     }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+    useLibrary 'android.car'
     testOptions.unitTests.includeAndroidResources = true
 }
 

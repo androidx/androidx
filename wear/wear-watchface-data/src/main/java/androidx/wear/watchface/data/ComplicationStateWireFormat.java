@@ -48,7 +48,6 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     Rect mBounds;
 
     @ParcelField(2)
-    @ComplicationSlotBoundsType
     int mBoundsType;
 
     @ParcelField(3)
@@ -90,7 +89,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     public ComplicationStateWireFormat(
             @NonNull Rect bounds,
-            @ComplicationSlotBoundsType int boundsType,
+            int boundsType,
             @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
             @Nullable List<ComponentName> defaultProvidersToTry,
             int fallbackSystemProvider,
@@ -118,7 +117,6 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         return mBounds;
     }
 
-    @ComplicationSlotBoundsType
     public int getBoundsType() {
         return mBoundsType;
     }
@@ -131,7 +129,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     /**
      * Along with {@link #getFallbackSystemProvider} this is the wire format for
-     * DefaultComplicationProviderPolicy.
+     * DefaultComplicationDataSourcePolicy.
      */
     @Nullable
     public List<ComponentName> getDefaultProvidersToTry() {
@@ -140,7 +138,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     /**
      * Along with {@link #getDefaultProvidersToTry} this is the wire format for
-     * DefaultComplicationProviderPolicy.
+     * DefaultComplicationDataSourcePolicy.
      */
     public int getFallbackSystemProvider() {
         return mFallbackSystemProvider;

@@ -168,9 +168,13 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * {@link CameraXConfig.Builder#setCameraExecutor(Executor)}, or by an internally defined
      * executor if none is provided.
      *
-     * <p>Once this method is called, the instance can be retrieved with
-     * {@link #getInstance(Context)} without the need for implementing
-     * {@link CameraXConfig.Provider} in {@link Application}.
+     * <p>This method is not required for every application. If the method is not called and
+     * {@link CameraXConfig.Provider} is not implemented in {@link Application}, default
+     * configuration will be used.
+     *
+     * <p>Once this method is called, the instance configured by the given {@link CameraXConfig} can
+     *  be retrieved with {@link #getInstance(Context)}. {@link CameraXConfig.Provider}
+     *  implemented in {@link Application} will be ignored.
      *
      * <p>Configuration can only occur once. Once the ProcessCameraProvider has been configured with
      * {@code configureInstance()} or {@link #getInstance(Context)}, this method will throw
@@ -425,10 +429,11 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
 
         // Retrieves extended camera configs from ExtendedCameraConfigProviderStore
         for (CameraFilter cameraFilter : cameraSelector.getCameraFilterSet()) {
-            if (cameraFilter.getId() != CameraFilter.Id.DEFAULT) {
+            if (cameraFilter.getIdentifier() != CameraFilter.DEFAULT_ID) {
                 CameraConfig extendedCameraConfig =
-                        ExtendedCameraConfigProviderStore.getConfigProvider(cameraFilter.getId())
-                                .getConfig(lifecycleCameraToBind.getCameraInfo(), mContext);
+                        ExtendedCameraConfigProviderStore.getConfigProvider(
+                                cameraFilter.getIdentifier()).getConfig(
+                                lifecycleCameraToBind.getCameraInfo(), mContext);
                 if (extendedCameraConfig == null) { // ignore IDs unrelated to camera configs.
                     continue;
                 }

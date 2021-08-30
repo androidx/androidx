@@ -59,33 +59,19 @@ internal sealed class JavacTypeElement(
     }
 
     private val _declaredFields by lazy {
-        ElementFilter.fieldsIn(element.enclosedElements).map {
-            JavacFieldElement(
-                env = env,
-                element = it,
-                containing = this
-            )
-        }
+        ElementFilter.fieldsIn(element.enclosedElements)
+            .filterNot { it.kind == ElementKind.ENUM_CONSTANT }
+            .map {
+                JavacFieldElement(
+                    env = env,
+                    element = it,
+                    containing = this
+                )
+            }
     }
 
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
-    }
-
-    private val _allFieldsIncludingPrivateSupers by lazy {
-        element.getAllFieldsIncludingPrivateSupers(
-            env.elementUtils
-        ).map {
-            JavacFieldElement(
-                env = env,
-                element = it,
-                containing = this
-            )
-        }
-    }
-
-    override fun getAllFieldsIncludingPrivateSupers(): List<XFieldElement> {
-        return _allFieldsIncludingPrivateSupers
     }
 
     override fun isKotlinObject() = kotlinMetadata?.isObject() == true

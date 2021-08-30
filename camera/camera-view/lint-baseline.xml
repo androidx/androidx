@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalUseCaseGroup&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)&apos;"
+        errorLine1="                return ViewPort.FILL_END;"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/view/PreviewView.java"
+            line="566"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalUseCaseGroup&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)&apos;"
+        errorLine1="                return ViewPort.FILL_CENTER;"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/view/PreviewView.java"
+            line="568"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalUseCaseGroup&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)&apos;"
+        errorLine1="                return ViewPort.FILL_START;"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/view/PreviewView.java"
+            line="570"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalUseCaseGroup&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)&apos;"
+        errorLine1="                return ViewPort.FIT;"
+        errorLine2="                                ~~~">
+        <location
+            file="src/main/java/androidx/camera/view/PreviewView.java"
+            line="576"
+            column="33"/>
+    </issue>
+
+</issues>

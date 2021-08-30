@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CameraManager getCameraManager() {"
-        errorLine2="                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="258"
-            column="19"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha07)" variant="all" version="7.1.0-alpha07">
 
     <issue
         id="UnknownNullness"
@@ -85,7 +74,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraControl.java"
-            line="87"
+            line="86"
             column="53"/>
     </issue>
 

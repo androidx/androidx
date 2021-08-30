@@ -202,7 +202,7 @@ val ControlledComposition.recomposeCoroutineContext: CoroutineContext
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
  *
  * @param applier The [Applier] instance to be used in the composition.
- * @param parent The parent composition reference, if applicable. Default is null.
+ * @param parent The parent [CompositionContext].
  *
  * @see Applier
  * @see Composition
@@ -231,7 +231,7 @@ fun Composition(
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
  *
  * @param applier The [Applier] instance to be used in the composition.
- * @param parent The parent composition reference, if applicable. Default is null.
+ * @param parent The parent [CompositionContext].
  *
  * @see Applier
  * @see Composition
@@ -491,7 +491,6 @@ internal class CompositionImpl(
                     manager.dispatchRememberObservers()
                 }
                 composer.dispose()
-                parent.unregisterComposition(this)
                 parent.unregisterComposition(this)
             }
         }

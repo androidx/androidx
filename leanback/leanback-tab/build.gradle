@@ -12,6 +12,10 @@ dependencies {
     api("com.google.android.material:material:1.0.0")
     api("androidx.viewpager:viewpager:1.0.0")
 
+    // To avoid manifest merger warnings due to duplicate package names
+    // It can be removed if material library is updated to a newer version
+    implementation("androidx.vectordrawable:vectordrawable-animated:1.1.0")
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

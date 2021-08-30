@@ -16,12 +16,28 @@
 
 package androidx.room.compiler.processing
 
+import com.squareup.javapoet.ClassName
 import kotlin.reflect.KClass
 
 /**
  * Common interface implemented by elements that might have annotations.
  */
 interface XAnnotated {
+    /**
+     * Returns the list of [XAnnotation] elements that have the same qualified name as the given
+     * [annotationName]. Otherwise, returns an empty list.
+     *
+     * For repeated annotations declared in Java code, please use the repeated annotation type,
+     * not the container. Calling this method with a container annotation will have inconsistent
+     * behaviour between Java AP and KSP.
+     *
+     * @see [hasAnnotation]
+     * @see [hasAnnotationWithPackage]
+     */
+    fun getAnnotations(annotationName: ClassName): List<XAnnotation> {
+        return getAllAnnotations().filter { annotationName.canonicalName() == it.qualifiedName }
+    }
+
     /**
      * Gets the list of annotations with the given type.
      *
@@ -63,6 +79,16 @@ interface XAnnotated {
     ): Boolean
 
     /**
+     * Returns `true` if this element is annotated with an [XAnnotation] that has the same
+     * qualified name as the given [annotationName].
+     *
+     * @see [hasAnyOf]
+     */
+    fun hasAnnotation(annotationName: ClassName): Boolean {
+        return getAnnotations(annotationName).isNotEmpty()
+    }
+
+    /**
      * Returns `true` if this element has an annotation that is declared in the given package.
      * Alternatively, all annotations can be accessed with [getAllAnnotations].
      */
@@ -90,5 +116,28 @@ interface XAnnotated {
      */
     fun <T : Annotation> getAnnotation(annotation: KClass<T>): XAnnotationBox<T>? {
         return getAnnotations(annotation).firstOrNull()
+    }
+
+    /**
+     * Returns the [XAnnotation] that has the same qualified name as [annotationName].
+     * Otherwise, `null` value is returned.
+     *
+     * @see [hasAnnotation]
+     * @see [getAnnotations]
+     * @see [hasAnnotationWithPackage]
+     */
+    fun getAnnotation(annotationName: ClassName): XAnnotation? {
+        return getAnnotations(annotationName).firstOrNull()
+    }
+
+    /**
+     * Returns the [XAnnotation] that has the same qualified name as [annotationName].
+     *
+     * @see [hasAnnotation]
+     * @see [getAnnotations]
+     * @see [hasAnnotationWithPackage]
+     */
+    fun requireAnnotation(annotationName: ClassName): XAnnotation {
+        return getAnnotation(annotationName)!!
     }
 }

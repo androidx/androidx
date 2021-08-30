@@ -83,11 +83,12 @@ import androidx.recyclerview.widget.RecyclerView;
  *     <li>
  *         App may manually call {@link #showControlsOverlay(boolean)} or
  *         {@link #hideControlsOverlay(boolean)} to show or hide the controls.
- *     <li>
+ *     </li>
  *     <li>
  *         The controls are visible by default upon onViewCreated(). To make it initially invisible,
  *         call hideControlsOverlay(false) in overridden onViewCreated().
  *     </li>
+ *     <li>
  *         Upon play or pause, PlaybackControlGlue or PlaybackTransportControlGlue will fade-in
  *         the controls and automatically fade out after a delay customized by
  *         {@link R.attr#playbackControlsAutoHideTimeout}. To disable the fade in and fade out

@@ -29,6 +29,7 @@ import static androidx.camera.view.TransformUtils.is90or270;
 import static androidx.camera.view.TransformUtils.isAspectRatioMatchingWithRoundingError;
 import static androidx.camera.view.TransformUtils.surfaceRotationToRotationDegrees;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -45,14 +46,13 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.ViewPort;
 import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.view.internal.compat.quirk.PreviewOneThirdWiderQuirk;
+import androidx.camera.view.internal.compat.quirk.TextureViewRotationQuirk;
 import androidx.core.util.Preconditions;
 
 /**
@@ -124,7 +124,8 @@ final class PreviewTransformation {
      *
      * <p> All the values originally come from a {@link SurfaceRequest}.
      */
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+    @SuppressLint("UnsafeOptInUsageError")
     void setTransformationInfo(@NonNull SurfaceRequest.TransformationInfo transformationInfo,
             Size resolution, boolean isFrontCamera) {
         Logger.d(TAG, "Transformation info set: " + transformationInfo + " " + resolution + " "
@@ -152,8 +153,14 @@ final class PreviewTransformation {
     Matrix getTextureViewCorrectionMatrix() {
         Preconditions.checkState(isTransformationInfoReady());
         RectF surfaceRect = new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight());
-        return getRectToRect(surfaceRect, surfaceRect,
-                -surfaceRotationToRotationDegrees(mTargetRotation));
+        int rotationDegrees = -surfaceRotationToRotationDegrees(mTargetRotation);
+
+        TextureViewRotationQuirk textureViewRotationQuirk =
+                DeviceQuirks.get(TextureViewRotationQuirk.class);
+        if (textureViewRotationQuirk != null) {
+            rotationDegrees += textureViewRotationQuirk.getCorrectionRotation(mIsFrontCamera);
+        }
+        return getRectToRect(surfaceRect, surfaceRect, rotationDegrees);
     }
 
     /**

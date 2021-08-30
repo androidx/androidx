@@ -123,6 +123,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     @Keep
     @KeyboardType
     private final int mKeyboardType;
+    @Keep
     @Nullable
     private final InputCallbackDelegate mInputCallbackDelegate;
     @Keep

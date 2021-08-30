@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.test
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
@@ -26,20 +27,20 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
-import android.icu.util.Calendar
-import android.icu.util.TimeZone
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.wearable.watchface.SharedMemoryImage
 import android.view.Surface
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -49,6 +50,7 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
@@ -74,10 +76,10 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.fail
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -86,6 +88,9 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -147,7 +152,7 @@ internal class SimpleDigitalWatchFaceRenderer(
     }
     val mTimeText = TEST_TIME
 
-    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         mPaint.color = Color.BLACK
         canvas.drawRect(bounds, mPaint)
         mPaint.color = Color.WHITE
@@ -161,7 +166,7 @@ internal class SimpleDigitalWatchFaceRenderer(
         )
     }
 
-    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         renderParameters.highlightLayer?.backgroundTint?.let { canvas.drawColor(it) }
     }
 
@@ -238,6 +243,7 @@ internal class TestControllableWatchFaceService(
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
+@RequiresApi(Build.VERSION_CODES.O_MR1)
 public class WatchFaceServiceImageTest {
 
     @Mock
@@ -248,8 +254,8 @@ public class WatchFaceServiceImageTest {
 
     private val handler = Handler(Looper.getMainLooper())
 
-    private val complicationProviders = mapOf(
-        SystemProviders.PROVIDER_DAY_OF_WEEK to
+    private val complicationDataSources = mapOf(
+        SystemDataSources.DATA_SOURCE_DAY_OF_WEEK to
             ShortTextComplicationData.Builder(
                 PlainComplicationText.Builder("Mon").build(),
                 ComplicationText.EMPTY
@@ -269,7 +275,7 @@ public class WatchFaceServiceImageTest {
                 )
                 .build()
                 .asWireComplicationData(),
-        SystemProviders.PROVIDER_STEP_COUNT to
+        SystemDataSources.DATA_SOURCE_STEP_COUNT to
             ShortTextComplicationData.Builder(
                 PlainComplicationText.Builder("100").build(),
                 ComplicationText.EMPTY
@@ -299,6 +305,7 @@ public class WatchFaceServiceImageTest {
 
     @Before
     public fun setUp() {
+        Assume.assumeTrue("This test suite assumes API 27", Build.VERSION.SDK_INT >= 27)
         MockitoAnnotations.initMocks(this)
     }
 
@@ -319,6 +326,7 @@ public class WatchFaceServiceImageTest {
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
             100000,
+            ZoneId.of("UTC"),
             surfaceHolder,
             true, // Not direct boot.
             null
@@ -337,11 +345,6 @@ public class WatchFaceServiceImageTest {
 
         engineWrapper =
             canvasAnalogWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.uiThreadCoroutineScope.launch {
-            // Set the timezone so it doesn't matter where the bots are running.
-            engineWrapper.deferredWatchFaceImpl.await().calendar.timeZone =
-                TimeZone.getTimeZone("UTC")
-        }
     }
 
     private fun initControllableWatchFace() {
@@ -375,11 +378,6 @@ public class WatchFaceServiceImageTest {
 
         engineWrapper =
             testControllableWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.uiThreadCoroutineScope.launch {
-            // Set the timezone so it doesn't matter where the bots are running.
-            engineWrapper.deferredWatchFaceImpl.await().calendar.timeZone =
-                TimeZone.getTimeZone("UTC")
-        }
     }
 
     private fun initGles2WatchFace() {
@@ -387,6 +385,7 @@ public class WatchFaceServiceImageTest {
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
             100000,
+            ZoneId.of("UTC"),
             surfaceHolder,
             null
         )
@@ -400,11 +399,6 @@ public class WatchFaceServiceImageTest {
         setPendingWallpaperInteractiveWatchFaceInstance()
 
         engineWrapper = glesWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        engineWrapper.uiThreadCoroutineScope.launch {
-            // Set the timezone so it doesn't matter where the bots are running.
-            engineWrapper.deferredWatchFaceImpl.await().calendar.timeZone =
-                TimeZone.getTimeZone("UTC")
-        }
     }
 
     private fun setPendingWallpaperInteractiveWatchFaceInstance() {
@@ -447,7 +441,7 @@ public class WatchFaceServiceImageTest {
             interactiveWatchFaceInstance.complicationDetails.map {
                 IdAndComplicationDataWireFormat(
                     it.id,
-                    complicationProviders[it.complicationState.fallbackSystemProvider]!!
+                    complicationDataSources[it.complicationState.fallbackSystemProvider]!!
                 )
             }
         )
@@ -533,6 +527,7 @@ public class WatchFaceServiceImageTest {
         bitmap.assertAgainstGolden(screenshotRule, "ambient_screenshot2")
     }
 
+    @SuppressLint("NewApi")
     @Test
     public fun testCommandTakeScreenShot() {
         val latch = CountDownLatch(1)
@@ -562,10 +557,11 @@ public class WatchFaceServiceImageTest {
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
         bitmap!!.assertAgainstGolden(
             screenshotRule,
-            "ambient_screenshot"
+            "testCommandTakeScreenShot"
         )
     }
 
+    @SuppressLint("NewApi")
     @Test
     public fun testCommandTakeOpenGLScreenShot() {
         val latch = CountDownLatch(1)
@@ -620,6 +616,25 @@ public class WatchFaceServiceImageTest {
     }
 
     @Test
+    public fun testSetGreenStyleButDontResendComplications() {
+        handler.post(this::initCanvasWatchFace)
+        assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        // Note this will clear complicationSlots.
+        interactiveWatchFaceInstance.updateWatchfaceInstance(
+            "newId",
+            UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray()))
+        )
+
+        handler.post {
+            engineWrapper.draw()
+        }
+
+        assertThat(renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        bitmap.assertAgainstGolden(screenshotRule, "green_screenshot_no_complication_data")
+    }
+
+    @SuppressLint("NewApi")
+    @Test
     public fun testHighlightAllComplicationsInScreenshot() {
         val latch = CountDownLatch(1)
 
@@ -657,6 +672,46 @@ public class WatchFaceServiceImageTest {
         )
     }
 
+    @SuppressLint("NewApi")
+    @Test
+    public fun testRenderLeftComplicationPressed() {
+        val latch = CountDownLatch(1)
+
+        handler.post(this::initCanvasWatchFace)
+        assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        sendComplications()
+
+        var bitmap: Bitmap? = null
+        handler.post {
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
+                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
+                        RenderParameters(
+                            DrawMode.INTERACTIVE,
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null,
+                            mapOf(
+                                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                                    TapEvent(1, 1, Instant.ofEpochMilli(123456789))
+                            )
+                        ).toWireFormat(),
+                        123456789,
+                        null,
+                        null
+                    )
+                )
+            )
+            latch.countDown()
+        }
+
+        assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        bitmap!!.assertAgainstGolden(
+            screenshotRule,
+            "left_complication_pressed"
+        )
+    }
+
+    @SuppressLint("NewApi")
     @Test
     public fun testHighlightRightComplicationInScreenshot() {
         val latch = CountDownLatch(1)
@@ -697,6 +752,7 @@ public class WatchFaceServiceImageTest {
         )
     }
 
+    @SuppressLint("NewApi")
     @Test
     public fun testScreenshotWithPreviewComplicationData() {
         val latch = CountDownLatch(1)
@@ -772,6 +828,7 @@ public class WatchFaceServiceImageTest {
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
             100000,
+            ZoneId.of("UTC"),
             surfaceHolder,
             false, // Direct boot.
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -812,6 +869,7 @@ public class WatchFaceServiceImageTest {
         }
     }
 
+    @SuppressLint("NewApi")
     @Test
     public fun complicationTapLaunchesActivity() {
         handler.post(this::initCanvasWatchFace)

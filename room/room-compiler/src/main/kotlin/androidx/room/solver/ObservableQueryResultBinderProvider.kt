@@ -16,8 +16,8 @@
 
 package androidx.room.solver
 
-import androidx.room.parser.ParsedQuery
 import androidx.room.compiler.processing.XType
+import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.query.result.QueryResultAdapter
@@ -35,9 +35,13 @@ abstract class ObservableQueryResultBinderProvider(val context: Context) :
         tableNames: Set<String>
     ): QueryResultBinder
 
-    final override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
+    final override fun provide(
+        declared: XType,
+        query: ParsedQuery,
+        extras: TypeAdapterExtras
+    ): QueryResultBinder {
         val typeArg = extractTypeArg(declared)
-        val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
+        val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
         val tableNames = (
             (adapter?.accessedTableNames() ?: emptyList()) +
                 query.tables.map { it.name }

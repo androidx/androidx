@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.room.compiler.processing.ExperimentalProcessingApi
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
@@ -29,6 +30,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
+@OptIn(ExperimentalProcessingApi::class)
 class GeneratedCodeMatchTest internal constructor(
     private val runTest: TestRunner
 ) : MultiBackendTest() {
@@ -119,9 +121,7 @@ class GeneratedCodeMatchTest internal constructor(
     @Test
     fun successfulGeneratedKotlinCodeMatch() {
         // java environment will not generate kotlin files
-        if (runTest.toString() == "java") {
-            throw AssumptionViolatedException("javaAP won't generate kotlin code.")
-        }
+        runTest.assumeCanCompileKotlin()
 
         val file = FileSpec.builder("foo.bar", "Baz")
             .addType(KTypeSpec.classBuilder("Baz").build())
@@ -141,9 +141,7 @@ class GeneratedCodeMatchTest internal constructor(
     @Test
     fun missingGeneratedKotlinCode_mismatch() {
         // java environment will not generate kotlin files
-        if (runTest.toString() == "java") {
-            throw AssumptionViolatedException("javaAP won't generate kotlin code.")
-        }
+        runTest.assumeCanCompileKotlin()
 
         val generated = FileSpec.builder("foo.bar", "Baz")
             .addType(

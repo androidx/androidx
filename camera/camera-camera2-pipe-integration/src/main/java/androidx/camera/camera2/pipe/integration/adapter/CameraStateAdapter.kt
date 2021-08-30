@@ -63,21 +63,6 @@ class CameraStateAdapter @Inject constructor(
         }
     }
 
-    private val _exposureState by lazy {
-        MutableLiveData<ExposureState>(
-            EvCompValue(
-                evCompControl.supported,
-                evCompControl.evCompIndex,
-                evCompControl.range,
-                evCompControl.step,
-            )
-        )
-    }
-    val exposureStateLiveData: LiveData<ExposureState>
-        get() = _exposureState
-    suspend fun setExposureState(value: ExposureState) {
-        withContext(Dispatchers.Main) {
-            _exposureState.value = value
-        }
-    }
+    val exposureState: ExposureState
+        get() = evCompControl.exposureState
 }

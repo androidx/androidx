@@ -23,6 +23,7 @@ import android.util.Range;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
 
@@ -31,7 +32,9 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Audio specification that is options to config audio source and encoding.
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class AudioSpec {
 
@@ -98,6 +101,7 @@ public abstract class AudioSpec {
      * <p>Using this value with {@link AudioSpec.Builder#setBitrate(Range)} informs the device it
      * should choose any appropriate bitrate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> BITRATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -107,6 +111,7 @@ public abstract class AudioSpec {
      * <p>Using this value with {@link AudioSpec.Builder#setSampleRate(Range)} informs the device it
      * should choose any appropriate sample rate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> SAMPLE_RATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -156,7 +161,12 @@ public abstract class AudioSpec {
     @NonNull
     public abstract Builder toBuilder();
 
-    /** The builder of the {@link AudioSpec}. */
+    /**
+     * The builder of the {@link AudioSpec}.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
         // Restrict construction to same package

@@ -1,0 +1,5 @@
+attr postSplashScreenTheme
+attr windowSplashScreenAnimatedIcon
+attr windowSplashScreenAnimationDuration
+attr windowSplashScreenBackground
+style Theme_SplashScreen

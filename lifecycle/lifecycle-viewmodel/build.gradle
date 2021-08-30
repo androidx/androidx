@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -32,9 +32,10 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-
+    api(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
+    testImplementation(libs.truth)
 
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
@@ -47,8 +48,7 @@ dependencies {
 androidx {
     name = "Android Lifecycle ViewModel"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle ViewModel"
-    }
+}

@@ -24,6 +24,7 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     implementation(project(":paging:paging-common"))
+    implementation(project(":internal-testutils-ktx"))
     implementation(libs.kotlinTest)
 }
 

@@ -19,35 +19,34 @@ package androidx.wear.watchface
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.icu.util.Calendar
-import android.icu.util.TimeZone
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.WatchFaceStyle
 import android.view.Gravity
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
-import androidx.annotation.IntRange
-import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 import androidx.wear.watchface.control.data.ComplicationRenderParams
+import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
@@ -58,10 +57,13 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
 import kotlinx.coroutines.CompletableDeferred
 import java.security.InvalidParameterException
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import kotlin.math.max
 
 // Human reaction time is limited to ~100ms.
-private const val MIN_PERCEPTABLE_DELAY_MILLIS = 100
+private const val MIN_PERCEPTIBLE_DELAY_MILLIS = 100
 
 // Zero is a special value meaning we will accept the system's choice for the
 // display frame rate, which is the default behavior if this function isn't called.
@@ -169,6 +171,40 @@ public class WatchFace(
             pendingEditorDelegateCB = CompletableDeferred()
             return pendingEditorDelegateCB!!
         }
+
+        /**
+         * For use by on watch face editors.
+         * @hide
+         */
+        @SuppressLint("NewApi")
+        @JvmStatic
+        @UiThread
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public suspend fun createHeadlessSessionDelegate(
+            componentName: ComponentName,
+            params: HeadlessWatchFaceInstanceParams,
+            context: Context
+        ): EditorDelegate {
+            // Attempt to construct the class for the specified watchFaceName, failing if it either
+            // doesn't exist or isn't a [WatchFaceService].
+            val watchFaceServiceClass =
+                Class.forName(componentName.className) ?: throw IllegalArgumentException(
+                    "Can't create ${componentName.className}"
+                )
+            if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
+                throw IllegalArgumentException(
+                    "${componentName.className} is not a WatchFaceService"
+                )
+            } else {
+                val watchFaceService =
+                    watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
+                watchFaceService.setContext(context)
+                val engine = watchFaceService.createHeadlessEngine() as
+                    WatchFaceService.EngineWrapper
+                engine.createHeadlessInstance(params)
+                return engine.deferredWatchFaceImpl.await().WFEditorDelegate()
+            }
+        }
     }
 
     /**
@@ -189,13 +225,16 @@ public class WatchFace(
         /** The [WatchFace]'s screen bounds [Rect]. */
         public val screenBounds: Rect
 
-        /** The UTC reference time to use for previews in milliseconds since the epoch. */
-        public val previewReferenceTimeMillis: Long
+        /** Th reference [Instant] for previews. */
+        public val previewReferenceInstant: Instant
+
+        /** The [Handler] for the background thread. */
+        public val backgroundThreadHandler: Handler
 
         /** Renders the watchface to a [Bitmap] with the [CurrentUserStyleRepository]'s [UserStyle]. */
         public fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
-            calendarTimeMillis: Long,
+            instant: Instant,
             slotIdToComplicationData: Map<Int, ComplicationData>?
         ): Bitmap
 
@@ -211,6 +250,9 @@ public class WatchFace(
     public interface SystemTimeProvider {
         /** Returns the current system time in milliseconds. */
         public fun getSystemTimeMillis(): Long
+
+        /** Returns the current system [ZoneId]. */
+        public fun getSystemTimeZoneId(): ZoneId
     }
 
     /** Listens for taps on the watchface which didn't land on [ComplicationSlot]s. */
@@ -237,15 +279,10 @@ public class WatchFace(
          * the system is already processing the gesture.
          *
          * @param tapType the type of touch event sent to the watch face
-         * @param xPos the horizontal position in pixels on the screen where the touch happened
-         * @param yPos the vertical position in pixels on the screen where the touch happened
+         * @param tapEvent the received [TapEvent]
          */
         @UiThread
-        public fun onTap(
-            @TapType tapType: Int,
-            @Px xPos: Int,
-            @Px yPos: Int
-        )
+        public fun onTapEvent(@TapType tapType: Int, tapEvent: TapEvent)
     }
 
     /**
@@ -288,10 +325,11 @@ public class WatchFace(
         }
     }
 
-    /** The UTC preview time in milliseconds since the epoch, or null if not set. */
-    @get:SuppressWarnings("AutoBoxing")
-    @IntRange(from = 0)
-    public var overridePreviewReferenceTimeMillis: Long? = null
+    /**
+     * The [Instant] to use for preview rendering, or `null` if not set in which case the system
+     * chooses the Instant to use.
+     */
+    public var overridePreviewReferenceInstant: Instant? = null
         private set
 
     /** The legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices. */
@@ -304,6 +342,8 @@ public class WatchFace(
 
     internal var systemTimeProvider: SystemTimeProvider = object : SystemTimeProvider {
         override fun getSystemTimeMillis() = System.currentTimeMillis()
+
+        override fun getSystemTimeZoneId() = ZoneId.systemDefault()
     }
 
     /**
@@ -311,11 +351,8 @@ public class WatchFace(
      *
      * @param previewReferenceTimeMillis The UTC preview time in milliseconds since the epoch
      */
-    public fun setOverridePreviewReferenceTimeMillis(
-        @IntRange(from = 0) previewReferenceTimeMillis: Long
-    ): WatchFace = apply {
-        overridePreviewReferenceTimeMillis = previewReferenceTimeMillis
-    }
+    public fun setOverridePreviewReferenceInstant(previewReferenceTimeMillis: Instant): WatchFace =
+        apply { overridePreviewReferenceInstant = previewReferenceTimeMillis }
 
     /**
      * Sets the legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices.
@@ -342,7 +379,21 @@ public class WatchFace(
     }
 }
 
-internal data class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
+internal class MockTime(var speed: Double, var minTime: Long, var maxTime: Long) {
+    /** Apply mock time adjustments. */
+    fun applyMockTime(timeMillis: Long): Long {
+        // This adjustment allows time to be sped up or slowed down and to wrap between two
+        // instants. This is useful when developing animations that occur infrequently (e.g.
+        // hourly).
+        val millis = (speed * (timeMillis - minTime).toDouble()).toLong()
+        val range = maxTime - minTime
+        var delta = millis % range
+        if (delta < 0) {
+            delta += range
+        }
+        return minTime + delta
+    }
+}
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -352,17 +403,15 @@ public class WatchFaceImpl @UiThread constructor(
     private val watchFaceHostApi: WatchFaceHostApi,
     private val watchState: WatchState,
     internal val currentUserStyleRepository: CurrentUserStyleRepository,
-    internal var complicationSlotsManager: ComplicationSlotsManager,
 
-    /** @hide */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    public val calendar: Calendar,
+    public var complicationSlotsManager: ComplicationSlotsManager,
+
     private val broadcastsObserver: BroadcastsObserver,
     internal var broadcastsReceiver: BroadcastsReceiver?
 ) {
     internal companion object {
-        internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
+        internal const val NO_DEFAULT_DATA_SOURCE = SystemDataSources.NO_DATA_SOURCE
 
         internal const val MOCK_TIME_INTENT = "androidx.wear.watchface.MockTime"
 
@@ -387,38 +436,46 @@ public class WatchFaceImpl @UiThread constructor(
         // clamp the framerate to a maximum of 10fps to conserve power.
         internal const val MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS = 100L
 
-        // Complications are highlighted when tapped and after this delay the highlight is removed.
-        internal const val CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS = 300L
-
         // The threshold used to judge whether the battery is low during initialization.  Ideally
         // we would use the threshold for Intent.ACTION_BATTERY_LOW but it's not documented or
         // available programmatically. The value below is the default but it could be overridden
         // by OEMs.
         internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15.0f
-
-        internal val defaultRenderParametersForDrawMode: HashMap<DrawMode, RenderParameters> =
-            hashMapOf(
-                DrawMode.AMBIENT to
-                    RenderParameters(
-                        DrawMode.AMBIENT, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
-                    ),
-                DrawMode.INTERACTIVE to
-                    RenderParameters(
-                        DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
-                    ),
-                DrawMode.LOW_BATTERY_INTERACTIVE to
-                    RenderParameters(
-                        DrawMode.LOW_BATTERY_INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                        null
-                    ),
-                DrawMode.MUTE to
-                    RenderParameters(
-                        DrawMode.MUTE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null
-                    ),
-            )
     }
 
-    private val systemTimeProvider = watchface.systemTimeProvider
+    private val defaultRenderParametersForDrawMode: HashMap<DrawMode, RenderParameters> =
+        hashMapOf(
+            DrawMode.AMBIENT to
+                RenderParameters(
+                    DrawMode.AMBIENT,
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    null,
+                    complicationSlotsManager.lastComplicationTapDownEvents
+                ),
+            DrawMode.INTERACTIVE to
+                RenderParameters(
+                    DrawMode.INTERACTIVE,
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    null,
+                    complicationSlotsManager.lastComplicationTapDownEvents
+                ),
+            DrawMode.LOW_BATTERY_INTERACTIVE to
+                RenderParameters(
+                    DrawMode.LOW_BATTERY_INTERACTIVE,
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    null,
+                    complicationSlotsManager.lastComplicationTapDownEvents
+                ),
+            DrawMode.MUTE to
+                RenderParameters(
+                    DrawMode.MUTE,
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    null,
+                    complicationSlotsManager.lastComplicationTapDownEvents
+                ),
+        )
+
+    internal val systemTimeProvider = watchface.systemTimeProvider
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
     internal val renderer = watchface.renderer
     private val tapListener = watchface.tapListener
@@ -451,7 +508,6 @@ public class WatchFaceImpl @UiThread constructor(
     )
 
     internal fun onActionTimeZoneChanged() {
-        calendar.timeZone = TimeZone.getDefault()
         renderer.invalidate()
     }
 
@@ -477,19 +533,28 @@ public class WatchFaceImpl @UiThread constructor(
         mockTime.maxTime = intent.getLongExtra(EXTRA_MOCK_TIME_WRAPPING_MAX_TIME, Long.MAX_VALUE)
     }
 
-    /** The UTC reference time for editor preview images in milliseconds since the epoch. */
-    public val previewReferenceTimeMillis: Long =
-        watchface.overridePreviewReferenceTimeMillis ?: when (watchface.watchFaceType) {
-            WatchFaceType.ANALOG -> watchState.analogPreviewReferenceTimeMillis
-            WatchFaceType.DIGITAL -> watchState.digitalPreviewReferenceTimeMillis
-            else -> throw InvalidParameterException("Unrecognized watchFaceType")
-        }
+    /** The reference [Instant] time for editor preview images in milliseconds since the epoch. */
+    public val previewReferenceInstant: Instant =
+        watchface.overridePreviewReferenceInstant ?: Instant.ofEpochMilli(
+            when (watchface.watchFaceType) {
+                WatchFaceType.ANALOG -> watchState.analogPreviewReferenceTimeMillis
+                WatchFaceType.DIGITAL -> watchState.digitalPreviewReferenceTimeMillis
+                else -> throw InvalidParameterException("Unrecognized watchFaceType")
+            }
+        )
 
     private var inOnSetStyle = false
+    internal var initComplete = false
 
     private val ambientObserver = Observer<Boolean> {
-        scheduleDraw()
-        watchFaceHostApi.invalidate()
+        TraceEvent("WatchFaceImpl.ambientObserver").use {
+            // It's not safe to draw until initComplete because the ComplicationSlotManager init
+            // may not have completed.
+            if (initComplete) {
+                onDraw()
+            }
+            scheduleDraw()
+        }
     }
 
     private val interruptionFilterObserver = Observer<Int> {
@@ -508,14 +573,17 @@ public class WatchFaceImpl @UiThread constructor(
         TraceEvent("WatchFaceImpl.visibilityObserver").use {
             if (isVisible) {
                 registerReceivers()
-                // Update time zone in case it changed while we weren't visible.
-                calendar.timeZone = TimeZone.getDefault()
                 watchFaceHostApi.invalidate()
+
+                // It's not safe to draw until initComplete because the ComplicationSlotManager init
+                // may not have completed.
+                if (initComplete) {
+                    onDraw()
+                }
+                scheduleDraw()
             } else {
                 unregisterReceivers()
             }
-
-            scheduleDraw()
         }
     }
 
@@ -538,7 +606,7 @@ public class WatchFaceImpl @UiThread constructor(
 
     init {
         renderer.watchFaceHostApi = watchFaceHostApi
-        renderer.uiThreadInit()
+        renderer.uiThreadInitInternal()
 
         if (renderer.additionalContentDescriptionLabels.isNotEmpty()) {
             watchFaceHostApi.updateContentDescriptionLabels()
@@ -563,19 +631,16 @@ public class WatchFaceImpl @UiThread constructor(
     }
 
     internal fun invalidateIfNotAnimating() {
-        // Ensure we render a frame if the ComplicationSlot needs rendering, e.g.
-        // because it loaded an image. However if we're animating there's no need
-        // to trigger an extra invalidation.
+        // Ensure we render a frame if the ComplicationSlot needs rendering, e.g. because it loaded
+        // an image. However if we're animating there's no need to trigger an extra invalidation.
         if (!renderer.shouldAnimate() || computeDelayTillNextFrame(
                 nextDrawTimeMillis,
                 systemTimeProvider.getSystemTimeMillis()
-            ) > MIN_PERCEPTABLE_DELAY_MILLIS
+            ) > MIN_PERCEPTIBLE_DELAY_MILLIS
         ) {
             watchFaceHostApi.invalidate()
         }
     }
-
-    internal fun createWFEditorDelegate() = WFEditorDelegate() as WatchFace.EditorDelegate
 
     internal inner class WFEditorDelegate : WatchFace.EditorDelegate {
         override val userStyleSchema: UserStyleSchema
@@ -593,12 +658,15 @@ public class WatchFaceImpl @UiThread constructor(
         override val screenBounds
             get() = renderer.screenBounds
 
-        override val previewReferenceTimeMillis
-            get() = this@WatchFaceImpl.previewReferenceTimeMillis
+        override val previewReferenceInstant
+            get() = this@WatchFaceImpl.previewReferenceInstant
+
+        override val backgroundThreadHandler
+            get() = watchFaceHostApi.getBackgroundThreadHandler()
 
         override fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
-            calendarTimeMillis: Long,
+            instant: Instant,
             slotIdToComplicationData: Map<Int, ComplicationData>?
         ): Bitmap = TraceEvent("WFEditorDelegate.takeScreenshot").use {
             val oldComplicationData =
@@ -613,9 +681,7 @@ public class WatchFaceImpl @UiThread constructor(
                 }
             }
             val screenShot = renderer.takeScreenshot(
-                Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                    timeInMillis = calendarTimeMillis
-                },
+                ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
                 renderParameters
             )
             if (slotIdToComplicationData != null) {
@@ -648,9 +714,8 @@ public class WatchFaceImpl @UiThread constructor(
             (batteryPercent < INITIAL_LOW_BATTERY_THRESHOLD) && !isCharging
     }
 
-    /**
-     * Called by the system in response to remote configuration, on the main thread.
-     */
+    /** Called by the system in response to remote configuration. */
+    @UiThread
     internal fun onSetStyleInternal(style: UserStyle) {
         // No need to echo the userStyle back.
         inOnSetStyle = true
@@ -702,7 +767,6 @@ public class WatchFaceImpl @UiThread constructor(
             return
         }
 
-        setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         if (renderer.shouldAnimate()) {
             pendingUpdateTime.postUnique {
                 watchFaceHostApi.invalidate()
@@ -710,21 +774,12 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    /**
-     * Sets the calendar's time in milliseconds adjusted by the mock time controls.
-     */
-    private fun setCalendarTime(timeMillis: Long) {
-        // This adjustment allows time to be sped up or slowed down and to wrap between two
-        // instants. This is useful when developing animations that occur infrequently (e.g.
-        // hourly).
-        val millis = (mockTime.speed * (timeMillis - mockTime.minTime).toDouble()).toLong()
-        val range = mockTime.maxTime - mockTime.minTime
-        var delta = millis % range
-        if (delta < 0) {
-            delta += range
-        }
-        calendar.timeInMillis = mockTime.minTime + delta
-    }
+    /** Gets the [ZonedDateTime] from [systemTimeProvider] adjusted by the mock time controls. */
+    @UiThread
+    private fun getZonedDateTime() = ZonedDateTime.ofInstant(
+        Instant.ofEpochMilli(mockTime.applyMockTime(systemTimeProvider.getSystemTimeMillis())),
+        systemTimeProvider.getSystemTimeZoneId()
+    )
 
     /** @hide */
     @UiThread
@@ -750,12 +805,10 @@ public class WatchFaceImpl @UiThread constructor(
     /** @hide */
     @UiThread
     internal fun onDraw() {
-        setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         maybeUpdateDrawMode()
-        renderer.renderInternal(calendar)
+        renderer.renderInternal(getZonedDateTime())
 
         val currentTimeMillis = systemTimeProvider.getSystemTimeMillis()
-        setCalendarTime(currentTimeMillis)
         if (renderer.shouldAnimate()) {
             val delayMillis = computeDelayTillNextFrame(nextDrawTimeMillis, currentTimeMillis)
             nextDrawTimeMillis = currentTimeMillis + delayMillis
@@ -764,9 +817,8 @@ public class WatchFaceImpl @UiThread constructor(
     }
 
     internal fun onSurfaceRedrawNeeded() {
-        setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         maybeUpdateDrawMode()
-        renderer.renderInternal(calendar)
+        renderer.renderInternal(getZonedDateTime())
     }
 
     /** @hide */
@@ -792,7 +844,7 @@ public class WatchFaceImpl @UiThread constructor(
         // Drop frames if needed (happens when onDraw is slow).
         if (nextFrameTimeMillis <= currentTimeMillis) {
             // Compute the next runtime after currentTimeMillis with the same phase as
-            //  beginFrameTimeMillis to keep the animation smooth.
+            // beginFrameTimeMillis to keep the animation smooth.
             val phaseAdjust =
                 updateRateMillis +
                     ((nextFrameTimeMillis - currentTimeMillis) % updateRateMillis)
@@ -813,32 +865,21 @@ public class WatchFaceImpl @UiThread constructor(
         watchFaceHostApi.invalidate()
     }
 
-    /** Clears all [ComplicationData]. */
-    @UiThread
-    internal fun clearComplicationData() {
-        complicationSlotsManager.clearComplicationData()
-        watchFaceHostApi.invalidate()
-    }
-
     /**
      * Called when a tap or touch related event occurs. Detects taps on [ComplicationSlot]s and
      * triggers the associated action.
      *
-     * @param tapType Value representing the event sent to the wallpaper
-     * @param x X coordinate of the event
-     * @param y Y coordinate of the event
+     * @param tapType The [TapType] of the event
+     * @param tapEvent The received [TapEvent]
      */
     @UiThread
-    internal fun onTapCommand(
-        @TapType tapType: Int,
-        x: Int,
-        y: Int
-    ) {
-        val tappedComplication = complicationSlotsManager.getComplicationSlotAt(x, y)
+    internal fun onTapCommand(@TapType tapType: Int, tapEvent: TapEvent) {
+        val tappedComplication =
+            complicationSlotsManager.getComplicationSlotAt(tapEvent.xPos, tapEvent.yPos)
         if (tappedComplication == null) {
             // The event does not belong to any of the complicationSlots, pass to the listener.
             lastTappedComplicationId = null
-            tapListener?.onTap(tapType, x, y)
+            tapListener?.onTapEvent(tapType, tapEvent)
             return
         }
 
@@ -852,12 +893,12 @@ public class WatchFaceImpl @UiThread constructor(
                     lastTappedComplicationId = null
                     return
                 }
-                complicationSlotsManager.displayPressedAnimation(tappedComplication.id)
                 complicationSlotsManager.onComplicationSlotSingleTapped(tappedComplication.id)
                 watchFaceHostApi.invalidate()
                 lastTappedComplicationId = null
             }
             TapType.DOWN -> {
+                complicationSlotsManager.onTapDown(tappedComplication.id, tapEvent)
                 lastTappedComplicationId = tappedComplication.id
             }
             else -> lastTappedComplicationId = null
@@ -872,14 +913,13 @@ public class WatchFaceImpl @UiThread constructor(
                 it.value.computeBounds(renderer.screenBounds),
                 it.value.boundsType,
                 ComplicationType.toWireTypes(it.value.supportedTypes),
-                it.value.defaultProviderPolicy.providersAsList(),
-                it.value.defaultProviderPolicy.systemProviderFallback,
-                it.value.defaultProviderType.toWireComplicationType(),
+                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
+                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
+                it.value.defaultDataSourceType.toWireComplicationType(),
                 it.value.enabled,
                 it.value.initiallyEnabled,
-                it.value.renderer.getData()?.type?.toWireComplicationType()
-                    ?: ComplicationType.NO_DATA.toWireComplicationType(),
-                it.value.fixedComplicationProvider,
+                it.value.renderer.getData().type.toWireComplicationType(),
+                it.value.fixedComplicationDataSource,
                 it.value.configExtras
             )
         )
@@ -890,7 +930,8 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun renderWatchFaceToBitmap(
         params: WatchFaceRenderParams
     ): Bundle = TraceEvent("WatchFaceImpl.renderWatchFaceToBitmap").use {
-        val oldStyle = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
+        val oldStyle = currentUserStyleRepository.userStyle
+
         params.userStyle?.let {
             onSetStyleInternal(UserStyle(UserStyleData(it), currentUserStyleRepository.schema))
         }
@@ -903,21 +944,28 @@ public class WatchFaceImpl @UiThread constructor(
 
         params.idAndComplicationDatumWireFormats?.let {
             for (idAndData in it) {
-                complicationSlotsManager[idAndData.id]!!.renderer
-                    .loadData(idAndData.complicationData.toApiComplicationData(), false)
+                val complicationSlot = complicationSlotsManager[idAndData.id]
+                require(complicationSlot != null) {
+                    "ComplicationSlot ID ${idAndData.id} is unknown"
+                }
+                complicationSlot.renderer.loadData(
+                    idAndData.complicationData.toApiComplicationData(),
+                    false
+                )
             }
         }
 
         val bitmap = renderer.takeScreenshot(
-            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                timeInMillis = params.calendarTimeMillis
-            },
+            ZonedDateTime.ofInstant(
+                Instant.ofEpochMilli(params.calendarTimeMillis),
+                ZoneId.of("UTC")
+            ),
             RenderParameters(params.renderParametersWireFormat)
         )
 
         // Restore previous style & complicationSlots if required.
         if (params.userStyle != null) {
-            onSetStyleInternal(UserStyle(oldStyle))
+            onSetStyleInternal(oldStyle)
         }
 
         if (params.idAndComplicationDatumWireFormats != null) {
@@ -934,11 +982,13 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun renderComplicationToBitmap(
         params: ComplicationRenderParams
     ): Bundle? = TraceEvent("WatchFaceImpl.renderComplicationToBitmap").use {
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-            timeInMillis = params.calendarTimeMillis
-        }
+        val zonedDateTime = ZonedDateTime.ofInstant(
+            Instant.ofEpochMilli(params.calendarTimeMillis),
+            ZoneId.of("UTC")
+        )
         return complicationSlotsManager[params.complicationSlotId]?.let {
-            val oldStyle = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
+            val oldStyle = currentUserStyleRepository.userStyle
+
             val newStyle = params.userStyle
             if (newStyle != null) {
                 onSetStyleInternal(
@@ -963,17 +1013,18 @@ public class WatchFaceImpl @UiThread constructor(
             it.renderer.render(
                 Canvas(complicationBitmap),
                 Rect(0, 0, bounds.width(), bounds.height()),
-                calendar,
-                RenderParameters(params.renderParametersWireFormat)
+                zonedDateTime,
+                RenderParameters(params.renderParametersWireFormat),
+                params.complicationSlotId
             )
 
             // Restore previous ComplicationData & style if required.
-            if (params.complicationData != null) {
+            if (prevData != null) {
                 it.renderer.loadData(prevData, false)
             }
 
             if (newStyle != null) {
-                onSetStyleInternal(UserStyle(oldStyle))
+                onSetStyleInternal(oldStyle)
             }
 
             SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
@@ -984,7 +1035,6 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("WatchFaceImpl ($componentName): ")
         writer.increaseIndent()
-        writer.println("calendar=$calendar")
         writer.println("mockTime.maxTime=${mockTime.maxTime}")
         writer.println("mockTime.minTime=${mockTime.minTime}")
         writer.println("mockTime.speed=${mockTime.speed}")

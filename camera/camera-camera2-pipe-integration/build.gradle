@@ -55,7 +55,7 @@ dependencies {
     implementation(CAMERA_PIPE_DEPS.API)
     implementation(CAMERA_PIPE_DEPS.IMPLEMENTATION)
 
-    kapt(libs.dagger)
+    kapt(libs.daggerCompiler)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -75,7 +75,9 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation(project(":camera:camera-lifecycle"))
+    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(project(":internal-testutils-truth"))
 }
 
 android {

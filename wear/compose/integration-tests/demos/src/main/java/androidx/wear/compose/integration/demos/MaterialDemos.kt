@@ -16,12 +16,72 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.integration.demos.common.ComposableDemo
-import androidx.compose.integration.demos.common.DemoCategory
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
+import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
+import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
+import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 
+// Declare the swipe to dismiss demos so that we can use this variable as the background composable
+// for the SwipeToDismissDemo itself.
+@ExperimentalWearMaterialApi
+internal val SwipeToDismissDemos =
+    DemoCategory(
+        "Swipe to Dismiss",
+        listOf(
+            ComposableDemo("Sample") { navigateBack ->
+                SimpleSwipeToDismissBox(navigateBack = navigateBack)
+            },
+            ComposableDemo("Demo") { navigateBack ->
+                val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
+                SwipeToDismissDemo(navigateBack = navigateBack, demoState = state)
+            },
+        )
+    )
+
+@ExperimentalWearMaterialApi
 val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
-        ComposableDemo("Button") { ButtonDemo() },
+        DemoCategory(
+            "Button",
+            listOf(
+                ComposableDemo("Button Sizes") { ButtonSizes() },
+                ComposableDemo("Button Styles") { ButtonStyles() },
+            )
+        ),
+        ComposableDemo("Toggle Button") { ToggleButtons() },
+        DemoCategory(
+            "Chips",
+            listOf(
+                ComposableDemo("Chip") { StandardChips() },
+                ComposableDemo("Compact chip") { SmallChips() },
+                ComposableDemo("Avatar chip") { AvatarChips() },
+                ComposableDemo("Rtl chips") { RtlChips() },
+                ComposableDemo("Custom chips") { CustomChips() },
+                ComposableDemo("Image background chips") { ImageBackgroundChips() },
+            )
+        ),
+        DemoCategory(
+            "Toggle Chip",
+            listOf(
+                ComposableDemo("Toggle chip") { ToggleChips() },
+                ComposableDemo("RTL Toggle chip") { RtlToggleChips() },
+            )
+        ),
+        ComposableDemo("Card") { CardDemo() },
+        SwipeToDismissDemos,
+        DemoCategory(
+            "List",
+            listOf(
+                ComposableDemo("Scaling Lazy Column") { SimpleScalingLazyColumn() },
+                ComposableDemo("SLC with Content Padding") {
+                    SimpleScalingLazyColumnWithContentPadding()
+                },
+                ComposableDemo("List Headers") { ScalingLazyColumnWithHeaders() },
+            )
+        )
     ),
 )

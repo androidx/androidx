@@ -121,7 +121,7 @@ class SubtitleController {
     @Override
     protected void finalize() throws Throwable {
         if (VERSION.SDK_INT >= 19) {
-            mCaptioningManager.removeCaptioningChangeListener(
+            CaptioningManagerHelper.Api19Impl.removeCaptioningChangeListener(mCaptioningManager,
                     mCaptioningChangeListener);
         }
         super.finalize();
@@ -228,12 +228,14 @@ class SubtitleController {
         SubtitleTrack bestTrack = null;
         int bestScore = -1;
 
-        Locale selectedLocale = VERSION.SDK_INT >= 19 ? mCaptioningManager.getLocale() : null;
+        Locale selectedLocale = VERSION.SDK_INT >= 19
+                ? CaptioningManagerHelper.Api19Impl.getLocale(mCaptioningManager) : null;
         Locale locale = selectedLocale;
         if (locale == null) {
             locale = Locale.getDefault();
         }
-        boolean selectForced = VERSION.SDK_INT >= 19 ? !mCaptioningManager.isEnabled() : true;
+        boolean selectForced = VERSION.SDK_INT >= 19
+                ? !CaptioningManagerHelper.Api19Impl.isEnabled(mCaptioningManager) : true;
 
         synchronized (mTracksLock) {
             for (SubtitleTrack track: mTracks) {
@@ -300,8 +302,8 @@ class SubtitleController {
             }
             // If track selection is explicit, but visibility
             // is not, it falls back to the captioning setting
-            boolean captionIsEnabledOnSystem =
-                    VERSION.SDK_INT >= 19 ? mCaptioningManager.isEnabled() : false;
+            boolean captionIsEnabledOnSystem = VERSION.SDK_INT >= 19
+                    ? CaptioningManagerHelper.Api19Impl.isEnabled(mCaptioningManager) : false;
             if (captionIsEnabledOnSystem
                     || (mSelectedTrack != null && MediaFormatUtil.getInteger(
                             mSelectedTrack.getFormat(),
@@ -336,7 +338,7 @@ class SubtitleController {
         mTrackIsExplicit = false;
         mVisibilityIsExplicit = false;
         if (VERSION.SDK_INT >= 19) {
-            mCaptioningManager.removeCaptioningChangeListener(
+            CaptioningManagerHelper.Api19Impl.removeCaptioningChangeListener(mCaptioningManager,
                     mCaptioningChangeListener);
         }
     }
@@ -356,8 +358,8 @@ class SubtitleController {
                     if (track != null) {
                         synchronized (mTracksLock) {
                             if (mTracks.size() == 0 && VERSION.SDK_INT >= 19) {
-                                mCaptioningManager.addCaptioningChangeListener(
-                                        mCaptioningChangeListener);
+                                CaptioningManagerHelper.Api19Impl.addCaptioningChangeListener(
+                                        mCaptioningManager, mCaptioningChangeListener);
                             }
                             mTracks.add(track);
                         }

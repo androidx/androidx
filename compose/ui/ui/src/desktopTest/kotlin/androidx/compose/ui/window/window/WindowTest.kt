@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.window.window
 
-import androidx.compose.desktop.ComposeWindow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -30,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
@@ -38,6 +38,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.sendKey
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowSize
@@ -48,7 +49,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import java.awt.Dimension
 import java.awt.event.KeyEvent
-import java.awt.event.KeyEvent.KEY_LOCATION_STANDARD
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 
@@ -248,8 +248,63 @@ class WindowTest {
     }
 
     @Test
+    fun `open nested window`() = runApplicationTest {
+        var window1: ComposeWindow? = null
+        var window2: ComposeWindow? = null
+
+        var isOpen by mutableStateOf(true)
+        var isNestedOpen by mutableStateOf(true)
+
+        launchApplication {
+            if (isOpen) {
+                Window(
+                    onCloseRequest = {},
+                    state = rememberWindowState(
+                        size = WindowSize(600.dp, 600.dp),
+                    )
+                ) {
+                    window1 = this.window
+                    Box(Modifier.size(32.dp).background(Color.Red))
+
+                    if (isNestedOpen) {
+                        Window(
+                            onCloseRequest = {},
+                            state = rememberWindowState(
+                                size = WindowSize(300.dp, 300.dp),
+                            )
+                        ) {
+                            window2 = this.window
+                            Box(Modifier.size(32.dp).background(Color.Blue))
+                        }
+                    }
+                }
+            }
+        }
+
+        awaitIdle()
+        assertThat(window1?.isShowing).isTrue()
+        assertThat(window2?.isShowing).isTrue()
+
+        isNestedOpen = false
+        awaitIdle()
+        assertThat(window1?.isShowing).isTrue()
+        assertThat(window2?.isShowing).isFalse()
+
+        isNestedOpen = true
+        awaitIdle()
+        assertThat(window1?.isShowing).isTrue()
+        assertThat(window2?.isShowing).isTrue()
+
+        isOpen = false
+        awaitIdle()
+        assertThat(window1?.isShowing).isFalse()
+        assertThat(window2?.isShowing).isFalse()
+    }
+
+    @Test
     fun `pass composition local to windows`() = runApplicationTest {
         var actualValue1: Int? = null
+        var actualValue2: Int? = null
 
         var isOpen by mutableStateOf(true)
         var testValue by mutableStateOf(0)
@@ -266,6 +321,16 @@ class WindowTest {
                     ) {
                         actualValue1 = localTestValue.current
                         Box(Modifier.size(32.dp).background(Color.Red))
+
+                        Window(
+                            onCloseRequest = {},
+                            state = rememberWindowState(
+                                size = WindowSize(300.dp, 300.dp),
+                            )
+                        ) {
+                            actualValue2 = localTestValue.current
+                            Box(Modifier.size(32.dp).background(Color.Blue))
+                        }
                     }
                 }
             }
@@ -273,10 +338,12 @@ class WindowTest {
 
         awaitIdle()
         assertThat(actualValue1).isEqualTo(0)
+        assertThat(actualValue2).isEqualTo(0)
 
         testValue = 42
         awaitIdle()
         assertThat(actualValue1).isEqualTo(42)
+        assertThat(actualValue2).isEqualTo(42)
 
         isOpen = false
     }
@@ -453,16 +520,4 @@ class WindowTest {
 
         exitApplication()
     }
-
-    private fun ComposeWindow.sendKey(code: Int) = layer.owners.onKeyPressed(
-        KeyEvent(
-            layer.wrapped,
-            KeyEvent.KEY_PRESSED,
-            0,
-            0,
-            code,
-            code.toChar(),
-            KEY_LOCATION_STANDARD
-        )
-    )
 }

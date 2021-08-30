@@ -41,13 +41,8 @@ import java.util.concurrent.Executor
  * ```
  * // PKCE (Proof Key for Code Exchange) is required for the auth
  * private var codeVerifier: CodeVerifier
- * private var authClient: RemoteAuthClient
- *
- * override public fun onCreate(b: Bundle) {
- *   super.onCreate(b);
- *   authClient = RemoteAuthClient.create(this);
- *   ...
- * }
+ * // Late initialization in place where it's used, or to be initialized in onCreate()
+ * private var lateinit authClient: RemoteAuthClient
  *
  * override public fun onDestroy() {
  *   authClient.close();
@@ -60,11 +55,13 @@ import java.util.concurrent.Executor
  *    codeVerifier = CodeVerifier()
  *
  *   // Construct your auth request.
+ *   authClient = RemoteAuthClient.create(this);
  *   authClient.sendAuthorizationRequest(
- *      OAuthRequest.Builder(this.applicationContext.packageName)
+ *      OAuthRequest.Builder(this.applicationContext)
  *          .setAuthProviderUrl(Uri.parse("https://...."))
  *          .setCodeChallenge(CodeChallenge(codeVerifier))
  *          .build(),
+ *      Executors.newSingleThreadExecutor()
  *      new MyAuthCallback()
  *   );
  * }
@@ -80,7 +77,7 @@ import java.util.concurrent.Executor
  *     ...
  *   }
  *
- *   override public fun onAuthorizationError(errorCode: int) {
+ *   override public fun onAuthorizationError(request: OAuthRequest, errorCode: int) {
  *     // Compare against codes available in RemoteAuthClient.ErrorCode
  *     // You'll also want to display an error UI.
  *     ...
@@ -205,7 +202,7 @@ public class RemoteAuthClient internal constructor(
          * see [sendAuthorizationRequest]
          */
         @UiThread
-        public abstract fun onAuthorizationError(@ErrorCode errorCode: Int)
+        public abstract fun onAuthorizationError(request: OAuthRequest, @ErrorCode errorCode: Int)
     }
 
     /**
@@ -215,32 +212,35 @@ public class RemoteAuthClient internal constructor(
      * completes.
      *
      * @param request Request that will be sent to the phone. The auth response should redirect
-     * to the Wear OS companion. See [WEAR_REDIRECT_URL_PREFIX]
+     * to the Wear OS companion. See [OAuthRequest.WEAR_REDIRECT_URL_PREFIX]
+     * @param executor The executor that callback will called on.
+     * @param clientCallback The callback that will be notified when request is completed.
      *
      * @Throws RuntimeException if the service has error to open the request
      */
     @UiThread
-    @SuppressLint("ExecutorRegistration")
-    public fun sendAuthorizationRequest(request: OAuthRequest, clientCallback: Callback) {
-        require(packageName == request.getPackageName()) {
+    public fun sendAuthorizationRequest(
+        request: OAuthRequest,
+        executor: Executor,
+        clientCallback: Callback
+    ) {
+        require(packageName == request.packageName) {
             "The request's package name is different from the auth client's package name."
         }
 
         if (connectionState == STATE_DISCONNECTED) {
             connect()
         }
-        whenConnected(
-            Runnable {
-                val callback = RequestCallback(request, clientCallback)
-                outstandingRequests.add(callback)
-                try {
-                    service!!.openUrl(request.toBundle(), callback)
-                } catch (e: Exception) {
-                    removePendingCallback(callback)
-                    throw RuntimeException(e)
-                }
+        whenConnected {
+            val callback = RequestCallback(request, clientCallback, executor)
+            outstandingRequests.add(callback)
+            try {
+                service!!.openUrl(request.toBundle(), callback)
+            } catch (e: Exception) {
+                removePendingCallback(callback)
+                throw RuntimeException(e)
             }
-        )
+        }
     }
 
     /**
@@ -320,7 +320,8 @@ public class RemoteAuthClient internal constructor(
     /** Receives results of async requests to the remote auth service.  */
     internal inner class RequestCallback internal constructor(
         private val request: OAuthRequest,
-        private val clientCallback: Callback
+        private val clientCallback: Callback,
+        private val executor: Executor
     ) : IAuthenticationRequestCallback.Stub() {
 
         override fun getApiVersion(): Int = IAuthenticationRequestCallback.API_VERSION
@@ -340,14 +341,18 @@ public class RemoteAuthClient internal constructor(
 
         @SuppressLint("SyntheticAccessor")
         private fun onResult(response: OAuthResponse) {
-            @ErrorCode val error = response.getErrorCode()
+            @ErrorCode val error = response.errorCode
             uiThreadExecutor.execute(
                 Runnable {
                     removePendingCallback(this@RequestCallback)
                     if (error == NO_ERROR) {
-                        clientCallback.onAuthorizationResponse(request, response)
+                        executor.execute {
+                            clientCallback.onAuthorizationResponse(request, response)
+                        }
                     } else {
-                        clientCallback.onAuthorizationError(response.getErrorCode())
+                        executor.execute {
+                            clientCallback.onAuthorizationError(request, response.errorCode)
+                        }
                     }
                 }
             )

@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContextImpl
 import org.jetbrains.kotlin.backend.common.ir.BuiltinSymbolsBase
 import org.jetbrains.kotlin.backend.common.ir.createParameterDeclarations
-import org.jetbrains.kotlin.backend.jvm.JvmGeneratorExtensions
+import org.jetbrains.kotlin.backend.jvm.JvmGeneratorExtensionsImpl
 import org.jetbrains.kotlin.backend.jvm.JvmNameProvider
 import org.jetbrains.kotlin.backend.jvm.serialization.JvmIdSignatureDescriptor
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -36,7 +36,6 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.konan.DeserializedKlibModuleOrigin
 import org.jetbrains.kotlin.descriptors.konan.KlibModuleOrigin
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.backend.jvm.serialization.EmptyLoggingContext
 import org.jetbrains.kotlin.ir.backend.jvm.serialization.JvmIrLinker
 import org.jetbrains.kotlin.ir.backend.jvm.serialization.JvmManglerDesc
 import org.jetbrains.kotlin.ir.builders.TranslationPluginContext
@@ -47,9 +46,8 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.impl.IrFactoryImpl
 import org.jetbrains.kotlin.ir.descriptors.IrBuiltIns
 import org.jetbrains.kotlin.ir.descriptors.IrFunctionFactory
-import org.jetbrains.kotlin.ir.linkage.IrDeserializer
-import org.jetbrains.kotlin.ir.util.DeclarationStubGenerator
 import org.jetbrains.kotlin.ir.util.ExternalDependenciesGenerator
+import org.jetbrains.kotlin.ir.util.IrMessageLogger
 import org.jetbrains.kotlin.ir.util.ReferenceSymbolTable
 import org.jetbrains.kotlin.ir.util.SymbolTable
 import org.jetbrains.kotlin.ir.util.TypeTranslator
@@ -58,9 +56,9 @@ import org.jetbrains.kotlin.load.kotlin.JvmPackagePartSource
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi2ir.Psi2IrConfiguration
 import org.jetbrains.kotlin.psi2ir.Psi2IrTranslator
+import org.jetbrains.kotlin.psi2ir.generators.DeclarationStubGeneratorImpl
 import org.jetbrains.kotlin.psi2ir.generators.GeneratorContext
 import org.jetbrains.kotlin.resolve.AnalyzingUtils
-import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
@@ -71,13 +69,15 @@ abstract class ComposeIrTransformTest : AbstractIrTransformTest() {
     open val liveLiteralsV2Enabled get() = false
     open val sourceInformationEnabled get() = true
     open val decoysEnabled get() = false
+    open val metricsDestination: String? get() = null
 
-    private val extension = ComposeIrGenerationExtension(
+    protected val extension = ComposeIrGenerationExtension(
         liveLiteralsEnabled,
         liveLiteralsV2Enabled,
         sourceInformationEnabled,
         intrinsicRememberEnabled = true,
-        decoysEnabled
+        decoysEnabled,
+        metricsDestination
     )
     // Some tests require the plugin context in order to perform assertions, for example, a
     // context is required to determine the stability of a type using the StabilityInferencer.
@@ -85,20 +85,8 @@ abstract class ComposeIrTransformTest : AbstractIrTransformTest() {
 
     override fun postProcessingStep(
         module: IrModuleFragment,
-        generatorContext: GeneratorContext,
-        irLinker: IrDeserializer,
-        symbols: BuiltinSymbolsBase
+        context: IrPluginContext
     ) {
-        val context = IrPluginContextImpl(
-            module = generatorContext.moduleDescriptor,
-            bindingContext = generatorContext.bindingContext,
-            languageVersionSettings = generatorContext.languageVersionSettings,
-            st = generatorContext.symbolTable,
-            typeTranslator = generatorContext.typeTranslator,
-            irBuiltIns = generatorContext.irBuiltIns,
-            linker = irLinker,
-            symbols = symbols
-        )
         pluginContext = context
         extension.generate(
             module,
@@ -121,9 +109,7 @@ abstract class AbstractIrTransformTest : AbstractCodegenTest() {
 
     abstract fun postProcessingStep(
         module: IrModuleFragment,
-        generatorContext: GeneratorContext,
-        irLinker: IrDeserializer,
-        symbols: BuiltinSymbolsBase
+        context: IrPluginContext,
     )
 
     fun verifyCrossModuleComposeIrTransform(
@@ -400,6 +386,8 @@ abstract class AbstractIrTransformTest : AbstractCodegenTest() {
                 environment.configuration.languageVersionSettings,
                 Psi2IrConfiguration(ignoreErrors = false)
             )
+            val messageLogger = environment.configuration[IrMessageLogger.IR_MESSAGE_LOGGER]
+                ?: IrMessageLogger.None
             val symbolTable = SymbolTable(
                 JvmIdSignatureDescriptor(mangler),
                 IrFactoryImpl,
@@ -411,14 +399,14 @@ abstract class AbstractIrTransformTest : AbstractCodegenTest() {
                 analysisResult.throwIfError()
                 AnalyzingUtils.throwExceptionOnErrors(analysisResult.bindingContext)
             }
-            val extensions = JvmGeneratorExtensions()
+            val extensions = JvmGeneratorExtensionsImpl()
             val generatorContext = psi2ir.createGeneratorContext(
                 analysisResult.moduleDescriptor,
                 analysisResult.bindingContext,
                 symbolTable,
                 extensions = extensions
             )
-            val stubGenerator = DeclarationStubGenerator(
+            val stubGenerator = DeclarationStubGeneratorImpl(
                 generatorContext.moduleDescriptor,
                 generatorContext.symbolTable,
                 generatorContext.irBuiltIns.languageVersionSettings,
@@ -431,8 +419,6 @@ abstract class AbstractIrTransformTest : AbstractCodegenTest() {
             val frontEndContext = object : TranslationPluginContext {
                 override val moduleDescriptor: ModuleDescriptor
                     get() = generatorContext.moduleDescriptor
-                override val bindingContext: BindingContext
-                    get() = generatorContext.bindingContext
                 override val symbolTable: ReferenceSymbolTable
                     get() = symbolTable
                 override val typeTranslator: TypeTranslator
@@ -443,7 +429,7 @@ abstract class AbstractIrTransformTest : AbstractCodegenTest() {
             generatorContext.irBuiltIns.functionFactory = functionFactory
             val irLinker = JvmIrLinker(
                 generatorContext.moduleDescriptor,
-                EmptyLoggingContext,
+                messageLogger,
                 generatorContext.irBuiltIns,
                 generatorContext.symbolTable,
                 functionFactory,
@@ -468,15 +454,25 @@ abstract class AbstractIrTransformTest : AbstractCodegenTest() {
 
             ExternalDependenciesGenerator(
                 generatorContext.symbolTable,
-                irProviders,
-                generatorContext.languageVersionSettings
+                irProviders
             ).generateUnboundSymbolsAsDependencies()
 
             psi2ir.addPostprocessingStep { module ->
                 val old = stubGenerator.unboundSymbolGeneration
                 try {
                     stubGenerator.unboundSymbolGeneration = true
-                    postProcessingStep(module, generatorContext, irLinker, symbols)
+                    val context = IrPluginContextImpl(
+                        module = generatorContext.moduleDescriptor,
+                        bindingContext = generatorContext.bindingContext,
+                        languageVersionSettings = generatorContext.languageVersionSettings,
+                        st = generatorContext.symbolTable,
+                        typeTranslator = generatorContext.typeTranslator,
+                        irBuiltIns = generatorContext.irBuiltIns,
+                        linker = irLinker,
+                        symbols = symbols,
+                        diagnosticReporter = IrMessageLogger.None,
+                    )
+                    postProcessingStep(module, context)
                 } finally {
                     stubGenerator.unboundSymbolGeneration = old
                 }

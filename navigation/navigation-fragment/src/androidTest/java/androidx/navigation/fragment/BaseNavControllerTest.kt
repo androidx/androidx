@@ -33,8 +33,7 @@ import androidx.navigation.plusAssign
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.TestNavigator
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -102,17 +101,17 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         )
         val navController = activity.navController
 
-        assertEquals(destId, navController.currentDestination?.id ?: 0)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(destId)
         val navigator = navController.navigatorProvider[TestNavigator::class]
-        assertEquals(expectedStackSize, navigator.backStack.size)
+        assertThat(navigator.backStack.size).isEqualTo(expectedStackSize)
 
         // Test that the deep link Intent was passed through even though we don't pass in any args
 
         val deepLinkIntent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
-        assertNotNull(deepLinkIntent)
-        assertEquals(TEST_DEEP_LINK_ACTION, deepLinkIntent?.action)
+        assertThat(deepLinkIntent).isNotNull()
+        assertThat(deepLinkIntent?.action).isEqualTo(TEST_DEEP_LINK_ACTION)
     }
 
     @Test
@@ -155,18 +154,18 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         )
         val navController = activity.navController
 
-        assertEquals(destId, navController.currentDestination?.id ?: 0)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(destId)
         val navigator = navController.navigatorProvider[TestNavigator::class]
-        assertEquals(expectedStackSize, navigator.backStack.size)
+        assertThat(navigator.backStack.size).isEqualTo(expectedStackSize)
 
-        assertEquals(TEST_ARG_VALUE, navigator.current.arguments?.getString(TEST_ARG))
+        assertThat(navigator.current.arguments?.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
 
         // Test that the deep link Intent was passed in alongside our args
         val deepLinkIntent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
-        assertNotNull(deepLinkIntent)
-        assertEquals(TEST_DEEP_LINK_ACTION, deepLinkIntent?.action)
+        assertThat(deepLinkIntent).isNotNull()
+        assertThat(deepLinkIntent?.action).isEqualTo(TEST_DEEP_LINK_ACTION)
     }
 
     @Test
@@ -235,24 +234,25 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
             navController.setGraph(R.navigation.nav_deep_link)
         }
 
-        assertEquals(destId, navController.currentDestination?.id ?: 0)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(destId)
         val navigator = navController.navigatorProvider[TestNavigator::class]
-        assertEquals(expectedStackSize, navigator.backStack.size)
-        assertEquals(expectedValue, navigator.current.arguments?.getString(TEST_ARG))
+        assertThat(navigator.backStack.size).isEqualTo(expectedStackSize)
+
+        assertThat(navigator.current.arguments?.getString(TEST_ARG)).isEqualTo(expectedValue)
 
         // Test that the deep link Intent was passed in alongside our args
         val deepLinkIntent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
-        assertNotNull(deepLinkIntent)
-        assertEquals(deepLinkUri, deepLinkIntent?.data)
+        assertThat(deepLinkIntent).isNotNull()
+        assertThat(deepLinkIntent?.data).isEqualTo(deepLinkUri)
     }
 
     private fun launchActivity(intent: Intent): BaseNavigationActivity {
         val activity = activityRule.launchActivity(intent)
         instrumentation.waitForIdleSync()
         val navController = activity.navController
-        assertNotNull(navController)
+        assertThat(navController).isNotNull()
         navController.navigatorProvider += TestNavigator()
         return activity
     }

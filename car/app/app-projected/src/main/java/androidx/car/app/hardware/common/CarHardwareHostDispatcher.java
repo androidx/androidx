@@ -53,8 +53,7 @@ public class CarHardwareHostDispatcher {
      * Creates an instance of {@link CarHardwareHostDispatcher} with the given root dispatcher.
      *
      * @param hostDispatcher root dispatcher that is used to get the {@link ICarHardwareHost}
-     *                      initially
-     *
+     *                       initially
      * @throws NullPointerException if {@code hostDispatcher} is {@code null}
      */
     public CarHardwareHostDispatcher(@NonNull HostDispatcher hostDispatcher) {
@@ -68,7 +67,6 @@ public class CarHardwareHostDispatcher {
      * @param resultType the result type to fetch
      * @param bundle     parameters or additional info for the call
      * @param result     the callback where the result is returned
-     *
      * @throws NullPointerException if {@code result} is {@code null}
      */
     public void dispatchGetCarHardwareResult(int resultType, @Nullable Bundleable bundle,
@@ -80,6 +78,43 @@ public class CarHardwareHostDispatcher {
                             resultType,
                             bundle,
                             result);
+                    return null;
+                });
+    }
+
+    /**
+     * Dispatches a call to {@link ICarHardwareHost#subscribeCarHardwareResult} for the given {@code
+     * resultType}.
+     *
+     * @param resultType the result type to fetch
+     * @param bundle     parameters or additional info for the call
+     * @param callback   the callback where the result is returned
+     * @throws NullPointerException if {@code callback} is {@code null}
+     */
+    public void dispatchSubscribeCarHardwareResult(int resultType, @Nullable Bundleable bundle,
+            @NonNull ICarHardwareResult callback) {
+        requireNonNull(callback);
+        RemoteUtils.dispatchCallToHost("subscribeCarHardwareResult",
+                () -> {
+                    getHost().subscribeCarHardwareResult(
+                            resultType,
+                            bundle,
+                            callback);
+                    return null;
+                });
+    }
+
+    /**
+     * Dispatches a call to {@link ICarHardwareHost#unsubscribeCarHardwareResult} for the
+     * {@code resultType}.
+     *
+     * @param resultType the result type to fetch
+     * @throws NullPointerException if {@code callback} is {@code null}
+     */
+    public void dispatchUnsubscribeCarHardwareResult(int resultType, @Nullable Bundleable bundle) {
+        RemoteUtils.dispatchCallToHost("unsubscribeCarHardwareResult",
+                () -> {
+                    getHost().unsubscribeCarHardwareResult(resultType, bundle);
                     return null;
                 });
     }

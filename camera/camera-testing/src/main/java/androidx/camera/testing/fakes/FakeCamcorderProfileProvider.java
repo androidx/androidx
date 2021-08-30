@@ -62,8 +62,10 @@ public class FakeCamcorderProfileProvider implements CamcorderProfileProvider {
          * CamcorderProfile.
          */
         @NonNull
-        public Builder addProfile(@NonNull CamcorderProfileProxy camcorderProfile) {
-            mQualityToProfileMap.put(camcorderProfile.getQuality(), camcorderProfile);
+        public Builder addProfile(@NonNull CamcorderProfileProxy ...camcorderProfiles) {
+            for (CamcorderProfileProxy camcorderProfile : camcorderProfiles) {
+                mQualityToProfileMap.put(camcorderProfile.getQuality(), camcorderProfile);
+            }
             return this;
         }
 

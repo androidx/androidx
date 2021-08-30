@@ -82,7 +82,7 @@ class VideoCaptureIntegrationTest(
     private var cameraSelector: CameraSelector
 ) {
     companion object {
-        private const val TAG = "VideoCaptureTest"
+        private const val TAG = "VideoCaptureIntegrationTest"
 
         @JvmStatic
         @Parameterized.Parameters
@@ -162,7 +162,7 @@ class VideoCaptureIntegrationTest(
         CameraX.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
-    @Test
+    @Test(timeout = 60000)
     fun canRecordingThreeVideosToFilesInARow() {
         // Arrange.
         videoUseCase = VideoCapture.Builder().build()
@@ -232,7 +232,7 @@ class VideoCaptureIntegrationTest(
         verifyRecordingResult(savedUri!!)
     }
 
-    @Test
+    @Test(timeout = 30000)
     @Throws(IOException::class)
     fun canRecordingWithAspectRatio4By3() {
         // Arrange.
@@ -251,7 +251,7 @@ class VideoCaptureIntegrationTest(
         }
 
         // Start recording
-        startRecordingThreeSecondsWithFile(savedFile)
+        startRecordingWithFile(savedFile)
 
         videoUseCase.stopRecording()
 
@@ -272,7 +272,7 @@ class VideoCaptureIntegrationTest(
         verifyRecordingResult(Uri.fromFile(savedFile))
     }
 
-    @Test
+    @Test(timeout = 30000)
     @Throws(IOException::class)
     fun canRecordingWithAspectRatio16By9() {
         // Arrange.
@@ -291,7 +291,7 @@ class VideoCaptureIntegrationTest(
         }
 
         // Start recording
-        startRecordingThreeSecondsWithFile(savedFile)
+        startRecordingWithFile(savedFile)
         videoUseCase.stopRecording()
 
         // Assert.
@@ -311,7 +311,7 @@ class VideoCaptureIntegrationTest(
         verifyRecordingResult(Uri.fromFile(savedFile))
     }
 
-    @Test
+    @Test(timeout = 30000)
     @Throws(IOException::class)
     fun recordingWithPreview() {
         // Arrange.
@@ -332,7 +332,7 @@ class VideoCaptureIntegrationTest(
 
         addUseCaseToCamera(preview, videoUseCase)
 
-        startRecordingThreeSecondsWithFile(savedFile)
+        startRecordingWithFile(savedFile)
 
         videoUseCase.stopRecording()
         // Assert.
@@ -340,7 +340,7 @@ class VideoCaptureIntegrationTest(
         verifyRecordingResult(Uri.fromFile(savedFile))
     }
 
-    @Test
+    @Test(timeout = 30000)
     @Throws(IOException::class)
     fun recordingWithImageCapture() {
         // Arrange.
@@ -354,7 +354,7 @@ class VideoCaptureIntegrationTest(
 
         addUseCaseToCamera(imageCapture, videoUseCase)
 
-        startRecordingThreeSecondsWithFile(savedFile)
+        startRecordingWithFile(savedFile)
 
         videoUseCase.stopRecording()
         // Assert.
@@ -362,7 +362,7 @@ class VideoCaptureIntegrationTest(
         verifyRecordingResult(Uri.fromFile(savedFile))
     }
 
-    @Test
+    @Test(timeout = 30000)
     @Throws(IOException::class)
     fun recordingWithImageAnalysis() {
         // Arrange.
@@ -383,7 +383,7 @@ class VideoCaptureIntegrationTest(
 
         addUseCaseToCamera(analysis, videoUseCase)
 
-        startRecordingThreeSecondsWithFile(savedFile)
+        startRecordingWithFile(savedFile)
 
         videoUseCase.stopRecording()
         // Assert.
@@ -391,7 +391,7 @@ class VideoCaptureIntegrationTest(
         verifyRecordingResult(Uri.fromFile(savedFile))
     }
 
-    @Test
+    @Test(timeout = 30000)
     @Throws(IOException::class)
     fun recordingWithPreviewAndImageAnalysis() {
         // Arrange.
@@ -419,7 +419,7 @@ class VideoCaptureIntegrationTest(
 
         addUseCaseToCamera(preview, analysis, videoUseCase)
 
-        startRecordingThreeSecondsWithFile(savedFile)
+        startRecordingWithFile(savedFile)
 
         videoUseCase.stopRecording()
         // Assert.
@@ -427,7 +427,7 @@ class VideoCaptureIntegrationTest(
         verifyRecordingResult(Uri.fromFile(savedFile))
     }
 
-    @Test
+    @Test(timeout = 30000)
     @Throws(IOException::class)
     fun recordingWithPreviewAndImageCapture() {
         // Arrange.
@@ -450,7 +450,7 @@ class VideoCaptureIntegrationTest(
 
         addUseCaseToCamera(preview, imageCapture, videoUseCase)
 
-        startRecordingThreeSecondsWithFile(savedFile)
+        startRecordingWithFile(savedFile)
 
         videoUseCase.stopRecording()
         // Assert.
@@ -458,7 +458,7 @@ class VideoCaptureIntegrationTest(
         verifyRecordingResult(Uri.fromFile(savedFile))
     }
 
-    @Test
+    @Test(timeout = 30000)
     @Throws(IOException::class)
     fun recordingWithImageAnalysisAndImageCapture() {
         // Arrange.
@@ -479,7 +479,7 @@ class VideoCaptureIntegrationTest(
 
         addUseCaseToCamera(analysis, imageCapture, videoUseCase)
 
-        startRecordingThreeSecondsWithFile(savedFile)
+        startRecordingWithFile(savedFile)
 
         videoUseCase.stopRecording()
         // Assert.
@@ -487,7 +487,7 @@ class VideoCaptureIntegrationTest(
         verifyRecordingResult(Uri.fromFile(savedFile))
     }
 
-    @Test
+    @Test(timeout = 30000)
     @Throws(IOException::class)
     fun unbind_shouldStopRecording() {
         val file = File.createTempFile("CameraX", "tmp")
@@ -497,7 +497,7 @@ class VideoCaptureIntegrationTest(
         videoUseCase = VideoCapture.Builder().build()
         addUseCaseToCamera(videoUseCase)
 
-        startRecordingThreeSecondsWithFile(file)
+        startRecordingWithFile(file)
 
         instrumentation.runOnMainSync {
             cameraUseCaseAdapter.removeUseCases(
@@ -510,7 +510,7 @@ class VideoCaptureIntegrationTest(
         verifyRecordingResult(Uri.fromFile(file))
     }
 
-    @Test
+    @Test(timeout = 30000)
     @SdkSuppress(minSdkVersion = 26)
     fun startRecordingWithUri_whenAPILevelLargerThan26() {
         val useCase = VideoCapture.Builder().build()
@@ -525,8 +525,8 @@ class VideoCaptureIntegrationTest(
             CameraXExecutors.mainThreadExecutor(),
             callback
         )
-        Thread.sleep(3000)
 
+        recordingUntilKeyFrameArrived(useCase)
         useCase.stopRecording()
 
         // Assert: Wait for the signal that the image has been saved.
@@ -549,7 +549,7 @@ class VideoCaptureIntegrationTest(
         contentResolver.delete(saveLocationUri, null, null)
     }
 
-    @Test
+    @Test(timeout = 30000)
     @SdkSuppress(minSdkVersion = 26)
     fun startRecordingWithFileDescriptor_whenAPILevelLargerThan26() {
         // Arrange.
@@ -581,11 +581,7 @@ class VideoCaptureIntegrationTest(
             CameraXExecutors.mainThreadExecutor(), callback
         )
 
-        try {
-            Thread.sleep(3000)
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
+        recordingUntilKeyFrameArrived(videoUseCase)
         videoUseCase.stopRecording()
 
         // Assert.
@@ -615,7 +611,7 @@ class VideoCaptureIntegrationTest(
     private fun startRecordingWithUriAndVerifyCallback(file: File?) {
         // callback need to reset since it is called multiple in same test.
         reset(callback)
-        startRecordingThreeSecondsWithFile(file)
+        startRecordingWithFile(file)
 
         videoUseCase.stopRecording()
         // Assert.
@@ -654,18 +650,14 @@ class VideoCaptureIntegrationTest(
         return true
     }
 
-    private fun startRecordingThreeSecondsWithFile(file: File?) {
+    private fun startRecordingWithFile(file: File?) {
         // Start recording
         videoUseCase.startRecording(
             VideoCapture.OutputFileOptions.Builder(file!!).build(),
             CameraXExecutors.mainThreadExecutor(), callback
         )
 
-        try {
-            Thread.sleep(3000)
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
+        recordingUntilKeyFrameArrived(videoUseCase)
     }
 
     private fun verifyOnSavedCallback() {
@@ -698,5 +690,23 @@ class VideoCaptureIntegrationTest(
             assertThat(hasAudio).isEqualTo("yes")
             assertThat(hasVideo).isEqualTo("yes")
         }
+    }
+
+    private fun recordingUntilKeyFrameArrived(videoCapture: VideoCapture) {
+        Logger.i(TAG, "recordingUntilKeyFrameArrived begins: " + System.nanoTime() / 1000)
+
+        while (true) {
+            if (videoCapture.mIsFirstVideoKeyFrameWrite.get() && videoCapture
+                .mIsFirstAudioSampleWrite.get()
+            ) {
+                Logger.i(
+                    TAG,
+                    "Video Key Frame and audio frame Arrived: " + System.nanoTime() / 1000
+                )
+                break
+            }
+            Thread.sleep(100)
+        }
+        Logger.i(TAG, "recordingUntilKeyFrameArrived ends: " + System.nanoTime() / 1000)
     }
 }

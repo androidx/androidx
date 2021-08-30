@@ -34,11 +34,17 @@ public final class SetTargetFragmentUsageViolation extends TargetFragmentUsageVi
         this.mRequestCode = requestCode;
     }
 
+    /**
+     * Gets the target {@link Fragment} that was being set in the call causing the Violation.
+     */
     @NonNull
     public Fragment getTargetFragment() {
         return mTargetFragment;
     }
 
+    /**
+     * Gets the request code that was passed in the call causing the Violation.
+     */
     public int getRequestCode() {
         return mRequestCode;
     }

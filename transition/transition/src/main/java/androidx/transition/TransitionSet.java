@@ -336,11 +336,11 @@ public class TransitionSet extends Transition {
 
     @NonNull
     @Override
-    public TransitionSet removeTarget(@NonNull String target) {
+    public TransitionSet removeTarget(@NonNull String targetName) {
         for (int i = 0; i < mTransitions.size(); i++) {
-            mTransitions.get(i).removeTarget(target);
+            mTransitions.get(i).removeTarget(targetName);
         }
-        return (TransitionSet) super.removeTarget(target);
+        return (TransitionSet) super.removeTarget(targetName);
     }
 
     @NonNull
@@ -602,12 +602,12 @@ public class TransitionSet extends Transition {
     }
 
     @Override
-    public void setPropagation(TransitionPropagation propagation) {
-        super.setPropagation(propagation);
+    public void setPropagation(TransitionPropagation transitionPropagation) {
+        super.setPropagation(transitionPropagation);
         mChangeFlags |= FLAG_CHANGE_PROPAGATION;
         int numTransitions = mTransitions.size();
         for (int i = 0; i < numTransitions; ++i) {
-            mTransitions.get(i).setPropagation(propagation);
+            mTransitions.get(i).setPropagation(transitionPropagation);
         }
     }
 

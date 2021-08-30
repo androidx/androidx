@@ -9,6 +9,7 @@ plugins {
 
 android {
     defaultConfig {
+        multiDexEnabled true
         testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
 }
@@ -16,7 +17,7 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
-    api("androidx.core:core:1.1.0")
+    api(project(":core:core"))
     api("androidx.lifecycle:lifecycle-runtime:2.3.1")
     api("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
     api("androidx.savedstate:savedstate:1.1.0")
@@ -25,6 +26,7 @@ dependencies {
 
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.leakcanary)
     androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.testExtJunit)
@@ -32,6 +34,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.activity", module: "activity"
     })

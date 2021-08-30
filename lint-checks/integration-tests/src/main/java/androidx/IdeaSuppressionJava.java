@@ -33,7 +33,7 @@ public class IdeaSuppressionJava {
     }
 
     /**
-     * Thie method is deprecated.
+     * This method is deprecated.
      *
      * @deprecated Replaced with {@link #notDeprecatedMethod()}
      */

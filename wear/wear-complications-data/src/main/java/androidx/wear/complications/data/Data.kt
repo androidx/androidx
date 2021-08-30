@@ -19,7 +19,7 @@ package androidx.wear.complications.data
 import android.app.PendingIntent
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
-import androidx.wear.complications.ComplicationHelperActivity
+import java.time.Instant
 
 /** The wire format for [ComplicationData]. */
 internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
@@ -58,9 +58,9 @@ public sealed class ComplicationData constructor(
 }
 
 /**
- * Type that can be sent by any provider, regardless of the configured type, when the provider
- * has no data to be displayed. Watch faces may choose whether to render this in some way or
- * leave the slot empty.
+ * Type that can be sent by any complication data source, regardless of the configured type, when
+ * the complication data source has no data to be displayed. Watch faces may choose whether to
+ * render this in some way or  leave the slot empty.
  */
 public class NoDataComplicationData : ComplicationData(TYPE, null, null) {
     /** @hide */
@@ -76,9 +76,9 @@ public class NoDataComplicationData : ComplicationData(TYPE, null, null) {
 }
 
 /**
- * Type sent when the user has specified that an active complication should have no provider,
- * i.e. when the user has chosen "Empty" in the provider chooser. Providers cannot send data of
- * this type.
+ * Type sent when the user has specified that an active complication should have no complication
+ * data source, i.e. when the user has chosen "Empty" in the complication data source chooser.
+ * Complication data sources cannot send data of this type.
  */
 public class EmptyComplicationData : ComplicationData(TYPE, null, null) {
     /** @hide */
@@ -94,10 +94,10 @@ public class EmptyComplicationData : ComplicationData(TYPE, null, null) {
 }
 
 /**
- * Type sent when a complication does not have a provider configured. The system will send data
- * of this type to watch faces when the user has not chosen a provider for an active
- * complication, and the watch face has not set a default provider. Providers cannot send data
- * of this type.
+ * Type sent when a complication does not have a complication data source configured. The system
+ * will send data of this type to watch faces when the user has not chosen a complication data
+ * source for an active complication, and the watch face has not set a default complication data
+ * source. Complication data sources cannot send data of this type.
  */
 public class NotConfiguredComplicationData : ComplicationData(TYPE, null, null) {
     /** @hide */
@@ -208,6 +208,10 @@ public class ShortTextComplicationData internal constructor(
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
         public val TYPE: ComplicationType = ComplicationType.SHORT_TEXT
+
+        /** The maximum length of [ShortTextComplicationData.text] in characters. */
+        @JvmField
+        public val MAX_TEXT_LENGTH = 7
     }
 }
 
@@ -699,8 +703,8 @@ public class PhotoImageComplicationData internal constructor(
  * The text, title, and icon may be displayed by watch faces, but this is not required.
  *
  * It is recommended that, where possible, tapping on the complication when in this state
- * should trigger a permission request. A [ComplicationHelperActivity] may be used to make
- * this request and update all complications if the permission is granted.
+ * should trigger a permission request. Note this is done by
+ * [androidx.wear.watchface.ComplicationSlotsManager] for androidx watch faces.
  */
 public class NoPermissionComplicationData internal constructor(
     public val text: ComplicationText?,
@@ -866,7 +870,10 @@ private fun WireComplicationData.parseTimeRange() =
     if ((startDateTimeMillis == 0L) and (endDateTimeMillis == Long.MAX_VALUE)) {
         null
     } else {
-        TimeRange(startDateTimeMillis, endDateTimeMillis)
+        TimeRange(
+            Instant.ofEpochMilli(startDateTimeMillis),
+            Instant.ofEpochMilli(endDateTimeMillis)
+        )
     }
 
 private fun WireComplicationData.parseIcon() =
@@ -894,11 +901,11 @@ internal fun asPlainWireComplicationData(type: ComplicationType) =
 
 internal fun setValidTimeRange(validTimeRange: TimeRange?, data: WireComplicationDataBuilder) {
     validTimeRange?.let {
-        if (it.startDateTimeMillis > 0) {
-            data.setStartDateTimeMillis(it.startDateTimeMillis)
+        if (it.startDateTimeMillis > Instant.MIN) {
+            data.setStartDateTimeMillis(it.startDateTimeMillis.toEpochMilli())
         }
-        if (it.endDateTimeMillis != Long.MAX_VALUE) {
-            data.setEndDateTimeMillis(it.endDateTimeMillis)
+        if (it.endDateTimeMillis != Instant.MAX) {
+            data.setEndDateTimeMillis(it.endDateTimeMillis.toEpochMilli())
         }
     }
 }

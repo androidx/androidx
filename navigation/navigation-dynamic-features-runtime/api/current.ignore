@@ -1,6 +1,8 @@
 // Baseline format: 1.0
-RemovedMethod: androidx.navigation.dynamicfeatures.DynamicExtras#DynamicExtras():
-    Removed constructor androidx.navigation.dynamicfeatures.DynamicExtras()
+ParameterNameChange: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder#setProgressDestination(int) parameter #0:
+    Attempted to change parameter name from progressDestination to p in method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder.setProgressDestination
+
+
 RemovedMethod: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator#navigate(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph, android.os.Bundle, androidx.navigation.NavOptions, androidx.navigation.Navigator.Extras):
     Removed method androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.navigate(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph,android.os.Bundle,androidx.navigation.NavOptions,androidx.navigation.Navigator.Extras)
 RemovedMethod: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator#popBackStack():

@@ -44,6 +44,7 @@ package androidx.core.app {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.ActivityCompat.PermissionCompatDelegate! getPermissionCompatDelegate();
     method public static android.net.Uri? getReferrer(android.app.Activity);
     method @Deprecated public static boolean invalidateOptionsMenu(android.app.Activity!);
+    method public static boolean isLaunchedFromBubble(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void recreate(android.app.Activity);
     method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity!, android.view.DragEvent!);
@@ -123,6 +124,7 @@ package androidx.core.app {
   }
 
   public final class AppOpsManagerCompat {
+    method public static int checkOrNoteProxyOp(android.content.Context, int, String, String);
     method public static int noteOp(android.content.Context, String, int, String);
     method public static int noteOpNoThrow(android.content.Context, String, int, String);
     method public static int noteProxyOp(android.content.Context, String, String);
@@ -367,6 +369,7 @@ package androidx.core.app {
     field public static final String EXTRA_PROGRESS_MAX = "android.progressMax";
     field public static final String EXTRA_REMOTE_INPUT_HISTORY = "android.remoteInputHistory";
     field public static final String EXTRA_SELF_DISPLAY_NAME = "android.selfDisplayName";
+    field public static final String EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED = "android.showBigPictureWhenCollapsed";
     field public static final String EXTRA_SHOW_CHRONOMETER = "android.showChronometer";
     field public static final String EXTRA_SHOW_WHEN = "android.showWhen";
     field public static final String EXTRA_SMALL_ICON = "android.icon";
@@ -388,6 +391,9 @@ package androidx.core.app {
     field public static final int FLAG_ONGOING_EVENT = 2; // 0x2
     field public static final int FLAG_ONLY_ALERT_ONCE = 8; // 0x8
     field public static final int FLAG_SHOW_LIGHTS = 1; // 0x1
+    field public static final int FOREGROUND_SERVICE_DEFAULT = 0; // 0x0
+    field public static final int FOREGROUND_SERVICE_DEFERRED = 2; // 0x2
+    field public static final int FOREGROUND_SERVICE_IMMEDIATE = 1; // 0x1
     field public static final int GROUP_ALERT_ALL = 0; // 0x0
     field public static final int GROUP_ALERT_CHILDREN = 2; // 0x2
     field public static final int GROUP_ALERT_SUMMARY = 1; // 0x1
@@ -486,6 +492,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.Bitmap?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setBigContentTitle(CharSequence?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setSummaryText(CharSequence?);
+    method @RequiresApi(31) public androidx.core.app.NotificationCompat.BigPictureStyle showBigPictureWhenCollapsed(boolean);
   }
 
   public static class NotificationCompat.BigTextStyle extends androidx.core.app.NotificationCompat.Style {
@@ -548,6 +555,7 @@ package androidx.core.app {
     method @ColorInt @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getColor();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getContentView();
     method public android.os.Bundle getExtras();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getForegroundServiceBehavior();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getHeadsUpContentView();
     method @Deprecated public android.app.Notification getNotification();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getPriority();
@@ -573,6 +581,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setDefaults(int);
     method public androidx.core.app.NotificationCompat.Builder setDeleteIntent(android.app.PendingIntent?);
     method public androidx.core.app.NotificationCompat.Builder setExtras(android.os.Bundle?);
+    method public androidx.core.app.NotificationCompat.Builder setForegroundServiceBehavior(@androidx.core.app.NotificationCompat.ServiceNotificationBehavior int);
     method public androidx.core.app.NotificationCompat.Builder setFullScreenIntent(android.app.PendingIntent?, boolean);
     method public androidx.core.app.NotificationCompat.Builder setGroup(String?);
     method public androidx.core.app.NotificationCompat.Builder setGroupAlertBehavior(@androidx.core.app.NotificationCompat.GroupAlertBehavior int);
@@ -698,6 +707,9 @@ package androidx.core.app {
   }
 
   @IntDef({androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC, androidx.core.app.NotificationCompat.VISIBILITY_PRIVATE, androidx.core.app.NotificationCompat.VISIBILITY_SECRET}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.NotificationVisibility {
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_DEFAULT, androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE, androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_DEFERRED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.ServiceNotificationBehavior {
   }
 
   @IntDef({android.media.AudioManager.STREAM_VOICE_CALL, android.media.AudioManager.STREAM_SYSTEM, android.media.AudioManager.STREAM_RING, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.STREAM_ALARM, android.media.AudioManager.STREAM_NOTIFICATION, android.media.AudioManager.STREAM_DTMF, android.media.AudioManager.STREAM_ACCESSIBILITY}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.StreamType {
@@ -1091,12 +1103,9 @@ package androidx.core.content {
   }
 
   public final class IntentCompat {
-    method public static boolean areUnusedAppRestrictionsAllowlisted(android.content.Context);
-    method public static boolean areUnusedAppRestrictionsAvailable(android.content.Context);
-    method public static android.content.Intent makeIntentToAllowlistUnusedAppRestrictions(android.content.Context, String);
+    method public static android.content.Intent createManageUnusedAppRestrictionsIntent(android.content.Context, String);
     method public static android.content.Intent makeMainSelectorActivity(String, String);
     field public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
-    field public static final String ACTION_UNUSED_APP_RESTRICTIONS = "android.intent.action.AUTO_REVOKE_PERMISSIONS";
     field public static final String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
     field public static final String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
     field public static final String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
@@ -1115,6 +1124,11 @@ package androidx.core.content {
     method public static String? matches(String?, String![]);
     method public static String? matches(String![]?, String);
     method public static String![] matchesMany(String![]?, String);
+  }
+
+  public final class PackageManagerCompat {
+    method public static com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> getUnusedAppRestrictionsStatus(android.content.Context);
+    field public static final String ACTION_PERMISSION_REVOCATION_SETTINGS = "android.intent.action.AUTO_REVOKE_PERMISSIONS";
   }
 
   public final class PermissionChecker {
@@ -1136,6 +1150,26 @@ package androidx.core.content {
   @Deprecated public static final class SharedPreferencesCompat.EditorCompat {
     method @Deprecated public void apply(android.content.SharedPreferences.Editor);
     method @Deprecated public static androidx.core.content.SharedPreferencesCompat.EditorCompat! getInstance();
+  }
+
+  public class UnusedAppRestrictionsBackportCallback {
+    method public void onResult(boolean, boolean) throws android.os.RemoteException;
+  }
+
+  public abstract class UnusedAppRestrictionsBackportService extends android.app.Service {
+    ctor public UnusedAppRestrictionsBackportService();
+    method protected abstract void isPermissionRevocationEnabled(androidx.core.content.UnusedAppRestrictionsBackportCallback);
+    method public android.os.IBinder? onBind(android.content.Intent?);
+    field public static final String ACTION_UNUSED_APP_RESTRICTIONS_BACKPORT_CONNECTION = "android.support.unusedapprestrictions.action.CustomUnusedAppRestrictionsBackportService";
+  }
+
+  public final class UnusedAppRestrictionsConstants {
+    field public static final int API_30 = 4; // 0x4
+    field public static final int API_30_BACKPORT = 3; // 0x3
+    field public static final int API_31 = 5; // 0x5
+    field public static final int DISABLED = 2; // 0x2
+    field public static final int ERROR = 0; // 0x0
+    field public static final int FEATURE_NOT_AVAILABLE = 1; // 0x1
   }
 
 }
@@ -1445,8 +1479,8 @@ package androidx.core.graphics {
     method public static void RGBToHSL(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, float[]);
     method public static void RGBToLAB(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
     method public static void RGBToXYZ(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
-    method @ColorInt public static int XYZToColor(@FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_X) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Y) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Z) double);
-    method public static void XYZToLAB(@FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_X) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Y) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Z) double, double[]);
+    method @ColorInt public static int XYZToColor(@FloatRange(from=0.0f, to=95.047) double, @FloatRange(from=0.0f, to=0x64) double, @FloatRange(from=0.0f, to=108.883) double);
+    method public static void XYZToLAB(@FloatRange(from=0.0f, to=95.047) double, @FloatRange(from=0.0f, to=0x64) double, @FloatRange(from=0.0f, to=108.883) double, double[]);
     method @ColorInt public static int blendARGB(@ColorInt int, @ColorInt int, @FloatRange(from=0.0, to=1.0) float);
     method public static void blendHSL(float[], float[], @FloatRange(from=0.0, to=1.0) float, float[]);
     method public static void blendLAB(double[], double[], @FloatRange(from=0.0, to=1.0) double, double[]);
@@ -1780,20 +1814,71 @@ package androidx.core.location {
   }
 
   public final class LocationCompat {
+    method public static float getBearingAccuracyDegrees(android.location.Location);
     method public static long getElapsedRealtimeMillis(android.location.Location);
     method public static long getElapsedRealtimeNanos(android.location.Location);
+    method public static float getSpeedAccuracyMetersPerSecond(android.location.Location);
+    method public static float getVerticalAccuracyMeters(android.location.Location);
+    method public static boolean hasBearingAccuracy(android.location.Location);
+    method public static boolean hasSpeedAccuracy(android.location.Location);
+    method public static boolean hasVerticalAccuracy(android.location.Location);
     method public static boolean isMock(android.location.Location);
+    method public static void setBearingAccuracyDegrees(android.location.Location, float);
     method public static void setMock(android.location.Location, boolean);
+    method public static void setSpeedAccuracyMetersPerSecond(android.location.Location, float);
+    method public static void setVerticalAccuracyMeters(android.location.Location, float);
+    field public static final String EXTRA_BEARING_ACCURACY = "bearingAccuracy";
+    field public static final String EXTRA_IS_MOCK = "mockLocation";
+    field public static final String EXTRA_SPEED_ACCURACY = "speedAccuracy";
+    field public static final String EXTRA_VERTICAL_ACCURACY = "verticalAccuracy";
+  }
+
+  public interface LocationListenerCompat extends android.location.LocationListener {
+    method public default void onStatusChanged(String, int, android.os.Bundle?);
   }
 
   public final class LocationManagerCompat {
     method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void getCurrentLocation(android.location.LocationManager, String, androidx.core.os.CancellationSignal?, java.util.concurrent.Executor, androidx.core.util.Consumer<android.location.Location!>);
     method public static String? getGnssHardwareModelName(android.location.LocationManager);
     method public static int getGnssYearOfHardware(android.location.LocationManager);
+    method public static boolean hasProvider(android.location.LocationManager, String);
     method public static boolean isLocationEnabled(android.location.LocationManager);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void removeUpdates(android.location.LocationManager, androidx.core.location.LocationListenerCompat);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void requestLocationUpdates(android.location.LocationManager, String, androidx.core.location.LocationRequestCompat, java.util.concurrent.Executor, androidx.core.location.LocationListenerCompat);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void requestLocationUpdates(android.location.LocationManager, String, androidx.core.location.LocationRequestCompat, androidx.core.location.LocationListenerCompat, android.os.Looper);
     method public static void unregisterGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback);
+  }
+
+  public final class LocationRequestCompat {
+    method @IntRange(from=1) public long getDurationMillis();
+    method @IntRange(from=0) public long getIntervalMillis();
+    method @IntRange(from=0) public long getMaxUpdateDelayMillis();
+    method @IntRange(from=1, to=java.lang.Integer.MAX_VALUE) public int getMaxUpdates();
+    method @FloatRange(from=0, to=java.lang.Float.MAX_VALUE) public float getMinUpdateDistanceMeters();
+    method @IntRange(from=0) public long getMinUpdateIntervalMillis();
+    method public int getQuality();
+    method @RequiresApi(31) public android.location.LocationRequest toLocationRequest();
+    method @RequiresApi(19) public android.location.LocationRequest toLocationRequest(String);
+    field public static final long PASSIVE_INTERVAL = 9223372036854775807L; // 0x7fffffffffffffffL
+    field public static final int QUALITY_BALANCED_POWER_ACCURACY = 102; // 0x66
+    field public static final int QUALITY_HIGH_ACCURACY = 100; // 0x64
+    field public static final int QUALITY_LOW_POWER = 104; // 0x68
+  }
+
+  public static final class LocationRequestCompat.Builder {
+    ctor public LocationRequestCompat.Builder(long);
+    ctor public LocationRequestCompat.Builder(androidx.core.location.LocationRequestCompat);
+    method public androidx.core.location.LocationRequestCompat build();
+    method public androidx.core.location.LocationRequestCompat.Builder clearMinUpdateIntervalMillis();
+    method public androidx.core.location.LocationRequestCompat.Builder setDurationMillis(@IntRange(from=1) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setIntervalMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setMaxUpdateDelayMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setMaxUpdates(@IntRange(from=1, to=java.lang.Integer.MAX_VALUE) int);
+    method public androidx.core.location.LocationRequestCompat.Builder setMinUpdateDistanceMeters(@FloatRange(from=0, to=java.lang.Float.MAX_VALUE) float);
+    method public androidx.core.location.LocationRequestCompat.Builder setMinUpdateIntervalMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setQuality(int);
   }
 
 }
@@ -1801,10 +1886,23 @@ package androidx.core.location {
 package androidx.core.math {
 
   public class MathUtils {
+    method public static int addExact(int, int);
+    method public static long addExact(long, long);
     method public static float clamp(float, float, float);
     method public static double clamp(double, double, double);
     method public static int clamp(int, int, int);
     method public static long clamp(long, long, long);
+    method public static int decrementExact(int);
+    method public static long decrementExact(long);
+    method public static int incrementExact(int);
+    method public static long incrementExact(long);
+    method public static int multiplyExact(int, int);
+    method public static long multiplyExact(long, long);
+    method public static int negateExact(int);
+    method public static long negateExact(long);
+    method public static int subtractExact(int, int);
+    method public static long subtractExact(long, long);
+    method public static int toIntExact(long);
   }
 
 }
@@ -1970,6 +2068,25 @@ package androidx.core.os {
 }
 
 package androidx.core.provider {
+
+  public final class DocumentsContractCompat {
+    method public static android.net.Uri? buildChildDocumentsUri(String, String?);
+    method public static android.net.Uri? buildChildDocumentsUriUsingTree(android.net.Uri, String);
+    method public static android.net.Uri? buildDocumentUri(String, String);
+    method public static android.net.Uri? buildDocumentUriUsingTree(android.net.Uri, String);
+    method public static android.net.Uri? buildTreeDocumentUri(String, String);
+    method public static android.net.Uri? createDocument(android.content.ContentResolver, android.net.Uri, String, String) throws java.io.FileNotFoundException;
+    method public static String? getDocumentId(android.net.Uri);
+    method public static String? getTreeDocumentId(android.net.Uri);
+    method public static boolean isDocumentUri(android.content.Context, android.net.Uri?);
+    method public static boolean isTreeUri(android.net.Uri);
+    method public static boolean removeDocument(android.content.ContentResolver, android.net.Uri, android.net.Uri) throws java.io.FileNotFoundException;
+    method public static android.net.Uri? renameDocument(android.content.ContentResolver, android.net.Uri, String) throws java.io.FileNotFoundException;
+  }
+
+  public static final class DocumentsContractCompat.DocumentCompat {
+    field public static final int FLAG_VIRTUAL_DOCUMENT = 512; // 0x200
+  }
 
   public final class FontRequest {
     ctor public FontRequest(String, String, String, java.util.List<java.util.List<byte[]!>!>);
@@ -2277,7 +2394,11 @@ package androidx.core.util {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Preconditions {
     method public static void checkArgument(boolean);
     method public static void checkArgument(boolean, Object);
+    method public static void checkArgument(boolean, String, java.lang.Object!...);
     method public static int checkArgumentInRange(int, int, int, String);
+    method public static long checkArgumentInRange(long, long, long, String);
+    method public static float checkArgumentInRange(float, float, float, String);
+    method public static double checkArgumentInRange(double, double, double, String);
     method @IntRange(from=0) public static int checkArgumentNonnegative(int, String?);
     method @IntRange(from=0) public static int checkArgumentNonnegative(int);
     method public static int checkFlagsArgument(int, int);
@@ -2356,11 +2477,16 @@ package androidx.core.view {
     method public android.net.Uri? getLinkUri();
     method @androidx.core.view.ContentInfoCompat.Source public int getSource();
     method public android.util.Pair<androidx.core.view.ContentInfoCompat!,androidx.core.view.ContentInfoCompat!> partition(androidx.core.util.Predicate<android.content.ClipData.Item!>);
+    method @RequiresApi(31) public static android.util.Pair<android.view.ContentInfo!,android.view.ContentInfo!> partition(android.view.ContentInfo, java.util.function.Predicate<android.content.ClipData.Item!>);
+    method @RequiresApi(31) public android.view.ContentInfo toContentInfo();
+    method @RequiresApi(31) public static androidx.core.view.ContentInfoCompat toContentInfoCompat(android.view.ContentInfo);
     field public static final int FLAG_CONVERT_TO_PLAIN_TEXT = 1; // 0x1
     field public static final int SOURCE_APP = 0; // 0x0
+    field public static final int SOURCE_AUTOFILL = 4; // 0x4
     field public static final int SOURCE_CLIPBOARD = 1; // 0x1
     field public static final int SOURCE_DRAG_AND_DROP = 3; // 0x3
     field public static final int SOURCE_INPUT_METHOD = 2; // 0x2
+    field public static final int SOURCE_PROCESS_TEXT = 5; // 0x5
   }
 
   public static final class ContentInfoCompat.Builder {
@@ -2377,7 +2503,7 @@ package androidx.core.view {
   @IntDef(flag=true, value={androidx.core.view.ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentInfoCompat.Flags {
   }
 
-  @IntDef({androidx.core.view.ContentInfoCompat.SOURCE_APP, androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD, androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD, androidx.core.view.ContentInfoCompat.SOURCE_DRAG_AND_DROP}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentInfoCompat.Source {
+  @IntDef({androidx.core.view.ContentInfoCompat.SOURCE_APP, androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD, androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD, androidx.core.view.ContentInfoCompat.SOURCE_DRAG_AND_DROP, androidx.core.view.ContentInfoCompat.SOURCE_AUTOFILL, androidx.core.view.ContentInfoCompat.SOURCE_PROCESS_TEXT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentInfoCompat.Source {
   }
 
   public final class DisplayCompat {
@@ -2500,6 +2626,24 @@ package androidx.core.view {
     method @Deprecated public static void setShowAsAction(android.view.MenuItem!, int);
   }
 
+  public interface MenuHost {
+    method public void addMenuProvider(androidx.core.view.MenuProvider);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
+    method public void invalidateMenu();
+    method public void removeMenuProvider(androidx.core.view.MenuProvider);
+  }
+
+  public class MenuHostHelper {
+    ctor public MenuHostHelper(Runnable);
+    method public void addMenuProvider(androidx.core.view.MenuProvider);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
+    method public void onCreateMenu(android.view.Menu, android.view.MenuInflater);
+    method public boolean onMenuItemSelected(android.view.MenuItem);
+    method public void removeMenuProvider(androidx.core.view.MenuProvider);
+  }
+
   public final class MenuItemCompat {
     method @Deprecated public static boolean collapseActionView(android.view.MenuItem!);
     method @Deprecated public static boolean expandActionView(android.view.MenuItem!);
@@ -2534,6 +2678,11 @@ package androidx.core.view {
   @Deprecated public static interface MenuItemCompat.OnActionExpandListener {
     method @Deprecated public boolean onMenuItemActionCollapse(android.view.MenuItem!);
     method @Deprecated public boolean onMenuItemActionExpand(android.view.MenuItem!);
+  }
+
+  public interface MenuProvider {
+    method public void onCreateMenu(android.view.Menu, android.view.MenuInflater);
+    method public boolean onMenuItemSelected(android.view.MenuItem);
   }
 
   public final class MotionEventCompat {
@@ -2890,7 +3039,7 @@ package androidx.core.view {
     method @Deprecated public static void setFitsSystemWindows(android.view.View!, boolean);
     method public static void setFocusedByDefault(android.view.View, boolean);
     method public static void setHasTransientState(android.view.View, boolean);
-    method public static void setImportantForAccessibility(android.view.View, int);
+    method @UiThread public static void setImportantForAccessibility(android.view.View, int);
     method public static void setImportantForAutofill(android.view.View, int);
     method public static void setKeyboardNavigationCluster(android.view.View, boolean);
     method public static void setLabelFor(android.view.View, @IdRes int);
@@ -3212,7 +3361,7 @@ package androidx.core.view {
     method @androidx.core.view.WindowInsetsCompat.Type.InsetsType public static int tappableElement();
   }
 
-  @IntDef(flag=true, value={androidx.core.view.WindowInsetsCompat.Type.STATUS_BARS, androidx.core.view.WindowInsetsCompat.Type.NAVIGATION_BARS, androidx.core.view.WindowInsetsCompat.Type.CAPTION_BAR, androidx.core.view.WindowInsetsCompat.Type.IME, androidx.core.view.WindowInsetsCompat.Type.WINDOW_DECOR, androidx.core.view.WindowInsetsCompat.Type.SYSTEM_GESTURES, androidx.core.view.WindowInsetsCompat.Type.MANDATORY_SYSTEM_GESTURES, androidx.core.view.WindowInsetsCompat.Type.TAPPABLE_ELEMENT, androidx.core.view.WindowInsetsCompat.Type.DISPLAY_CUTOUT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface WindowInsetsCompat.Type.InsetsType {
+  @IntDef(flag=true, value={0x1, 0x2, 0x4, 0x8, 0x100, 0x10, 0x20, 0x40, 0x80}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface WindowInsetsCompat.Type.InsetsType {
   }
 
   public final class WindowInsetsControllerCompat {
@@ -3762,7 +3911,8 @@ package androidx.core.view.inputmethod {
   public final class InputConnectionCompat {
     ctor @Deprecated public InputConnectionCompat();
     method public static boolean commitContent(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle?);
-    method public static android.view.inputmethod.InputConnection createWrapper(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener);
+    method @Deprecated public static android.view.inputmethod.InputConnection createWrapper(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener);
+    method public static android.view.inputmethod.InputConnection createWrapper(android.view.View, android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo);
     field public static final int INPUT_CONTENT_GRANT_READ_URI_PERMISSION = 1; // 0x1
   }
 
@@ -3851,13 +4001,16 @@ package androidx.core.widget {
 
   public final class EdgeEffectCompat {
     ctor @Deprecated public EdgeEffectCompat(android.content.Context!);
+    method public static android.widget.EdgeEffect create(android.content.Context, android.util.AttributeSet?);
     method @Deprecated public boolean draw(android.graphics.Canvas!);
     method @Deprecated public void finish();
+    method public static float getDistance(android.widget.EdgeEffect);
     method @Deprecated public boolean isFinished();
     method @Deprecated public boolean onAbsorb(int);
     method @Deprecated public boolean onPull(float);
     method @Deprecated public boolean onPull(float, float);
     method public static void onPull(android.widget.EdgeEffect, float, float);
+    method public static float onPullDistance(android.widget.EdgeEffect, float, float);
     method @Deprecated public boolean onRelease();
     method @Deprecated public void setSize(int, int);
   }

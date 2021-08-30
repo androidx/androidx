@@ -45,7 +45,7 @@
         android:supportsRtl="true"
         android:name=".TimingApplication"
         android:theme="@style/AppTheme">
-        <activity android:name="androidx.camera.integration.antelope.MainActivity">
+        <activity android:name="androidx.camera.integration.antelope.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

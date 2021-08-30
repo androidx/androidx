@@ -41,4 +41,15 @@ internal class JavacFieldElement(
     override val enclosingElement: XTypeElement by lazy {
         element.requireEnclosingType(env)
     }
+
+    override fun copyTo(newContainer: XTypeElement): JavacFieldElement {
+        check(newContainer is JavacTypeElement) {
+            "Unexpected container (${newContainer::class}), expected JavacTypeElement"
+        }
+        return JavacFieldElement(
+            env = env,
+            containing = newContainer,
+            element = element
+        )
+    }
 }

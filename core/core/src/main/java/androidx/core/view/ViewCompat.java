@@ -38,6 +38,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.ContentInfo;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -796,14 +797,14 @@ public class ViewCompat {
      *
      * <ol>
      *   <li>When the view contents is irrelevant for autofill (for example, a text field used in a
-     *       "Captcha" challenge), it should be {@link View#IMPORTANT_FOR_AUTOFILL_NO}.
+     *       "Captcha" challenge), it should be {@link View#IMPORTANT_FOR_AUTOFILL_NO}.</li>
      *   <li>When both the view and its children are irrelevant for autofill (for example, the root
      *       view of an activity containing a spreadhseet editor), it should be
-     *       {@link View#IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS}.
+     *       {@link View#IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS}.</li>
      *   <li>When the view content is relevant for autofill but its children aren't (for example,
      *       a credit card expiration date represented by a custom view that overrides the proper
      *       autofill methods and has 2 children representing the month and year), it should
-     *       be {@link View#IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS}.
+     *       be {@link View#IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS}.</li>
      * </ol>
      *
      * <p><strong>NOTE:</strong> setting the mode as does {@link View#IMPORTANT_FOR_AUTOFILL_NO} or
@@ -837,10 +838,10 @@ public class ViewCompat {
      *
      * <p>Generally speaking, a view is important for autofill if:
      * <ol>
-     * <li>The view can be autofilled by an {@link android.service.autofill.AutofillService}.
+     * <li>The view can be autofilled by an {@link android.service.autofill.AutofillService}.</li>
      * <li>The view contents can help an {@link android.service.autofill.AutofillService}
-     *     determine how other views can be autofilled.
-     * <ol>
+     *     determine how other views can be autofilled.</li>
+     * </ol>
      *
      * <p>For example, view containers should typically return {@code false} for performance reasons
      * (since the important info is provided by their children), but if its properties have relevant
@@ -855,14 +856,14 @@ public class ViewCompat {
      * <ol>
      *   <li>if it returns {@link View#IMPORTANT_FOR_AUTOFILL_YES} or
      *       {@link View#IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS},
-     *       then it returns {@code true}
+     *       then it returns {@code true}</li>
      *   <li>if it returns {@link View#IMPORTANT_FOR_AUTOFILL_NO} or
      *       {@link View#IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS},
-     *       then it returns {@code false}
+     *       then it returns {@code false}</li>
      *   <li>if it returns {@link View#IMPORTANT_FOR_AUTOFILL_AUTO},
      *   then it uses some simple heuristics that can return {@code true}
-     *   in some cases (like a container with a resource id), but {@code false} in most.
-     *   <li>otherwise, it returns {@code false}.
+     *   in some cases (like a container with a resource id), but {@code false} in most.</li>
+     *   <li>otherwise, it returns {@code false}.</li>
      * </ol>
      *
      * <p>When a view is considered important for autofill:
@@ -1126,6 +1127,7 @@ public class ViewCompat {
      * @see #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
      */
+    @UiThread
     public static void setImportantForAccessibility(@NonNull View view,
             @ImportantForAccessibility int mode) {
         if (Build.VERSION.SDK_INT >= 19) {
@@ -1156,19 +1158,19 @@ public class ViewCompat {
      * <ol>
      * <li>{@link #IMPORTANT_FOR_ACCESSIBILITY_NO} or
      * {@link #IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS}, return <code>false
-     * </code>
-     * <li>{@link #IMPORTANT_FOR_ACCESSIBILITY_YES}, return <code>true</code>
+     * </code></li>
+     * <li>{@link #IMPORTANT_FOR_ACCESSIBILITY_YES}, return <code>true</code></li>
      * <li>{@link #IMPORTANT_FOR_ACCESSIBILITY_AUTO}, return <code>true</code> if
-     * view satisfies any of the following:
+     * view satisfies any of the following:</li>
      * <ul>
      * <li>Is actionable, e.g. {@link View#isClickable()},
-     * {@link View#isLongClickable()}, or {@link View#isFocusable()}
-     * <li>Has an {@link AccessibilityDelegateCompat}
+     * {@link View#isLongClickable()}, or {@link View#isFocusable()}</li>
+     * <li>Has an {@link AccessibilityDelegateCompat}</li>
      * <li>Has an interaction listener, e.g. {@link View.OnTouchListener},
-     * {@link View.OnKeyListener}, etc.
+     * {@link View.OnKeyListener}, etc.</li>
      * <li>Is an accessibility live region, e.g.
      * {@link #getAccessibilityLiveRegion(View)} is not
-     * {@link #ACCESSIBILITY_LIVE_REGION_NONE}.
+     * {@link #ACCESSIBILITY_LIVE_REGION_NONE}.</li>
      * </ul>
      * </ol>
      * <p>
@@ -2720,9 +2722,9 @@ public class ViewCompat {
      * scenarios:
      * <ol>
      *     <li>Paste from the clipboard (e.g. "Paste" or "Paste as plain text" action in the
-     *     insertion/selection menu)
-     *     <li>Content insertion from the keyboard (from {@link InputConnection#commitContent})
-     *     <li>Drag and drop (drop events from {@link View#onDragEvent})
+     *     insertion/selection menu)</li>
+     *     <li>Content insertion from the keyboard (from {@link InputConnection#commitContent})</li>
+     *     <li>Drag and drop (drop events from {@link View#onDragEvent})</li>
      * </ol>
      *
      * <p>When setting a listener, clients must also declare the accepted MIME types.
@@ -2749,6 +2751,10 @@ public class ViewCompat {
      */
     public static void setOnReceiveContentListener(@NonNull View view, @Nullable String[] mimeTypes,
             @Nullable OnReceiveContentListener listener) {
+        if (Build.VERSION.SDK_INT >= 31) {
+            Api31Impl.setOnReceiveContentListener(view, mimeTypes, listener);
+            return;
+        }
         mimeTypes = (mimeTypes == null || mimeTypes.length == 0) ? null : mimeTypes;
         if (listener != null) {
             Preconditions.checkArgument(mimeTypes != null,
@@ -2794,6 +2800,9 @@ public class ViewCompat {
      */
     @Nullable
     public static String[] getOnReceiveContentMimeTypes(@NonNull View view) {
+        if (Build.VERSION.SDK_INT >= 31) {
+            return Api31Impl.getReceiveContentMimeTypes(view);
+        }
         return (String[]) view.getTag(R.id.tag_on_receive_content_mime_types);
     }
 
@@ -2821,6 +2830,9 @@ public class ViewCompat {
             Log.d(TAG, "performReceiveContent: " + payload
                     + ", view=" + view.getClass().getSimpleName() + "[" + view.getId() + "]");
         }
+        if (Build.VERSION.SDK_INT >= 31) {
+            return Api31Impl.performReceiveContent(view, payload);
+        }
         OnReceiveContentListener listener =
                 (OnReceiveContentListener) view.getTag(R.id.tag_on_receive_content_listener);
         if (listener != null) {
@@ -2839,6 +2851,71 @@ public class ViewCompat {
 
     private static final OnReceiveContentViewBehavior NO_OP_ON_RECEIVE_CONTENT_VIEW_BEHAVIOR =
             payload -> payload;
+
+    @RequiresApi(31)
+    private static final class Api31Impl {
+        private Api31Impl() {}
+
+        @DoNotInline
+        public static void setOnReceiveContentListener(@NonNull View view,
+                @Nullable String[] mimeTypes, @Nullable final OnReceiveContentListener listener) {
+            if (listener == null) {
+                view.setOnReceiveContentListener(mimeTypes, null);
+            } else {
+                view.setOnReceiveContentListener(mimeTypes,
+                        new OnReceiveContentListenerAdapter(listener));
+            }
+        }
+
+        @DoNotInline
+        @Nullable
+        public static String[] getReceiveContentMimeTypes(@NonNull View view) {
+            return view.getReceiveContentMimeTypes();
+        }
+
+        @DoNotInline
+        @Nullable
+        public static ContentInfoCompat performReceiveContent(@NonNull View view,
+                @NonNull ContentInfoCompat payload) {
+            ContentInfo platPayload = payload.toContentInfo();
+            ContentInfo platResult = view.performReceiveContent(platPayload);
+            if (platResult == null) {
+                return null;
+            }
+            if (platResult == platPayload) {
+                // Avoid unnecessary conversion when returning the original payload unchanged.
+                return payload;
+            }
+            return ContentInfoCompat.toContentInfoCompat(platResult);
+        }
+    }
+
+    @RequiresApi(31)
+    private static final class OnReceiveContentListenerAdapter implements
+            android.view.OnReceiveContentListener {
+
+        @NonNull
+        private final OnReceiveContentListener mJetpackListener;
+
+        OnReceiveContentListenerAdapter(@NonNull OnReceiveContentListener jetpackListener) {
+            mJetpackListener = jetpackListener;
+        }
+
+        @Nullable
+        @Override
+        public ContentInfo onReceiveContent(@NonNull View view, @NonNull ContentInfo platPayload) {
+            ContentInfoCompat payload = ContentInfoCompat.toContentInfoCompat(platPayload);
+            ContentInfoCompat result = mJetpackListener.onReceiveContent(view, payload);
+            if (result == null) {
+                return null;
+            }
+            if (result == payload) {
+                // Avoid unnecessary conversion when returning the original payload unchanged.
+                return platPayload;
+            }
+            return result.toContentInfo();
+        }
+    }
 
     /**
      * Controls whether the entire hierarchy under this view will save its

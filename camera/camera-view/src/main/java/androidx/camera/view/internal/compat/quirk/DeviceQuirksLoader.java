@@ -47,6 +47,10 @@ public class DeviceQuirksLoader {
             quirks.add(new SurfaceViewStretchedQuirk());
         }
 
+        if (TextureViewRotationQuirk.load()) {
+            quirks.add(new TextureViewRotationQuirk());
+        }
+
         return quirks;
     }
 }

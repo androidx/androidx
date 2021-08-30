@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 24 (current min is 16): `android.view.PixelCopy.OnPixelCopyFinishedListener`"
+        errorLine1="                    PixelCopy.request(source, dest, new PixelCopy.OnPixelCopyFinishedListener() {"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/widget/VideoView_WithPlayerTest.java"
+            line="478"
+            column="57"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -57,233 +68,13 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.CaptionStyle is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                captionStyle.getTypeface());"
-        errorLine2="                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/CaptionStyle.java"
-            line="109"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.Cea708CaptionRenderer.Cea708CCWidget.CCWindowLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mFontScale = captioningManager.getFontScale();"
-        errorLine2="                                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/Cea708CaptionRenderer.java"
-            line="794"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.Cea708CaptionRenderer.Cea708CCWidget.CCWindowLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    setCaptionStyle(new CaptionStyle(captioningManager.getUserStyle()));"
-        errorLine2="                                                                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/Cea708CaptionRenderer.java"
-            line="795"
-            column="72"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.ClosedCaptionWidget is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mCaptionStyle = new CaptionStyle(mManager.getUserStyle());"
-        errorLine2="                                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/ClosedCaptionWidget.java"
-            line="86"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.ClosedCaptionWidget is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            fontScale = mManager.getFontScale();"
-        errorLine2="                                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/ClosedCaptionWidget.java"
-            line="87"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.ClosedCaptionWidget is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final boolean needsListener = isAttachedToWindow() &amp;&amp; getVisibility() == View.VISIBLE;"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/ClosedCaptionWidget.java"
-            line="160"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.ClosedCaptionWidget is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mManager.addCaptioningChangeListener(mCaptioningListener);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/ClosedCaptionWidget.java"
-            line="165"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.ClosedCaptionWidget is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mManager.removeCaptioningChangeListener(mCaptioningListener);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/ClosedCaptionWidget.java"
-            line="167"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.widget.SelectiveLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            final Drawable drawable = getForeground();"
-        errorLine2="                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SelectiveLayout.java"
-            line="97"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.SubtitleController is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mCaptioningManager.removeCaptioningChangeListener("
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleController.java"
-            line="124"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.SubtitleController is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        Locale selectedLocale = VERSION.SDK_INT >= 19 ? mCaptioningManager.getLocale() : null;"
-        errorLine2="                                                                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleController.java"
-            line="231"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.SubtitleController is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        boolean selectForced = VERSION.SDK_INT >= 19 ? !mCaptioningManager.isEnabled() : true;"
-        errorLine2="                                                                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleController.java"
-            line="236"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.SubtitleController is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    VERSION.SDK_INT >= 19 ? mCaptioningManager.isEnabled() : false;"
-        errorLine2="                                                               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleController.java"
-            line="304"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.SubtitleController is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mCaptioningManager.removeCaptioningChangeListener("
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleController.java"
-            line="339"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.media2.widget.SubtitleController is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                mCaptioningManager.addCaptioningChangeListener("
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleController.java"
-            line="359"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.widget.SubtitleView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    StaticLayout.Builder.obtain(mText, 0, mText.length(), mTextPaint, maxWidth)"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleView.java"
-            line="227"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.widget.SubtitleView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            .setAlignment(mAlignment)"
-        errorLine2="                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleView.java"
-            line="228"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.widget.SubtitleView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            .setLineSpacing(mSpacingAdd, mSpacingMult);"
-        errorLine2="                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleView.java"
-            line="229"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.media2.widget.SubtitleView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.setUseLineSpacingFromFallbacks(true);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleView.java"
-            line="231"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.widget.SubtitleView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mLayout = builder.build();"
-        errorLine2="                              ~~~~~">
-        <location
-            file="src/main/java/androidx/media2/widget/SubtitleView.java"
-            line="233"
-            column="31"/>
-    </issue>
-
-    <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class is missing private constructor"
         errorLine1="    static class MediaFormatUtil {"
         errorLine2="                 ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/widget/SubtitleController.java"
-            line="275"
+            line="277"
             column="18"/>
     </issue>
 

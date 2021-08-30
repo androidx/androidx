@@ -107,7 +107,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                     .process()
                 DaoMethod(executable, executable.name, dao)
             }
-        }
+        }.toList()
 
         validateUniqueDaoClasses(element, daoMethods, entities)
         validateUniqueIndices(element, entities)

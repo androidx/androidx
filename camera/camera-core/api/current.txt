@@ -36,6 +36,7 @@ package androidx.camera.core {
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
     method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method public boolean hasFlashUnit();
+    method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
   }
 
   public final class CameraInfoUnavailableException extends java.lang.Exception {
@@ -113,12 +114,19 @@ package androidx.camera.core {
   }
 
   public final class CameraXConfig {
+    method public androidx.camera.core.CameraSelector? getAvailableCamerasLimiter(androidx.camera.core.CameraSelector?);
+    method public java.util.concurrent.Executor? getCameraExecutor(java.util.concurrent.Executor?);
+    method public int getMinimumLoggingLevel();
+    method public android.os.Handler? getSchedulerHandler(android.os.Handler?);
   }
 
   public static final class CameraXConfig.Builder {
     method public androidx.camera.core.CameraXConfig build();
     method public static androidx.camera.core.CameraXConfig.Builder fromConfig(androidx.camera.core.CameraXConfig);
+    method public androidx.camera.core.CameraXConfig.Builder setAvailableCamerasLimiter(androidx.camera.core.CameraSelector);
     method public androidx.camera.core.CameraXConfig.Builder setCameraExecutor(java.util.concurrent.Executor);
+    method public androidx.camera.core.CameraXConfig.Builder setMinimumLoggingLevel(@IntRange(from=android.util.Log.DEBUG, to=android.util.Log.ERROR) int);
+    method public androidx.camera.core.CameraXConfig.Builder setSchedulerHandler(android.os.Handler);
   }
 
   public static interface CameraXConfig.Provider {
@@ -169,9 +177,13 @@ package androidx.camera.core {
     method public void clearAnalyzer();
     method public int getBackpressureStrategy();
     method public int getImageQueueDepth();
+    method public int getOutputImageFormat();
+    method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public int getTargetRotation();
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);
+    field public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2; // 0x2
+    field public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 1; // 0x1
     field public static final int STRATEGY_BLOCK_PRODUCER = 1; // 0x1
     field public static final int STRATEGY_KEEP_ONLY_LATEST = 0; // 0x0
   }
@@ -186,6 +198,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageAnalysis.Builder setBackgroundExecutor(java.util.concurrent.Executor);
     method public androidx.camera.core.ImageAnalysis.Builder setBackpressureStrategy(int);
     method public androidx.camera.core.ImageAnalysis.Builder setImageQueueDepth(int);
+    method public androidx.camera.core.ImageAnalysis.Builder setOutputImageFormat(int);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetAspectRatio(int);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetName(String);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetResolution(android.util.Size);
@@ -195,6 +208,7 @@ package androidx.camera.core {
   public final class ImageCapture extends androidx.camera.core.UseCase {
     method public int getCaptureMode();
     method public int getFlashMode();
+    method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public int getTargetRotation();
     method public void setCropAspectRatio(android.util.Rational);
     method public void setFlashMode(int);
@@ -305,6 +319,7 @@ package androidx.camera.core {
   }
 
   public final class Preview extends androidx.camera.core.UseCase {
+    method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public int getTargetRotation();
     method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
     method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
@@ -322,6 +337,12 @@ package androidx.camera.core {
 
   public static interface Preview.SurfaceProvider {
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
+  }
+
+  @com.google.auto.value.AutoValue public abstract class ResolutionInfo {
+    method public abstract android.graphics.Rect getCropRect();
+    method public abstract android.util.Size getResolution();
+    method public abstract int getRotationDegrees();
   }
 
   public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {

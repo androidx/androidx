@@ -31,6 +31,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
+import java.util.Locale
 import javax.inject.Inject
 
 private const val PLUGIN_DIRNAME = "navigation-args"
@@ -89,7 +90,9 @@ abstract class SafeArgsPlugin protected constructor(
 
         forEachVariant(extension) { variant ->
             val task = project.tasks.create(
-                "generateSafeArgs${variant.name.capitalize()}",
+                "generateSafeArgs${variant.name.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
+                }}",
                 ArgumentsGenerationTask::class.java
             ) { task ->
                 task.applicationId.set(

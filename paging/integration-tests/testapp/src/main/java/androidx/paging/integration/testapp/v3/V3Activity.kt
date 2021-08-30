@@ -35,13 +35,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class V3Activity : AppCompatActivity() {
+    val pagingAdapter = V3Adapter()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_recycler_view)
         val viewModel by viewModels<V3ViewModel>()
 
-        val pagingAdapter = V3Adapter()
         val orientationText = when (resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> "land"
             Configuration.ORIENTATION_PORTRAIT -> "port"

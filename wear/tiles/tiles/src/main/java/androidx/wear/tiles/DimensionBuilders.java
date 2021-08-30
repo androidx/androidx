@@ -32,31 +32,31 @@ import androidx.wear.tiles.proto.DimensionProto;
 public final class DimensionBuilders {
     private DimensionBuilders() {}
 
-    private static final ExpandedDimensionProp EXPAND = ExpandedDimensionProp.builder().build();
-    private static final WrappedDimensionProp WRAP = WrappedDimensionProp.builder().build();
+    private static final ExpandedDimensionProp EXPAND = new ExpandedDimensionProp.Builder().build();
+    private static final WrappedDimensionProp WRAP = new WrappedDimensionProp.Builder().build();
 
     /** Shortcut for building a {@link DpProp} using a measurement in DP. */
     @NonNull
     public static DpProp dp(@Dimension(unit = DP) float valueDp) {
-        return DpProp.builder().setValue(valueDp).build();
+        return new DpProp.Builder().setValue(valueDp).build();
     }
 
     /** Shortcut for building a {@link SpProp} using a measurement in SP. */
     @NonNull
     public static SpProp sp(@Dimension(unit = SP) float valueSp) {
-        return SpProp.builder().setValue(valueSp).build();
+        return new SpProp.Builder().setValue(valueSp).build();
     }
 
     /** Shortcut for building a {@link EmProp} using a measurement in EM. */
     @NonNull
     public static EmProp em(int valueEm) {
-        return EmProp.builder().setValue(valueEm).build();
+        return new EmProp.Builder().setValue(valueEm).build();
     }
 
     /** Shortcut for building an {@link DegreesProp} using a measurement in degrees. */
     @NonNull
     public static DegreesProp degrees(float valueDegrees) {
-        return DegreesProp.builder().setValue(valueDegrees).build();
+        return new DegreesProp.Builder().setValue(valueDegrees).build();
     }
 
     /**
@@ -90,12 +90,6 @@ public final class DimensionBuilders {
         @Dimension(unit = DP)
         public float getValue() {
             return mImpl.getValue();
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
         }
 
         /** @hide */
@@ -143,7 +137,7 @@ public final class DimensionBuilders {
                         SpacerDimension.Builder {
             private final DimensionProto.DpProp.Builder mImpl = DimensionProto.DpProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value, in dp. */
             @NonNull
@@ -174,12 +168,6 @@ public final class DimensionBuilders {
             return mImpl.getValue();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -198,7 +186,7 @@ public final class DimensionBuilders {
         public static final class Builder {
             private final DimensionProto.SpProp.Builder mImpl = DimensionProto.SpProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value, in sp. */
             @NonNull
@@ -228,12 +216,6 @@ public final class DimensionBuilders {
             return mImpl.getValue();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -252,7 +234,7 @@ public final class DimensionBuilders {
         public static final class Builder {
             private final DimensionProto.EmProp.Builder mImpl = DimensionProto.EmProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value, in em. */
             @NonNull
@@ -282,12 +264,6 @@ public final class DimensionBuilders {
             return mImpl.getValue();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -307,7 +283,7 @@ public final class DimensionBuilders {
             private final DimensionProto.DegreesProp.Builder mImpl =
                     DimensionProto.DegreesProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value, in degrees. */
             @NonNull
@@ -333,12 +309,6 @@ public final class DimensionBuilders {
 
         private ExpandedDimensionProp(DimensionProto.ExpandedDimensionProp impl) {
             this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
         }
 
         /** @hide */
@@ -380,7 +350,7 @@ public final class DimensionBuilders {
             private final DimensionProto.ExpandedDimensionProp.Builder mImpl =
                     DimensionProto.ExpandedDimensionProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             @Override
             @NonNull
@@ -399,12 +369,6 @@ public final class DimensionBuilders {
 
         private WrappedDimensionProp(DimensionProto.WrappedDimensionProp impl) {
             this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
         }
 
         /** @hide */
@@ -437,7 +401,7 @@ public final class DimensionBuilders {
             private final DimensionProto.WrappedDimensionProp.Builder mImpl =
                     DimensionProto.WrappedDimensionProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             @Override
             @NonNull
@@ -481,12 +445,6 @@ public final class DimensionBuilders {
             return mImpl.getAspectRatioHeight();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -517,7 +475,7 @@ public final class DimensionBuilders {
             private final DimensionProto.ProportionalDimensionProp.Builder mImpl =
                     DimensionProto.ProportionalDimensionProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the width to be used when calculating the aspect ratio to preserve. */
             @NonNull

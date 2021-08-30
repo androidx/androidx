@@ -36,6 +36,9 @@ internal class KspExecutableParameterElement(
     override val name: String
         get() = parameter.name?.asString() ?: "_no_param_name"
 
+    override val hasDefaultValue: Boolean
+        get() = parameter.hasDefault
+
     override val type: KspType by lazy {
         parameter.typeAsMemberOf(
             functionDeclaration = method.declaration,

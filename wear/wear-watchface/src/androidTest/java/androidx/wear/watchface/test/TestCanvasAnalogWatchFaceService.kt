@@ -27,12 +27,14 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import java.time.ZoneId
 
 /** A simple canvas test analog watch face for integration tests. */
 internal class TestCanvasAnalogWatchFaceService(
     testContext: Context,
     private val handler: Handler,
     var mockSystemTimeMillis: Long,
+    var mockZoneId: ZoneId,
     var surfaceHolderOverride: SurfaceHolder,
     var preRInitFlow: Boolean,
     var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
@@ -72,9 +74,9 @@ internal class TestCanvasAnalogWatchFaceService(
             complicationSlotsManager,
             currentUserStyleRepository
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-            override fun getSystemTimeMillis(): Long {
-                return mockSystemTimeMillis
-            }
+            override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+            override fun getSystemTimeZoneId() = mockZoneId
         })
     }
 

@@ -24,10 +24,13 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.widget.TextView;
@@ -36,25 +39,29 @@ import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.util.EmojiMatcher;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19)
 public class EmojiInputFilterTest {
 
     private EmojiInputFilter mInputFilter;
     private EmojiCompat mEmojiCompat;
+    private TextView mTextView;
 
     @Before
     public void setup() {
-        final TextView textView = mock(TextView.class);
+        mTextView = mock(TextView.class);
         mEmojiCompat = mock(EmojiCompat.class);
         EmojiCompat.reset(mEmojiCompat);
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
-        mInputFilter = new EmojiInputFilter(textView);
+        mInputFilter = new EmojiInputFilter(mTextView);
     }
 
     @Test
@@ -126,5 +133,66 @@ public class EmojiInputFilterTest {
         assertNotNull(result);
         verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt());
         verify(mEmojiCompat, times(1)).registerInitCallback(any(EmojiCompat.InitCallback.class));
+    }
+
+    @Test
+    public void emojiInputFilterAdded_thenRemoved_beforeEmojiCompatInit_doesntProcess() {
+        mEmojiCompat = mock(EmojiCompat.class);
+        mTextView = mock(TextView.class);
+        when(mTextView.isAttachedToWindow()).thenReturn(true);
+        EmojiCompat.reset(mEmojiCompat);
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_LOADING);
+        mInputFilter = new EmojiInputFilter(mTextView);
+        InputFilter[] filters = new InputFilter[1];
+        filters[0] = mInputFilter;
+        when(mTextView.getFilters()).thenReturn(filters);
+
+        // first ensure the input filter registers a callback
+        SpannableString testString = new SpannableString("abc");
+        mInputFilter.filter(testString, 0, 1,
+                null, 0, 1);
+
+        ArgumentCaptor<EmojiCompat.InitCallback> captor = ArgumentCaptor
+                .forClass(EmojiCompat.InitCallback.class);
+        verify(mEmojiCompat).registerInitCallback(captor.capture());
+        reset(mEmojiCompat);
+
+        // then "disable" the input filter
+        when(mTextView.getFilters()).thenReturn(new InputFilter[0]);
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
+
+        // trigger initialized now that we've removed the input filter
+        captor.getValue().onInitialized();
+
+        verifyNoMoreInteractions(mEmojiCompat);
+    }
+
+    @Test
+    public void emojiInputFilterAdded_beforeEmojiCompatInit_callsProcess() {
+        mEmojiCompat = mock(EmojiCompat.class);
+        mTextView = mock(TextView.class);
+        when(mTextView.isAttachedToWindow()).thenReturn(true);
+        EmojiCompat.reset(mEmojiCompat);
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_LOADING);
+        mInputFilter = new EmojiInputFilter(mTextView);
+        InputFilter[] filters = new InputFilter[1];
+        filters[0] = mInputFilter;
+        when(mTextView.getFilters()).thenReturn(filters);
+
+        // first ensure the input filter registers a callback
+        SpannableString testString = new SpannableString("abc");
+        when(mTextView.getText()).thenReturn(testString);
+        mInputFilter.filter(testString, 0, 1,
+                null, 0, 1);
+
+        ArgumentCaptor<EmojiCompat.InitCallback> captor = ArgumentCaptor
+                .forClass(EmojiCompat.InitCallback.class);
+        verify(mEmojiCompat).registerInitCallback(captor.capture());
+
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
+        // trigger initialized
+        captor.getValue().onInitialized();
+
+        verify(mEmojiCompat).process(eq(testString));
     }
 }

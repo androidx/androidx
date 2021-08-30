@@ -610,7 +610,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                         it,
                         it.getAllMethods().filter {
                             it.hasAnnotation(annotation)
-                        }
+                        }.toList()
                     )
                 }.first { it.second.isNotEmpty() }
             val processed = process(

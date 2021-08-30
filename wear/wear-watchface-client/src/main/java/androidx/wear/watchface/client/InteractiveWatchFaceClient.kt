@@ -17,6 +17,7 @@
 package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
+import android.os.RemoteException
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.AnyThread
 import androidx.annotation.Px
@@ -31,13 +32,14 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.TapType
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleData
+import java.time.Instant
 import java.util.concurrent.Executor
 
 /**
@@ -55,13 +57,14 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * @param slotIdToComplicationData The [ComplicationData] for each
      * [androidx.wear.watchface.ComplicationSlot].
      */
+    @Throws(RemoteException::class)
     public fun updateComplicationData(slotIdToComplicationData: Map<Int, ComplicationData>)
 
     /**
      * Renders the watchface to a shared memory backed [Bitmap] with the given settings.
      *
      * @param renderParameters The [RenderParameters] to draw with.
-     * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
+     * @param instant The [Instant] render with.
      * @param userStyle Optional [UserStyle] to render with, if null the current style is used.
      * @param idAndComplicationData Map of complication ids to [ComplicationData] to render with, or
      * if null then the existing complication data if any is used.
@@ -69,22 +72,27 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * given settings.
      */
     @RequiresApi(27)
+    @Throws(RemoteException::class)
     public fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
-        calendarTimeMillis: Long,
+        instant: Instant,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
-    public val previewReferenceTimeMillis: Long
+    @get:Throws(RemoteException::class)
+    public val previewReferenceInstant: Instant
 
     /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
      * from the old ID but that's not a requirement). Sets the current [UserStyle] and clears
      * any complication data. Setting the new UserStyle may have a side effect of enabling or
      * disabling complicationSlots, which will be visible via [ComplicationSlotState.isEnabled].
+     *
+     * NB [setWatchUiState] and [updateWatchFaceInstance] can be called in any order.
      */
+    @Throws(RemoteException::class)
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle)
 
     /**
@@ -94,12 +102,15 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * side effect of enabling or disabling complicationSlots, which will be visible via
      * [ComplicationSlotState.isEnabled].
      */
+    @Throws(RemoteException::class)
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyleData)
 
     /** Returns the ID of this watch face instance. */
+    @get:Throws(RemoteException::class)
     public val instanceId: String
 
     /** The watch face's [UserStyleSchema]. */
+    @get:Throws(RemoteException::class)
     public val userStyleSchema: UserStyleSchema
 
     /**
@@ -110,13 +121,17 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * [ComplicationSlotsUserStyleSetting]. As a consequence ComplicationSlotState may update based
      * on style changes.
      */
+    @get:Throws(RemoteException::class)
     public val complicationSlotsState: Map<Int, ComplicationSlotState>
 
     /**
      * Returns the ID of the [androidx.wear.watchface.ComplicationSlot] at the given coordinates or
      * `null` if there isn't one.
+     *
+     * Note this currently doesn't support Edge complications.
      */
     @SuppressWarnings("AutoBoxing")
+    @Throws(RemoteException::class)
     public fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? =
         complicationSlotsState.asSequence().firstOrNull {
             it.value.isEnabled && when (it.value.boundsType) {
@@ -126,12 +141,6 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
                 else -> false
             }
         }?.key
-
-    /**
-     * Requests that [ComplicationSlotsManager.displayPressedAnimation] is called for
-     * [complicationSlotId].
-     */
-    public fun displayPressedAnimation(complicationSlotId: Int)
 
     public companion object {
         /** Indicates a "down" touch event on the watch face. */
@@ -154,18 +163,25 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Sends a tap event to the watch face for processing.
      */
+    @Throws(RemoteException::class)
     public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapType tapType: Int)
 
     /**
      * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
      * readers.
      */
+    @get:Throws(RemoteException::class)
     public val contentDescriptionLabels: List<ContentDescriptionLabel>
 
-    /** Updates the watch faces [WatchUiState]. */
+    /**
+     * Updates the watch faces [WatchUiState]. NB [setWatchUiState] and [updateWatchFaceInstance]
+     * can be called in any order.
+     */
+    @Throws(RemoteException::class)
     public fun setWatchUiState(watchUiState: androidx.wear.watchface.client.WatchUiState)
 
     /** Triggers watch face rendering into the surface when in ambient mode. */
+    @Throws(RemoteException::class)
     public fun performAmbientTick()
 
     /** Callback that observes when the client disconnects. */
@@ -233,7 +249,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     @RequiresApi(27)
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
-        calendarTimeMillis: Long,
+        instant: Instant,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
     ): Bitmap = TraceEvent("InteractiveWatchFaceClientImpl.renderWatchFaceToBitmap").use {
@@ -241,7 +257,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
             iInteractiveWatchFace.renderWatchFaceToBitmap(
                 WatchFaceRenderParams(
                     renderParameters.toWireFormat(),
-                    calendarTimeMillis,
+                    instant.toEpochMilli(),
                     userStyle?.toWireFormat(),
                     idAndComplicationData?.map {
                         IdAndComplicationDataWireFormat(
@@ -254,8 +270,8 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         )
     }
 
-    override val previewReferenceTimeMillis: Long
-        get() = iInteractiveWatchFace.previewReferenceTimeMillis
+    override val previewReferenceInstant: Instant
+        get() = Instant.ofEpochMilli(iInteractiveWatchFace.previewReferenceTimeMillis)
 
     override fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle) = TraceEvent(
         "InteractiveWatchFaceClientImpl.updateInstance"
@@ -289,12 +305,6 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
     override fun close() = TraceEvent("InteractiveWatchFaceClientImpl.close").use {
         iInteractiveWatchFace.release()
-    }
-
-    override fun displayPressedAnimation(complicationSlotId: Int) = TraceEvent(
-        "InteractiveWatchFaceClientImpl.bringAttentionToComplication"
-    ).use {
-        iInteractiveWatchFace.bringAttentionToComplication(complicationSlotId)
     }
 
     override fun sendTouchEvent(

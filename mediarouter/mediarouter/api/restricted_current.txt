@@ -354,6 +354,7 @@ package androidx.mediarouter.media {
     method public void removeCallback(androidx.mediarouter.media.MediaRouter.Callback);
     method public void removeProvider(androidx.mediarouter.media.MediaRouteProvider);
     method public void removeRemoteControlClient(Object);
+    method @VisibleForTesting public static void reset();
     method public void selectRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
     method public void setMediaSession(Object?);
     method public void setMediaSessionCompat(android.support.v4.media.session.MediaSessionCompat?);
@@ -456,6 +457,7 @@ package androidx.mediarouter.media {
     method public boolean isTransferToLocalEnabled();
     field public static final int DIALOG_TYPE_DEFAULT = 1; // 0x1
     field public static final int DIALOG_TYPE_DYNAMIC_GROUP = 2; // 0x2
+    field public static final String ENABLE_GROUP_VOLUME_UX = "androidx.mediarouter.media.MediaRouterParams.ENABLE_GROUP_VOLUME_UX";
   }
 
   public static final class MediaRouterParams.Builder {

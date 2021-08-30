@@ -16,12 +16,15 @@
 
 package androidx.car.app.sample.places.common;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarAppService;
 import androidx.car.app.Screen;
+import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
 import androidx.car.app.validation.HostValidator;
 
@@ -40,7 +43,16 @@ public class PlacesCarAppService extends CarAppService {
             @Override
             @NonNull
             public Screen onCreateScreen(@NonNull Intent intent) {
-                return PlaceCategoryListScreen.create(getCarContext());
+                if (getCarContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    return PlaceCategoryListScreen.create(getCarContext());
+                }
+
+                // If we do not have the location permission, show the request permission screen.
+                ScreenManager screenManager = getCarContext().getCarService(ScreenManager.class);
+                screenManager
+                        .push(PlaceCategoryListScreen.create(getCarContext()));
+                return new RequestPermissionScreen(getCarContext(), () -> screenManager.pop());
             }
         };
     }

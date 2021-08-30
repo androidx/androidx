@@ -37,7 +37,7 @@ import kotlin.math.min
  * Performs a click action on the element represented by the given semantics node.
  */
 fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
-    // TODO(jellefresen): Replace with semantics action when semantics merging is done
+    // TODO(fresen): Replace with semantics action when semantics merging is done
     // The problem we currently have is that the click action might be defined on a different
     // semantics node than we're interacting with now, even though it is "semantically" the same.
     // E.g., findByText(buttonText) finds the Text's semantics node, but the click action is
@@ -133,7 +133,6 @@ fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
  * @param index The index of the item to scroll to
  * @see hasScrollToIndexAction
  */
-@ExperimentalTestApi
 fun SemanticsNodeInteraction.performScrollToIndex(index: Int): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed: performScrollToIndex($index)")
     requireSemantics(node, ScrollToIndex) {
@@ -160,7 +159,6 @@ fun SemanticsNodeInteraction.performScrollToIndex(index: Int): SemanticsNodeInte
  * @param key The key of the item to scroll to
  * @see hasScrollToKeyAction
  */
-@ExperimentalTestApi
 fun SemanticsNodeInteraction.performScrollToKey(key: Any): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed: performScrollToKey(\"$key\")")
     requireSemantics(node, IndexForKey, ScrollToIndex) {
@@ -182,30 +180,36 @@ fun SemanticsNodeInteraction.performScrollToKey(key: Any): SemanticsNodeInteract
 
 /**
  * Executes the (partial) gesture specified in the given [block]. The gesture doesn't need to be
- * complete and can be resumed in a later invocation of [performGesture]. It is the
- * responsibility of the caller to make sure partial gestures don't leave the test in an
- * inconsistent state.
+ * complete and can be resumed in a later invocation of [performGesture]. The event time is
+ * initialized to the current time of the [MainTestClock].
+ *
+ * Be aware that if you split a gesture over two invocations of [performGesture], everything that
+ * happens in between will run as if the gesture is still ongoing (imagine a finger still
+ * touching the screen).
  *
  * All events that are injected from the [block] are batched together and sent after [block] is
- * complete. This method blocks until all those events have been injected, which normally takes
- * as long as the duration of the gesture. If an error occurs during execution of [block] or
- * injection of the events, all (subsequent) events are dropped and the error is thrown here.
- *
- * This method must not be called from the main thread. The block will be executed on the same
- * thread as the caller.
+ * complete. This method blocks while the events are injected. If an error occurs during
+ * execution of [block] or injection of the events, all (subsequent) events are dropped and the
+ * error is thrown here.
  *
  * Example usage:
  * ```
- * onNodeWithTag("myWidget")
+ * testRule.onNodeWithTag("myWidget")
  *     .performGesture { swipeUp() }
  *
- * onNodeWithTag("myWidget")
+ * testRule.onNodeWithTag("myWidget")
  *     .performGesture { click(center) }
  *
- * onNodeWithTag("myWidget")
+ * testRule.onNodeWithTag("myWidget")
  *     .performGesture { down(topLeft) }
  *     .assertHasClickAction()
  *     .performGesture { up(topLeft) }
+ *
+ * testRule.onNodeWithTag("myWidget")
+ *     .performGesture { click() }
+ * testRule.mainClock.advanceTimeBy(100)
+ * testRule.onNodeWithTag("myWidget")
+ *     .performGesture(true) { swipeUp() }
  * ```
  */
 fun SemanticsNodeInteraction.performGesture(

@@ -24,14 +24,12 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.1.0")
     api(project(":room:room-compiler-processing"))
     implementation(libs.kotlinStdlib)
     implementation(libs.kspApi)
     implementation(libs.kotlinStdlibJdk8) // KSP defines older version as dependency, force update.
     implementation(libs.ksp)
     implementation(libs.googleCompileTesting)
-    implementation(libs.kotlinCompileTestingKsp)
     // specify these to match the kotlin compiler version in AndroidX rather than what KSP or KCT
     // uses
     implementation(libs.kotlinCompilerEmbeddable)
@@ -69,12 +67,20 @@ tasks.named("sourceJar").configure {
 tasks.named("processResources").configure {
     dependsOn(writeTestPropsTask)
 }
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+}
+
 // enable opt in only for tests so that we don't create non experimental APIs by mistake
 // in the source.
 tasks.named("compileTestKotlin", KotlinCompile.class).configure {
     it.kotlinOptions {
         freeCompilerArgs += [
-                "-Xjvm-default=all",
                 "-Xopt-in=kotlin.RequiresOptIn",
                 "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
         ]

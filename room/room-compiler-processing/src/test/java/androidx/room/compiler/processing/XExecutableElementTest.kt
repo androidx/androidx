@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.util.CONTINUATION_CLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_CLASS_NAME
 import androidx.room.compiler.processing.util.className
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getDeclaredMethod
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
@@ -27,12 +28,16 @@ import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.io.IOException
+import java.lang.IllegalStateException
 
 @RunWith(JUnit4::class)
 class XExecutableElementTest {
@@ -123,26 +128,29 @@ class XExecutableElementTest {
         val subject = Source.kotlin(
             "Baz.kt",
             """
-            package foo.bar;
-            import java.util.List;
+            package foo.bar
+
             interface Baz {
                 fun noDefault()
                 fun withDefault(): Int {
-                    return 3;
+                    return 3
                 }
                 fun nameMatch()
                 fun nameMatch(param:Int) {}
                 fun withDefaultWithParams(param1:Int, param2:String) {}
                 fun withDefaultWithTypeArgs(param1: List<String>): String {
-                    return param1.first();
+                    return param1.first()
+                }
+                private fun privateWithDefault(): String {
+                    return ""
                 }
             }
             """.trimIndent()
         )
         runProcessorTest(
             sources = listOf(subject)
-        ) {
-            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getDeclaredMethod("noDefault").let { method ->
                 assertThat(method.hasKotlinDefaultImpl()).isFalse()
             }
@@ -167,6 +175,12 @@ class XExecutableElementTest {
 
             element.getDeclaredMethod("withDefaultWithTypeArgs").let { method ->
                 assertThat(method.hasKotlinDefaultImpl()).isTrue()
+            }
+            // private functions in interfaces don't appear in kapt stubs
+            if (invocation.isKsp) {
+                element.getDeclaredMethod("privateWithDefault").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isFalse()
+                }
             }
         }
     }
@@ -274,7 +288,7 @@ class XExecutableElementTest {
             val klass = invocation.processingEnv.requireTypeElement("MyDataClass")
             val methodNames = klass.getAllMethods().map {
                 it.name
-            }
+            }.toList()
             assertThat(methodNames).containsNoneIn(
                 listOf(
                     "setX", "setProp1", "setProp3", "setZ", "setProp4", "getProp4", "setProp7"
@@ -602,6 +616,214 @@ class XExecutableElementTest {
     @Test
     fun genericToPrimitiveOverrides_asMemberOf() {
         genericToPrimitiveOverrides(asMemberOf = true)
+    }
+
+    @Test
+    fun defaultMethodParameters() {
+        fun buildSource(pkg: String) = Source.kotlin(
+            "Foo.kt",
+            """
+            package $pkg
+            class Subject {
+                var prop:Int = 1
+                fun method1(arg:Int = 0, arg2:Int) {}
+                fun method2(arg:Int, arg2:Int = 0) {}
+                fun varargMethod1(x:Int = 3, vararg y:Int) {}
+                fun varargMethod2(x:Int, vararg y:Int = intArrayOf(1,2,3)) {}
+                suspend fun suspendMethod() {}
+                @JvmOverloads
+                fun jvmOverloadsMethod(
+                    x:Int,
+                    y:Int = 1,
+                    z:String = "foo"
+                ) {}
+            }
+            """.trimIndent()
+        )
+
+        fun XExecutableElement.defaults() = parameters.map { it.hasDefaultValue }
+        runProcessorTest(
+            sources = listOf(buildSource(pkg = "app")),
+            classpath = compileFiles(listOf(buildSource(pkg = "lib")))
+        ) { invocation ->
+            listOf("app", "lib").map {
+                invocation.processingEnv.requireTypeElement("$it.Subject")
+            }.forEach { subject ->
+                subject.getMethod("method1").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(true, false).inOrder()
+                }
+                subject.getMethod("method2").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(false, true).inOrder()
+                }
+                subject.getMethod("varargMethod1").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(true, false).inOrder()
+                }
+                subject.getMethod("varargMethod2").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(false, true).inOrder()
+                }
+                subject.getMethod("suspendMethod").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(false)
+                }
+                subject.getMethod("setProp").let { method ->
+                    assertWithMessage(method.fallbackLocationText)
+                        .that(method.defaults()).containsExactly(false)
+                }
+                val jvmOverloadedMethodCount = subject.getDeclaredMethods().count {
+                    it.name == "jvmOverloadsMethod"
+                }
+                if (invocation.isKsp) {
+                    assertWithMessage(subject.fallbackLocationText)
+                        .that(jvmOverloadedMethodCount).isEqualTo(1)
+                    subject.getMethod("jvmOverloadsMethod").let { method ->
+                        assertWithMessage(method.fallbackLocationText)
+                            .that(method.defaults())
+                            .containsExactly(false, true, true).inOrder()
+                    }
+                } else {
+                    assertWithMessage(subject.fallbackLocationText)
+                        .that(jvmOverloadedMethodCount).isEqualTo(3)
+                    val actuals = subject.getDeclaredMethods().filter {
+                        it.name == "jvmOverloadsMethod"
+                    }.associateBy(
+                        keySelector = { it.parameters.size },
+                        valueTransform = { it.defaults() }
+                    )
+                    // JVM overloads is not part of the java stub or metadata, hence we cannot
+                    // detect it
+                    assertWithMessage(subject.fallbackLocationText)
+                        .that(actuals)
+                        .containsExactlyEntriesIn(
+                            mapOf(
+                                1 to listOf(false),
+                                2 to listOf(false, false),
+                                3 to listOf(false, true, true)
+                            )
+                        )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun thrownTypes() {
+        fun buildSources(pkg: String) = listOf(
+            Source.java(
+                "$pkg.JavaSubject",
+                """
+                package $pkg;
+                import java.io.*;
+                public class JavaSubject {
+                    public JavaSubject() throws IllegalArgumentException {}
+
+                    public void multipleThrows() throws IOException, IllegalStateException {
+                    }
+                }
+                """.trimIndent()
+            ),
+            Source.kotlin(
+                "KotlinSubject.kt",
+                """
+                package $pkg
+                import java.io.*
+                public class KotlinSubject {
+                    @Throws(IllegalArgumentException::class)
+                    constructor() {
+                    }
+
+                    @Throws(IOException::class, IllegalStateException::class)
+                    fun multipleThrows() {
+                    }
+                }
+                """.trimIndent()
+            ),
+            Source.kotlin(
+                "AccessorThrows.kt",
+                """
+                package $pkg
+                import java.io.*
+                public class KotlinAccessors {
+                    @get:Throws(IllegalArgumentException::class)
+                    val getterThrows: Int = 3
+                    @set:Throws(IllegalStateException::class)
+                    var setterThrows: Int = 3
+                    @get:Throws(IOException::class)
+                    @set:Throws(IllegalStateException::class, IllegalArgumentException::class)
+                    var bothThrows: Int = 3
+                }
+                """.trimIndent()
+            )
+        )
+        runProcessorTest(
+            sources = buildSources("app"),
+            classpath = compileFiles(sources = buildSources("lib"))
+        ) { invocation ->
+            fun collectExceptions(subject: XTypeElement): List<Pair<String, Set<TypeName>>> {
+                return (subject.getConstructors() + subject.getDeclaredMethods()).mapNotNull {
+                    val throwTypes = it.thrownTypes
+                    val name = if (it is XMethodElement) {
+                        it.name
+                    } else {
+                        "<init>"
+                    }
+                    if (throwTypes.isEmpty()) {
+                        null
+                    } else {
+                        name to throwTypes.map { it.typeName }.toSet()
+                    }
+                }
+            }
+            // TODO
+            // add lib here once https://github.com/google/ksp/issues/507 is fixed
+            // also need https://github.com/google/ksp/issues/505 to be fixed for accessors.
+            listOf("app").forEach { pkg ->
+                invocation.processingEnv.requireTypeElement("$pkg.KotlinSubject").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        collectExceptions(subject)
+                    ).containsExactly(
+                        "<init>" to setOf(ClassName.get(IllegalArgumentException::class.java)),
+                        "multipleThrows" to setOf(
+                            ClassName.get(IOException::class.java),
+                            ClassName.get(IllegalStateException::class.java)
+                        )
+                    )
+                }
+                invocation.processingEnv.requireTypeElement("$pkg.JavaSubject").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        collectExceptions(subject)
+                    ).containsExactly(
+                        "<init>" to setOf(ClassName.get(IllegalArgumentException::class.java)),
+                        "multipleThrows" to setOf(
+                            ClassName.get(IOException::class.java),
+                            ClassName.get(IllegalStateException::class.java)
+                        )
+                    )
+                }
+                invocation.processingEnv.requireTypeElement("$pkg.KotlinAccessors").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        collectExceptions(subject)
+                    ).containsExactly(
+                        "getGetterThrows" to setOf(
+                            ClassName.get(IllegalArgumentException::class.java)
+                        ),
+                        "setSetterThrows" to setOf(
+                            ClassName.get(IllegalStateException::class.java)
+                        ),
+                        "getBothThrows" to setOf(
+                            ClassName.get(IOException::class.java)
+                        ),
+                        "setBothThrows" to setOf(
+                            ClassName.get(IllegalStateException::class.java),
+                            ClassName.get(IllegalArgumentException::class.java)
+                        ),
+                    )
+                }
+            }
+        }
     }
 
     // see b/160258066

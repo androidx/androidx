@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofMinutes`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(1)).build();"
+        errorLine2="                                                                         ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="73"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `setRemainingTime`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(1)).build();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="73"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofHours`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(1)).build();"
+        errorLine2="                                                                         ~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="78"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `setRemainingTime`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(1)).build();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="78"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofMinutes`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(2)).build();"
+        errorLine2="                                                                         ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="105"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `setRemainingTime`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(2)).build();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="105"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofHours`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(2)).build();"
+        errorLine2="                                                                         ~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="110"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `setRemainingTime`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(2)).build();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="110"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofMinutes`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(3)).build();"
+        errorLine2="                                                                         ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="126"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `setRemainingTime`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(3)).build();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="126"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `java.time.Duration#ofHours`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(3)).build();"
+        errorLine2="                                                                         ~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="131"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `setRemainingTime`"
+        errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(3)).build();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
+            line="131"
+            column="48"/>
+    </issue>
+
+</issues>

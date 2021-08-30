@@ -373,9 +373,10 @@ class AutoMigrationWriter(
         tableName: String,
         migrateBuilder: MethodSpec.Builder
     ) {
-        addDatabaseExecuteSqlStatement(
-            migrateBuilder,
-            "PRAGMA foreign_key_check(`$tableName`)"
+        migrateBuilder.addStatement(
+            "$T.foreignKeyCheck(database, $S)",
+            RoomTypeNames.DB_UTIL,
+            tableName
         )
     }
 

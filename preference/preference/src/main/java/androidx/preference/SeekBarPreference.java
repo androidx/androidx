@@ -161,11 +161,11 @@ public class SeekBarPreference extends Preference {
     }
 
     @Override
-    public void onBindViewHolder(PreferenceViewHolder view) {
-        super.onBindViewHolder(view);
-        view.itemView.setOnKeyListener(mSeekBarKeyListener);
-        mSeekBar = (SeekBar) view.findViewById(R.id.seekbar);
-        mSeekBarValueTextView = (TextView) view.findViewById(R.id.seekbar_value);
+    public void onBindViewHolder(PreferenceViewHolder holder) {
+        super.onBindViewHolder(holder);
+        holder.itemView.setOnKeyListener(mSeekBarKeyListener);
+        mSeekBar = (SeekBar) holder.findViewById(R.id.seekbar);
+        mSeekBarValueTextView = (TextView) holder.findViewById(R.id.seekbar_value);
         if (mShowSeekBarValue) {
             mSeekBarValueTextView.setVisibility(View.VISIBLE);
         } else {

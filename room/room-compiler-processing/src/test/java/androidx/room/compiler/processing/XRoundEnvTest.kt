@@ -254,6 +254,17 @@ class XRoundEnvTest {
         }
     }
 
+    @Test
+    fun getElementsFromPackageReturnsEmptyListForUnknownPackage() {
+        runProcessorTest { testInvocation ->
+            val kspElements = testInvocation.processingEnv.getTypeElementsFromPackage(
+                "com.example.unknown.package"
+            )
+
+            assertThat(kspElements).isEmpty()
+        }
+    }
+
     annotation class TopLevelAnnotation
 
     @Suppress("unused") // used in tests

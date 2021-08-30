@@ -392,6 +392,41 @@ class NavBackStackEntryLifecycleTest {
         )
 
         inOrder.verifyNoMoreInteractions()
+
+        navController.popBackStack()
+
+        inOrder.verify(nestedObserver).onStateChanged(
+            nestedBackStackEntry, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder.verify(nestedObserver).onStateChanged(
+            nestedBackStackEntry, Lifecycle.Event.ON_STOP
+        )
+        inOrder.verify(nestedObserver).onStateChanged(
+            nestedBackStackEntry, Lifecycle.Event.ON_DESTROY
+        )
+
+        inOrder.verify(nestedGraphObserver).onStateChanged(
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder.verify(nestedGraphObserver).onStateChanged(
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_STOP
+        )
+
+        inOrder.verify(nestedGraphObserver).onStateChanged(
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_DESTROY
+        )
+
+        inOrder.verify(graphObserver).onStateChanged(
+            graphBackStackEntry, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder.verify(graphObserver).onStateChanged(
+            graphBackStackEntry, Lifecycle.Event.ON_STOP
+        )
+        inOrder.verify(graphObserver).onStateChanged(
+            graphBackStackEntry, Lifecycle.Event.ON_DESTROY
+        )
+
+        inOrder.verifyNoMoreInteractions()
     }
 
     /**
@@ -574,6 +609,60 @@ class NavBackStackEntryLifecycleTest {
             null,
             navOptions {
                 popUpTo(R.id.nested_test) {
+                    inclusive = true
+                }
+            }
+        )
+
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The nested graph should be destroyed when its children are destroyed")
+            .that(nestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertWithMessage("The nested start destination should be destroyed after being popped")
+            .that(nestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+        val secondBackStackEntry = navController.getBackStackEntry(R.id.second_test)
+        assertWithMessage("The new destination should be resumed")
+            .that(secondBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun testLifecyclePoppedGraph() {
+        val navController = createNavController()
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.nested
+        ) {
+            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                test(R.id.nested_test)
+            }
+            test(R.id.second_test)
+        }
+        navController.graph = navGraph
+
+        val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val nestedGraphBackStackEntry = navController.getBackStackEntry(R.id.nested)
+        assertWithMessage("The nested graph should be resumed when its child is resumed")
+            .that(nestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val nestedBackStackEntry = navController.getBackStackEntry(R.id.nested_test)
+        assertWithMessage("The nested start destination should be resumed")
+            .that(nestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate(
+            R.id.second_test,
+            null,
+            navOptions {
+                popUpTo(R.id.nested) {
                     inclusive = true
                 }
             }

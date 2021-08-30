@@ -61,10 +61,10 @@ internal class JavacProcessingEnv(
         )
 
     override val messager: XMessager by lazy {
-        JavacProcessingEnvMessager(delegate)
+        JavacProcessingEnvMessager(delegate.messager)
     }
 
-    override val filer = JavacFiler(delegate)
+    override val filer = JavacFiler(this, delegate.filer)
 
     override val options: Map<String, String>
         get() = delegate.options
@@ -77,6 +77,7 @@ internal class JavacProcessingEnv(
         // Note, to support Java Modules we would need to use "getAllPackageElements",
         // but that is only available in Java 9+.
         val packageElement = delegate.elementUtils.getPackageElement(packageName)
+            ?: return emptyList()
 
         return packageElement.enclosedElements
             .filterIsInstance<TypeElement>()
@@ -258,6 +259,10 @@ internal class JavacProcessingEnv(
             }
             else -> error("Unsupported enclosing type $enclosingElement for $element")
         }
+    }
+
+    internal fun clearCache() {
+        typeElementStore.clear()
     }
 
     companion object {

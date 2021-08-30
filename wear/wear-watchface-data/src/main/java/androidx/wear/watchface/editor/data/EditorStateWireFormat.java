@@ -17,6 +17,7 @@
 package androidx.wear.watchface.editor.data;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -56,6 +57,10 @@ public final class EditorStateWireFormat implements VersionedParcelable, Parcela
     @ParcelField(4)
     boolean mCommitChanges;
 
+    @ParcelField(5)
+    @Nullable
+    Bundle mPreviewImageBundle;
+
     /** Used by VersionedParcelable. */
     EditorStateWireFormat() {
     }
@@ -64,11 +69,13 @@ public final class EditorStateWireFormat implements VersionedParcelable, Parcela
             @Nullable String watchFaceInstanceId,
             @NonNull UserStyleWireFormat userStyle,
             @NonNull List<IdAndComplicationDataWireFormat> previewComplicationData,
-            boolean commitChanges) {
+            boolean commitChanges,
+            @Nullable Bundle previewImageBundle) {
         mWatchFaceInstanceId = watchFaceInstanceId;
         mUserStyle = userStyle;
         mPreviewComplicationData = previewComplicationData;
         mCommitChanges = commitChanges;
+        mPreviewImageBundle = previewImageBundle;
     }
 
     @Nullable
@@ -88,6 +95,11 @@ public final class EditorStateWireFormat implements VersionedParcelable, Parcela
 
     public boolean getCommitChanges() {
         return mCommitChanges;
+    }
+
+    @Nullable
+    public Bundle getPreviewImageBundle() {
+        return mPreviewImageBundle;
     }
 
     /** Serializes this EditorState to the specified {@link Parcel}. */

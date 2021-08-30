@@ -113,6 +113,29 @@ class KotlinNavWriterTest {
     }
 
     @Test
+    fun testDirectionsClassGenerationDefaultParamOrder() {
+        val nextAction = Action(
+            id("next"), id("destA"),
+            listOf(
+                Argument("optional", StringType, StringValue("bla")),
+                Argument("optionalFloat", FloatType, FloatValue("0.1")),
+                Argument("main", StringType),
+                Argument("optionalInt", IntType, IntValue("1"))
+            )
+        )
+
+        val prevAction = Action(id("previous"), id("destB"), emptyList())
+
+        val dest = Destination(
+            null, ClassName.get("a.b", "MainFragmentDefaultParam"), "fragment", listOf(),
+            listOf(prevAction, nextAction)
+        )
+
+        val actual = generateDirectionsCodeFile(dest, emptyList(), false)
+        assertThat(actual.toString()).parsesAs("a.b.MainFragmentDefaultParamDirections")
+    }
+
+    @Test
     fun testDirectionsClassGeneration_withKeywordId() {
         val funAction = Action(
             ResReference("fun.is.in", "id", "next"), id("destA"),

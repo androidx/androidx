@@ -59,4 +59,8 @@ internal class XTypeElementStore<BackingType, T : XTypeElement>(
         typeCache[qName] = WeakReference(element)
         return element
     }
+
+    internal fun clear() {
+        typeCache.clear()
+    }
 }

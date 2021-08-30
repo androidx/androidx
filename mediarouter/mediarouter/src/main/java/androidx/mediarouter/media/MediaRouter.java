@@ -294,6 +294,32 @@ public final class MediaRouter {
     }
 
     /**
+     * Resets all internal state for testing.
+     * <p>
+     * After calling this method, the caller should stop using the existing media router instances.
+     * Instead, the caller should create a new media router instance again by calling
+     * {@link #getInstance(Context)}.
+     * <p>
+     * Note that the following classes' instances need to be recreated after calling this method,
+     * as these classes store the media router instance on their constructor:
+     * <ul>
+     *     <li>{@link androidx.mediarouter.app.MediaRouteActionProvider}
+     *     <li>{@link androidx.mediarouter.app.MediaRouteButton}
+     *     <li>{@link androidx.mediarouter.app.MediaRouteChooserDialog}
+     *     <li>{@link androidx.mediarouter.app.MediaRouteControllerDialog}
+     *     <li>{@link androidx.mediarouter.app.MediaRouteDiscoveryFragment}
+     * </ul>
+     */
+    @VisibleForTesting
+    public static void reset() {
+        if (sGlobal == null) {
+            return;
+        }
+        sGlobal.reset();
+        sGlobal = null;
+    }
+
+    /**
      * Gets the initialized global router.
      * Please make sure this is called in the main thread.
      */
@@ -950,6 +976,17 @@ public final class MediaRouter {
     }
 
     /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static boolean isGroupVolumeUxEnabled() {
+        if (sGlobal == null) {
+            return false;
+        }
+        return getGlobalRouter().isGroupVolumeUxEnabled();
+    }
+
+    /**
      * Returns how many {@link MediaRouter.Callback callbacks} are registered throughout the all
      * {@link MediaRouter media routers} in this process.
      */
@@ -1511,6 +1548,9 @@ public final class MediaRouter {
          */
         @PlaybackVolume
         public int getVolumeHandling() {
+            if (isGroup() && !isGroupVolumeUxEnabled()) {
+                return PLAYBACK_VOLUME_FIXED;
+            }
             return mVolumeHandling;
         }
 
@@ -2484,6 +2524,25 @@ public final class MediaRouter {
             mRegisteredProviderWatcher.start();
         }
 
+        void reset() {
+            if (!mIsInitialized) {
+                return;
+            }
+            mRegisteredProviderWatcher.stop();
+            mActiveScanThrottlingHelper.reset();
+
+            setMediaSessionCompat(null);
+            for (RemoteControlClientRecord record : mRemoteControlClients) {
+                record.disconnect();
+            }
+
+            List<ProviderInfo> providers = new ArrayList<>(mProviders);
+            for (ProviderInfo providerInfo : providers) {
+                removeProvider(providerInfo.mProviderInstance);
+            }
+            mCallbackHandler.removeCallbacksAndMessages(null);
+        }
+
         public MediaRouter getRouter(Context context) {
             MediaRouter router;
             for (int i = mRouters.size(); --i >= 0; ) {
@@ -2714,12 +2773,20 @@ public final class MediaRouter {
                 return true;
             }
 
+            boolean useOutputSwitcher = mRouterParams != null
+                    && mRouterParams.isOutputSwitcherEnabled()
+                    && isMediaTransferEnabled();
             // Check whether any existing routes match the selector.
             final int routeCount = mRoutes.size();
             for (int i = 0; i < routeCount; i++) {
                 RouteInfo route = mRoutes.get(i);
                 if ((flags & AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE) != 0
                         && route.isDefaultOrBluetooth()) {
+                    continue;
+                }
+                // When using the output switcher, we only care about MR2 routes and system routes.
+                if (useOutputSwitcher && !route.isDefaultOrBluetooth()
+                        && route.getProviderInstance() != mMr2Provider) {
                     continue;
                 }
                 if (route.matchesSelector(selector)) {
@@ -2861,6 +2928,17 @@ public final class MediaRouter {
             }
             return mRouterParams.isTransferToLocalEnabled();
         }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public boolean isGroupVolumeUxEnabled() {
+            return mRouterParams == null || mRouterParams.mExtras == null
+                    || mRouterParams.mExtras.getBoolean(
+                            MediaRouterParams.ENABLE_GROUP_VOLUME_UX, true);
+        }
+
 
         @Override
         public void addProvider(@NonNull MediaRouteProvider providerInstance) {

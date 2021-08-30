@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,6 +37,8 @@ import androidx.compose.ui.unit.dp
  * @param modifier the modifier to apply to this layout
  * @param state the state object to be used to control or observe the list's state
  * @param contentPadding specify a padding around the whole content
+ * @param verticalArrangement The vertical arrangement of the layout's children
+ * @param horizontalArrangement The horizontal arrangement of the layout's children
  * @param content the [LazyListScope] which describes the content
  */
 @ExperimentalFoundationApi
@@ -45,19 +48,20 @@ fun LazyVerticalGrid(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     content: LazyGridScope.() -> Unit
 ) {
-    val scope = LazyGridScopeImpl()
-    scope.apply(content)
-
     when (cells) {
         is GridCells.Fixed ->
             FixedLazyGrid(
                 nColumns = cells.count,
                 modifier = modifier,
                 state = state,
+                horizontalArrangement = horizontalArrangement,
+                verticalArrangement = verticalArrangement,
                 contentPadding = contentPadding,
-                scope = scope
+                content = content
             )
         is GridCells.Adaptive ->
             BoxWithConstraints(
@@ -67,8 +71,10 @@ fun LazyVerticalGrid(
                 FixedLazyGrid(
                     nColumns = nColumns,
                     state = state,
+                    horizontalArrangement = horizontalArrangement,
+                    verticalArrangement = verticalArrangement,
                     contentPadding = contentPadding,
-                    scope = scope
+                    content = content
                 )
             }
     }
@@ -183,18 +189,24 @@ inline fun <T> LazyGridScope.itemsIndexed(
 private fun FixedLazyGrid(
     nColumns: Int,
     modifier: Modifier = Modifier,
-    state: LazyListState = rememberLazyListState(),
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    scope: LazyGridScopeImpl
+    state: LazyListState,
+    contentPadding: PaddingValues,
+    verticalArrangement: Arrangement.Vertical,
+    horizontalArrangement: Arrangement.Horizontal,
+    content: LazyGridScope.() -> Unit
 ) {
-    val rows = (scope.totalSize + nColumns - 1) / nColumns
     LazyColumn(
         modifier = modifier,
         state = state,
+        verticalArrangement = verticalArrangement,
         contentPadding = contentPadding
     ) {
+        val scope = LazyGridScopeImpl()
+        scope.apply(content)
+
+        val rows = if (scope.totalSize == 0) 0 else 1 + (scope.totalSize - 1) / nColumns
         items(rows) { rowIndex ->
-            Row {
+            Row(horizontalArrangement = horizontalArrangement) {
                 for (columnIndex in 0 until nColumns) {
                     val itemIndex = rowIndex * nColumns + columnIndex
                     if (itemIndex < scope.totalSize) {

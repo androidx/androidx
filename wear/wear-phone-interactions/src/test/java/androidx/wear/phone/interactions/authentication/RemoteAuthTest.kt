@@ -21,41 +21,60 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.net.Uri
+import android.os.Build
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Pair
+import androidx.annotation.RequiresApi
+import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
-import org.junit.Assert
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.robolectric.Shadows
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.ArrayList
 import java.util.concurrent.Executor
 
 /** Unit tests for [RemoteAuthClient].  */
 @RunWith(WearPhoneInteractionsTestRunner::class)
 @DoNotInstrument // Needed because it is defined in the "android" package.
+@Config(minSdk = 26)
+@RequiresApi(Build.VERSION_CODES.O)
 public class RemoteAuthTest {
 
+    @Config(minSdk = 26)
+    @RequiresApi(Build.VERSION_CODES.O)
     internal companion object {
+        private val context: Context = ApplicationProvider.getApplicationContext()
+        private val shadowPackageManager = Shadows.shadowOf(context.packageManager)
         private val DIRECT_EXECUTOR = Executor { command -> command.run() }
         private const val authProviderUrlA = "http://myrequesturl/a?client_id=iamtheclient"
         private const val authProviderUrlB = "http://myrequesturl/b?client_id=iamtheclient"
         private val responseUrl = Uri.parse("http://myresponseurl")
-        private const val appPackageName = "com.friendlyapp"
-        private val requestA =
-            OAuthRequest.Builder(appPackageName)
-                .setAuthProviderUrl(Uri.parse(authProviderUrlA))
-                .setCodeChallenge(CodeChallenge(CodeVerifier()))
-                .build()
-        private val requestB =
-            OAuthRequest.Builder(appPackageName)
-                .setAuthProviderUrl(Uri.parse(authProviderUrlB))
-                .setCodeChallenge(CodeChallenge(CodeVerifier()))
-                .build()
-        private val response =
-            OAuthResponse.Builder().setResponseUrl(responseUrl).build()
+        private val appPackageName = context.packageName
+
+        private var requestA: OAuthRequest
+        private var requestB: OAuthRequest
+
+        init {
+            setSystemFeatureChina(false)
+
+            requestA =
+                OAuthRequest.Builder(context)
+                    .setAuthProviderUrl(Uri.parse(authProviderUrlA))
+                    .setCodeChallenge(CodeChallenge(CodeVerifier()))
+                    .build()
+
+            requestB =
+                OAuthRequest.Builder(context)
+                    .setAuthProviderUrl(Uri.parse(authProviderUrlB))
+                    .setCodeChallenge(CodeChallenge(CodeVerifier()))
+                    .build()
+        }
+
+        private val response = OAuthResponse.Builder().setResponseUrl(responseUrl).build()
 
         // Note: This can't be static as Robolectric isn't set up at class init time.
         private val mServiceName = ComponentName(
@@ -63,89 +82,78 @@ public class RemoteAuthTest {
         )
         private val mockCallback: RemoteAuthClient.Callback =
             Mockito.mock(RemoteAuthClient.Callback::class.java)
+
+        private fun setSystemFeatureChina(value: Boolean) {
+            shadowPackageManager.setSystemFeature("cn.google", value)
+        }
     }
 
     private var fakeServiceBinder: FakeServiceBinder = FakeServiceBinder()
     private var fakeService: FakeClockworkHomeAuthService = FakeClockworkHomeAuthService()
     private var clientUnderTest: RemoteAuthClient =
         RemoteAuthClient(fakeServiceBinder, DIRECT_EXECUTOR, appPackageName)
+    private val executor: Executor = SyncExecutor()
 
     @Test
     public fun doesntConnectUntilARequestIsMade() {
         // WHEN the client is created
         // THEN the Auth library should not yet connect to Clockwork Home
-        Assert.assertEquals(ConnectionState.DISCONNECTED, fakeServiceBinder.state)
+        assertThat(fakeServiceBinder.state).isEqualTo(ConnectionState.DISCONNECTED)
     }
 
     @Test
     public fun sendAuthorizationRequestShouldMakeConnectionToClockworkHome() {
+        setSystemFeatureChina(false)
         val requestUri = "http://myrequesturl?client_id=xxx"
         // WHEN an authorization request is sent
         clientUnderTest.sendAuthorizationRequest(
-            OAuthRequest.Builder(appPackageName)
+            OAuthRequest.Builder(context)
                 .setAuthProviderUrl(Uri.parse(requestUri))
                 .setCodeChallenge(CodeChallenge(CodeVerifier()))
                 .build(),
+            executor,
             mockCallback
         )
         // THEN a connection is made to Clockwork Home's Auth service
-        Assert.assertEquals(ConnectionState.CONNECTING, fakeServiceBinder.state)
+        assertThat(fakeServiceBinder.state).isEqualTo(ConnectionState.CONNECTING)
     }
 
     @Test
     public fun sendAuthorizationRequestShouldCallBinderMethod() {
         // WHEN an authorization request is sent
-        clientUnderTest.sendAuthorizationRequest(requestA, mockCallback)
+        clientUnderTest.sendAuthorizationRequest(requestA, executor, mockCallback)
         fakeServiceBinder.completeConnection()
         // THEN a request is made to Clockwork Home
         val request = fakeService.requests[0]
         val requestReceived = request.first
         // THEN the request url is set correctly
-        Assert.assertEquals(
-            requestA.getRequestUrl(),
-            requestReceived.getRequestUrl()
-        )
-        Assert.assertEquals(
-            requestReceived.getRequestUrl().toString().indexOf(authProviderUrlA),
-            0
-        )
+        assertThat(requestReceived.requestUrl).isEqualTo(requestA.requestUrl)
+        assertThat(requestReceived.requestUrl.toString().indexOf(authProviderUrlA)).isEqualTo(0)
     }
 
     @Test
     public fun twoQueuedAuthorizationRequestsBeforeConnectCompletes() {
         // GIVEN two authorization requests were made before connecting to Clockwork Home completes
-        clientUnderTest.sendAuthorizationRequest(requestA, mockCallback)
-        clientUnderTest.sendAuthorizationRequest(requestB, mockCallback)
+        clientUnderTest.sendAuthorizationRequest(requestA, executor, mockCallback)
+        clientUnderTest.sendAuthorizationRequest(requestB, executor, mockCallback)
         // WHEN the connection does complete
         fakeServiceBinder.completeConnection()
         // THEN two requests are made to Clockwork Home
         val requestAReceived = fakeService.requests[0].first
         val requestBReceived = fakeService.requests[1].first
-        Assert.assertEquals(2, fakeService.requests.size.toLong())
+        assertThat(fakeService.requests.size.toLong()).isEqualTo(2)
         // THEN the request url is set correctly for both (A then B)
-        Assert.assertEquals(
-            requestA.getRequestUrl(),
-            requestAReceived.getRequestUrl()
-        )
-        Assert.assertEquals(
-            requestB.getRequestUrl(),
-            requestBReceived.getRequestUrl()
-        )
-        Assert.assertEquals(
-            requestAReceived.getRequestUrl().toString().indexOf(authProviderUrlA),
-            0
-        )
-        Assert.assertEquals(
-            requestBReceived.getRequestUrl().toString().indexOf(authProviderUrlB),
-            0
-        )
+        assertThat(requestAReceived.requestUrl).isEqualTo(requestA.requestUrl)
+        assertThat(requestBReceived.requestUrl).isEqualTo(requestB.requestUrl)
+        assertThat(requestAReceived.requestUrl.toString().indexOf(authProviderUrlA)).isEqualTo(0)
+        assertThat(requestBReceived.requestUrl.toString().indexOf(authProviderUrlB)).isEqualTo(0)
     }
 
     @Test
     @Throws(RemoteException::class)
     public fun requestCompletionShouldCallBackToClient() {
         // GIVEN an authorization request was sent
-        clientUnderTest.sendAuthorizationRequest(requestA, mockCallback)
+        clientUnderTest.sendAuthorizationRequest(requestA, executor, mockCallback)
         fakeServiceBinder.completeConnection()
         val request = fakeService.requests[0]
         // WHEN the request completes
@@ -157,10 +165,10 @@ public class RemoteAuthTest {
     @Throws(RemoteException::class)
     public fun doesntDisconnectWhenRequestStillInProgress() {
         // GIVEN 2 authorization requests were sent
-        clientUnderTest.sendAuthorizationRequest(requestA, mockCallback)
+        clientUnderTest.sendAuthorizationRequest(requestA, executor, mockCallback)
         // GIVEN the async binding to Clockwork Home completed after the 1st but before the 2nd
         fakeServiceBinder.completeConnection()
-        clientUnderTest.sendAuthorizationRequest(requestB, mockCallback)
+        clientUnderTest.sendAuthorizationRequest(requestB, executor, mockCallback)
         // WHEN the first one completes
         RemoteAuthService.sendResponseToCallback(
             response,
@@ -168,17 +176,17 @@ public class RemoteAuthTest {
         )
         // THEN the service remains connected (as there's still a request ongoing, and we won't get
         // the callback for the other request if we unbind now)
-        Assert.assertEquals(ConnectionState.CONNECTED, fakeServiceBinder.state)
+        assertThat(fakeServiceBinder.state).isEqualTo(ConnectionState.CONNECTED)
     }
 
     @Test
     @Throws(RemoteException::class)
     public fun disconnectsWhenAllRequestsComplete() {
         // GIVEN 2 authorization requests were sent
-        clientUnderTest.sendAuthorizationRequest(requestA, mockCallback)
+        clientUnderTest.sendAuthorizationRequest(requestA, executor, mockCallback)
         // GIVEN the async binding to Clockwork Home completed after the 1st but before the 2nd
         fakeServiceBinder.completeConnection()
-        clientUnderTest.sendAuthorizationRequest(requestB, mockCallback)
+        clientUnderTest.sendAuthorizationRequest(requestB, executor, mockCallback)
         RemoteAuthService.sendResponseToCallback(
             response,
             fakeService.requests[0].second
@@ -189,10 +197,10 @@ public class RemoteAuthTest {
             fakeService.requests[1].second
         )
         // THEN the OAuth library disconnects from Clockwork Home
-        Assert.assertEquals(ConnectionState.DISCONNECTED, fakeServiceBinder.state)
+        assertThat(fakeServiceBinder.state).isEqualTo(ConnectionState.DISCONNECTED)
     }
 
-    private enum class ConnectionState {
+    internal enum class ConnectionState {
         DISCONNECTED, CONNECTING, CONNECTED
     }
 
@@ -218,7 +226,7 @@ public class RemoteAuthTest {
         }
 
         fun completeConnection() {
-            Assert.assertTrue(state == ConnectionState.CONNECTING)
+            assertThat(ConnectionState.CONNECTING).isEqualTo(state)
             state = ConnectionState.CONNECTED
             serviceConnection!!.onServiceConnected(mServiceName, fakeService.onBind(Intent()))
         }
@@ -269,5 +277,11 @@ public class RemoteAuthTest {
                 mockCallback.onAuthorizationResponse(request, response)
             }
         }
+    }
+}
+
+private class SyncExecutor : Executor {
+    override fun execute(command: Runnable?) {
+        command?.run()
     }
 }

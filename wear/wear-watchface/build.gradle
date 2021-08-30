@@ -35,7 +35,7 @@ dependencies {
 
     implementation("androidx.core:core:1.1.0")
 
-    androidTestImplementation(project(":test-screenshot"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":wear:wear-watchface-samples"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -57,8 +57,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 25
-        testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
+        minSdkVersion 26
     }
 
     sourceSets.androidTest.assets.srcDirs +=

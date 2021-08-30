@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha06)" variant="all" version="7.1.0-alpha06">
 
     <issue
         id="UnknownNullness"
@@ -862,23 +862,67 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public IndexBundle(String name, boolean unique, List&lt;String> columnNames,"
+        errorLine1="    public IndexBundle(String name, boolean unique, List&lt;String> columnNames, String createSql) {"
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
-            line="44"
+            line="52"
             column="24"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public IndexBundle(String name, boolean unique, List&lt;String> columnNames,"
+        errorLine1="    public IndexBundle(String name, boolean unique, List&lt;String> columnNames, String createSql) {"
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
-            line="44"
+            line="52"
             column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IndexBundle(String name, boolean unique, List&lt;String> columnNames, String createSql) {"
+        errorLine2="                                                                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="52"
+            column="79"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IndexBundle(String name, boolean unique, List&lt;String> columnNames, List&lt;String> orders,"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="56"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IndexBundle(String name, boolean unique, List&lt;String> columnNames, List&lt;String> orders,"
+        errorLine2="                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="56"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IndexBundle(String name, boolean unique, List&lt;String> columnNames, List&lt;String> orders,"
+        errorLine2="                                                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="56"
+            column="79"/>
     </issue>
 
     <issue
@@ -888,7 +932,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
-            line="45"
+            line="57"
             column="13"/>
     </issue>
 
@@ -899,7 +943,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
-            line="52"
+            line="65"
             column="12"/>
     </issue>
 
@@ -910,7 +954,18 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
-            line="60"
+            line="73"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;String> getOrders() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="77"
             column="12"/>
     </issue>
 
@@ -921,7 +976,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
-            line="68"
+            line="85"
             column="12"/>
     </issue>
 
@@ -932,7 +987,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
-            line="68"
+            line="85"
             column="32"/>
     </issue>
 
@@ -943,7 +998,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
-            line="76"
+            line="93"
             column="12"/>
     </issue>
 

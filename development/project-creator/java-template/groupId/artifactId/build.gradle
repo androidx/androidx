@@ -34,5 +34,5 @@ androidx {
     mavenVersion = LibraryVersions.<GROUPID>
     mavenGroup = LibraryGroups.<GROUPID>
     inceptionYear = "<YEAR>"
-    description = "<NAME>"
+    description = "<DESCRIPTION>"
 }

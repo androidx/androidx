@@ -454,7 +454,7 @@ public fun <T> liveData(
  * }
  * ```
  *
- * * @param context The CoroutineContext to run the given block in. Defaults to
+ * @param context The CoroutineContext to run the given block in. Defaults to
  * [EmptyCoroutineContext] combined with
  * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate].
  * @param timeout The timeout duration before cancelling the block if there are no active observers

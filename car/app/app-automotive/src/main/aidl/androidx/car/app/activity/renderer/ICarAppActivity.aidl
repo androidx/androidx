@@ -46,4 +46,7 @@ oneway interface ICarAppActivity {
 
     /** Requests the activity to finish itself. */
     void finishCarApp() = 7;
+
+    /** Notifies that there has been a selection update for the currently active input. */
+    void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart, int newSelEnd) = 8;
 }

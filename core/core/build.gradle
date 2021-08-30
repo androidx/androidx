@@ -11,9 +11,10 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
     api("androidx.annotation:annotation-experimental:1.1.0")
-    api("androidx.lifecycle:lifecycle-runtime:2.0.0")
+    api("androidx.lifecycle:lifecycle-runtime:2.3.1")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
     implementation("androidx.collection:collection:1.0.0")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     // Required for -Werror due to annotation-experimental use of Kotlin
     compileOnly(libs.kotlinStdlib)
@@ -31,6 +32,8 @@ dependencies {
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.multidex)
+
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 
     // Including both dexmakers allows support for all API levels plus final mocking support on
     // API 28+. The implementation is swapped based on the finality of the mock type. This
@@ -73,6 +76,10 @@ android {
     }
     defaultConfig {
         multiDexEnabled = true
+    }
+    // TODO(aurimas): reenable once AGP 7.0-alpha15 lands
+    lintOptions {
+        disable("ClassVerificationFailure", "NewApi")
     }
 }
 

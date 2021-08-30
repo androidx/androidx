@@ -15,7 +15,6 @@
  */
 
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.LibraryType
 
 plugins {
@@ -26,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
+    kotlinPlugin("androidx.compose.compiler:compiler:1.0.1")
     implementation(libs.kotlinStdlib)
     implementation projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose")
 }
@@ -34,7 +33,6 @@ dependencies {
 androidx {
     name = "AndroidX Lifecycle ViewModel Compose Integration Samples"
     type = LibraryType.SAMPLES
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2021"
     description = "Samples for Compose integration with Lifecycle ViewModel"

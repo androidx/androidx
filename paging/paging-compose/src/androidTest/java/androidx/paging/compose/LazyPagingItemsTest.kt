@@ -21,13 +21,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -178,7 +181,7 @@ class LazyPagingItemsTest {
     }
 
     @Test
-    fun snapshot() {
+    fun itemSnapshotList() {
         lateinit var lazyPagingItems: LazyPagingItems<Int>
         val pager = createPager()
         var composedCount = 0
@@ -186,7 +189,7 @@ class LazyPagingItemsTest {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
 
             for (i in 0 until lazyPagingItems.itemCount) {
-                lazyPagingItems.getAsState(i).value
+                lazyPagingItems[i]
             }
             composedCount = lazyPagingItems.itemCount
         }
@@ -195,7 +198,7 @@ class LazyPagingItemsTest {
             composedCount == items.size
         }
 
-        assertThat(lazyPagingItems.snapshot()).isEqualTo(items)
+        assertThat(lazyPagingItems.itemSnapshotList).isEqualTo(items)
     }
 
     @Test
@@ -208,7 +211,7 @@ class LazyPagingItemsTest {
 
             // Trigger page fetch until all items 0-6 are loaded
             for (i in 0 until minOf(lazyPagingItems.itemCount, 5)) {
-                lazyPagingItems.getAsState(i).value
+                lazyPagingItems[i]
             }
             composedCount = lazyPagingItems.itemCount
         }
@@ -248,12 +251,12 @@ class LazyPagingItemsTest {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
         }
 
-        assertThat(lazyPagingItems.snapshot()).isEmpty()
+        assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
 
         lazyPagingItems.retry()
         rule.waitForIdle()
 
-        assertThat(lazyPagingItems.snapshot()).isNotEmpty()
+        assertThat(lazyPagingItems.itemSnapshotList).isNotEmpty()
         // Verify retry does not invalidate.
         assertThat(factoryCallCount).isEqualTo(1)
     }
@@ -276,12 +279,12 @@ class LazyPagingItemsTest {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
         }
 
-        assertThat(lazyPagingItems.snapshot()).isEmpty()
+        assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
 
         lazyPagingItems.refresh()
         rule.waitForIdle()
 
-        assertThat(lazyPagingItems.snapshot()).isNotEmpty()
+        assertThat(lazyPagingItems.itemSnapshotList).isNotEmpty()
         assertThat(factoryCallCount).isEqualTo(2)
     }
 
@@ -335,7 +338,7 @@ class LazyPagingItemsTest {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
             LazyColumn(Modifier.height(300.dp)) {
                 items(lazyPagingItems.itemCount) {
-                    val item by lazyPagingItems.getAsState(it)
+                    val item = lazyPagingItems[it]
                     Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag("$item"))
                 }
             }
@@ -496,5 +499,70 @@ class LazyPagingItemsTest {
 
         rule.onNodeWithTag("1")
             .assertDoesNotExist()
+    }
+
+    @Test
+    fun stateIsMovedWithItemWithCustomKey_items() {
+        val items = mutableListOf(1)
+        val pager = createPager {
+            TestPagingSource(items = items, loadDelay = 0)
+        }
+
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        var counter = 0
+        rule.setContent {
+            lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+            LazyColumn {
+                items(lazyPagingItems, key = { it }) {
+                    BasicText(
+                        "Item=$it. counter=${remember { counter++ }}"
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            items.clear()
+            items.addAll(listOf(0, 1))
+            lazyPagingItems.refresh()
+        }
+
+        rule.onNodeWithText("Item=0. counter=1")
+            .assertExists()
+
+        rule.onNodeWithText("Item=1. counter=0")
+            .assertExists()
+    }
+
+    @Test
+    fun stateIsMovedWithItemWithCustomKey_itemsIndexed() {
+        val items = mutableListOf(1)
+        val pager = createPager {
+            TestPagingSource(items = items, loadDelay = 0)
+        }
+
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+            LazyColumn {
+                itemsIndexed(lazyPagingItems, key = { _, item -> item }) { index, item ->
+                    BasicText(
+                        "Item=$item. index=$index. remembered index=${remember { index }}"
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            items.clear()
+            items.addAll(listOf(0, 1))
+            lazyPagingItems.refresh()
+        }
+
+        rule.onNodeWithText("Item=0. index=0. remembered index=0")
+            .assertExists()
+
+        rule.onNodeWithText("Item=1. index=1. remembered index=0")
+            .assertExists()
     }
 }

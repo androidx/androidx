@@ -262,10 +262,10 @@ public class CarAppActivityTest {
                     verify(rendererCallback, times(1)).onBackPressed();
 
                     // Verify focus request sent to host.
-                    activity.mSurfaceView.requestFocus();
-                    verify(callback, times(1)).onWindowFocusChanged(true, false);
                     activity.mSurfaceView.clearFocus();
                     verify(callback, times(1)).onWindowFocusChanged(false, false);
+                    activity.mSurfaceView.requestFocus();
+                    verify(callback, times(1)).onWindowFocusChanged(true, false);
 
                     long downTime = SystemClock.uptimeMillis();
                     long eventTime = SystemClock.uptimeMillis();
@@ -343,39 +343,6 @@ public class CarAppActivityTest {
                     fail(Log.getStackTraceString(e));
                 }
             });
-        }
-    }
-
-    // Use delegate to forward events to a mock. Mockito interceptor is not maintained on
-    // top-level IBinder after call to IRenderService.Stub.asInterface() in CarAppActivity.
-    private static class RenderServiceDelegate extends IRendererService.Stub {
-        private final IRendererService mService;
-        private ICarAppActivity mCarAppActivity;
-
-        RenderServiceDelegate(IRendererService service) {
-            mService = service;
-        }
-
-        @Override
-        public boolean initialize(ICarAppActivity carActivity, ComponentName serviceName,
-                int displayId) throws RemoteException {
-            mCarAppActivity = carActivity;
-            return mService.initialize(carActivity, serviceName, displayId);
-        }
-
-        @Override
-        public boolean onNewIntent(Intent intent, ComponentName serviceName, int displayId)
-                throws RemoteException {
-            return mService.onNewIntent(intent, serviceName, displayId);
-        }
-
-        @Override
-        public void terminate(ComponentName serviceName) throws RemoteException {
-            mService.terminate(serviceName);
-        }
-
-        public ICarAppActivity getCarAppActivity() {
-            return mCarAppActivity;
         }
     }
 }

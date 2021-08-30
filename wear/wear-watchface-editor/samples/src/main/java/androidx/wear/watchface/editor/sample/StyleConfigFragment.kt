@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.R
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
@@ -42,7 +43,6 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
-import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.widget.SwipeDismissFrameLayout
@@ -100,9 +100,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
             is BooleanUserStyleSetting -> {
                 booleanStyle.isChecked = (userStyleOption as BooleanOption).value
                 booleanStyle.setOnCheckedChangeListener { _, isChecked ->
-                    setUserStyleOption(
-                        styleSetting.getOptionForId(BooleanOption(isChecked).id.value)
-                    )
+                    setUserStyleOption(BooleanOption.from(isChecked))
                 }
                 styleOptionsList.visibility = View.GONE
                 styleOptionsList.isEnabled = false
@@ -161,7 +159,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                             setUserStyleOption(
                                 rangedStyleSetting.getOptionForId(
                                     DoubleRangeOption(minValue + delta * progress.toFloat())
-                                        .id.value
+                                        .id
                                 )
                             )
                         }
@@ -213,13 +211,11 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
     }
 
     internal fun setUserStyleOption(userStyleOption: UserStyleSetting.Option) {
-        val hashmap =
-            userStyle.selectedOptions as HashMap<UserStyleSetting, UserStyleSetting.Option>
-        hashmap[styleSetting] = userStyleOption
-
         val watchFaceConfigActivity = (activity as WatchFaceConfigActivity)
         val editorSession = watchFaceConfigActivity.editorSession
-        editorSession.userStyle = userStyle
+        editorSession.userStyle = userStyle.toMutableUserStyle().apply {
+            this[styleSetting] = userStyleOption
+        }.toUserStyle()
     }
 
     override fun onItemClick(userStyleOption: UserStyleSetting.Option) {

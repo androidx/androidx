@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
+import androidx.room.vo.MapInfo
 import androidx.room.vo.RawQueryMethod
 
 class RawQueryMethodProcessor(
@@ -52,7 +53,20 @@ class RawQueryMethodProcessor(
         val observedTableNames = processObservedTables()
         val query = SqlParser.rawQueryForTables(observedTableNames)
         // build the query but don't calculate result info since we just guessed it.
-        val resultBinder = delegate.findResultBinder(returnType, query)
+        val resultBinder = delegate.findResultBinder(returnType, query) {
+            delegate.executableElement.getAnnotation(androidx.room.MapInfo::class)?.let {
+                val keyColumn = it.value.keyColumn.toString()
+                val valueColumn = it.value.valueColumn.toString()
+
+                context.checker.check(
+                    keyColumn.isNotEmpty() || valueColumn.isNotEmpty(),
+                    executableElement,
+                    ProcessorErrors.MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED
+                )
+                putData(MapInfo::class, MapInfo(keyColumn, valueColumn))
+            }
+        }
+
         val runtimeQueryParam = findRuntimeQueryParameter(delegate.extractParams())
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         val rawQueryMethod = RawQueryMethod(

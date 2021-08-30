@@ -19,7 +19,6 @@ package androidx.camera.view {
     method @MainThread public androidx.camera.view.CameraController.OutputSize? getPreviewTargetSize();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTapToFocusState();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
-    method @MainThread public androidx.camera.view.CameraController.OutputSize? getVideoCaptureTargetSize();
     method @MainThread public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method @MainThread public boolean hasCamera(androidx.camera.core.CameraSelector);
     method @MainThread public boolean isImageAnalysisEnabled();
@@ -41,20 +40,19 @@ package androidx.camera.view {
     method @MainThread public void setPinchToZoomEnabled(boolean);
     method @MainThread public void setPreviewTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public void setTapToFocusEnabled(boolean);
-    method @MainThread public void setVideoCaptureTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
     method @MainThread public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     method @MainThread public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     field public static final int IMAGE_ANALYSIS = 2; // 0x2
     field public static final int IMAGE_CAPTURE = 1; // 0x1
     field public static final int TAP_TO_FOCUS_FAILED = 4; // 0x4
+    field public static final int TAP_TO_FOCUS_FOCUSED = 2; // 0x2
+    field public static final int TAP_TO_FOCUS_NOT_FOCUSED = 3; // 0x3
     field public static final int TAP_TO_FOCUS_NOT_STARTED = 0; // 0x0
     field public static final int TAP_TO_FOCUS_STARTED = 1; // 0x1
-    field public static final int TAP_TO_FOCUS_SUCCESSFUL = 2; // 0x2
-    field public static final int TAP_TO_FOCUS_UNSUCCESSFUL = 3; // 0x3
   }
 
-  public static class CameraController.OutputSize {
+  public static final class CameraController.OutputSize {
     ctor public CameraController.OutputSize(int);
     ctor public CameraController.OutputSize(android.util.Size);
     method public int getAspectRatio();
@@ -80,6 +78,8 @@ package androidx.camera.view {
     method public androidx.lifecycle.LiveData<androidx.camera.view.PreviewView.StreamState!> getPreviewStreamState();
     method @UiThread public androidx.camera.view.PreviewView.ScaleType getScaleType();
     method @UiThread public androidx.camera.core.Preview.SurfaceProvider getSurfaceProvider();
+    method @UiThread public androidx.camera.core.ViewPort? getViewPort();
+    method @UiThread public androidx.camera.core.ViewPort? getViewPort(int);
     method @UiThread public void setController(androidx.camera.view.CameraController?);
     method @UiThread public void setImplementationMode(androidx.camera.view.PreviewView.ImplementationMode);
     method @UiThread public void setScaleType(androidx.camera.view.PreviewView.ScaleType);
@@ -104,12 +104,14 @@ package androidx.camera.view {
     enum_constant public static final androidx.camera.view.PreviewView.StreamState STREAMING;
   }
 
-  public abstract class RotationReceiver {
-    ctor public RotationReceiver(android.content.Context);
-    method public boolean canDetectOrientation();
-    method public void disable();
-    method public void enable();
-    method public abstract void onRotationChanged(int);
+  public final class RotationProvider {
+    ctor public RotationProvider(android.content.Context);
+    method @CheckResult public boolean addListener(java.util.concurrent.Executor, androidx.camera.view.RotationProvider.Listener);
+    method public void removeListener(androidx.camera.view.RotationProvider.Listener);
+  }
+
+  public static interface RotationProvider.Listener {
+    method public void onRotationChanged(int);
   }
 
 }

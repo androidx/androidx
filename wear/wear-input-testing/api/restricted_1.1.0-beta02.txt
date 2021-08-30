@@ -1,0 +1,18 @@
+// Signature format: 4.0
+package androidx.wear.input.testing {
+
+  public class TestWearableButtonsProvider implements androidx.wear.input.WearableButtonsProvider {
+    ctor public TestWearableButtonsProvider(java.util.Map<java.lang.Integer!,androidx.wear.input.testing.TestWearableButtonsProvider.TestWearableButtonLocation!>);
+    method public int[]? getAvailableButtonKeyCodes(android.content.Context);
+    method public android.os.Bundle getButtonInfo(android.content.Context, int);
+  }
+
+  public static class TestWearableButtonsProvider.TestWearableButtonLocation {
+    ctor public TestWearableButtonsProvider.TestWearableButtonLocation(float, float);
+    ctor public TestWearableButtonsProvider.TestWearableButtonLocation(float, float, float, float);
+    method public android.graphics.PointF getLocation();
+    method public android.graphics.PointF? getRotatedLocation();
+  }
+
+}
+

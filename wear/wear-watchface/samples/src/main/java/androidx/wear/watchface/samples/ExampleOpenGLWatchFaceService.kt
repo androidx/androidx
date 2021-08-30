@@ -19,7 +19,6 @@ package androidx.wear.watchface.samples
 import android.graphics.Color
 import android.graphics.RectF
 import android.graphics.drawable.Icon
-import android.icu.util.Calendar
 import android.opengl.GLES20
 import android.opengl.GLU
 import android.opengl.GLUtils
@@ -28,8 +27,8 @@ import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
@@ -50,6 +49,7 @@ import androidx.wear.watchface.style.WatchFaceLayer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.time.ZonedDateTime
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -86,18 +86,21 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
     private val colorStyleSetting by lazy {
         ListUserStyleSetting(
             UserStyleSetting.Id("color_style_setting"),
-            "Colors",
-            "Watchface colorization",
+            resources,
+            R.string.colors_style_setting,
+            R.string.colors_style_setting_description,
             icon = null,
             options = listOf(
                 ListUserStyleSetting.ListOption(
                     Option.Id("red_style"),
-                    "Red",
+                    resources,
+                    R.string.colors_style_red,
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 ListUserStyleSetting.ListOption(
                     Option.Id("green_style"),
-                    "Green",
+                    resources,
+                    R.string.colors_style_green,
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             ),
@@ -121,9 +124,9 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
         ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
         .build()
 
     public override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
@@ -219,7 +222,7 @@ class ExampleOpenGLRenderer(
     private lateinit var complicationTriangles: Gles2TexturedTriangleList
     private lateinit var complicationHighlightTriangles: Gles2ColoredTriangleList
 
-    override fun onGlContextCreated() {
+    override fun onBackgroundThreadGlContextCreated() {
         // Create program for drawing triangles.
         coloredTriangleProgram = Gles2ColoredTriangleList.Program()
 
@@ -337,14 +340,14 @@ class ExampleOpenGLRenderer(
         ) // up vector
 
         complicationTexture = GlesTextureComplication(
-            complicationSlot.renderer,
+            complicationSlot,
             128,
             128,
             GLES20.GL_TEXTURE_2D
         )
     }
 
-    override fun onGlSurfaceCreated(width: Int, height: Int) {
+    override fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
         // Update the projection matrix based on the new aspect ratio.
         val aspectRatio = width.toFloat() / height
         Matrix.frustumM(
@@ -623,7 +626,7 @@ class ExampleOpenGLRenderer(
         }
     }
 
-    override fun render(calendar: Calendar) {
+    override fun render(zonedDateTime: ZonedDateTime) {
         // Draw background color and select the appropriate view projection matrix. The background
         // should always be black in ambient mode. The view projection matrix used is overhead in
         // ambient. In interactive mode, it's tilted depending on the current time.
@@ -635,14 +638,16 @@ class ExampleOpenGLRenderer(
                 "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
                 "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
             }
-            val cameraIndex = (calendar.timeInMillis / FRAME_PERIOD_MS % numCameraAngles).toInt()
+            val cameraIndex =
+                (zonedDateTime.toInstant().toEpochMilli() / FRAME_PERIOD_MS % numCameraAngles)
+                    .toInt()
             vpMatrices[cameraIndex]
         }
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         // Draw the complication first.
         if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
-            complicationTexture.renderToTexture(calendar, renderParameters)
+            complicationTexture.renderToTexture(zonedDateTime, renderParameters)
 
             textureTriangleProgram.bindProgramAndAttribs()
             complicationTexture.bind()
@@ -658,16 +663,15 @@ class ExampleOpenGLRenderer(
         }
 
         // Compute angle indices for the three hands.
-        val seconds = calendar.get(Calendar.SECOND) + calendar.get(Calendar.MILLISECOND) / 1000f
-        val minutes = calendar.get(Calendar.MINUTE) + seconds / 60f
-        val hours = calendar.get(Calendar.HOUR) + minutes / 60f
+        val seconds = zonedDateTime.second + (zonedDateTime.nano / 1000000000.0)
+        val minutes = zonedDateTime.minute + seconds / 60f
+        val hours = (zonedDateTime.hour % 12) + minutes / 60f
         val secIndex = (seconds / 60f * 360f).toInt()
         val minIndex = (minutes / 60f * 360f).toInt()
         val hoursIndex = (hours / 12f * 360f).toInt()
 
         // Render hands.
-        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)
-        ) {
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)) {
             Matrix.multiplyMM(
                 mvpMatrix,
                 0,
@@ -710,8 +714,9 @@ class ExampleOpenGLRenderer(
         }
     }
 
-    override fun renderHighlightLayer(calendar: Calendar) {
-        val cameraIndex = (calendar.timeInMillis / FRAME_PERIOD_MS % numCameraAngles).toInt()
+    override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
+        val cameraIndex =
+            (zonedDateTime.toInstant().toEpochMilli() / FRAME_PERIOD_MS % numCameraAngles).toInt()
         val vpMatrix = vpMatrices[cameraIndex]
 
         val highlightLayer = renderParameters.highlightLayer!!

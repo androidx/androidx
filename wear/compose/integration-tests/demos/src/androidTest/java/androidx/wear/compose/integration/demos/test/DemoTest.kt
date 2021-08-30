@@ -16,9 +16,6 @@
 
 package androidx.wear.compose.integration.demos.test
 
-import androidx.compose.integration.demos.common.Demo
-import androidx.compose.integration.demos.common.DemoCategory
-import androidx.compose.integration.demos.common.allDemos
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.hasClickAction
@@ -30,8 +27,11 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.wear.compose.integration.demos.Demo
 import androidx.wear.compose.integration.demos.DemoActivity
+import androidx.wear.compose.integration.demos.DemoCategory
 import androidx.wear.compose.integration.demos.WearComposeDemos
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +44,7 @@ private val ignoredDemos = listOf<String>(
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
+@ExperimentalWearMaterialApi
 class DemoTest {
     // We need to provide the recompose factory first to use new clock.
     @get:Rule
@@ -166,6 +167,7 @@ class DemoTest {
     }
 }
 
+@ExperimentalWearMaterialApi
 private val AllButIgnoredDemos =
     WearComposeDemos.filter { path, demo ->
         demo.navigationTitle(path) !in ignoredDemos
@@ -200,4 +202,21 @@ private fun DemoCategory.filter(
             }
         }
     )
+}
+
+/**
+ * Flattened recursive DFS [List] of every demo in [this].
+ */
+fun DemoCategory.allDemos(): List<Demo> {
+    val allDemos = mutableListOf<Demo>()
+    fun DemoCategory.addAllDemos() {
+        demos.forEach { demo ->
+            allDemos += demo
+            if (demo is DemoCategory) {
+                demo.addAllDemos()
+            }
+        }
+    }
+    addAllDemos()
+    return allDemos
 }

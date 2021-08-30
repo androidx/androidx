@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat.workaround;
 
 import static android.graphics.ImageFormat.JPEG;
 import static android.graphics.ImageFormat.PRIVATE;
+import static android.graphics.ImageFormat.YUV_420_888;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -48,6 +49,8 @@ public class ExcludedSupportedSizesContainerTest {
 
     private static final Size SIZE_4000_3000 = new Size(4000, 3000);
     private static final Size SIZE_4160_3120 = new Size(4160, 3120);
+    private static final Size SIZE_720_720 = new Size(720, 720);
+    private static final Size SIZE_400_400 = new Size(400, 400);
 
     @ParameterizedRobolectricTestRunner.Parameters
     public static Collection<Object[]> data() {
@@ -62,6 +65,14 @@ public class ExcludedSupportedSizesContainerTest {
         data.add(new Object[]{new Config("OnePlus", "OnePlus6T", "0", PRIVATE)});
         data.add(new Object[]{new Config("OnePlus", "OnePlus3", "0", JPEG)});
         data.add(new Object[]{new Config(null, null, "0", JPEG)});
+        // Huawei P20 Lite
+        data.add(new Object[]{
+                new Config("HUAWEI", "HWANE", "0", PRIVATE, SIZE_720_720, SIZE_400_400)});
+        data.add(new Object[]{new Config("HUAWEI", "HWANE", "1", PRIVATE)});
+        data.add(new Object[]{
+                new Config("HUAWEI", "HWANE", "0", YUV_420_888, SIZE_720_720, SIZE_400_400)});
+        data.add(new Object[]{new Config("HUAWEI", "HWANE", "1", YUV_420_888)});
+        data.add(new Object[]{new Config("HUAWEI", "HWANE", "0", JPEG)});
         return data;
     }
 

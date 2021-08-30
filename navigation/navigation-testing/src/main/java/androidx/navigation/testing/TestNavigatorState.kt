@@ -65,6 +65,7 @@ public class TestNavigatorState @JvmOverloads constructor(
     }
 
     private val savedStates = mutableMapOf<String, Bundle>()
+    private val entrySavedState = mutableMapOf<NavBackStackEntry, Boolean>()
 
     override fun createBackStackEntry(
         destination: NavDestination,
@@ -90,8 +91,8 @@ public class TestNavigatorState @JvmOverloads constructor(
         )
     }
 
-    override fun add(backStackEntry: NavBackStackEntry) {
-        super.add(backStackEntry)
+    override fun push(backStackEntry: NavBackStackEntry) {
+        super.push(backStackEntry)
         updateMaxLifecycle()
     }
 
@@ -100,6 +101,24 @@ public class TestNavigatorState @JvmOverloads constructor(
         val poppedList = beforePopList.subList(beforePopList.indexOf(popUpTo), beforePopList.size)
         super.pop(popUpTo, saveState)
         updateMaxLifecycle(poppedList, saveState)
+    }
+
+    override fun popWithTransition(popUpTo: NavBackStackEntry, saveState: Boolean) {
+        super.popWithTransition(popUpTo, saveState)
+        entrySavedState[popUpTo] = saveState
+    }
+
+    override fun markTransitionComplete(entry: NavBackStackEntry) {
+        val savedState = entrySavedState[entry] == true
+        super.markTransitionComplete(entry)
+        entrySavedState.remove(entry)
+        if (!backStack.value.contains(entry) ||
+            backStack.value[backStack.value.indexOf(entry)] !== entry
+        ) {
+            updateMaxLifecycle(listOf(entry), savedState)
+        } else {
+            updateMaxLifecycle()
+        }
     }
 
     private fun updateMaxLifecycle(
@@ -113,21 +132,38 @@ public class TestNavigatorState @JvmOverloads constructor(
             withContext(Dispatchers.Main.immediate) {
                 // Mark all removed NavBackStackEntries as DESTROYED
                 for (entry in poppedList.reversed()) {
-                    if (saveState) {
+                    if (
+                        saveState &&
+                        entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                    ) {
                         // Move the NavBackStackEntry to the stopped state, then save its state
                         entry.maxLifecycle = Lifecycle.State.CREATED
                         val savedState = Bundle()
                         entry.saveState(savedState)
                         savedStates[entry.id] = savedState
                     }
-                    entry.maxLifecycle = Lifecycle.State.DESTROYED
+                    val transitioning = transitionsInProgress.value.contains(entry)
+                    if (!transitioning) {
+                        entry.maxLifecycle = Lifecycle.State.DESTROYED
+                        if (!saveState) {
+                            savedStates.remove(entry.id)
+                        }
+                    } else {
+                        entry.maxLifecycle = Lifecycle.State.CREATED
+                    }
                 }
                 // Now go through the current list of destinations, updating their Lifecycle state
                 val currentList = backStack.value
                 var previousEntry: NavBackStackEntry? = null
                 for (entry in currentList.reversed()) {
+                    val transitioning = transitionsInProgress.value.contains(entry)
                     entry.maxLifecycle = when {
-                        previousEntry == null -> Lifecycle.State.RESUMED
+                        previousEntry == null ->
+                            if (!transitioning) {
+                                Lifecycle.State.RESUMED
+                            } else {
+                                Lifecycle.State.STARTED
+                            }
                         previousEntry.destination is FloatingWindow -> Lifecycle.State.STARTED
                         else -> Lifecycle.State.CREATED
                     }

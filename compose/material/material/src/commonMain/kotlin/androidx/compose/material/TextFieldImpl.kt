@@ -107,7 +107,14 @@ internal fun TextFieldImpl(
                         labelProgress
                     )
                     Decoration(
-                        contentColor = colors.labelColor(enabled, isError, interactionSource).value,
+                        contentColor = colors
+                            .labelColor(
+                                enabled,
+                                // if label is used as a placeholder (aka not as a small header
+                                // at the top), we don't use an error color
+                                if (inputState == InputPhase.UnfocusedEmpty) false else isError,
+                                interactionSource
+                            ).value,
                         typography = labelAnimatedStyle,
                         content = label
                     )
@@ -187,6 +194,7 @@ internal fun TextFieldImpl(
                     indicatorColor =
                         colors.indicatorColor(enabled, isError, interactionSource).value,
                     shape = shape,
+                    backgroundColor = colors.backgroundColor(enabled).value,
                     cursorColor = colors.cursorColor(isError).value
                 )
             }

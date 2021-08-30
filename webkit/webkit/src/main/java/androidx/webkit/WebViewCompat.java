@@ -507,7 +507,6 @@ public class WebViewCompat {
      * HOSTNAME_PATTERN [ ":" PORT ] ]}, each part is explained in the below table:
      *
      * <table>
-     * <col width="25%">
      * <tr><th>Rule</th><th>Description</th><th>Example</th></tr>
      *
      * <tr>

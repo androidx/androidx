@@ -16,4 +16,7 @@
   -->
 <resources>
     <item type="id" name="nav_host_fragment_container" />
+    <item type="id" name="sliding_pane_layout" />
+    <item type="id" name="sliding_pane_list_container" />
+    <item type="id" name="sliding_pane_detail_container" />
 </resources>

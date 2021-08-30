@@ -22,6 +22,7 @@
         android:theme="@style/Theme.AppCompat">
         <activity
             android:name=".custom.PagedListSampleActivity"
+            android:exported="true"
             android:label="PagedList Sample">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,6 +31,7 @@
         </activity>
         <activity
             android:name=".v3.V3Activity"
+            android:exported="true"
             android:label="V3">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,6 +41,7 @@
         <activity
             android:name=".room.RoomPagedListActivity"
             android:label="Room Live PagedList"
+            android:exported="true"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,6 +51,7 @@
         <activity
             android:name=".room.RoomKeyedPagedListActivity"
             android:label="Keyed Live PagedList"
+            android:exported="true"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -57,6 +61,7 @@
         <activity
             android:name=".room.RoomPagedListRxActivity"
             android:label="PagedList Observable"
+            android:exported="true"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -65,6 +70,7 @@
         </activity>
         <activity
             android:name=".v3room.V3RoomActivity"
+            android:exported="true"
             android:label="V3 Room">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

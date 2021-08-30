@@ -30,8 +30,6 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.drawable.Icon
-import android.icu.util.Calendar
-import android.icu.util.GregorianCalendar
 import android.text.format.DateFormat
 import android.util.FloatProperty
 import android.util.SparseArray
@@ -40,8 +38,8 @@ import android.view.animation.AnimationUtils
 import android.view.animation.PathInterpolator
 import androidx.annotation.ColorInt
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
@@ -60,6 +58,7 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import java.time.ZonedDateTime
 import kotlin.math.max
 import kotlin.math.min
 
@@ -249,13 +248,13 @@ internal class DigitStrings {
     private var secondUnits = ""
 
     /** Sets the time represented by this instance. */
-    fun set(time: Calendar, is24Hour: Boolean) {
+    fun set(zonedDateTime: ZonedDateTime, is24Hour: Boolean) {
         if (is24Hour) {
-            val hourValue = time.get(Calendar.HOUR_OF_DAY)
+            val hourValue = zonedDateTime.hour
             hourTens = getTensDigitString(hourValue, true)
             hourUnits = getUnitsDigitString(hourValue)
         } else {
-            var hourValue = time.get(Calendar.HOUR)
+            var hourValue = zonedDateTime.hour % 12
             // We should show 12 for noon and midnight.
             if (hourValue == 0) {
                 hourValue = 12
@@ -264,10 +263,10 @@ internal class DigitStrings {
             hourUnits = getUnitsDigitString(hourValue)
         }
 
-        val minuteValue = time.get(Calendar.MINUTE)
+        val minuteValue = zonedDateTime.minute
         minuteTens = getTensDigitString(minuteValue, true)
         minuteUnits = getUnitsDigitString(minuteValue)
-        val secondsValue = time.get(Calendar.SECOND)
+        val secondsValue = zonedDateTime.second
         secondTens = getTensDigitString(secondsValue, true)
         secondUnits = getUnitsDigitString(secondsValue)
     }
@@ -472,23 +471,27 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     private val colorStyleSetting by lazy {
         UserStyleSetting.ListUserStyleSetting(
             UserStyleSetting.Id(COLOR_STYLE_SETTING),
-            getString(R.string.colors_style_setting),
-            getString(R.string.colors_style_setting_description),
+            resources,
+            R.string.colors_style_setting,
+            R.string.colors_style_setting_description,
             icon = null,
             options = listOf(
                 UserStyleSetting.ListUserStyleSetting.ListOption(
                     Option.Id(RED_STYLE),
-                    getString(R.string.colors_style_red),
+                    resources,
+                    R.string.colors_style_red,
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
                     Option.Id(GREEN_STYLE),
-                    getString(R.string.colors_style_green),
+                    resources,
+                    R.string.colors_style_green,
                     Icon.createWithResource(this, R.drawable.green_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
                     Option.Id(BLUE_STYLE),
-                    getString(R.string.colors_style_blue),
+                    resources,
+                    R.string.colors_style_blue,
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),
@@ -518,14 +521,14 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_WATCH_BATTERY),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_WATCH_BATTERY),
         ComplicationSlotBounds(
             createBoundsRect(
                 LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
                 CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
         )
-    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
         .build()
 
     private val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
@@ -537,14 +540,14 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DATE),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DATE),
         ComplicationSlotBounds(
             createBoundsRect(
                 RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
                 CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
         )
-    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
         .build()
 
     private val upperAndLowerComplicationTypes = listOf(
@@ -559,7 +562,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         ComplicationID.UPPER.ordinal,
         canvasComplicationFactory,
         upperAndLowerComplicationTypes,
-        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_WORLD_CLOCK),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_WORLD_CLOCK),
         ComplicationSlotBounds(
             ComplicationType.values().associateWith {
                 if (it == ComplicationType.LONG_TEXT) {
@@ -575,14 +578,14 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 }
             }
         )
-    ).setDefaultProviderType(ComplicationType.LONG_TEXT)
+    ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
         .build()
 
     private val lowerComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.LOWER.ordinal,
         canvasComplicationFactory,
         upperAndLowerComplicationTypes,
-        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_NEXT_EVENT),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_NEXT_EVENT),
         ComplicationSlotBounds(
             ComplicationType.values().associateWith {
                 if (it == ComplicationType.LONG_TEXT) {
@@ -598,14 +601,14 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 }
             }
         )
-    ).setDefaultProviderType(ComplicationType.LONG_TEXT)
+    ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
         .build()
 
     private val backgroundComplication = ComplicationSlot.createBackgroundComplicationSlotBuilder(
         ComplicationID.BACKGROUND.ordinal,
         canvasComplicationFactory,
         listOf(ComplicationType.PHOTO_IMAGE),
-        DefaultComplicationProviderPolicy()
+        DefaultComplicationDataSourcePolicy()
     ).build()
 
     override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
@@ -701,7 +704,6 @@ class ExampleDigitalWatchCanvasRenderer(
     private var smallDigitWidth = 0
     private var digitVerticalPadding = 0
     private var gapWidth = 0f
-    private val nextSecondTime = GregorianCalendar()
     private val currentDigitStrings = DigitStrings()
     private val nextDigitStrings = DigitStrings()
     private val digitDrawProperties = DigitDrawProperties()
@@ -849,8 +851,8 @@ class ExampleDigitalWatchCanvasRenderer(
         }
     }
 
-    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
-        recalculateBoundsIfChanged(bounds, calendar)
+    override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+        recalculateBoundsIfChanged(bounds, zonedDateTime)
 
         applyColorStyleAndDrawMode(renderParameters.drawMode)
 
@@ -858,19 +860,15 @@ class ExampleDigitalWatchCanvasRenderer(
             drawBackground(canvas)
         }
 
-        drawComplications(canvas, calendar)
+        drawComplications(canvas, zonedDateTime)
 
         if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.BASE)) {
             val is24Hour: Boolean = DateFormat.is24HourFormat(context)
 
-            nextSecondTime.timeInMillis = calendar.timeInMillis
-            nextSecondTime.timeZone = calendar.timeZone
-            nextSecondTime.add(Calendar.SECOND, 1)
+            currentDigitStrings.set(zonedDateTime, is24Hour)
+            nextDigitStrings.set(zonedDateTime.plusSeconds(1), is24Hour)
 
-            currentDigitStrings.set(calendar, is24Hour)
-            nextDigitStrings.set(nextSecondTime, is24Hour)
-
-            val secondProgress = calendar.get(Calendar.MILLISECOND) / 1000f
+            val secondProgress = (zonedDateTime.nano.toDouble() / 1000000000.0).toFloat()
 
             val animationStartFraction = DIGIT_ANIMATION_START_TIME_FRACTION[DigitMode.OUTGOING]!!
             this.interactiveDrawModeUpdateDelayMillis =
@@ -1004,31 +1002,31 @@ class ExampleDigitalWatchCanvasRenderer(
         }
     }
 
-    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
 
-        drawComplicationHighlights(canvas, calendar)
+        drawComplicationHighlights(canvas, zonedDateTime)
     }
 
     override fun getMainClockElementBounds() = clockBounds
 
-    private fun recalculateBoundsIfChanged(bounds: Rect, calendar: Calendar) {
+    private fun recalculateBoundsIfChanged(bounds: Rect, zonedDateTime: ZonedDateTime) {
         if (oldBounds == bounds) {
             return
         }
 
         oldBounds.set(bounds)
-        calculateClockBound(bounds, calendar)
+        calculateClockBound(bounds, zonedDateTime)
     }
 
-    private fun calculateClockBound(bounds: Rect, calendar: Calendar) {
+    private fun calculateClockBound(bounds: Rect, zonedDateTime: ZonedDateTime) {
         val hasVerticalComplication =
             VERTICAL_COMPLICATION_IDS.any {
-                complicationSlotsManager[it]!!.isActiveAt(calendar.timeInMillis)
+                complicationSlotsManager[it]!!.isActiveAt(zonedDateTime.toInstant())
             }
         val hasHorizontalComplication =
             HORIZONTAL_COMPLICATION_IDS.any {
-                complicationSlotsManager[it]!!.isActiveAt(calendar.timeInMillis)
+                complicationSlotsManager[it]!!.isActiveAt(zonedDateTime.toInstant())
             }
 
         val marginX = if (hasHorizontalComplication) {
@@ -1113,25 +1111,25 @@ class ExampleDigitalWatchCanvasRenderer(
         )
     }
 
-    private fun drawComplications(canvas: Canvas, calendar: Calendar) {
+    private fun drawComplications(canvas: Canvas, zonedDateTime: ZonedDateTime) {
         // First, draw the background complication if not in ambient mode
         if (renderParameters.drawMode != DrawMode.AMBIENT) {
             complicationSlotsManager[ComplicationID.BACKGROUND.ordinal]!!.render(
                 canvas,
-                calendar,
+                zonedDateTime,
                 renderParameters
             )
         }
         for (i in FOREGROUND_COMPLICATION_IDS) {
             val complication = complicationSlotsManager[i] as ComplicationSlot
-            complication.render(canvas, calendar, renderParameters)
+            complication.render(canvas, zonedDateTime, renderParameters)
         }
     }
 
-    private fun drawComplicationHighlights(canvas: Canvas, calendar: Calendar) {
+    private fun drawComplicationHighlights(canvas: Canvas, zonedDateTime: ZonedDateTime) {
         for (i in FOREGROUND_COMPLICATION_IDS) {
             val complication = complicationSlotsManager[i] as ComplicationSlot
-            complication.renderHighlightLayer(canvas, calendar, renderParameters)
+            complication.renderHighlightLayer(canvas, zonedDateTime, renderParameters)
         }
     }
 

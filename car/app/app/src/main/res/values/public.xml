@@ -20,4 +20,5 @@
     <public name="carColorPrimaryDark" type="attr" />
     <public name="carColorSecondary" type="attr" />
     <public name="carColorSecondaryDark" type="attr" />
+    <public name="carPermissionActivityLayout" type="attr" />
 </resources>

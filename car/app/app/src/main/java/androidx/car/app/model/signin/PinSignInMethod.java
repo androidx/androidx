@@ -39,26 +39,38 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
     @Nullable
     private final CarText mPinCode;
 
-    // TODO(b/189881361): this field is kept around for the alpha01 release to avoid breaking apps.
-    // Remove once we are in beta and deem safe.
-    @Keep
-    @Nullable
-    private final String mPin;
-
     /**
-     * Returns the PIN or activation code to present to the user.
+     * Returns a {@link PinSignInMethod} instance.
      *
-     * @see Builder#Builder(CharSequence)
+     * <h4>Requirements</h4>
+     *
+     * <p>The provided pin must be no more than 12 characters long. To facilitate typing this
+     * code, it is recommended restricting the string to a limited set (for example, numbers,
+     * upper-case letters, hexadecimal, etc.).
+     *
+     * <p>Spans are not supported in the pin and will be ignored.
+     *
+     * @param pinCode the PIN to display is empty.
+     * @throws IllegalArgumentException if {@code pin} is empty or longer than 12 characters.
+     * @throws NullPointerException     if {@code pin} is {@code null}
      */
+    // TODO(b/183750545): check that no spans are present in the input pin.
+    public PinSignInMethod(@NonNull CharSequence pinCode) {
+        int pinLength = requireNonNull(pinCode).length();
+        if (pinLength == 0) {
+            throw new IllegalArgumentException("PIN must not be empty");
+        }
+        if (pinLength > MAX_PIN_LENGTH) {
+            throw new IllegalArgumentException(
+                    "PIN must not be longer than " + MAX_PIN_LENGTH + " characters");
+        }
+        mPinCode = CarText.create(pinCode);
+    }
+
+    /** Returns the PIN or activation code to present to the user. */
     @NonNull
     public CarText getPinCode() {
-        if (mPinCode != null) {
-            // For apps that uses a newer version of the library, this field should always be set.
-            return mPinCode;
-        }
-
-        // Fallback to the String value for older clients.
-        return CarText.create(requireNonNull(mPin));
+        return requireNonNull(mPinCode);
     }
 
     @Override
@@ -80,53 +92,8 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
         return Objects.hash(mPinCode);
     }
 
-    PinSignInMethod(Builder builder) {
-        mPinCode = builder.mPinCode;
-        mPin = builder.mPinCode.toString();
-    }
-
     /** Constructs an empty instance, used by serialization code. */
     private PinSignInMethod() {
         mPinCode = null;
-        mPin = null;
-    }
-
-    /** A builder of {@link PinSignInMethod}. */
-    public static final class Builder {
-        final CarText mPinCode;
-
-        /**
-         * Returns a {@link PinSignInMethod} instance.
-         */
-        @NonNull
-        public PinSignInMethod build() {
-            return new PinSignInMethod(this);
-        }
-
-        /**
-         * Returns a {@link PinSignInMethod.Builder} instance.
-         *
-         * <p>The provided pin must be no more than 12 characters long. To facilitate typing this
-         * code, it is recommended restricting the string to a limited set (for example, numbers,
-         * upper-case letters, hexadecimal, etc.).
-         *
-         * <p>Spans are not supported in the pin and will be ignored.
-         *
-         * @param pinCode the PIN to display is empty.
-         * @throws IllegalArgumentException if {@code pin} is empty or longer than 12 characters.
-         * @throws NullPointerException     if {@code pin} is {@code null}
-         */
-        // TODO(b/183750545): check that no spans are present in the input pin.
-        public Builder(@NonNull CharSequence pinCode) {
-            int pinLength = pinCode.length();
-            if (pinLength == 0) {
-                throw new IllegalArgumentException("PIN must not be empty");
-            }
-            if (pinLength > MAX_PIN_LENGTH) {
-                throw new IllegalArgumentException(
-                        "PIN must not be longer than " + MAX_PIN_LENGTH + " characters");
-            }
-            mPinCode = CarText.create(pinCode);
-        }
     }
 }

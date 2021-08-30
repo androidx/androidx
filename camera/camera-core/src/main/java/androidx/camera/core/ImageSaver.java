@@ -29,14 +29,12 @@ import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.camera.core.internal.utils.ImageUtil.CodecFailedException;
 import androidx.core.util.Preconditions;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -119,28 +117,16 @@ final class ImageSaver implements Runnable {
             byte[] bytes = ImageUtil.imageToJpegByteArray(mImage);
             output.write(bytes);
 
+            // Create new exif based on the original exif.
             Exif exif = Exif.createFromFile(tempFile);
-            exif.attachTimestamp();
+            Exif.createFromImageProxy(mImage).copyToCroppedImage(exif);
 
-            // Use exif for orientation (contains rotation only) from the original image if JPEG,
-            // because imageToJpegByteArray removes EXIF in certain conditions. See b/124280392.
-            // Retrieve the orientation value from the embedded EXIF data in the captured image
-            // only if it is available.
-            if (new ExifRotationAvailability().shouldUseExifOrientation(mImage)) {
-                ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
-                // Rewind to make sure it is at the beginning of the buffer
-                buffer.rewind();
-
-                byte[] data = new byte[buffer.capacity()];
-                buffer.get(data);
-                InputStream inputStream = new ByteArrayInputStream(data);
-                Exif originalExif = Exif.createFromInputStream(inputStream);
-
-                exif.setOrientation(originalExif.getOrientation());
-            } else {
+            // Overwrite the original orientation if the quirk exists.
+            if (!new ExifRotationAvailability().shouldUseExifOrientation(mImage)) {
                 exif.rotate(mOrientation);
             }
 
+            // Overwrite exif based on metadata.
             ImageCapture.Metadata metadata = mOutputFileOptions.getMetadata();
             if (metadata.isReversedHorizontal()) {
                 exif.flipHorizontally();
@@ -227,6 +213,7 @@ final class ImageSaver implements Runnable {
                     saveError = SaveError.FILE_IO_FAILED;
                     errorMessage = "Failed to rename file.";
                 }
+                outputUri = Uri.fromFile(targetFile);
             }
         } catch (IOException | IllegalArgumentException e) {
             saveError = SaveError.FILE_IO_FAILED;

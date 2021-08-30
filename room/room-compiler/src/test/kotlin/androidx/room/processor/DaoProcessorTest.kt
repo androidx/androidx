@@ -21,7 +21,6 @@ import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.getSystemClasspathFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames
 import androidx.room.testing.context
@@ -113,7 +112,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         )
         singleDao(
             "@Dao public interface MyDao extends test.library.MissingAnnotationsBaseDao {}",
-            classpathFiles = listOf(libraryClasspath) + getSystemClasspathFiles()
+            classpathFiles = libraryClasspath
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasRawOutputContaining(
@@ -137,7 +136,8 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD)
+                hasErrorContaining(ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD)
+                    .onLine(8)
             }
         }
     }
@@ -307,7 +307,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 `is`(false)
             )
             invocation.assertCompilationResult {
-                hasWarning(ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
+                hasWarningContaining(ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
             }
         }
     }

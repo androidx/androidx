@@ -26,8 +26,13 @@ import java.util.concurrent.CountDownLatch
 
 public inline fun <reified A : Activity> ActivityScenario<A>.findViewX(
     @IdRes resId: Int
-): Float {
-    return withActivity { findViewById<View>(resId).x }
+): Int {
+    return withActivity {
+        val locationInWindow = IntArray(2)
+        val view = findViewById<View>(resId)
+        view.getLocationInWindow(locationInWindow)
+        locationInWindow[0]
+    }
 }
 
 public inline fun <reified A : Activity> ActivityScenario<A>.findViewById(@IdRes resId: Int): View {

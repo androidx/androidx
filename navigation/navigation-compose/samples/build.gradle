@@ -22,16 +22,19 @@ plugins {
     id("com.android.library")
     id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
+    id ("kotlin-parcelize")
+    id ("org.jetbrains.kotlin.plugin.serialization").version("1.5.21")
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+    kotlinPlugin("androidx.compose.compiler:compiler:1.0.1")
     implementation(libs.kotlinStdlib)
 
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
-    implementation(projectOrArtifact(":compose:foundation:foundation"))
+    implementation("androidx.compose.foundation:foundation:1.0.1")
     implementation(projectOrArtifact(":navigation:navigation-compose"))
-    implementation(projectOrArtifact(":compose:material:material"))
+    implementation("androidx.compose.material:material:1.0.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
 }
 
 androidx {

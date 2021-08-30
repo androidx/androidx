@@ -22,14 +22,14 @@ import static androidx.camera.video.internal.AudioSource.InternalState.STARTED;
 
 import android.Manifest;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioRecord;
+import android.media.AudioRecordingConfiguration;
 import android.media.AudioTimestamp;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Observable;
@@ -37,6 +37,8 @@ import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.video.internal.compat.Api24Impl;
+import androidx.camera.video.internal.compat.Api29Impl;
 import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.core.util.Preconditions;
 
@@ -46,6 +48,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * AudioSource is used to obtain audio raw data and write to the buffer from {@link BufferProvider}.
@@ -84,6 +87,11 @@ public final class AudioSource {
 
     private final BufferProvider<InputBuffer> mBufferProvider;
 
+    private AudioManager.AudioRecordingCallback mAudioRecordingCallback;
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    AtomicBoolean mSourceSilence = new AtomicBoolean(false);
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final AudioRecord mAudioRecord;
 
@@ -98,6 +106,12 @@ public final class AudioSource {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean mIsSendingAudio;
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Executor mCallbackExecutor;
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    AudioSourceCallback mAudioSourceCallback;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
@@ -129,6 +143,30 @@ public final class AudioSource {
         if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
             mAudioRecord.release();
             throw new AudioSourceAccessException("Unable to initialize AudioRecord");
+        }
+
+        if (Build.VERSION.SDK_INT >= 29) {
+            mAudioRecordingCallback = new AudioManager.AudioRecordingCallback() {
+                @Override
+                public void onRecordingConfigChanged(List<AudioRecordingConfiguration> configs) {
+                    super.onRecordingConfigChanged(configs);
+                    if (mCallbackExecutor != null && mAudioSourceCallback != null) {
+                        for (AudioRecordingConfiguration config : configs) {
+                            if (Api24Impl.getClientAudioSessionId(config)
+                                    == mAudioRecord.getAudioSessionId()) {
+                                boolean isSilenced = Api29Impl.isClientSilenced(config);
+                                if (mSourceSilence.getAndSet(isSilenced) != isSilenced) {
+                                    mCallbackExecutor.execute(
+                                            () -> mAudioSourceCallback.onSilenced(isSilenced));
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            };
+            Api29Impl.registerAudioRecordingCallback(mAudioRecord, mExecutor,
+                    mAudioRecordingCallback);
         }
 
         mBufferProvider.addObserver(mExecutor, mStateObserver);
@@ -190,8 +228,13 @@ public final class AudioSource {
         mExecutor.execute(() -> {
             switch (mState) {
                 case STARTED:
+                    // Fall-through
                 case CONFIGURED:
                     mBufferProvider.removeObserver(mStateObserver);
+                    if (Build.VERSION.SDK_INT >= 29) {
+                        Api29Impl.unregisterAudioRecordingCallback(mAudioRecord,
+                                mAudioRecordingCallback);
+                    }
                     mAudioRecord.release();
                     stopSendingAudio();
                     setState(RELEASED);
@@ -201,6 +244,38 @@ public final class AudioSource {
                     break;
             }
         });
+    }
+
+    /**
+     * Sets callback to receive configuration status.
+     *
+     * <p>The callback must be set before the audio source is started.
+     *
+     * @param executor the callback executor
+     * @param callback the configuration callback
+     */
+    public void setAudioSourceCallback(@NonNull Executor executor,
+            @NonNull AudioSourceCallback callback) {
+        mExecutor.execute(() -> {
+            switch (mState) {
+                case CONFIGURED:
+                    mCallbackExecutor = executor;
+                    mAudioSourceCallback = callback;
+                    break;
+                case STARTED:
+                    // Fall-through
+                case RELEASED:
+                    throw new IllegalStateException("The audio recording callback must be "
+                            + "registered before the audio source is started.");
+            }
+        });
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void notifyError(Throwable throwable) {
+        if (mCallbackExecutor != null && mAudioSourceCallback != null) {
+            mCallbackExecutor.execute(() -> mAudioSourceCallback.onError(throwable));
+        }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -228,6 +303,8 @@ public final class AudioSource {
             }
         } catch (IllegalStateException e) {
             Logger.w(TAG, "Failed to start AudioRecord", e);
+            setState(CONFIGURED);
+            notifyError(new AudioSourceAccessException("Unable to start the audio record.", e));
             return;
         }
         mIsSendingAudio = true;
@@ -250,6 +327,7 @@ public final class AudioSource {
             }
         } catch (IllegalStateException e) {
             Logger.w(TAG, "Failed to stop AudioRecord", e);
+            notifyError(e);
         }
     }
 
@@ -312,6 +390,7 @@ public final class AudioSource {
                 public void onFailure(Throwable throwable) {
                     Logger.d(TAG, "Unable to get input buffer, the BufferProvider "
                             + "could be transitioning to INACTIVE state.");
+                    notifyError(throwable);
                 }
             };
 
@@ -328,8 +407,8 @@ public final class AudioSource {
 
                 @ExecutedBy("mExecutor")
                 @Override
-                public void onError(@NonNull Throwable t) {
-                    // Not define, should not be possible.
+                public void onError(@NonNull Throwable throwable) {
+                    notifyError(throwable);
                 }
             };
 
@@ -473,18 +552,21 @@ public final class AudioSource {
     }
 
     /**
-     * Nested class to avoid verification errors for methods introduced in Android 7.0 (API 24).
+     * The callback for receiving the audio source status.
      */
-    @RequiresApi(24)
-    private static class Api24Impl {
+    public interface AudioSourceCallback {
+        /**
+         * The method called when the audio source is silenced.
+         *
+         * <p>The audio source is silenced when the audio record is occupied by privilege
+         * application. When it happens, the audio source will keep providing audio data with
+         * silence sample.
+         */
+        void onSilenced(boolean silenced);
 
-        private Api24Impl() {
-        }
-
-        @DoNotInline
-        static int getTimestamp(@NonNull AudioRecord audioRecord,
-                @NonNull AudioTimestamp audioTimestamp, int timeBase) {
-            return audioRecord.getTimestamp(audioTimestamp, timeBase);
-        }
+        /**
+         * The method called when the audio source encountered errors.
+         */
+        void onError(@NonNull Throwable t);
     }
 }

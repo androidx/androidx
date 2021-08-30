@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.javac.kotlin.typeNameFromJvmSignature
 import androidx.room.compiler.processing.tryBox
+import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
@@ -255,8 +256,8 @@ private val typeVarNameConstructor by lazy {
     } catch (ex: NoSuchMethodException) {
         throw IllegalStateException(
             """
-            Room couldn't find the constructor it is looking for in JavaPoet. Please file a bug at
-            https://issuetracker.google.com/issues/new?component=413107
+            Room couldn't find the constructor it is looking for in JavaPoet.
+            Please file a bug at $ISSUE_TRACKER_LINK.
             """.trimIndent(),
             ex
         )

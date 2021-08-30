@@ -26,16 +26,19 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.5.0-beta01")
+    api("androidx.core:core:1.6.0")
     api(libs.kotlinStdlib)
+    api(project(':wear:wear'))
 
+    // Needed for Assert.assertThrows
+    testImplementation("junit:junit:4.13")
     testImplementation(libs.testCore)
-    testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.truth)
 }
 
 android {

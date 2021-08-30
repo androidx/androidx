@@ -28,7 +28,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.watchface.editor.ChosenComplicationProvider
+import androidx.wear.watchface.editor.ChosenComplicationDataSource
 import androidx.wear.watchface.editor.EditorSession
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
@@ -55,8 +55,8 @@ internal interface FragmentController {
         userStyle: UserStyle
     )
 
-    /** Lets the user configure the complication provider for a single complication slot. */
-    suspend fun showComplicationConfig(complicationSlotId: Int): ChosenComplicationProvider?
+    /** Lets the user configure the complication data source for a single complication slot. */
+    suspend fun showComplicationConfig(complicationSlotId: Int): ChosenComplicationDataSource?
 }
 
 // Reference time for editor screenshots for analog watch faces.
@@ -68,8 +68,8 @@ private const val ANALOG_WATCHFACE_REFERENCE_TIME_MS = 1602318600000L
 private const val DIGITAL_WATCHFACE_REFERENCE_TIME_MS = 1602321000000L
 
 /**
- * Config activity for the watch face, which supports complication and provider selection, as well
- * as userStyle configuration.
+ * Config activity for the watch face, which supports complication and data source selection, as
+ * well as userStyle configuration.
  */
 class WatchFaceConfigActivity : FragmentActivity() {
     companion object {
@@ -89,7 +89,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
         coroutineScope = CoroutineScope(handler.asCoroutineDispatcher().immediate)
         coroutineScope.launch {
             init(
-                EditorSession.createOnWatchEditingSession(
+                EditorSession.createOnWatchEditorSession(
                     this@WatchFaceConfigActivity,
                     intent!!
                 ),
@@ -122,14 +122,10 @@ class WatchFaceConfigActivity : FragmentActivity() {
                     @SuppressWarnings("deprecation")
                     override suspend fun showComplicationConfig(
                         complicationSlotId: Int
-                    ) = editorSession.openComplicationProviderChooser(complicationSlotId)
+                    ) = editorSession.openComplicationDataSourceChooser(complicationSlotId)
                 }
             )
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     private fun focusCurrentFragment() {
@@ -191,7 +187,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
             // they want to configure.
             topLevelOptionCount > 1 -> fragmentController.showConfigFragment()
 
-            // For a single complication go directly to the provider selector.
+            // For a single complication go directly to the complication data source selector.
             numComplications == 1 -> {
                 val onlyComplication = editorSession.complicationSlotsState.entries.first()
                 coroutineScope.launch {
@@ -217,15 +213,15 @@ class WatchFaceConfigActivity : FragmentActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
         editorSession.close()
         // Make sure the activity closes.
         finish()
+        super.onDestroy()
     }
 
     private fun updateUi(
-        @Suppress("UNUSED_PARAMETER") chosenComplicationProvider: ChosenComplicationProvider?
+        @Suppress("UNUSED_PARAMETER") chosenComplicationDataSource: ChosenComplicationDataSource?
     ) {
         // The activity can use the chosen complication to update the UI.
     }

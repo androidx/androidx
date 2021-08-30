@@ -189,6 +189,11 @@ object RoomRxJava3TypeNames {
         ClassName.get("$ROOM_PACKAGE.rxjava3", "EmptyResultSetException")
 }
 
+object RoomPagingTypeNames {
+    val LIMIT_OFFSET_PAGING_SOURCE: ClassName =
+        ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetPagingSource")
+}
+
 object RoomCoroutinesTypeNames {
     val COROUTINES_ROOM = ClassName.get(ROOM_PACKAGE, "CoroutinesRoom")
 }

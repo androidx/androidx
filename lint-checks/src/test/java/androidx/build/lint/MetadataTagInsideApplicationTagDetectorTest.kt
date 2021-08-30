@@ -29,7 +29,7 @@ class MetadataTagInsideApplicationTagDetectorTest : AbstractLintDetectorTest(
 ) {
 
     @Test
-    fun `Detect usage of metadata tag insice application tag`() {
+    fun `Detect usage of metadata tag inside application tag`() {
         val input = arrayOf(
             manifestSample()
         )

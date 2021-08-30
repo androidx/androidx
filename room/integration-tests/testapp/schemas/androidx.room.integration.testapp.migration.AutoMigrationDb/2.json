@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "2dee70d4b5bbc3df9701e56eedb6377c",
+    "identityHash": "e6ac760b64fa91da605ebdfefc93c88e",
     "entities": [
       {
         "tableName": "Entity1",
@@ -269,7 +269,7 @@
       },
       {
         "tableName": "Entity9",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `addedInV1` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id`), FOREIGN KEY(`id`) REFERENCES `Entity12`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `addedInV1` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -298,19 +298,7 @@
           "autoGenerate": false
         },
         "indices": [],
-        "foreignKeys": [
-          {
-            "table": "Entity12",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "foreignKeys": []
       },
       {
         "tableName": "Entity10",
@@ -916,6 +904,33 @@
           }
         ],
         "foreignKeys": []
+      },
+      {
+        "tableName": "Entity27",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id27` INTEGER NOT NULL, `addedInV1` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id27`))",
+        "fields": [
+          {
+            "fieldPath": "id27",
+            "columnName": "id27",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "addedInV1",
+            "columnName": "addedInV1",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id27"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [
@@ -926,7 +941,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2dee70d4b5bbc3df9701e56eedb6377c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e6ac760b64fa91da605ebdfefc93c88e')"
     ]
   }
 }

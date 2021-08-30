@@ -38,6 +38,9 @@ import java.util.Set;
  * required to issue a {@link CaptureRequest}.
  */
 public final class CaptureConfig {
+    /** Indicates template type is not set. */
+    public static final int TEMPLATE_TYPE_NONE = -1;
+
     /**
      * Request that the implementation rotate the image.
      *
@@ -125,6 +128,11 @@ public final class CaptureConfig {
         return mImplementationOptions;
     }
 
+    /**
+     * Gets the template type.
+     *
+     * <p>If not set, returns {@link #TEMPLATE_TYPE_NONE}.
+     */
     public int getTemplateType() {
         return mTemplateType;
     }
@@ -164,7 +172,7 @@ public final class CaptureConfig {
     public static final class Builder {
         private final Set<DeferrableSurface> mSurfaces = new HashSet<>();
         private MutableConfig mImplementationOptions = MutableOptionsBundle.create();
-        private int mTemplateType = -1;
+        private int mTemplateType = TEMPLATE_TYPE_NONE;
         private List<CameraCaptureCallback> mCameraCaptureCallbacks = new ArrayList<>();
         private boolean mUseRepeatingSurface = false;
         private MutableTagBundle mMutableTagBundle = MutableTagBundle.create();
