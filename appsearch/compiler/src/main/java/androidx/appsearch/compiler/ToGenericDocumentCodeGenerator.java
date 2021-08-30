@@ -16,6 +16,8 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
+
 import androidx.annotation.NonNull;
 
 import com.squareup.javapoet.CodeBlock;
@@ -27,6 +29,7 @@ import com.squareup.javapoet.WildcardTypeName;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -39,26 +42,27 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
 /**
- * Generates java code for a translator from a data class to a
+ * Generates java code for a translator from an instance of a class annotated with
+ * {@link androidx.appsearch.annotation.Document} into a
  * {@link androidx.appsearch.app.GenericDocument}.
  */
 class ToGenericDocumentCodeGenerator {
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
-    private final AppSearchDocumentModel mModel;
-
-    public static void generate(
-            @NonNull ProcessingEnvironment env,
-            @NonNull AppSearchDocumentModel model,
-            @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
-        new ToGenericDocumentCodeGenerator(env, model).generate(classBuilder);
-    }
+    private final DocumentModel mModel;
 
     private ToGenericDocumentCodeGenerator(
-            @NonNull ProcessingEnvironment env, @NonNull AppSearchDocumentModel model) {
+            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model) {
         mEnv = env;
         mHelper = new IntrospectionHelper(env);
         mModel = model;
+    }
+
+    public static void generate(
+            @NonNull ProcessingEnvironment env,
+            @NonNull DocumentModel model,
+            @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
+        new ToGenericDocumentCodeGenerator(env, model).generate(classBuilder);
     }
 
     private void generate(TypeSpec.Builder classBuilder) throws ProcessingException {
@@ -72,17 +76,19 @@ class ToGenericDocumentCodeGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(mHelper.getAppSearchClass("GenericDocument"))
                 .addAnnotation(Override.class)
-                .addParameter(classType, "dataClass")
+                .addParameter(classType, "document")
                 .addException(mHelper.getAppSearchExceptionClass());
 
-        // Construct a new GenericDocument.Builder with the schema type and URI
-        methodBuilder.addStatement("$T builder =\nnew $T<>($L, SCHEMA_TYPE)",
+        // Construct a new GenericDocument.Builder with the namespace, id, and schema type
+        methodBuilder.addStatement("$T builder =\nnew $T<>($L, $L, SCHEMA_NAME)",
                 ParameterizedTypeName.get(
                         mHelper.getAppSearchClass("GenericDocument", "Builder"),
                         WildcardTypeName.subtypeOf(Object.class)),
                 mHelper.getAppSearchClass("GenericDocument", "Builder"),
                 createAppSearchFieldRead(
-                        mModel.getSpecialFieldName(AppSearchDocumentModel.SpecialField.URI)));
+                        mModel.getSpecialFieldName(DocumentModel.SpecialField.NAMESPACE)),
+                createAppSearchFieldRead(
+                        mModel.getSpecialFieldName(DocumentModel.SpecialField.ID)));
 
         setSpecialFields(methodBuilder);
 
@@ -96,7 +102,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     /**
-     * Converts a field from a data class into a format suitable for one of the
+     * Converts a field from a document class into a format suitable for one of the
      * {@link androidx.appsearch.app.GenericDocument.Builder#setProperty} methods.
      */
     private void fieldToGenericDoc(
@@ -117,7 +123,7 @@ class ToGenericDocumentCodeGenerator {
         //       this.
         //
         //   1c: CollectionForLoopCallToGenericDocument
-        //       Collection contains a class which is annotated with @AppSearchDocument.
+        //       Collection contains a class which is annotated with @Document.
         //       We have to convert this into an array of GenericDocument[], by reading each element
         //       one-by-one and converting it through the standard conversion machinery.
         //
@@ -141,7 +147,7 @@ class ToGenericDocumentCodeGenerator {
         //       We can directly use this field with no conversion.
         //
         //   2c: ArrayForLoopCallToGenericDocument
-        //       Array is of a class which is annotated with @AppSearchDocument.
+        //       Array is of a class which is annotated with @Document.
         //       We have to convert this into an array of GenericDocument[], by reading each element
         //       one-by-one and converting it through the standard conversion machinery.
         //
@@ -164,11 +170,9 @@ class ToGenericDocumentCodeGenerator {
         //       We can use this field directly without testing for null.
         //
         //   3c: FieldCallToGenericDocument
-        //       Field is of a class which is annotated with @AppSearchDocument.
+        //       Field is of a class which is annotated with @Document.
         //       We have to convert this into a GenericDocument through the standard conversion
         //       machinery.
-        //
-        //   3x: Field is of any other kind of class. This is unsupported and compilation fails.
         String propertyName = mModel.getPropertyName(property);
         if (tryConvertFromCollection(method, fieldName, propertyName, property)) {
             return;
@@ -209,7 +213,7 @@ class ToGenericDocumentCodeGenerator {
         if (!tryCollectionForLoopAssign(body, fieldName, propertyName, propertyType)           // 1a
                 && !tryCollectionCallToArray(body, fieldName, propertyName, propertyType)      // 1b
                 && !tryCollectionForLoopCallToGenericDocument(
-                        body, fieldName, propertyName, propertyType)) {                        // 1c
+                body, fieldName, propertyName, propertyType)) {                        // 1c
             // Scenario 1x
             throw new ProcessingException(
                     "Unhandled out property type (1x): " + property.asType().toString(), property);
@@ -304,7 +308,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     //   1c: CollectionForLoopCallToGenericDocument
-    //       Collection contains a class which is annotated with @AppSearchDocument.
+    //       Collection contains a class which is annotated with @Document.
     //       We have to convert this into an array of GenericDocument[], by reading each element
     //       one-by-one and converting it through the standard conversion machinery.
     private boolean tryCollectionForLoopCallToGenericDocument(
@@ -322,28 +326,28 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+            getDocumentAnnotation(element);
         } catch (ProcessingException e) {
-            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 1c
+            // The propertyType doesn't have @Document annotation, this is not a type 1c
             // list.
             return false;
         }
 
-        body.addStatement("GenericDocument[] $NConv = new GenericDocument[$NCopy.size()]",
+        body.addStatement(
+                "GenericDocument[] $NConv = new GenericDocument[$NCopy.size()]",
                 fieldName, fieldName);
-        body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
-                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
-                        TypeName.get(propertyType)),
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
-
         body.addStatement("int i = 0");
-        body.add("for ($T item : $NCopy) {\n", propertyType, fieldName).indent();
-        body.addStatement("$NConv[i++] = factory.toGenericDocument(item)", fieldName);
+        body
+                .add("for ($T item : $NCopy) {\n", propertyType, fieldName).indent()
+                .addStatement(
+                        "$NConv[i++] = $T.fromDocumentClass(item)",
+                        fieldName, mHelper.getAppSearchClass("GenericDocument"))
+                .unindent().add("}\n");
 
-        body.unindent().add("}\n");
-
-        body.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName)
-                .unindent().add("}\n");   //  if ($NCopy != null) {
+        body
+                .addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName)
+                .unindent()
+                .add("}\n");   //  if ($NCopy != null) {
 
         method.add(body.build());
         return true;
@@ -379,7 +383,7 @@ class ToGenericDocumentCodeGenerator {
         if (!tryArrayForLoopAssign(body, fieldName, propertyName, propertyType)                // 2a
                 && !tryArrayUseDirectly(body, fieldName, propertyName, propertyType)           // 2b
                 && !tryArrayForLoopCallToGenericDocument(
-                        body, fieldName, propertyName, propertyType)) {                        // 2c
+                body, fieldName, propertyName, propertyType)) {                        // 2c
             // Scenario 2x
             throw new ProcessingException(
                     "Unhandled out property type (2x): " + property.asType().toString(), property);
@@ -483,7 +487,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     //   2c: ArrayForLoopCallToGenericDocument
-    //       Array is of a class which is annotated with @AppSearchDocument.
+    //       Array is of a class which is annotated with @Document.
     //       We have to convert this into an array of GenericDocument[], by reading each element
     //       one-by-one and converting it through the standard conversion machinery.
     private boolean tryArrayForLoopCallToGenericDocument(
@@ -501,23 +505,22 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+            getDocumentAnnotation(element);
         } catch (ProcessingException e) {
-            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 1c
+            // The propertyType doesn't have @Document annotation, this is not a type 1c
             // list.
             return false;
         }
 
-        body.addStatement("GenericDocument[] $NConv = new GenericDocument[$NCopy.length]",
+        body.addStatement(
+                "GenericDocument[] $NConv = new GenericDocument[$NCopy.length]",
                 fieldName, fieldName);
-        body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
-                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
-                        TypeName.get(propertyType)),
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
-        body.add("for (int i = 0; i < $NConv.length; i++) {\n", fieldName).indent();
-        body.addStatement("$NConv[i] = factory.toGenericDocument($NCopy[i])",
-                fieldName, fieldName);
-        body.unindent().add("}\n");
+        body
+                .add("for (int i = 0; i < $NConv.length; i++) {\n", fieldName).indent()
+                .addStatement(
+                        "$NConv[i] = $T.fromDocumentClass($NCopy[i])",
+                        fieldName, mHelper.getAppSearchClass("GenericDocument"), fieldName)
+                .unindent().add("}\n");
 
         body.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName)
                 .unindent().add("}\n");    //  if ($NCopy != null) {
@@ -540,12 +543,10 @@ class ToGenericDocumentCodeGenerator {
         if (!tryFieldUseDirectlyWithNullCheck(
                 body, fieldName, propertyName, property.asType())  // 3a
                 && !tryFieldUseDirectlyWithoutNullCheck(
-                        body, fieldName, propertyName, property.asType())  // 3b
+                body, fieldName, propertyName, property.asType())  // 3b
                 && !tryFieldCallToGenericDocument(
-                        body, fieldName, propertyName, property.asType())) {  // 3c
-            // Scenario 3x
-            throw new ProcessingException(
-                    "Unhandled out property type (3x): " + property.asType().toString(), property);
+                body, fieldName, propertyName, property.asType())) {  // 3c
+            throw new ProcessingException("Unhandled property type.", property);
         }
         method.addCode(body.build());
     }
@@ -627,7 +628,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     //   3c: FieldCallToGenericDocument
-    //       Field is of a class which is annotated with @AppSearchDocument.
+    //       Field is of a class which is annotated with @Document.
     //       We have to convert this into a GenericDocument through the standard conversion
     //       machinery.
     private boolean tryFieldCallToGenericDocument(
@@ -643,47 +644,39 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+            getDocumentAnnotation(element);
         } catch (ProcessingException e) {
-            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 3c
+            // The propertyType doesn't have @Document annotation, this is not a type 3c
             // field.
             return false;
         }
-        method.addStatement("$T $NCopy = $L", propertyType, propertyName,
-                createAppSearchFieldRead(fieldName));
+        method.addStatement(
+                "$T $NCopy = $L", propertyType, fieldName, createAppSearchFieldRead(fieldName));
 
-        method.add("if ($NCopy != null) {\n", propertyName).indent();
+        method.add("if ($NCopy != null) {\n", fieldName).indent();
 
-        method.addStatement("GenericDocument $NConv = $T.getInstance().getOrCreateFactory($T.class)"
-                        + ".toGenericDocument($NCopy)", fieldName,
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType,
-                propertyName);
-        method.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName);
+        method
+                .addStatement(
+                        "GenericDocument $NConv = $T.fromDocumentClass($NCopy)",
+                        fieldName, mHelper.getAppSearchClass("GenericDocument"), fieldName)
+                .addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName);
 
         method.unindent().add("}\n");
         return true;
     }
 
     private void setSpecialFields(MethodSpec.Builder method) {
-        for (AppSearchDocumentModel.SpecialField specialField :
-                AppSearchDocumentModel.SpecialField.values()) {
+        for (DocumentModel.SpecialField specialField :
+                DocumentModel.SpecialField.values()) {
             String fieldName = mModel.getSpecialFieldName(specialField);
             if (fieldName == null) {
-                continue;  // The data class doesn't have this field, so no need to set it.
+                continue;  // The document class doesn't have this field, so no need to set it.
             }
             switch (specialField) {
-                case URI:
+                case ID:
                     break;  // Always provided to builder constructor; cannot be set separately.
                 case NAMESPACE:
-                    method.addCode(CodeBlock.builder()
-                            .addStatement(
-                                    "String $NCopy = $L",
-                                    fieldName, createAppSearchFieldRead(fieldName))
-                            .add("if ($NCopy != null) {\n", fieldName).indent()
-                            .addStatement("builder.setNamespace($NCopy)", fieldName)
-                            .unindent().add("}\n")
-                            .build());
-                    break;
+                    break;  // Always provided to builder constructor; cannot be set separately.
                 case CREATION_TIMESTAMP_MILLIS:
                     method.addStatement(
                             "builder.setCreationTimestampMillis($L)",
@@ -702,12 +695,12 @@ class ToGenericDocumentCodeGenerator {
     }
 
     private CodeBlock createAppSearchFieldRead(@NonNull String fieldName) {
-        switch (mModel.getFieldReadKind(fieldName)) {
+        switch (Objects.requireNonNull(mModel.getFieldReadKind(fieldName))) {
             case FIELD:
-                return CodeBlock.of("dataClass.$N", fieldName);
+                return CodeBlock.of("document.$N", fieldName);
             case GETTER:
-                String getter = mModel.getAccessorName(fieldName, /*get=*/ true);
-                return CodeBlock.of("dataClass.$N()", getter);
+                String getter = mModel.getGetterForField(fieldName).getSimpleName().toString();
+                return CodeBlock.of("document.$N()", getter);
         }
         return null;
     }

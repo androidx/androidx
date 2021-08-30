@@ -4,9 +4,6 @@ package androidx.camera.lifecycle {
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraProviderConfiguration {
   }
 
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroupLifecycle {
-  }
-
   public final class ProcessCameraProvider implements androidx.camera.core.CameraProvider {
     method @MainThread public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCase!...);
     method @MainThread public androidx.camera.core.Camera bindToLifecycle(androidx.lifecycle.LifecycleOwner, androidx.camera.core.CameraSelector, androidx.camera.core.UseCaseGroup);

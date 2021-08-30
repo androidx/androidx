@@ -23,6 +23,7 @@ import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects
 import org.intellij.lang.annotations.Language
 import org.junit.Test
+import java.io.File
 import javax.lang.model.SourceVersion
 import javax.tools.JavaFileObject
 
@@ -88,6 +89,7 @@ class ResourceInspectionProcessorTest {
                     public void mapProperties(@NonNull PropertyMapper propertyMapper) {
                         mTestAttributeId = propertyMapper.mapInt(
                             "testAttribute", R.attr.testAttribute);
+                        mPropertiesMapped = true;
                     }
 
                     @Override
@@ -184,6 +186,7 @@ class ResourceInspectionProcessorTest {
                             public void mapProperties(@NonNull PropertyMapper propertyMapper) {
                                 mColorId = propertyMapper.mapColor("color", android.R.attr.color);
                                 mColorId_ = propertyMapper.mapColor("color", R.attr.color);
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -409,6 +412,7 @@ class ResourceInspectionProcessorTest {
                                     .mapShort("testShort", R.attr.testShort);
                                 mTestStringId = propertyMapper
                                     .mapObject("testString", R.attr.testString);
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -561,6 +565,7 @@ class ResourceInspectionProcessorTest {
                                         }
                                     }
                                 );
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -603,8 +608,8 @@ class ResourceInspectionProcessorTest {
                             @Attribute(value = "androidx.pkg:intFlag", intMapping = {
                                 @Attribute.IntMap(value = 1, mask = 3, name = "ONE"),
                                 @Attribute.IntMap(value = 2, mask = 3, name = "TWO"),
-                                @Attribute.IntMap(value = 4, mask = 4, name = "FOUR"),
-                                @Attribute.IntMap(value = 5, name = "FIVE")
+                                @Attribute.IntMap(value = 3, mask = 3, name = "THREE"),
+                                @Attribute.IntMap(value = 4, name = "FOUR"),
                             })
                             public int getIntFlag() {
                                 return 0;
@@ -662,16 +667,17 @@ class ResourceInspectionProcessorTest {
                                             if ((value & 3) == 2) {
                                                 flags.add("TWO");
                                             }
-                                            if ((value & 4) == 4) {
-                                                flags.add("FOUR");
+                                            if (value == 3) {
+                                                flags.add("THREE");
                                             }
-                                            if (value == 5) {
-                                                flags.add("FIVE");
+                                            if (value == 4) {
+                                                flags.add("FOUR");
                                             }
                                             return flags;
                                         }
                                     }
                                 );
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -782,7 +788,7 @@ class ResourceInspectionProcessorTest {
                     """
                 )
             )
-        ).hadErrorContaining("Attribute name must include namespace")
+        ).hadErrorContaining("@Attribute must include namespace")
     }
 
     @Test
@@ -845,6 +851,72 @@ class ResourceInspectionProcessorTest {
                 )
             )
         ).hadErrorContaining("@Attribute getter must be public")
+    }
+
+    @Test
+    fun `fails when R file for namespace is not present`() {
+        assertThat(
+            compile(
+                java(
+                    "androidx.pkg.MissingRFileTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class MissingRFileTestView extends View {
+                            public MissingRFileTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute("bad.pkg:attribute")
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Attribute bad.pkg:attribute not found")
+    }
+
+    @Test
+    fun `fails when attribute is not present in R file`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "good"),
+                java(
+                    "androidx.pkg.MissingAttributeTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class MissingAttributeTestView extends View {
+                            public MissingAttributeTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute("androidx.pkg:good")
+                            public int getGood() {
+                                return 1;
+                            }
+
+                            @Attribute("androidx.pkg:bad")
+                            public int getBad() {
+                                return 2;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Attribute androidx.pkg:bad not found")
     }
 
     @Test
@@ -955,6 +1027,7 @@ class ResourceInspectionProcessorTest {
                                 .mapObject("backgroundTint", R.attr.backgroundTint);
                             mBackgroundTintModeId = propertyMapper
                                 .mapObject("backgroundTintMode", R.attr.backgroundTintMode);
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1069,6 +1142,7 @@ class ResourceInspectionProcessorTest {
                                     }
                                 }
                             );
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1163,6 +1237,7 @@ class ResourceInspectionProcessorTest {
                                 .mapObject("checkMarkTint", R.attr.checkMarkTint);
                             mCheckMarkTintModeId = propertyMapper
                                 .mapObject("checkMarkTintMode", R.attr.checkMarkTintMode);
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1251,6 +1326,7 @@ class ResourceInspectionProcessorTest {
                                 .mapObject("buttonTint", R.attr.buttonTint);
                             mButtonTintModeId = propertyMapper
                                 .mapObject("buttonTintMode", R.attr.buttonTintMode);
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1339,6 +1415,7 @@ class ResourceInspectionProcessorTest {
                                 .mapObject("drawableTint", R.attr.drawableTint);
                             mDrawableTintModeId = propertyMapper
                                 .mapObject("drawableTintMode", R.attr.drawableTintMode);
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1425,6 +1502,7 @@ class ResourceInspectionProcessorTest {
                         public void mapProperties(@NonNull PropertyMapper propertyMapper) {
                             mTintId = propertyMapper.mapObject("tint", R.attr.tint);
                             mTintModeId = propertyMapper.mapObject("tintMode", R.attr.tintMode);
+                            mPropertiesMapped = true;
                         }
 
                         @Override
@@ -1505,6 +1583,181 @@ class ResourceInspectionProcessorTest {
         ).hadErrorContaining(
             "@AppCompatShadowedAttributes is present on this view, but it does not implement any " +
                 "interfaces that indicate it has shadowed attributes."
+        )
+    }
+
+    @Test
+    fun `fails when view inspection API is missing`() {
+        val source = java(
+            "androidx.pkg.MissingViewInspectorApiTestClass",
+            """
+                package androidx.pkg;
+
+                import androidx.resourceinspection.annotation.Attribute;
+
+                public final class MissingViewInspectorApiTestClass {
+                    @Attribute("androidx.pkg:attribute")
+                    public int getAttribute() {
+                        return 1;
+                    }
+                }
+            """
+        )
+
+        val classpath = System.getProperty("java.class.path")
+            .split(File.pathSeparator)
+            .map { File(it) }
+            .filterNot { it.name == "android.jar" }
+
+        assertThat(
+            javac()
+                .withClasspath(classpath)
+                .withProcessors(ResourceInspectionProcessor())
+                .compile(source)
+        ).hadErrorContaining(
+            "View inspector (android.view.inspector) API is not present. Please ensure compile " +
+                "SDK is 29 or greater."
+        )
+    }
+
+    @Test
+    fun `fails on duplicate int map names`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "attribute"),
+                java(
+                    "androidx.pkg.DuplicateIntMapNameTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class DuplicateIntMapNameTestView extends View {
+                            public DuplicateIntMapNameTestView(
+                                    Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute(value = "androidx.pkg:attribute", intMapping = {
+                                @Attribute.IntMap(name = "duplicated", value = 1),
+                                @Attribute.IntMap(name = "duplicated", value = 2)
+                            })
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Duplicate int enum entry name: \"duplicated\"")
+    }
+
+    @Test
+    fun `fails on duplicate int enum value`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "attribute"),
+                java(
+                    "androidx.pkg.DuplicateIntEnumValueTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class DuplicateIntEnumValueTestView extends View {
+                            public DuplicateIntEnumValueTestView(
+                                    Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute(value = "androidx.pkg:attribute", intMapping = {
+                                @Attribute.IntMap(name = "FOO", value = 1),
+                                @Attribute.IntMap(name = "BAR", value = 1),
+                                @Attribute.IntMap(name = "BAZ", value = 1)
+                            })
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Int enum value 1 is duplicated on entries \"FOO\", \"BAR\"")
+    }
+
+    @Test
+    fun `fails on invalid int flag mask`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "attribute"),
+                java(
+                    "androidx.pkg.InvalidIntFlagTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class InvalidIntFlagTestView extends View {
+                            public InvalidIntFlagTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute(value = "androidx.pkg:attribute", intMapping = {
+                                @Attribute.IntMap(name = "BAD", value = 3, mask = 1)
+                            })
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Int flag mask 0x1 does not reveal value 0x3")
+    }
+
+    @Test
+    fun `fails on duplicate int flag mask and value`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "attribute"),
+                java(
+                    "androidx.pkg.DuplicateIntFlagTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class DuplicateIntFlagTestView extends View {
+                            public DuplicateIntFlagTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute(value = "androidx.pkg:attribute", intMapping = {
+                                @Attribute.IntMap(name = "FOO", value = 3, mask = 3),
+                                @Attribute.IntMap(name = "BAR", value = 3, mask = 3),
+                                @Attribute.IntMap(name = "BAZ", value = 3)
+                            })
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining(
+            "Int flag mask 0x3 and value 0x3 is duplicated on entries \"FOO\", \"BAR\""
         )
     }
 

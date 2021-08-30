@@ -19,7 +19,6 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
-import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -106,17 +105,4 @@ private fun KSFunctionDeclaration.overridesInJvm(
         }
     }
     return true
-}
-
-@OptIn(KspExperimental::class)
-internal fun Resolver.safeGetJvmName(
-    declaration: KSFunctionDeclaration
-): String {
-    return try {
-        getJvmName(declaration) ?: declaration.simpleName.asString()
-    } catch (cannotFindDeclaration: IllegalStateException) {
-        // TODO remove this catch once that issue is fixed.
-        // workaround for https://github.com/google/ksp/issues/240
-        return declaration.simpleName.asString()
-    }
 }

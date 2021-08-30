@@ -49,7 +49,7 @@ import androidx.compose.ui.autofill.AutofillCallback
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.autofill.performAutofill
 import androidx.compose.ui.autofill.populateViewStructure
-import androidx.compose.ui.focus.FOCUS_TAG
+import androidx.compose.ui.focus.FocusTag
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.In
@@ -62,13 +62,12 @@ import androidx.compose.ui.focus.FocusDirection.Companion.Up
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusManagerImpl
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect as ComposeRect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.setFrom
-import androidx.compose.ui.hapticfeedback.PlatformHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.PlatformHapticFeedback
 import androidx.compose.ui.input.key.Key.Companion.Back
 import androidx.compose.ui.input.key.Key.Companion.DirectionCenter
 import androidx.compose.ui.input.key.Key.Companion.DirectionDown
@@ -87,9 +86,11 @@ import androidx.compose.ui.input.pointer.PointerInputEventProcessor
 import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.layout.RootMeasurePolicy
+import androidx.compose.ui.layout.onRelocationRequest
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.UsageByParent
+import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
@@ -121,6 +122,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
 import android.view.KeyEvent as AndroidKeyEvent
+import androidx.compose.ui.geometry.Rect as ComposeRect
 
 @SuppressLint("ViewConstructor", "VisibleForTests")
 @OptIn(ExperimentalComposeUiApi::class)
@@ -137,6 +139,8 @@ internal class AndroidComposeView(context: Context) :
      * can lead to this case, e.g. [onRtlPropertiesChanged].
      */
     private var superclassInitComplete = true
+
+    override val sharedDrawScope = LayoutNodeDrawScope()
 
     override val view: View get() = this
 
@@ -171,14 +175,21 @@ internal class AndroidComposeView(context: Context) :
         onPreviewKeyEvent = null
     )
 
+    private val relocationModifier = Modifier.onRelocationRequest(
+        onProvideDestination = { _, _ -> ComposeRect.Zero },
+        onPerformRelocation = { rect, _ -> requestRectangleOnScreen(rect.toRect(), false) }
+    )
+
     private val canvasHolder = CanvasHolder()
 
     override val root = LayoutNode().also {
         it.measurePolicy = RootMeasurePolicy
         it.modifier = Modifier
+            .then(relocationModifier)
             .then(semanticsModifier)
             .then(_focusManager.modifier)
             .then(keyInputModifier)
+        it.density = density
     }
 
     override val rootForTest: RootForTest = this
@@ -278,6 +289,7 @@ internal class AndroidComposeView(context: Context) :
     private val tmpCalculationMatrix = Matrix()
     @VisibleForTesting
     internal var lastMatrixRecalculationAnimationTime = -1L
+    private var forceUseMatrixCache = false
 
     /**
      * On some devices, the `getLocationOnScreen()` returns `(0, 0)` even when the Window
@@ -363,7 +375,7 @@ internal class AndroidComposeView(context: Context) :
 
     override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
-        Log.d(FOCUS_TAG, "Owner FocusChanged($gainFocus)")
+        Log.d(FocusTag, "Owner FocusChanged($gainFocus)")
         with(_focusManager) {
             if (gainFocus) takeFocus() else releaseFocus()
         }
@@ -606,7 +618,10 @@ internal class AndroidComposeView(context: Context) :
         // We can't be confident that RenderNode is supported, so we try and fail over to
         // the ViewLayer implementation. We'll try even on on P devices, but it will fail
         // until ART allows things on the unsupported list on P.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isRenderNodeCompatible) {
+        if (isHardwareAccelerated &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+            isRenderNodeCompatible
+        ) {
             try {
                 return RenderNodeLayer(
                     this,
@@ -652,10 +667,6 @@ internal class AndroidComposeView(context: Context) :
             Back -> Out
             else -> null
         }
-    }
-
-    override fun requestRectangleOnScreen(rect: ComposeRect) {
-        requestRectangleOnScreen(rect.toRect())
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
@@ -848,25 +859,32 @@ internal class AndroidComposeView(context: Context) :
         ) {
             return false // Bad MotionEvent. Don't handle it.
         }
-        measureAndLayout()
-        val processResult = trace("AndroidOwner:onTouch") {
-            val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(motionEvent, this)
-            if (pointerInputEvent != null) {
-                pointerInputEventProcessor.process(pointerInputEvent, this)
-            } else {
-                pointerInputEventProcessor.processCancel()
-                ProcessResult(
-                    dispatchedToAPointerInputModifier = false,
-                    anyMovementConsumed = false
-                )
+        try {
+            recalculateWindowPosition(motionEvent)
+            forceUseMatrixCache = true
+            measureAndLayout()
+            val processResult = trace("AndroidOwner:onTouch") {
+                val pointerInputEvent =
+                    motionEventAdapter.convertToPointerInputEvent(motionEvent, this)
+                if (pointerInputEvent != null) {
+                    pointerInputEventProcessor.process(pointerInputEvent, this)
+                } else {
+                    pointerInputEventProcessor.processCancel()
+                    ProcessResult(
+                        dispatchedToAPointerInputModifier = false,
+                        anyMovementConsumed = false
+                    )
+                }
             }
-        }
 
-        if (processResult.anyMovementConsumed) {
-            parent.requestDisallowInterceptTouchEvent(true)
-        }
+            if (processResult.anyMovementConsumed) {
+                parent.requestDisallowInterceptTouchEvent(true)
+            }
 
-        return processResult.dispatchedToAPointerInputModifier
+            return processResult.dispatchedToAPointerInputModifier
+        } finally {
+            forceUseMatrixCache = false
+        }
     }
 
     override fun localToScreen(localPosition: Offset): Offset {
@@ -886,24 +904,43 @@ internal class AndroidComposeView(context: Context) :
     }
 
     private fun recalculateWindowPosition() {
-        val animationTime = AnimationUtils.currentAnimationTimeMillis()
-        if (animationTime != lastMatrixRecalculationAnimationTime) {
-            lastMatrixRecalculationAnimationTime = animationTime
-            recalculateWindowViewTransforms()
-            var viewParent = parent
-            var view: View = this
-            while (viewParent is ViewGroup) {
-                view = viewParent
-                viewParent = view.parent
+        if (!forceUseMatrixCache) {
+            val animationTime = AnimationUtils.currentAnimationTimeMillis()
+            if (animationTime != lastMatrixRecalculationAnimationTime) {
+                lastMatrixRecalculationAnimationTime = animationTime
+                recalculateWindowViewTransforms()
+                var viewParent = parent
+                var view: View = this
+                while (viewParent is ViewGroup) {
+                    view = viewParent
+                    viewParent = view.parent
+                }
+                view.getLocationOnScreen(tmpPositionArray)
+                val screenX = tmpPositionArray[0].toFloat()
+                val screenY = tmpPositionArray[1].toFloat()
+                view.getLocationInWindow(tmpPositionArray)
+                val windowX = tmpPositionArray[0].toFloat()
+                val windowY = tmpPositionArray[1].toFloat()
+                windowPosition = Offset(screenX - windowX, screenY - windowY)
             }
-            view.getLocationOnScreen(tmpPositionArray)
-            val screenX = tmpPositionArray[0].toFloat()
-            val screenY = tmpPositionArray[1].toFloat()
-            view.getLocationInWindow(tmpPositionArray)
-            val windowX = tmpPositionArray[0].toFloat()
-            val windowY = tmpPositionArray[1].toFloat()
-            windowPosition = Offset(screenX - windowX, screenY - windowY)
         }
+    }
+
+    /**
+     * Recalculates the window position based on the [motionEvent]'s coordinates and
+     * screen coordinates. Some devices give false positions for [getLocationOnScreen] in
+     * some unusual circumstances, so a different mechanism must be used to determine the
+     * actual position.
+     */
+    private fun recalculateWindowPosition(motionEvent: MotionEvent) {
+        lastMatrixRecalculationAnimationTime = AnimationUtils.currentAnimationTimeMillis()
+        recalculateWindowViewTransforms()
+        val positionInWindow = viewToWindowMatrix.map(Offset(motionEvent.x, motionEvent.y))
+
+        windowPosition = Offset(
+            motionEvent.rawX - positionInWindow.x,
+            motionEvent.rawY - positionInWindow.y
+        )
     }
 
     private fun recalculateWindowViewTransforms() {
@@ -939,7 +976,10 @@ internal class AndroidComposeView(context: Context) :
         // If we get such a call, don't try to write to a property delegate
         // that hasn't been initialized yet.
         if (superclassInitComplete) {
-            this.layoutDirection = layoutDirectionFromInt(layoutDirection)
+            layoutDirectionFromInt(layoutDirection).let {
+                this.layoutDirection = it
+                _focusManager.layoutDirection = it
+            }
         }
     }
 
@@ -1167,62 +1207,6 @@ private fun dot(m1: Matrix, row: Int, m2: Matrix, column: Int): Float {
         m1[row, 1] * m2[1, column] +
         m1[row, 2] * m2[2, column] +
         m1[row, 3] * m2[3, column]
-}
-
-/**
- * Sets [other] to be the inverse of this
- */
-private fun Matrix.invertTo(other: Matrix) {
-    val a00 = this[0, 0]
-    val a01 = this[0, 1]
-    val a02 = this[0, 2]
-    val a03 = this[0, 3]
-    val a10 = this[1, 0]
-    val a11 = this[1, 1]
-    val a12 = this[1, 2]
-    val a13 = this[1, 3]
-    val a20 = this[2, 0]
-    val a21 = this[2, 1]
-    val a22 = this[2, 2]
-    val a23 = this[2, 3]
-    val a30 = this[3, 0]
-    val a31 = this[3, 1]
-    val a32 = this[3, 2]
-    val a33 = this[3, 3]
-    val b00 = a00 * a11 - a01 * a10
-    val b01 = a00 * a12 - a02 * a10
-    val b02 = a00 * a13 - a03 * a10
-    val b03 = a01 * a12 - a02 * a11
-    val b04 = a01 * a13 - a03 * a11
-    val b05 = a02 * a13 - a03 * a12
-    val b06 = a20 * a31 - a21 * a30
-    val b07 = a20 * a32 - a22 * a30
-    val b08 = a20 * a33 - a23 * a30
-    val b09 = a21 * a32 - a22 * a31
-    val b10 = a21 * a33 - a23 * a31
-    val b11 = a22 * a33 - a23 * a32
-    val det =
-        (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06)
-    if (det == 0.0f) {
-        return
-    }
-    val invDet = 1.0f / det
-    other[0, 0] = ((a11 * b11 - a12 * b10 + a13 * b09) * invDet)
-    other[0, 1] = ((-a01 * b11 + a02 * b10 - a03 * b09) * invDet)
-    other[0, 2] = ((a31 * b05 - a32 * b04 + a33 * b03) * invDet)
-    other[0, 3] = ((-a21 * b05 + a22 * b04 - a23 * b03) * invDet)
-    other[1, 0] = ((-a10 * b11 + a12 * b08 - a13 * b07) * invDet)
-    other[1, 1] = ((a00 * b11 - a02 * b08 + a03 * b07) * invDet)
-    other[1, 2] = ((-a30 * b05 + a32 * b02 - a33 * b01) * invDet)
-    other[1, 3] = ((a20 * b05 - a22 * b02 + a23 * b01) * invDet)
-    other[2, 0] = ((a10 * b10 - a11 * b08 + a13 * b06) * invDet)
-    other[2, 1] = ((-a00 * b10 + a01 * b08 - a03 * b06) * invDet)
-    other[2, 2] = ((a30 * b04 - a31 * b02 + a33 * b00) * invDet)
-    other[2, 3] = ((-a20 * b04 + a21 * b02 - a23 * b00) * invDet)
-    other[3, 0] = ((-a10 * b09 + a11 * b07 - a12 * b06) * invDet)
-    other[3, 1] = ((a00 * b09 - a01 * b07 + a02 * b06) * invDet)
-    other[3, 2] = ((-a30 * b03 + a31 * b01 - a32 * b00) * invDet)
-    other[3, 3] = ((a20 * b03 - a21 * b01 + a22 * b00) * invDet)
 }
 
 private fun ComposeRect.toRect(): Rect {

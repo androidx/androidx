@@ -84,7 +84,7 @@ class ViewModelProvidersFragmentTest {
     class CountingFactory : ViewModelProvider.NewInstanceFactory() {
         var count = 0
 
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             count++
             return super.create(modelClass)
         }

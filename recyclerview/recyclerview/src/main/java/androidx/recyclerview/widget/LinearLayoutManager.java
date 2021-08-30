@@ -2063,14 +2063,14 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     @Override
-    public View onFocusSearchFailed(View focused, int focusDirection,
+    public View onFocusSearchFailed(View focused, int direction,
             RecyclerView.Recycler recycler, RecyclerView.State state) {
         resolveShouldLayoutReverse();
         if (getChildCount() == 0) {
             return null;
         }
 
-        final int layoutDir = convertFocusDirectionToLayoutDirection(focusDirection);
+        final int layoutDir = convertFocusDirectionToLayoutDirection(direction);
         if (layoutDir == LayoutState.INVALID_LAYOUT) {
             return null;
         }

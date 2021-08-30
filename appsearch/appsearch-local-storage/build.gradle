@@ -1,0 +1,97 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.BundleInsideHelper
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    buildTypes.all {
+        // TODO(b/161836669): Minifiation is currently disabled because if it is on, the aar gets
+        //   desugared twice in some workflows, which fails. Decide how to handle this (e.g.
+        //   splitting targets, continuing with the consumerProguardFiles solution here, fixing the
+        //   flows that perform duplicate desugaring, or something else).
+        minifyEnabled false
+        consumerProguardFiles "proguard-rules.pro"
+    }
+    // TODO(b/161205849): We've had to move libicing.so compilation into appsearch:appsearch to get
+    //  it included into the exported aar. Find a proper solution for bundling libicing.so into
+    //  appsearch-release.aar and move compilation of libicing.so back into the external/icing tree.
+    sourceSets {
+        androidTest.java.srcDir "../../../../external/icing/java/tests/instrumentation/"
+    }
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
+                targets "icing"
+            }
+        }
+	multiDexEnabled true
+    }
+    externalNativeBuild {
+        cmake {
+            version "3.10.2"
+            path "../../../../external/icing/CMakeLists.txt"
+        }
+    }
+}
+
+BundleInsideHelper.forInsideAar(
+    project,
+    /* from = */ "com.google.protobuf",
+    /* to =   */ "com.google.android.icing.protobuf"
+)
+
+dependencies {
+    bundleInside(project(path: ":icing", configuration: "exportRelease"))
+
+    api("androidx.annotation:annotation:1.1.0")
+
+    implementation(project(":appsearch:appsearch"))
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.core:core:1.2.0")
+
+    androidTestImplementation project(':appsearch:appsearch-test-util')
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoAndroid)
+    //TODO(b/149787478) upgrade and link to Dependencies.kt
+    androidTestImplementation("junit:junit:4.13")
+}
+
+androidx {
+    name = "AppSearch Local Storage"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.APPSEARCH
+    inceptionYear = "2020"
+    description =
+        "An implementation of AppSearchSession which uses local app storage and a local copy of " +
+                "the search library"
+}

@@ -19,9 +19,13 @@ package androidx.room.compiler.processing.util.runner
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.util.CompilationResult
+import androidx.room.compiler.processing.util.DiagnosticMessage
 import androidx.room.compiler.processing.util.JavaCompileTestingCompilationResult
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.toDiagnosticMessages
+import com.google.testing.compile.Compilation
 import com.google.testing.compile.Compiler
+import java.io.File
 
 @ExperimentalProcessingApi
 internal object JavacCompilationTestRunner : CompilationTestRunner {
@@ -32,7 +36,7 @@ internal object JavacCompilationTestRunner : CompilationTestRunner {
         return params.sources.all { it is Source.JavaSource }
     }
 
-    override fun compile(params: TestCompilationParameters): CompilationResult {
+    override fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult {
         val syntheticJavacProcessor = SyntheticJavacProcessor(params.handlers)
         val sources = if (params.sources.isEmpty()) {
             // synthesize a source to trigger compilation
@@ -63,14 +67,30 @@ internal object JavacCompilationTestRunner : CompilationTestRunner {
                     it
                 }
             }
-        val javaFileObjects = sources.map {
-            it.toJFO()
+        val javaFileObjects = sources.associateBy { it.toJFO() }
+        val compilation = compiler.compile(javaFileObjects.keys)
+        val generatedSources = if (compilation.status() == Compilation.Status.SUCCESS) {
+            compilation.generatedSourceFiles().associate {
+                it to Source.fromJavaFileObject(it)
+            }
+        } else {
+            compilation.diagnostics().mapNotNull {
+                it.source
+            }.associate {
+                it to Source.fromJavaFileObject(it)
+            }
         }
-        val compilation = compiler.compile(javaFileObjects)
+
+        val diagnostics: List<DiagnosticMessage> = compilation.diagnostics().toDiagnosticMessages(
+            javaFileObjects + generatedSources
+        )
+
         return JavaCompileTestingCompilationResult(
             testRunner = this,
             delegate = compilation,
-            processor = syntheticJavacProcessor
+            processor = syntheticJavacProcessor,
+            diagnostics = diagnostics.groupBy { it.kind },
+            generatedSources = generatedSources.values.toList()
         )
     }
 }

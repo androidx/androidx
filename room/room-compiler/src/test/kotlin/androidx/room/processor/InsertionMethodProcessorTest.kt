@@ -946,7 +946,7 @@ class InsertionMethodProcessorTest {
                         it,
                         it.getAllMethods().filter {
                             it.hasAnnotation(Insert::class)
-                        }
+                        }.toList()
                     )
                 }.first { it.second.isNotEmpty() }
             val processor = InsertionMethodProcessor(

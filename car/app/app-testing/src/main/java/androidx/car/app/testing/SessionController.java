@@ -22,14 +22,14 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.Session;
+import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.Event;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 
-import java.lang.reflect.Field;
-
 /**
- * A controller that allows testing of a {@link Session}.
+ * {@link SessionController} provides API that allows testing of a {@link Session}.
  *
  * <p>This controller allows:
  *
@@ -38,138 +38,95 @@ import java.lang.reflect.Field;
  *   to the test managers and other testing functionalities.
  * </ul>
  */
-@SuppressWarnings("NotCloseable")
 public class SessionController {
-    private final Session mSession;
-    private final TestCarContext mTestCarContext;
+    final Session mSession;
+    final TestCarContext mTestCarContext;
+    final Intent mIntent;
+    private final TestLifecycleOwner mLifecycleOwner;
 
     /**
      * Creates a {@link SessionController} to control the provided {@link Session}.
      *
      * @param session the {@link Session} to control
      * @param context the {@link TestCarContext} that the {@code session} should use.
+     * @param intent  the {@link Intent} that the {@code session} should start with during the
+     *                {@link androidx.lifecycle.Lifecycle.State#CREATED} state.
      * @throws NullPointerException if {@code session} or {@code context} is {@code null}
      */
-    @NonNull
-    public static SessionController of(@NonNull Session session, @NonNull TestCarContext context) {
-        return new SessionController(requireNonNull(session), requireNonNull(context));
-    }
+    public SessionController(@NonNull Session session, @NonNull TestCarContext context,
+            @NonNull Intent intent) {
+        mSession = requireNonNull(session);
+        mTestCarContext = requireNonNull(context);
+        mIntent = requireNonNull(intent);
 
-    /**
-     * Creates the {@link Session} that is being controlled with the given {@code intent}.
-     *
-     * <p>If this is the first time this is called on the {@link Session}, this would trigger
-     * {@link Session#onCreateScreen(Intent)} and transition the lifecycle to the
-     * {@link Lifecycle.State#CREATED} state. Otherwise, this will trigger
-     * {@link Session#onNewIntent(Intent)}.
-     *
-     * @see Session#getLifecycle
-     */
-    @NonNull
-    public SessionController create(@NonNull Intent intent) {
-        LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
-        Lifecycle.State state = registry.getCurrentState();
-        TestScreenManager screenManager = mTestCarContext.getCarService(TestScreenManager.class);
+        mLifecycleOwner = new TestLifecycleOwner();
+        mLifecycleOwner.getRegistry().addObserver(new SessionLifecycleObserver());
 
-        int screenStackSize = screenManager.getScreensPushed().size();
-        if (!state.isAtLeast(Lifecycle.State.CREATED) || screenStackSize < 1) {
-            registry.handleLifecycleEvent(Event.ON_CREATE);
-            screenManager.push(mSession.onCreateScreen(intent));
-        } else {
-            mSession.onNewIntent(intent);
-        }
-
-        return this;
-    }
-
-    /**
-     * Starts the {@link Session} that is being controlled.
-     *
-     * @see Session#getLifecycle
-     */
-    @NonNull
-    public SessionController start() {
-        LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
-        registry.handleLifecycleEvent(Event.ON_START);
-
-        return this;
-    }
-
-
-    /**
-     * Resumes the {@link Session} that is being controlled.
-     *
-     * @see Session#getLifecycle
-     */
-    @NonNull
-    public SessionController resume() {
-        LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
-        registry.handleLifecycleEvent(Event.ON_RESUME);
-
-        return this;
-    }
-
-    /**
-     * Pauses the {@link Session} that is being controlled.
-     *
-     * @see Session#getLifecycle
-     */
-    @NonNull
-    public SessionController pause() {
-        LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
-        registry.handleLifecycleEvent(Event.ON_PAUSE);
-
-        return this;
-    }
-
-    /**
-     * Stops the {@link Session} that is being controlled.
-     *
-     * @see Session#getLifecycle
-     */
-    @NonNull
-    public SessionController stop() {
-        LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
-        registry.handleLifecycleEvent(Event.ON_STOP);
-
-        return this;
-    }
-
-    /**
-     * Destroys the {@link Session} that is being controlled.
-     *
-     * @see Session#getLifecycle
-     */
-    @NonNull
-    public SessionController destroy() {
-        LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
-        registry.handleLifecycleEvent(Event.ON_DESTROY);
-
-        return this;
+        mSession.setCarContextInternal(mTestCarContext);
+        mSession.setLifecycleRegistryInternal(mTestCarContext.getLifecycleOwner().getRegistry());
     }
 
     /** Returns the {@link Session} that is being controlled. */
     @NonNull
-    public Session get() {
+    public Session getSession() {
         return mSession;
     }
 
-    private SessionController(Session session, TestCarContext context) {
-        mSession = session;
-        mTestCarContext = context;
+    /**
+     * Moves the {@link Session} being controlled to the input {@code state}.
+     *
+     * <p>Note that {@link Lifecycle.State#DESTROYED} is a terminal state, and you cannot move to
+     * any other state after the {@link Session} reaches that state.</p>
+     *
+     * @see Session#getLifecycle
+     */
+    @NonNull
+    public SessionController moveToState(@NonNull Lifecycle.State state) {
+        mLifecycleOwner.getRegistry().setCurrentState(state);
+        return this;
+    }
 
-        // Use reflection to inject the TestCarContext into the Session.
-        try {
-            Field registry = Session.class.getDeclaredField("mRegistry");
-            registry.setAccessible(true);
-            registry.set(session, mTestCarContext.getLifecycleOwner().mRegistry);
+    /**
+     * A helper class to forward the lifecycle events from this controller to the session.
+     */
+    class SessionLifecycleObserver implements DefaultLifecycleObserver {
+        @Override
+        public void onCreate(@NonNull LifecycleOwner owner) {
+            LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
+            TestScreenManager screenManager = mTestCarContext.getCarService(
+                    TestScreenManager.class);
+            registry.handleLifecycleEvent(Event.ON_CREATE);
+            screenManager.push(mSession.onCreateScreen(mIntent));
+        }
 
-            Field carContext = Session.class.getDeclaredField("mCarContext");
-            carContext.setAccessible(true);
-            carContext.set(session, mTestCarContext);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(
-                    "Failed to set internal Session values for testing", e);
+        @Override
+        public void onStart(@NonNull LifecycleOwner owner) {
+            LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
+            registry.handleLifecycleEvent(Event.ON_START);
+        }
+
+        @Override
+        public void onResume(@NonNull LifecycleOwner owner) {
+            LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
+            registry.handleLifecycleEvent(Event.ON_RESUME);
+        }
+
+        @Override
+        public void onPause(@NonNull LifecycleOwner owner) {
+            LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
+            registry.handleLifecycleEvent(Event.ON_PAUSE);
+        }
+
+        @Override
+        public void onStop(@NonNull LifecycleOwner owner) {
+            LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
+            registry.handleLifecycleEvent(Event.ON_STOP);
+        }
+
+        @Override
+        public void onDestroy(@NonNull LifecycleOwner owner) {
+            LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
+            registry.handleLifecycleEvent(Event.ON_DESTROY);
         }
     }
 }

@@ -58,7 +58,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                         defaultValue(it.write())
                     }
                 }.build()
-            }
+            }.sortedBy { it.defaultValue != null }
             FunSpec.builder(action.id.javaIdentifier.toCamelCaseAsVar()).apply {
                 returns(NAV_DIRECTION_CLASSNAME)
                 addParameters(parameters)
@@ -163,7 +163,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                             defaultValue(it.write())
                         }
                     }.build()
-                }
+                }.sortedBy { it.defaultValue != null }
             )
             .build()
 
@@ -272,6 +272,21 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
             addStatement("return·%T(${tempVariables.joinToString(", ") { it }})", className)
         }.build()
 
+        val toSavedStateHandleFunSpec = FunSpec.builder("toSavedStateHandle").apply {
+            if (destination.args.any { it.type is ObjectType }) {
+                addAnnotation(CAST_NEVER_SUCCEEDS)
+            }
+            returns(SAVED_STATE_HANDLE_CLASSNAME)
+            val resultVal = "result"
+            addStatement("val %L = %T()", resultVal, SAVED_STATE_HANDLE_CLASSNAME)
+            destination.args.forEach { arg ->
+                arg.type.addSavedStateSetStatement(
+                    this, arg, resultVal, "this.${arg.sanitizedName}"
+                )
+            }
+            addStatement("return %L", resultVal)
+        }.build()
+
         val fromSavedStateHandleFunSpec = FunSpec.builder("fromSavedStateHandle").apply {
             addAnnotation(JvmStatic::class)
             returns(className)
@@ -331,6 +346,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                 }
             )
             .addFunction(toBundleFunSpec)
+            .addFunction(toSavedStateHandleFunSpec)
             .addType(
                 TypeSpec.companionObjectBuilder()
                     .addFunction(fromBundleFunSpec)

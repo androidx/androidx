@@ -205,7 +205,7 @@ class KspFieldElementTest {
         val classpath = compileFiles(sources)
         runProcessorTest(
             sources = emptyList(),
-            classpath = listOf(classpath)
+            classpath = classpath
         ) { invocation ->
             if (invocation.isKsp) {
                 // TODO: https://github.com/google/ksp/issues/159

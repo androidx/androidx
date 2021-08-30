@@ -36,8 +36,6 @@ internal class DesktopInputDispatcher(
         var gesturePointerId = 0L
     }
 
-    override val now: Long get() = System.nanoTime() / 1_000_000
-
     private var isMousePressed = false
 
     private var batchedEvents = mutableListOf<List<TestPointerInputEventData>>()
@@ -65,7 +63,7 @@ internal class DesktopInputDispatcher(
     }
 
     private fun PartialGesture.pointerInputEvent(down: Boolean): List<TestPointerInputEventData> {
-        val time = lastEventTime
+        val time = currentTime
         val offset = lastPositions[lastPositions.keys.sorted()[0]]!!
         val event = listOf(
             TestPointerInputEventData(

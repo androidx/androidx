@@ -33,6 +33,10 @@ import androidx.car.app.model.Template;
 public class PopToDemoScreen extends Screen {
     private final int mId;
 
+    public PopToDemoScreen(@NonNull CarContext carContext) {
+        this(carContext, 0);
+    }
+
     public PopToDemoScreen(@NonNull CarContext carContext, int id) {
         super(carContext);
         this.mId = id;

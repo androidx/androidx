@@ -1,13 +1,13 @@
 // Signature format: 4.0
 package androidx.annotation {
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface OptIn {
-    method public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass();
-    property public abstract Class<? extends java.lang.annotation.Annotation>![] markerClass;
+  @kotlin.annotation.Retention(AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.LOCAL_VARIABLE, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.FILE, AnnotationTarget.TYPEALIAS}) public @interface OptIn {
+    method public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>[] markerClass();
+    property public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>![] markerClass;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface RequiresOptIn {
-    method public abstract androidx.annotation.RequiresOptIn.Level level() default androidx.annotation.RequiresOptIn.Level.ERROR;
+  @kotlin.annotation.Retention(AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=AnnotationTarget.ANNOTATION_CLASS) public @interface RequiresOptIn {
+    method public abstract androidx.annotation.RequiresOptIn.Level level();
     property public abstract androidx.annotation.RequiresOptIn.Level level;
   }
 
@@ -20,8 +20,8 @@ package androidx.annotation {
 
 package androidx.annotation.experimental {
 
-  @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface Experimental {
-    method @Deprecated public abstract androidx.annotation.experimental.Experimental.Level level() default androidx.annotation.experimental.Experimental.Level.ERROR;
+  @Deprecated @kotlin.annotation.Retention(AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=AnnotationTarget.ANNOTATION_CLASS) public @interface Experimental {
+    method @Deprecated public abstract androidx.annotation.experimental.Experimental.Level level();
     property public abstract androidx.annotation.experimental.Experimental.Level level;
   }
 
@@ -30,9 +30,9 @@ package androidx.annotation.experimental {
     enum_constant @Deprecated public static final androidx.annotation.experimental.Experimental.Level WARNING;
   }
 
-  @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface UseExperimental {
-    method @Deprecated public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass();
-    property public abstract Class<? extends java.lang.annotation.Annotation>![] markerClass;
+  @Deprecated @kotlin.annotation.Retention(AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.LOCAL_VARIABLE, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.FILE, AnnotationTarget.TYPEALIAS}) public @interface UseExperimental {
+    method @Deprecated public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>[] markerClass();
+    property public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>![] markerClass;
   }
 
 }

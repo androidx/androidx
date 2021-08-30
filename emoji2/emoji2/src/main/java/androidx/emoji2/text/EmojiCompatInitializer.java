@@ -23,11 +23,18 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.core.os.TraceCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.ProcessLifecycleInitializer;
+import androidx.startup.AppInitializer;
 import androidx.startup.Initializer;
 
 import java.util.Collections;
@@ -63,6 +70,8 @@ import java.util.List;
  *     </provider>
  * </pre>
  *
+ * This initializer depends on {@link ProcessLifecycleInitializer}.
+ *
  * @see androidx.emoji2.text.DefaultEmojiCompatConfig
  */
 public class EmojiCompatInitializer implements Initializer<Boolean> {
@@ -75,31 +84,58 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
      * @param context application context
      * @return result of default init
      */
+    @SuppressWarnings("AutoBoxing")
     @NonNull
     @Override
     public Boolean create(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 19) {
-            final Handler mainHandler;
-            if (Build.VERSION.SDK_INT >= 28) {
-                mainHandler = Handler28Impl.createAsync(Looper.getMainLooper());
-            } else {
-                mainHandler = new Handler(Looper.getMainLooper());
-            }
             EmojiCompat.init(new BackgroundDefaultConfig(context));
-            mainHandler.postDelayed(new LoadEmojiCompatRunnable(),
-                    STARTUP_THREAD_CREATION_DELAY_MS);
+            delayUntilFirstResume(context);
             return true;
         }
         return false;
     }
 
     /**
-     * No dependencies
+     * Wait until the first frame of the application to do anything.
+     *
+     * This allows startup code to run before the delay is scheduled.
+     */
+    @RequiresApi(19)
+    void delayUntilFirstResume(@NonNull Context context) {
+        // schedule delay after first Activity resumes
+        AppInitializer appInitializer = AppInitializer.getInstance(context);
+        LifecycleOwner lifecycleOwner = appInitializer
+                .initializeComponent(ProcessLifecycleInitializer.class);
+        Lifecycle lifecycle = lifecycleOwner.getLifecycle();
+        lifecycle.addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            public void onResume() {
+                loadEmojiCompatAfterDelay();
+                lifecycle.removeObserver(this);
+            }
+        });
+    }
+
+    @RequiresApi(19)
+    void loadEmojiCompatAfterDelay() {
+        final Handler mainHandler;
+        if (Build.VERSION.SDK_INT >= 28) {
+            mainHandler = Handler28Impl.createAsync(Looper.getMainLooper());
+        } else {
+            mainHandler = new Handler(Looper.getMainLooper());
+        }
+        mainHandler.postDelayed(new LoadEmojiCompatRunnable(),
+                STARTUP_THREAD_CREATION_DELAY_MS);
+    }
+
+    /**
+     * Dependes on ProcessLifecycleInitializer
      */
     @NonNull
     @Override
     public List<Class<? extends Initializer<?>>> dependencies() {
-        return Collections.emptyList();
+        return Collections.singletonList(ProcessLifecycleInitializer.class);
     }
 
     static class LoadEmojiCompatRunnable implements Runnable {
@@ -201,7 +237,7 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
             // Non-instantiable.
         }
 
-        // avoid aligning with vsync when available (API 28+)
+        @DoNotInline
         public static Handler createAsync(Looper looper) {
             return Handler.createAsync(looper);
         }

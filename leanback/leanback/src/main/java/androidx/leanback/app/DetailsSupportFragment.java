@@ -62,6 +62,7 @@ import java.lang.ref.WeakReference;
  *
  * When {@link FullWidthDetailsOverviewRowPresenter} is found in adapter,  DetailsSupportFragment will
  * setup default behavior of the DetailsOverviewRow:
+ * <ul>
  * <li>
  * The alignment of FullWidthDetailsOverviewRowPresenter is setup in
  * {@link #setupDetailsOverviewRowPresenter(FullWidthDetailsOverviewRowPresenter)}.
@@ -71,9 +72,11 @@ import java.lang.ref.WeakReference;
  * {@link #onSetDetailsOverviewRowStatus(FullWidthDetailsOverviewRowPresenter,
  * FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int)}.
  * </li>
+ * </ul>
  *
  * <p>
  * The recommended activity themes to use with a DetailsSupportFragment are
+ * <ul>
  * <li>
  * {@link androidx.leanback.R.style#Theme_Leanback_Details} with activity
  * shared element transition for {@link FullWidthDetailsOverviewRowPresenter}.
@@ -83,6 +86,7 @@ import java.lang.ref.WeakReference;
  * if shared element transition is not needed, for example if first row is not rendered by
  * {@link FullWidthDetailsOverviewRowPresenter}.
  * </li>
+ * </ul>
  * </p>
  *
  * <p>

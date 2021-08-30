@@ -23,6 +23,7 @@ import androidx.compose.material.samples.AlertDialogSample
 import androidx.compose.material.samples.BackdropScaffoldSample
 import androidx.compose.material.samples.BottomDrawerSample
 import androidx.compose.material.samples.BottomNavigationSample
+import androidx.compose.material.samples.BottomNavigationItemWithBadge
 import androidx.compose.material.samples.BottomNavigationWithOnlySelectedLabelsSample
 import androidx.compose.material.samples.BottomSheetScaffoldSample
 import androidx.compose.material.samples.ButtonSample
@@ -31,6 +32,7 @@ import androidx.compose.material.samples.CardSample
 import androidx.compose.material.samples.CheckboxSample
 import androidx.compose.material.samples.CircularProgressIndicatorSample
 import androidx.compose.material.samples.ClickableListItems
+import androidx.compose.material.samples.CompactNavigationRailSample
 import androidx.compose.material.samples.CustomAlertDialogSample
 import androidx.compose.material.samples.FancyIndicatorContainerTabs
 import androidx.compose.material.samples.FancyIndicatorTabs
@@ -42,6 +44,9 @@ import androidx.compose.material.samples.LinearProgressIndicatorSample
 import androidx.compose.material.samples.MenuSample
 import androidx.compose.material.samples.ModalBottomSheetSample
 import androidx.compose.material.samples.ModalDrawerSample
+import androidx.compose.material.samples.NavigationRailBottomAlignSample
+import androidx.compose.material.samples.NavigationRailSample
+import androidx.compose.material.samples.NavigationRailWithOnlySelectedLabelsSample
 import androidx.compose.material.samples.OneLineListItems
 import androidx.compose.material.samples.OneLineRtlLtrListItems
 import androidx.compose.material.samples.OutlinedButtonSample
@@ -122,6 +127,18 @@ val BackdropExamples = listOf(
         sourceUrl = BackdropExampleSourceUrl
     ) {
         BackdropScaffoldSample()
+    }
+)
+
+private const val BadgeExampleDescription = "Badge examples"
+private const val BadgeExampleSourceUrl = "$SampleSourceUrl/BadgeSamples.kt"
+val BadgeExamples = listOf(
+    Example(
+        name = ::BottomNavigationItemWithBadge.name,
+        description = BadgeExampleDescription,
+        sourceUrl = BadgeExampleSourceUrl
+    ) {
+        BottomNavigationItemWithBadge()
     }
 )
 
@@ -621,5 +638,38 @@ val TextFieldsExamples = listOf(
         sourceUrl = TextFieldsExampleSourceUrl
     ) {
         TextFieldWithHideKeyboardOnImeAction()
+    }
+)
+
+private const val NavigationRailExampleDescription = "Navigation Rail examples"
+private const val NavigationRailExampleSourceUrl = "$SampleSourceUrl/NavigationRailSamples.kt"
+val NavigationRailExamples = listOf(
+    Example(
+        name = ::NavigationRailSample.name,
+        description = NavigationRailExampleDescription,
+        sourceUrl = NavigationRailExampleSourceUrl
+    ) {
+        NavigationRailSample()
+    },
+    Example(
+        name = ::NavigationRailWithOnlySelectedLabelsSample.name,
+        description = NavigationRailExampleDescription,
+        sourceUrl = NavigationRailExampleSourceUrl
+    ) {
+        NavigationRailWithOnlySelectedLabelsSample()
+    },
+    Example(
+        name = ::CompactNavigationRailSample.name,
+        description = NavigationRailExampleDescription,
+        sourceUrl = NavigationRailExampleSourceUrl
+    ) {
+        CompactNavigationRailSample()
+    },
+    Example(
+        name = ::NavigationRailBottomAlignSample.name,
+        description = NavigationRailExampleDescription,
+        sourceUrl = NavigationRailExampleSourceUrl
+    ) {
+        NavigationRailBottomAlignSample()
     }
 )

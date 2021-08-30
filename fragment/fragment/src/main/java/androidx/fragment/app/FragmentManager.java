@@ -732,10 +732,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @param flags Either 0 or {@link #POP_BACK_STACK_INCLUSIVE}.
      */
     public void popBackStack(final int id, final int flags) {
+        popBackStack(id, flags, false);
+    }
+
+    void popBackStack(final int id, final int flags, boolean allowStateLoss) {
         if (id < 0) {
             throw new IllegalArgumentException("Bad id: " + id);
         }
-        enqueueAction(new PopBackStackState(null, id, flags), false);
+        enqueueAction(new PopBackStackState(null, id, flags), allowStateLoss);
     }
 
     /**
@@ -1994,12 +1998,23 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     boolean restoreBackStackState(@NonNull ArrayList<BackStackRecord> records,
             @NonNull ArrayList<Boolean> isRecordPop, @NonNull String name) {
-        BackStackState backStackState = mBackStackStates.get(name);
+        BackStackState backStackState = mBackStackStates.remove(name);
         if (backStackState == null) {
             return false;
         }
 
-        List<BackStackRecord> backStackRecords = backStackState.instantiate(this);
+        HashMap<String, Fragment> pendingSavedFragments = new HashMap<>();
+        for (BackStackRecord record : records) {
+            if (record.mBeingSaved) {
+                for (FragmentTransaction.Op op : record.mOps) {
+                    if (op.mFragment != null) {
+                        pendingSavedFragments.put(op.mFragment.mWho, op.mFragment);
+                    }
+                }
+            }
+        }
+        List<BackStackRecord> backStackRecords = backStackState.instantiate(this,
+                pendingSavedFragments);
         boolean added = false;
         for (BackStackRecord record : backStackRecords) {
             added = record.generateOps(records, isRecordPop) || added;
@@ -2019,7 +2034,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // atomic operation and intermediate fragments aren't moved all the way
         // up to the RESUMED state
         for (int i = index; i < mBackStack.size(); i++) {
-            BackStackRecord record = mBackStack.get(index);
+            BackStackRecord record = mBackStack.get(i);
             if (!record.mReorderingAllowed) {
                 throwException(new IllegalArgumentException("saveBackStack(\"" + name + "\") "
                         + "included FragmentTransactions must use setReorderingAllowed(true) "
@@ -2033,7 +2048,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // that fragment includes an OP_ADD
         HashSet<Fragment> allFragments = new HashSet<>();
         for (int i = index; i < mBackStack.size(); i++) {
-            BackStackRecord record = mBackStack.get(index);
+            BackStackRecord record = mBackStack.get(i);
             HashSet<Fragment> affectedFragments = new HashSet<>();
             HashSet<Fragment> addedFragments = new HashSet<>();
             for (FragmentTransaction.Op op : record.mOps) {
@@ -2042,11 +2057,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     continue;
                 }
                 if (!op.mFromExpandedOp || op.mCmd == FragmentTransaction.OP_ADD
+                        || op.mCmd == FragmentTransaction.OP_REPLACE
                         || op.mCmd == FragmentTransaction.OP_SET_PRIMARY_NAV) {
                     allFragments.add(f);
                     affectedFragments.add(f);
                 }
-                if (op.mCmd == FragmentTransaction.OP_ADD) {
+                if (op.mCmd == FragmentTransaction.OP_ADD
+                        || op.mCmd == FragmentTransaction.OP_REPLACE) {
                     addedFragments.add(f);
                 }
             }

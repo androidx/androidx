@@ -34,7 +34,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
         maven {
             url metalavaRepo
             metadataSources {
@@ -49,21 +48,25 @@ buildscript {
                 artifact()
             }
         }
+        gradlePluginPortal()
     }
 
     ext.repos = [:]
     dependencies {
-        classpath(libs.androidGradlePlugin)
-        classpath(libs.kotlinGradlePlugin)
-        classpath(libs.kspGradlePlugin)
+        // NOTE: It's not really clear why asm:9.1 must be explicitly declared here since it should
+        // be provided transitively.
+        classpath("org.ow2.asm:asm:9.1")
+        classpath(libs.androidGradlePluginz)
+        classpath(libs.kotlinGradlePluginz)
+        classpath(libs.kspGradlePluginz)
         classpath(libs.gson)
-        classpath "androidx.build:gradle-plugin:0.1.0"
         classpath(libs.shadow)
+        classpath(libs.japicmpPluginz)
     }
 }
 
 apply from: "$supportRootFolder/buildSrc/dependencies.gradle"
-apply from: "$supportRootFolder/playground-common/out.gradle"
+apply from: "$supportRootFolder/buildSrc/out.gradle"
 init.chooseOutDir("/${rootProject.name}")
 
 apply plugin: AndroidXRootPlugin

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat;
 
 import android.hardware.camera2.CameraCharacteristics;
+import android.os.Build;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -25,6 +26,7 @@ import androidx.annotation.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A wrapper for {@link CameraCharacteristics} which caches the retrieved values to optimize
@@ -35,10 +37,14 @@ public class CameraCharacteristicsCompat {
     @GuardedBy("this")
     private final Map<CameraCharacteristics.Key<?>, Object> mValuesCache = new HashMap<>();
     @NonNull
-    private final CameraCharacteristics mCameraCharacteristics;
+    private final CameraCharacteristicsCompatImpl mCameraCharacteristicsImpl;
 
     private CameraCharacteristicsCompat(@NonNull CameraCharacteristics cameraCharacteristics) {
-        mCameraCharacteristics = cameraCharacteristics;
+        if (Build.VERSION.SDK_INT >= 28) {
+            mCameraCharacteristicsImpl = new CameraCharacteristicsApi28Impl(cameraCharacteristics);
+        } else {
+            mCameraCharacteristicsImpl = new CameraCharacteristicsBaseImpl(cameraCharacteristics);
+        }
     }
 
     /**
@@ -70,7 +76,7 @@ public class CameraCharacteristicsCompat {
                 return value;
             }
 
-            value = mCameraCharacteristics.get(key);
+            value = mCameraCharacteristicsImpl.get(key);
             if (value != null) {
                 mValuesCache.put(key, value);
             }
@@ -79,10 +85,42 @@ public class CameraCharacteristicsCompat {
     }
 
     /**
+     * Returns the physical camera Ids if it is a logical camera. Otherwise it would
+     * return an empty set.
+     */
+    @NonNull
+    public Set<String> getPhysicalCameraIds() {
+        return mCameraCharacteristicsImpl.getPhysicalCameraIds();
+    }
+
+    /**
      * Returns the {@link CameraCharacteristics} represented by this object.
      */
     @NonNull
     public CameraCharacteristics toCameraCharacteristics() {
-        return mCameraCharacteristics;
+        return mCameraCharacteristicsImpl.unwrap();
+    }
+
+    /**
+     * CameraCharacteristic Implementation Interface
+     */
+    public interface CameraCharacteristicsCompatImpl {
+        /**
+         * Gets the key/values from the CameraCharacteristics .
+         */
+        @Nullable
+        <T> T get(@NonNull CameraCharacteristics.Key<T> key);
+
+        /**
+         * Get physical camera ids.
+         */
+        @NonNull
+        Set<String> getPhysicalCameraIds();
+
+        /**
+         * Returns the underlying {@link CameraCharacteristics} instance.
+         */
+        @NonNull
+        CameraCharacteristics unwrap();
     }
 }

@@ -30,13 +30,15 @@ import androidx.leanback.system.Settings;
  * Initialize it with ShadowOverlayHelper.Builder and it decides the best strategy based
  * on options user choose and current platform version.
  *
+ * <ul>
  * <li> For shadow:  it may use 9-patch with opticalBounds or Z-value based shadow for
  *                   API >= 21.  When 9-patch is used, it requires a ShadowOverlayContainer
- *                   to include 9-patch views.
+ *                   to include 9-patch views.</li>
  * <li> For overlay: it may use ShadowOverlayContainer which overrides draw() or it may
  *                   use setForeground(new ColorDrawable()) for API>=23.  The foreground support
- *                   might be disabled if rounded corner is applied due to performance reason.
- * <li> For rounded-corner:  it uses a ViewOutlineProvider for API>=21.
+ *                   might be disabled if rounded corner is applied due to performance reason.</li>
+ * <li> For rounded-corner:  it uses a ViewOutlineProvider for API>=21.</li>
+ * </ul>
  *
  * There are two different strategies: use Wrapper with a ShadowOverlayContainer;
  * or apply rounded corner, overlay and rounded-corner to the view itself.  Below is an example

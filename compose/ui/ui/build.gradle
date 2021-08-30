@@ -40,9 +40,6 @@ dependencies {
         implementation(libs.kotlinStdlibCommon)
         implementation(libs.kotlinCoroutinesCore)
 
-        // TODO: b/160602714 create a lower level module to avoid this dependency on the
-        // animation group
-        api(project(":compose:animation:animation-core"))
         api(project(":compose:runtime:runtime-saveable"))
         api(project(":compose:ui:ui-geometry"))
         api(project(":compose:ui:ui-graphics"))
@@ -89,12 +86,13 @@ dependencies {
         androidTestImplementation(libs.mockitoCore)
         androidTestImplementation(libs.truth)
         androidTestImplementation(libs.mockitoKotlin)
+        androidTestImplementation(project(":compose:animation:animation-core"))
         androidTestImplementation(project(":compose:foundation:foundation"))
         androidTestImplementation(project(":compose:foundation:foundation-layout"))
         androidTestImplementation(project(":compose:test-utils"))
         androidTestImplementation(project(":compose:ui:ui-test-font"))
         androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-        androidTestImplementation(project(":test-screenshot"))
+        androidTestImplementation(project(":test:screenshot:screenshot"))
         androidTestImplementation("androidx.recyclerview:recyclerview:1.1.0")
         androidTestImplementation("androidx.core:core-ktx:1.1.0")
         androidTestImplementation(project(":activity:activity-compose"))
@@ -122,9 +120,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
 
-                // TODO: b/160602714 create a lower level module to avoid this dependency on the
-                // animation group
-                api project(":compose:animation:animation-core")
                 api project(":compose:runtime:runtime-saveable")
                 api project(":compose:ui:ui-geometry")
                 api project(":compose:ui:ui-graphics")
@@ -189,12 +184,13 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.mockitoCore)
                 implementation(libs.truth)
                 implementation(libs.mockitoKotlin)
+                implementation(project(":compose:animation:animation-core"))
                 implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:foundation:foundation-layout"))
                 implementation(project(":compose:test-utils"))
                 implementation(project(":compose:ui:ui-test-font"))
                 implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":test-screenshot"))
+                implementation(project(":test:screenshot:screenshot"))
                 implementation("androidx.recyclerview:recyclerview:1.1.0")
                 implementation("androidx.core:core-ktx:1.1.0")
                 implementation(project(":activity:activity-compose"))
@@ -254,9 +250,9 @@ android {
 def verifyKotlinModule(String variant) {
     project.afterEvaluate {
         def capitalVariant = variant.capitalize()
+        def moduleFile = new File("${buildDir}/tmp/kotlin-classes/${variant}/META-INF/ui_${variant}.kotlin_module")
         tasks.named("compile${capitalVariant}Kotlin").configure { t ->
             t.doLast {
-                def moduleFile = project.file("${buildDir}/tmp/kotlin-classes/${variant}/META-INF/ui_${variant}.kotlin_module")
                 // This file should be large, about 3.2K. If this file is short then many symbols will fail to resolve
                 if (moduleFile.length() < 250) {
                     throw new GradleException("kotlin_module file ($moduleFile) too short! See b/188565660 for more information. File text: ${moduleFile.text}")

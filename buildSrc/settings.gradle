@@ -15,6 +15,8 @@
  */
 
 include ":jetpad-integration"
+include ":plugins"
+include ":private"
 
 enableFeaturePreview("VERSION_CATALOGS")
 
@@ -26,6 +28,11 @@ dependencyResolutionManagement {
             if (agpOverride != null) {
                 logger.warn("Using custom version ${agpOverride} of AGP due to GRADLE_PLUGIN_VERSION being set.")
                 version('androidGradlePlugin', agpOverride)
+            }
+            def lintOverride = System.getenv("LINT_VERSION")
+            if (lintOverride != null) {
+                logger.warn("Using custom version ${lintOverride} of Lint due to LINT_VERSION being set.")
+                version('androidLint', lintOverride)
             }
         }
     }

@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.compat.XConverters.toJavac
+import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.XTestInvocation
 import javax.lang.model.SourceVersion
 
@@ -23,26 +25,16 @@ import javax.lang.model.SourceVersion
 @ExperimentalProcessingApi
 class SyntheticJavacProcessor private constructor(
     private val impl: SyntheticProcessorImpl
-) : JavacTestProcessor(), SyntheticProcessor by impl {
-    constructor(handlers: List<(XTestInvocation) -> Unit>) : this(
-        SyntheticProcessorImpl(handlers)
-    )
-    override fun doProcess(annotations: Set<XTypeElement>, roundEnv: XRoundEnv): Boolean {
-        if (!impl.canRunAnotherRound()) {
-            return true
+) : JavacBasicAnnotationProcessor(), SyntheticProcessor by impl {
+    constructor(handlers: List<(XTestInvocation) -> Unit>) : this(SyntheticProcessorImpl(handlers))
+
+    override fun processingSteps(): Iterable<XProcessingStep> = impl.processingSteps()
+
+    override fun postRound(env: XProcessingEnv, round: XRoundEnv) {
+        if (!round.toJavac().processingOver()) {
+            impl.postRound(env, round)
         }
-        val xEnv = XProcessingEnv.create(processingEnv)
-        val testInvocation = XTestInvocation(
-            processingEnv = xEnv,
-            roundEnv = roundEnv
-        )
-        impl.runNextRound(testInvocation)
-        return impl.expectsAnotherRound()
     }
 
-    override fun getSupportedSourceVersion(): SourceVersion {
-        return SourceVersion.latest()
-    }
-
-    override fun getSupportedAnnotationTypes() = setOf("*")
+    override fun getSupportedSourceVersion() = SourceVersion.latest()
 }

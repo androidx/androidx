@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -8,7 +8,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteOpenHelper.java"
-            line="143"
+            line="149"
             column="9"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteOpenHelper.java"
-            line="154"
+            line="160"
             column="9"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteOpenHelper.java"
-            line="199"
+            line="205"
             column="9"/>
     </issue>
 

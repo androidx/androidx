@@ -28,20 +28,6 @@ import org.junit.runner.RunWith
 class ComposeNavigatorTest {
 
     @Test
-    fun testBackStackPriorToAttach() {
-        val navigator = ComposeNavigator()
-        val beforeAttachBackStack = navigator.backStack
-        assertThat(beforeAttachBackStack.value)
-            .isEmpty()
-
-        val navigatorState = TestNavigatorState()
-        navigator.onAttach(navigatorState)
-        val afterAttachBackStack = navigator.backStack
-        assertThat(afterAttachBackStack)
-            .isNotSameInstanceAs(beforeAttachBackStack)
-    }
-
-    @Test
     fun testNavigateAndPopUpdatesBackStack() {
         val navigator = ComposeNavigator()
         val navigatorState = TestNavigatorState()

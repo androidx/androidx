@@ -19,11 +19,12 @@ package androidx.core.location;
 import static android.provider.Settings.Secure.LOCATION_MODE;
 import static android.provider.Settings.Secure.LOCATION_MODE_OFF;
 
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Handler;
@@ -33,7 +34,6 @@ import android.text.TextUtils;
 
 import androidx.core.os.CancellationSignal;
 import androidx.core.os.ExecutorCompat;
-import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -76,17 +76,65 @@ public class LocationManagerCompatTest {
     }
 
     @Test
+    public void testHasProvider() {
+        for (String provider : mLocationManager.getAllProviders()) {
+            boolean hasProvider;
+            if (Build.VERSION.SDK_INT >= 31) {
+                hasProvider = mLocationManager.hasProvider(provider);
+            } else {
+                hasProvider = mLocationManager.getProvider(provider) != null;
+            }
+
+            assertEquals(hasProvider, LocationManagerCompat.hasProvider(mLocationManager,
+                    provider));
+        }
+    }
+
+    @Test
     public void testGetCurrentLocation() {
         // can't do much to test this except check it doesn't crash
         CancellationSignal cs = new CancellationSignal();
         LocationManagerCompat.getCurrentLocation(mLocationManager,
                 LocationManager.PASSIVE_PROVIDER, cs,
                 ExecutorCompat.create(new Handler(Looper.getMainLooper())),
-                new Consumer<Location>() {
-                    @Override
-                    public void accept(Location location) {}
-                });
+                location -> {});
         cs.cancel();
+    }
+
+    @Test
+    public void testRequestLocationUpdates_Executor() {
+        // can't do much to test this except check it doesn't crash
+        LocationRequestCompat request = new LocationRequestCompat.Builder(0).build();
+        LocationListenerCompat listener1 = location -> {};
+        LocationListenerCompat listener2 = location -> {};
+        for (String provider : mLocationManager.getAllProviders()) {
+            LocationManagerCompat.requestLocationUpdates(mLocationManager, provider, request,
+                    directExecutor(), listener1);
+            LocationManagerCompat.requestLocationUpdates(mLocationManager, provider, request,
+                    directExecutor(), listener2);
+            LocationManagerCompat.requestLocationUpdates(mLocationManager, provider, request,
+                    directExecutor(), listener1);
+        }
+        LocationManagerCompat.removeUpdates(mLocationManager, listener1);
+        LocationManagerCompat.removeUpdates(mLocationManager, listener2);
+    }
+
+    @Test
+    public void testRequestLocationUpdates_Looper() {
+        // can't do much to test this except check it doesn't crash
+        LocationRequestCompat request = new LocationRequestCompat.Builder(0).build();
+        LocationListenerCompat listener1 = location -> {};
+        LocationListenerCompat listener2 = location -> {};
+        for (String provider : mLocationManager.getAllProviders()) {
+            LocationManagerCompat.requestLocationUpdates(mLocationManager, provider, request,
+                    listener1, Looper.getMainLooper());
+            LocationManagerCompat.requestLocationUpdates(mLocationManager, provider, request,
+                    listener2, Looper.getMainLooper());
+            LocationManagerCompat.requestLocationUpdates(mLocationManager, provider, request,
+                    listener1, Looper.getMainLooper());
+        }
+        LocationManagerCompat.removeUpdates(mLocationManager, listener1);
+        LocationManagerCompat.removeUpdates(mLocationManager, listener2);
     }
 
     @Test

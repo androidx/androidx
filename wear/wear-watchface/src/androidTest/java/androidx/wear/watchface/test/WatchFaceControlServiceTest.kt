@@ -21,11 +21,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.icu.util.Calendar
-import android.os.Handler
-import android.os.Looper
+import android.os.Build
 import android.support.wearable.watchface.SharedMemoryImage
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -60,17 +59,18 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.junit.Assume
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.ZonedDateTime
 
 // This service constructs a WatchFace with a task that's posted on the UI thread.
 internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
-    private val mainThreadCoroutineScope = CoroutineScope(
-        Handler(Looper.getMainLooper()).asCoroutineDispatcher()
-    )
+    private val mainThreadCoroutineScope = CoroutineScope(Dispatchers.Main.immediate)
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
@@ -87,12 +87,12 @@ internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
                 CanvasType.SOFTWARE,
                 16
             ) {
-                override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    calendar: Calendar
+                    zonedDateTime: ZonedDateTime
                 ) {}
             }
         )
@@ -100,11 +100,17 @@ internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
 }
 
 @RunWith(AndroidJUnit4::class)
+@RequiresApi(Build.VERSION_CODES.O_MR1)
 @MediumTest
 public class WatchFaceControlServiceTest {
 
     @get:Rule
     internal val screenshotRule = AndroidXScreenshotTestRule("wear/wear-watchface")
+
+    @Before
+    public fun setUp() {
+        Assume.assumeTrue("This test suite assumes API 27", Build.VERSION.SDK_INT >= 27)
+    }
 
     private fun createInstance(width: Int, height: Int): IHeadlessWatchFace {
         val instanceService = IWatchFaceControlService.Stub.asInterface(
@@ -244,7 +250,7 @@ public class WatchFaceControlServiceTest {
                 ComplicationRenderParams(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                     RenderParameters(
-                        DrawMode.AMBIENT,
+                        DrawMode.INTERACTIVE,
                         WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                         null,
                     ).toWireFormat(),

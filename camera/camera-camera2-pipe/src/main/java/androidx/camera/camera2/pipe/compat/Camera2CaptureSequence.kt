@@ -145,6 +145,16 @@ internal class Camera2CaptureSequence(
                 frameInfo
             )
         }
+
+        // TODO: Implement a proper mechanism to delay the firing of onComplete(). See
+        // androidx.camera.camera2.pipe.Request.Listener for context.
+        invokeOnRequest(request) {
+            it.onComplete(
+                request,
+                frameNumber,
+                frameInfo
+            )
+        }
     }
 
     override fun onCaptureFailed(

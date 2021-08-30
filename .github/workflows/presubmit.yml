@@ -1,25 +1,16 @@
 name: AndroidX Presubmits
 on:
   push:
-    branches:
-      - androidx-main
-  pull_request_target:
-    types: ['labeled']
+  pull_request:
 
 jobs:
   setup:
-    # Both `run_workflow` and `retry_workflow` will trigger the workflow
-    if: ${{ (github.event_name == 'push' || contains(github.event.label.name, 'workflow')) }}
     runs-on: ubuntu-latest
     outputs:
       gradlew_flags: ${{ steps.global-constants.outputs.gradlew_flags }}
+      checkout_ref: ${{ steps.checkout-args.outputs.ref }}
+      checkout_repo: ${{ steps.checkout-args.outputs.repository }}
     steps:
-      - name: "Start webhook"
-        uses: androidx/github-workflow-webhook-action@main
-        with:
-          url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
       - name: "Setup global constants"
         id: global-constants
         run: |
@@ -28,14 +19,32 @@ jobs:
             -Dorg.gradle.internal.http.socketTimeout=300000                  \
             -Dorg.gradle.internal.repository.max.retries=10                  \
             -Dorg.gradle.internal.repository.initial.backoff=500             \
+            -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=512m"                 \
             --stacktrace"
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
+      - name: "Compute actions/checkout arguments"
+        id: checkout-args
+        run: |
+          set -x
+
+          REF=${{ github.event.pull_request.head.ref }}
+          if [ -z "$REF" ]; then
+            REF=${{ github.event.ref }}
+          fi
+          echo "::set-output name=ref::$REF"
+
+          REPOSITORY=${{ github.event.pull_request.head.repo.full_name }}
+          if [ -z "$REPOSITORY" ]; then
+            REPOSITORY=${{ github.repository }}
+          fi
+          echo "::set-output name=repository::$REPOSITORY"
 
   lint:
     runs-on: ubuntu-latest
     needs: [setup]
     outputs:
       status: ${{ steps.output-status.outputs.status }}
+      affectedFileArgs: ${{ steps.affected-file-args.outputs.files }}
     steps:
       - name: Pull request format
         uses: 'androidx/check-pr-format-action@main'
@@ -59,11 +68,15 @@ jobs:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
         with:
+          ref: ${{ needs.setup.outputs.checkout_ref }}
+          repository: ${{ needs.setup.outputs.checkout_repo }}
           fetch-depth: 1
 
       - name: "Get changed files in push or pull_request"
         id: changed-files
         uses: androidx/changed-files-action@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Warn on missing updateApi"
         run: |
@@ -77,13 +90,19 @@ jobs:
           KTLINT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g' | grep -v "*.txt"`
           echo "::set-output name=ktlint-file-args::$KTLINT_FILES"
 
+      - name: "Parse changed-files as affected files args"
+        id: affected-file-args
+        run: |
+          set -x
+          AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|\([^ ]\+\)|--changedFilePath=\1|g'`
+          echo "::set-output name=files::$AFFECTED_FILES"
       - name: "ktlint"
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-command-action@v1.4.1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
           arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
-          build-root-directory: room
+          build-root-directory: activity
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
           gradle-executable: activity/gradlew
@@ -94,10 +113,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        project: ["activity", "biometric", "compose-compiler", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
+        project: ["activity", "biometric", "compose-runtime", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
         include:
-          - project: "compose-compiler"
-            project-root: "compose/compiler"
+          - project: "compose-runtime"
+            project-root: "compose/runtime"
           - project: "navigation"
             custom-os: "macos-latest" # run one of them on a mac to ensure mac setup works
     runs-on: ${{ matrix.custom-os || matrix.os }}
@@ -109,6 +128,8 @@ jobs:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
         with:
+          ref: ${{ needs.setup.outputs.checkout_ref }}
+          repository: ${{ needs.setup.outputs.checkout_repo }}
           fetch-depth: 1
       - name: "Setup JDK 8 for tools.jar"
         id: setup-java8
@@ -133,9 +154,30 @@ jobs:
           set -x
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
-
+      - name: "./gradlew findAffectedModules"
+        id: find-affected-modules
+        if: ${{ needs.lint.outputs.affectedFileArgs != '' }}
+        uses: gradle/gradle-command-action@v1.4.1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+          JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
+        with:
+          arguments: findAffectedModules ${{ needs.lint.outputs.affectedFileArgs }} ${{ needs.setup.outputs.gradlew_flags }} --outputFilePath=${{ github.workspace }}/affected.txt
+          build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
+      - name: "Parse the output of find affected modules step to see if we should build"
+        id: affected-module-count
+        run: |
+          set -x
+          AFFECTED_MODULE_COUNT=`grep -c ".*" ${{ github.workspace }}/affected.txt || true`
+          echo "::set-output name=count::$AFFECTED_MODULE_COUNT"
       - name: "./gradlew buildOnServer buildTestApks"
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-command-action@v1.4.1
+        if: ${{ steps.affected-module-count.outputs.count > 0 }}
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
@@ -155,40 +197,3 @@ jobs:
         with:
           name: artifacts_${{ env.artifact-id }}
           path: ~/dist
-
-  teardown:
-    runs-on: ubuntu-latest
-    needs: [
-      setup,
-      lint,
-      build-modules
-    ]
-    if: always()
-    steps:
-      - name: Parse workflow status
-        id: workflow-status
-        run: |
-          set -x
-          if [ "${{ needs.lint.result }}" == "success" ]                  && \
-            [ "${{ needs.build-modules.result }}" == "success" ]
-          then
-            echo "::set-output name=result::success"
-          else
-            echo "::set-output name=result::failure"
-          fi
-
-      - name: Successful WebHook
-        if: steps.workflow-status.outputs.result == 'success'
-        uses: androidx/github-workflow-webhook-action@main
-        with:
-          url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": true }'
-
-      - name: Failure WebHook
-        if: steps.workflow-status.outputs.result == 'failure'
-        uses: androidx/github-workflow-webhook-action@main
-        with:
-          url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": false }'

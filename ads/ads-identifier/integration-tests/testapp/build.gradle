@@ -27,7 +27,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":ads-identifier"))
-    implementation(project(":ads-identifier-common"))
+    implementation(project(":ads:ads-identifier"))
+    implementation(project(":ads:ads-identifier-common"))
     implementation(libs.guavaAndroid)
 }

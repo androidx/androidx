@@ -43,7 +43,8 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
     public void onReceive(@NonNull Context context, @Nullable Intent intent) {
         if (intent == null) return;
         if (!ACTION_INSTALL_PROFILE.equals(intent.getAction())) return;
-        ProfileInstaller.writeProfile(context, Runnable::run, new ResultDiagnostics());
+        ProfileInstaller.writeProfile(context, Runnable::run,
+                new ResultDiagnostics(), /* forceWriteProfile */true);
     }
 
     class ResultDiagnostics implements ProfileInstaller.DiagnosticsCallback {

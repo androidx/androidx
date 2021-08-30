@@ -28,7 +28,7 @@ dependencies {
     api(libs.guavaListenableFuture)
 
     implementation("androidx.annotation:annotation-experimental:1.1.0")
-    implementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
+    implementation(project(path: ":wear:tiles:tiles-proto"))
 
     compileOnly(libs.kotlinStdlib) // For annotation-experimental
 
@@ -61,7 +61,6 @@ androidx {
     name = "Android Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.WEAR_TILES
-    mavenVersion = LibraryVersions.WEAR_TILES
     inceptionYear = "2020"
     description = "Android Wear Tiles"
 }

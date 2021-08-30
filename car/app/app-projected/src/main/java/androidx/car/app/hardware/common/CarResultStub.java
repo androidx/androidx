@@ -49,7 +49,7 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
     private final int mResultType;
     @Nullable private final Bundleable mBundle;
     private final boolean mIsSingleShot;
-    private final Map<OnCarDataListener<T>, Executor> mListeners = new HashMap<>();
+    private final Map<OnCarDataAvailableListener<T>, Executor> mListeners = new HashMap<>();
     private final T mUnsupportedValue;
 
     /**
@@ -87,16 +87,35 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
      *                              {@code null}
      */
     public void addListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<T> listener) {
-        if (mListeners.put(requireNonNull(listener), executor) != null) {
-            // Listener is already registered.
+            @NonNull OnCarDataAvailableListener<T> listener) {
+        boolean alreadySubscribedToHost = !mListeners.isEmpty();
+        mListeners.put(requireNonNull(listener), executor);
+
+        if (alreadySubscribedToHost) {
             return;
         }
         if (mIsSingleShot) {
             mHostDispatcher.dispatchGetCarHardwareResult(mResultType, mBundle, this);
         } else {
-            // TODO(b/188137613): Add multi callback.
+            mHostDispatcher.dispatchSubscribeCarHardwareResult(mResultType, mBundle, this);
         }
+    }
+
+    /**
+     * Removes a previously registered listener and returns {@code true} if there are no more
+     * listeners attached to this stub.
+     *
+     * @throws NullPointerException if {@code listener} is {@code null}
+     */
+    public boolean removeListener(@NonNull OnCarDataAvailableListener<T> listener) {
+        mListeners.remove(requireNonNull(listener));
+        if (!mListeners.isEmpty()) {
+            return false;
+        }
+        if (!mIsSingleShot) {
+            mHostDispatcher.dispatchUnsubscribeCarHardwareResult(mResultType, mBundle);
+        }
+        return true;
     }
 
     @Override
@@ -113,15 +132,15 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
     private void notifyResults(boolean isSupported, @NonNull Bundleable result)
             throws BundlerException {
         T data = isSupported ? convertAndRecast(result) : mUnsupportedValue;
-        for (Map.Entry<OnCarDataListener<T>, Executor> entry: mListeners.entrySet()) {
-            entry.getValue().execute(() -> entry.getKey().onCarData(data));
+        for (Map.Entry<OnCarDataAvailableListener<T>, Executor> entry: mListeners.entrySet()) {
+            entry.getValue().execute(() -> entry.getKey().onCarDataAvailable(data));
         }
         if (mIsSingleShot) {
             mListeners.clear();
         }
     }
 
-    @SuppressWarnings({"unchecked", "cast.unsafe"}) // Cannot check if instanceof ServiceT
+    @SuppressWarnings({"unchecked", "cast.unsafe"}) // Cannot check if instanceof T
     private T convertAndRecast(@NonNull Bundleable bundleable) throws BundlerException {
         Object object = bundleable.get();
         T data;

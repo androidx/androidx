@@ -26,6 +26,8 @@ import androidx.compose.ui.test.AndroidInputDispatcher
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.util.assertHasValidEventTimes
 import androidx.compose.testutils.expectError
+import androidx.compose.ui.test.util.Finger
+import androidx.compose.ui.test.util.Touchscreen
 import androidx.compose.ui.test.util.verifyEvent
 import androidx.compose.ui.test.util.verifyPointer
 import androidx.test.filters.SmallTest
@@ -33,7 +35,8 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 /**
- * Tests if [AndroidInputDispatcher.movePointer] and [AndroidInputDispatcher.enqueueMove] work
+ * Tests if [AndroidInputDispatcher.updateTouchPointer] and
+ * [AndroidInputDispatcher.enqueueTouchMove] work
  */
 @SmallTest
 class SendMoveTest : InputDispatcherTest() {
@@ -55,57 +58,57 @@ class SendMoveTest : InputDispatcherTest() {
     }
 
     private fun AndroidInputDispatcher.generateCancelAndCheckPointers() {
-        generateCancelAndCheck()
-        assertThat(getCurrentPosition(pointer1)).isNull()
-        assertThat(getCurrentPosition(pointer2)).isNull()
-        assertThat(getCurrentPosition(pointer3)).isNull()
+        generateTouchCancelAndCheck()
+        assertThat(getCurrentTouchPosition(pointer1)).isNull()
+        assertThat(getCurrentTouchPosition(pointer2)).isNull()
+        assertThat(getCurrentTouchPosition(pointer3)).isNull()
     }
 
     @Test
     fun onePointer() {
-        subject.generateDownAndCheck(pointer1, position1_1)
-        subject.movePointerAndCheck(pointer1, position1_2)
-        subject.enqueueMove()
+        subject.generateTouchDownAndCheck(pointer1, position1_1)
+        subject.updateTouchPointerAndCheck(pointer1, position1_2)
+        subject.enqueueTouchMove()
         subject.sendAllSynchronous()
 
         var t = 0L
         recorder.assertHasValidEventTimes()
         assertThat(recorder.events).hasSize(2)
-        recorder.events[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
-        recorder.events[0].verifyPointer(pointer1, position1_1)
+        recorder.events[0].verifyEvent(1, ACTION_DOWN, 0, t, Touchscreen) // pointer1
+        recorder.events[0].verifyPointer(pointer1, position1_1, Finger)
 
         t += eventPeriodMillis
-        recorder.events[1].verifyEvent(1, ACTION_MOVE, 0, t) // pointer1
-        recorder.events[1].verifyPointer(pointer1, position1_2)
+        recorder.events[1].verifyEvent(1, ACTION_MOVE, 0, t, Touchscreen) // pointer1
+        recorder.events[1].verifyPointer(pointer1, position1_2, Finger)
     }
 
     @Test
     fun onePointerWithDelay() {
-        subject.generateDownAndCheck(pointer1, position1_1)
-        subject.movePointerAndCheck(pointer1, position1_2)
-        subject.enqueueMove(2 * eventPeriodMillis)
+        subject.generateTouchDownAndCheck(pointer1, position1_1)
+        subject.updateTouchPointerAndCheck(pointer1, position1_2)
+        subject.enqueueTouchMove(2 * eventPeriodMillis)
         subject.sendAllSynchronous()
 
         var t = 0L
         recorder.assertHasValidEventTimes()
         assertThat(recorder.events).hasSize(2)
-        recorder.events[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
-        recorder.events[0].verifyPointer(pointer1, position1_1)
+        recorder.events[0].verifyEvent(1, ACTION_DOWN, 0, t, Touchscreen) // pointer1
+        recorder.events[0].verifyPointer(pointer1, position1_1, Finger)
 
         t += 2 * eventPeriodMillis
-        recorder.events[1].verifyEvent(1, ACTION_MOVE, 0, t) // pointer1
-        recorder.events[1].verifyPointer(pointer1, position1_2)
+        recorder.events[1].verifyEvent(1, ACTION_MOVE, 0, t, Touchscreen) // pointer1
+        recorder.events[1].verifyPointer(pointer1, position1_2, Finger)
     }
 
     @Test
     fun twoPointers_downDownMoveMove() {
         // 2 fingers, both go down before they move
-        subject.generateDownAndCheck(pointer1, position1_1)
-        subject.generateDownAndCheck(pointer2, position2_1)
-        subject.movePointerAndCheck(pointer1, position1_2)
-        subject.enqueueMove()
-        subject.movePointerAndCheck(pointer2, position2_2)
-        subject.enqueueMove()
+        subject.generateTouchDownAndCheck(pointer1, position1_1)
+        subject.generateTouchDownAndCheck(pointer2, position2_1)
+        subject.updateTouchPointerAndCheck(pointer1, position1_2)
+        subject.enqueueTouchMove()
+        subject.updateTouchPointerAndCheck(pointer2, position2_2)
+        subject.enqueueTouchMove()
         subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
@@ -113,34 +116,34 @@ class SendMoveTest : InputDispatcherTest() {
             var t = 0L
             assertThat(this).hasSize(4)
 
-            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
-            this[0].verifyPointer(pointer1, position1_1)
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t, Touchscreen) // pointer1
+            this[0].verifyPointer(pointer1, position1_1, Finger)
 
-            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t) // pointer2
-            this[1].verifyPointer(pointer1, position1_1)
-            this[1].verifyPointer(pointer2, position2_1)
-
-            t += eventPeriodMillis
-            this[2].verifyEvent(2, ACTION_MOVE, 0, t)
-            this[2].verifyPointer(pointer1, position1_2)
-            this[2].verifyPointer(pointer2, position2_1)
+            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t, Touchscreen) // pointer2
+            this[1].verifyPointer(pointer1, position1_1, Finger)
+            this[1].verifyPointer(pointer2, position2_1, Finger)
 
             t += eventPeriodMillis
-            this[3].verifyEvent(2, ACTION_MOVE, 0, t)
-            this[3].verifyPointer(pointer1, position1_2)
-            this[3].verifyPointer(pointer2, position2_2)
+            this[2].verifyEvent(2, ACTION_MOVE, 0, t, Touchscreen)
+            this[2].verifyPointer(pointer1, position1_2, Finger)
+            this[2].verifyPointer(pointer2, position2_1, Finger)
+
+            t += eventPeriodMillis
+            this[3].verifyEvent(2, ACTION_MOVE, 0, t, Touchscreen)
+            this[3].verifyPointer(pointer1, position1_2, Finger)
+            this[3].verifyPointer(pointer2, position2_2, Finger)
         }
     }
 
     @Test
     fun twoPointers_downMoveDownMove() {
         // 2 fingers, 1st finger moves before 2nd finger goes down and moves
-        subject.generateDownAndCheck(pointer1, position1_1)
-        subject.movePointerAndCheck(pointer1, position1_2)
-        subject.enqueueMove()
-        subject.generateDownAndCheck(pointer2, position2_1)
-        subject.movePointerAndCheck(pointer2, position2_2)
-        subject.enqueueMove()
+        subject.generateTouchDownAndCheck(pointer1, position1_1)
+        subject.updateTouchPointerAndCheck(pointer1, position1_2)
+        subject.enqueueTouchMove()
+        subject.generateTouchDownAndCheck(pointer2, position2_1)
+        subject.updateTouchPointerAndCheck(pointer2, position2_2)
+        subject.enqueueTouchMove()
         subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
@@ -148,32 +151,32 @@ class SendMoveTest : InputDispatcherTest() {
             var t = 0L
             assertThat(this).hasSize(4)
 
-            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
-            this[0].verifyPointer(pointer1, position1_1)
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t, Touchscreen) // pointer1
+            this[0].verifyPointer(pointer1, position1_1, Finger)
 
             t += eventPeriodMillis
-            this[1].verifyEvent(1, ACTION_MOVE, 0, t)
-            this[1].verifyPointer(pointer1, position1_2)
+            this[1].verifyEvent(1, ACTION_MOVE, 0, t, Touchscreen)
+            this[1].verifyPointer(pointer1, position1_2, Finger)
 
-            this[2].verifyEvent(2, ACTION_POINTER_DOWN, 1, t) // pointer2
-            this[2].verifyPointer(pointer1, position1_2)
-            this[2].verifyPointer(pointer2, position2_1)
+            this[2].verifyEvent(2, ACTION_POINTER_DOWN, 1, t, Touchscreen) // pointer2
+            this[2].verifyPointer(pointer1, position1_2, Finger)
+            this[2].verifyPointer(pointer2, position2_1, Finger)
 
             t += eventPeriodMillis
-            this[3].verifyEvent(2, ACTION_MOVE, 0, t)
-            this[3].verifyPointer(pointer1, position1_2)
-            this[3].verifyPointer(pointer2, position2_2)
+            this[3].verifyEvent(2, ACTION_MOVE, 0, t, Touchscreen)
+            this[3].verifyPointer(pointer1, position1_2, Finger)
+            this[3].verifyPointer(pointer2, position2_2, Finger)
         }
     }
 
     @Test
     fun movePointer_oneMovePerPointer() {
-        // 2 fingers, use [movePointer] and [sendMove]
-        subject.generateDownAndCheck(pointer1, position1_1)
-        subject.generateDownAndCheck(pointer2, position2_1)
-        subject.movePointerAndCheck(pointer1, position1_2)
-        subject.movePointerAndCheck(pointer2, position2_2)
-        subject.enqueueMove()
+        // 2 fingers, use [updateTouchPointer] and [enqueueTouchMove]
+        subject.generateTouchDownAndCheck(pointer1, position1_1)
+        subject.generateTouchDownAndCheck(pointer2, position2_1)
+        subject.updateTouchPointerAndCheck(pointer1, position1_2)
+        subject.updateTouchPointerAndCheck(pointer2, position2_2)
+        subject.enqueueTouchMove()
         subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
@@ -181,28 +184,28 @@ class SendMoveTest : InputDispatcherTest() {
             var t = 0L
             assertThat(this).hasSize(3)
 
-            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
-            this[0].verifyPointer(pointer1, position1_1)
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t, Touchscreen) // pointer1
+            this[0].verifyPointer(pointer1, position1_1, Finger)
 
-            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t) // pointer2
-            this[1].verifyPointer(pointer1, position1_1)
-            this[1].verifyPointer(pointer2, position2_1)
+            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t, Touchscreen) // pointer2
+            this[1].verifyPointer(pointer1, position1_1, Finger)
+            this[1].verifyPointer(pointer2, position2_1, Finger)
 
             t += eventPeriodMillis
-            this[2].verifyEvent(2, ACTION_MOVE, 0, t)
-            this[2].verifyPointer(pointer1, position1_2)
-            this[2].verifyPointer(pointer2, position2_2)
+            this[2].verifyEvent(2, ACTION_MOVE, 0, t, Touchscreen)
+            this[2].verifyPointer(pointer1, position1_2, Finger)
+            this[2].verifyPointer(pointer2, position2_2, Finger)
         }
     }
 
     @Test
     fun movePointer_multipleMovesPerPointer() {
-        // 2 fingers, do several [movePointer]s and then [sendMove]
-        subject.generateDownAndCheck(pointer1, position1_1)
-        subject.generateDownAndCheck(pointer2, position2_1)
-        subject.movePointerAndCheck(pointer1, position1_2)
-        subject.movePointerAndCheck(pointer1, position1_3)
-        subject.enqueueMove()
+        // 2 fingers, do several [updateTouchPointer]s and then [enqueueTouchMove]
+        subject.generateTouchDownAndCheck(pointer1, position1_1)
+        subject.generateTouchDownAndCheck(pointer2, position2_1)
+        subject.updateTouchPointerAndCheck(pointer1, position1_2)
+        subject.updateTouchPointerAndCheck(pointer1, position1_3)
+        subject.enqueueTouchMove()
         subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
@@ -210,26 +213,26 @@ class SendMoveTest : InputDispatcherTest() {
             var t = 0L
             assertThat(this).hasSize(3)
 
-            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
-            this[0].verifyPointer(pointer1, position1_1)
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t, Touchscreen) // pointer1
+            this[0].verifyPointer(pointer1, position1_1, Finger)
 
-            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t) // pointer2
-            this[1].verifyPointer(pointer1, position1_1)
-            this[1].verifyPointer(pointer2, position2_1)
+            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t, Touchscreen) // pointer2
+            this[1].verifyPointer(pointer1, position1_1, Finger)
+            this[1].verifyPointer(pointer2, position2_1, Finger)
 
             t += eventPeriodMillis
-            this[2].verifyEvent(2, ACTION_MOVE, 0, t)
-            this[2].verifyPointer(pointer1, position1_3)
-            this[2].verifyPointer(pointer2, position2_1)
+            this[2].verifyEvent(2, ACTION_MOVE, 0, t, Touchscreen)
+            this[2].verifyPointer(pointer1, position1_3, Finger)
+            this[2].verifyPointer(pointer2, position2_1, Finger)
         }
     }
 
     @Test
     fun sendMoveWithoutMovePointer() {
-        // 2 fingers, do [sendMove] without [movePointer]
-        subject.generateDownAndCheck(pointer1, position1_1)
-        subject.generateDownAndCheck(pointer2, position2_1)
-        subject.enqueueMove()
+        // 2 fingers, do [enqueueTouchMove] without [updateTouchPointer]
+        subject.generateTouchDownAndCheck(pointer1, position1_1)
+        subject.generateTouchDownAndCheck(pointer2, position2_1)
+        subject.enqueueTouchMove()
         subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
@@ -237,28 +240,28 @@ class SendMoveTest : InputDispatcherTest() {
             var t = 0L
             assertThat(this).hasSize(3)
 
-            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
-            this[0].verifyPointer(pointer1, position1_1)
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t, Touchscreen) // pointer1
+            this[0].verifyPointer(pointer1, position1_1, Finger)
 
-            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t) // pointer2
-            this[1].verifyPointer(pointer1, position1_1)
-            this[1].verifyPointer(pointer2, position2_1)
+            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t, Touchscreen) // pointer2
+            this[1].verifyPointer(pointer1, position1_1, Finger)
+            this[1].verifyPointer(pointer2, position2_1, Finger)
 
             t += eventPeriodMillis
-            this[2].verifyEvent(2, ACTION_MOVE, 0, t)
-            this[2].verifyPointer(pointer1, position1_1)
-            this[2].verifyPointer(pointer2, position2_1)
+            this[2].verifyEvent(2, ACTION_MOVE, 0, t, Touchscreen)
+            this[2].verifyPointer(pointer1, position1_1, Finger)
+            this[2].verifyPointer(pointer2, position2_1, Finger)
         }
     }
 
     @Test
     fun downFlushesPointerMovement() {
-        // Movement from [movePointer] that hasn't been sent will be sent when sending DOWN
-        subject.generateDownAndCheck(pointer1, position1_1)
-        subject.generateDownAndCheck(pointer2, position2_1)
-        subject.movePointerAndCheck(pointer1, position1_2)
-        subject.movePointerAndCheck(pointer1, position1_3)
-        subject.generateDownAndCheck(pointer3, position3_1)
+        // Movement from [updateTouchPointer] that hasn't been sent will be sent when sending DOWN
+        subject.generateTouchDownAndCheck(pointer1, position1_1)
+        subject.generateTouchDownAndCheck(pointer2, position2_1)
+        subject.updateTouchPointerAndCheck(pointer1, position1_2)
+        subject.updateTouchPointerAndCheck(pointer1, position1_3)
+        subject.generateTouchDownAndCheck(pointer3, position3_1)
         subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
@@ -266,33 +269,33 @@ class SendMoveTest : InputDispatcherTest() {
             var t = 0L
             assertThat(this).hasSize(4)
 
-            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
-            this[0].verifyPointer(pointer1, position1_1)
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t, Touchscreen) // pointer1
+            this[0].verifyPointer(pointer1, position1_1, Finger)
 
-            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t) // pointer2
-            this[1].verifyPointer(pointer1, position1_1)
-            this[1].verifyPointer(pointer2, position2_1)
+            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t, Touchscreen) // pointer2
+            this[1].verifyPointer(pointer1, position1_1, Finger)
+            this[1].verifyPointer(pointer2, position2_1, Finger)
 
             t += eventPeriodMillis
-            this[2].verifyEvent(2, ACTION_MOVE, 0, t)
-            this[2].verifyPointer(pointer1, position1_3)
-            this[2].verifyPointer(pointer2, position2_1)
+            this[2].verifyEvent(2, ACTION_MOVE, 0, t, Touchscreen)
+            this[2].verifyPointer(pointer1, position1_3, Finger)
+            this[2].verifyPointer(pointer2, position2_1, Finger)
 
-            this[3].verifyEvent(3, ACTION_POINTER_DOWN, 2, t) // pointer2
-            this[3].verifyPointer(pointer1, position1_3)
-            this[3].verifyPointer(pointer2, position2_1)
-            this[3].verifyPointer(pointer3, position3_1)
+            this[3].verifyEvent(3, ACTION_POINTER_DOWN, 2, t, Touchscreen) // pointer2
+            this[3].verifyPointer(pointer1, position1_3, Finger)
+            this[3].verifyPointer(pointer2, position2_1, Finger)
+            this[3].verifyPointer(pointer3, position3_1, Finger)
         }
     }
 
     @Test
     fun upFlushesPointerMovement() {
-        // Movement from [movePointer] that hasn't been sent will be sent when sending UP
-        subject.generateDownAndCheck(pointer1, position1_1)
-        subject.generateDownAndCheck(pointer2, position2_1)
-        subject.movePointerAndCheck(pointer1, position1_2)
-        subject.movePointerAndCheck(pointer1, position1_3)
-        subject.generateUpAndCheck(pointer1)
+        // Movement from [updateTouchPointer] that hasn't been sent will be sent when sending UP
+        subject.generateTouchDownAndCheck(pointer1, position1_1)
+        subject.generateTouchDownAndCheck(pointer2, position2_1)
+        subject.updateTouchPointerAndCheck(pointer1, position1_2)
+        subject.updateTouchPointerAndCheck(pointer1, position1_3)
+        subject.generateTouchUpAndCheck(pointer1)
         subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
@@ -300,21 +303,21 @@ class SendMoveTest : InputDispatcherTest() {
             var t = 0L
             assertThat(this).hasSize(4)
 
-            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
-            this[0].verifyPointer(pointer1, position1_1)
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t, Touchscreen) // pointer1
+            this[0].verifyPointer(pointer1, position1_1, Finger)
 
-            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t) // pointer2
-            this[1].verifyPointer(pointer1, position1_1)
-            this[1].verifyPointer(pointer2, position2_1)
+            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t, Touchscreen) // pointer2
+            this[1].verifyPointer(pointer1, position1_1, Finger)
+            this[1].verifyPointer(pointer2, position2_1, Finger)
 
             t += eventPeriodMillis
-            this[2].verifyEvent(2, ACTION_MOVE, 0, t)
-            this[2].verifyPointer(pointer1, position1_3)
-            this[2].verifyPointer(pointer2, position2_1)
+            this[2].verifyEvent(2, ACTION_MOVE, 0, t, Touchscreen)
+            this[2].verifyPointer(pointer1, position1_3, Finger)
+            this[2].verifyPointer(pointer2, position2_1, Finger)
 
-            this[3].verifyEvent(2, ACTION_POINTER_UP, 0, t) // pointer1
-            this[3].verifyPointer(pointer1, position1_3)
-            this[3].verifyPointer(pointer2, position2_1)
+            this[3].verifyEvent(2, ACTION_POINTER_UP, 0, t, Touchscreen) // pointer1
+            this[3].verifyPointer(pointer1, position1_3, Finger)
+            this[3].verifyPointer(pointer2, position2_1, Finger)
         }
     }
 
@@ -322,10 +325,10 @@ class SendMoveTest : InputDispatcherTest() {
     fun cancelDoesNotFlushPointerMovement() {
         // 2 fingers, both with pending movement.
         // CANCEL doesn't force a MOVE, but _does_ reflect the latest positions
-        subject.generateDownAndCheck(pointer1, position1_1)
-        subject.generateDownAndCheck(pointer2, position2_1)
-        subject.movePointerAndCheck(pointer1, position1_2)
-        subject.movePointerAndCheck(pointer2, position2_2)
+        subject.generateTouchDownAndCheck(pointer1, position1_1)
+        subject.generateTouchDownAndCheck(pointer2, position2_1)
+        subject.updateTouchPointerAndCheck(pointer1, position1_2)
+        subject.updateTouchPointerAndCheck(pointer2, position2_2)
         subject.generateCancelAndCheckPointers()
         subject.sendAllSynchronous()
 
@@ -333,75 +336,75 @@ class SendMoveTest : InputDispatcherTest() {
         recorder.events.apply {
             var t = 0L
             assertThat(this).hasSize(3)
-            this[0].verifyEvent(1, ACTION_DOWN, 0, t) // pointer1
-            this[0].verifyPointer(pointer1, position1_1)
+            this[0].verifyEvent(1, ACTION_DOWN, 0, t, Touchscreen) // pointer1
+            this[0].verifyPointer(pointer1, position1_1, Finger)
 
-            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t) // pointer2
-            this[1].verifyPointer(pointer1, position1_1)
-            this[1].verifyPointer(pointer2, position2_1)
+            this[1].verifyEvent(2, ACTION_POINTER_DOWN, 1, t, Touchscreen) // pointer2
+            this[1].verifyPointer(pointer1, position1_1, Finger)
+            this[1].verifyPointer(pointer2, position2_1, Finger)
 
             t += eventPeriodMillis
-            this[2].verifyEvent(2, ACTION_CANCEL, 0, t)
-            this[2].verifyPointer(pointer1, position1_2)
-            this[2].verifyPointer(pointer2, position2_2)
+            this[2].verifyEvent(2, ACTION_CANCEL, 0, t, Touchscreen)
+            this[2].verifyPointer(pointer1, position1_2, Finger)
+            this[2].verifyPointer(pointer2, position2_2, Finger)
         }
     }
 
     @Test
     fun movePointerWithoutDown() {
         expectError<IllegalStateException> {
-            subject.movePointer(pointer1, position1_1)
+            subject.updateTouchPointer(pointer1, position1_1)
         }
     }
 
     @Test
     fun movePointerWrongPointerId() {
-        subject.enqueueDown(pointer1, position1_1)
+        subject.enqueueTouchDown(pointer1, position1_1)
         expectError<IllegalArgumentException> {
-            subject.movePointer(pointer2, position1_2)
+            subject.updateTouchPointer(pointer2, position1_2)
         }
     }
 
     @Test
     fun movePointerAfterUp() {
-        subject.enqueueDown(pointer1, position1_1)
-        subject.enqueueUp(pointer1)
+        subject.enqueueTouchDown(pointer1, position1_1)
+        subject.enqueueTouchUp(pointer1)
         expectError<IllegalStateException> {
-            subject.movePointer(pointer1, position1_2)
+            subject.updateTouchPointer(pointer1, position1_2)
         }
     }
 
     @Test
     fun movePointerAfterCancel() {
-        subject.enqueueDown(pointer1, position1_1)
-        subject.enqueueCancel()
+        subject.enqueueTouchDown(pointer1, position1_1)
+        subject.enqueueTouchCancel()
         expectError<IllegalStateException> {
-            subject.movePointer(pointer1, position1_2)
+            subject.updateTouchPointer(pointer1, position1_2)
         }
     }
 
     @Test
     fun sendMoveWithoutDown() {
         expectError<IllegalStateException> {
-            subject.enqueueMove()
+            subject.enqueueTouchMove()
         }
     }
 
     @Test
     fun sendMoveAfterUp() {
-        subject.enqueueDown(pointer1, position1_1)
-        subject.enqueueUp(pointer1)
+        subject.enqueueTouchDown(pointer1, position1_1)
+        subject.enqueueTouchUp(pointer1)
         expectError<IllegalStateException> {
-            subject.enqueueMove()
+            subject.enqueueTouchMove()
         }
     }
 
     @Test
     fun sendMoveAfterCancel() {
-        subject.enqueueDown(pointer1, position1_1)
-        subject.enqueueCancel()
+        subject.enqueueTouchDown(pointer1, position1_1)
+        subject.enqueueTouchCancel()
         expectError<IllegalStateException> {
-            subject.enqueueMove()
+            subject.enqueueTouchMove()
         }
     }
 }

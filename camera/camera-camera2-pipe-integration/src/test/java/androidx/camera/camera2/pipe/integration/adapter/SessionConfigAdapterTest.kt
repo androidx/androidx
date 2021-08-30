@@ -20,10 +20,9 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.view.Surface
-import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
@@ -245,36 +244,5 @@ private class TestDeferrableSurface : DeferrableSurface() {
     fun cleanUp() {
         testSurface.release()
         surfaceTexture.release()
-    }
-}
-
-private class FakeCameraGraph : CameraGraph {
-    val setSurfaceResults = mutableMapOf<StreamId, Surface?>()
-
-    override val streams: StreamGraph
-        get() = throw NotImplementedError("Not used in testing")
-
-    override suspend fun acquireSession(): CameraGraph.Session {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override fun acquireSessionOrNull(): CameraGraph.Session? {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override fun close() {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override fun setSurface(stream: StreamId, surface: Surface?) {
-        setSurfaceResults[stream] = surface
-    }
-
-    override fun start() {
-        throw NotImplementedError("Not used in testing")
-    }
-
-    override fun stop() {
-        throw NotImplementedError("Not used in testing")
     }
 }

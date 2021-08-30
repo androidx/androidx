@@ -3,12 +3,6 @@ set -e
 
 # This script runs frameworks/support/gradlew
 
-function showDiskStats() {
-  echo "df -h"
-  df -h
-}
-showDiskStats
-
 # find script
 SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 
@@ -56,7 +50,6 @@ function run() {
     # Put each argument on its own line because some arguments may be long.
     # Also put "\" at the end of non-final lines so the command can be copy-pasted
     echo "$*" | sed 's/ / \\\n/g' | sed 's/^/    /' >&2
-    showDiskStats
     return 1
   fi
 }
@@ -74,7 +67,8 @@ else
   if [ "$DIAGNOSE" == "true" ]; then
     # see if diagnose-build-failure.sh can identify the root cauase
     echo "running diagnose-build-failure.sh, see build.log" >&2
-    ./development/diagnose-build-failure/diagnose-build-failure.sh "--ci saveSystemStats $*"
+    # specify a timeout in case we're running on a remote server, so we don't take too long
+    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 14400 "--ci saveSystemStats $*"
   fi
   exit 1
 fi

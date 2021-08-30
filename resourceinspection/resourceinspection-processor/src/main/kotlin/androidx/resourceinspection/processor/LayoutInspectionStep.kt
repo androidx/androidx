@@ -55,7 +55,13 @@ internal class LayoutInspectionStep(
     override fun process(
         elementsByAnnotation: ImmutableSetMultimap<String, Element>
     ): Set<Element> {
-        // TODO(b/180039277): Validate that linked APIs (e.g. InspectionCompanion) are present
+        if (!isViewInspectorApiPresent()) {
+            printError(
+                "View inspector (android.view.inspector) API is not present. " +
+                    "Please ensure compile SDK is 29 or greater."
+            )
+            return emptySet()
+        }
 
         val views = mergeViews(
             elementsByAnnotation[ATTRIBUTE]
@@ -69,6 +75,13 @@ internal class LayoutInspectionStep(
 
         // We don't defer elements for later rounds in this processor
         return emptySet()
+    }
+
+    /** Checks if the view inspector API is present in the compile class path */
+    private fun isViewInspectorApiPresent(): Boolean {
+        return VIEW_INSPECTOR_CLASSES.all { className ->
+            processingEnv.elementUtils.getTypeElement(className) != null
+        }
     }
 
     /** Merge shadowed and regular attributes into [View] models. */
@@ -127,40 +140,52 @@ internal class LayoutInspectionStep(
         val annotation = getter.getAnnotationMirror(ATTRIBUTE)!!
         val annotationValue = getAnnotationValue(annotation, "value")
         val value = annotationValue.value as String
+        var hasError = false
 
         if (getter.parameters.isNotEmpty() || getter.returnType.kind == TypeKind.VOID) {
             printError("@Attribute must annotate a getter", getter, annotation)
-            return null
+            hasError = true
         }
 
         if (effectiveVisibilityOfElement(getter) != Visibility.PUBLIC) {
             printError("@Attribute getter must be public", getter, annotation)
-            return null
+            hasError = true
         }
 
         if (!getter.enclosingElement.asType().isAssignableTo(VIEW)) {
             printError("@Attribute must be on a subclass of android.view.View", getter, annotation)
-            return null
+            hasError = true
+        }
+
+        val intMapping = parseIntMapping(annotation)
+        if (!validateIntMapping(getter, intMapping)) {
+            hasError = true
         }
 
         val match = ATTRIBUTE_VALUE.matchEntire(value)
 
-        return if (match != null) {
-            val (namespace, name) = match.destructured
-            val intMapping = parseIntMapping(annotation)
-            val type = inferAttributeType(getter, intMapping)
-
-            // TODO(b/180041203): Verify attribute ID or at least existence of R files
-            // TODO(b/180041633): Validate consistency of int mapping
-
-            GetterAttribute(getter, annotation, namespace, name, type, intMapping)
-        } else if (!value.contains(':')) {
-            printError("Attribute name must include namespace", getter, annotation, annotationValue)
-            null
-        } else {
-            printError("Invalid attribute name", getter, annotation, annotationValue)
-            null
+        if (match == null) {
+            if (!value.contains(':')) {
+                printError("@Attribute must include namespace", getter, annotation, annotationValue)
+            } else {
+                printError("Invalid attribute name", getter, annotation, annotationValue)
+            }
+            return null // Returning here since there's no more checks we can do
         }
+
+        if (hasError) {
+            return null
+        }
+
+        val (namespace, name) = match.destructured
+        val type = inferAttributeType(getter, intMapping)
+
+        if (!isAttributeInRFile(namespace, name)) {
+            printError("Attribute $namespace:$name not found", getter, annotation)
+            return null
+        }
+
+        return GetterAttribute(getter, annotation, namespace, name, type, intMapping)
     }
 
     /** Parse `Attribute.intMapping`. */
@@ -172,8 +197,91 @@ internal class LayoutInspectionStep(
                 name = getAnnotationValue(intMapAnnotation, "name").value as String,
                 value = getAnnotationValue(intMapAnnotation, "value").value as Int,
                 mask = getAnnotationValue(intMapAnnotation, "mask").value as Int,
+                annotation = intMapAnnotation
             )
         }.sortedBy { it.value }
+    }
+
+    /** Check that int mapping is valid and consistent */
+    private fun validateIntMapping(element: Element, intMapping: List<IntMap>): Boolean {
+        if (intMapping.isEmpty()) {
+            return true // Return early for the common case of no int mapping
+        }
+
+        var result = true
+        val isEnum = intMapping.all { it.mask == 0 }
+
+        // Check for duplicate names for both flags and enums
+        val duplicateNames = intMapping.groupBy { it.name }.values.filter { it.size > 1 }
+        duplicateNames.flatten().forEach { intMap ->
+            printError(
+                "Duplicate int ${if (isEnum) "enum" else "flag"} entry name: \"${intMap.name}\"",
+                element,
+                intMap.annotation,
+                intMap.annotation?.let { getAnnotationValue(it, "name") }
+            )
+        }
+        if (duplicateNames.isNotEmpty()) {
+            result = false
+        }
+
+        if (isEnum) {
+            // Check for duplicate enum values
+            val duplicateValues = intMapping.groupBy { it.value }.values.filter { it.size > 1 }
+            duplicateValues.forEach { group ->
+                group.forEach { intMap ->
+                    val others = (group - intMap).joinToString { "\"${it.name}\"" }
+                    printError(
+                        "Int enum value ${intMap.value} is duplicated on entries $others",
+                        element,
+                        intMap.annotation,
+                        intMap.annotation?.let { getAnnotationValue(it, "value") }
+                    )
+                }
+            }
+            if (duplicateValues.isNotEmpty()) {
+                result = false
+            }
+        } else {
+            // Check for invalid flags, with masks that obscure part of the value. Note that a mask
+            // of 0 is a special case which implies that the mask is equal to the value as in enums.
+            intMapping.forEach { intMap ->
+                if (intMap.mask and intMap.value != intMap.value && intMap.mask != 0) {
+                    printError(
+                        "Int flag mask 0x${intMap.mask.toString(16)} does not reveal value " +
+                            "0x${intMap.value.toString(16)}",
+                        element,
+                        intMap.annotation
+                    )
+                    result = false
+                }
+            }
+
+            // Check for duplicate flags
+            val duplicatePairs = intMapping
+                .groupBy { Pair(if (it.mask != 0) it.mask else it.value, it.value) }
+                .values
+                .filter { it.size > 1 }
+
+            duplicatePairs.forEach { group ->
+                group.forEach { intMap ->
+                    val others = (group - intMap).joinToString { "\"${it.name}\"" }
+                    val mask = if (intMap.mask != 0) intMap.mask else intMap.value
+                    printError(
+                        "Int flag mask 0x${mask.toString(16)} and value " +
+                            "0x${intMap.value.toString(16)} is duplicated on entries $others",
+                        element,
+                        intMap.annotation
+                    )
+                }
+            }
+
+            if (duplicatePairs.isNotEmpty()) {
+                result = false
+            }
+        }
+
+        return result
     }
 
     /** Map the getter's annotations and return type to the internal attribute type. */
@@ -249,6 +357,13 @@ internal class LayoutInspectionStep(
         return attributes
     }
 
+    /** Check if an R.java file exists for [namespace] and that it contains attribute [name] */
+    private fun isAttributeInRFile(namespace: String, name: String): Boolean {
+        return processingEnv.elementUtils.getTypeElement("$namespace.R")
+            ?.enclosedElements?.find { it.simpleName.contentEquals("attr") }
+            ?.enclosedElements?.find { it.simpleName.contentEquals(name) } != null
+    }
+
     private fun Element.hasResourceIdAnnotation(): Boolean {
         return this.annotationMirrors.any {
             asType(it.annotationType.asElement()).qualifiedName matches RESOURCE_ID_ANNOTATION
@@ -265,7 +380,7 @@ internal class LayoutInspectionStep(
     /** Convenience wrapper for [javax.annotation.processing.Messager.printMessage]. */
     private fun printError(
         message: String,
-        element: Element?,
+        element: Element? = null,
         annotation: AnnotationMirror? = null,
         value: AnnotationValue? = null
     ) {
@@ -305,7 +420,7 @@ internal class LayoutInspectionStep(
         const val APP_COMPAT_SHADOWED_ATTRIBUTES =
             "androidx.resourceinspection.annotation.AppCompatShadowedAttributes"
 
-        /** Fully qualified name of the platform's Color class */
+        /** Fully qualified name of the platform's `Color` class */
         const val COLOR = "android.graphics.Color"
 
         /** Fully qualified name of `ColorInt` */
@@ -319,6 +434,13 @@ internal class LayoutInspectionStep(
 
         /** Fully qualified name of the platform's View class */
         const val VIEW = "android.view.View"
+
+        /** Fully qualified names of the view inspector classes introduced in API 29 */
+        val VIEW_INSPECTOR_CLASSES = listOf(
+            "android.view.inspector.InspectionCompanion",
+            "android.view.inspector.PropertyReader",
+            "android.view.inspector.PropertyMapper"
+        )
 
         /**
          * Map of compat interface names in `androidx.core` to the AppCompat attributes they

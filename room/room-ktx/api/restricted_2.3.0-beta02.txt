@@ -3,8 +3,8 @@ package androidx.room {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CoroutinesRoom {
     method public static <R> kotlinx.coroutines.flow.Flow<R> createFlow(androidx.room.RoomDatabase db, boolean inTransaction, String![] tableNames, java.util.concurrent.Callable<R> callable);
-    method public static suspend <R> Object? execute(androidx.room.RoomDatabase p, boolean db, java.util.concurrent.Callable<R> inTransaction, kotlin.coroutines.Continuation<? super R> callable);
-    method public static suspend <R> Object? execute(androidx.room.RoomDatabase p, boolean db, android.os.CancellationSignal inTransaction, java.util.concurrent.Callable<R> cancellationSignal, kotlin.coroutines.Continuation<? super R> callable);
+    method public static suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R> p);
+    method public static suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, android.os.CancellationSignal cancellationSignal, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R> p);
     field public static final androidx.room.CoroutinesRoom.Companion Companion;
   }
 

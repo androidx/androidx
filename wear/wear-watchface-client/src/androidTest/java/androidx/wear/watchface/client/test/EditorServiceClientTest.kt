@@ -55,7 +55,8 @@ public class EditorServiceClientTest {
                     )
                 ),
                 emptyList(),
-                true
+                true,
+                null
             )
         )
 

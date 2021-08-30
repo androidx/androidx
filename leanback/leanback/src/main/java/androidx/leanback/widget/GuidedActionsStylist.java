@@ -83,12 +83,18 @@ import java.util.List;
  * {@link #getItemViewType(GuidedAction)} method to change the layout used to display each action.
  * <p>
  * To support a "click to activate" view similar to DatePicker, app needs:
+ * <ul>
  * <li> Override {@link #onProvideItemLayoutId(int)} and {@link #getItemViewType(GuidedAction)},
- * provides a layout id for the action.
+ * provides a layout id for the action.</li>
  * <li> The layout must include a widget with id "guidedactions_activator_item", the widget is
- * toggled edit mode by {@link View#setActivated(boolean)}.
- * <li> Override {@link #onBindActivatorView(ViewHolder, GuidedAction)} to populate values into View.
- * <li> Override {@link #onUpdateActivatorView(ViewHolder, GuidedAction)} to update action.
+ * toggled edit mode by {@link View#setActivated(boolean)}.</li>
+ * <li>
+ *     Override {@link #onBindActivatorView(ViewHolder, GuidedAction)} to populate values into View.
+ * </li>
+ * <li>
+ *     Override {@link #onUpdateActivatorView(ViewHolder, GuidedAction)} to update action.
+ * </li>
+ * </ul>
  * <p>
  * Note: If an alternate list layout is provided, the following view IDs must be supplied:
  * <ul>
@@ -612,10 +618,12 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * Provides the resource ID of the layout defining the view for an individual guided actions.
      * Subclasses may override to provide their own customized layouts. The base implementation
      * supports:
-     * <li>{@link androidx.leanback.R.layout#lb_guidedactions_item}
-     * <li>{{@link androidx.leanback.R.layout#lb_guidedactions_datepicker_item}. If
-     * overridden, the substituted layout should contain matching IDs for any views that should be
-     * managed by the base class; this can be achieved by starting with a copy of the base layout
+     * <ul>
+     * <li>{@link androidx.leanback.R.layout#lb_guidedactions_item}</li>
+     * <li>{{@link androidx.leanback.R.layout#lb_guidedactions_datepicker_item}.</li>
+     * </ul>
+     * If overridden, the substituted layout should contain matching IDs for any views that should
+     * be managed by the base class; this can be achieved by starting with a copy of the base layout
      * file. Note that in order for the item to support editing, the title view should both subclass
      * {@link android.widget.EditText} and implement {@link ImeKeyMonitor}; see
      * {@link GuidedActionEditText}.

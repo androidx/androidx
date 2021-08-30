@@ -80,7 +80,7 @@ public final class Camera2CameraFactory implements CameraFactory {
             Camera2CameraInfoImpl camera2CameraInfoImpl = mCameraInfos.get(cameraId);
             if (camera2CameraInfoImpl == null) {
                 camera2CameraInfoImpl = new Camera2CameraInfoImpl(
-                        cameraId, mCameraManager.getCameraCharacteristicsCompat(cameraId));
+                        cameraId, mCameraManager);
                 mCameraInfos.put(cameraId, camera2CameraInfoImpl);
             }
             return camera2CameraInfoImpl;

@@ -1,0 +1,67 @@
+// Signature format: 4.0
+package androidx.wear.input {
+
+  public final class DeviceWearableButtonsProvider implements androidx.wear.input.WearableButtonsProvider {
+    ctor public DeviceWearableButtonsProvider();
+    method public int[]? getAvailableButtonKeyCodes(android.content.Context);
+    method public android.os.Bundle getButtonInfo(android.content.Context, int);
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.N) public final class RemoteInputIntentHelper {
+    method public static android.content.Intent createActionRemoteInputIntent();
+    method public static CharSequence? getCancelLabelExtra(android.content.Intent intent);
+    method public static CharSequence? getConfirmLabelExtra(android.content.Intent intent);
+    method public static CharSequence? getInProgressLabelExtra(android.content.Intent intent);
+    method public static java.util.List<android.app.RemoteInput>? getRemoteInputsExtra(android.content.Intent intent);
+    method public static java.util.List<java.lang.CharSequence>? getSmartReplyContextExtra(android.content.Intent intent);
+    method public static CharSequence? getTitleExtra(android.content.Intent intent);
+    method public static boolean hasRemoteInputsExtra(android.content.Intent intent);
+    method public static boolean isActionRemoteInput(android.content.Intent intent);
+    method public static android.content.Intent putCancelLabelExtra(android.content.Intent intent, CharSequence label);
+    method public static android.content.Intent putConfirmLabelExtra(android.content.Intent intent, CharSequence label);
+    method public static android.content.Intent putInProgressLabelExtra(android.content.Intent intent, CharSequence label);
+    method public static android.content.Intent putRemoteInputsExtra(android.content.Intent intent, java.util.List<android.app.RemoteInput> remoteInputs);
+    method public static android.content.Intent putSmartReplyContextExtra(android.content.Intent intent, java.util.List<? extends java.lang.CharSequence> smartReplyContext);
+    method public static android.content.Intent putTitleExtra(android.content.Intent intent, CharSequence title);
+    field public static final androidx.wear.input.RemoteInputIntentHelper.Companion Companion;
+  }
+
+  public static final class RemoteInputIntentHelper.Companion {
+    method public android.content.Intent createActionRemoteInputIntent();
+    method public CharSequence? getCancelLabelExtra(android.content.Intent intent);
+    method public CharSequence? getConfirmLabelExtra(android.content.Intent intent);
+    method public CharSequence? getInProgressLabelExtra(android.content.Intent intent);
+    method public java.util.List<android.app.RemoteInput>? getRemoteInputsExtra(android.content.Intent intent);
+    method public java.util.List<java.lang.CharSequence>? getSmartReplyContextExtra(android.content.Intent intent);
+    method public CharSequence? getTitleExtra(android.content.Intent intent);
+    method public boolean hasRemoteInputsExtra(android.content.Intent intent);
+    method public boolean isActionRemoteInput(android.content.Intent intent);
+    method public android.content.Intent putCancelLabelExtra(android.content.Intent intent, CharSequence label);
+    method public android.content.Intent putConfirmLabelExtra(android.content.Intent intent, CharSequence label);
+    method public android.content.Intent putInProgressLabelExtra(android.content.Intent intent, CharSequence label);
+    method public android.content.Intent putRemoteInputsExtra(android.content.Intent intent, java.util.List<android.app.RemoteInput> remoteInputs);
+    method public android.content.Intent putSmartReplyContextExtra(android.content.Intent intent, java.util.List<? extends java.lang.CharSequence> smartReplyContext);
+    method public android.content.Intent putTitleExtra(android.content.Intent intent, CharSequence title);
+  }
+
+  public final class WearableButtons {
+    method public static int getButtonCount(android.content.Context);
+    method public static android.graphics.drawable.Drawable? getButtonIcon(android.content.Context, int);
+    method public static androidx.wear.input.WearableButtons.ButtonInfo? getButtonInfo(android.content.Context, int);
+    method public static CharSequence? getButtonLabel(android.content.Context, int);
+  }
+
+  public static final class WearableButtons.ButtonInfo {
+    method public int getKeycode();
+    method public int getLocationZone();
+    method public float getX();
+    method public float getY();
+  }
+
+  public interface WearableButtonsProvider {
+    method public int[]? getAvailableButtonKeyCodes(android.content.Context);
+    method public android.os.Bundle getButtonInfo(android.content.Context, int);
+  }
+
+}
+

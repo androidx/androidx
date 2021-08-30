@@ -86,7 +86,7 @@ class MeteringRepeating(
         val surface = Surface(surfaceTexture)
 
         deferrableSurface?.close()
-        deferrableSurface = ImmediateSurface(surface)
+        deferrableSurface = ImmediateSurface(surface, meteringSurfaceSize, imageFormat)
         deferrableSurface!!.terminationFuture
             .addListener(
                 {

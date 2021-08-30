@@ -54,10 +54,11 @@ public class SignInTemplateDemoScreen extends Screen {
 
     private static final String EMAIL_REGEXP = "^(.+)@(.+)$";
     private static final String EXPECTED_PASSWORD = "password";
-    private static final int MAX_USERNAME_LENGTH = 5;
+    private static final int MIN_USERNAME_LENGTH = 5;
 
     // package private to avoid synthetic accessor
     State mState = State.USERNAME;
+    String mLastErrorMessage = ""; // last displayed error message
     String mErrorMessage = "";
     String mUsername = null;
 
@@ -129,16 +130,10 @@ public class SignInTemplateDemoScreen extends Screen {
         InputCallback listener = new InputCallback() {
             @Override
             public void onInputSubmitted(@NonNull String text) {
-                // Mocked username validation
-                if (!text.matches(EMAIL_REGEXP)) {
-                    mErrorMessage = "Invalid user name";
+                if (mState == State.USERNAME) {
                     mUsername = text;
-                } else {
-                    mErrorMessage = "";
-                    mUsername = text;
-                    mState = State.PASSWORD;
+                    submitUsername();
                 }
-                invalidate();
             }
 
             @Override
@@ -146,28 +141,26 @@ public class SignInTemplateDemoScreen extends Screen {
                 // This callback demonstrates how to use handle the text changed event.
                 // In this case, we check that the user name doesn't exceed a certain length.
                 if (mState == State.USERNAME) {
-                    String previousErrorMessage = mErrorMessage;
-                    if (text.length() > MAX_USERNAME_LENGTH) {
-                        mErrorMessage = "User name is too long";
-                    } else {
-                        mErrorMessage = "";
-                    }
+                    mUsername = text;
+                    mErrorMessage = validateUsername();
 
-                    // If the error message changed, invalidatee the template.
-                    if (!mErrorMessage.equals(previousErrorMessage)) {
-                        // Make sure to keep the user name so that the template preserves it
-                        // after invalidation.
-                        mUsername = text;
+                    // Invalidate the template (and hence possibly update the error message) only
+                    // if clearing up the error string, or if the error is changing.
+                    if (!mLastErrorMessage.isEmpty()
+                            && (mErrorMessage.isEmpty()
+                            || !mLastErrorMessage.equals(mErrorMessage))) {
                         invalidate();
                     }
                 }
             }
         };
+
         InputSignInMethod.Builder builder = new InputSignInMethod.Builder(listener)
                 .setHint("Email")
                 .setKeyboardType(InputSignInMethod.KEYBOARD_EMAIL);
         if (mErrorMessage != null) {
             builder.setErrorMessage(mErrorMessage);
+            mLastErrorMessage = mErrorMessage;
         }
         if (mUsername != null) {
             builder.setDefaultValue(mUsername);
@@ -185,17 +178,47 @@ public class SignInTemplateDemoScreen extends Screen {
                         new ActionStrip.Builder()
                                 .addAction(
                                         new Action.Builder()
-                                                .setTitle("Settings")
-                                                .setOnClickListener(
-                                                        () ->
-                                                                CarToast.makeText(
-                                                                        getCarContext(),
-                                                                        "Clicked Settings",
-                                                                        LENGTH_LONG)
-                                                                        .show())
+                                                .setTitle("Next")
+                                                .setOnClickListener(this::submitUsername)
                                                 .build())
                                 .build())
                 .build();
+    }
+
+    /**
+     * Validates the currently entered user name and returns an error message string if invalid,
+     * or an empty string otherwise.
+     */
+    String validateUsername() {
+        if (mUsername == null || mUsername.length() < MIN_USERNAME_LENGTH) {
+            return "User name must be at least " + MIN_USERNAME_LENGTH + " characters "
+                    + "long";
+        } else if (!mUsername.matches(EMAIL_REGEXP)) {
+            return "User name must be a valid email address";
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * Moves to the password screen if the user name currently entered is valid, or displays
+     * an error message otherwise.
+     */
+    void submitUsername() {
+        mErrorMessage = validateUsername();
+
+        boolean isError = !mErrorMessage.isEmpty();
+        if (!isError) {
+            // If there's no error, go to the password screen.
+            mState = State.PASSWORD;
+        } else {
+            // If there's an error, display a toast.
+            CarToast.makeText(getCarContext(), "Please enter a valid user name",
+                    LENGTH_LONG).show();
+        }
+
+        // Invalidate the template so that we either display an error, or go to the password screen.
+        invalidate();
     }
 
     private Template getPasswordSignInTemplate() {
@@ -224,17 +247,14 @@ public class SignInTemplateDemoScreen extends Screen {
                 .addAction(mProviderSignInAction)
                 .addAction(mPinSignInAction)
                 .setTitle("Sign in with username and password")
-                .setInstructions("Enter your credentials")
+                .setInstructions("Username: " + mUsername)
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
                 .build();
     }
 
     private Template getPinSignInTemplate() {
-        PinSignInMethod pinSignInMethod = new PinSignInMethod.Builder("123456789abc"
-                .toString().toUpperCase())
-                .build();
-
+        PinSignInMethod pinSignInMethod = new PinSignInMethod("123456789ABC");
         return new SignInTemplate.Builder(pinSignInMethod)
                 .setTitle("Sign in with PIN")
                 .setInstructions("Type this PIN in your phone")
@@ -248,7 +268,7 @@ public class SignInTemplateDemoScreen extends Screen {
                 R.drawable.ic_googleg);
         CarColor noTint = CarColor.createCustom(Color.TRANSPARENT, Color.TRANSPARENT);
 
-        ProviderSignInMethod providerSignInMethod = new ProviderSignInMethod.Builder(
+        ProviderSignInMethod providerSignInMethod = new ProviderSignInMethod(
                 new Action.Builder()
                         .setTitle(Utils.colorize("Sign in with Google",
                                 CarColor.createCustom(Color.BLACK, Color.BLACK), 0, 19))
@@ -257,8 +277,7 @@ public class SignInTemplateDemoScreen extends Screen {
                                 .setTint(noTint)
                                 .build())
                         .setOnClickListener(ParkedOnlyOnClickListener.create(
-                                this::performSignInWithGoogleFlow)).build()
-        ).build();
+                                this::performSignInWithGoogleFlow)).build());
 
         return new SignInTemplate.Builder(providerSignInMethod)
                 .setTitle("Sign in with Google")

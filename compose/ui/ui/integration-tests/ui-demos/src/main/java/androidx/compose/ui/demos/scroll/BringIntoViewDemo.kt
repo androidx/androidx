@@ -14,50 +14,70 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.demos.input.nestedscroll
+package androidx.compose.ui.demos.scroll
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Blue
+import androidx.compose.ui.graphics.Color.Companion.Cyan
+import androidx.compose.ui.graphics.Color.Companion.DarkGray
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Magenta
 import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.layout.RelocationRequester
 import androidx.compose.ui.layout.relocationRequester
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BringIntoViewDemo() {
     val greenRequester = remember { RelocationRequester() }
     val redRequester = remember { RelocationRequester() }
+    val coroutineScope = rememberCoroutineScope()
     Column {
-        Row(Modifier.width(300.dp).horizontalScroll(rememberScrollState())) {
-            Box(Modifier.background(Blue).size(100.dp))
-            Box(Modifier.background(Green).size(100.dp).relocationRequester(greenRequester))
-            Box(Modifier.background(Yellow).size(100.dp))
-            Box(Modifier.background(Magenta).size(100.dp))
-            Box(Modifier.background(Red).size(100.dp).relocationRequester(redRequester))
-            Box(Modifier.background(LightGray).size(100.dp))
+        Column(Modifier.requiredHeight(100.dp).verticalScroll(rememberScrollState())) {
+            Row(Modifier.width(300.dp).horizontalScroll(rememberScrollState())) {
+                Box(Modifier.background(Blue).size(100.dp))
+                Box(Modifier.background(Green).size(100.dp).relocationRequester(greenRequester))
+                Box(Modifier.background(Yellow).size(100.dp))
+                Box(Modifier.background(Magenta).size(100.dp))
+                Box(Modifier.background(Gray).size(100.dp))
+                Box(Modifier.background(Black).size(100.dp))
+            }
+            Row(Modifier.width(300.dp).horizontalScroll(rememberScrollState())) {
+                Box(Modifier.background(Black).size(100.dp))
+                Box(Modifier.background(Cyan).size(100.dp))
+                Box(Modifier.background(DarkGray).size(100.dp))
+                Box(Modifier.background(White).size(100.dp))
+                Box(Modifier.background(Red).size(100.dp).relocationRequester(redRequester))
+                Box(Modifier.background(LightGray).size(100.dp))
+            }
         }
-        Button(onClick = { greenRequester.bringIntoView() }) {
+        Button(onClick = { coroutineScope.launch { greenRequester.bringIntoView() } }) {
             Text("Bring Green box into view")
         }
-        Button(onClick = { redRequester.bringIntoView() }) {
+        Button(onClick = { coroutineScope.launch { redRequester.bringIntoView() } }) {
             Text("Bring Red box into view")
         }
     }

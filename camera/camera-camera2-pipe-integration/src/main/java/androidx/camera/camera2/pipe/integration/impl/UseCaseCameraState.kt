@@ -72,7 +72,9 @@ class UseCaseCameraState @Inject constructor(
 
     fun updateAsync(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
+        appendParameters: Boolean = true,
         internalParameters: Map<Metadata.Key<*>, Any>? = null,
+        appendInternalParameters: Boolean = true,
         streams: Set<StreamId>? = null,
         template: RequestTemplate? = null,
         listeners: Set<Request.Listener>? = null
@@ -93,7 +95,11 @@ class UseCaseCameraState @Inject constructor(
             //    exit the locked section.
             // 5) If updating, invoke submit without holding the lock.
 
-            updateState(parameters, internalParameters, streams, template, listeners)
+            updateState(
+                parameters, appendParameters, internalParameters,
+                appendInternalParameters, streams, template,
+                listeners
+            )
 
             if (updateSignal == null) {
                 updateSignal = CompletableDeferred()
@@ -113,14 +119,20 @@ class UseCaseCameraState @Inject constructor(
 
     fun update(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
+        appendParameters: Boolean = true,
         internalParameters: Map<Metadata.Key<*>, Any>? = null,
+        appendInternalParameters: Boolean = true,
         streams: Set<StreamId>? = null,
         template: RequestTemplate? = null,
         listeners: Set<Request.Listener>? = null
     ) {
         synchronized(lock) {
             // See updateAsync for details.
-            updateState(parameters, internalParameters, streams, template, listeners)
+            updateState(
+                parameters, appendParameters, internalParameters,
+                appendInternalParameters, streams, template,
+                listeners
+            )
             if (updating) {
                 return
             }
@@ -140,17 +152,26 @@ class UseCaseCameraState @Inject constructor(
     @GuardedBy("lock")
     private inline fun updateState(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
+        appendParameters: Boolean = true,
         internalParameters: Map<Metadata.Key<*>, Any>? = null,
+        appendInternalParameters: Boolean = true,
         streams: Set<StreamId>? = null,
         template: RequestTemplate? = null,
         listeners: Set<Request.Listener>? = null
     ) {
         // TODO: Consider if this should detect changes and only invoke an update if state has
         //  actually changed.
+
         if (parameters != null) {
+            if (!appendParameters) {
+                currentParameters.clear()
+            }
             currentParameters.putAll(parameters)
         }
         if (internalParameters != null) {
+            if (!appendInternalParameters) {
+                currentInternalParameters.clear()
+            }
             currentInternalParameters.putAll(internalParameters)
         }
         if (streams != null) {

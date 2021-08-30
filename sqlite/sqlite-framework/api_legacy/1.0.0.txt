@@ -1,9 +1,0 @@
-package android.arch.persistence.db.framework {
-
-  public final class FrameworkSQLiteOpenHelperFactory implements android.arch.persistence.db.SupportSQLiteOpenHelper.Factory {
-    ctor public FrameworkSQLiteOpenHelperFactory();
-    method public android.arch.persistence.db.SupportSQLiteOpenHelper create(android.arch.persistence.db.SupportSQLiteOpenHelper.Configuration);
-  }
-
-}
-

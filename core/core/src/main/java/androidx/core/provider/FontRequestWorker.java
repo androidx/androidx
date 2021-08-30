@@ -171,6 +171,9 @@ class FontRequestWorker {
         final Consumer<TypefaceResult> reply = new Consumer<TypefaceResult>() {
             @Override
             public void accept(TypefaceResult typefaceResult) {
+                if (typefaceResult == null) {
+                    typefaceResult = new TypefaceResult(FAIL_REASON_FONT_LOAD_ERROR);
+                }
                 callback.onTypefaceResult(typefaceResult);
             }
         };
@@ -191,8 +194,11 @@ class FontRequestWorker {
         final Callable<TypefaceResult> fetcher = new Callable<TypefaceResult>() {
             @Override
             public TypefaceResult call() {
-                TypefaceResult typeface = getFontSync(id, context, request, style);
-                return typeface;
+                try {
+                    return getFontSync(id, context, request, style);
+                } catch (Throwable t) {
+                    return new TypefaceResult(FAIL_REASON_FONT_LOAD_ERROR);
+                }
             }
         };
         Executor finalExecutor = executor == null ? DEFAULT_EXECUTOR_SERVICE : executor;

@@ -12,6 +12,8 @@ You can start contributing to any of the following library groups from GitHub:
   - [Activity](https://developer.android.com/guide/components/activities/intro-activities)
   - [Biometric](https://developer.android.com/training/sign-in/biometric-auth)
   - [Compose Compiler](https://developer.android.com/jetpack/androidx/releases/compose-compiler)
+  - [Compose Runtime](https://developer.android.com/jetpack/androidx/releases/compose-runtime)
+  - [DataStore](https://developer.android.com/topic/libraries/architecture/datastore)
   - [Fragment](https://developer.android.com/guide/components/fragments)
   - [Lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle)
   - [Navigation](https://developer.android.com/guide/navigation)
@@ -50,6 +52,8 @@ androidx
   -- activity
   -- biometric
   -- compose/compiler
+  -- compose/runtime
+  -- datastore
   -- fragment
   -- lifecycle
   -- navigation

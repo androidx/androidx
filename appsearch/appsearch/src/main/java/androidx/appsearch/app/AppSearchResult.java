@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// @exportToFramework:skipFile()
 package androidx.appsearch.app;
+
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -22,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.ObjectsCompat;
+import androidx.core.util.Preconditions;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -33,6 +35,8 @@ import java.lang.annotation.RetentionPolicy;
  * @param <ValueType> The type of result object for successful calls.
  */
 public final class AppSearchResult<ValueType> {
+    private static final String TAG = "AppSearchResult";
+
     /**
      * Result codes from {@link AppSearchSession} methods.
      * @hide
@@ -46,6 +50,7 @@ public final class AppSearchResult<ValueType> {
             RESULT_OUT_OF_SPACE,
             RESULT_NOT_FOUND,
             RESULT_INVALID_SCHEMA,
+            RESULT_SECURITY_ERROR,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ResultCode {}
@@ -85,6 +90,9 @@ public final class AppSearchResult<ValueType> {
 
     /** The caller supplied a schema which is invalid or incompatible with the previous schema. */
     public static final int RESULT_INVALID_SCHEMA = 7;
+
+    /** The caller requested an operation it does not have privileges for. */
+    public static final int RESULT_SECURITY_ERROR = 8;
 
     private final @ResultCode int mResultCode;
     @Nullable private final ValueType mResultValue;
@@ -168,7 +176,9 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Creates a new successful {@link AppSearchResult}.
-     * @hide
+     *
+     * @param value An optional value to associate with the successful result of the operation
+     *              being performed.
      */
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> newSuccessfulResult(
@@ -178,7 +188,9 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Creates a new failed {@link AppSearchResult}.
-     * @hide
+     *
+     * @param resultCode One of the constants documented in {@link AppSearchResult#getResultCode}.
+     * @param errorMessage An optional string describing the reason or nature of the failure.
      */
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> newFailedResult(
@@ -186,25 +198,52 @@ public final class AppSearchResult<ValueType> {
         return new AppSearchResult<>(resultCode, /*resultValue=*/ null, errorMessage);
     }
 
+    /**
+     * Creates a new failed {@link AppSearchResult} by a AppSearchResult in another type.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public static <ValueType> AppSearchResult<ValueType> newFailedResult(
+            @NonNull AppSearchResult<?> otherFailedResult) {
+        Preconditions.checkState(!otherFailedResult.isSuccess(),
+                "Cannot convert a success result to a failed result");
+        return AppSearchResult.newFailedResult(
+                otherFailedResult.getResultCode(), otherFailedResult.getErrorMessage());
+    }
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> throwableToFailedResult(
             @NonNull Throwable t) {
+        // Log for traceability. NOT_FOUND is logged at VERBOSE because this error can occur during
+        // the regular operation of the system (b/183550974). Everything else is logged at DEBUG.
+        if (t instanceof AppSearchException
+                && ((AppSearchException) t).getResultCode() == RESULT_NOT_FOUND) {
+            Log.v(TAG, "Converting throwable to failed result: " + t);
+        } else {
+            Log.d(TAG, "Converting throwable to failed result.", t);
+        }
+
         if (t instanceof AppSearchException) {
             return ((AppSearchException) t).toAppSearchResult();
         }
 
+        String exceptionClass = t.getClass().getSimpleName();
         @AppSearchResult.ResultCode int resultCode;
-        if (t instanceof IllegalStateException) {
+        if (t instanceof IllegalStateException || t instanceof NullPointerException) {
             resultCode = AppSearchResult.RESULT_INTERNAL_ERROR;
         } else if (t instanceof IllegalArgumentException) {
             resultCode = AppSearchResult.RESULT_INVALID_ARGUMENT;
         } else if (t instanceof IOException) {
             resultCode = AppSearchResult.RESULT_IO_ERROR;
+        } else if (t instanceof SecurityException) {
+            resultCode = AppSearchResult.RESULT_SECURITY_ERROR;
         } else {
             resultCode = AppSearchResult.RESULT_UNKNOWN_ERROR;
         }
-        return AppSearchResult.newFailedResult(resultCode, t.toString());
+        return AppSearchResult.newFailedResult(resultCode, exceptionClass + ": " + t.getMessage());
     }
 }

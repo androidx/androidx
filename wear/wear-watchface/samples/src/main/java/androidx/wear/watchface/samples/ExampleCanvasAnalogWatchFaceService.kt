@@ -24,11 +24,10 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
-import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
@@ -54,6 +53,7 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import java.time.ZonedDateTime
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -100,23 +100,27 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
     private val colorStyleSetting by lazy {
         ListUserStyleSetting(
             UserStyleSetting.Id(COLOR_STYLE_SETTING),
-            getString(R.string.colors_style_setting),
-            getString(R.string.colors_style_setting_description),
+            resources,
+            R.string.colors_style_setting,
+            R.string.colors_style_setting_description,
             icon = null,
             options = listOf(
                 ListUserStyleSetting.ListOption(
                     Option.Id(RED_STYLE),
-                    getString(R.string.colors_style_red),
+                    resources,
+                    R.string.colors_style_red,
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 ListUserStyleSetting.ListOption(
                     Option.Id(GREEN_STYLE),
-                    getString(R.string.colors_style_green),
+                    resources,
+                    R.string.colors_style_green,
                     Icon.createWithResource(this, R.drawable.green_style)
                 ),
                 ListUserStyleSetting.ListOption(
                     Option.Id(BLUE_STYLE),
-                    getString(R.string.colors_style_blue),
+                    resources,
+                    R.string.colors_style_blue,
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),
@@ -131,8 +135,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
     private val drawHourPipsStyleSetting by lazy {
         BooleanUserStyleSetting(
             UserStyleSetting.Id(DRAW_HOUR_PIPS_STYLE_SETTING),
-            getString(R.string.watchface_pips_setting),
-            getString(R.string.watchface_pips_setting_description),
+            resources,
+            R.string.watchface_pips_setting,
+            R.string.watchface_pips_setting_description,
             null,
             listOf(WatchFaceLayer.BASE),
             true
@@ -142,8 +147,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
     private val watchHandLengthStyleSetting by lazy {
         DoubleRangeUserStyleSetting(
             UserStyleSetting.Id(WATCH_HAND_LENGTH_STYLE_SETTING),
-            getString(R.string.watchface_hand_length_setting),
-            getString(R.string.watchface_hand_length_setting_description),
+            resources,
+            R.string.watchface_hand_length_setting,
+            R.string.watchface_hand_length_setting_description,
             null,
             0.25,
             1.0,
@@ -157,13 +163,15 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
     private val complicationsStyleSetting by lazy {
         ComplicationSlotsUserStyleSetting(
             UserStyleSetting.Id(COMPLICATIONS_STYLE_SETTING),
-            getString(R.string.watchface_complications_setting),
-            getString(R.string.watchface_complications_setting_description),
+            resources,
+            R.string.watchface_complications_setting,
+            R.string.watchface_complications_setting_description,
             icon = null,
             complicationConfig = listOf(
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
-                    getString(R.string.watchface_complications_setting_both),
+                    resources,
+                    R.string.watchface_complications_setting_both,
                     null,
                     // NB this list is empty because each [ComplicationSlotOverlay] is applied on
                     // top of the initial config.
@@ -171,7 +179,8 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ),
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id(NO_COMPLICATIONS),
-                    getString(R.string.watchface_complications_setting_none),
+                    resources,
+                    R.string.watchface_complications_setting_none,
                     null,
                     listOf(
                         ComplicationSlotOverlay(
@@ -186,7 +195,8 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ),
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id(LEFT_COMPLICATION),
-                    getString(R.string.watchface_complications_setting_left),
+                    resources,
+                    R.string.watchface_complications_setting_left,
                     null,
                     listOf(
                         ComplicationSlotOverlay(
@@ -197,7 +207,8 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ),
                 ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
                     Option.Id(RIGHT_COMPLICATION),
-                    getString(R.string.watchface_complications_setting_right),
+                    resources,
+                    R.string.watchface_complications_setting_right,
                     null,
                     listOf(
                         ComplicationSlotOverlay(
@@ -241,9 +252,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
         val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
@@ -255,9 +266,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_STEP_COUNT),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_STEP_COUNT),
             ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
         return ComplicationSlotsManager(
             listOf(leftComplication, rightComplication),
@@ -360,7 +371,7 @@ class ExampleAnalogWatchCanvasRenderer(
         )
     }
 
-    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         val style = if (renderParameters.drawMode == DrawMode.AMBIENT) {
             watchFaceColorStyle.ambientStyle
         } else {
@@ -373,13 +384,13 @@ class ExampleAnalogWatchCanvasRenderer(
         // CanvasComplicationDrawable does that for us.
         for ((_, complication) in complicationSlotsManager.complicationSlots) {
             if (complication.enabled) {
-                complication.render(canvas, calendar, renderParameters)
+                complication.render(canvas, zonedDateTime, renderParameters)
             }
         }
 
         if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         ) {
-            drawClockHands(canvas, bounds, calendar, style)
+            drawClockHands(canvas, bounds, zonedDateTime, style)
         }
 
         if (renderParameters.drawMode != DrawMode.AMBIENT &&
@@ -389,12 +400,12 @@ class ExampleAnalogWatchCanvasRenderer(
         }
     }
 
-    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
         canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
 
         for ((_, complication) in complicationSlotsManager.complicationSlots) {
             if (complication.enabled) {
-                complication.renderHighlightLayer(canvas, calendar, renderParameters)
+                complication.renderHighlightLayer(canvas, zonedDateTime, renderParameters)
             }
         }
     }
@@ -402,14 +413,14 @@ class ExampleAnalogWatchCanvasRenderer(
     private fun drawClockHands(
         canvas: Canvas,
         bounds: Rect,
-        calendar: Calendar,
+        zonedDateTime: ZonedDateTime,
         style: ColorStyle
     ) {
         recalculateClockHands(bounds)
-        val hours = calendar.get(Calendar.HOUR).toFloat()
-        val minutes = calendar.get(Calendar.MINUTE).toFloat()
-        val seconds = calendar.get(Calendar.SECOND).toFloat() +
-            (calendar.get(Calendar.MILLISECOND).toFloat() / 1000f)
+        val hours = (zonedDateTime.hour % 12).toFloat()
+        val minutes = zonedDateTime.minute.toFloat()
+        val seconds = zonedDateTime.second.toFloat() +
+            (zonedDateTime.nano.toDouble() / 1000000000.0).toFloat()
 
         val hourRot = (hours + minutes / 60.0f + seconds / 3600.0f) / 12.0f * 360.0f
         val minuteRot = (minutes + seconds / 60.0f) / 60.0f * 360.0f

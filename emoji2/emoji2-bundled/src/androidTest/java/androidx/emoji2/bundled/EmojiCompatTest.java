@@ -750,7 +750,7 @@ public class EmojiCompatTest {
         final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(metadataLoader);
         EmojiCompat.reset(config);
 
-        EmojiCompat.get().updateEditorInfoAttrs(editorInfo);
+        EmojiCompat.get().updateEditorInfo(editorInfo);
 
         final Bundle extras = editorInfo.extras;
         assertFalse(extras.containsKey(EmojiCompat.EDITOR_INFO_METAVERSION_KEY));
@@ -872,7 +872,7 @@ public class EmojiCompatTest {
         editorInfo.extras = new Bundle();
         EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(false);
         EmojiCompat.reset(config);
-        EmojiCompat.get().updateEditorInfoAttrs(editorInfo);
+        EmojiCompat.get().updateEditorInfo(editorInfo);
 
         final Bundle extras = editorInfo.extras;
         assertTrue(extras.containsKey(EmojiCompat.EDITOR_INFO_METAVERSION_KEY));
@@ -882,10 +882,25 @@ public class EmojiCompatTest {
 
         config = new TestConfigBuilder.TestConfig().setReplaceAll(true);
         EmojiCompat.reset(config);
-        EmojiCompat.get().updateEditorInfoAttrs(editorInfo);
+        EmojiCompat.get().updateEditorInfo(editorInfo);
 
         assertTrue(extras.containsKey(EmojiCompat.EDITOR_INFO_REPLACE_ALL_KEY));
         assertTrue(extras.getBoolean(EmojiCompat.EDITOR_INFO_REPLACE_ALL_KEY));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testUpdateEditorInfoAttrs_makesBundleIfNull() {
+        final EditorInfo editorInfo = new EditorInfo();
+        editorInfo.extras = null;
+        EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(false);
+        EmojiCompat.reset(config);
+        EmojiCompat.get().updateEditorInfo(editorInfo);
+
+        final Bundle extras = editorInfo.extras;
+        assertTrue(extras.containsKey(EmojiCompat.EDITOR_INFO_METAVERSION_KEY));
+        assertTrue(extras.getInt(EmojiCompat.EDITOR_INFO_METAVERSION_KEY) > 0);
+        assertTrue(extras.containsKey(EmojiCompat.EDITOR_INFO_REPLACE_ALL_KEY));
     }
 
     @Test

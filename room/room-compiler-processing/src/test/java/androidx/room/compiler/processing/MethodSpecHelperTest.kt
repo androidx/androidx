@@ -93,6 +93,7 @@ class MethodSpecHelperTest(
             package foo.bar;
             import androidx.room.compiler.processing.testcode.OtherAnnotation;
 
+            object MyObject
             abstract class Baz {
                 open fun method1() {
                 }
@@ -124,6 +125,18 @@ class MethodSpecHelperTest(
                 protected open fun listArg(r:List<String>) {
                 }
 
+                protected open fun listOfUnitArg(r:List<Unit>) {
+                }
+
+                protected open fun listOfCustomObjectArg(r:List<MyObject>) {
+                }
+
+                protected open fun listOfAnyArg(r:List<Any>) {
+                }
+
+                protected open fun listOfVoidArg(r:List<Void>) {
+                }
+
                 open suspend fun suspendUnitFun() {
                 }
 
@@ -148,6 +161,35 @@ class MethodSpecHelperTest(
 
                 // keep these at the end to match the order w/ KAPT because we fake them in KSP
                 internal abstract val abstractVal: String
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source)
+    }
+
+    @Test
+    fun kotlinParametersAsFunction() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo.bar;
+            interface MyInterface
+            interface Baz {
+                fun noArg_returnsUnit(operation: () -> Unit) {
+                }
+                fun singleArg_returnsUnit(operation: (Int) -> Unit) {
+                }
+                fun singleInterfaceArg_returnsUnit(operation: (MyInterface) -> Unit) {
+                }
+                fun singleReceiverArg_returnsUnit(operation: Int.() -> Unit) {
+                }
+                fun singleInterfaceReceiverArg_returnsUnit(operation: MyInterface.() -> Unit) {
+                }
+
+                fun noArg_returnsInt(operation: () -> Int) {
+                }
+                fun singleArg_returnsInterface(operation: (Int) -> MyInterface) {
+                }
             }
             """.trimIndent()
         )
@@ -384,7 +426,7 @@ class MethodSpecHelperTest(
         ignoreInheritedMethods: Boolean = false
     ) {
         val (sources: List<Source>, classpath: List<File>) = if (preCompiledCode) {
-            emptyList<Source>() to listOf(compileFiles(sources.toList()))
+            emptyList<Source>() to compileFiles(sources.toList())
         } else {
             sources.toList() to emptyList()
         }
@@ -400,8 +442,9 @@ class MethodSpecHelperTest(
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(ignoreInheritedMethods)
             methods.forEachIndexed { index, method ->
-                if (invocation.isKsp && method.name == "throwsException") {
+                if (invocation.isKsp && method.name == "throwsException" && preCompiledCode) {
                     // TODO b/171572318
+                    //  https://github.com/google/ksp/issues/507
                 } else {
                     val subject = MethodSpecHelper.overridingWithFinalParams(
                         method,
@@ -458,7 +501,7 @@ class MethodSpecHelperTest(
         val methods = if (ignoreInheritedMethods) {
             target.getDeclaredMethods().filter { !it.isStatic() }
         } else {
-            target.getAllNonPrivateInstanceMethods()
+            target.getAllNonPrivateInstanceMethods().toList()
         }
         val selectedMethods = methods.filter {
             it.isOverrideableIgnoringContainer()

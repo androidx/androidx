@@ -28,7 +28,6 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.tryBox
-import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
@@ -39,7 +38,6 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
-import com.google.devtools.ksp.symbol.Origin
 import com.squareup.javapoet.ClassName
 
 internal sealed class KspTypeElement(
@@ -113,8 +111,12 @@ internal sealed class KspTypeElement(
                     containing = this
                 )
             }.let {
-                // only order instance fields, we don't care about the order of companion fields.
-                KspClassFileUtility.orderFields(declaration, it.toList())
+                // only order instance properties with backing fields, we don't care about the order
+                // of companion properties or properties without backing fields.
+                val (withBackingField, withoutBackingField) = it.partition {
+                    it.declaration.hasBackingFieldFixed
+                }
+                KspClassFileUtility.orderFields(declaration, withBackingField) + withoutBackingField
             }
 
         val companionProperties = declaration
@@ -133,92 +135,54 @@ internal sealed class KspTypeElement(
         declaredProperties + companionProperties
     }
 
-    private val _declaredFieldsIncludingSupers by lazy {
-        // Read all properties from all supers and select the ones that are not overridden.
-        val myPropertyFields = getDeclaredFields()
-        val selectedNames = myPropertyFields.mapTo(mutableSetOf()) {
-            it.name
-        }
-        val selection = mutableListOf<KSPropertyDeclaration>()
-        declaration.getAllSuperTypes().map {
-            it.declaration
-        }.filterIsInstance(KSClassDeclaration::class.java)
-            .filter {
-                it.classKind != ClassKind.INTERFACE
-            }
-            .flatMap {
-                it.getDeclaredProperties().asSequence()
-            }.forEach {
-                if (selectedNames.add(it.simpleName.asString())) {
-                    selection.add(it)
-                }
-            }
-        myPropertyFields + selection.map {
-            KspFieldElement(
-                env = env,
-                declaration = it,
-                containing = this
-            )
+    private val _declaredFields by lazy {
+        _declaredProperties.filter {
+            it.declaration.hasBackingFieldFixed
         }
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
-        _declaredProperties.flatMap {
-            if (it.type.ksType.isInline()) {
-                // KAPT does not generate getters/setters for inlines, we'll hide them as well
-                // until room generates kotlin code
-                return@flatMap emptyList()
-            }
-
-            val setter = it.declaration.setter
-            val needsSetter = when {
-                it.declaration.hasJvmFieldAnnotation() -> {
-                    // jvm fields cannot have accessors but KSP generates synthetic accessors for
-                    // them. We check for JVM field first before checking the setter
-                    false
+        _declaredProperties.flatMap { field ->
+            when {
+                field.type.ksType.isInline() -> {
+                    // KAPT does not generate getters/setters for inlines, we'll hide them as well
+                    // until room generates kotlin code
+                    emptyList()
                 }
-                it.declaration.isPrivate() -> false
-                setter != null -> !setter.modifiers.contains(Modifier.PRIVATE)
-                it.declaration.origin != Origin.KOTLIN -> {
-                    // no reason to generate synthetics non kotlin code. If it had a setter, that
-                    // would show up as a setter
-                    false
-                }
-                else -> it.declaration.isMutable
-            }
-            val getter = it.declaration.getter
-            val needsGetter = when {
-                it.declaration.hasJvmFieldAnnotation() -> {
+                field.declaration.hasJvmFieldAnnotation() -> {
                     // jvm fields cannot have accessors but KSP generates synthetic accessors for
                     // them. We check for JVM field first before checking the getter
-                    false
+                    emptyList()
                 }
-                it.declaration.isPrivate() -> false
-                getter != null -> !getter.modifiers.contains(Modifier.PRIVATE)
-                it.declaration.origin != Origin.KOTLIN -> {
-                    // no reason to generate synthetics non kotlin code. If it had a getter, that
-                    // would show up as a getter
-                    false
-                }
-                else -> true
+                field.declaration.isPrivate() -> emptyList()
+
+                else ->
+                    sequenceOf(field.declaration.getter, field.declaration.setter)
+                        .filterNotNull()
+                        .filterNot {
+                            // KAPT does not generate methods for privates, KSP does so we filter
+                            // them out.
+                            it.modifiers.contains(Modifier.PRIVATE)
+                        }
+                        .filter {
+                            if (field.isStatic()) {
+                                // static fields are the properties that are coming from the
+                                // companion. Whether we'll generate method for it or not depends on
+                                // the JVMStatic annotation
+                                it.hasJvmStaticAnnotation() ||
+                                    field.declaration.hasJvmStaticAnnotation()
+                            } else {
+                                true
+                            }
+                        }
+                        .map { accessor ->
+                            KspSyntheticPropertyMethodElement.create(
+                                env = env,
+                                field = field,
+                                accessor = accessor
+                            )
+                        }.toList()
             }
-            val setterElm = if (needsSetter) {
-                KspSyntheticPropertyMethodElement.Setter(
-                    env = env,
-                    field = it
-                )
-            } else {
-                null
-            }
-            val getterElm = if (needsGetter) {
-                KspSyntheticPropertyMethodElement.Getter(
-                    env = env,
-                    field = it
-                )
-            } else {
-                null
-            }
-            listOfNotNull(getterElm, setterElm)
         }
     }
 
@@ -263,20 +227,8 @@ internal sealed class KspTypeElement(
         return !isInterface() && !declaration.isOpen()
     }
 
-    private val _declaredFields by lazy {
-        if (declaration.classKind == ClassKind.INTERFACE) {
-            _declaredProperties.filter { it.isStatic() }
-        } else {
-            _declaredProperties.filter { !it.isAbstract() }
-        }
-    }
-
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
-    }
-
-    override fun getAllFieldsIncludingPrivateSupers(): List<XFieldElement> {
-        return _declaredFieldsIncludingSupers
     }
 
     override fun findPrimaryConstructor(): XConstructorElement? {
@@ -294,9 +246,11 @@ internal sealed class KspTypeElement(
             .filterNot { it.isConstructor() }
         val companionMethods = declaration.findCompanionObject()
             ?.getDeclaredFunctions()
-            ?.asSequence()
+            ?.filterNot {
+                it.isConstructor()
+            }
             ?.filter {
-                it.isStatic()
+                it.hasJvmStaticAnnotation()
             } ?: emptySequence()
         val declaredMethods = (instanceMethods + companionMethods)
             .filterNot {
@@ -372,6 +326,13 @@ internal sealed class KspTypeElement(
                 }
         }
     }
+
+    /**
+     * Workaround for https://github.com/google/ksp/issues/529 where KSP returns false for
+     * backing field when the property has a lateinit modifier.
+     */
+    private val KSPropertyDeclaration.hasBackingFieldFixed
+        get() = hasBackingField || modifiers.contains(Modifier.LATEINIT)
 
     companion object {
         fun create(

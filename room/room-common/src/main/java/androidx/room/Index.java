@@ -55,6 +55,31 @@ public @interface Index {
     String[] value();
 
     /**
+     * List of column sort orders in the Index.
+     * <p>
+     * The number of entries in the array should be equal to size of columns in {@link #value()}.
+     * <p>
+     * The default order of all columns in the index is {@link Order#ASC}.
+     * <p>
+     * Note that there is no value in providing a sort order on a single-column index. Column sort
+     * order of an index are relevant on multi-column indices and specifically in those that are
+     * considered 'covering indices', for such indices specifying an order can have performance
+     * improvements on queries containing ORDER BY clauses.SchemaDifferTest See
+     * <a href="https://www.sqlite.org/queryplanner.html#_sorting_by_index">SQLite documentation</a>
+     * for details on sorting by index and the usage of the sort order by the query optimizer.
+     * <p>
+     * As an example, consider a table called 'Song' with two columns, 'name' and 'length'. If a
+     * covering index is created for it: <code>CREATE INDEX `song_name_length` on `Song`
+     * (`name` ASC, `length` DESC)</code>, then a query containing an ORDER BY clause with matching
+     * order of the index will be able to avoid a table scan by using the index, but a mismatch in
+     * order won't. Therefore the columns order of the index should be the same as the most
+     * frequently executed query with sort order.
+     *
+     * @return The list of column sort orders in the Index.
+     */
+    Order[] orders() default {};
+
+    /**
      * Name of the index. If not set, Room will set it to the list of columns joined by '_' and
      * prefixed by "index_${tableName}". So if you have a table with name "Foo" and with an index
      * of {"bar", "baz"}, generated index name will be  "index_Foo_bar_baz". If you need to specify
@@ -71,4 +96,20 @@ public @interface Index {
      * @return True if index is unique. False by default.
      */
     boolean unique() default false;
+
+    enum Order {
+        /**
+         * Ascending returning order.
+         *
+         * @see Index#orders()
+         */
+        ASC,
+
+        /**
+         * Descending returning order.
+         *
+         * @see Index#orders()
+         */
+        DESC
+    }
 }

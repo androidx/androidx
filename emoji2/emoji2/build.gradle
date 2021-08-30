@@ -25,6 +25,8 @@ dependencies {
     api("androidx.core:core:1.3.0")
     api("androidx.startup:startup-runtime:1.0.0")
     implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.annotation:annotation:1.2.0")
+    implementation 'androidx.lifecycle:lifecycle-process:2.4.0-alpha02'
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -39,7 +41,6 @@ dependencies {
 androidx {
     name = "Android Emoji2 Compat"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.EMOJI2
     mavenGroup = LibraryGroups.EMOJI2
     inceptionYear = "2017"
     description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."

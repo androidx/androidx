@@ -32,7 +32,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name="MainActivity">
+        <activity android:name="MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="android.intent.action.VIEW"/>
@@ -45,7 +46,8 @@
         <activity
             android:name="Preferences"
             android:label="@string/preferences"
-            android:theme="@style/PreferenceTheme">
+            android:theme="@style/PreferenceTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="com.example.androidx.preference.SAMPLE_CODE"/>
@@ -57,7 +59,8 @@
             android:name="LeanbackPreferences"
             android:label="@string/leanback_preferences"
             android:theme="@style/LeanbackTheme"
-            android:enabled="@bool/atLeastLollipop">
+            android:enabled="@bool/atLeastLollipop"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="com.example.androidx.preference.SAMPLE_CODE"/>

@@ -23,19 +23,19 @@ import static android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_T
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 
+import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
+import androidx.media2.common.ClassVerificationHelper;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 
@@ -51,7 +51,7 @@ import java.util.List;
     private static final String NOTIFICATION_CHANNEL_ID = "default_channel_id";
 
     private final MediaSessionService mServiceInstance;
-    private final NotificationManager mNotificationManager;
+    private final NotificationManagerCompat mNotificationManagerCompat;
     private final String mNotificationChannelName;
 
     private final Intent mStartSelfIntent;
@@ -64,8 +64,7 @@ import java.util.List;
         mServiceInstance = service;
         mStartSelfIntent = new Intent(mServiceInstance, mServiceInstance.getClass());
 
-        mNotificationManager = (NotificationManager)
-                mServiceInstance.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManagerCompat = NotificationManagerCompat.from(mServiceInstance);
         mNotificationChannelName = mServiceInstance.getResources().getString(
                 R.string.default_notification_channel_name);
 
@@ -113,7 +112,7 @@ import java.util.List;
 
         if (isPlaybackStopped(state)) {
             stopForegroundServiceIfNeeded();
-            mNotificationManager.notify(id, notification);
+            mNotificationManagerCompat.notify(id, notification);
             return;
         }
 
@@ -147,7 +146,7 @@ import java.util.List;
             notification.extras.putParcelable(Notification.EXTRA_MEDIA_SESSION, fwkToken);
         }
 
-        mNotificationManager.notify(id, notification);
+        mNotificationManagerCompat.notify(id, notification);
     }
 
     @Override
@@ -231,24 +230,31 @@ import java.util.List;
         intent.setComponent(new ComponentName(mServiceInstance, mServiceInstance.getClass()));
         intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
 
-        if (Build.VERSION.SDK_INT >= 26 && action != ACTION_PAUSE) {
-            return PendingIntent.getForegroundService(
-                    mServiceInstance, keyCode /* requestCode */, intent, 0 /* flags */);
+        if (Build.VERSION.SDK_INT >= 26 && action != ACTION_PAUSE && action != ACTION_STOP) {
+            return ClassVerificationHelper.PendingIntent.Api26.getForegroundService(
+                    mServiceInstance, keyCode /* requestCode */, intent,
+                    PendingIntent.FLAG_IMMUTABLE);
         } else {
             return PendingIntent.getService(
-                    mServiceInstance, keyCode /* requestCode */, intent, 0 /* flags */);
+                    mServiceInstance, keyCode /* requestCode */, intent,
+                    Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
         }
     }
 
     private void ensureNotificationChannel() {
-        if (Build.VERSION.SDK_INT < 26
-                || mNotificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) != null) {
+        if (Build.VERSION.SDK_INT < 26) {
+            return;
+        }
+        if (mNotificationManagerCompat.getNotificationChannel(NOTIFICATION_CHANNEL_ID) != null) {
             return;
         }
         // Need to create a notification channel.
-        NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-                mNotificationChannelName, NotificationManager.IMPORTANCE_LOW);
-        mNotificationManager.createNotificationChannel(channel);
+        NotificationChannelCompat channelCompat =
+                new NotificationChannelCompat.Builder(
+                        NOTIFICATION_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_LOW)
+                        .setName(mNotificationChannelName)
+                        .build();
+        mNotificationManagerCompat.createNotificationChannel(channelCompat);
     }
 
     private int getSmallIconResId() {

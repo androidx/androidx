@@ -35,4 +35,8 @@ data class EvCompValue(
     override fun getExposureCompensationRange(): Range<Int> = range
     override fun getExposureCompensationStep(): Rational = step
     override fun isExposureCompensationSupported(): Boolean = supported
+
+    internal fun updateIndex(newIndex: Int): EvCompValue {
+        return copy(index = newIndex)
+    }
 }

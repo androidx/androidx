@@ -36,6 +36,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import java.lang.ref.WeakReference;
+
 /**
  * The view model to keep track of the CarAppActivity data.
  *
@@ -52,7 +54,7 @@ public class CarAppViewModel extends AndroidViewModel implements
     private final MutableLiveData<State> mState = new MutableLiveData<>(State.IDLE);
     private ServiceConnectionManager mServiceConnectionManager;
     @Nullable private IRendererCallback mIRendererCallback;
-    @Nullable private Activity mActivity;
+    private static WeakReference<Activity> sActivity = new WeakReference<>(null);
 
     /** Possible view states */
     public enum State {
@@ -91,9 +93,16 @@ public class CarAppViewModel extends AndroidViewModel implements
         mIRendererCallback = rendererCallback;
     }
 
-    /** Updates the activity hosting this view model */
-    void setActivity(@NonNull Activity activity) {
-        mActivity = activity;
+    /** Updates the activity hosting this view model. */
+    void setActivity(@Nullable Activity activity) {
+        sActivity = new WeakReference<>(activity);
+    }
+
+    /** Resets the internal state of this view model. */
+    @SuppressWarnings("NullAway")
+    void resetState() {
+        mState.setValue(State.IDLE);
+        mError.setValue(null);
     }
 
     /**
@@ -105,8 +114,8 @@ public class CarAppViewModel extends AndroidViewModel implements
     @SuppressWarnings("NullAway")
     void bind(@NonNull Intent intent, @NonNull ICarAppActivity iCarAppActivity,
             int displayId) {
-        mState.postValue(State.CONNECTING);
-        mError.postValue(null);
+        mState.setValue(State.CONNECTING);
+        mError.setValue(null);
         mServiceConnectionManager.bind(intent, iCarAppActivity, displayId);
     }
 
@@ -121,7 +130,7 @@ public class CarAppViewModel extends AndroidViewModel implements
         if (mIRendererCallback != null) {
             getServiceDispatcher().dispatch("onDestroyed", mIRendererCallback::onDestroyed);
         }
-        mState.postValue(State.IDLE);
+        mState.setValue(State.IDLE);
         unbind();
     }
 
@@ -156,9 +165,9 @@ public class CarAppViewModel extends AndroidViewModel implements
                 // displayed to the user.
                 return;
             }
+            mState.setValue(State.ERROR);
             mError.setValue(errorCode);
         });
-        mState.postValue(State.ERROR);
         unbind();
     }
 
@@ -168,17 +177,16 @@ public class CarAppViewModel extends AndroidViewModel implements
     @SuppressWarnings("NullAway")
     @Override
     public void onConnect() {
-        mState.postValue(State.CONNECTED);
-        mError.postValue(null);
+        mState.setValue(State.CONNECTED);
+        mError.setValue(null);
     }
 
     /** Attempts to rebind to the host service */
     @SuppressWarnings("NullAway")
     public void retryBinding() {
-        requireNonNull(mActivity);
-        mState.postValue(State.CONNECTING);
-        mError.postValue(null);
-        mActivity.recreate();
+        Activity activity = requireNonNull(sActivity.get());
+        mError.setValue(null);
+        activity.recreate();
     }
 
     /** Host update detected */
@@ -186,5 +194,32 @@ public class CarAppViewModel extends AndroidViewModel implements
         if (mError.getValue() != null) {
             retryBinding();
         }
+    }
+
+    /**
+     * Update the result of the {@link androidx.car.app.activity.CarAppActivity} associated with
+     * this view model.
+     *
+     * @see Activity#setResult(int, Intent)
+     */
+    public static void setActivityResult(int resultCode, @Nullable Intent data) {
+        Activity activity = sActivity.get();
+        if (activity != null) {
+            activity.setResult(resultCode, data);
+        }
+    }
+
+    /**
+     * Returns the activity calling this {@link CarAppActivity}
+     *
+     * @see Activity#getCallingActivity()
+     */
+    @Nullable
+    public static ComponentName getCallingActivity() {
+        Activity activity = sActivity.get();
+        if (activity != null) {
+            return activity.getCallingActivity();
+        }
+        return null;
     }
 }

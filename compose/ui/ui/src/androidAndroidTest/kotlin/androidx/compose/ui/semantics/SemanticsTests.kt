@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
@@ -63,6 +65,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -209,6 +212,25 @@ class SemanticsTests {
     }
 
     @Test
+    fun clearAndSetSemantics_unmergedTree() {
+        val tag1 = "tag1"
+        val label1 = "foo"
+        val label2 = "hidden"
+        val label4 = "bar"
+        rule.setContent {
+            SimpleTestLayout(
+                Modifier.testTag(tag1).clearAndSetSemantics { testProperty = label4 }
+            ) {
+                SimpleTestLayout(Modifier.semantics(true) { testProperty = label1 }) {
+                    SimpleTestLayout(Modifier.semantics { testProperty = label2 }) { }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(tag1).assertTestPropertyEquals("$label4")
+    }
+
+    @Test
     fun clearAndSetSemanticsSameLayoutNode() {
         val tag1 = "tag1"
         val tag2 = "tag2"
@@ -240,6 +262,60 @@ class SemanticsTests {
         rule.onNodeWithTag(tag1).assertTextEquals(label3)
         rule.onNodeWithTag(tag2).assertTestPropertyEquals("$label1")
         rule.onNodeWithTag(tag2).assertDoesNotHaveProperty(SemanticsProperties.Text)
+    }
+
+    @Test
+    fun clearAndSetSemantics_children() {
+        rule.setContent {
+            Column(Modifier.testTag("tag").semantics(true) { }.clearAndSetSemantics { }) {
+                val size = Modifier.size(100.dp)
+                Box(size.semantics { contentDescription = "box 1" })
+                Box(size.clearAndSetSemantics { contentDescription = "box 2" }) {}
+                Box(size.semantics(true) { contentDescription = "box 3" })
+            }
+        }
+
+        val allChildren = rule.onNodeWithTag("tag", true).fetchSemanticsNode().children
+        val children = rule.onNodeWithTag("tag", true).fetchSemanticsNode().replacedChildren
+
+        assertTrue(children.isEmpty())
+        assertTrue(allChildren.size == 3)
+
+        val allChildrenMerged = rule.onNodeWithTag("tag").fetchSemanticsNode().children
+        val childrenMerged = rule.onNodeWithTag("tag").fetchSemanticsNode().replacedChildren
+
+        assertTrue(childrenMerged.isEmpty())
+        assertTrue(allChildrenMerged.isEmpty())
+    }
+
+    @Test
+    fun replacedChildren_includeFakeNodes() {
+        val tag = "tag1"
+        rule.setContent {
+            SimpleTestLayout(Modifier.clickable(role = Role.Button, onClick = {}).testTag(tag)) {
+                BasicText("text")
+            }
+        }
+
+        val node = rule.onNodeWithTag(tag, true).fetchSemanticsNode()
+        val children = node.replacedChildren
+        assertThat(children.count()).isEqualTo(2)
+        assertThat(children.last().isFake).isTrue()
+    }
+
+    @Test
+    fun children_doNotIncludeFakeNodes() {
+        val tag = "tag1"
+        rule.setContent {
+            SimpleTestLayout(Modifier.clickable(role = Role.Button, onClick = {}).testTag(tag)) {
+                BasicText("text")
+            }
+        }
+
+        val node = rule.onNodeWithTag(tag, true).fetchSemanticsNode()
+        val children = node.children
+        assertThat(children.count()).isEqualTo(1)
+        assertThat(children.last().isFake).isFalse()
     }
 
     @Test
@@ -760,14 +836,14 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.childrenSortedByBounds.size)
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
         assertEquals(
             child1,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child2,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 
@@ -792,14 +868,14 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.childrenSortedByBounds.size)
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
         assertEquals(
             child1,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child2,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 
@@ -824,14 +900,14 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.childrenSortedByBounds.size)
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
         assertEquals(
             child2,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child1,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 
@@ -856,14 +932,14 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.childrenSortedByBounds.size)
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
         assertEquals(
             child2,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child1,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 
@@ -888,14 +964,14 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.childrenSortedByBounds.size)
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
         assertEquals(
             child2,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child1,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 
@@ -923,14 +999,14 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.childrenSortedByBounds.size)
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
         assertEquals(
             child2,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child1,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 
@@ -958,14 +1034,14 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.childrenSortedByBounds.size)
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
         assertEquals(
             child1,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child2,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 
@@ -993,14 +1069,14 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.childrenSortedByBounds.size)
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
         assertEquals(
             child1,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child2,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 
@@ -1035,14 +1111,14 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.childrenSortedByBounds.size)
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
         assertEquals(
             child2,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child1,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 
@@ -1077,14 +1153,14 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(2, root.childrenSortedByBounds.size)
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
         assertEquals(
             child2,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child1,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 
@@ -1139,34 +1215,34 @@ class SemanticsTests {
         }
 
         val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
-        assertEquals(6, root.childrenSortedByBounds.size)
+        assertEquals(6, root.replacedChildrenSortedByBounds.size)
 
         // Ltr
         assertEquals(
             child1,
-            root.childrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child2,
-            root.childrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             child3,
-            root.childrenSortedByBounds[2].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[2].config.getOrNull(SemanticsProperties.TestTag)
         )
 
         // Rtl
         assertEquals(
             rtlChild1,
-            root.childrenSortedByBounds[3].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[3].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             rtlChild2,
-            root.childrenSortedByBounds[4].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[4].config.getOrNull(SemanticsProperties.TestTag)
         )
         assertEquals(
             rtlChild3,
-            root.childrenSortedByBounds[5].config.getOrNull(SemanticsProperties.TestTag)
+            root.replacedChildrenSortedByBounds[5].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
 }

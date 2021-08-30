@@ -21,17 +21,19 @@ import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.icu.util.Calendar
 import android.util.TypedValue
 import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.CanvasComplication
+import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.style.WatchFaceLayer
+import java.time.ZonedDateTime
 
 /**
  * A complication rendered with [ComplicationDrawable] which renders complicationSlots in a material
@@ -52,7 +54,10 @@ constructor(
     private val invalidateCallback: CanvasComplication.InvalidateCallback
 ) : CanvasComplication {
 
-    private companion object {
+    internal companion object {
+        // Complications are highlighted when tapped and after this delay the highlight is removed.
+        internal const val COMPLICATION_HIGHLIGHT_DURATION_MS = 300L
+
         internal const val EXPANSION_DP = 6.0f
         internal const val STROKE_WIDTH_DP = 3.0f
     }
@@ -93,31 +98,29 @@ constructor(
             // update.
             value.setComplicationData(field.complicationData, false)
             field = value
-            value.isInAmbientMode = watchState.isAmbient.value
             value.isLowBitAmbient = watchState.hasLowBitAmbient
             value.isBurnInProtectionOn = watchState.hasBurnInProtection
         }
 
-    init {
-        // This observer needs to use the property drawable defined above, not the constructor
-        // argument with the same name.
-        watchState.isAmbient.addObserver {
-            this.drawable.isInAmbientMode = it
-        }
-    }
-
     override fun render(
         canvas: Canvas,
         bounds: Rect,
-        calendar: Calendar,
-        renderParameters: RenderParameters
+        zonedDateTime: ZonedDateTime,
+        renderParameters: RenderParameters,
+        slotId: Int
     ) {
         if (!renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
             return
         }
 
+        drawable.isInAmbientMode = renderParameters.drawMode == DrawMode.AMBIENT
         drawable.bounds = bounds
-        drawable.currentTimeMillis = calendar.timeInMillis
+        drawable.currentTime = zonedDateTime.toInstant()
+        drawable.isHighlighted = renderParameters.lastComplicationTapDownEvents[slotId]?.let {
+            val startTime = it.tapTime.toEpochMilli()
+            val endTime = it.tapTime.toEpochMilli() + COMPLICATION_HIGHLIGHT_DURATION_MS
+            zonedDateTime.toInstant().toEpochMilli() in startTime until endTime
+        } ?: false
         drawable.draw(canvas)
     }
 
@@ -125,7 +128,7 @@ constructor(
         canvas: Canvas,
         bounds: Rect,
         boundsType: Int,
-        calendar: Calendar,
+        zonedDateTime: ZonedDateTime,
         @ColorInt color: Int
     ) {
         if (boundsType == ComplicationSlotBoundsType.ROUND_RECT) {
@@ -137,16 +140,10 @@ constructor(
         }
     }
 
-    public override var isHighlighted: Boolean
-        get() = drawable.isHighlighted
-        set(value) {
-            drawable.isHighlighted = value
-        }
+    private var _data: ComplicationData = NoDataComplicationData()
 
-    private var _data: ComplicationData? = null
-
-    /** Returns the [ComplicationData] to render with. */
-    override fun getData(): ComplicationData? = _data
+    /** Returns the [ComplicationData] to render with. This defaults to [NoDataComplicationData]. */
+    override fun getData(): ComplicationData = _data
 
     /**
      * Updates the [ComplicationData] used for rendering and loads any [Drawable]s within the
@@ -161,7 +158,7 @@ constructor(
      */
     @CallSuper
     override fun loadData(
-        complicationData: ComplicationData?,
+        complicationData: ComplicationData,
         loadDrawablesAsynchronous: Boolean
     ): Unit = TraceEvent("CanvasComplicationDrawable.setIdAndData").use {
         _data = complicationData

@@ -18,12 +18,9 @@ package androidx.appcompat.widget;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.mock;
-
 import android.text.method.KeyListener;
-import android.widget.TextView;
+import android.view.KeyEvent;
 
-import androidx.appcompat.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -34,7 +31,7 @@ import org.junit.runner.RunWith;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class AppCompatEditTextEmojiTest
-        extends AppCompatBaseTextViewEmojiTest<AppCompatEditTextEmojiActivity, AppCompatTextView> {
+        extends AppCompatBaseEditTextEmojiTest<AppCompatEditTextEmojiActivity, AppCompatTextView> {
 
     public AppCompatEditTextEmojiTest() {
         super(AppCompatEditTextEmojiActivity.class);
@@ -48,7 +45,8 @@ public class AppCompatEditTextEmojiTest
     @UiThreadTest
     public void respectsFocusableAndEditableAttribute() {
         AppCompatEditText notFocusable =
-                mActivityTestRule.getActivity().findViewById(R.id.not_focusable);
+                mActivityTestRule.getActivity()
+                        .findViewById(androidx.appcompat.test.R.id.not_focusable);
 
         assertThat(notFocusable.isEnabled()).isFalse();
         assertThat(notFocusable.isFocusable()).isFalse();
@@ -56,19 +54,30 @@ public class AppCompatEditTextEmojiTest
 
     @Test
     @UiThreadTest
-    public void setKeyListener_hasSameFocusChangeBehavior_asPlatform() {
-        TextView platformTextView = new TextView(mActivityTestRule.getActivity());
-        platformTextView.setFocusable(false);
-        platformTextView.setEnabled(false);
+    public void respectsDigits() {
+        AppCompatEditText textWithDigits = mActivityTestRule.getActivity()
+                        .findViewById(androidx.appcompat.test.R.id.text_with_digits);
 
-        AppCompatEditText notFocusable =
-                mActivityTestRule.getActivity().findViewById(R.id.not_focusable);
+        int[] acceptedKeyCodes = {KeyEvent.KEYCODE_0, KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2,
+                KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_4};
+        int[] disallowedKeyCodes = {KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_7,
+                KeyEvent.KEYCODE_8, KeyEvent.KEYCODE_9};
+        int[] actions = {KeyEvent.ACTION_DOWN, KeyEvent.ACTION_UP};
 
-        KeyListener keyListener = mock(KeyListener.class);
-        notFocusable.setKeyListener(keyListener);
-        platformTextView.setKeyListener(keyListener);
+        for (int action : actions) {
+            for (int keycode : acceptedKeyCodes) {
+                assertThat(listenerHandlesKeyEvent(textWithDigits, action, keycode)).isTrue();
+            }
+            for (int keycode : disallowedKeyCodes) {
+                assertThat(listenerHandlesKeyEvent(textWithDigits, action, keycode)).isFalse();
+            }
+        }
+    }
 
-        assertThat(notFocusable.isFocusable()).isEqualTo(platformTextView.isFocusable());
-        assertThat(notFocusable.isEnabled()).isEqualTo(platformTextView.isEnabled());
+    private boolean listenerHandlesKeyEvent(AppCompatEditText textWithDigits, int action,
+            int keycode) {
+        KeyListener listener = textWithDigits.getKeyListener();
+        return listener.onKeyDown(textWithDigits, textWithDigits.getText(),
+                keycode, new KeyEvent(action, keycode));
     }
 }

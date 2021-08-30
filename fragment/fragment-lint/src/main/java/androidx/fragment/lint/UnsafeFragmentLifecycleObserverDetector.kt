@@ -34,6 +34,8 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiTypesUtil
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.UastFacade
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
@@ -125,9 +127,12 @@ private class RecursiveMethodVisitor(
         }
         val psiMethod = node.resolve() ?: return super.visitCallExpression(node)
         if (!checkCall(node, psiMethod) && node.isInteresting(context)) {
-            val uastNode = context.uastContext.getMethod(psiMethod)
+            val uastNode = UastFacade.convertElementWithParent(
+                psiMethod,
+                UMethod::class.java
+            ) as? UMethod
             visitedMethods.add(node)
-            uastNode.uastBody?.accept(this)
+            uastNode?.uastBody?.accept(this)
             visitedMethods.remove(node)
         }
         return super.visitCallExpression(node)

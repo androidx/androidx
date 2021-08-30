@@ -116,7 +116,7 @@ public class DialogFragmentNavigator(
         dialogFragment.arguments = entry.arguments
         dialogFragment.lifecycle.addObserver(observer)
         dialogFragment.show(fragmentManager, entry.id)
-        state.add(entry)
+        state.push(entry)
     }
 
     override fun onAttach(state: NavigatorState) {
@@ -193,6 +193,17 @@ public class DialogFragmentNavigator(
         public fun setClassName(className: String): Destination {
             _className = className
             return this
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is Destination) return false
+            return super.equals(other) && _className == other._className
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + _className.hashCode()
+            return result
         }
     }
 

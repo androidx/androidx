@@ -39,7 +39,13 @@ public final class Compass {
     /**
      * Returns the raw compass data from the car sensor.
      *
-     * <p>Follows the same format as {@link android.hardware.SensorEvent#values}.
+     * <p>Individual values can be {@code Float.Nan} if not reported. The array values consist of:
+     * <ul>
+     *     <li>[0]: Azimuth, angle between the magnetic north direction and the y-axis, around the
+     *     z-axis (0 to 359). 0=North, 90=East, 180=South, 270=West
+     *     <li>[1]: Pitch, rotation around y-axis (-90 to 90), where nose down is positive
+     *     <li>[2]: Roll, rotation around x-axis (-180 to 180), where right door down is positive
+     * </ul>
      */
     @NonNull
     public CarValue<List<Float>> getOrientations() {

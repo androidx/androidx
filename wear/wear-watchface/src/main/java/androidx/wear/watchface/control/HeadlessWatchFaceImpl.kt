@@ -79,15 +79,15 @@ internal class HeadlessWatchFaceImpl(
         task: (watchFaceImpl: WatchFaceImpl) -> R
     ): R = TraceEvent(traceName).use {
         runBlocking {
-            val engineCopy = synchronized(this) { engine!! }
-            val watchFaceImpl = engineCopy.deferredWatchFaceImpl.await()
-            withContext(engineCopy.uiThreadCoroutineScope.coroutineContext) {
-                try {
+            try {
+                val engineCopy = synchronized(this) { engine!! }
+                val watchFaceImpl = engineCopy.deferredWatchFaceImpl.await()
+                withContext(engineCopy.uiThreadCoroutineScope.coroutineContext) {
                     task(watchFaceImpl)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Operation failed", e)
-                    throw e
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Operation failed", e)
+                throw e
             }
         }
     }
@@ -100,7 +100,7 @@ internal class HeadlessWatchFaceImpl(
     override fun getPreviewReferenceTimeMillis() =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "HeadlessWatchFaceImpl.getPreviewReferenceTimeMillis"
-        ) { watchFaceImpl -> watchFaceImpl.previewReferenceTimeMillis }
+        ) { watchFaceImpl -> watchFaceImpl.previewReferenceInstant.toEpochMilli() }
 
     override fun getComplicationState() =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(

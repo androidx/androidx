@@ -22,6 +22,7 @@ import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation.Horizontal
+import androidx.compose.foundation.gestures.Orientation.Vertical
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -37,11 +38,12 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Drag
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Fling
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Relocate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.layout.onRelocationRequest
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -75,28 +77,58 @@ fun Modifier.scrollable(
     reverseDirection: Boolean = false,
     flingBehavior: FlingBehavior? = null,
     interactionSource: MutableInteractionSource? = null
+): Modifier = scrollable(
+    state = state,
+    orientation = orientation,
+    enabled = enabled,
+    reverseDirection = reverseDirection,
+    flingBehavior = flingBehavior,
+    interactionSource = interactionSource,
+    overScrollController = null
+)
+
+internal fun Modifier.scrollable(
+    state: ScrollableState,
+    orientation: Orientation,
+    overScrollController: OverScrollController?,
+    enabled: Boolean = true,
+    reverseDirection: Boolean = false,
+    flingBehavior: FlingBehavior? = null,
+    interactionSource: MutableInteractionSource? = null
 ): Modifier = composed(
     inspectorInfo = debugInspectorInfo {
         name = "scrollable"
         properties["orientation"] = orientation
         properties["state"] = state
+        properties["overScrollController"] = overScrollController
         properties["enabled"] = enabled
         properties["reverseDirection"] = reverseDirection
         properties["flingBehavior"] = flingBehavior
         properties["interactionSource"] = interactionSource
     },
     factory = {
+        val overscrollModifier =
+            if (overScrollController != null) {
+                Modifier.overScroll(overScrollController)
+            } else {
+                Modifier
+            }
+
         fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
-        touchScrollImplementation(
-            interactionSource,
-            orientation,
-            reverseDirection,
-            state,
-            flingBehavior,
-            enabled
-        ).mouseScrollable(orientation) {
-            state.dispatchRawDelta(it.reverseIfNeeded())
-        }
+        relocationScrollable(state, orientation, reverseDirection)
+            .then(overscrollModifier)
+            .touchScrollable(
+                interactionSource,
+                orientation,
+                reverseDirection,
+                state,
+                flingBehavior,
+                overScrollController,
+                enabled
+            )
+            .mouseScrollable(orientation) {
+                state.dispatchRawDelta(it.reverseIfNeeded())
+            }
     }
 )
 
@@ -128,18 +160,26 @@ internal expect fun Modifier.mouseScrollable(
 
 @Suppress("ComposableModifierFactory")
 @Composable
-private fun Modifier.touchScrollImplementation(
+private fun Modifier.touchScrollable(
     interactionSource: MutableInteractionSource?,
     orientation: Orientation,
     reverseDirection: Boolean,
     controller: ScrollableState,
     flingBehavior: FlingBehavior?,
+    overScrollController: OverScrollController?,
     enabled: Boolean
 ): Modifier {
     val fling = flingBehavior ?: ScrollableDefaults.flingBehavior()
     val nestedScrollDispatcher = remember { mutableStateOf(NestedScrollDispatcher()) }
     val scrollLogic = rememberUpdatedState(
-        ScrollingLogic(orientation, reverseDirection, nestedScrollDispatcher, controller, fling)
+        ScrollingLogic(
+            orientation,
+            reverseDirection,
+            nestedScrollDispatcher,
+            controller,
+            fling,
+            overScrollController
+        )
     )
     val nestedScrollConnection = remember(enabled) {
         scrollableNestedScrollConnection(scrollLogic, enabled)
@@ -167,7 +207,8 @@ private class ScrollingLogic(
     val reverseDirection: Boolean,
     val nestedScrollDispatcher: State<NestedScrollDispatcher>,
     val scrollableState: ScrollableState,
-    val flingBehavior: FlingBehavior
+    val flingBehavior: FlingBehavior,
+    val overScrollController: OverScrollController?
 ) {
     fun Float.toOffset(): Offset = when {
         this == 0f -> Offset.Zero
@@ -186,7 +227,11 @@ private class ScrollingLogic(
 
     fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
 
-    fun ScrollScope.dispatchScroll(scrollDelta: Float, source: NestedScrollSource): Float {
+    fun ScrollScope.dispatchScroll(
+        scrollDelta: Float,
+        pointerPosition: Offset?,
+        source: NestedScrollSource
+    ): Float {
         val nestedScrollDispatcher = nestedScrollDispatcher.value
         val preConsumedByParent = nestedScrollDispatcher
             .dispatchPreScroll(scrollDelta.toOffset(), source)
@@ -194,12 +239,14 @@ private class ScrollingLogic(
         val scrollAvailable = scrollDelta - preConsumedByParent.toFloat()
         val consumed = scrollBy(scrollAvailable.reverseIfNeeded()).reverseIfNeeded()
         val leftForParent = scrollAvailable - consumed
-        nestedScrollDispatcher.dispatchPostScroll(
-            consumed.toOffset(),
-            leftForParent.toOffset(),
-            source
+        val parentConsumed = nestedScrollDispatcher
+            .dispatchPostScroll(consumed.toOffset(), leftForParent.toOffset(), source)
+        overScrollController?.processDragDelta(
+            scrollAvailable.reverseIfNeeded().toOffset(),
+            (leftForParent - parentConsumed.toFloat()).reverseIfNeeded().toOffset(),
+            pointerPosition
         )
-        return if (source == Drag) consumed else leftForParent
+        return leftForParent
     }
 
     fun performRawScroll(scroll: Offset): Offset {
@@ -211,26 +258,24 @@ private class ScrollingLogic(
         }
     }
 
-    fun performRelocationScroll(scroll: Offset): Offset {
-        nestedScrollDispatcher.value.coroutineScope.launch {
-            scrollableState.animateScrollBy(scroll.toFloat().reverseIfNeeded())
-        }
-        return scroll
-    }
-
     suspend fun onDragStopped(axisVelocity: Float) {
         val velocity = axisVelocity.toVelocity()
         val preConsumedByParent = nestedScrollDispatcher.value.dispatchPreFling(velocity)
         val available = velocity - preConsumedByParent
         val velocityLeft = doFlingAnimation(available)
-        nestedScrollDispatcher.value.dispatchPostFling(available - velocityLeft, velocityLeft)
+        val consumedPost =
+            nestedScrollDispatcher.value.dispatchPostFling(available - velocityLeft, velocityLeft)
+        val totalLeft = velocityLeft - consumedPost
+        overScrollController?.release()
+        overScrollController?.processVelocity(totalLeft.toFloat().reverseIfNeeded().toVelocity())
     }
 
     suspend fun doFlingAnimation(available: Velocity): Velocity {
         var result: Velocity = available
         scrollableState.scroll {
             val outerScopeScroll: (Float) -> Float = { delta ->
-                delta - this.dispatchScroll(delta.reverseIfNeeded(), Fling).reverseIfNeeded()
+                val consumed = this.dispatchScroll(delta.reverseIfNeeded(), null, Fling)
+                delta - consumed.reverseIfNeeded()
             }
             val scope = object : ScrollScope {
                 override fun scrollBy(pixels: Float): Float {
@@ -250,20 +295,20 @@ private class ScrollingLogic(
 
 private class ScrollDraggableState(
     val scrollLogic: State<ScrollingLogic>
-) : ConsumptionBasedDraggableState, ConsumptionBasedDragScope {
+) : PointerAwareDraggableState, PointerAwareDragScope {
     var latestScrollScope: ScrollScope = NoOpScrollScope
 
-    override fun dragBy(pixels: Float): Float {
+    override fun dragBy(pixels: Float, pointerPosition: Offset) {
         with(scrollLogic.value) {
             with(latestScrollScope) {
-                return dispatchScroll(pixels, Drag)
+                dispatchScroll(pixels, pointerPosition, Drag)
             }
         }
     }
 
     override suspend fun drag(
         dragPriority: MutatePriority,
-        block: suspend ConsumptionBasedDragScope.() -> Unit
+        block: suspend PointerAwareDragScope.() -> Unit
     ) {
         scrollLogic.value.scrollableState.scroll(dragPriority) {
             latestScrollScope = this
@@ -289,13 +334,7 @@ private fun scrollableNestedScrollConnection(
         available: Offset,
         source: NestedScrollSource
     ): Offset = if (enabled) {
-        @Suppress("DEPRECATION")
-        when (source) {
-            Drag, Fling -> scrollLogic.value.performRawScroll(available)
-            @OptIn(ExperimentalComposeUiApi::class)
-            Relocate -> scrollLogic.value.performRelocationScroll(available)
-            else -> error("$source scroll not supported.")
-        }
+        scrollLogic.value.performRawScroll(available)
     } else {
         Offset.Zero
     }
@@ -337,4 +376,47 @@ private class DefaultFlingBehavior(
             initialVelocity
         }
     }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+private fun Modifier.relocationScrollable(
+    scrollableState: ScrollableState,
+    orientation: Orientation,
+    reverseDirection: Boolean = false
+): Modifier {
+    fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
+    return this.onRelocationRequest(
+        onProvideDestination = { rect, layoutCoordinates ->
+            val size = layoutCoordinates.size.toSize()
+            when (orientation) {
+                Vertical ->
+                    rect.translate(0f, relocationDistance(rect.top, rect.bottom, size.height))
+                Horizontal ->
+                    rect.translate(relocationDistance(rect.left, rect.right, size.width), 0f)
+            }
+        },
+        onPerformRelocation = { source, destination ->
+            val offset = when (orientation) {
+                Vertical -> source.top - destination.top
+                Horizontal -> source.left - destination.left
+            }
+            scrollableState.animateScrollBy(offset.reverseIfNeeded())
+        }
+    )
+}
+
+// Calculate the offset needed to bring one of the edges into view. The leadingEdge is the side
+// closest to the origin (For the x-axis this is 'left', for the y-axis this is 'top').
+// The trailing edge is the other side (For the x-axis this is 'right', for the y-axis this is
+// 'bottom').
+private fun relocationDistance(leadingEdge: Float, trailingEdge: Float, parentSize: Float) = when {
+    // If the item is already visible, no need to scroll.
+    leadingEdge >= 0 && trailingEdge <= parentSize -> 0f
+
+    // If the item is visible but larger than the parent, we don't scroll.
+    leadingEdge < 0 && trailingEdge > parentSize -> 0f
+
+    // Find the minimum scroll needed to make one of the edges coincide with the parent's edge.
+    abs(leadingEdge) < abs(trailingEdge - parentSize) -> leadingEdge
+    else -> trailingEdge - parentSize
 }

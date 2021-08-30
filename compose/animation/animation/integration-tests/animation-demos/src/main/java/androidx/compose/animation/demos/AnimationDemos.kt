@@ -44,6 +44,7 @@ val AnimationDemos = DemoCategory(
                 ComposableDemo("Cross Fade") { CrossfadeDemo() },
                 ComposableDemo("Modifier.animateEnterExit Demo") { AnimateEnterExitDemo() },
                 ComposableDemo("Nested Menu") { NestedMenuDemo() },
+                ComposableDemo("Scaled Enter/Exit") { ScaleEnterExitDemo() },
                 ComposableDemo("Shrine Cart") { ShrineCartDemo() },
                 ComposableDemo("Screen Transition") { ScreenTransitionDemo() },
             )
@@ -57,6 +58,12 @@ val AnimationDemos = DemoCategory(
                 ComposableDemo("Infinitely Animating") { InfiniteAnimationDemo() },
                 ComposableDemo("Spring back scrolling") { SpringBackScrollingDemo() },
                 ComposableDemo("Swipe to dismiss") { SwipeToDismissDemo() },
+            )
+        ),
+        DemoCategory(
+            "Graphics Animation Demos",
+            listOf(
+                ComposableDemo("Animated Vector Graphics") { AnimatedVectorGraphicsDemo() },
             )
         ),
 
@@ -74,10 +81,19 @@ val AnimationDemos = DemoCategory(
         ),
 
         DemoCategory(
+            "Visual Aid \uD83D\uDC40 \uD83D\uDC40",
+            listOf(
+                ComposableDemo("Column Arrangements Demo") { ColumnConfigurationDemo() },
+                ComposableDemo("Row Arrangements Demo (Landscape)") { RowConfigurationDemo() },
+            )
+        ),
+
+        DemoCategory(
             "\uD83C\uDF89 Fun Demos",
             listOf(
                 ComposableDemo("Animated clock") { AnimatedClockDemo() },
                 ComposableDemo("Animated dots") { AnimatedDotsDemo() },
+                ComposableDemo("Chat screen") { ChatScreen() },
                 ComposableDemo("Game of fling") { FlingGame() },
                 ComposableDemo("Spring chain") { SpringChainDemo() },
             )

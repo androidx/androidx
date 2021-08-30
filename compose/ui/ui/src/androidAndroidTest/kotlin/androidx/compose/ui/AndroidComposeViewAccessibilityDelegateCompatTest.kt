@@ -28,6 +28,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.structuralEqualityPolicy
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.node.InnerPlaceable
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
@@ -77,7 +79,9 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.nhaarman.mockitokotlin2.argThat
@@ -427,7 +431,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
-    fun testPopulateAccessibilityNodeInfoProperties_EditText() {
+    fun testPopulateAccessibilityNodeInfoProperties_textField() {
         val setSelectionActionLabel = "setSelection"
         val setTextActionLabel = "setText"
         val text = "hello"
@@ -477,6 +481,26 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                     .ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY
             )
         )
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(
+                listOf(AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY),
+                info.unwrap().availableExtraData
+            )
+        }
+    }
+
+    @Test
+    fun testMovementGranularities_textField_focused() {
+        val semanticsNode = createSemanticsNodeWithProperties(1, true) {
+            this.text = AnnotatedString("text")
+            this.textSelectionRange = TextRange(1)
+            this.focused = true
+            getTextLayoutResult { true }
+            setText { true }
+            setSelection { _, _, _ -> true }
+        }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+
         assertEquals(
             AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER or
                 AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_WORD or
@@ -485,12 +509,25 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PAGE,
             info.movementGranularities
         )
-        if (Build.VERSION.SDK_INT >= 26) {
-            assertEquals(
-                listOf(AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY),
-                info.unwrap().availableExtraData
-            )
+    }
+
+    @Test
+    fun testMovementGranularities_textField_notFocused() {
+        val semanticsNode = createSemanticsNodeWithProperties(1, true) {
+            this.text = AnnotatedString("text")
+            this.textSelectionRange = TextRange(1)
+            getTextLayoutResult { true }
+            setText { true }
+            setSelection { _, _, _ -> true }
         }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+
+        assertEquals(
+            AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER or
+                AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_WORD or
+                AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PARAGRAPH,
+            info.movementGranularities
+        )
     }
 
     @Test
@@ -592,6 +629,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
+    @FlakyTest(bugId = 195287742)
     fun sendScrollEvent_byStateObservation() {
         var scrollValue by mutableStateOf(0f, structuralEqualityPolicy())
         var scrollMaxValue by mutableStateOf(100f, structuralEqualityPolicy())
@@ -622,6 +660,16 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         } finally {
             accessibilityDelegate.view.snapshotObserver.stopObserving()
         }
+
+        verify(container, times(1)).requestSendAccessibilityEvent(
+            eq(androidComposeView),
+            argThat(
+                ArgumentMatcher {
+                    it.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED &&
+                        it.contentChangeTypes == AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE
+                }
+            )
+        )
 
         verify(container, times(1)).requestSendAccessibilityEvent(
             eq(androidComposeView),
@@ -832,7 +880,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
-    fun testNotPlacedNodesAreNotIncluded() {
+    fun testUncoveredNodes_notPlacedNodes_notIncluded() {
         val nodes = SemanticsOwner(
             LayoutNode().also {
                 it.modifier = SemanticsModifierCore(
@@ -844,6 +892,18 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             }
         ).getAllUncoveredSemanticsNodesToMap()
         assertEquals(0, nodes.size)
+    }
+
+    @Test
+    fun testUncoveredNodes_zeroBoundsRoot_included() {
+        val nodes = SemanticsOwner(androidComposeView.root).getAllUncoveredSemanticsNodesToMap()
+
+        assertEquals(1, nodes.size)
+        assertEquals(AccessibilityNodeProviderCompat.HOST_VIEW_ID, nodes.keys.first())
+        assertEquals(
+            Rect.Zero.toAndroidRect(),
+            nodes[AccessibilityNodeProviderCompat.HOST_VIEW_ID]!!.adjustedBounds
+        )
     }
 
     @Test

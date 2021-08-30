@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runKspTest
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 
 class InternalModifierTest {
@@ -38,24 +38,23 @@ class InternalModifierTest {
             internal class InternalClass(val value: String)
             inline class InlineClass(val value:String)
             abstract class Subject {
-                var normalProp: String = TODO()
-                var inlineProp: InlineClass = TODO()
+                var normalProp: String = ""
+                var inlineProp: InlineClass = InlineClass("")
                 internal abstract var internalAbstractProp: String
-                internal var internalProp: String = TODO()
-                internal var internalInlineProp: InlineClass = TODO()
-                private var internalTypeProp : InternalClass = TODO()
+                internal var internalProp: String = ""
+                internal var internalInlineProp: InlineClass = InlineClass("")
+                private var internalTypeProp : InternalClass = InternalClass("")
                 @get:JvmName("explicitGetterName")
                 @set:JvmName("explicitSetterName")
-                var jvmNameProp:String
+                var jvmNameProp:String = ""
                 fun normalFun() {}
                 @JvmName("explicitJvmName")
                 fun hasJvmName() {}
                 fun inlineReceivingFun(value: InlineClass) {}
-                fun inlineReturningFun(): InlineClass = TODO()
+                fun inlineReturningFun(): InlineClass = InlineClass("")
                 internal fun internalInlineReceivingFun(value: InlineClass) {}
-                internal fun internalInlineReturningFun(): InlineClass = TODO()
+                internal fun internalInlineReturningFun(): InlineClass = InlineClass("")
                 inline fun inlineFun() {
-                    TODO()
                 }
             }
             """.trimIndent()
@@ -101,7 +100,7 @@ class InternalModifierTest {
         ) { invocation ->
             kspResult = traverse(invocation.processingEnv)
         }
-
-        assertThat(kspResult).isEqualTo(kaptResult)
+        assertWithMessage("$kspResult\n--\n$kaptResult")
+            .that(kspResult).isEqualTo(kaptResult)
     }
 }

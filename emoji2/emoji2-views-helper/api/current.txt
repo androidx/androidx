@@ -4,7 +4,7 @@ package androidx.emoji2.viewsintegration {
   public final class EmojiEditTextHelper {
     ctor public EmojiEditTextHelper(android.widget.EditText);
     ctor public EmojiEditTextHelper(android.widget.EditText, boolean);
-    method public android.text.method.KeyListener getKeyListener(android.text.method.KeyListener);
+    method public android.text.method.KeyListener? getKeyListener(android.text.method.KeyListener?);
     method public int getMaxEmojiCount();
     method public boolean isEnabled();
     method public android.view.inputmethod.InputConnection? onCreateInputConnection(android.view.inputmethod.InputConnection?, android.view.inputmethod.EditorInfo);

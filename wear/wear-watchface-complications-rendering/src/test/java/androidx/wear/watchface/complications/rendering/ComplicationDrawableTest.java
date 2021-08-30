@@ -42,16 +42,16 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.icu.util.Calendar;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationText;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.wear.complications.ComplicationHelperActivity;
 import androidx.wear.complications.data.DataKt;
+import androidx.wear.complications.data.NoDataComplicationData;
 import androidx.wear.watchface.CanvasType;
+import androidx.wear.watchface.ComplicationHelperActivity;
 import androidx.wear.watchface.ComplicationSlotsManager;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
@@ -70,6 +70,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
 import kotlin.coroutines.Continuation;
@@ -371,7 +372,7 @@ public class ComplicationDrawableTest {
     @Test
     public void onTapReturnsFalseIfNoComplicationData() {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
-        mComplicationDrawable.setComplicationData(null, true);
+        mComplicationDrawable.setComplicationData(new NoDataComplicationData(), true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isFalse();
@@ -752,11 +753,11 @@ public class ComplicationDrawableTest {
                             CanvasType.SOFTWARE, 16L) {
                         @Override
                         public void renderHighlightLayer(@NonNull Canvas canvas,
-                                @NonNull Rect bounds, @NonNull Calendar calendar) {}
+                                @NonNull Rect bounds, @NonNull ZonedDateTime zonedDateTime) {}
 
                         @Override
                         public void render(@NonNull Canvas canvas, @NonNull Rect bounds,
-                                @NonNull Calendar calendar) {}
+                                @NonNull ZonedDateTime zonedDateTime) {}
                     }
             );
         }

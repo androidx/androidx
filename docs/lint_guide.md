@@ -54,7 +54,13 @@ plugins {
 }
 
 dependencies {
-    compileOnly LINT_API_MIN
+    // compileOnly because lint runtime is provided when checks are run
+    // Use latest lint for running from IDE to make sure checks always run
+    if (rootProject.hasProperty("android.injected.invoked.from.ide")) {
+        compileOnly LINT_API_LATEST
+    } else {
+        compileOnly LINT_API_MIN
+    }
     compileOnly KOTLIN_STDLIB
 
     testImplementation KOTLIN_STDLIB
@@ -628,6 +634,8 @@ Contains most of the canonical names for android core library classes, as well
 as XML tag names.
 
 ## Helpful links
+
+[Writing Custom Lint Rules](https://googlesamples.github.io/android-custom-lint-rules/)
 
 [Studio Lint Rules](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks/)
 

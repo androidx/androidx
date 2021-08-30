@@ -21,10 +21,10 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
+import androidx.room.ext.capitalize
+import androidx.room.ext.stripNonJava
 import androidx.room.vo.DatabaseView
-import capitalize
 import com.squareup.javapoet.ParameterSpec
-import stripNonJava
 import java.util.Locale
 
 class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {

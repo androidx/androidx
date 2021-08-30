@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.compose.desktop.examples.example1
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.desktop.AppWindow
 import androidx.compose.desktop.DesktopMaterialTheme
-import androidx.compose.desktop.LocalAppWindow
-import androidx.compose.desktop.Window
+import androidx.compose.foundation.ExperimentalDesktopApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.mouseClickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -80,17 +80,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.plus
-import androidx.compose.ui.input.key.shortcuts
-import androidx.compose.ui.input.pointer.PointerEvent
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.input.pointer.PointerInputModifier
+import androidx.compose.ui.input.pointer.isAltPressed
+import androidx.compose.ui.input.pointer.isCtrlPressed
+import androidx.compose.ui.input.pointer.isMetaPressed
+import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.isShiftPressed
+import androidx.compose.ui.input.pointer.isTertiaryPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.svgResource
-import androidx.compose.ui.res.vectorXmlResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
@@ -103,11 +106,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import java.awt.event.MouseEvent
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.FrameWindowScope
+import androidx.compose.ui.window.WindowSize
+import androidx.compose.ui.window.WindowState
+import androidx.compose.ui.window.launchApplication
+import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.singleWindowApplication
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlin.random.Random
 
 private const val title = "Desktop Compose Elements"
 
@@ -122,15 +133,15 @@ val italicFont = try {
     FontFamily.SansSerif
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-fun main() {
-    Window(title, IntSize(1024, 850)) {
-        App()
-    }
+fun main() = singleWindowApplication(
+    title = title,
+    state = WindowState(width = 1024.dp, height = 850.dp)
+) {
+    App()
 }
 
 @Composable
-private fun App() {
+private fun FrameWindowScope.App() {
     val uriHandler = LocalUriHandler.current
     DesktopMaterialTheme {
         Scaffold(
@@ -139,7 +150,7 @@ private fun App() {
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Image(
-                                svgResource("androidx/compose/desktop/example/star.svg"),
+                                painterResource("androidx/compose/desktop/example/star.svg"),
                                 contentDescription = "Star"
                             )
                             Text(title)
@@ -176,7 +187,7 @@ private fun App() {
 }
 
 @Composable
-private fun LeftColumn(modifier: Modifier) = Box(modifier.fillMaxSize()) {
+private fun FrameWindowScope.LeftColumn(modifier: Modifier) = Box(modifier.fillMaxSize()) {
     val state = rememberScrollState()
     ScrollableContent(state)
 
@@ -186,13 +197,15 @@ private fun LeftColumn(modifier: Modifier) = Box(modifier.fillMaxSize()) {
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(
+    ExperimentalComposeUiApi::class,
+    ExperimentalDesktopApi::class
+)
 @Composable
-private fun ScrollableContent(scrollState: ScrollState) {
+private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
     val amount = remember { mutableStateOf(0f) }
     val animation = remember { mutableStateOf(true) }
     Column(Modifier.fillMaxSize().verticalScroll(scrollState)) {
-        val window = LocalAppWindow.current.window
         val info = "${window.renderApi} (${window.windowHandle})"
         Text(
             text = "Привет! 你好! Desktop Compose use $info: ${amount.value}",
@@ -351,7 +364,6 @@ private fun ScrollableContent(scrollState: ScrollState) {
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            var lastEvent by remember { mutableStateOf<MouseEvent?>(null) }
             Button(
                 modifier = Modifier.padding(4.dp),
                 onClick = {
@@ -361,22 +373,27 @@ private fun ScrollableContent(scrollState: ScrollState) {
                 Text("Base")
             }
 
-            Text(
-                modifier = object : PointerInputModifier {
-                    override val pointerInputFilter = object : PointerInputFilter() {
-                        override fun onPointerEvent(
-                            pointerEvent: PointerEvent,
-                            pass: PointerEventPass,
-                            bounds: IntSize
-                        ) {
-                            lastEvent = pointerEvent.mouseEvent
-                        }
+            var clickableText by remember { mutableStateOf("Click me!") }
 
-                        override fun onCancel() {
+            Text(
+                modifier = Modifier.mouseClickable(
+                    onClick = {
+                        clickableText = buildString {
+                            append("Buttons pressed:\n")
+                            append("primary: ${buttons.isPrimaryPressed}\t")
+                            append("secondary: ${buttons.isSecondaryPressed}\t")
+                            append("tertiary: ${buttons.isTertiaryPressed}\t")
+
+                            append("\n\nKeyboard modifiers pressed:\n")
+
+                            append("alt: ${keyboardModifiers.isAltPressed}\t")
+                            append("ctrl: ${keyboardModifiers.isCtrlPressed}\t")
+                            append("meta: ${keyboardModifiers.isMetaPressed}\t")
+                            append("shift: ${keyboardModifiers.isShiftPressed}\t")
                         }
                     }
-                },
-                text = "Custom mouse event button: ${lastEvent?.button}"
+                ),
+                text = clickableText
             )
         }
 
@@ -398,12 +415,22 @@ private fun ScrollableContent(scrollState: ScrollState) {
                 Button(
                     modifier = Modifier.padding(4.dp),
                     onClick = {
-                        AppWindow(size = IntSize(400, 200)).also {
-                            it.keyboard.setShortcut(Key.Escape) {
-                                it.close()
+                        @OptIn(DelicateCoroutinesApi::class)
+                        GlobalScope.launchApplication {
+                            Window(
+                                onCloseRequest = ::exitApplication,
+                                state = rememberWindowState(size = WindowSize(400.dp, 200.dp)),
+                                onPreviewKeyEvent = {
+                                    if (it.key == Key.Escape) {
+                                        exitApplication()
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                }
+                            ) {
+                                Animations(isCircularEnabled = animation.value)
                             }
-                        }.show {
-                            Animations(isCircularEnabled = animation.value)
                         }
                     }
                 ) {
@@ -436,12 +463,17 @@ private fun ScrollableContent(scrollState: ScrollState) {
                 Text(text = "Important input")
             },
             maxLines = 1,
-            modifier = Modifier.shortcuts {
-                on(Key.MetaLeft + Key.ShiftLeft + Key.Enter) {
-                    text.value = "Cleared with shift!"
-                }
-                on(Key.MetaLeft + Key.Enter) {
-                    text.value = "Cleared!"
+            modifier = Modifier.onPreviewKeyEvent {
+                when {
+                    (it.isMetaPressed && it.key == Key.Enter) -> {
+                        if (it.isShiftPressed) {
+                            text.value = "Cleared with shift!"
+                        } else {
+                            text.value = "Cleared!"
+                        }
+                        true
+                    }
+                    else -> false
                 }
             }.focusOrder(focusItem1) {
                 next = focusItem2
@@ -466,13 +498,13 @@ private fun ScrollableContent(scrollState: ScrollState) {
 
         Row {
             Image(
-                imageResource("androidx/compose/desktop/example/circus.jpg"),
+                painterResource("androidx/compose/desktop/example/circus.jpg"),
                 "Localized description",
                 Modifier.size(200.dp)
             )
 
             Icon(
-                vectorXmlResource("androidx/compose/desktop/example/ic_baseline_deck_24.xml"),
+                painterResource("androidx/compose/desktop/example/ic_baseline_deck_24.xml"),
                 "Localized description",
                 Modifier.size(100.dp).align(Alignment.CenterVertically),
                 tint = Color.Blue.copy(alpha = 0.5f)
@@ -508,11 +540,15 @@ fun Animations(isCircularEnabled: Boolean) = Row {
 private fun RightColumn(modifier: Modifier) = Box {
     val state = rememberLazyListState()
     val itemCount = 100000
+    val heights = remember {
+        val random = Random(24)
+        (0 until itemCount).map { random.nextFloat() }
+    }
 
     LazyColumn(modifier.graphicsLayer(alpha = 0.5f), state = state) {
-        items((1..itemCount).toList()) { x ->
-            val itemHeight = 20.dp + 20.dp * Math.random().toFloat()
-            Text(x.toString(), Modifier.graphicsLayer(alpha = 0.5f).height(itemHeight))
+        items((0 until itemCount).toList()) { i ->
+            val itemHeight = 20.dp + 20.dp * heights[i]
+            Text(i.toString(), Modifier.graphicsLayer(alpha = 0.5f).height(itemHeight))
         }
     }
 

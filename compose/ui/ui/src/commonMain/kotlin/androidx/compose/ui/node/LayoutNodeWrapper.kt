@@ -20,9 +20,12 @@ package androidx.compose.ui.node
 
 import androidx.compose.ui.focus.FocusOrder
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.findFocusableChildren
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isFinite
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.GraphicsLayerScope
@@ -39,6 +42,7 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.layout.findRoot
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.semantics.SemanticsWrapper
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -46,6 +50,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.minus
 import androidx.compose.ui.unit.plus
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Measurable and Placeable type that has a position.
@@ -171,7 +176,7 @@ internal abstract class LayoutNodeWrapper(
     var isShallowPlacing = false
 
     private var _rectCache: MutableRect? = null
-    private val rectCache: MutableRect
+    protected val rectCache: MutableRect
         get() = _rectCache ?: MutableRect(0f, 0f, 0f, 0f).also {
             _rectCache = it
         }
@@ -248,6 +253,7 @@ internal abstract class LayoutNodeWrapper(
     protected abstract fun performDraw(canvas: Canvas)
 
     // implementation of draw block passed to the OwnedLayer
+    @Suppress("LiftReturnOrAssignment")
     override fun invoke(canvas: Canvas) {
         if (layoutNode.isPlaced) {
             snapshotObserver.observeReads(this, onCommitAffectingLayer) {
@@ -320,6 +326,7 @@ internal abstract class LayoutNodeWrapper(
                 transformOrigin = graphicsLayerScope.transformOrigin,
                 shape = graphicsLayerScope.shape,
                 clip = graphicsLayerScope.clip,
+                renderEffect = graphicsLayerScope.renderEffect,
                 layoutDirection = layoutNode.layoutDirection,
                 density = layoutNode.density
             )
@@ -347,20 +354,28 @@ internal abstract class LayoutNodeWrapper(
     override val isValid: Boolean
         get() = layer != null
 
+    protected val minimumTouchTargetSize: Size
+        get() = with(layerDensity) { layoutNode.viewConfiguration.minimumTouchTargetSize.toSize() }
+
     /**
      * Executes a hit test on any appropriate type associated with this [LayoutNodeWrapper].
      *
-     * Override appropriately to either add a [PointerInputFilter] to [hitPointerInputFilters] or
+     * Override appropriately to either add a [HitTestResult] to [hitTestResult] or
      * to pass the execution on.
      *
      * @param pointerPosition The tested pointer position, which is relative to
      * the [LayoutNodeWrapper].
-     * @param hitPointerInputFilters The collection that the hit [PointerInputFilter]s will be
-     * added to if hit.
+     * @param hitTestResult The parent [HitTestResult] that any hit should be added to.
      */
     abstract fun hitTest(
         pointerPosition: Offset,
-        hitPointerInputFilters: MutableList<PointerInputFilter>
+        hitTestResult: HitTestResult<PointerInputFilter>,
+        isTouchEvent: Boolean
+    )
+
+    abstract fun hitTestSemantics(
+        pointerPosition: Offset,
+        hitSemanticsWrappers: HitTestResult<SemanticsWrapper>
     )
 
     override fun windowToLocal(relativeToWindow: Offset): Offset {
@@ -473,11 +488,7 @@ internal abstract class LayoutNodeWrapper(
      */
     open fun toParentPosition(position: Offset): Offset {
         val layer = layer
-        val targetPosition = if (layer == null) {
-            position
-        } else {
-            layer.mapOffset(position, inverse = false)
-        }
+        val targetPosition = layer?.mapOffset(position, inverse = false) ?: position
         return targetPosition + this.position
     }
 
@@ -488,11 +499,8 @@ internal abstract class LayoutNodeWrapper(
     open fun fromParentPosition(position: Offset): Offset {
         val relativeToWrapperPosition = position - this.position
         val layer = layer
-        return if (layer == null) {
-            relativeToWrapperPosition
-        } else {
-            layer.mapOffset(relativeToWrapperPosition, inverse = true)
-        }
+        return layer?.mapOffset(relativeToWrapperPosition, inverse = true)
+            ?: relativeToWrapperPosition
     }
 
     protected fun drawBorder(canvas: Canvas, paint: Paint) {
@@ -544,7 +552,7 @@ internal abstract class LayoutNodeWrapper(
      * Modifies bounds to be in the parent LayoutNodeWrapper's coordinates, including clipping,
      * if [clipBounds] is true.
      */
-    private fun rectInParent(bounds: MutableRect, clipBounds: Boolean) {
+    internal fun rectInParent(bounds: MutableRect, clipBounds: Boolean) {
         val layer = layer
         if (layer != null) {
             if (isClipping && clipBounds) {
@@ -591,6 +599,9 @@ internal abstract class LayoutNodeWrapper(
     }
 
     protected fun withinLayerBounds(pointerPosition: Offset): Boolean {
+        if (!pointerPosition.isFinite) {
+            return false
+        }
         val layer = layer
         if (layer != null && isClipping) {
             return layer.isInLayer(pointerPosition)
@@ -599,6 +610,16 @@ internal abstract class LayoutNodeWrapper(
         // If we are here, either we aren't clipping to bounds or we are and the pointer was in
         // bounds.
         return true
+    }
+
+    /**
+     * Whether a pointer that is relative to the [LayoutNodeWrapper] is in the bounds of this
+     * LayoutNodeWrapper.
+     */
+    protected fun isPointerInBounds(pointerPosition: Offset): Boolean {
+        val x = pointerPosition.x
+        val y = pointerPosition.y
+        return x >= 0f && y >= 0f && x < measuredWidth && y < measuredHeight
     }
 
     /**
@@ -673,6 +694,24 @@ internal abstract class LayoutNodeWrapper(
      */
     open fun populateFocusOrder(focusOrder: FocusOrder) {
         wrappedBy?.populateFocusOrder(focusOrder)
+    }
+
+    /**
+     * Send a request to bring a portion of this item into view. The portion that has to be
+     * brought into view is specified as a rectangle where the coordinates are in the local
+     * coordinates of that layoutNodeWrapper. This request is sent up the hierarchy to all parents
+     * that have a [RelocationModifier][androidx.compose.ui.layout.RelocationModifier].
+     */
+    open suspend fun propagateRelocationRequest(rect: Rect) {
+        val parent = wrappedBy ?: return
+
+        // Translate this layoutNodeWrapper to the coordinate system of the parent.
+        val boundingBoxInParentCoordinates = parent.localBoundingBoxOf(this, false)
+
+        // Translate the rect to parent coordinates
+        val rectInParentBounds = rect.translate(boundingBoxInParentCoordinates.topLeft)
+
+        parent.propagateRelocationRequest(rectInParentBounds)
     }
 
     /**
@@ -793,6 +832,23 @@ internal abstract class LayoutNodeWrapper(
             ancestor1 === other.layoutNode -> other
             else -> ancestor1.innerLayoutNodeWrapper
         }
+    }
+
+    // TODO(b/152051577): Measure the performance of focusableChildren.
+    //  Consider caching the children.
+    fun focusableChildren(): List<ModifiedFocusNode> {
+        // Check the modifier chain that this focus node is part of. If it has a focus modifier,
+        // that means you have found the only focusable child for this node.
+        val focusableChild = wrapped?.findNextFocusWrapper()
+        // findChildFocusNodeInWrapperChain()
+        if (focusableChild != null) {
+            return listOf(focusableChild)
+        }
+
+        // Go through all your children and find the first focusable node from each child.
+        val focusableChildren = mutableListOf<ModifiedFocusNode>()
+        layoutNode.children.fastForEach { it.findFocusableChildren(focusableChildren) }
+        return focusableChildren
     }
 
     internal companion object {

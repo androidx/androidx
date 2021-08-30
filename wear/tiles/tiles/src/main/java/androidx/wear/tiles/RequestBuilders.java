@@ -31,7 +31,7 @@ public final class RequestBuilders {
     private RequestBuilders() {}
 
     /**
-     * Parameters passed to a {@link androidx.wear.tiles.TileBuilders.Tile} provider when the
+     * Parameters passed to a {@link androidx.wear.tiles.TileBuilders.Tile} service when the
      * renderer is requesting a new version of the tile.
      */
     public static final class TileRequest {
@@ -61,12 +61,6 @@ public final class RequestBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -86,7 +80,7 @@ public final class RequestBuilders {
             private final RequestProto.TileRequest.Builder mImpl =
                     RequestProto.TileRequest.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets parameters describing the device requesting the tile update. */
             @NonNull
@@ -95,25 +89,10 @@ public final class RequestBuilders {
                 return this;
             }
 
-            /** Sets parameters describing the device requesting the tile update. */
-            @NonNull
-            public Builder setDeviceParameters(
-                    @NonNull DeviceParameters.Builder deviceParametersBuilder) {
-                mImpl.setDeviceParameters(deviceParametersBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets the state that should be used when building the tile. */
             @NonNull
             public Builder setState(@NonNull State state) {
                 mImpl.setState(state.toProto());
-                return this;
-            }
-
-            /** Sets the state that should be used when building the tile. */
-            @NonNull
-            public Builder setState(@NonNull State.Builder stateBuilder) {
-                mImpl.setState(stateBuilder.build().toProto());
                 return this;
             }
 
@@ -126,7 +105,7 @@ public final class RequestBuilders {
     }
 
     /**
-     * Parameters passed to a {@link androidx.wear.tiles.TileBuilders.Tile} provider when the
+     * Parameters passed to a {@link androidx.wear.tiles.TileBuilders.Tile} service when the
      * renderer is requesting a specific resource version.
      */
     public static final class ResourcesRequest {
@@ -146,8 +125,13 @@ public final class RequestBuilders {
         }
 
         /**
-         * Gets requested resource IDs. If not specified, all resources for the given version must
-         * be provided in the response.
+         * Gets requested resource IDs. This specifies which tile resources should be returned in
+         * the {@link androidx.wear.tiles.ResourceBuilders.Resources} response. If not specified,
+         * all resources for the given version must be provided in the response.
+         *
+         * <p>Note that resource IDs here correspond to tile resources (i.e. keys that would be used
+         * in {@link androidx.wear.tiles.ResourceBuilders.Resources}.idToImage), not Android
+         * resource names or similar.
          */
         @NonNull
         public List<String> getResourceIds() {
@@ -165,12 +149,6 @@ public final class RequestBuilders {
             } else {
                 return null;
             }
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
         }
 
         /** @hide */
@@ -192,7 +170,7 @@ public final class RequestBuilders {
             private final RequestProto.ResourcesRequest.Builder mImpl =
                     RequestProto.ResourcesRequest.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the version of the resources being fetched. This is the same as the requested
@@ -205,8 +183,14 @@ public final class RequestBuilders {
             }
 
             /**
-             * Adds one item to requested resource IDs. If not specified, all resources for the
-             * given version must be provided in the response.
+             * Adds one item to requested resource IDs. This specifies which tile resources should
+             * be returned in the {@link androidx.wear.tiles.ResourceBuilders.Resources} response.
+             * If not specified, all resources for the given version must be provided in the
+             * response.
+             *
+             * <p>Note that resource IDs here correspond to tile resources (i.e. keys that would be
+             * used in {@link androidx.wear.tiles.ResourceBuilders.Resources}.idToImage), not
+             * Android resource names or similar.
              */
             @NonNull
             public Builder addResourceId(@NonNull String resourceId) {
@@ -218,14 +202,6 @@ public final class RequestBuilders {
             @NonNull
             public Builder setDeviceParameters(@NonNull DeviceParameters deviceParameters) {
                 mImpl.setDeviceParameters(deviceParameters.toProto());
-                return this;
-            }
-
-            /** Sets parameters describing the device requesting the resources. */
-            @NonNull
-            public Builder setDeviceParameters(
-                    @NonNull DeviceParameters.Builder deviceParametersBuilder) {
-                mImpl.setDeviceParameters(deviceParametersBuilder.build().toProto());
                 return this;
             }
 

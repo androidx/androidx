@@ -1250,13 +1250,16 @@ class SwipeableTest {
             assertThat(state.direction).isEqualTo(0f)
         }
 
+        val largeSwipe = with(rule.density) { 125.dp.toPx() + slop }
+        val smallSwipe = with(rule.density) { 25.dp.toPx() + slop }
+
         rule.onNodeWithTag(swipeableTag).performGesture {
-            swipe(start = center, end = center + Offset(125f - slop, 0f))
+            swipe(start = center, end = center + Offset(largeSwipe, 0f))
         }
         // draggable needs to recompose to toggle startDragImmediately
         rule.mainClock.advanceTimeByFrame()
         rule.onNodeWithTag(swipeableTag).performGesture {
-            swipe(start = center, end = center - Offset(25f, 0f))
+            swipe(start = center, end = center - Offset(smallSwipe, 0f))
         }
 
         rule.runOnIdle {
@@ -1272,12 +1275,12 @@ class SwipeableTest {
         }
 
         rule.onNodeWithTag(swipeableTag).performGesture {
-            swipe(start = center, end = center - Offset(125f - slop, 0f))
+            swipe(start = center, end = center - Offset(largeSwipe, 0f))
         }
         // draggable needs to recompose to toggle startDragImmediately
         rule.mainClock.advanceTimeByFrame()
         rule.onNodeWithTag(swipeableTag).performGesture {
-            swipe(start = center, end = center + Offset(25f, 0f))
+            swipe(start = center, end = center + Offset(smallSwipe, 0f))
         }
 
         rule.runOnIdle {
@@ -1507,6 +1510,38 @@ class SwipeableTest {
         rule.runOnIdle {
             assertThat(swipeableState.currentValue).isEqualTo("A")
             assertThat(swipeableState.offset.value).isEqualTo(50f)
+        }
+    }
+
+    /**
+     * Tests that the new [SwipeableState] `onValueChange` is set up if the anchors didn't change
+     */
+    @Test
+    fun swipeable_newStateIsInitialized_afterRecomposingWithOldAnchors() {
+        lateinit var swipeableState: MutableState<SwipeableState<String>>
+        val anchors = mapOf(0f to "A")
+        setSwipeableContent {
+            swipeableState = remember { mutableStateOf(SwipeableState("A")) }
+            Modifier.swipeable(
+                state = swipeableState.value,
+                anchors = anchors,
+                thresholds = { _, _ -> FractionalThreshold(0.5f) },
+                orientation = Orientation.Horizontal
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(swipeableState.value.currentValue).isEqualTo("A")
+            assertThat(swipeableState.value.offset.value).isEqualTo(0f)
+            assertThat(swipeableState.value.anchors).isEqualTo(anchors)
+        }
+
+        swipeableState.value = SwipeableState("A")
+
+        rule.runOnIdle {
+            assertThat(swipeableState.value.currentValue).isEqualTo("A")
+            assertThat(swipeableState.value.offset.value).isEqualTo(0f)
+            assertThat(swipeableState.value.anchors).isEqualTo(anchors)
         }
     }
 

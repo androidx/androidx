@@ -26,8 +26,10 @@ plugins {
 dependencies {
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.activity:activity-ktx:1.1.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
 
     kotlinPlugin(project(":compose:compiler:compiler"))
+    implementation(project(":compose:animation:animation-graphics"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:material:material"))
     implementation(project(":compose:material:material-icons-extended"))
@@ -35,7 +37,7 @@ dependencies {
     implementation(project(":compose:runtime:runtime-livedata"))
     implementation(project(":compose:ui:ui-graphics"))
     implementation(project(":compose:ui:ui-test-junit4"))
-    implementation(project(":compose:ui:ui-tooling"))
+    implementation(project(":compose:ui:ui-tooling-preview"))
     implementation(project(":compose:ui:ui-viewbinding"))
     implementation(project(":navigation:navigation-compose"))
     implementation(project(":activity:activity-compose"))
@@ -44,6 +46,7 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinReflect)
+    implementation(libs.testCore)
     implementation(libs.testRules)
     implementation(libs.espressoCore)
     implementation(libs.junit)

@@ -18,48 +18,45 @@ package androidx.appsearch.app;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.util.BundleUtil;
+import androidx.appsearch.util.IndentingStringBuilder;
 import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Represents a document unit.
  *
- * <p>Documents are constructed via {@link GenericDocument.Builder}.
+ * <p>Documents contain structured data conforming to their {@link AppSearchSchema} type.
+ * Each document is uniquely identified by a namespace and a String ID within that namespace.
  *
- * @see AppSearchSession#putDocuments
- * @see AppSearchSession#getByUri
- * @see AppSearchSession#query
+ * <!--@exportToFramework:ifJetpack()-->
+ * <p>Documents are constructed either by using the {@link GenericDocument.Builder} or providing
+ * an annotated {@link Document} data class.
+ * <!--@exportToFramework:else()
+ * <p>Documents are constructed by using the {@link GenericDocument.Builder}.
+ * -->
+ *
+ * @see AppSearchSession#put
+ * @see AppSearchSession#getByDocumentId
+ * @see AppSearchSession#search
  */
 public class GenericDocument {
     private static final String TAG = "AppSearchGenericDocumen";
-
-    /** The default empty namespace. */
-    public static final String DEFAULT_NAMESPACE = "";
-
-    /**
-     * The maximum number of elements in a repeatable field. Will reject the request if exceed
-     * this limit.
-     */
-    private static final int MAX_REPEATED_PROPERTY_LENGTH = 100;
-
-    /**
-     * The maximum {@link String#length} of a {@link String} field. Will reject the request if
-     * {@link String}s longer than this.
-     */
-    private static final int MAX_STRING_LENGTH = 20_000;
 
     /** The maximum number of indexed properties a document can have. */
     private static final int MAX_INDEXED_PROPERTIES = 16;
@@ -73,7 +70,7 @@ public class GenericDocument {
     private static final String PROPERTIES_FIELD = "properties";
     private static final String BYTE_ARRAY_FIELD = "byteArray";
     private static final String SCHEMA_TYPE_FIELD = "schemaType";
-    private static final String URI_FIELD = "uri";
+    private static final String ID_FIELD = "id";
     private static final String SCORE_FIELD = "score";
     private static final String TTL_MILLIS_FIELD = "ttlMillis";
     private static final String CREATION_TIMESTAMP_MILLIS_FIELD = "creationTimestampMillis";
@@ -82,24 +79,51 @@ public class GenericDocument {
     /**
      * The maximum number of indexed properties a document can have.
      *
-     * <p>Indexed properties are properties where the
-     * {@link AppSearchSchema.PropertyConfig#getIndexingType()} constant is anything other than
-     * {@link AppSearchSchema.PropertyConfig.IndexingType#INDEXING_TYPE_NONE}.
+     * <p>Indexed properties are properties which are strings where the
+     * {@link AppSearchSchema.StringPropertyConfig#getIndexingType} value is anything other
+     * than {@link AppSearchSchema.StringPropertyConfig.IndexingType#INDEXING_TYPE_NONE}.
      */
     public static int getMaxIndexedProperties() {
         return MAX_INDEXED_PROPERTIES;
     }
 
-    /** Contains {@link GenericDocument} basic information (uri, schemaType etc). */
+// @exportToFramework:startStrip()
+
+    /**
+     * Converts an instance of a class annotated with \@{@link Document} into an instance of
+     * {@link GenericDocument}.
+     *
+     * @param document An instance of a class annotated with \@{@link Document}.
+     * @return an instance of {@link GenericDocument} produced by converting {@code document}.
+     * @throws AppSearchException if no generated conversion class exists on the classpath for the
+     *                            given document class or an unexpected error occurs during
+     *                            conversion.
+     * @see GenericDocument#toDocumentClass
+     */
+    @NonNull
+    public static GenericDocument fromDocumentClass(@NonNull Object document)
+            throws AppSearchException {
+        Preconditions.checkNotNull(document);
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+        DocumentClassFactory<Object> factory = registry.getOrCreateFactory(document);
+        return factory.toGenericDocument(document);
+    }
+// @exportToFramework:endStrip()
+
+    /**
+     * Contains all {@link GenericDocument} information in a packaged format.
+     *
+     * <p>Keys are the {@code *_FIELD} constants in this class.
+     */
     @NonNull
     final Bundle mBundle;
 
-    /** Contains all properties in {@link GenericDocument} to support getting properties via keys */
+    /** Contains all properties in {@link GenericDocument} to support getting properties via name */
     @NonNull
     private final Bundle mProperties;
 
     @NonNull
-    private final String mUri;
+    private final String mId;
     @NonNull
     private final String mSchemaType;
     private final long mCreationTimestampMillis;
@@ -107,11 +131,10 @@ public class GenericDocument {
     private Integer mHashCode;
 
     /**
-     * Rebuilds a {@link GenericDocument} by the a bundle.
+     * Rebuilds a {@link GenericDocument} from a bundle.
      *
-     * @param bundle Contains {@link GenericDocument} basic information (uri, schemaType etc) and
-     *               a properties bundle contains all properties in {@link GenericDocument} to
-     *               support getting properties via keys.
+     * @param bundle Packaged {@link GenericDocument} data, such as the result of
+     *               {@link #getBundle}.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -119,7 +142,7 @@ public class GenericDocument {
         Preconditions.checkNotNull(bundle);
         mBundle = bundle;
         mProperties = Preconditions.checkNotNull(bundle.getParcelable(PROPERTIES_FIELD));
-        mUri = Preconditions.checkNotNull(mBundle.getString(URI_FIELD));
+        mId = Preconditions.checkNotNull(mBundle.getString(ID_FIELD));
         mSchemaType = Preconditions.checkNotNull(mBundle.getString(SCHEMA_TYPE_FIELD));
         mCreationTimestampMillis = mBundle.getLong(CREATION_TIMESTAMP_MILLIS_FIELD,
                 System.currentTimeMillis());
@@ -145,19 +168,19 @@ public class GenericDocument {
         return mBundle;
     }
 
-    /** Returns the URI of the {@link GenericDocument}. */
+    /** Returns the unique identifier of the {@link GenericDocument}. */
     @NonNull
-    public String getUri() {
-        return mUri;
+    public String getId() {
+        return mId;
     }
 
     /** Returns the namespace of the {@link GenericDocument}. */
     @NonNull
     public String getNamespace() {
-        return mBundle.getString(NAMESPACE_FIELD, DEFAULT_NAMESPACE);
+        return mBundle.getString(NAMESPACE_FIELD, /*defaultValue=*/ "");
     }
 
-    /** Returns the schema type of the {@link GenericDocument}. */
+    /** Returns the {@link AppSearchSchema} type of the {@link GenericDocument}. */
     @NonNull
     public String getSchemaType() {
         return mSchemaType;
@@ -168,19 +191,20 @@ public class GenericDocument {
      *
      * <p>The value is in the {@link System#currentTimeMillis} time base.
      */
+    /*@exportToFramework:CurrentTimeMillisLong*/
     public long getCreationTimestampMillis() {
         return mCreationTimestampMillis;
     }
 
     /**
-     * Returns the TTL (Time To Live) of the {@link GenericDocument}, in milliseconds.
+     * Returns the TTL (time-to-live) of the {@link GenericDocument}, in milliseconds.
      *
      * <p>The TTL is measured against {@link #getCreationTimestampMillis}. At the timestamp of
      * {@code creationTimestampMillis + ttlMillis}, measured in the {@link System#currentTimeMillis}
      * time base, the document will be auto-deleted.
      *
      * <p>The default value is 0, which means the document is permanent and won't be auto-deleted
-     * until the app is uninstalled.
+     * until the app is uninstalled or {@link AppSearchSession#remove} is called.
      */
     public long getTtlMillis() {
         return mBundle.getLong(TTL_MILLIS_FIELD, DEFAULT_TTL_MILLIS);
@@ -190,12 +214,12 @@ public class GenericDocument {
      * Returns the score of the {@link GenericDocument}.
      *
      * <p>The score is a query-independent measure of the document's quality, relative to
-     * other {@link GenericDocument}s of the same type.
+     * other {@link GenericDocument} objects of the same {@link AppSearchSchema} type.
      *
      * <p>Results may be sorted by score using {@link SearchSpec.Builder#setRankingStrategy}.
      * Documents with higher scores are considered better than documents with lower scores.
      *
-     * <p>Any nonnegative integer can be used a score.
+     * <p>Any non-negative integer can be used a score.
      */
     public int getScore() {
         return mBundle.getInt(SCORE_FIELD, DEFAULT_SCORE);
@@ -208,133 +232,506 @@ public class GenericDocument {
     }
 
     /**
-     * Retrieves the property value with the given key as {@link Object}.
+     * Retrieves the property value with the given path as {@link Object}.
      *
-     * @param key The key to look for.
-     * @return The entry with the given key as an object or {@code null} if there is no such key.
+     * <p>A path can be a simple property name, such as those returned by {@link #getPropertyNames}.
+     * It may also be a dot-delimited path through the nested document hierarchy, with nested
+     * {@link GenericDocument} properties accessed via {@code '.'} and repeated properties
+     * optionally indexed into via {@code [n]}.
+     *
+     * <p>For example, given the following {@link GenericDocument}:
+     * <pre>
+     *     (Message) {
+     *         from: "sender@example.com"
+     *         to: [{
+     *             name: "Albert Einstein"
+     *             email: "einstein@example.com"
+     *           }, {
+     *             name: "Marie Curie"
+     *             email: "curie@example.com"
+     *           }]
+     *         tags: ["important", "inbox"]
+     *         subject: "Hello"
+     *     }
+     * </pre>
+     *
+     * <p>Here are some example paths and their results:
+     * <ul>
+     *     <li>{@code "from"} returns {@code "sender@example.com"} as a {@link String} array with
+     *     one element
+     *     <li>{@code "to"} returns the two nested documents containing contact information as a
+     *     {@link GenericDocument} array with two elements
+     *     <li>{@code "to[1]"} returns the second nested document containing Marie Curie's
+     *     contact information as a {@link GenericDocument} array with one element
+     *     <li>{@code "to[1].email"} returns {@code "curie@example.com"}
+     *     <li>{@code "to[100].email"} returns {@code null} as this particular document does not
+     *     have that many elements in its {@code "to"} array.
+     *     <li>{@code "to.email"} aggregates emails across all nested documents that have them,
+     *     returning {@code ["einstein@example.com", "curie@example.com"]} as a {@link String}
+     *     array with two elements.
+     * </ul>
+     *
+     * <p>If you know the expected type of the property you are retrieving, it is recommended to use
+     * one of the typed versions of this method instead, such as {@link #getPropertyString} or
+     * {@link #getPropertyStringArray}.
+     *
+     * @param path The path to look for.
+     * @return The entry with the given path as an object or {@code null} if there is no such path.
+     *   The returned object will be one of the following types: {@code String[]}, {@code long[]},
+     *   {@code double[]}, {@code boolean[]}, {@code byte[][]}, {@code GenericDocument[]}.
      */
     @Nullable
-    public Object getProperty(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        Object property = mProperties.get(key);
-        if (property instanceof ArrayList) {
-            return getPropertyBytesArray(key);
-        } else if (property instanceof Bundle[]) {
-            return getPropertyDocumentArray(key);
+    public Object getProperty(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        Object rawValue = getRawPropertyFromRawDocument(path, mBundle);
+
+        // Unpack the raw value into the types the user expects, if required.
+        if (rawValue instanceof Bundle) {
+            // getRawPropertyFromRawDocument may return a document as a bare Bundle as a performance
+            // optimization for lookups.
+            GenericDocument document = new GenericDocument((Bundle) rawValue);
+            return new GenericDocument[]{document};
         }
-        return property;
+
+        if (rawValue instanceof List) {
+            // byte[][] fields are packed into List<Bundle> where each Bundle contains just a single
+            // entry: BYTE_ARRAY_FIELD -> byte[].
+            @SuppressWarnings("unchecked")
+            List<Bundle> bundles = (List<Bundle>) rawValue;
+            if (bundles.size() == 0) {
+                return null;
+            }
+            byte[][] bytes = new byte[bundles.size()][];
+            for (int i = 0; i < bundles.size(); i++) {
+                Bundle bundle = bundles.get(i);
+                if (bundle == null) {
+                    Log.e(TAG, "The inner bundle is null at " + i + ", for path: " + path);
+                    continue;
+                }
+                byte[] innerBytes = bundle.getByteArray(BYTE_ARRAY_FIELD);
+                if (innerBytes == null) {
+                    Log.e(TAG, "The bundle at " + i + " contains a null byte[].");
+                    continue;
+                }
+                bytes[i] = innerBytes;
+            }
+            return bytes;
+        }
+
+        if (rawValue instanceof Parcelable[]) {
+            // The underlying Bundle of nested GenericDocuments is packed into a Parcelable array.
+            // We must unpack it into GenericDocument instances.
+            Parcelable[] bundles = (Parcelable[]) rawValue;
+            if (bundles.length == 0) {
+                return null;
+            }
+            GenericDocument[] documents = new GenericDocument[bundles.length];
+            for (int i = 0; i < bundles.length; i++) {
+                if (bundles[i] == null) {
+                    Log.e(TAG, "The inner bundle is null at " + i + ", for path: " + path);
+                    continue;
+                }
+                if (!(bundles[i] instanceof Bundle)) {
+                    Log.e(TAG, "The inner element at " + i + " is a " + bundles[i].getClass()
+                            + ", not a Bundle for path: " + path);
+                    continue;
+                }
+                documents[i] = new GenericDocument((Bundle) bundles[i]);
+            }
+            return documents;
+        }
+
+        // Otherwise the raw property is the same as the final property and needs no transformation.
+        return rawValue;
     }
 
     /**
-     * Retrieves a {@link String} value by key.
+     * Looks up a property path within the given document bundle.
      *
-     * @param key The key to look for.
-     * @return The first {@link String} associated with the given key or {@code null} if there is
-     * no such key or the value is of a different type.
+     * <p>The return value may be any of GenericDocument's internal repeated storage types
+     * (String[], long[], double[], boolean[], ArrayList&lt;Bundle&gt;, Parcelable[]).
      */
     @Nullable
-    public String getPropertyString(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        String[] propertyArray = getPropertyStringArray(key);
+    private static Object getRawPropertyFromRawDocument(
+            @NonNull String path, @NonNull Bundle documentBundle) {
+        Preconditions.checkNotNull(path);
+        Preconditions.checkNotNull(documentBundle);
+        Bundle properties = Preconditions.checkNotNull(documentBundle.getBundle(PROPERTIES_FIELD));
+
+        // Determine whether the path is just a raw property name with no control characters
+        int controlIdx = -1;
+        boolean controlIsIndex = false;
+        for (int i = 0; i < path.length(); i++) {
+            char c = path.charAt(i);
+            if (c == '[' || c == '.') {
+                controlIdx = i;
+                controlIsIndex = c == '[';
+                break;
+            }
+        }
+
+        // Look up the value of the first path element
+        Object firstElementValue;
+        if (controlIdx == -1) {
+            firstElementValue = properties.get(path);
+        } else {
+            String name = path.substring(0, controlIdx);
+            firstElementValue = properties.get(name);
+        }
+
+        // If the path has no further elements, we're done.
+        if (firstElementValue == null || controlIdx == -1) {
+            return firstElementValue;
+        }
+
+        // At this point, for a path like "recipients[0]", firstElementValue contains the value of
+        // "recipients". If the first element of the path is an indexed value, we now update
+        // firstElementValue to contain "recipients[0]" instead.
+        String remainingPath;
+        if (!controlIsIndex) {
+            // Remaining path is everything after the .
+            remainingPath = path.substring(controlIdx + 1);
+        } else {
+            int endBracketIdx = path.indexOf(']', controlIdx);
+            if (endBracketIdx == -1) {
+                throw new IllegalArgumentException("Malformed path (no ending ']'): " + path);
+            }
+            if (endBracketIdx + 1 < path.length() && path.charAt(endBracketIdx + 1) != '.') {
+                throw new IllegalArgumentException(
+                        "Malformed path (']' not followed by '.'): " + path);
+            }
+            String indexStr = path.substring(controlIdx + 1, endBracketIdx);
+            int index = Integer.parseInt(indexStr);
+            if (index < 0) {
+                throw new IllegalArgumentException("Path index less than 0: " + path);
+            }
+
+            // Remaining path is everything after the [n]
+            if (endBracketIdx + 1 < path.length()) {
+                // More path remains, and we've already checked that charAt(endBracketIdx+1) == .
+                remainingPath = path.substring(endBracketIdx + 2);
+            } else {
+                // No more path remains.
+                remainingPath = null;
+            }
+
+            // Extract the right array element
+            Object extractedValue = null;
+            if (firstElementValue instanceof String[]) {
+                String[] stringValues = (String[]) firstElementValue;
+                if (index < stringValues.length) {
+                    extractedValue = Arrays.copyOfRange(stringValues, index, index + 1);
+                }
+            } else if (firstElementValue instanceof long[]) {
+                long[] longValues = (long[]) firstElementValue;
+                if (index < longValues.length) {
+                    extractedValue = Arrays.copyOfRange(longValues, index, index + 1);
+                }
+            } else if (firstElementValue instanceof double[]) {
+                double[] doubleValues = (double[]) firstElementValue;
+                if (index < doubleValues.length) {
+                    extractedValue = Arrays.copyOfRange(doubleValues, index, index + 1);
+                }
+            } else if (firstElementValue instanceof boolean[]) {
+                boolean[] booleanValues = (boolean[]) firstElementValue;
+                if (index < booleanValues.length) {
+                    extractedValue = Arrays.copyOfRange(booleanValues, index, index + 1);
+                }
+            } else if (firstElementValue instanceof List) {
+                @SuppressWarnings("unchecked")
+                List<Bundle> bundles = (List<Bundle>) firstElementValue;
+                if (index < bundles.size()) {
+                    extractedValue = bundles.subList(index, index + 1);
+                }
+            } else if (firstElementValue instanceof Parcelable[]) {
+                // Special optimization: to avoid creating new singleton arrays for traversing paths
+                // we return the bare document Bundle in this particular case.
+                Parcelable[] bundles = (Parcelable[]) firstElementValue;
+                if (index < bundles.length) {
+                    extractedValue = (Bundle) bundles[index];
+                }
+            } else {
+                throw new IllegalStateException("Unsupported value type: " + firstElementValue);
+            }
+            firstElementValue = extractedValue;
+        }
+
+        // If we are at the end of the path or there are no deeper elements in this document, we
+        // have nothing to recurse into.
+        if (firstElementValue == null || remainingPath == null) {
+            return firstElementValue;
+        }
+
+        // More of the path remains; recursively evaluate it
+        if (firstElementValue instanceof Bundle) {
+            return getRawPropertyFromRawDocument(remainingPath, (Bundle) firstElementValue);
+        } else if (firstElementValue instanceof Parcelable[]) {
+            Parcelable[] parcelables = (Parcelable[]) firstElementValue;
+            if (parcelables.length == 1) {
+                return getRawPropertyFromRawDocument(remainingPath, (Bundle) parcelables[0]);
+            }
+
+            // Slowest path: we're collecting values across repeated nested docs. (Example: given a
+            // path like recipient.name, where recipient is a repeated field, we return a string
+            // array where each recipient's name is an array element).
+            //
+            // Performance note: Suppose that we have a property path "a.b.c" where the "a"
+            // property has N document values and each containing a "b" property with M document
+            // values and each of those containing a "c" property with an int array.
+            //
+            // We'll allocate a new ArrayList for each of the "b" properties, add the M int arrays
+            // from the "c" properties to it and then we'll allocate an int array in
+            // flattenAccumulator before returning that (1 + M allocation per "b" property).
+            //
+            // When we're on the "a" properties, we'll allocate an ArrayList and add the N
+            // flattened int arrays returned from the "b" properties to the list. Then we'll
+            // allocate an int array in flattenAccumulator (1 + N ("b" allocs) allocations per "a").
+            // So this implementation could incur 1 + N + NM allocs.
+            //
+            // However, we expect the vast majority of getProperty calls to be either for direct
+            // property names (not paths) or else property paths returned from snippetting, which
+            // always refer to exactly one property value and don't aggregate across repeated
+            // values. The implementation is optimized for these two cases, requiring no additional
+            // allocations. So we've decided that the above performance characteristics are OK for
+            // the less used path.
+            List<Object> accumulator = new ArrayList<>(parcelables.length);
+            for (int i = 0; i < parcelables.length; i++) {
+                Object value =
+                        getRawPropertyFromRawDocument(remainingPath, (Bundle) parcelables[i]);
+                if (value != null) {
+                    accumulator.add(value);
+                }
+            }
+            return flattenAccumulator(accumulator);
+        } else {
+            Log.e(TAG, "Failed to apply path to document; no nested value found: " + path);
+            return null;
+        }
+    }
+
+    /**
+     * Combines accumulated repeated properties from multiple documents into a single array.
+     *
+     * @param accumulator List containing objects of the following types: {@code String[]},
+     *                    {@code long[]}, {@code double[]}, {@code boolean[]}, {@code List<Bundle>},
+     *                    or {@code Parcelable[]}.
+     * @return The result of concatenating each individual list element into a larger array/list of
+     *         the same type.
+     */
+    @Nullable
+    private static Object flattenAccumulator(@NonNull List<Object> accumulator) {
+        if (accumulator.isEmpty()) {
+            return null;
+        }
+        Object first = accumulator.get(0);
+        if (first instanceof String[]) {
+            int length = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                length += ((String[]) accumulator.get(i)).length;
+            }
+            String[] result = new String[length];
+            int total = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                String[] castValue = (String[]) accumulator.get(i);
+                System.arraycopy(castValue, 0, result, total, castValue.length);
+                total += castValue.length;
+            }
+            return result;
+        }
+        if (first instanceof long[]) {
+            int length = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                length += ((long[]) accumulator.get(i)).length;
+            }
+            long[] result = new long[length];
+            int total = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                long[] castValue = (long[]) accumulator.get(i);
+                System.arraycopy(castValue, 0, result, total, castValue.length);
+                total += castValue.length;
+            }
+            return result;
+        }
+        if (first instanceof double[]) {
+            int length = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                length += ((double[]) accumulator.get(i)).length;
+            }
+            double[] result = new double[length];
+            int total = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                double[] castValue = (double[]) accumulator.get(i);
+                System.arraycopy(castValue, 0, result, total, castValue.length);
+                total += castValue.length;
+            }
+            return result;
+        }
+        if (first instanceof boolean[]) {
+            int length = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                length += ((boolean[]) accumulator.get(i)).length;
+            }
+            boolean[] result = new boolean[length];
+            int total = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                boolean[] castValue = (boolean[]) accumulator.get(i);
+                System.arraycopy(castValue, 0, result, total, castValue.length);
+                total += castValue.length;
+            }
+            return result;
+        }
+        if (first instanceof List) {
+            int length = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                length += ((List<?>) accumulator.get(i)).size();
+            }
+            List<Bundle> result = new ArrayList<>(length);
+            for (int i = 0; i < accumulator.size(); i++) {
+                @SuppressWarnings("unchecked")
+                List<Bundle> castValue = (List<Bundle>) accumulator.get(i);
+                result.addAll(castValue);
+            }
+            return result;
+        }
+        if (first instanceof Parcelable[]) {
+            int length = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                length += ((Parcelable[]) accumulator.get(i)).length;
+            }
+            Parcelable[] result = new Parcelable[length];
+            int total = 0;
+            for (int i = 0; i < accumulator.size(); i++) {
+                Parcelable[] castValue = (Parcelable[]) accumulator.get(i);
+                System.arraycopy(castValue, 0, result, total, castValue.length);
+                total += castValue.length;
+            }
+            return result;
+        }
+        throw new IllegalStateException("Unexpected property type: " + first);
+    }
+
+    /**
+     * Retrieves a {@link String} property by path.
+     *
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The first {@link String} associated with the given path or {@code null} if there is
+     * no such value or the value is of a different type.
+     */
+    @Nullable
+    public String getPropertyString(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        String[] propertyArray = getPropertyStringArray(path);
         if (propertyArray == null || propertyArray.length == 0) {
             return null;
         }
-        warnIfSinglePropertyTooLong("String", key, propertyArray.length);
+        warnIfSinglePropertyTooLong("String", path, propertyArray.length);
         return propertyArray[0];
     }
 
     /**
-     * Retrieves a {@code long} value by key.
+     * Retrieves a {@code long} property by path.
      *
-     * @param key The key to look for.
-     * @return The first {@code long} associated with the given key or default value {@code 0} if
-     * there is no such key or the value is of a different type.
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The first {@code long} associated with the given path or default value {@code 0} if
+     * there is no such value or the value is of a different type.
      */
-    public long getPropertyLong(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        long[] propertyArray = getPropertyLongArray(key);
+    public long getPropertyLong(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        long[] propertyArray = getPropertyLongArray(path);
         if (propertyArray == null || propertyArray.length == 0) {
             return 0;
         }
-        warnIfSinglePropertyTooLong("Long", key, propertyArray.length);
+        warnIfSinglePropertyTooLong("Long", path, propertyArray.length);
         return propertyArray[0];
     }
 
     /**
-     * Retrieves a {@code double} value by key.
+     * Retrieves a {@code double} property by path.
      *
-     * @param key The key to look for.
-     * @return The first {@code double} associated with the given key or default value {@code 0.0}
-     * if there is no such key or the value is of a different type.
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The first {@code double} associated with the given path or default value {@code 0.0}
+     * if there is no such value or the value is of a different type.
      */
-    public double getPropertyDouble(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        double[] propertyArray = getPropertyDoubleArray(key);
+    public double getPropertyDouble(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        double[] propertyArray = getPropertyDoubleArray(path);
         if (propertyArray == null || propertyArray.length == 0) {
             return 0.0;
         }
-        warnIfSinglePropertyTooLong("Double", key, propertyArray.length);
+        warnIfSinglePropertyTooLong("Double", path, propertyArray.length);
         return propertyArray[0];
     }
 
     /**
-     * Retrieves a {@code boolean} value by key.
+     * Retrieves a {@code boolean} property by path.
      *
-     * @param key The key to look for.
-     * @return The first {@code boolean} associated with the given key or default value
-     * {@code false} if there is no such key or the value is of a different type.
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The first {@code boolean} associated with the given path or default value
+     * {@code false} if there is no such value or the value is of a different type.
      */
-    public boolean getPropertyBoolean(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        boolean[] propertyArray = getPropertyBooleanArray(key);
+    public boolean getPropertyBoolean(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        boolean[] propertyArray = getPropertyBooleanArray(path);
         if (propertyArray == null || propertyArray.length == 0) {
             return false;
         }
-        warnIfSinglePropertyTooLong("Boolean", key, propertyArray.length);
+        warnIfSinglePropertyTooLong("Boolean", path, propertyArray.length);
         return propertyArray[0];
     }
 
     /**
-     * Retrieves a {@code byte[]} value by key.
+     * Retrieves a {@code byte[]} property by path.
      *
-     * @param key The key to look for.
-     * @return The first {@code byte[]} associated with the given key or {@code null} if there is
-     * no such key or the value is of a different type.
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The first {@code byte[]} associated with the given path or {@code null} if there is
+     * no such value or the value is of a different type.
      */
     @Nullable
-    public byte[] getPropertyBytes(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        byte[][] propertyArray = getPropertyBytesArray(key);
+    public byte[] getPropertyBytes(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        byte[][] propertyArray = getPropertyBytesArray(path);
         if (propertyArray == null || propertyArray.length == 0) {
             return null;
         }
-        warnIfSinglePropertyTooLong("ByteArray", key, propertyArray.length);
+        warnIfSinglePropertyTooLong("ByteArray", path, propertyArray.length);
         return propertyArray[0];
     }
 
     /**
-     * Retrieves a {@link GenericDocument} value by key.
+     * Retrieves a {@link GenericDocument} property by path.
      *
-     * @param key The key to look for.
-     * @return The first {@link GenericDocument} associated with the given key or {@code null} if
-     * there is no such key or the value is of a different type.
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The first {@link GenericDocument} associated with the given path or {@code null} if
+     * there is no such value or the value is of a different type.
      */
     @Nullable
-    public GenericDocument getPropertyDocument(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        GenericDocument[] propertyArray = getPropertyDocumentArray(key);
+    public GenericDocument getPropertyDocument(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        GenericDocument[] propertyArray = getPropertyDocumentArray(path);
         if (propertyArray == null || propertyArray.length == 0) {
             return null;
         }
-        warnIfSinglePropertyTooLong("Document", key, propertyArray.length);
+        warnIfSinglePropertyTooLong("Document", path, propertyArray.length);
         return propertyArray[0];
     }
 
     /** Prints a warning to logcat if the given propertyLength is greater than 1. */
     private static void warnIfSinglePropertyTooLong(
-            @NonNull String propertyType, @NonNull String key, int propertyLength) {
+            @NonNull String propertyType, @NonNull String path, int propertyLength) {
         if (propertyLength > 1) {
-            Log.w(TAG, "The value for \"" + key + "\" contains " + propertyLength
+            Log.w(TAG, "The value for \"" + path + "\" contains " + propertyLength
                     + " elements. Only the first one will be returned from "
                     + "getProperty" + propertyType + "(). Try getProperty" + propertyType
                     + "Array().");
@@ -342,157 +739,167 @@ public class GenericDocument {
     }
 
     /**
-     * Retrieves a repeated {@code String} property by key.
+     * Retrieves a repeated {@code String} property by path.
      *
-     * @param key The key to look for.
-     * @return The {@code String[]} associated with the given key, or {@code null} if no value is
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The {@code String[]} associated with the given path, or {@code null} if no value is
      * set or the value is of a different type.
      */
     @Nullable
-    public String[] getPropertyStringArray(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        return getAndCastPropertyArray(key, String[].class);
+    public String[] getPropertyStringArray(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        Object value = getProperty(path);
+        return safeCastProperty(path, value, String[].class);
     }
 
     /**
-     * Retrieves a repeated {@link String} property by key.
+     * Retrieves a repeated {@code long[]} property by path.
      *
-     * @param key The key to look for.
-     * @return The {@code long[]} associated with the given key, or {@code null} if no value is
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The {@code long[]} associated with the given path, or {@code null} if no value is
      * set or the value is of a different type.
      */
     @Nullable
-    public long[] getPropertyLongArray(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        return getAndCastPropertyArray(key, long[].class);
+    public long[] getPropertyLongArray(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        Object value = getProperty(path);
+        return safeCastProperty(path, value, long[].class);
     }
 
     /**
-     * Retrieves a repeated {@code double} property by key.
+     * Retrieves a repeated {@code double} property by path.
      *
-     * @param key The key to look for.
-     * @return The {@code double[]} associated with the given key, or {@code null} if no value is
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The {@code double[]} associated with the given path, or {@code null} if no value is
      * set or the value is of a different type.
      */
     @Nullable
-    public double[] getPropertyDoubleArray(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        return getAndCastPropertyArray(key, double[].class);
+    public double[] getPropertyDoubleArray(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        Object value = getProperty(path);
+        return safeCastProperty(path, value, double[].class);
     }
 
     /**
-     * Retrieves a repeated {@code boolean} property by key.
+     * Retrieves a repeated {@code boolean} property by path.
      *
-     * @param key The key to look for.
-     * @return The {@code boolean[]} associated with the given key, or {@code null} if no value
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The {@code boolean[]} associated with the given path, or {@code null} if no value
      * is set or the value is of a different type.
      */
     @Nullable
-    public boolean[] getPropertyBooleanArray(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        return getAndCastPropertyArray(key, boolean[].class);
+    public boolean[] getPropertyBooleanArray(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        Object value = getProperty(path);
+        return safeCastProperty(path, value, boolean[].class);
     }
 
     /**
-     * Retrieves a {@code byte[][]} property by key.
+     * Retrieves a {@code byte[][]} property by path.
      *
-     * @param key The key to look for.
-     * @return The {@code byte[][]} associated with the given key, or {@code null} if no value is
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The {@code byte[][]} associated with the given path, or {@code null} if no value is
      * set or the value is of a different type.
      */
     @SuppressLint("ArrayReturn")
     @Nullable
-    @SuppressWarnings("unchecked")
-    public byte[][] getPropertyBytesArray(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        ArrayList<Bundle> bundles = getAndCastPropertyArray(key, ArrayList.class);
-        if (bundles == null || bundles.size() == 0) {
-            return null;
-        }
-        byte[][] bytes = new byte[bundles.size()][];
-        for (int i = 0; i < bundles.size(); i++) {
-            Bundle bundle = bundles.get(i);
-            if (bundle == null) {
-                Log.e(TAG, "The inner bundle is null at " + i + ", for key: " + key);
-                continue;
-            }
-            byte[] innerBytes = bundle.getByteArray(BYTE_ARRAY_FIELD);
-            if (innerBytes == null) {
-                Log.e(TAG, "The bundle at " + i + " contains a null byte[].");
-                continue;
-            }
-            bytes[i] = innerBytes;
-        }
-        return bytes;
+    public byte[][] getPropertyBytesArray(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        Object value = getProperty(path);
+        return safeCastProperty(path, value, byte[][].class);
     }
 
     /**
-     * Retrieves a repeated {@link GenericDocument} property by key.
+     * Retrieves a repeated {@link GenericDocument} property by path.
      *
-     * @param key The key to look for.
-     * @return The {@link GenericDocument}[] associated with the given key, or {@code null} if no
+     * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * @param path The path to look for.
+     * @return The {@link GenericDocument}[] associated with the given path, or {@code null} if no
      * value is set or the value is of a different type.
      */
     @SuppressLint("ArrayReturn")
     @Nullable
-    public GenericDocument[] getPropertyDocumentArray(@NonNull String key) {
-        Preconditions.checkNotNull(key);
-        Bundle[] bundles = getAndCastPropertyArray(key, Bundle[].class);
-        if (bundles == null || bundles.length == 0) {
-            return null;
-        }
-        GenericDocument[] documents = new GenericDocument[bundles.length];
-        for (int i = 0; i < bundles.length; i++) {
-            if (bundles[i] == null) {
-                Log.e(TAG, "The inner bundle is null at " + i + ", for key: " + key);
-                continue;
-            }
-            documents[i] = new GenericDocument(bundles[i]);
-        }
-        return documents;
+    public GenericDocument[] getPropertyDocumentArray(@NonNull String path) {
+        Preconditions.checkNotNull(path);
+        Object value = getProperty(path);
+        return safeCastProperty(path, value, GenericDocument[].class);
     }
 
     /**
-     * Gets a repeated property of the given key, and casts it to the given class type, which
-     * must be an array class type.
+     * Casts a repeated property to the provided type, logging an error and returning {@code null}
+     * if the cast fails.
+     *
+     * @param path Path to the property within the document. Used for logging.
+     * @param value Value of the property
+     * @param tClass Class to cast the value into
      */
     @Nullable
-    private <T> T getAndCastPropertyArray(@NonNull String key, @NonNull Class<T> tClass) {
-        Object value = mProperties.get(key);
+    private static <T> T safeCastProperty(
+            @NonNull String path, @Nullable Object value, @NonNull Class<T> tClass) {
         if (value == null) {
             return null;
         }
         try {
             return tClass.cast(value);
         } catch (ClassCastException e) {
-            Log.w(TAG, "Error casting to requested type for key \"" + key + "\"", e);
+            Log.w(TAG, "Error casting to requested type for path \"" + path + "\"", e);
             return null;
         }
     }
 
 // @exportToFramework:startStrip()
+
     /**
-     * Converts this GenericDocument into an instance of the provided data class.
+     * Converts this GenericDocument into an instance of the provided document class.
      *
-     * <p>It is the developer's responsibility to ensure the right kind of data class is being
+     * <p>It is the developer's responsibility to ensure the right kind of document class is being
      * supplied here, either by structuring the application code to ensure the document type is
      * known, or by checking the return value of {@link #getSchemaType}.
      *
-     * <p>Document properties are identified by String keys and any that are found are assigned into
-     * fields of the given data class, so the most likely outcome of supplying the wrong data class
-     * would be an empty or partially populated result.
+     * <p>Document properties are identified by {@code String} names. Any that are found are
+     * assigned into fields of the given document class. As such, the most likely outcome of
+     * supplying the wrong document class would be an empty or partially populated result.
      *
-     * @param dataClass a class annotated with
-     *                  {@link androidx.appsearch.annotation.AppSearchDocument}.
+     * @param documentClass a class annotated with {@link Document}
+     * @return an instance of the document class after being converted from a
+     * {@link GenericDocument}
+     * @throws AppSearchException if no factory for this document class could be found on the
+     *                            classpath.
+     * @see GenericDocument#fromDocumentClass
      */
     @NonNull
-    public <T> T toDataClass(@NonNull Class<T> dataClass) throws AppSearchException {
-        Preconditions.checkNotNull(dataClass);
-        DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-        DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
+    public <T> T toDocumentClass(@NonNull Class<T> documentClass) throws AppSearchException {
+        Preconditions.checkNotNull(documentClass);
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+        DocumentClassFactory<T> factory = registry.getOrCreateFactory(documentClass);
         return factory.fromGenericDocument(this);
     }
 // @exportToFramework:endStrip()
+
+    /**
+     * Copies the contents of this {@link GenericDocument} into a new
+     * {@link GenericDocument.Builder}.
+     *
+     * <p>The returned builder is a deep copy whose data is separate from this document.
+     * <!--@exportToFramework:hide-->
+     */
+    // TODO(b/171882200): Expose this API in Android T
+    @NonNull
+    public GenericDocument.Builder<GenericDocument.Builder<?>> toBuilder() {
+        Bundle clonedBundle = BundleUtil.deepCopy(mBundle);
+        return new GenericDocument.Builder<>(clonedBundle);
+    }
 
     @Override
     public boolean equals(@Nullable Object other) {
@@ -517,64 +924,100 @@ public class GenericDocument {
     @Override
     @NonNull
     public String toString() {
-        return bundleToString(mBundle).toString();
+        IndentingStringBuilder stringBuilder = new IndentingStringBuilder();
+        appendGenericDocumentString(stringBuilder);
+        return stringBuilder.toString();
     }
 
-    @SuppressWarnings("unchecked")
-    private static StringBuilder bundleToString(Bundle bundle) {
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            final Set<String> keySet = bundle.keySet();
-            String[] keys = keySet.toArray(new String[0]);
-            // Sort keys to make output deterministic. We need a custom comparator to handle
-            // nulls (arbitrarily putting them first, similar to Comparator.nullsFirst, which is
-            // only available since N).
-            Arrays.sort(
-                    keys,
-                    (@Nullable String s1, @Nullable String s2) -> {
-                        if (s1 == null) {
-                            return s2 == null ? 0 : -1;
-                        } else if (s2 == null) {
-                            return 1;
-                        } else {
-                            return s1.compareTo(s2);
-                        }
-                    });
-            for (String key : keys) {
-                stringBuilder.append("{ key: '").append(key).append("' value: ");
-                Object valueObject = bundle.get(key);
-                if (valueObject == null) {
-                    stringBuilder.append("<null>");
-                } else if (valueObject instanceof Bundle) {
-                    stringBuilder.append(bundleToString((Bundle) valueObject));
-                } else if (valueObject.getClass().isArray()) {
-                    stringBuilder.append("[ ");
-                    for (int i = 0; i < Array.getLength(valueObject); i++) {
-                        Object element = Array.get(valueObject, i);
-                        stringBuilder.append("'");
-                        if (element instanceof Bundle) {
-                            stringBuilder.append(bundleToString((Bundle) element));
-                        } else {
-                            stringBuilder.append(Array.get(valueObject, i));
-                        }
-                        stringBuilder.append("' ");
-                    }
-                    stringBuilder.append("]");
-                } else if (valueObject instanceof ArrayList) {
-                    for (Bundle innerBundle : (ArrayList<Bundle>) valueObject) {
-                        stringBuilder.append(bundleToString(innerBundle));
-                    }
-                } else {
-                    stringBuilder.append(valueObject.toString());
-                }
-                stringBuilder.append(" } ");
+    /**
+     * Appends a debug string for the {@link GenericDocument} instance to the given string builder.
+     *
+     * @param builder     the builder to append to.
+     */
+    void appendGenericDocumentString(@NonNull IndentingStringBuilder builder) {
+        Preconditions.checkNotNull(builder);
+
+        builder.append("{\n");
+        builder.increaseIndentLevel();
+
+        builder.append("namespace: \"").append(getNamespace()).append("\",\n");
+        builder.append("id: \"").append(getId()).append("\",\n");
+        builder.append("score: ").append(getScore()).append(",\n");
+        builder.append("schemaType: \"").append(getSchemaType()).append("\",\n");
+        builder
+                .append("creationTimestampMillis: ")
+                .append(getCreationTimestampMillis())
+                .append(",\n");
+        builder.append("timeToLiveMillis: ").append(getTtlMillis()).append(",\n");
+
+        builder.append("properties: {\n");
+
+        String[] sortedProperties = getPropertyNames().toArray(new String[0]);
+        Arrays.sort(sortedProperties);
+
+        for (int i = 0; i < sortedProperties.length; i++) {
+            Object property = getProperty(sortedProperties[i]);
+            builder.increaseIndentLevel();
+            appendPropertyString(sortedProperties[i], property, builder);
+            if (i != sortedProperties.length - 1) {
+                builder.append(",\n");
             }
-        } catch (RuntimeException e) {
-            // Catch any exceptions here since corrupt Bundles can throw different types of
-            // exceptions (e.g. b/38445840 & b/68937025).
-            stringBuilder.append("<error>");
+            builder.decreaseIndentLevel();
         }
-        return stringBuilder;
+
+        builder.append("\n");
+        builder.append("}");
+
+        builder.decreaseIndentLevel();
+        builder.append("\n");
+        builder.append("}");
+    }
+
+    /**
+     * Appends a debug string for the given document property to the given string builder.
+     *
+     * @param propertyName  name of property to create string for.
+     * @param property      property object to create string for.
+     * @param builder       the builder to append to.
+     */
+    private void appendPropertyString(@NonNull String propertyName, @NonNull Object property,
+            @NonNull IndentingStringBuilder builder) {
+        Preconditions.checkNotNull(propertyName);
+        Preconditions.checkNotNull(property);
+        Preconditions.checkNotNull(builder);
+
+        builder.append("\"").append(propertyName).append("\": [");
+        if (property instanceof GenericDocument[]) {
+            GenericDocument[] documentValues = (GenericDocument[]) property;
+            for (int i = 0; i < documentValues.length; ++i) {
+                builder.append("\n");
+                builder.increaseIndentLevel();
+                documentValues[i].appendGenericDocumentString(builder);
+                if (i != documentValues.length - 1) {
+                    builder.append(",");
+                }
+                builder.append("\n");
+                builder.decreaseIndentLevel();
+            }
+            builder.append("]");
+        } else {
+            int propertyArrLength = Array.getLength(property);
+            for (int i = 0; i < propertyArrLength; i++) {
+                Object propertyElement = Array.get(property, i);
+                if (propertyElement instanceof String) {
+                    builder.append("\"").append((String) propertyElement).append("\"");
+                } else if (propertyElement instanceof byte[]) {
+                    builder.append(Arrays.toString((byte[]) propertyElement));
+                } else {
+                    builder.append(propertyElement.toString());
+                }
+                if (i != propertyArrLength - 1) {
+                    builder.append(", ");
+                } else {
+                    builder.append("]");
+                }
+            }
+        }
     }
 
     /**
@@ -586,51 +1029,104 @@ public class GenericDocument {
     // GenericDocument.
     @SuppressLint("StaticFinalBuilder")
     public static class Builder<BuilderType extends Builder> {
-
-        private final Bundle mProperties = new Bundle();
-        private final Bundle mBundle = new Bundle();
+        private Bundle mBundle;
+        private Bundle mProperties;
         private final BuilderType mBuilderTypeInstance;
         private boolean mBuilt = false;
 
         /**
-         * Create a new {@link GenericDocument.Builder}.
+         * Creates a new {@link GenericDocument.Builder}.
          *
-         * @param uri        The uri of {@link GenericDocument}.
-         * @param schemaType The schema type of the {@link GenericDocument}. The passed-in
-         *                   {@code schemaType} must be defined using
+         * <p>Document IDs are unique within a namespace.
+         *
+         * <p>The number of namespaces per app should be kept small for efficiency reasons.
+         *
+         * @param namespace  the namespace to set for the {@link GenericDocument}.
+         * @param id         the unique identifier for the {@link GenericDocument} in its namespace.
+         * @param schemaType the {@link AppSearchSchema} type of the {@link GenericDocument}. The
+         *                   provided {@code schemaType} must be defined using
          *                   {@link AppSearchSession#setSchema} prior
          *                   to inserting a document of this {@code schemaType} into the
          *                   AppSearch index using
-         *                   {@link AppSearchSession#putDocuments}. Otherwise, the document will be
-         *                   rejected by {@link AppSearchSession#putDocuments}.
+         *                   {@link AppSearchSession#put}.
+         *                   Otherwise, the document will be rejected by
+         *                   {@link AppSearchSession#put} with result code
+         *                   {@link AppSearchResult#RESULT_NOT_FOUND}.
          */
         @SuppressWarnings("unchecked")
-        public Builder(@NonNull String uri, @NonNull String schemaType) {
-            Preconditions.checkNotNull(uri);
+        public Builder(@NonNull String namespace, @NonNull String id, @NonNull String schemaType) {
+            Preconditions.checkNotNull(namespace);
+            Preconditions.checkNotNull(id);
             Preconditions.checkNotNull(schemaType);
+
+            mBundle = new Bundle();
             mBuilderTypeInstance = (BuilderType) this;
-            mBundle.putString(GenericDocument.URI_FIELD, uri);
+            mBundle.putString(GenericDocument.NAMESPACE_FIELD, namespace);
+            mBundle.putString(GenericDocument.ID_FIELD, id);
             mBundle.putString(GenericDocument.SCHEMA_TYPE_FIELD, schemaType);
-            mBundle.putString(GenericDocument.NAMESPACE_FIELD, DEFAULT_NAMESPACE);
-            // Set current timestamp for creation timestamp by default.
-            mBundle.putLong(GenericDocument.CREATION_TIMESTAMP_MILLIS_FIELD,
-                    System.currentTimeMillis());
             mBundle.putLong(GenericDocument.TTL_MILLIS_FIELD, DEFAULT_TTL_MILLIS);
             mBundle.putInt(GenericDocument.SCORE_FIELD, DEFAULT_SCORE);
+
+            mProperties = new Bundle();
             mBundle.putBundle(PROPERTIES_FIELD, mProperties);
         }
 
         /**
-         * Sets the app-defined namespace this Document resides in. No special values are
-         * reserved or understood by the infrastructure.
+         * Creates a new {@link GenericDocument.Builder} from the given Bundle.
          *
-         * <p>URIs are unique within a namespace.
+         * <p>The bundle is NOT copied.
+         */
+        @SuppressWarnings("unchecked")
+        Builder(@NonNull Bundle bundle) {
+            mBundle = Preconditions.checkNotNull(bundle);
+            mProperties = mBundle.getBundle(PROPERTIES_FIELD);
+            mBuilderTypeInstance = (BuilderType) this;
+        }
+
+        /**
+         * Sets the app-defined namespace this document resides in, changing the value provided
+         * in the constructor. No special values are reserved or understood by the infrastructure.
+         *
+         * <p>Document IDs are unique within a namespace.
          *
          * <p>The number of namespaces per app should be kept small for efficiency reasons.
+         * <!--@exportToFramework:hide-->
          */
         @NonNull
         public BuilderType setNamespace(@NonNull String namespace) {
+            Preconditions.checkNotNull(namespace);
+            resetIfBuilt();
             mBundle.putString(GenericDocument.NAMESPACE_FIELD, namespace);
+            return mBuilderTypeInstance;
+        }
+
+        /**
+         * Sets the ID of this document, changing the value provided in the constructor. No
+         * special values are reserved or understood by the infrastructure.
+         *
+         * <p>Document IDs are unique within a namespace.
+         * <!--@exportToFramework:hide-->
+         */
+        @NonNull
+        public BuilderType setId(@NonNull String id) {
+            Preconditions.checkNotNull(id);
+            resetIfBuilt();
+            mBundle.putString(GenericDocument.ID_FIELD, id);
+            return mBuilderTypeInstance;
+        }
+
+        /**
+         * Sets the schema type of this document, changing the value provided in the constructor.
+         *
+         * <p>To successfully index a document, the schema type must match the name of an
+         * {@link AppSearchSchema} object previously provided to {@link AppSearchSession#setSchema}.
+         * <!--@exportToFramework:hide-->
+         */
+        @NonNull
+        public BuilderType setSchemaType(@NonNull String schemaType) {
+            Preconditions.checkNotNull(schemaType);
+            resetIfBuilt();
+            mBundle.putString(GenericDocument.SCHEMA_TYPE_FIELD, schemaType);
             return mBuilderTypeInstance;
         }
 
@@ -638,21 +1134,21 @@ public class GenericDocument {
          * Sets the score of the {@link GenericDocument}.
          *
          * <p>The score is a query-independent measure of the document's quality, relative to
-         * other {@link GenericDocument}s of the same type.
+         * other {@link GenericDocument} objects of the same {@link AppSearchSchema} type.
          *
          * <p>Results may be sorted by score using {@link SearchSpec.Builder#setRankingStrategy}.
          * Documents with higher scores are considered better than documents with lower scores.
          *
-         * <p>Any nonnegative integer can be used a score.
+         * <p>Any non-negative integer can be used a score. By default, scores are set to 0.
          *
-         * @throws IllegalArgumentException If the provided value is negative.
+         * @param score any non-negative {@code int} representing the document's score.
          */
         @NonNull
         public BuilderType setScore(@IntRange(from = 0, to = Integer.MAX_VALUE) int score) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             if (score < 0) {
                 throw new IllegalArgumentException("Document score cannot be negative.");
             }
+            resetIfBuilt();
             mBundle.putInt(GenericDocument.SCORE_FIELD, score);
             return mBuilderTypeInstance;
         }
@@ -660,36 +1156,41 @@ public class GenericDocument {
         /**
          * Sets the creation timestamp of the {@link GenericDocument}, in milliseconds.
          *
-         * <p>Should be set using a value obtained from the {@link System#currentTimeMillis} time
-         * base.
+         * <p>This should be set using a value obtained from the {@link System#currentTimeMillis}
+         * time base.
+         *
+         * <p>If this method is not called, this will be set to the time the object is built.
+         *
+         * @param creationTimestampMillis a creation timestamp in milliseconds.
          */
         @NonNull
-        public BuilderType setCreationTimestampMillis(long creationTimestampMillis) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putLong(GenericDocument.CREATION_TIMESTAMP_MILLIS_FIELD,
-                    creationTimestampMillis);
+        public BuilderType setCreationTimestampMillis(
+                /*@exportToFramework:CurrentTimeMillisLong*/ long creationTimestampMillis) {
+            resetIfBuilt();
+            mBundle.putLong(
+                    GenericDocument.CREATION_TIMESTAMP_MILLIS_FIELD, creationTimestampMillis);
             return mBuilderTypeInstance;
         }
 
         /**
-         * Sets the TTL (Time To Live) of the {@link GenericDocument}, in milliseconds.
+         * Sets the TTL (time-to-live) of the {@link GenericDocument}, in milliseconds.
          *
          * <p>The TTL is measured against {@link #getCreationTimestampMillis}. At the timestamp of
          * {@code creationTimestampMillis + ttlMillis}, measured in the
          * {@link System#currentTimeMillis} time base, the document will be auto-deleted.
          *
          * <p>The default value is 0, which means the document is permanent and won't be
-         * auto-deleted until the app is uninstalled.
+         * auto-deleted until the app is uninstalled or {@link AppSearchSession#remove} is
+         * called.
          *
-         * @param ttlMillis A non-negative duration in milliseconds.
-         * @throws IllegalArgumentException If the provided value is negative.
+         * @param ttlMillis a non-negative duration in milliseconds.
          */
         @NonNull
         public BuilderType setTtlMillis(long ttlMillis) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             if (ttlMillis < 0) {
                 throw new IllegalArgumentException("Document ttlMillis cannot be negative.");
             }
+            resetIfBuilt();
             mBundle.putLong(GenericDocument.TTL_MILLIS_FIELD, ttlMillis);
             return mBuilderTypeInstance;
         }
@@ -698,15 +1199,19 @@ public class GenericDocument {
          * Sets one or multiple {@code String} values for a property, replacing its previous
          * values.
          *
-         * @param key    The key associated with the {@code values}.
-         * @param values The {@code String} values of the property.
+         * @param name    the name associated with the {@code values}. Must match the name
+         *                for this property as given in
+         *                {@link AppSearchSchema.PropertyConfig#getName}.
+         * @param values the {@code String} values of the property.
+         * @throws IllegalArgumentException if no values are provided, or if a passed in
+         *                                  {@code String} is {@code null}.
          */
         @NonNull
-        public BuilderType setPropertyString(@NonNull String key, @NonNull String... values) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(key);
+        public BuilderType setPropertyString(@NonNull String name, @NonNull String... values) {
+            Preconditions.checkNotNull(name);
             Preconditions.checkNotNull(values);
-            putInPropertyBundle(key, values);
+            resetIfBuilt();
+            putInPropertyBundle(name, values);
             return mBuilderTypeInstance;
         }
 
@@ -714,15 +1219,17 @@ public class GenericDocument {
          * Sets one or multiple {@code boolean} values for a property, replacing its previous
          * values.
          *
-         * @param key    The key associated with the {@code values}.
-         * @param values The {@code boolean} values of the property.
+         * @param name    the name associated with the {@code values}. Must match the name
+         *                for this property as given in
+         *                {@link AppSearchSchema.PropertyConfig#getName}.
+         * @param values the {@code boolean} values of the property.
          */
         @NonNull
-        public BuilderType setPropertyBoolean(@NonNull String key, @NonNull boolean... values) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(key);
+        public BuilderType setPropertyBoolean(@NonNull String name, @NonNull boolean... values) {
+            Preconditions.checkNotNull(name);
             Preconditions.checkNotNull(values);
-            putInPropertyBundle(key, values);
+            resetIfBuilt();
+            putInPropertyBundle(name, values);
             return mBuilderTypeInstance;
         }
 
@@ -730,15 +1237,17 @@ public class GenericDocument {
          * Sets one or multiple {@code long} values for a property, replacing its previous
          * values.
          *
-         * @param key    The key associated with the {@code values}.
-         * @param values The {@code long} values of the property.
+         * @param name    the name associated with the {@code values}. Must match the name
+         *                for this property as given in
+         *                {@link AppSearchSchema.PropertyConfig#getName}.
+         * @param values the {@code long} values of the property.
          */
         @NonNull
-        public BuilderType setPropertyLong(@NonNull String key, @NonNull long... values) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(key);
+        public BuilderType setPropertyLong(@NonNull String name, @NonNull long... values) {
+            Preconditions.checkNotNull(name);
             Preconditions.checkNotNull(values);
-            putInPropertyBundle(key, values);
+            resetIfBuilt();
+            putInPropertyBundle(name, values);
             return mBuilderTypeInstance;
         }
 
@@ -746,30 +1255,36 @@ public class GenericDocument {
          * Sets one or multiple {@code double} values for a property, replacing its previous
          * values.
          *
-         * @param key    The key associated with the {@code values}.
-         * @param values The {@code double} values of the property.
+         * @param name    the name associated with the {@code values}. Must match the name
+         *                for this property as given in
+         *                {@link AppSearchSchema.PropertyConfig#getName}.
+         * @param values the {@code double} values of the property.
          */
         @NonNull
-        public BuilderType setPropertyDouble(@NonNull String key, @NonNull double... values) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(key);
+        public BuilderType setPropertyDouble(@NonNull String name, @NonNull double... values) {
+            Preconditions.checkNotNull(name);
             Preconditions.checkNotNull(values);
-            putInPropertyBundle(key, values);
+            resetIfBuilt();
+            putInPropertyBundle(name, values);
             return mBuilderTypeInstance;
         }
 
         /**
          * Sets one or multiple {@code byte[]} for a property, replacing its previous values.
          *
-         * @param key    The key associated with the {@code values}.
-         * @param values The {@code byte[]} of the property.
+         * @param name    the name associated with the {@code values}. Must match the name
+         *                for this property as given in
+         *                {@link AppSearchSchema.PropertyConfig#getName}.
+         * @param values the {@code byte[]} of the property.
+         * @throws IllegalArgumentException if no values are provided, or if a passed in
+         *                                  {@code byte[]} is {@code null}.
          */
         @NonNull
-        public BuilderType setPropertyBytes(@NonNull String key, @NonNull byte[]... values) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(key);
+        public BuilderType setPropertyBytes(@NonNull String name, @NonNull byte[]... values) {
+            Preconditions.checkNotNull(name);
             Preconditions.checkNotNull(values);
-            putInPropertyBundle(key, values);
+            resetIfBuilt();
+            putInPropertyBundle(name, values);
             return mBuilderTypeInstance;
         }
 
@@ -777,47 +1292,59 @@ public class GenericDocument {
          * Sets one or multiple {@link GenericDocument} values for a property, replacing its
          * previous values.
          *
-         * @param key    The key associated with the {@code values}.
-         * @param values The {@link GenericDocument} values of the property.
+         * @param name    the name associated with the {@code values}. Must match the name
+         *                for this property as given in
+         *                {@link AppSearchSchema.PropertyConfig#getName}.
+         * @param values the {@link GenericDocument} values of the property.
+         * @throws IllegalArgumentException if no values are provided, or if a passed in
+         *                                  {@link GenericDocument} is {@code null}.
          */
         @NonNull
         public BuilderType setPropertyDocument(
-                @NonNull String key, @NonNull GenericDocument... values) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(key);
+                @NonNull String name, @NonNull GenericDocument... values) {
+            Preconditions.checkNotNull(name);
             Preconditions.checkNotNull(values);
-            putInPropertyBundle(key, values);
+            resetIfBuilt();
+            putInPropertyBundle(name, values);
             return mBuilderTypeInstance;
         }
 
-        private void putInPropertyBundle(@NonNull String key, @NonNull String[] values)
+        /**
+         * Clears the value for the property with the given name.
+         *
+         * <p>Note that this method does not support property paths.
+         *
+         * @param name The name of the property to clear.
+         * <!--@exportToFramework:hide-->
+         */
+        @NonNull
+        public BuilderType clearProperty(@NonNull String name) {
+            Preconditions.checkNotNull(name);
+            resetIfBuilt();
+            mProperties.remove(name);
+            return mBuilderTypeInstance;
+        }
+
+        private void putInPropertyBundle(@NonNull String name, @NonNull String[] values)
                 throws IllegalArgumentException {
-            validateRepeatedPropertyLength(key, values.length);
             for (int i = 0; i < values.length; i++) {
                 if (values[i] == null) {
                     throw new IllegalArgumentException("The String at " + i + " is null.");
-                } else if (values[i].length() > MAX_STRING_LENGTH) {
-                    throw new IllegalArgumentException("The String at " + i + " length is: "
-                            + values[i].length() + ", which exceeds length limit: "
-                            + MAX_STRING_LENGTH + ".");
                 }
             }
-            mProperties.putStringArray(key, values);
+            mProperties.putStringArray(name, values);
         }
 
-        private void putInPropertyBundle(@NonNull String key, @NonNull boolean[] values) {
-            validateRepeatedPropertyLength(key, values.length);
-            mProperties.putBooleanArray(key, values);
+        private void putInPropertyBundle(@NonNull String name, @NonNull boolean[] values) {
+            mProperties.putBooleanArray(name, values);
         }
 
-        private void putInPropertyBundle(@NonNull String key, @NonNull double[] values) {
-            validateRepeatedPropertyLength(key, values.length);
-            mProperties.putDoubleArray(key, values);
+        private void putInPropertyBundle(@NonNull String name, @NonNull double[] values) {
+            mProperties.putDoubleArray(name, values);
         }
 
-        private void putInPropertyBundle(@NonNull String key, @NonNull long[] values) {
-            validateRepeatedPropertyLength(key, values.length);
-            mProperties.putLongArray(key, values);
+        private void putInPropertyBundle(@NonNull String name, @NonNull long[] values) {
+            mProperties.putLongArray(name, values);
         }
 
         /**
@@ -826,8 +1353,7 @@ public class GenericDocument {
          * <p>Bundle doesn't support for two dimension array byte[][], we are converting byte[][]
          * into ArrayList<Bundle>, and each elements will contain a one dimension byte[].
          */
-        private void putInPropertyBundle(@NonNull String key, @NonNull byte[][] values) {
-            validateRepeatedPropertyLength(key, values.length);
+        private void putInPropertyBundle(@NonNull String name, @NonNull byte[][] values) {
             ArrayList<Bundle> bundles = new ArrayList<>(values.length);
             for (int i = 0; i < values.length; i++) {
                 if (values[i] == null) {
@@ -837,38 +1363,38 @@ public class GenericDocument {
                 bundle.putByteArray(BYTE_ARRAY_FIELD, values[i]);
                 bundles.add(bundle);
             }
-            mProperties.putParcelableArrayList(key, bundles);
+            mProperties.putParcelableArrayList(name, bundles);
         }
 
-        private void putInPropertyBundle(@NonNull String key, @NonNull GenericDocument[] values) {
-            validateRepeatedPropertyLength(key, values.length);
-            Bundle[] documentBundles = new Bundle[values.length];
+        private void putInPropertyBundle(@NonNull String name, @NonNull GenericDocument[] values) {
+            Parcelable[] documentBundles = new Parcelable[values.length];
             for (int i = 0; i < values.length; i++) {
                 if (values[i] == null) {
                     throw new IllegalArgumentException("The document at " + i + " is null.");
                 }
                 documentBundles[i] = values[i].mBundle;
             }
-            mProperties.putParcelableArray(key, documentBundles);
-        }
-
-        private static void validateRepeatedPropertyLength(@NonNull String key, int length) {
-            if (length == 0) {
-                throw new IllegalArgumentException("The input array is empty.");
-            } else if (length > MAX_REPEATED_PROPERTY_LENGTH) {
-                throw new IllegalArgumentException(
-                        "Repeated property \"" + key + "\" has length " + length
-                                + ", which exceeds the limit of "
-                                + MAX_REPEATED_PROPERTY_LENGTH);
-            }
+            mProperties.putParcelableArray(name, documentBundles);
         }
 
         /** Builds the {@link GenericDocument} object. */
         @NonNull
         public GenericDocument build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBuilt = true;
+            // Set current timestamp for creation timestamp by default.
+            if (mBundle.getLong(GenericDocument.CREATION_TIMESTAMP_MILLIS_FIELD, -1) == -1) {
+                mBundle.putLong(GenericDocument.CREATION_TIMESTAMP_MILLIS_FIELD,
+                        System.currentTimeMillis());
+            }
             return new GenericDocument(mBundle);
+        }
+
+        private void resetIfBuilt() {
+            if (mBuilt) {
+                mBundle = BundleUtil.deepCopy(mBundle);
+                mProperties = mBundle.getBundle(PROPERTIES_FIELD);
+                mBuilt = false;
+            }
         }
     }
 }

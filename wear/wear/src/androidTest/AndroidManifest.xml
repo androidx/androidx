@@ -15,92 +15,120 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="androidx.wear.test">
-
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    package="androidx.wear.test">
 
     <application
-        android:supportsRtl="true"
-        android:requestLegacyExternalStorage="true">
-        <activity android:name="androidx.wear.widget.LayoutTestActivity">
+        android:requestLegacyExternalStorage="true"
+        android:supportsRtl="true">
+        <activity
+            android:name="androidx.wear.widget.LayoutTestActivity"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="androidx.wear.widget.DismissibleFrameLayoutTestActivity"
-                  android:theme="@style/AppThemeNoSwipe">
+        <activity
+            android:name="androidx.wear.widget.DismissibleFrameLayoutTestActivity"
+            android:exported="false"
+            android:theme="@style/AppThemeNoSwipe">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-
-        <activity android:name="androidx.wear.widget.WearableRecyclerViewTestActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.widget.drawer.DrawerTestActivity">
+        <activity
+            android:name="androidx.wear.widget.WearableRecyclerViewTestActivity"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.ambient.AmbientModeTestActivity">
+        <activity
+            android:name="androidx.wear.widget.drawer.DrawerTestActivity"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.ambient.AmbientModeResumeTestActivity">
+        <activity
+            android:name="androidx.wear.widget.drawer.DrawerRecyclerViewTestActivity"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.ambient.AmbientModeSupportTestActivity">
+        <activity
+            android:name="androidx.wear.ambient.AmbientModeTestActivity"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.ambient.AmbientModeSupportResumeTestActivity">
+        <activity
+            android:name="androidx.wear.ambient.AmbientModeResumeTestActivity"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-          </activity>
-
-        <activity android:name="androidx.wear.widget.ConfirmationOverlayTestActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.activity.ConfirmationActivityTestActivity">
+        <activity
+            android:name="androidx.wear.ambient.AmbientModeSupportTestActivity"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.activity.ConfirmationActivity">
+        <activity
+            android:name="androidx.wear.ambient.AmbientModeSupportResumeTestActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.widget.TouchTestActivity">
+        <activity
+            android:name="androidx.wear.widget.ConfirmationOverlayTestActivity"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="androidx.wear.activity.ConfirmationActivityTestActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="androidx.wear.activity.ConfirmationActivity"
+            android:exported="false"></activity>
+
+        <activity
+            android:name="androidx.wear.widget.TouchTestActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -117,4 +145,8 @@
             android:name="com.google.android.wearable.watchface.preview_circular"
             android:resource="@drawable/preview_face_circular" />
     </application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 </manifest>

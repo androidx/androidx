@@ -16,30 +16,104 @@
 
 package androidx.camera.video;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.Executor;
+
 /**
- * RecordingStats keeps track of the current recording’s statistics. It is a snapshot of things
- * like recorded duration and recorded file size.
+ * A snapshot of statistics about an {@link ActiveRecording} at a point in time.
+ *
+ * <p>Recording stats provide information about a recording such as file size, duration and other
+ * useful statistics which may be useful for tracking the state of a recording.
+ *
+ * <p>Recording stats are generated for every {@link VideoRecordEvent} and can be retrieved via
+ * {@link VideoRecordEvent#getRecordingStats()}.
+ * @see PendingRecording#withEventListener(Executor, Consumer)
  */
 @AutoValue
 public abstract class RecordingStats {
 
-    public static final RecordingStats EMPTY_STATS = of(0, 0);
+    /**
+     * The recording is being recorded with audio data.
+     *
+     * <p>When audio is recording, the resulting video file will contain an audio track.
+     */
+    public static final int AUDIO_RECORDING = 0;
+    /**
+     * The recording is disabled.
+     *
+     * <p>This audio state results from a {@link PendingRecording} that was
+     * {@linkplain PendingRecording#start() started} without calling
+     * {@link PendingRecording#withAudioEnabled()}.
+     */
+    public static final int AUDIO_DISABLED = 1;
+    /**
+     * The recording is muted because the audio source is silenced by the system.
+     *
+     * <p>If the audio source is occupied by privilege application, depending on the system
+     * version, the system may silence the application that are using the audio source.
+     */
+    public static final int AUDIO_SOURCE_SILENCED = 2;
+    /**
+     * The recording is muted because the audio encoder encountered errors.
+     */
+    public static final int AUDIO_ENCODER_ERROR = 3;
 
-    @NonNull
-    static RecordingStats of(long duration, long bytes) {
-        Preconditions.checkArgument(duration >= 0, "duration must be positive value.");
-        Preconditions.checkArgument(bytes >= 0, "bytes must be positive value.");
-        return new AutoValue_RecordingStats(duration, bytes);
+    /** @hide */
+    @IntDef({AUDIO_RECORDING, AUDIO_DISABLED, AUDIO_SOURCE_SILENCED, AUDIO_ENCODER_ERROR})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public @interface AudioState {
     }
 
-    /** Returns current recorded duration in nano seconds. */
-    public abstract long getRecordedDurationNs();
+    // Restrict the constructor scope.
+    RecordingStats() {
+    }
 
-    /** Returns current recorded bytes. */
+    @NonNull
+    static RecordingStats of(long duration, long bytes, @AudioState int audioState) {
+        Preconditions.checkArgument(duration >= 0, "duration must be positive value.");
+        Preconditions.checkArgument(bytes >= 0, "bytes must be positive value.");
+        return new AutoValue_RecordingStats(duration, bytes, audioState);
+    }
+
+    /**
+     * Returns current recorded duration in nanoseconds.
+     *
+     * <p>The duration represents the realtime number of nanoseconds that have transpired since
+     * the recording started, excluding intervals where the recording was paused.
+     * @return the duration, in nanoseconds, of the recording at the time of these recording stats
+     * being generated.
+     */
+    public abstract long getRecordedDurationNanos();
+
+    /**
+     * Returns the number of bytes recorded.
+     *
+     * <p>The number of bytes recorded includes bytes stored for video and for audio, if applicable.
+     * @return the total number of bytes stored for the recording at the time of these recording
+     * stats being generated.
+     */
     public abstract long getNumBytesRecorded();
+
+    /**
+     * Returns the state of audio in the recording.
+     *
+     * <p>The audio state describes whether audio is enabled for the recording and if audio is
+     * currently recording or is silenced due to system priority or errors.
+     *
+     * @return The state of the audio at the time of these recording stats being generated. One of
+     * {@link #AUDIO_RECORDING}, {@link #AUDIO_DISABLED}, {@link #AUDIO_SOURCE_SILENCED}, or
+     * {@link #AUDIO_ENCODER_ERROR}.
+     */
+    @AudioState
+    public abstract int getAudioState();
 }

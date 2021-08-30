@@ -18,9 +18,11 @@ package androidx.room.migration.bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.room.Index;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,14 +40,25 @@ public class IndexBundle implements SchemaEquality<IndexBundle> {
     private boolean mUnique;
     @SerializedName("columnNames")
     private List<String> mColumnNames;
+    @SerializedName("orders")
+    private List<String> mOrders;
     @SerializedName("createSql")
     private String mCreateSql;
 
-    public IndexBundle(String name, boolean unique, List<String> columnNames,
+    /**
+     * @deprecated Use {@link #IndexBundle(String, boolean, List, List, String)}
+     */
+    @Deprecated
+    public IndexBundle(String name, boolean unique, List<String> columnNames, String createSql) {
+        this(name, unique, columnNames, null, createSql);
+    }
+
+    public IndexBundle(String name, boolean unique, List<String> columnNames, List<String> orders,
             String createSql) {
         mName = name;
         mUnique = unique;
         mColumnNames = columnNames;
+        mOrders = orders;
         mCreateSql = createSql;
     }
 
@@ -59,6 +72,10 @@ public class IndexBundle implements SchemaEquality<IndexBundle> {
 
     public List<String> getColumnNames() {
         return mColumnNames;
+    }
+
+    public List<String> getOrders() {
+        return mOrders;
     }
 
     /**
@@ -95,6 +112,16 @@ public class IndexBundle implements SchemaEquality<IndexBundle> {
                 : other.mColumnNames != null) {
             return false;
         }
+
+        // order matters and null orders is considered equal to all ASC orders, to be backward
+        // compatible with schemas where orders are not present in the schema file
+        int columnsSize = mColumnNames != null ? mColumnNames.size() : 0;
+        List<String> orders = mOrders == null || mOrders.isEmpty()
+                ? Collections.nCopies(columnsSize, Index.Order.ASC.name()) : mOrders;
+        List<String> otherOrders = other.mOrders == null || other.mOrders.isEmpty()
+                ? Collections.nCopies(columnsSize, Index.Order.ASC.name()) : other.mOrders;
+        if (!orders.equals(otherOrders)) return false;
+
         return true;
     }
 }

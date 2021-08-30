@@ -1441,18 +1441,6 @@ private fun <T> advanceGlobalSnapshot(block: (invalid: SnapshotIdSet) -> T): T {
         }
     }
 
-    // Update the transparent snapshot if necessary
-    // This doesn't need to take the sync because it is updating thread local state.
-    (threadSnapshot.get() as? TransparentObserverMutableSnapshot)?.let {
-        threadSnapshot.set(
-            TransparentObserverMutableSnapshot(
-                currentGlobalSnapshot.get(),
-                it.specifiedReadObserver,
-                it.specifiedWriteObserver
-            )
-        )
-        it.dispose()
-    }
     return result
 }
 
@@ -1577,7 +1565,7 @@ internal fun <T : StateRecord> T.writableRecord(state: StateObject, snapshot: Sn
 
     // Otherwise, make a copy of the readable data and mark it as born in this snapshot, making it
     // writable.
-    val newData = newWritableRecord(state, snapshot)
+    val newData = readData.newWritableRecord(state, snapshot)
 
     snapshot.recordModified(state)
 

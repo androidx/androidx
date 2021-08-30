@@ -97,7 +97,8 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
         super.setUp();
         final Intent sessionActivity = new Intent(mContext, MockActivity.class);
         // Create this test specific MediaSession to use our own Handler.
-        mIntent = PendingIntent.getActivity(mContext, 0, sessionActivity, 0);
+        mIntent = PendingIntent.getActivity(mContext, 0, sessionActivity,
+                Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
 
         mSessionCallback = new MediaSessionCallback();
         mSession = new MediaSessionCompat(mContext, TAG + "Compat");

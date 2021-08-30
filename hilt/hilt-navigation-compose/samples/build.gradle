@@ -17,6 +17,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -26,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+    kotlinPlugin("androidx.compose.compiler:compiler:1.0.1")
     implementation(libs.kotlinStdlib)
 
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
@@ -35,6 +36,7 @@ dependencies {
 
 androidx {
     name = "Navigation Compose Hilt Extension Samples"
+    publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.SAMPLES
     mavenGroup = LibraryGroups.HILT
     mavenVersion = LibraryVersions.HILT_NAVIGATION_COMPOSE

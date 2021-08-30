@@ -21,6 +21,7 @@ package androidx.compose.ui.input.pointer
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerEventPass.Final
 import androidx.compose.ui.input.pointer.PointerEventPass.Initial
 import androidx.compose.ui.input.pointer.PointerEventPass.Main
@@ -96,7 +97,138 @@ expect class PointerEvent @OptIn(InternalCoreApi::class) internal constructor(
      * The changes.
      */
     val changes: List<PointerInputChange>
+
+    /**
+     * The state of buttons (e.g. mouse or stylus buttons) during this event.
+     */
+    val buttons: PointerButtons
+
+    /**
+     * The state of modifier keys during this event.
+     */
+    val keyboardModifiers: PointerKeyboardModifiers
 }
+
+// TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
+/* internal */ expect class NativePointerButtons
+
+/**
+ * Contains the state of pointer buttons (e.g. mouse and stylus buttons).
+ */
+inline class PointerButtons(internal val packedValue: NativePointerButtons)
+
+/**
+ * `true` when the primary button (left mouse button) is pressed or `false` when
+ * it isn't pressed.
+ */
+expect val PointerButtons.isPrimaryPressed: Boolean
+
+/**
+ * `true` when the secondary button (right mouse button) is pressed or `false` when
+ * it isn't pressed.
+ */
+expect val PointerButtons.isSecondaryPressed: Boolean
+
+/**
+ * `true` when the tertiary button (middle mouse button) is pressed or `false` when
+ * it isn't pressed.
+ */
+expect val PointerButtons.isTertiaryPressed: Boolean
+
+/**
+ * `true` when the back button (mouse back button) is pressed or `false` when it isn't pressed or
+ * there is no mouse button assigned to "back."
+ */
+expect val PointerButtons.isBackPressed: Boolean
+
+/**
+ * `true` when the forward button (mouse forward button) is pressed or `false` when it isn't pressed
+ * or there is no button assigned to "forward."
+ */
+expect val PointerButtons.isForwardPressed: Boolean
+
+/**
+ * Returns `true` when the button at [buttonIndex] is pressed and `false` when it isn't pressed.
+ * This method can handle buttons that haven't been assigned a designated purpose like
+ * [isPrimaryPressed] and [isSecondaryPressed].
+ */
+expect fun PointerButtons.isPressed(buttonIndex: Int): Boolean
+
+/**
+ * Returns `true` if any button is pressed or `false` if all buttons are released.
+ */
+expect val PointerButtons.areAnyPressed: Boolean
+
+/**
+ * Returns the index of first button pressed as used in [isPressed] or `-1` if no button is pressed.
+ */
+expect fun PointerButtons.indexOfFirstPressed(): Int
+
+/**
+ * Returns the index of last button pressed as used in [isPressed] or `-1` if no button is pressed.
+ */
+expect fun PointerButtons.indexOfLastPressed(): Int
+
+// TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
+/* internal */ expect class NativePointerKeyboardModifiers
+
+/**
+ * Contains the state of modifier keys, such as Shift, Control, and Alt, as well as the state
+ * of the lock keys, such as Caps Lock and Num Lock.
+ */
+inline class PointerKeyboardModifiers(internal val packedValue: NativePointerKeyboardModifiers)
+
+/**
+ * `true` when the Control key is pressed.
+ */
+expect val PointerKeyboardModifiers.isCtrlPressed: Boolean
+
+/**
+ * `true` when the Meta key is pressed. This is commonly associated with the Windows or Command
+ * key on some keyboards.
+ */
+expect val PointerKeyboardModifiers.isMetaPressed: Boolean
+
+/**
+ * `true` when the Alt key is pressed. This is commonly associated with the Option key on some
+ * keyboards.
+ */
+expect val PointerKeyboardModifiers.isAltPressed: Boolean
+
+/**
+ * `true` when the AltGraph key is pressed.
+ */
+expect val PointerKeyboardModifiers.isAltGraphPressed: Boolean
+
+/**
+ * `true` when the Sym key is pressed.
+ */
+expect val PointerKeyboardModifiers.isSymPressed: Boolean
+
+/**
+ * `true` when the Shift key is pressed.
+ */
+expect val PointerKeyboardModifiers.isShiftPressed: Boolean
+
+/**
+ * `true` when the Function key is pressed.
+ */
+expect val PointerKeyboardModifiers.isFunctionPressed: Boolean
+
+/**
+ * `true` when the keyboard's Caps Lock is on.
+ */
+expect val PointerKeyboardModifiers.isCapsLockOn: Boolean
+
+/**
+ * `true` when the keyboard's Scroll Lock is on.
+ */
+expect val PointerKeyboardModifiers.isScrollLockOn: Boolean
+
+/**
+ * `true` when the keyboard's Num Lock is on.
+ */
+expect val PointerKeyboardModifiers.isNumLockOn: Boolean
 
 /**
  * The device type that produces a [PointerInputChange], such as a mouse or stylus.
@@ -367,6 +499,10 @@ fun PointerInputChange.consumeAllChanges() {
  * `(0, 0, size.width, size.height)` or `false` if the current pointer is up or it is inside the
  * given bounds.
  */
+@Deprecated(
+    message = "Use isOutOfBounds() that supports minimum touch target",
+    replaceWith = ReplaceWith("this.isOutOfBounds(size, extendedTouchPadding)")
+)
 fun PointerInputChange.isOutOfBounds(size: IntSize): Boolean {
     val position = position
     val x = position.x
@@ -374,4 +510,26 @@ fun PointerInputChange.isOutOfBounds(size: IntSize): Boolean {
     val width = size.width
     val height = size.height
     return x < 0f || x > width || y < 0f || y > height
+}
+
+/**
+ * Returns `true` if the pointer has moved outside of the pointer region. For Touch
+ * events, this is (-extendedTouchPadding.width, -extendedTouchPadding.height,
+ * size.width + extendedTouchPadding.width, size.height + extendedTouchPadding.height) and
+ * for other events, this is `(0, 0, size.width, size.height)`. Returns`false` if the
+ * current pointer is up or it is inside the pointer region.
+ */
+fun PointerInputChange.isOutOfBounds(size: IntSize, extendedTouchPadding: Size): Boolean {
+    if (type != PointerType.Touch) {
+        @Suppress("DEPRECATION")
+        return isOutOfBounds(size)
+    }
+    val position = position
+    val x = position.x
+    val y = position.y
+    val minX = -extendedTouchPadding.width
+    val maxX = size.width + extendedTouchPadding.width
+    val minY = -extendedTouchPadding.height
+    val maxY = size.height + extendedTouchPadding.height
+    return x < minX || x > maxX || y < minY || y > maxY
 }

@@ -28,6 +28,7 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.managers.Manager;
 import androidx.car.app.model.TemplateInfo;
 import androidx.car.app.model.TemplateWrapper;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -46,7 +47,7 @@ import java.util.List;
  * Manages the stack of {@link Screen}s and their respective {@link Lifecycle}s.
  */
 @MainThread
-public class ScreenManager {
+public class ScreenManager implements Manager {
     private final Deque<Screen> mScreenStack = new ArrayDeque<>();
     private final CarContext mCarContext;
     private final Lifecycle mAppLifecycle;
@@ -196,6 +197,13 @@ public class ScreenManager {
         // Not in stack;
     }
 
+    /**
+     * Returns the current stack size.
+     */
+    public int getStackSize() {
+        return mScreenStack.size();
+    }
+
     /** Creates an instance of {@link ScreenManager}. */
     static ScreenManager create(CarContext carContext, Lifecycle lifecycle) {
         return new ScreenManager(carContext, lifecycle);
@@ -246,13 +254,18 @@ public class ScreenManager {
         }
 
         if (mScreenStack.contains(screen)) {
-            moveToTop(screen, false);
+            moveToTop(screen);
             return;
         }
 
         Screen top = mScreenStack.peek();
 
         pushAndStart(screen, true);
+
+        if (!mScreenStack.contains(screen)) {
+            // The screen being pushed was finished during it's set up
+            return;
+        }
 
         if (top != null) {
             stop(top, false);
@@ -306,6 +319,11 @@ public class ScreenManager {
             screen.dispatchLifecycleEvent(Event.ON_CREATE);
         }
 
+        if (!screen.getLifecycle().getCurrentState().isAtLeast(State.CREATED)) {
+            // The screen was finished in it's onCreate
+            return;
+        }
+
         if (mAppLifecycle.getCurrentState().isAtLeast(State.STARTED)) {
             mCarContext.getCarService(AppManager.class).invalidate();
             screen.dispatchLifecycleEvent(Event.ON_START);
@@ -328,21 +346,17 @@ public class ScreenManager {
         }
     }
 
-    private void moveToTop(Screen screen, boolean removeCurrentTop) {
+    private void moveToTop(Screen screen) {
         Screen top = mScreenStack.peek();
         if (top == null || top == screen) {
             return;
-        }
-
-        if (removeCurrentTop) {
-            mScreenStack.pop();
         }
 
         // Moving screen to top of stack, remove from where it's currently at.
         mScreenStack.remove(screen);
 
         pushAndStart(screen, false);
-        stop(top, removeCurrentTop);
+        stop(top, false);
 
         if (mAppLifecycle.getCurrentState().isAtLeast(State.RESUMED)) {
             screen.dispatchLifecycleEvent(Event.ON_RESUME);

@@ -17,10 +17,13 @@
 package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.KtxNameConventions
+import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.ComposeWritableSlices
 import androidx.compose.compiler.plugins.kotlin.irTrace
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.copyWithNewTypeParams
+import androidx.compose.compiler.plugins.kotlin.lower.decoys.didDecoyHaveDefaultForValueParameter
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.isDecoy
+import androidx.compose.compiler.plugins.kotlin.lower.decoys.isDecoyImplementation
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.ir.copyTo
 import org.jetbrains.kotlin.backend.common.ir.copyTypeParametersFrom
@@ -79,6 +82,7 @@ import org.jetbrains.kotlin.ir.util.findAnnotation
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.isFakeOverride
 import org.jetbrains.kotlin.ir.util.isInlined
+import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -86,6 +90,7 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.platform.js.isJs
 import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.DescriptorUtils
@@ -98,8 +103,9 @@ class ComposerParamTransformer(
     symbolRemapper: DeepCopySymbolRemapper,
     bindingTrace: BindingTrace,
     private val decoysEnabled: Boolean,
+    metrics: ModuleMetrics,
 ) :
-    AbstractComposeLowering(context, symbolRemapper, bindingTrace),
+    AbstractComposeLowering(context, symbolRemapper, bindingTrace, metrics),
     ModuleLoweringPass {
 
     /**
@@ -198,11 +204,15 @@ class ComposerParamTransformer(
             val argumentsMissing = mutableListOf<Boolean>()
             for (i in 0 until valueArgumentsCount) {
                 val arg = getValueArgument(i)
-                argumentsMissing.add(arg == null)
+                val param = ownerFn.valueParameters[i]
+                val hasDefault = ownerFn.hasDefaultExpressionDefinedForValueParameter(i)
+                argumentsMissing.add(arg == null && hasDefault)
                 if (arg != null) {
                     it.putValueArgument(i, arg)
+                } else if (param.isVararg) {
+                    // do nothing
                 } else {
-                    it.putValueArgument(i, defaultArgumentFor(ownerFn.valueParameters[i]))
+                    it.putValueArgument(i, defaultArgumentFor(param))
                 }
             }
             val realValueParams = valueArgumentsCount
@@ -488,6 +498,21 @@ class ComposerParamTransformer(
                 it.defaultValue != null
             } || overriddenSymbols.any { it.owner.requiresDefaultParameter() }
             )
+    }
+
+    private fun IrFunction.hasDefaultExpressionDefinedForValueParameter(index: Int): Boolean {
+        // checking for default value isn't enough, you need to ensure that none of the overrides
+        // have it as well...
+        if (this !is IrSimpleFunction) return false
+        if (valueParameters[index].defaultValue != null) return true
+
+        if (context.platform.isJs() && this.isDecoyImplementation()) {
+            if (didDecoyHaveDefaultForValueParameter(index)) return true
+        }
+
+        return overriddenSymbols.any {
+            it.owner.hasDefaultExpressionDefinedForValueParameter(index)
+        }
     }
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)

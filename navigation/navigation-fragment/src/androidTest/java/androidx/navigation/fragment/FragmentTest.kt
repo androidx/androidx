@@ -24,7 +24,7 @@ import androidx.navigation.fragment.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
@@ -45,10 +45,9 @@ class ActivityTest {
             .commitNow()
 
         val foundNavController = contentFragment.findNavController()
-        assertTrue(
-            "Fragment should have NavController set",
-            foundNavController == navHostFragment.navController
-        )
+        assertWithMessage("Fragment should have NavController set")
+            .that(foundNavController)
+            .isEqualTo(navHostFragment.navController)
     }
 
     @UiThreadTest

@@ -57,6 +57,9 @@
     <string name="app_compat_auto_complete_text_view_activity">
         AppCompat auto-complete text view
     </string>
+    <string name="app_compat_multi_auto_complete_text_view_activity">
+        AppCompat multi auto-complete text view
+    </string>
     <string name="app_compat_text_view_activity">AppCompat text view</string>
     <string name="app_compat_text_view_auto_size_activity">AppCompat text view auto-size</string>
     <string name="app_compat_text_view_emoji_activity">AppCompat text view emoji</string>

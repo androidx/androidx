@@ -47,6 +47,7 @@ import java.lang.reflect.InvocationHandler;
 // ever invoke these methods (and WebView can only be updated on Lollipop and above). The app can
 // still construct a WebViewClientCompat on a pre-Lollipop devices, and explicitly invoke these
 // methods, so each of these methods must also handle this case.
+@SuppressWarnings("HiddenSuperclass")
 public class WebViewClientCompat extends WebViewClient implements WebViewClientBoundaryInterface {
     private static final String[] sSupportedFeatures = new String[] {
         Features.VISUAL_STATE_CALLBACK,

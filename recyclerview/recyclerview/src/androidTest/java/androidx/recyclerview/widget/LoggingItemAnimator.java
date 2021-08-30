@@ -100,24 +100,24 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
 
     @Override
     public boolean animatePersistence(@NonNull RecyclerView.ViewHolder viewHolder,
-            @NonNull ItemHolderInfo preInfo,
-            @NonNull ItemHolderInfo postInfo) {
+            @NonNull ItemHolderInfo preLayoutInfo,
+            @NonNull ItemHolderInfo postLayoutInfo) {
         mAnimatePersistenceList
                 .add(new BaseRecyclerViewAnimationsTest.AnimatePersistence(viewHolder,
-                        (BaseRecyclerViewAnimationsTest.LoggingInfo) preInfo,
-                        (BaseRecyclerViewAnimationsTest.LoggingInfo) postInfo));
-        return super.animatePersistence(viewHolder, preInfo, postInfo);
+                        (BaseRecyclerViewAnimationsTest.LoggingInfo) preLayoutInfo,
+                        (BaseRecyclerViewAnimationsTest.LoggingInfo) postLayoutInfo));
+        return super.animatePersistence(viewHolder, preLayoutInfo, postLayoutInfo);
     }
 
     @Override
     public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
-            @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preInfo,
-            @NonNull ItemHolderInfo postInfo) {
+            @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preLayoutInfo,
+            @NonNull ItemHolderInfo postLayoutInfo) {
         mAnimateChangeList
                 .add(new BaseRecyclerViewAnimationsTest.AnimateChange(oldHolder, newHolder,
-                        (BaseRecyclerViewAnimationsTest.LoggingInfo) preInfo,
-                        (BaseRecyclerViewAnimationsTest.LoggingInfo) postInfo));
-        return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
+                        (BaseRecyclerViewAnimationsTest.LoggingInfo) preLayoutInfo,
+                        (BaseRecyclerViewAnimationsTest.LoggingInfo) postLayoutInfo));
+        return super.animateChange(oldHolder, newHolder, preLayoutInfo, postLayoutInfo);
     }
 
     @Override
@@ -157,14 +157,14 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
 
     @Override
     public boolean animateChange(RecyclerView.ViewHolder oldHolder,
-            RecyclerView.ViewHolder newHolder, int fromX, int fromY, int toX, int toY) {
+            RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop) {
         if (oldHolder != null) {
             mChangeOldVHs.add(oldHolder);
         }
         if (newHolder != null) {
             mChangeNewVHs.add(newHolder);
         }
-        return super.animateChange(oldHolder, newHolder, fromX, fromY, toX, toY);
+        return super.animateChange(oldHolder, newHolder, fromLeft, fromTop, toLeft, toTop);
     }
 
     public void reset() {

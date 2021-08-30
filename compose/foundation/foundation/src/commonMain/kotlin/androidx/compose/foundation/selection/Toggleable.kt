@@ -100,11 +100,13 @@ fun Modifier.toggleable(
  * current value from [LocalIndication] to show theme default
  * @param enabled whether or not this [toggleable] will handle input events and appear
  * enabled for semantics purposes
- * * @param role the type of user interface element. Accessibility services might use this
+ * @param role the type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
  * @param onValueChange callback to be invoked when toggleable is clicked,
  * therefore the change of the state in requested.
  */
+// TODO: b/191017532 remove Modifier.composed
+@Suppress("UnnecessaryComposedModifier")
 fun Modifier.toggleable(
     value: Boolean,
     interactionSource: MutableInteractionSource,
@@ -206,6 +208,8 @@ fun Modifier.triStateToggleable(
  * to describe the element or do customizations
  * @param onClick will be called when user clicks the toggleable.
  */
+// TODO: b/191017532 remove Modifier.composed
+@Suppress("UnnecessaryComposedModifier")
 fun Modifier.triStateToggleable(
     state: ToggleableState,
     interactionSource: MutableInteractionSource,

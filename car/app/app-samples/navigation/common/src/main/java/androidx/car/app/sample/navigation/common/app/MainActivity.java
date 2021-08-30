@@ -55,7 +55,7 @@ public class MainActivity extends ComponentActivity {
 
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
-                    Log.i(TAG, String.format("In onServiceConnected() component:%s", name));
+                    Log.i(TAG, "In onServiceConnected() component:" + name);
                     NavigationService.LocalBinder binder = (NavigationService.LocalBinder) service;
                     mService = binder.getService();
                     mIsBound = true;
@@ -63,7 +63,7 @@ public class MainActivity extends ComponentActivity {
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
-                    Log.i(TAG, String.format("In onServiceDisconnected() component:%s", name));
+                    Log.i(TAG, "In onServiceDisconnected() component:" + name);
                     mService = null;
                     mIsBound = false;
                 }

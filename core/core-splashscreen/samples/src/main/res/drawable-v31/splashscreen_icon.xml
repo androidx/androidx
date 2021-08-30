@@ -1,0 +1,74 @@
+<!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="108dp"
+            android:height="108dp"
+            android:viewportHeight="1200"
+            android:viewportWidth="1200">
+
+            <group
+                android:translateX="200"
+                android:translateY="200">
+                <clip-path android:pathData="m596.328,310.906c22.484,-39.699 46.513,-78.699 68.084,-118.812 4.258,-14.364 -17.654,-23.707 -25.102,-10.703 -22.603,38.973 -45.139,77.986 -67.716,116.974 -107.224,-48.772 -235.192,-48.772 -342.415,0 -23.491,-39.715 -45.567,-80.447 -69.895,-119.56 -10.384,-10.813 -29.373,3.556 -21.753,16.461 22.277,38.562 44.614,77.091 66.914,115.64C88.641,372.042 9.442,494.721 0,625c266.667,0 533.333,0 800,0C790.261,494.557 711.967,372.81 596.328,310.906ZM216.039,511.17c-24.214,1.092 -41.724,-28.29 -29.21,-49.016 10.591,-21.768 44.808,-23.114 57.082,-2.246 14.575,21.206 -2.056,51.902 -27.872,51.263zM584.348,511.17c-24.214,1.092 -41.724,-28.29 -29.21,-49.016 10.591,-21.768 44.808,-23.114 57.082,-2.246 14.575,21.206 -2.055,51.902 -27.872,51.263z" />
+                <path
+                    android:fillColor="#3ddc84"
+                    android:pathData="m596.328,310.906c22.484,-39.699 46.513,-78.699 68.084,-118.812 4.258,-14.364 -17.654,-23.707 -25.102,-10.703 -22.603,38.973 -45.139,77.986 -67.716,116.974 -107.224,-48.772 -235.192,-48.772 -342.415,0 -23.491,-39.715 -45.567,-80.447 -69.895,-119.56 -10.384,-10.813 -29.373,3.556 -21.753,16.461 22.277,38.562 44.614,77.091 66.914,115.64C88.641,372.042 9.442,494.721 -0,625c266.667,0 533.333,0 800,0C790.261,494.557 711.967,372.81 596.328,310.906ZM216.039,511.17c-24.214,1.092 -41.724,-28.29 -29.21,-49.016 10.591,-21.768 44.808,-23.114 57.082,-2.246 14.575,21.206 -2.056,51.902 -27.872,51.263zM584.348,511.17c-24.214,1.092 -41.724,-28.29 -29.21,-49.016 10.591,-21.768 44.808,-23.114 57.082,-2.246 14.575,21.206 -2.055,51.902 -27.872,51.263z"
+                    android:strokeWidth="1.93078" />
+                <group android:name="anim">
+                    <path
+                        android:fillAlpha="0.999"
+                        android:fillColor="#979797"
+                        android:fillType="nonZero"
+                        android:pathData="m-365.59,1182.578c0,0 -11.042,-480.188 85.394,-399.752 60.916,50.809 142.292,-121.476 169.542,-86.281 5.022,-14.293 176.01,202.148 258.772,33.247 19.774,-40.355 81.088,-119.424 144.881,-29.933 100.418,140.869 205.377,-186.568 333.041,-33.27 67.395,80.927 178.475,-43.713 274.164,36.831 78.914,66.424 154.012,6.899 203.266,113.15 45.039,97.158 66.468,366.007 66.468,366.007L1169.938,171.976L-365.59,171.976Z"
+                        android:strokeAlpha="1"
+                        android:strokeColor="#00000000"
+                        android:strokeWidth="12" />
+                </group>
+            </group>
+        </vector>
+    </aapt:attr>
+
+
+    <target android:name="anim">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="1000"
+                android:propertyName="translateY"
+                android:repeatCount="0"
+                android:valueFrom="0"
+                android:valueTo="-800"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/accelerate_decelerate" />
+        </aapt:attr>
+    </target>
+    <target android:name="anim">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="500"
+                android:propertyName="translateX"
+                android:repeatCount="-1"
+                android:repeatMode="reverse"
+                android:valueFrom="-300"
+                android:valueTo="300"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/accelerate_decelerate" />
+        </aapt:attr>
+    </target>
+</animated-vector>

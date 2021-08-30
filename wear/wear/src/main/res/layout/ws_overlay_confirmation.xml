@@ -6,14 +6,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#cc000000">
+    android:background="#cc000000"
+    android:importantForAccessibility="yes"
+    android:contentDescription="123">
     <ImageView
         android:id="@+id/wearable_support_confirmation_overlay_image"
         android:layout_width="@dimen/confirmation_overlay_image_size"
         android:layout_height="@dimen/confirmation_overlay_image_size"
         android:layout_centerInParent="true"
         android:background="@android:color/transparent"
-        tools:ignore="ContentDescription" />
+        android:importantForAccessibility="no"/>
     <TextView
         android:id="@+id/wearable_support_confirmation_overlay_message"
         android:layout_width="wrap_content"
@@ -24,5 +26,6 @@
         android:gravity="center_horizontal"
         android:background="@android:color/transparent"
         android:textColor="@android:color/white"
-        android:textSize="@dimen/confirmation_overlay_text_size" />
+        android:textSize="@dimen/confirmation_overlay_text_size"
+        android:importantForAccessibility="no"/>
 </RelativeLayout>

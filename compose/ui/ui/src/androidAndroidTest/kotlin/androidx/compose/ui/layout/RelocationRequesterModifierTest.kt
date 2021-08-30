@@ -18,6 +18,7 @@ package androidx.compose.ui.layout
 
 import android.os.Build.VERSION_CODES.O
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.Orientation.Horizontal
@@ -36,25 +37,34 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.GOLDEN_UI
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.TestMonotonicFrameClock
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = O)
@@ -65,7 +75,7 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_UI)
 
-    val parentBox = "parent box"
+    private val parentBox = "parent box"
 
     companion object {
         @JvmStatic
@@ -99,7 +109,7 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
         }
 
         // Act.
-        rule.runOnIdle { relocationRequester.bringIntoView() }
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "blueBoxLeft" else "blueBoxTop")
@@ -137,7 +147,7 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
         }
 
         // Act.
-        rule.runOnIdle { relocationRequester.bringIntoView() }
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "grayRectangleHorizontal" else "grayRectangleVertical")
@@ -175,7 +185,7 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
         }
 
         // Act.
-        rule.runOnIdle { relocationRequester.bringIntoView() }
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "blueBoxLeft" else "blueBoxTop")
@@ -219,7 +229,7 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
         }
 
         // Act.
-        rule.runOnIdle { relocationRequester.bringIntoView() }
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "blueBoxRight" else "blueBoxBottom")
@@ -263,7 +273,7 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
         }
 
         // Act.
-        rule.runOnIdle { relocationRequester.bringIntoView() }
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "blueBoxCenterHorizontal" else "blueBoxCenterVertical")
@@ -297,7 +307,7 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
         }
 
         // Act.
-        rule.runOnIdle { relocationRequester.bringIntoView() }
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot("blueBox")
@@ -331,14 +341,10 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
                 }
             }
         }
-        rule.waitForIdle()
-        runBlocking {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
-        rule.waitForIdle()
+        runBlockingAndAwaitIdle { scrollState.scrollTo(scrollState.maxValue) }
 
         // Act.
-        relocationRequester.bringIntoView()
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot("blueBox")
@@ -372,14 +378,10 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
                 }
             }
         }
-        rule.waitForIdle()
-        runBlocking {
-            scrollState.scrollTo(scrollState.maxValue / 2)
-        }
-        rule.waitForIdle()
+        runBlockingAndAwaitIdle { scrollState.scrollTo(scrollState.maxValue / 2) }
 
         // Act.
-        relocationRequester.bringIntoView()
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot("blueBox")
@@ -430,14 +432,10 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
                 }
             }
         }
-        rule.waitForIdle()
-        runBlocking {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
-        rule.waitForIdle()
+        runBlockingAndAwaitIdle { scrollState.scrollTo(scrollState.maxValue) }
 
         // Act.
-        relocationRequester.bringIntoView()
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "blueBoxLeft" else "blueBoxTop")
@@ -488,14 +486,10 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
                 }
             }
         }
-        rule.waitForIdle()
-        runBlocking {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
-        rule.waitForIdle()
+        runBlockingAndAwaitIdle { scrollState.scrollTo(scrollState.maxValue) }
 
         // Act.
-        relocationRequester.bringIntoView()
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "blueBoxRight" else "blueBoxBottom")
@@ -541,14 +535,10 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
                 }
             }
         }
-        rule.waitForIdle()
-        runBlocking {
-            scrollState.scrollTo(scrollState.maxValue / 2)
-        }
-        rule.waitForIdle()
+        runBlockingAndAwaitIdle { scrollState.scrollTo(scrollState.maxValue / 2) }
 
         // Act.
-        relocationRequester.bringIntoView()
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "blueBoxLeft" else "blueBoxTop")
@@ -599,14 +589,10 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
                 }
             }
         }
-        rule.waitForIdle()
-        runBlocking {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
-        rule.waitForIdle()
+        runBlockingAndAwaitIdle { scrollState.scrollTo(scrollState.maxValue) }
 
         // Act.
-        relocationRequester.bringIntoView()
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "blueBoxRight" else "blueBoxBottom")
@@ -676,18 +662,11 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
                 }
             }
         }
-        rule.waitForIdle()
-        runBlocking {
-            parentScrollState.scrollTo(parentScrollState.maxValue)
-        }
-        rule.waitForIdle()
-        runBlocking {
-            grandParentScrollState.scrollTo(grandParentScrollState.maxValue)
-        }
-        rule.waitForIdle()
+        runBlockingAndAwaitIdle { parentScrollState.scrollTo(parentScrollState.maxValue) }
+        runBlockingAndAwaitIdle { grandParentScrollState.scrollTo(grandParentScrollState.maxValue) }
 
         // Act.
-        relocationRequester.bringIntoView()
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "blueBoxLeft" else "blueBoxTop")
@@ -742,21 +721,68 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
                 }
             }
         }
-        rule.waitForIdle()
-        runBlocking {
-            parentScrollState.scrollTo(parentScrollState.maxValue)
-        }
-        rule.waitForIdle()
-        runBlocking {
-            grandParentScrollState.scrollTo(grandParentScrollState.maxValue)
-        }
-        rule.waitForIdle()
+        runBlockingAndAwaitIdle { parentScrollState.scrollTo(parentScrollState.maxValue) }
+        runBlockingAndAwaitIdle { grandParentScrollState.scrollTo(grandParentScrollState.maxValue) }
 
         // Act.
-        relocationRequester.bringIntoView()
+        runBlockingAndAwaitIdle { relocationRequester.bringIntoView() }
 
         // Assert.
         assertScreenshot(if (horizontal) "blueBoxLeft" else "blueBoxTop")
+    }
+
+    @Test
+    fun specifiedPartOfComponentBroughtOnScreen() {
+        // Arrange.
+        val relocationRequester = RelocationRequester()
+        lateinit var density: Density
+        rule.setContent {
+            density = LocalDensity.current
+            Box(
+                Modifier
+                    .testTag(parentBox)
+                    .size(50.dp)
+                    .background(LightGray)
+                    .then(
+                        when (orientation) {
+                            Horizontal -> Modifier.horizontalScroll(rememberScrollState())
+                            Vertical -> Modifier.verticalScroll(rememberScrollState())
+                        }
+                    )
+            ) {
+                Canvas(
+                    when (orientation) {
+                        Horizontal -> Modifier.size(150.dp, 50.dp)
+                        Vertical -> Modifier.size(50.dp, 150.dp)
+                    }.relocationRequester(relocationRequester)
+                ) {
+                    with(density) {
+                        drawRect(
+                            color = Blue,
+                            topLeft = when (orientation) {
+                                Horizontal -> Offset(50.dp.toPx(), 0.dp.toPx())
+                                Vertical -> Offset(0.dp.toPx(), 50.dp.toPx())
+                            },
+                            size = Size(50.dp.toPx(), 50.dp.toPx())
+                        )
+                    }
+                }
+            }
+        }
+
+        // Act.
+        runBlockingAndAwaitIdle {
+            val rect = with(density) {
+                when (orientation) {
+                    Horizontal -> Rect(50.dp.toPx(), 0.dp.toPx(), 100.dp.toPx(), 50.dp.toPx())
+                    Vertical -> Rect(0.dp.toPx(), 50.dp.toPx(), 50.dp.toPx(), 100.dp.toPx())
+                }
+            }
+            relocationRequester.bringIntoView(rect)
+        }
+
+        // Assert.
+        assertScreenshot("blueBox")
     }
 
     private val horizontal: Boolean get() = (orientation == Horizontal)
@@ -777,5 +803,15 @@ class RelocationRequesterModifierTest(private val orientation: Orientation) {
         rule.onNodeWithTag(parentBox)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "bringIntoParentBounds_$screenshot")
+    }
+
+    private fun runBlockingAndAwaitIdle(block: suspend CoroutineScope.() -> Unit) {
+        runBlockingTest {
+            withContext(TestMonotonicFrameClock(this)) {
+                block()
+                advanceUntilIdle()
+            }
+        }
+        rule.waitForIdle()
     }
 }

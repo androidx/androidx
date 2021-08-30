@@ -18,6 +18,9 @@
 
 package androidx.build.lint
 
+import androidx.build.lint.Stubs.Companion.RequiresApi
+import androidx.build.lint.Stubs.Companion.IntRange
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -32,10 +35,15 @@ class ClassVerificationFailureDetectorTest : AbstractLintDetectorTest(
     ),
 ) {
 
+    // Started failing with AGP 7.1.0-alpha03 upgrade. When fixing this, also create a Kotlin
+    // version of this test (see b/188048904 for details).
+    @Ignore
     @Test
     fun `Detection of unsafe references in Java sources`() {
         val input = arrayOf(
             javaSample("androidx.ClassVerificationFailureFromJava"),
+            RequiresApi,
+            IntRange
         )
 
         /* ktlint-disable max-line-length */
@@ -119,6 +127,27 @@ Fix for src/androidx/sample/core/widget/ListViewCompat.java line 69: Extract to 
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
+    }
+
+    @Test
+    fun `Detection and auto-fix of unsafe references in real-world Kotlin sources`() {
+        val input = arrayOf(
+            ktSample("androidx.sample.core.widget.ListViewCompatKotlin"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/sample/core/widget/ListViewCompatKotlin.kt:33: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            listView.scrollListBy(y)
+                     ~~~~~~~~~~~~
+src/androidx/sample/core/widget/ListViewCompatKotlin.kt:58: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            listView.canScrollList(direction)
+                     ~~~~~~~~~~~~~
+2 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
     }
 
     @Test
@@ -257,6 +286,7 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
     fun `Auto-fix unsafe reference in Java source with existing inner class`() {
         val input = arrayOf(
             javaSample("androidx.AutofixUnsafeReferenceWithExistingClassJava"),
+            RequiresApi
         )
 
         /* ktlint-disable max-line-length */

@@ -17,18 +17,18 @@
 package androidx.inspection.gradle
 
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.api.LibraryVariant
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -36,6 +36,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
+import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.Charset
@@ -63,12 +64,15 @@ abstract class DexInspectorTask : DefaultTask() {
     @get:Input
     abstract var minSdkVersion: Int
 
+    @get:javax.inject.Inject
+    abstract val execOperations: ExecOperations
+
     @TaskAction
     fun exec() {
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
         val errorStream = ByteArrayOutputStream()
-        val executionResult = project.exec {
+        val executionResult = execOperations.exec {
             it.executable = d8Executable.get().asFile.absolutePath
             val filesToDex = jars.map { file -> file.absolutePath }
 
@@ -106,25 +110,59 @@ abstract class DexInspectorTask : DefaultTask() {
         d8Executable.set(File(sdkDir, "build-tools/$toolsVersion/d8"))
     }
 
-    fun setAndroidJar(sdkDir: File, version: Int) {
-        androidJar.set(File(sdkDir, "platforms/android-$version/android.jar"))
+    fun setAndroidJar(sdkDir: File, compileSdk: String) {
+        // Preview SDK compileSdkVersions are prefixed with "android-", e.g. "android-S".
+        val platform = if (compileSdk.startsWith("android")) compileSdk else "android-$compileSdk"
+        androidJar.set(File(sdkDir, "platforms/$platform/android.jar"))
     }
 }
 
 // variant.taskName relies on @ExperimentalStdlibApi api
 @ExperimentalStdlibApi
-fun Project.registerUnzipTask(variant: LibraryVariant): TaskProvider<Copy> {
-    return tasks.register(variant.taskName("unpackInspectorAAR"), Copy::class.java) {
-        it.from(zipTree(variant.packageLibraryProvider!!.get().archiveFile))
-        it.into(taskWorkingDir(variant, "unpackedInspectorAAR"))
+@Suppress("DEPRECATION") // LibraryVariant
+fun Project.registerUnzipTask(
+    variant: com.android.build.gradle.api.LibraryVariant
+): TaskProvider<CopyFixed> {
+    return tasks.register(variant.taskName("unpackInspectorAAR"), CopyFixed::class.java) {
+        it.inputJar.set(variant.packageLibraryProvider!!.get().archiveFile)
+        it.outputDir.set(taskWorkingDir(variant, "unpackedInspectorAAR"))
         it.dependsOn(variant.assembleProvider)
     }
 }
 
+// Working around Gradle issue https://github.com/gradle/gradle/issues/17936
+abstract class CopyFixed : DefaultTask() {
+    @get:InputFile
+    abstract val inputJar: RegularFileProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @get:javax.inject.Inject
+    abstract val archiveOps: ArchiveOperations
+
+    @TaskAction
+    fun runTask() {
+        val outputLocation = outputDir.get().asFile
+        outputLocation.deleteRecursively()
+        outputLocation.mkdirs()
+        archiveOps.zipTree(inputJar.get().asFile).visit {
+            val targetLocation = outputLocation.resolve(it.relativePath.toString())
+            if (it.isDirectory()) {
+                targetLocation.mkdirs()
+            } else {
+                targetLocation.parentFile.mkdirs()
+                it.copyTo(targetLocation)
+            }
+        }
+    }
+}
+
 // variant.taskName relies on @ExperimentalStdlibApi api
 @ExperimentalStdlibApi
+@Suppress("DEPRECATION") // BaseVariant
 fun Project.registerBundleInspectorTask(
-    variant: BaseVariant,
+    variant: com.android.build.gradle.api.BaseVariant,
     extension: BaseExtension,
     jarName: String?,
     jar: TaskProvider<out Jar>
@@ -135,7 +173,7 @@ fun Project.registerBundleInspectorTask(
     val dex = tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) {
         it.minSdkVersion = extension.defaultConfig.minSdk!!
         it.setD8(extension.sdkDirectory, extension.buildToolsVersion)
-        it.setAndroidJar(extension.sdkDirectory, extension.defaultConfig.targetSdk!!)
+        it.setAndroidJar(extension.sdkDirectory, extension.compileSdkVersion!!)
         it.jars.from(jar.get().archiveFile)
         it.outputFile.set(out)
         it.compileClasspath.from(
@@ -152,7 +190,7 @@ fun Project.registerBundleInspectorTask(
     }
 
     return tasks.register(variant.taskName("assembleInspectorJar"), Zip::class.java) {
-        it.from(zipTree(jar.get().archiveFile))
+        it.from(zipTree(jar.map { it.archiveFile }))
         it.from(zipTree(out))
         it.exclude("**/*.class")
         it.archiveFileName.set(name)

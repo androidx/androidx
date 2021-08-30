@@ -1,26 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="UnsupportedChromeOsHardware"
-        message="Expecting `android:required=&quot;false&quot;` for this hardware feature that may not be supported by all Chrome OS devices"
-        errorLine1="    &lt;uses-feature android:name=&quot;android.hardware.camera&quot; />"
-        errorLine2="     ~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.lang.Double#isFinite`"
+        errorLine1="            if (Double.isFinite(actual[i])) {"
+        errorLine2="                       ~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="22"
-            column="6"/>
+            file="src/test/java/androidx/camera/integration/core/FpsRecorderTest.java"
+            line="63"
+            column="24"/>
     </issue>
 
     <issue
-        id="PermissionImpliesUnsupportedChromeOsHardware"
-        message="Permission exists without corresponding hardware `&lt;uses-feature android:name=&quot;android.hardware.camera.autofocus&quot; required=&quot;false&quot;>` tag"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.CAMERA&quot; />"
-        errorLine2="     ~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.lang.Double#isFinite`"
+        errorLine1="            if (Double.isFinite(actual[i])) {"
+        errorLine2="                       ~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="18"
-            column="6"/>
+            file="src/test/java/androidx/camera/integration/core/FpsRecorderTest.java"
+            line="138"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.media.ImageWriter#newInstance`"
+        errorLine1="            imageWriter = ImageWriter.newInstance(surface, 2)"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/camera/integration/core/ImageCaptureTest.kt"
+            line="1512"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.media.ImageWriter#queueInputImage`"
+        errorLine1="                imageWriter!!.queueInputImage(imageProxy.image)"
+        errorLine2="                              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/camera/integration/core/ImageCaptureTest.kt"
+            line="1520"
+            column="31"/>
     </issue>
 
     <issue
@@ -30,7 +52,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="182"
+            line="180"
             column="13"/>
     </issue>
 
@@ -41,7 +63,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="185"
+            line="183"
             column="22"/>
     </issue>
 
@@ -52,7 +74,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="186"
+            line="184"
             column="21"/>
     </issue>
 
@@ -63,7 +85,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="384"
+            line="380"
             column="25"/>
     </issue>
 
@@ -74,7 +96,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="387"
+            line="383"
             column="25"/>
     </issue>
 
@@ -85,7 +107,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="396"
+            line="392"
             column="33"/>
     </issue>
 
@@ -96,7 +118,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="405"
+            line="401"
             column="45"/>
     </issue>
 
@@ -107,7 +129,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="427"
+            line="423"
             column="45"/>
     </issue>
 

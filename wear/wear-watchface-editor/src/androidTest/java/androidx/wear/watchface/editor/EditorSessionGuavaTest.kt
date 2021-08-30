@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.editor
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -23,23 +24,28 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
+import android.os.Handler
+import android.os.HandlerThread
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.complications.ComplicationDataSourceInfo
 import androidx.wear.complications.ComplicationSlotBounds
-import androidx.wear.complications.ComplicationProviderInfo
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.CanvasComplication
+import androidx.wear.watchface.ComplicationDataSourceChooserIntent
+import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.WatchFaceId
+import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -47,9 +53,12 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
+import org.junit.After
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 private const val TIMEOUT_MS = 500L
@@ -83,9 +92,9 @@ public class EditorSessionGuavaTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
     private val mockRightCanvasComplication =
@@ -105,16 +114,23 @@ public class EditorSessionGuavaTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
             ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
+    private val backgroundHandlerThread = HandlerThread("TestBackgroundThread").apply {
+        start()
+    }
+
+    private val backgroundHandler = Handler(backgroundHandlerThread.looper)
+
+    @SuppressLint("NewApi")
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
         complicationSlots: List<ComplicationSlot>,
         watchFaceId: WatchFaceId = testInstanceId,
-        previewReferenceTimeMillis: Long = 12345
+        previewReferenceInstant: Instant = Instant.ofEpochMilli(12345)
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
         val complicationSlotsManager =
@@ -126,16 +142,23 @@ public class EditorSessionGuavaTest {
         Mockito.`when`(editorDelegate.userStyleSchema).thenReturn(userStyleRepository.schema)
         Mockito.`when`(editorDelegate.userStyle).thenReturn(userStyleRepository.userStyle)
         Mockito.`when`(editorDelegate.screenBounds).thenReturn(screenBounds)
-        Mockito.`when`(editorDelegate.previewReferenceTimeMillis)
-            .thenReturn(previewReferenceTimeMillis)
+        Mockito.`when`(editorDelegate.previewReferenceInstant).thenReturn(previewReferenceInstant)
+        Mockito.`when`(editorDelegate.backgroundThreadHandler).thenReturn(backgroundHandler)
 
-        OnWatchFaceEditingTestActivity.providerInfoRetrieverProvider =
-            TestProviderInfoRetrieverProvider()
+        OnWatchFaceEditingTestActivity.complicationDataSourceInfoRetrieverProvider =
+            TestComplicationDataSourceInfoRetrieverProvider()
 
         return ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)
+                EditorRequest(
+                    testComponentName,
+                    testEditorPackageName,
+                    null,
+                    watchFaceId,
+                    null,
+                    null
+                )
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),
@@ -143,6 +166,15 @@ public class EditorSessionGuavaTest {
                 )
             }
         )
+    }
+
+    @After
+    public fun tearDown() {
+        ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = false
+        ComplicationHelperActivity.useTestComplicationDataSourceChooserActivity = false
+        ComplicationHelperActivity.skipPermissionCheck = false
+        WatchFace.clearAllEditorDelegates()
+        backgroundHandlerThread.quitSafely()
     }
 
     @Test
@@ -164,33 +196,33 @@ public class EditorSessionGuavaTest {
         val leftComplicationData = previewData[LEFT_COMPLICATION_ID] as
             ShortTextComplicationData
         assertThat(
-            leftComplicationData.text.getTextAt(resources, 0)
+            leftComplicationData.text.getTextAt(resources, Instant.EPOCH)
         ).isEqualTo("Left")
 
         val rightComplicationData = previewData[RIGHT_COMPLICATION_ID] as
             LongTextComplicationData
         assertThat(
-            rightComplicationData.text.getTextAt(resources, 0)
+            rightComplicationData.text.getTextAt(resources, Instant.EPOCH)
         ).isEqualTo("Right")
     }
 
     @Test
-    public fun listenableOpenComplicationProviderChooser() {
-        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
-        val chosenComplicationProviderInfo = ComplicationProviderInfo(
-            "TestProvider3App",
-            "TestProvider3",
+    public fun listenableOpenComplicationDataSourceChooser() {
+        ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = true
+        val chosenComplicationDataSourceInfo = ComplicationDataSourceInfo(
+            "TestDataSource3App",
+            "TestDataSource3",
             Icon.createWithBitmap(
                 Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
             ),
             ComplicationType.LONG_TEXT,
-            provider3
+            dataSource3
         )
         TestComplicationHelperActivity.resultIntent = CompletableDeferred(
             Intent().apply {
                 putExtra(
-                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
-                    chosenComplicationProviderInfo.toWireComplicationProviderInfo()
+                    ComplicationDataSourceChooserIntent.EXTRA_PROVIDER_INFO,
+                    chosenComplicationDataSourceInfo.toWireComplicationProviderInfo()
                 )
             }
         )
@@ -205,22 +237,22 @@ public class EditorSessionGuavaTest {
         }
 
         /**
-         * Invoke [TestComplicationHelperActivity] which will change the provider (and hence
+         * Invoke [TestComplicationHelperActivity] which will change the data source (and hence
          * the preview data) for [LEFT_COMPLICATION_ID].
          */
-        val chosenComplicationProvider =
-            listenableEditorSession.listenableOpenComplicationProviderChooser(
+        val chosenComplicationDataSource =
+            listenableEditorSession.listenableOpenComplicationDataSourceChooser(
                 LEFT_COMPLICATION_ID
             ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
-        assertThat(chosenComplicationProvider).isNotNull()
-        checkNotNull(chosenComplicationProvider)
-        assertThat(chosenComplicationProvider.complicationSlotId).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(chosenComplicationDataSource).isNotNull()
+        checkNotNull(chosenComplicationDataSource)
+        assertThat(chosenComplicationDataSource.complicationSlotId).isEqualTo(LEFT_COMPLICATION_ID)
         assertEquals(
-            chosenComplicationProviderInfo,
-            chosenComplicationProvider.complicationProviderInfo
+            chosenComplicationDataSourceInfo,
+            chosenComplicationDataSource.complicationDataSourceInfo
         )
 
-        // This should update the preview data to point to the updated provider3 data.
+        // This should update the preview data to point to the updated dataSource3 data.
         val previewComplication =
             listenableEditorSession.getListenableComplicationPreviewData()
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)[LEFT_COMPLICATION_ID]
@@ -229,8 +261,63 @@ public class EditorSessionGuavaTest {
         assertThat(
             previewComplication.text.getTextAt(
                 ApplicationProvider.getApplicationContext<Context>().resources,
-                0
+                Instant.EPOCH
             )
-        ).isEqualTo("Provider3")
+        ).isEqualTo("DataSource3")
+    }
+
+    @Test
+    public fun doNotCommitChangesOnClose() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            emptyList()
+        )
+
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+
+        lateinit var listenableEditorSession: ListenableEditorSession
+        scenario.onActivity { activity ->
+            listenableEditorSession = activity.listenableEditorSession
+
+            assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+                .isEqualTo(redStyleOption.id.value)
+            assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+                .isEqualTo(classicStyleOption.id.value)
+
+            // Select [blueStyleOption] and [gothicStyleOption], which are the last options in the
+            // corresponding setting definitions.
+            listenableEditorSession.userStyle =
+                listenableEditorSession.userStyle.toMutableUserStyle().apply {
+                    listenableEditorSession.userStyleSchema.userStyleSettings.forEach {
+                        this[it] = it.options.last()
+                    }
+                }.toUserStyle()
+
+            // This should cause the style on the to be reverted back to the initial style.
+            listenableEditorSession.commitChangesOnClose = false
+            listenableEditorSession.close()
+            activity.finish()
+        }
+
+        val result = editorObserver.awaitEditorStateChange(
+            TIMEOUT_MS,
+            TimeUnit.MILLISECONDS
+        ).asApiEditorState()
+        assertThat(result.userStyle.userStyleMap[colorStyleSetting.id.value])
+            .isEqualTo(blueStyleOption.id.value)
+        assertThat(result.userStyle.userStyleMap[watchHandStyleSetting.id.value])
+            .isEqualTo(gothicStyleOption.id.value)
+        Assert.assertFalse(result.shouldCommitChanges)
+        Assert.assertNull(result.previewImage)
+
+        // The original style should be applied to the watch face however because
+        // commitChangesOnClose is false.
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+            .isEqualTo(redStyleOption.id.value)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+            .isEqualTo(classicStyleOption.id.value)
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
     }
 }

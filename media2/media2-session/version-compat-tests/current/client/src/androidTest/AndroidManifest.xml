@@ -15,33 +15,42 @@
    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.media2.test.client.test">
-    <queries>
-        <package android:name="androidx.media2.test.service.test" />
-    </queries>
+    package="androidx.media2.test.client.test">
 
     <application android:supportsRtl="true">
-        <activity android:name="androidx.media2.test.client.SurfaceActivity" />
+        <activity
+            android:name="androidx.media2.test.client.SurfaceActivity"
+            android:exported="true" />
 
-        <service android:name="androidx.media2.test.client.MediaControllerProviderService">
+        <service
+            android:name="androidx.media2.test.client.MediaControllerProviderService"
+            android:exported="true">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
                 <action android:name="androidx.media.test.action.MEDIA2_CONTROLLER" />
             </intent-filter>
         </service>
 
-        <service android:name="androidx.media2.test.client.MediaControllerCompatProviderService">
+        <service
+            android:name="androidx.media2.test.client.MediaControllerCompatProviderService"
+            android:exported="true">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
                 <action android:name="androidx.media.test.action.MEDIA_CONTROLLER_COMPAT" />
             </intent-filter>
         </service>
 
-        <service android:name="androidx.media2.test.client.MediaBrowserCompatProviderService">
+        <service
+            android:name="androidx.media2.test.client.MediaBrowserCompatProviderService"
+            android:exported="true">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
                 <action android:name="androidx.media.test.action.MEDIA_BROWSER_COMPAT" />
             </intent-filter>
         </service>
     </application>
+
+    <queries>
+        <package android:name="androidx.media2.test.service.test" />
+    </queries>
 </manifest>

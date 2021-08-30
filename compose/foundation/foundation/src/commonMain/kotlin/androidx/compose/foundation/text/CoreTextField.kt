@@ -37,11 +37,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -230,6 +233,10 @@ internal fun CoreTextField(
     )
 
     val onValueChangeWrapper: (TextFieldValue) -> Unit = {
+        if (it.text != state.textDelegate.text.text) {
+            // Text has been changed, enter the HandleState.None and hide the cursor handle.
+            state.handleState = HandleState.None
+        }
         state.onValueChange(it)
         scope.invalidate()
     }
@@ -286,7 +293,7 @@ internal fun CoreTextField(
         Modifier.tapPressTextFieldModifier(interactionSource, enabled) { offset ->
             tapToFocus(state, focusRequester, !readOnly)
             if (state.hasFocus) {
-                if (!state.selectionIsOn) {
+                if (state.handleState != HandleState.Selection) {
                     state.layoutResult?.let { layoutResult ->
                         TextFieldDelegate.setCursorOffset(
                             offset,
@@ -295,6 +302,10 @@ internal fun CoreTextField(
                             offsetMapping,
                             onValueChangeWrapper
                         )
+                        // Won't enter cursor state when text is empty.
+                        if (state.textDelegate.text.isNotEmpty()) {
+                            state.handleState = HandleState.Cursor
+                        }
                     }
                 } else {
                     manager.deselect(offset)
@@ -325,7 +336,7 @@ internal fun CoreTextField(
     val onPositionedModifier = Modifier.onGloballyPositioned {
         if (textInputService != null) {
             state.layoutCoordinates = it
-            if (state.selectionIsOn) {
+            if (state.handleState == HandleState.Selection) {
                 if (state.showFloatingToolbar) {
                     manager.showSelectionToolbar()
                 } else {
@@ -467,6 +478,7 @@ internal fun CoreTextField(
         .then(pointerModifier)
         .then(semanticsModifier)
         .then(focusModifier)
+        .previewKeyEventToDeselectOnBack(state, manager)
         .then(textKeyInputModifier)
         .onGloballyPositioned {
             state.layoutResult?.decorationBoxCoordinates = it
@@ -527,17 +539,71 @@ internal fun CoreTextField(
                     }
                 )
 
+                val showHandle = enabled && state.hasFocus && isInTouchMode
                 SelectionToolbarAndHandles(
                     manager = manager,
-                    show = enabled &&
-                        state.hasFocus &&
-                        state.selectionIsOn &&
+                    show = state.handleState == HandleState.Selection &&
                         state.layoutCoordinates != null &&
                         state.layoutCoordinates!!.isAttached &&
-                        isInTouchMode
+                        showHandle
                 )
+                if (
+                    state.handleState == HandleState.Cursor &&
+                    !readOnly &&
+                    showHandle
+                ) {
+                    TextFieldCursorHandle(manager = manager)
+                }
             }
         }
+    }
+}
+
+/**
+ * The selection handle state of the TextField. It can be None, Selection or Cursor.
+ * It determines whether the selection handle, cursor handle or only cursor is shown. And how
+ * TextField handles gestures.
+ */
+internal enum class HandleState {
+    /**
+     * No selection is active in this TextField. This is the initial state of the TextField.
+     * If the user long click on the text and start selection, the TextField will exit this state
+     * and enters [HandleState.Selection] state. If the user tap on the text, the TextField
+     * will exit this state and enters [HandleState.Cursor] state.
+     */
+    None,
+
+    /**
+     * Selection handle is displayed for this TextField. User can drag the selection handle to
+     * change the selected text. If the user start editing the text, the TextField will exit this
+     * state and enters [HandleState.None] state. If the user tap on the text, the TextField
+     * will exit this state and enters [HandleState.Cursor] state.
+     */
+    Selection,
+
+    /**
+     * Cursor handle is displayed for this TextField. User can drag the cursor handle to change
+     * the cursor position. If the user start editing the text, the TextField will exit this
+     * state and enters [HandleState.None] state. If the user long click on the text and start
+     * selection, the TextField will exit this state and enters [HandleState.Selection] state.
+     * Also notice that TextField won't enter this state if the current input text is empty.
+     */
+    Cursor
+}
+
+/**
+ * Modifier to intercept back key presses, when supported by the platform, and deselect selected
+ * text and clear selection popups.
+ */
+private fun Modifier.previewKeyEventToDeselectOnBack(
+    state: TextFieldState,
+    manager: TextFieldSelectionManager
+) = onPreviewKeyEvent { keyEvent ->
+    if (state.handleState != HandleState.None && keyEvent.cancelsTextSelection()) {
+        manager.deselect()
+        true
+    } else {
+        false
     }
 }
 
@@ -571,16 +637,23 @@ internal class TextFieldState(
     var layoutResult: TextLayoutResultProxy? = null
 
     /**
-     * The gesture detector status, to indicate whether current status is selection or editing.
+     * The gesture detector state, to indicate whether current state is selection, cursor
+     * or editing.
      *
-     * In the editing mode, there is no selection shown, only cursor is shown. To enter the editing
-     * mode from selection mode, just tap on the screen.
+     * In the none state, no selection or cursor handle is shown, only the cursor is shown.
+     * TextField is initially in this state. To enter this state, input anything from the
+     * keyboard and modify the text.
      *
-     * In the selection mode, there is no cursor shown, only selection is shown. To enter
+     * In the selection state, there is no cursor shown, only selection is shown. To enter
      * the selection mode, just long press on the screen. In this mode, finger movement on the
      * screen changes selection instead of moving the cursor.
+     *
+     * In the cursor state, no selection is shown, and the cursor and the cursor handle are shown.
+     * To enter the cursor state, tap anywhere within the TextField.(The TextField will stay in the
+     * edit state if the current text is empty.) In this mode, finger movement on the screen
+     * moves the cursor.
      */
-    var selectionIsOn by mutableStateOf(false)
+    var handleState by mutableStateOf(HandleState.None)
 
     /**
      * A flag to check if the selection start or end handle is being dragged.
@@ -658,6 +731,7 @@ private fun tapToFocus(
     }
 }
 
+@OptIn(InternalFoundationTextApi::class)
 private fun notifyTextInputServiceOnFocusChange(
     textInputService: TextInputService,
     state: TextFieldState,
@@ -708,18 +782,17 @@ private fun SelectionToolbarAndHandles(manager: TextFieldSelectionManager, show:
                     val endOffset = offsetMapping.originalToTransformed(value.selection.end)
                     val startDirection = it.getBidiRunDirection(startOffset)
                     val endDirection = it.getBidiRunDirection(max(endOffset - 1, 0))
-                    val directions = Pair(startDirection, endDirection)
                     if (manager.state?.showSelectionHandleStart == true) {
                         TextFieldSelectionHandle(
                             isStartHandle = true,
-                            directions = directions,
+                            direction = startDirection,
                             manager = manager
                         )
                     }
                     if (manager.state?.showSelectionHandleEnd == true) {
                         TextFieldSelectionHandle(
                             isStartHandle = false,
-                            directions = directions,
+                            direction = endDirection,
                             manager = manager
                         )
                     }
@@ -739,3 +812,31 @@ private fun SelectionToolbarAndHandles(manager: TextFieldSelectionManager, show:
         }
     } else manager.hideSelectionToolbar()
 }
+
+@Composable
+internal fun TextFieldCursorHandle(manager: TextFieldSelectionManager) {
+    val offset = manager.offsetMapping.originalToTransformed(manager.value.selection.start)
+    val observer = remember(manager) { manager.cursorDragObserver() }
+    manager.state?.layoutResult?.value?.let {
+        val cursorRect = it.getCursorRect(
+            offset.coerceIn(0, it.layoutInput.text.length)
+        )
+        val x = with(LocalDensity.current) {
+            cursorRect.left + DefaultCursorThickness.toPx() / 2
+        }
+        CursorHandle(
+            handlePosition = Offset(x, cursorRect.bottom),
+            modifier = Modifier.pointerInput(observer) {
+                detectDragGesturesWithObserver(observer)
+            },
+            content = null
+        )
+    }
+}
+
+@Composable
+internal expect fun CursorHandle(
+    handlePosition: Offset,
+    modifier: Modifier,
+    content: @Composable (() -> Unit)?
+)

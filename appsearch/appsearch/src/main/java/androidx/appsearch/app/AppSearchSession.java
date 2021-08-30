@@ -26,176 +26,201 @@ import java.io.Closeable;
 import java.util.Set;
 
 /**
- * Represents a connection to an AppSearch storage system where {@link GenericDocument}s can be
- * placed and queried.
+ * Provides a connection to a single AppSearch database.
  *
- * All implementations of this interface must be thread safe.
+ * <p>An {@link AppSearchSession} instance provides access to database operations such as setting
+ * a schema, adding documents, and searching.
+ *
+ * <p>Instances of this interface are usually obtained from a storage implementation, e.g.
+ * {@code LocalStorage.createSearchSession()} or {@code PlatformStorage.createSearchSession()}.
+ *
+ * <p>All implementations of this interface must be thread safe.
+ *
+ * @see GlobalSearchSession
  */
 public interface AppSearchSession extends Closeable {
 
     /**
-     * Sets the schema that will be used by documents provided to the {@link #putDocuments} method.
+     * Sets the schema that represents the organizational structure of data within the AppSearch
+     * database.
      *
-     * <p>The schema provided here is compared to the stored copy of the schema previously supplied
-     * to {@link #setSchema}, if any, to determine how to treat existing documents. The following
-     * types of schema modifications are always safe and are made without deleting any existing
-     * documents:
-     * <ul>
-     *     <li>Addition of new types
-     *     <li>Addition of new
-     *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_OPTIONAL OPTIONAL} or
-     *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_REPEATED REPEATED} properties to a
-     *         type
-     *     <li>Changing the cardinality of a data type to be less restrictive (e.g. changing an
-     *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_OPTIONAL OPTIONAL} property into a
-     *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_REPEATED REPEATED} property.
-     * </ul>
+     * <p>Upon creating an {@link AppSearchSession}, {@link #setSchema} should be called. If the
+     * schema needs to be updated, or it has not been previously set, then the provided schema
+     * will be saved and persisted to disk. Otherwise, {@link #setSchema} is handled efficiently
+     * as a no-op call.
      *
-     * <p>The following types of schema changes are not backwards-compatible:
-     * <ul>
-     *     <li>Removal of an existing type
-     *     <li>Removal of a property from a type
-     *     <li>Changing the data type ({@code boolean}, {@code long}, etc.) of an existing property
-     *     <li>For properties of {@code Document} type, changing the schema type of
-     *         {@code Document}s of that property
-     *     <li>Changing the cardinality of a data type to be more restrictive (e.g. changing an
-     *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_OPTIONAL OPTIONAL} property into a
-     *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_REQUIRED REQUIRED} property).
-     *     <li>Adding a
-     *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_REQUIRED REQUIRED} property.
-     * </ul>
-     * <p>Supplying a schema with such changes will, by default, result in this call completing its
-     * future with an {@link androidx.appsearch.exceptions.AppSearchException} with a code of
-     * {@link AppSearchResult#RESULT_INVALID_SCHEMA} and a message describing the incompatibility.
-     * In this case the previously set schema will remain active.
-     *
-     * <p>If you need to make non-backwards-compatible changes as described above, you can set the
-     * {@link SetSchemaRequest.Builder#setForceOverride} method to {@code true}. In this case,
-     * instead of completing its future with an
-     * {@link androidx.appsearch.exceptions.AppSearchException} with the
-     * {@link AppSearchResult#RESULT_INVALID_SCHEMA} error code, all documents which are not
-     * compatible with the new schema will be deleted and the incompatible schema will be applied.
-     *
-     * <p>It is a no-op to set the same schema as has been previously set; this is handled
-     * efficiently.
-     *
-     * <p>By default, documents are visible on platform surfaces. To opt out, call {@code
-     * SetSchemaRequest.Builder#setPlatformSurfaceable} with {@code surfaceable} as false. Any
-     * visibility settings apply only to the schemas that are included in the {@code request}.
-     * Visibility settings for a schema type do not apply or persist across
-     * {@link SetSchemaRequest}s.
-     *
-     * @param request The schema update request.
-     * @return The pending result of performing this operation.
+     * @param  request the schema to set or update the AppSearch database to.
+     * @return a {@link ListenableFuture} which resolves to a {@link SetSchemaResponse} object.
      */
-    // TODO(b/169883602): Change @code references to @link when setPlatformSurfaceable APIs are
-    //  exposed.
     @NonNull
-    ListenableFuture<Void> setSchema(@NonNull SetSchemaRequest request);
+    ListenableFuture<SetSchemaResponse> setSchema(
+            @NonNull SetSchemaRequest request);
 
     /**
      * Retrieves the schema most recently successfully provided to {@link #setSchema}.
      *
-     * @return The pending result of performing this operation.
+     * @return The pending {@link GetSchemaResponse} of performing this operation.
      */
     // This call hits disk; async API prevents us from treating these calls as properties.
     @SuppressLint("KotlinPropertyAccess")
     @NonNull
-    ListenableFuture<Set<AppSearchSchema>> getSchema();
+    ListenableFuture<GetSchemaResponse> getSchema();
 
     /**
-     * Indexes documents into AppSearch.
+     * Retrieves the set of all namespaces in the current database with at least one document.
      *
-     * <p>Each {@link GenericDocument}'s {@code schemaType} field must be set to the name of a
-     * schema type previously registered via the {@link #setSchema} method.
-     *
-     * @param request {@link PutDocumentsRequest} containing documents to be indexed
-     * @return The pending result of performing this operation. The keys of the returned
-     * {@link AppSearchBatchResult} are the URIs of the input documents. The values are
-     * {@code null} if they were successfully indexed, or a failed {@link AppSearchResult}
-     * otherwise.
+     * @return The pending result of performing this operation.
      */
     @NonNull
-    ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
-            @NonNull PutDocumentsRequest request);
+    ListenableFuture<Set<String>> getNamespaces();
 
     /**
-     * Retrieves {@link GenericDocument}s by URI.
+     * Indexes documents into the {@link AppSearchSession} database.
      *
-     * @param request {@link GetByUriRequest} containing URIs to be retrieved.
-     * @return The pending result of performing this operation. The keys of the returned
-     * {@link AppSearchBatchResult} are the input URIs. The values are the returned
-     * {@link GenericDocument}s on success, or a failed {@link AppSearchResult} otherwise.
-     * URIs that are not found will return a failed {@link AppSearchResult} with a result code
-     * of {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * <p>Each {@link GenericDocument} object must have a {@code schemaType} field set to an
+     * {@link AppSearchSchema} type that has been previously registered by calling the
+     * {@link #setSchema} method.
+     *
+     * @param request containing documents to be indexed.
+     * @return a {@link ListenableFuture} which resolves to an {@link AppSearchBatchResult}.
+     * The keys of the returned {@link AppSearchBatchResult} are the IDs of the input documents.
+     * The values are either {@code null} if the corresponding document was successfully indexed,
+     * or a failed {@link AppSearchResult} otherwise.
      */
     @NonNull
-    ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
-            @NonNull GetByUriRequest request);
+    ListenableFuture<AppSearchBatchResult<String, Void>> put(@NonNull PutDocumentsRequest request);
 
     /**
-     * Searches a document based on a given query string.
+     * Gets {@link GenericDocument} objects by document IDs in a namespace from the
+     * {@link AppSearchSession} database.
      *
-     * <p>Currently we support following features in the raw query format:
-     * <ul>
-     *     <li>AND
-     *     <p>AND joins (e.g. “match documents that have both the terms ‘dog’ and
-     *     ‘cat’”).
-     *     Example: hello world matches documents that have both ‘hello’ and ‘world’
-     *     <li>OR
-     *     <p>OR joins (e.g. “match documents that have either the term ‘dog’ or
-     *     ‘cat’”).
-     *     Example: dog OR puppy
-     *     <li>Exclusion
-     *     <p>Exclude a term (e.g. “match documents that do
-     *     not have the term ‘dog’”).
-     *     Example: -dog excludes the term ‘dog’
-     *     <li>Grouping terms
-     *     <p>Allow for conceptual grouping of subqueries to enable hierarchical structures (e.g.
-     *     “match documents that have either ‘dog’ or ‘puppy’, and either ‘cat’ or ‘kitten’”).
-     *     Example: (dog puppy) (cat kitten) two one group containing two terms.
-     *     <li>Property restricts
-     *     <p> Specifies which properties of a document to specifically match terms in (e.g.
-     *     “match documents where the ‘subject’ property contains ‘important’”).
-     *     Example: subject:important matches documents with the term ‘important’ in the
-     *     ‘subject’ property
-     *     <li>Schema type restricts
-     *     <p>This is similar to property restricts, but allows for restricts on top-level document
-     *     fields, such as schema_type. Clients should be able to limit their query to documents of
-     *     a certain schema_type (e.g. “match documents that are of the ‘Email’ schema_type”).
-     *     Example: { schema_type_filters: “Email”, “Video”,query: “dog” } will match documents
-     *     that contain the query term ‘dog’ and are of either the ‘Email’ schema type or the
-     *     ‘Video’ schema type.
-     * </ul>
-     *
-     * <p> This method is lightweight. The heavy work will be done in
-     * {@link SearchResults#getNextPage()}.
-     *
-     * @param queryExpression Query String to search.
-     * @param searchSpec      Spec for setting filters, raw query etc.
-     * @return The search result of performing this operation.
-     */
-    @NonNull
-    SearchResults query(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
-
-    /**
-     * Removes {@link GenericDocument}s from the index by URI.
-     *
-     * @param request Request containing URIs to be removed.
-     * @return The pending result of performing this operation. The keys of the returned
-     * {@link AppSearchBatchResult} are the input URIs. The values are {@code null} on success,
-     * or a failed {@link AppSearchResult} otherwise. URIs that are not found will return a
-     * failed {@link AppSearchResult} with a result code of
+     * @param request a request containing a namespace and IDs to get documents for.
+     * @return A {@link ListenableFuture} which resolves to an {@link AppSearchBatchResult}.
+     * The keys of the {@link AppSearchBatchResult} represent the input document IDs from the
+     * {@link GetByDocumentIdRequest} object. The values are either the corresponding
+     * {@link GenericDocument} object for the ID on success, or an {@link AppSearchResult}
+     * object on failure. For example, if an ID is not found, the value for that ID will be set
+     * to an {@link AppSearchResult} object with result code:
      * {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
-    ListenableFuture<AppSearchBatchResult<String, Void>> removeByUri(
-            @NonNull RemoveByUriRequest request);
+    ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentId(
+            @NonNull GetByDocumentIdRequest request);
+
+    /**
+     * Retrieves documents from the open {@link AppSearchSession} that match a given query string
+     * and type of search provided.
+     *
+     * <p>Query strings can be empty, contain one term with no operators, or contain multiple
+     * terms and operators.
+     *
+     * <p>For query strings that are empty, all documents that match the {@link SearchSpec} will be
+     * returned.
+     *
+     * <p>For query strings with a single term and no operators, documents that match the
+     * provided query string and {@link SearchSpec} will be returned.
+     *
+     * <p>The following operators are supported:
+     *
+     * <ul>
+     *     <li>AND (implicit)
+     *     <p>AND is an operator that matches documents that contain <i>all</i>
+     *     provided terms.
+     *     <p><b>NOTE:</b> A space between terms is treated as an "AND" operator. Explicitly
+     *     including "AND" in a query string will treat "AND" as a term, returning documents that
+     *     also contain "AND".
+     *     <p>Example: "apple AND banana" matches documents that contain the
+     *     terms "apple", "and", "banana".
+     *     <p>Example: "apple banana" matches documents that contain both "apple" and
+     *     "banana".
+     *     <p>Example: "apple banana cherry" matches documents that contain "apple", "banana", and
+     *     "cherry".
+     *
+     *     <li>OR
+     *     <p>OR is an operator that matches documents that contain <i>any</i> provided term.
+     *     <p>Example: "apple OR banana" matches documents that contain either "apple" or "banana".
+     *     <p>Example: "apple OR banana OR cherry" matches documents that contain any of
+     *     "apple", "banana", or "cherry".
+     *
+     *     <li>Exclusion (-)
+     *     <p>Exclusion (-) is an operator that matches documents that <i>do not</i> contain the
+     *     provided term.
+     *     <p>Example: "-apple" matches documents that do not contain "apple".
+     *
+     *     <li>Grouped Terms
+     *     <p>For queries that require multiple operators and terms, terms can be grouped into
+     *     subqueries. Subqueries are contained within an open "(" and close ")" parenthesis.
+     *     <p>Example: "(donut OR bagel) (coffee OR tea)" matches documents that contain
+     *     either "donut" or "bagel" and either "coffee" or "tea".
+     *
+     *     <li>Property Restricts
+     *     <p>For queries that require a term to match a specific {@link AppSearchSchema}
+     *     property of a document, a ":" must be included between the property name and the term.
+     *     <p>Example: "subject:important" matches documents that contain the term "important" in
+     *     the "subject" property.
+     * </ul>
+     *
+     * <p>Additional search specifications, such as filtering by {@link AppSearchSchema} type or
+     * adding projection, can be set by calling the corresponding {@link SearchSpec.Builder} setter.
+     *
+     * <p>This method is lightweight. The heavy work will be done in
+     * {@link SearchResults#getNextPage}.
+     *
+     * @param queryExpression query string to search.
+     * @param searchSpec      spec for setting document filters, adding projection, setting term
+     *                        match type, etc.
+     * @return a {@link SearchResults} object for retrieved matched documents.
+     */
+    @NonNull
+    SearchResults search(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
+
+    /**
+     * Reports usage of a particular document by namespace and ID.
+     *
+     * <p>A usage report represents an event in which a user interacted with or viewed a document.
+     *
+     * <p>For each call to {@link #reportUsage}, AppSearch updates usage count and usage recency
+     * metrics for that particular document. These metrics are used for ordering {@link #search}
+     * results by the {@link SearchSpec#RANKING_STRATEGY_USAGE_COUNT} and
+     * {@link SearchSpec#RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP} ranking strategies.
+     *
+     * <p>Reporting usage of a document is optional.
+     *
+     * @param request The usage reporting request.
+     * @return The pending result of performing this operation which resolves to {@code null} on
+     *     success.
+     */
+    @NonNull
+    ListenableFuture<Void> reportUsage(@NonNull ReportUsageRequest request);
+
+    /**
+     * Removes {@link GenericDocument} objects by document IDs in a namespace from the
+     * {@link AppSearchSession} database.
+     *
+     * <p>Removed documents will no longer be surfaced by {@link #search} or
+     * {@link #getByDocumentId}
+     * calls.
+     *
+     * <p>Once the database crosses the document count or byte usage threshold, removed documents
+     * will be deleted from disk.
+     *
+     * @param request {@link RemoveByDocumentIdRequest} with IDs in a namespace to remove from the
+     *                index.
+     * @return a {@link ListenableFuture} which resolves to an {@link AppSearchBatchResult}.
+     * The keys of the {@link AppSearchBatchResult} represent the input IDs from the
+     * {@link RemoveByDocumentIdRequest} object. The values are either {@code null} on success,
+     * or a failed {@link AppSearchResult} otherwise. IDs that are not found will return a failed
+     * {@link AppSearchResult} with a result code of {@link AppSearchResult#RESULT_NOT_FOUND}.
+     */
+    @NonNull
+    ListenableFuture<AppSearchBatchResult<String, Void>> remove(
+            @NonNull RemoveByDocumentIdRequest request);
 
     /**
      * Removes {@link GenericDocument}s from the index by Query. Documents will be removed if they
      * match the {@code queryExpression} in given namespaces and schemaTypes which is set via
-     * {@link SearchSpec.Builder#addNamespace} and {@link SearchSpec.Builder#addSchemaType}.
+     * {@link SearchSpec.Builder#addFilterNamespaces} and
+     * {@link SearchSpec.Builder#addFilterSchemas}.
      *
      * <p> An empty {@code queryExpression} matches all documents.
      *
@@ -209,8 +234,32 @@ public interface AppSearchSession extends Closeable {
      * @return The pending result of performing this operation.
      */
     @NonNull
-    ListenableFuture<Void> removeByQuery(
-            @NonNull String queryExpression, @NonNull SearchSpec searchSpec);
+    ListenableFuture<Void> remove(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
+
+    /**
+     * Gets the storage info for this {@link AppSearchSession} database.
+     *
+     * <p>This may take time proportional to the number of documents and may be inefficient to
+     * call repeatedly.
+     *
+     * @return a {@link ListenableFuture} which resolves to a {@link StorageInfo} object.
+     */
+    @NonNull
+    ListenableFuture<StorageInfo> getStorageInfo();
+
+    /**
+     * Flush all schema and document updates, additions, and deletes to disk if possible.
+     *
+     * <p>The request is not guaranteed to be handled and may be ignored by some implementations of
+     * AppSearchSession.
+     *
+     * @return The pending result of performing this operation.
+     * {@link androidx.appsearch.exceptions.AppSearchException} with
+     * {@link AppSearchResult#RESULT_INTERNAL_ERROR} will be set to the future if we hit error when
+     * save to disk.
+     */
+    @NonNull
+    ListenableFuture<Void> requestFlush();
 
     /**
      * Closes the {@link AppSearchSession} to persist all schema and document updates, additions,

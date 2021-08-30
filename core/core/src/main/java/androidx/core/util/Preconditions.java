@@ -54,6 +54,24 @@ public final class Preconditions {
     }
 
     /**
+     * Ensures that an expression checking an argument is true.
+     *
+     * @param expression the expression to check
+     * @param messageTemplate a printf-style message template to use if the check fails; will
+     *     be converted to a string using {@link String#format(String, Object...)}
+     * @param messageArgs arguments for {@code messageTemplate}
+     * @throws IllegalArgumentException if {@code expression} is false
+     */
+    public static void checkArgument(
+            final boolean expression,
+            final @NonNull String messageTemplate,
+            final @NonNull Object... messageArgs) {
+        if (!expression) {
+            throw new IllegalArgumentException(String.format(messageTemplate, messageArgs));
+        }
+    }
+
+    /**
      * Ensures that an string reference passed as a parameter to the calling
      * method is not empty.
      *
@@ -232,6 +250,87 @@ public final class Preconditions {
             throw new IllegalArgumentException(
                     String.format(Locale.US,
                             "%s is out of range of [%d, %d] (too high)", valueName, lower, upper));
+        }
+
+        return value;
+    }
+
+    /**
+     * Ensures that the argument long value is within the inclusive range.
+     *
+     * @param value a long value
+     * @param lower the lower endpoint of the inclusive range
+     * @param upper the upper endpoint of the inclusive range
+     * @param valueName the name of the argument to use if the check fails
+     *
+     * @return the validated long value
+     *
+     * @throws IllegalArgumentException if {@code value} was not within the range
+     */
+    public static long checkArgumentInRange(long value, long lower, long upper,
+            @NonNull String valueName) {
+        if (value < lower) {
+            throw new IllegalArgumentException(
+                    String.format(Locale.US,
+                            "%s is out of range of [%d, %d] (too low)", valueName, lower, upper));
+        } else if (value > upper) {
+            throw new IllegalArgumentException(
+                    String.format(Locale.US,
+                            "%s is out of range of [%d, %d] (too high)", valueName, lower, upper));
+        }
+
+        return value;
+    }
+
+    /**
+     * Ensures that the argument float value is within the inclusive range.
+     *
+     * @param value a float value
+     * @param lower the lower endpoint of the inclusive range
+     * @param upper the upper endpoint of the inclusive range
+     * @param valueName the name of the argument to use if the check fails
+     *
+     * @return the validated float value
+     *
+     * @throws IllegalArgumentException if {@code value} was not within the range
+     */
+    public static float checkArgumentInRange(float value, float lower, float upper,
+            @NonNull String valueName) {
+        if (value < lower) {
+            throw new IllegalArgumentException(
+                    String.format(Locale.US,
+                            "%s is out of range of [%f, %f] (too low)", valueName, lower, upper));
+        } else if (value > upper) {
+            throw new IllegalArgumentException(
+                    String.format(Locale.US,
+                            "%s is out of range of [%f, %f] (too high)", valueName, lower, upper));
+        }
+
+        return value;
+    }
+
+    /**
+     * Ensures that the argument double value is within the inclusive range.
+     *
+     * @param value a double value
+     * @param lower the lower endpoint of the inclusive range
+     * @param upper the upper endpoint of the inclusive range
+     * @param valueName the name of the argument to use if the check fails
+     *
+     * @return the validated double value
+     *
+     * @throws IllegalArgumentException if {@code value} was not within the range
+     */
+    public static double checkArgumentInRange(double value, double lower, double upper,
+            @NonNull String valueName) {
+        if (value < lower) {
+            throw new IllegalArgumentException(
+                    String.format(Locale.US,
+                            "%s is out of range of [%f, %f] (too low)", valueName, lower, upper));
+        } else if (value > upper) {
+            throw new IllegalArgumentException(
+                    String.format(Locale.US,
+                            "%s is out of range of [%f, %f] (too high)", valueName, lower, upper));
         }
 
         return value;

@@ -32,6 +32,7 @@ import androidx.car.app.HostDispatcher;
 import androidx.car.app.HostException;
 import androidx.car.app.R;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.managers.Manager;
 import androidx.car.app.utils.LogTags;
 
 import java.lang.annotation.Retention;
@@ -45,7 +46,7 @@ import java.lang.annotation.RetentionPolicy;
  * use this manager to query for these limits at runtime and react accordingly.
  */
 @RequiresCarApi(2)
-public class ConstraintManager {
+public class ConstraintManager implements Manager {
     /**
      * Represents the types of lists that apps can create.
      *

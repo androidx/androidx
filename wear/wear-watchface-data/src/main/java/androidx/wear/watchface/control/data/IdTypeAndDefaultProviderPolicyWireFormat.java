@@ -78,7 +78,7 @@ public final class IdTypeAndDefaultProviderPolicyWireFormat implements Versioned
 
     /**
      * Along with {@link #getFallbackSystemProvider} this is the wire format for
-     * DefaultComplicationProviderPolicy.
+     * DefaultComplicationDataSourcePolicy.
      */
     @Nullable
     public List<ComponentName> getDefaultProvidersToTry() {
@@ -87,7 +87,7 @@ public final class IdTypeAndDefaultProviderPolicyWireFormat implements Versioned
 
     /**
      * Along with {@link #getDefaultProvidersToTry} this is the wire format for
-     * DefaultComplicationProviderPolicy.
+     * DefaultComplicationDataSourcePolicy.
      */
     public int getFallbackSystemProvider() {
         return mFallbackSystemProvider;

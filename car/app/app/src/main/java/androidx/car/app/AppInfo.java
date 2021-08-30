@@ -58,9 +58,6 @@ import androidx.car.app.versioning.CarAppApiLevels;
  */
 @CarProtocol
 public final class AppInfo {
-    // TODO(b/174803562): Automatically update the this version using Gradle
-    private static final String LIBRARY_VERSION = "1.1.0-alpha01";
-
     /**
      * Application meta-data tag used to define the minimum Car App API level this application is
      * able to handle.
@@ -98,7 +95,11 @@ public final class AppInfo {
                     + "=" + minApiLevel + ") is out of range (" + CarAppApiLevels.getOldest() + "-"
                     + CarAppApiLevels.getLatest() + ")");
         }
-        return new AppInfo(minApiLevel, CarAppApiLevels.getLatest(), LIBRARY_VERSION);
+
+        return new AppInfo(minApiLevel,
+                CarAppApiLevels.getLatest(),
+                // The library_version resource string is auto-generated via Gradle.
+                context.getResources().getString(R.string.car_app_library_version));
     }
 
     /**

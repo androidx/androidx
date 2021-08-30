@@ -30,6 +30,9 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.ImageCapture
@@ -38,13 +41,11 @@ import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -57,16 +58,16 @@ import javax.inject.Inject
  */
 @SuppressLint("UnsafeOptInUsageError")
 @CameraScope
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
 class CameraControlAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
     private val threads: UseCaseThreads,
     private val useCaseManager: UseCaseManager,
     private val cameraStateAdapter: CameraStateAdapter,
     private val zoomControl: ZoomControl,
-    private val evCompControl: EvCompControl
+    private val evCompControl: EvCompControl,
+    val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
-    private var interopConfig: Config = MutableOptionsBundle.create()
     private var imageCaptureFlashMode: Int = ImageCapture.FLASH_MODE_OFF
 
     private val focusMeteringControl = FocusMeteringControl(
@@ -80,15 +81,17 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun addInteropConfig(config: Config) {
-        interopConfig = Config.mergeConfigs(config, interopConfig)
+        camera2cameraControl.addCaptureRequestOptions(
+            CaptureRequestOptions.Builder.from(config).build()
+        )
     }
 
     override fun clearInteropConfig() {
-        interopConfig = MutableOptionsBundle.create()
+        camera2cameraControl.clearCaptureRequestOptions()
     }
 
     override fun getInteropConfig(): Config {
-        return interopConfig
+        return camera2cameraControl.getCaptureRequestOptions()
     }
 
     override fun enableTorch(torch: Boolean): ListenableFuture<Void> {
@@ -158,36 +161,24 @@ class CameraControlAdapter @Inject constructor(
         return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create())
     }
 
-    override fun triggerAePrecapture(): ListenableFuture<CameraCaptureResult> {
-        warn { "TODO: triggerAePrecapture is not yet supported" }
-        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create())
+    override fun startFlashSequence(): ListenableFuture<Void> {
+        warn { "TODO: startFlashSequence is not yet supported" }
+        return Futures.immediateFuture(null)
     }
 
-    override fun cancelAfAeTrigger(cancelAfTrigger: Boolean, cancelAePrecaptureTrigger: Boolean) {
-        warn { "TODO: cancelAfAeTrigger is not yet supported" }
+    override fun cancelAfAndFinishFlashSequence(
+        cancelAfTrigger: Boolean,
+        finishFlashSequence: Boolean
+    ) {
+        warn { "TODO: cancelAfAndFinishFlashSequence is not yet supported" }
     }
 
-    @SuppressLint("UnsafeOptInUsageError")
-    override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> {
-        return threads.scope.async(start = CoroutineStart.UNDISPATCHED) {
-            useCaseManager.camera?.let {
-                evCompControl.evCompIndex = exposure
-                cameraStateAdapter.setExposureState(
-                    EvCompValue(
-                        evCompControl.supported,
-                        evCompControl.evCompIndex,
-                        evCompControl.range,
-                        evCompControl.step,
-                    )
-                )
-                return@async exposure
-            }
-            // TODO: Consider throwing instead? This is only reached if there's no camera.
-            evCompControl.evCompIndex
-        }.asListenableFuture()
-    }
+    override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> =
+        Futures.nonCancellationPropagating(
+            evCompControl.updateAsync(exposure).asListenableFuture()
+        )
 
-    override fun submitCaptureRequests(captureConfigs: List<CaptureConfig>) {
+    override fun submitStillCaptureRequests(captureConfigs: List<CaptureConfig>) {
         val camera = useCaseManager.camera
         checkNotNull(camera) { "Attempted to issue capture requests while the camera isn't ready." }
         camera.capture(captureConfigs)

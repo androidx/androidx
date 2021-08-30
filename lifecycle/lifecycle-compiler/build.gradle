@@ -16,8 +16,6 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
-import static androidx.build.dependencies.DependenciesKt.GUAVA
 
 plugins {
     id("AndroidXPlugin")
@@ -40,7 +38,7 @@ tasks.register("compileTestLibrarySource", JavaCompile).configure {
     dependsOn(compileJava)
     source "src/test/test-data/lib/src"
     classpath = project.compileJava.classpath
-    destinationDir = new File(project.buildDir, "test-data/lib/classes")
+    destinationDirectory.set(new File(project.buildDir, "test-data/lib/classes"))
 }
 
 tasks.register("jarTestLibrarySource", Jar).configure {
@@ -53,7 +51,6 @@ tasks.register("jarTestLibrarySource", Jar).configure {
 androidx {
     name = "Android Lifecycles Compiler"
     type = LibraryType.ANNOTATION_PROCESSOR
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycles annotation processor"

@@ -84,6 +84,7 @@ import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.core.util.Consumer;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.util.Collection;
 import java.util.List;
@@ -427,6 +428,28 @@ public final class Preview extends UseCase {
     @ImageOutputConfig.RotationValue
     public int getTargetRotation() {
         return getTargetRotationInternal();
+    }
+
+    /**
+     * Gets selected resolution information of the {@link Preview}.
+     *
+     * <p>The returned {@link ResolutionInfo} will be expressed in the coordinates of the camera
+     * sensor. It will be the same as the resolution inside a {@link SurfaceRequest} to request a
+     * surface for {@link Preview}.
+     *
+     * <p>The resolution information might change if the use case is unbound and then rebound or
+     * {@link #setTargetRotation(int)} is called to change the target rotation setting. The
+     * application needs to call {@link #getResolutionInfo()} again to get the latest
+     * {@link ResolutionInfo} for the changes.
+     *
+     * @return the resolution information if the use case has been bound by the
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
+     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     */
+    @Nullable
+    @Override
+    public ResolutionInfo getResolutionInfo() {
+        return super.getResolutionInfo();
     }
 
     @NonNull
@@ -861,6 +884,12 @@ public final class Preview extends UseCase {
          *
          * <p>If not set, the default selected resolution will be the best size match to the
          * device's screen resolution, or to 1080p (1920x1080), whichever is smaller.
+         *
+         * <p>When using the <code>camera-camera2</code> CameraX implementation, which resolution
+         * will be finally selected will depend on the camera device's hardware level and the
+         * bound use cases combination. For more details see the guaranteed supported
+         * configurations tables in {@link android.hardware.camera2.CameraDevice}'s
+         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a> section.
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.

@@ -19,4 +19,13 @@ package androidx.room.compiler.processing
 /**
  * Parameter of a method.
  */
-interface XExecutableParameterElement : XVariableElement
+interface XExecutableParameterElement : XVariableElement {
+    /**
+     * `true` if the parameter has a default value, `false` otherwise.
+     *
+     * Note that when @JvmOverloads is used in a kotlin function with KAPT, only the original
+     * function's parameter might have a default value. For the generated overload methods, this
+     * will always return `false`.
+     */
+    val hasDefaultValue: Boolean
+}

@@ -56,6 +56,15 @@ public class MediaRouterParams {
     public @interface DialogType {}
 
     /**
+     * Bundle key used for enabling group volume UX. The default value is {@code true}.
+     * To disable the group volume UX, set the value {@code false}.
+     *
+     * <p>TYPE: boolean
+     */
+    public static final String ENABLE_GROUP_VOLUME_UX =
+            "androidx.mediarouter.media.MediaRouterParams.ENABLE_GROUP_VOLUME_UX";
+
+    /**
      * Bundle key used for setting the cast icon fixed regardless of its connection state.
      *
      * <p>TYPE: boolean
@@ -64,13 +73,6 @@ public class MediaRouterParams {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String EXTRAS_KEY_FIXED_CAST_ICON =
             "androidx.mediarouter.media.MediaRouterParams.FIXED_CAST_ICON";
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final String EXTRAS_KEY_TEST_PRIVATE_UI =
-            "androidx.mediarouter.media.MediaRouterParams.TEST_PRIVATE_UI";
 
     @DialogType
     final int mDialogType;

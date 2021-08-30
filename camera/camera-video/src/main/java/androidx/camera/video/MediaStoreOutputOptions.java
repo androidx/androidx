@@ -16,8 +16,6 @@
 
 package androidx.camera.video;
 
-import static androidx.camera.video.OutputOptions.Type.MEDIA_STORE;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
@@ -52,7 +50,7 @@ import com.google.auto.value.AutoValue;
 public abstract class MediaStoreOutputOptions extends OutputOptions {
 
     MediaStoreOutputOptions() {
-        super(MEDIA_STORE);
+        super(OPTIONS_TYPE_MEDIA_STORE);
     }
 
     /**
@@ -86,10 +84,11 @@ public abstract class MediaStoreOutputOptions extends OutputOptions {
      * Gets the limit for the file length in bytes.
      */
     @Override
-    public abstract int getFileSizeLimit();
+    public abstract long getFileSizeLimit();
 
     /** The builder of the {@link MediaStoreOutputOptions}. */
     @AutoValue.Builder
+    @SuppressWarnings("StaticFinalBuilder")
     public abstract static class Builder {
         Builder() {
         }
@@ -113,7 +112,7 @@ public abstract class MediaStoreOutputOptions extends OutputOptions {
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
          */
         @NonNull
-        public abstract Builder setFileSizeLimit(int bytes);
+        public abstract Builder setFileSizeLimit(long bytes);
 
         /** Builds the MediaStoreOutputOptions instance. */
         @NonNull

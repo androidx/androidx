@@ -267,6 +267,7 @@ package androidx.room.util {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DBUtil {
     method public static android.os.CancellationSignal? createCancellationSignal();
     method public static void dropFtsSyncTriggers(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method public static void foreignKeyCheck(androidx.sqlite.db.SupportSQLiteDatabase, String);
     method @Deprecated public static android.database.Cursor query(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean);
     method public static android.database.Cursor query(androidx.room.RoomDatabase, androidx.sqlite.db.SupportSQLiteQuery, boolean, android.os.CancellationSignal?);
     method public static int readVersion(java.io.File) throws java.io.IOException;
@@ -329,10 +330,12 @@ package androidx.room.util {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class TableInfo.Index {
-    ctor public TableInfo.Index(String!, boolean, java.util.List<java.lang.String!>!);
+    ctor @Deprecated public TableInfo.Index(String!, boolean, java.util.List<java.lang.String!>!);
+    ctor public TableInfo.Index(String!, boolean, java.util.List<java.lang.String!>!, java.util.List<java.lang.String!>!);
     field public static final String DEFAULT_PREFIX = "index_";
     field public final java.util.List<java.lang.String!>! columns;
     field public final String! name;
+    field public final java.util.List<java.lang.String!>! orders;
     field public final boolean unique;
   }
 

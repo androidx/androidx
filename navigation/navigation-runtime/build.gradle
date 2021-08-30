@@ -32,6 +32,7 @@ dependencies {
     api(libs.kotlinStdlib)
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation(project(":internal-testutils-navigation"))
+    androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testExtTruth)
     androidTestImplementation(libs.testCore)
@@ -43,6 +44,13 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.multidex)
+}
+
+android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }
 
 androidx {

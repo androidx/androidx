@@ -24,6 +24,7 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
+import androidx.room.ext.stripNonJava
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.vo.RelationCollector
@@ -33,7 +34,6 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
-import stripNonJava
 import javax.lang.model.element.Modifier
 
 /**

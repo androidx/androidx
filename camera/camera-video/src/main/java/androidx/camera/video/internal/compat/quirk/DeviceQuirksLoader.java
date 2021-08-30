@@ -42,6 +42,12 @@ public class DeviceQuirksLoader {
         if (ExcludeKeyFrameRateInFindEncoderQuirk.load()) {
             quirks.add(new ExcludeKeyFrameRateInFindEncoderQuirk());
         }
+        if (MediaCodecInfoReportIncorrectInfoQuirk.load()) {
+            quirks.add(new MediaCodecInfoReportIncorrectInfoQuirk());
+        }
+        if (DeactivateEncoderSurfaceBeforeStopEncoderQuirk.load()) {
+            quirks.add(new DeactivateEncoderSurfaceBeforeStopEncoderQuirk());
+        }
 
         return quirks;
     }

@@ -31,7 +31,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
@@ -280,20 +279,6 @@ public final class CameraX {
                     }
                 }));
         return sShutdownFuture;
-    }
-
-    /**
-     * Returns the context used for CameraX.
-     *
-     * @hide
-     * @deprecated This method will be removed. New code should not rely on it. See b/161302102.
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    @Deprecated
-    public static Context getContext() {
-        CameraX cameraX = checkInitialized();
-        return cameraX.mAppContext;
     }
 
     /**
@@ -555,7 +540,6 @@ public final class CameraX {
     /**
      * Initializes camera stack on the given thread and retry recursively until timeout.
      */
-    @OptIn(markerClass = ExperimentalAvailableCamerasLimiter.class)
     private void initAndRetryRecursively(
             @NonNull Executor cameraExecutor,
             long startMs,

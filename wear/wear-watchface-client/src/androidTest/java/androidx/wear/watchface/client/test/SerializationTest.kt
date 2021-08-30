@@ -24,7 +24,7 @@ import android.os.Parcel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -38,7 +38,7 @@ import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
-import androidx.wear.watchface.data.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyleData
@@ -46,6 +46,7 @@ import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Instant
 import java.util.Base64
 
 /** Tests that we can deserialize golden resources correctly to ensure backwards compatibility. */
@@ -87,8 +88,9 @@ public class SerializationTest {
 
         val complication =
             deserialized.complicationData!!.toApiComplicationData() as LongTextComplicationData
-        assertThat(complication.text.getTextAt(context.resources, 0)).isEqualTo("Example")
-        assertThat(complication.title!!.getTextAt(context.resources, 0))
+        assertThat(complication.text.getTextAt(context.resources, Instant.EPOCH))
+            .isEqualTo("Example")
+        assertThat(complication.title!!.getTextAt(context.resources, Instant.EPOCH))
             .isEqualTo("complication")
     }
 
@@ -121,9 +123,9 @@ public class SerializationTest {
         val complication =
             deserialized.idAndComplicationDataWireFormats!![0].complicationData
                 .toApiComplicationData() as LongTextComplicationData
-        assertThat(complication.text.getTextAt(context.resources, 0))
+        assertThat(complication.text.getTextAt(context.resources, Instant.EPOCH))
             .isEqualTo("Test Text")
-        assertThat(complication.title!!.getTextAt(context.resources, 0))
+        assertThat(complication.title!!.getTextAt(context.resources, Instant.EPOCH))
             .isEqualTo("Test Title")
 
         assertThat(deserialized.deviceConfig.hasBurnInProtection).isTrue()
@@ -174,16 +176,18 @@ public class SerializationTest {
         val complicationA =
             deserialized.idAndComplicationDatumWireFormats!![0].complicationData
                 .toApiComplicationData() as LongTextComplicationData
-        assertThat(complicationA.text.getTextAt(context.resources, 0)).isEqualTo("A Text")
-        assertThat(complicationA.title!!.getTextAt(context.resources, 0))
+        assertThat(complicationA.text.getTextAt(context.resources, Instant.EPOCH))
+            .isEqualTo("A Text")
+        assertThat(complicationA.title!!.getTextAt(context.resources, Instant.EPOCH))
             .isEqualTo("A Title")
 
         assertThat(deserialized.idAndComplicationDatumWireFormats!![1].id).isEqualTo(2)
         val complicationB =
             deserialized.idAndComplicationDatumWireFormats!![1].complicationData
                 .toApiComplicationData() as ShortTextComplicationData
-        assertThat(complicationB.text.getTextAt(context.resources, 0)).isEqualTo("B Text")
-        assertThat(complicationB.title!!.getTextAt(context.resources, 0))
+        assertThat(complicationB.text.getTextAt(context.resources, Instant.EPOCH))
+            .isEqualTo("B Text")
+        assertThat(complicationB.title!!.getTextAt(context.resources, Instant.EPOCH))
             .isEqualTo("B Title")
     }
 
@@ -198,17 +202,17 @@ public class SerializationTest {
         assertThat(deserialized.supportedTypes).containsExactly(
             ComplicationType.LONG_TEXT, ComplicationType.SHORT_TEXT
         )
-        assertThat(deserialized.defaultProviderPolicy.systemProviderFallback).isEqualTo(
-            SystemProviders.PROVIDER_DAY_AND_DATE
+        assertThat(deserialized.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
+            SystemDataSources.DATA_SOURCE_DAY_AND_DATE
         )
-        assertThat(deserialized.defaultProviderPolicy.primaryProvider).isEqualTo(
+        assertThat(deserialized.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
             ComponentName("a", "b")
         )
-        assertThat(deserialized.defaultProviderPolicy.secondaryProvider).isNull()
+        assertThat(deserialized.defaultDataSourcePolicy.secondaryDataSource).isNull()
         assertThat(deserialized.currentType).isEqualTo(ComplicationType.SHORT_TEXT)
         assertThat(deserialized.isEnabled).isTrue()
         assertThat(deserialized.isInitiallyEnabled).isFalse()
-        assertThat(deserialized.fixedComplicationProvider).isFalse()
+        assertThat(deserialized.fixedComplicationDataSource).isFalse()
         assertThat(deserialized.complicationConfigExtras.getInt("keyA")).isEqualTo(100)
     }
 
@@ -231,10 +235,14 @@ public class SerializationTest {
 
         val complicationA = deserialized.previewComplicationsData[10] as ShortTextComplicationData
         val complicationB = deserialized.previewComplicationsData[20] as LongTextComplicationData
-        assertThat(complicationA.text.getTextAt(context.resources, 0)).isEqualTo("Mon")
-        assertThat(complicationA.title!!.getTextAt(context.resources, 0)).isEqualTo("23rd")
-        assertThat(complicationB.text.getTextAt(context.resources, 0)).isEqualTo("Example")
-        assertThat(complicationB.title!!.getTextAt(context.resources, 0)).isEqualTo("complication")
+        assertThat(complicationA.text.getTextAt(context.resources, Instant.EPOCH))
+            .isEqualTo("Mon")
+        assertThat(complicationA.title!!.getTextAt(context.resources, Instant.EPOCH))
+            .isEqualTo("23rd")
+        assertThat(complicationB.text.getTextAt(context.resources, Instant.EPOCH))
+            .isEqualTo("Example")
+        assertThat(complicationB.title!!.getTextAt(context.resources, Instant.EPOCH))
+            .isEqualTo("complication")
     }
 
     @Test

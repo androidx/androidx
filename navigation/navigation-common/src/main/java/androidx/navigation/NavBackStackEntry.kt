@@ -48,14 +48,14 @@ public class NavBackStackEntry private constructor(
      * The destination associated with this entry
      * @return The destination that is currently visible to users
      */
-    public val destination: NavDestination,
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var destination: NavDestination,
     /**
      * The arguments used for this entry
      * @return The arguments used when this entry was created
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var arguments: Bundle? = null,
-    navControllerLifecycleOwner: LifecycleOwner? = null,
+    public val arguments: Bundle? = null,
+    private val navControllerLifecycleOwner: LifecycleOwner? = null,
     private val viewModelStoreProvider: NavViewModelStoreProvider? = null,
     /**
      * The unique ID that serves as the identity of this entry
@@ -67,6 +67,20 @@ public class NavBackStackEntry private constructor(
     ViewModelStoreOwner,
     HasDefaultViewModelProviderFactory,
     SavedStateRegistryOwner {
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    constructor(entry: NavBackStackEntry, arguments: Bundle? = entry.arguments) : this(
+        entry.context,
+        entry.destination,
+        arguments,
+        entry.navControllerLifecycleOwner,
+        entry.viewModelStoreProvider,
+        entry.id,
+        entry.savedState
+    ) {
+        hostLifecycleState = entry.hostLifecycleState
+        maxLifecycle = entry.maxLifecycle
+    }
 
     /**
      * @hide
@@ -110,12 +124,6 @@ public class NavBackStackEntry private constructor(
         ViewModelProvider(
             this, NavResultSavedStateFactory(this, null)
         ).get(SavedStateViewModel::class.java).handle
-    }
-
-    /** @suppress */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun replaceArguments(newArgs: Bundle?) {
-        arguments = newArgs
     }
 
     /**
@@ -196,6 +204,25 @@ public class NavBackStackEntry private constructor(
         savedStateRegistryController.performSave(outBundle)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is NavBackStackEntry) return false
+        return id == other.id && destination == other.destination &&
+            (
+                arguments == other.arguments ||
+                    arguments?.keySet()
+                    ?.all { arguments.get(it) == other.arguments?.get(it) } == true
+                )
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + destination.hashCode()
+        arguments?.keySet()?.forEach {
+            result = 31 * result + arguments.get(it).hashCode()
+        }
+        return result
+    }
+
     /**
      * Used to create the {SavedStateViewModel}
      */
@@ -204,7 +231,7 @@ public class NavBackStackEntry private constructor(
         defaultArgs: Bundle?
     ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel?> create(
+        override fun <T : ViewModel> create(
             key: String,
             modelClass: Class<T>,
             handle: SavedStateHandle

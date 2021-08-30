@@ -178,7 +178,7 @@ public open class FragmentNavigator(
         if (restoreState) {
             // Restore back stack does all the work to restore the entry
             fragmentManager.restoreBackStack(entry.id)
-            state.add(entry)
+            state.push(entry)
             return
         }
         val destination = entry.destination as Destination
@@ -243,7 +243,7 @@ public open class FragmentNavigator(
         ft.commit()
         // The commit succeeded, update our view of the world
         if (isAdded) {
-            state.add(entry)
+            state.push(entry)
         }
     }
 
@@ -328,6 +328,17 @@ public open class FragmentNavigator(
                 sb.append(_className)
             }
             return sb.toString()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is Destination) return false
+            return super.equals(other) && _className == other._className
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + _className.hashCode()
+            return result
         }
     }
 

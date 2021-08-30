@@ -15,10 +15,32 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.car.app.automotive">
     <queries>
         <intent>
             <action android:name="android.car.template.host.RendererService" />
         </intent>
     </queries>
+    <uses-feature
+        android:name="android.hardware.type.automotive"
+        android:required="false" />
+
+    <application>
+        <service
+            android:name="androidx.car.app.CarAppMetadataHolderService"
+            android:exported="false"
+            android:enabled="false"
+            tools:ignore="Instantiatable"
+            tools:node="merge">
+            <meta-data
+                android:name=
+                    "androidx.car.app.CarAppMetadataHolderService.CAR_HARDWARE_MANAGER"
+                android:value="androidx.car.app.hardware.AutomotiveCarHardwareManager" />
+            <meta-data
+                android:name=
+                    "androidx.car.app.CarAppMetadataHolderService.RESULT_MANAGER"
+                android:value="androidx.car.app.activity.ResultManagerAutomotive" />
+        </service>
+    </application>
 </manifest>

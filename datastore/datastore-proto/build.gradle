@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.PROTOBUF_COMPILER
-
+import androidx.build.dependencies.DependenciesKt
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
@@ -41,7 +40,7 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = PROTOBUF_COMPILER
+        artifact = DependenciesKt.getDependencyAsString(libs.protobufCompiler)
     }
     // Generates the java proto-lite code for the protos in this project. See
     // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation

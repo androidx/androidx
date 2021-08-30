@@ -69,6 +69,12 @@ public abstract class ExtensionVersion {
         return getInstance().getVersionObject();
     }
 
+    public static boolean isAdvancedExtenderSupported() {
+        return getInstance().isAdvancedExtenderSupportedInternal();
+    }
+
+    abstract boolean isAdvancedExtenderSupportedInternal();
+
     /**
      * @return a Version object returned from the extension implementation.
      */
@@ -100,6 +106,15 @@ public abstract class ExtensionVersion {
         Version getVersionObject() {
             return mRuntimeVersion;
         }
+
+        @Override
+        boolean isAdvancedExtenderSupportedInternal() {
+            try {
+                return sImpl.isAdvancedExtenderImplemented();
+            } catch (NoSuchMethodError e) {
+                return false;
+            }
+        }
     }
 
     /** Empty implementation of ExtensionVersion which does nothing. */
@@ -110,6 +125,11 @@ public abstract class ExtensionVersion {
         @Override
         Version getVersionObject() {
             return null;
+        }
+
+        @Override
+        boolean isAdvancedExtenderSupportedInternal() {
+            return false;
         }
     }
 }

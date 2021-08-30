@@ -17,7 +17,6 @@
 package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-import static androidx.appcompat.widget.AppCompatReceiveContentHelper.createOnCommitContentListener;
 import static androidx.appcompat.widget.AppCompatReceiveContentHelper.maybeHandleDragEventViaPerformReceiveContent;
 import static androidx.appcompat.widget.AppCompatReceiveContentHelper.maybeHandleMenuActionViaPerformReceiveContent;
 
@@ -50,7 +49,6 @@ import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
-import androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener;
 import androidx.core.widget.TextViewCompat;
 import androidx.core.widget.TextViewOnReceiveContentListener;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
@@ -232,11 +230,15 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         mTextHelper.populateSurroundingTextIfNeeded(this, ic, outAttrs);
         ic = AppCompatHintHelper.onCreateInputConnection(ic, outAttrs, this);
 
-        String[] mimeTypes = ViewCompat.getOnReceiveContentMimeTypes(this);
-        if (ic != null && mimeTypes != null) {
-            EditorInfoCompat.setContentMimeTypes(outAttrs, mimeTypes);
-            OnCommitContentListener onCommitContentListener = createOnCommitContentListener(this);
-            ic = InputConnectionCompat.createWrapper(ic, outAttrs, onCommitContentListener);
+        // On SDK 30 and below, we manually configure the InputConnection here to use
+        // ViewCompat.performReceiveContent. On S and above, the platform's BaseInputConnection
+        // implementation calls View.performReceiveContent by default.
+        if (ic != null && Build.VERSION.SDK_INT <= 30) {
+            String[] mimeTypes = ViewCompat.getOnReceiveContentMimeTypes(this);
+            if (mimeTypes != null) {
+                EditorInfoCompat.setContentMimeTypes(outAttrs, mimeTypes);
+                ic = InputConnectionCompat.createWrapper(this, ic, outAttrs);
+            }
         }
         return mAppCompatEmojiEditTextHelper.onCreateInputConnection(ic, outAttrs);
     }
@@ -340,7 +342,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * {@inheritDoc}
      */
     @Override
-    public void setKeyListener(@NonNull KeyListener keyListener) {
+    public void setKeyListener(@Nullable KeyListener keyListener) {
         super.setKeyListener(mAppCompatEmojiEditTextHelper.getKeyListener(keyListener));
     }
 

@@ -37,7 +37,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
-import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -532,7 +531,6 @@ public class WindowDecorActionBar extends ActionBar implements
             mode.invalidate();
             mContextView.initForMode(mode);
             animateToMode(true);
-            mContextView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
             return mode;
         }
         return null;
@@ -1030,8 +1028,6 @@ public class WindowDecorActionBar extends ActionBar implements
 
             // Clear out the context mode views after the animation finishes
             mContextView.closeMode();
-            mDecorToolbar.getViewGroup().sendAccessibilityEvent(
-                    AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
             mOverlayLayout.setHideOnContentScrollEnabled(mHideOnContentScroll);
 
             mActionMode = null;

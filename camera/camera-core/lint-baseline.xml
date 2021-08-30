@@ -1,5 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.time.Duration#ofMillis`"
+        errorLine1="        ShadowSystemClock.advanceBy(Duration.ofMillis(100));"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/core/impl/utils/ExifTest.java"
+            line="159"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.time.Duration#ofMillis`"
+        errorLine1="        ShadowSystemClock.advanceBy(Duration.ofMillis(100));"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/core/impl/utils/ExifTest.java"
+            line="162"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `new android.graphics.SurfaceTexture`"
+        errorLine1="        mTestSurfaceTexture = new SurfaceTexture(/* singleBufferMode= */ false);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/core/internal/compat/ImageWriterCompatTest.java"
+            line="47"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `newInstance`"
+        errorLine1="        ImageWriter imageWriter = ImageWriterCompat.newInstance(mTestSurface,"
+        errorLine2="                                                    ~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/core/internal/compat/ImageWriterCompatTest.java"
+            line="59"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 22 (current min is 21): `android.os.Message#isAsynchronous`"
+        errorLine1="        boolean isAsyncBeforeSending = message.isAsynchronous();"
+        errorLine2="                                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/core/impl/utils/MainThreadAsyncHandlerTest.java"
+            line="64"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 22 (current min is 21): `android.os.Message#isAsynchronous`"
+        errorLine1="        boolean isAsyncAfterSending = message.isAsynchronous();"
+        errorLine2="                                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/core/impl/utils/MainThreadAsyncHandlerTest.java"
+            line="68"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `triggerImage`"
+        errorLine1="        triggerImage(processingSurface, 1);"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/camera/core/ProcessingSurfaceTest.java"
+            line="158"
+            column="9"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"

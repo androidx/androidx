@@ -17,47 +17,71 @@
 package androidx.wear.phone.interactions.authentication
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.wear.utils.WearTypeHelper
 
 /**
- * The OAuth request to be sent to the server to start the OAuth 2 authentication flow
+ * The OAuth request to be sent to the server to start the OAuth 2 authentication flow.
  */
 public class OAuthRequest internal constructor(
-    private var packageName: String,
-    private val requestUrl: Uri
+    /** The package name of the app sending the auth request. */
+    public val packageName: String,
+
+    /**
+     * The Url of the auth request.
+     *
+     * The request is expected to create a URL with the following format:
+     *
+     * ```
+     *     https://authorization-server.com/auth?client_id=XXXXX
+     *     &redirect_uri=https://wear.googleapis.com/3p_auth/mypackagename
+     *     &response_type=code
+     *     &code_challenge=XXXXX...XXX
+     *     &code_challenge_method=S256
+     * ```
+     */
+    public val requestUrl: Uri
 ) {
     public companion object {
         /**
          * The default google-specific custom URL to route the response from the auth
          * server back to the 1P companion app, which then forwards it to the 3P app that made
          * the request on the wear device.
-         *
-         * To deliver an Auth response to your Wear app, set the redirect_uri
-         * parameter on the Auth request, with your app's package name appended.
-         *
-         * For example, if your app's package name is com.package.name, with 1P companion app
-         * paired,  the redirect_uri query will be WEAR_REDIRECT_URL_PREFIX + "com.package.name".
          */
         public const val WEAR_REDIRECT_URL_PREFIX: String = "https://wear.googleapis.com/3p_auth/"
+
+        /**
+         * The default google-specific custom URL in China to route the response from the auth
+         * server back to the 1P companion app, which then forwards it to the 3P app that made
+         * the request on the wear device.
+         */
+        public const val WEAR_REDIRECT_URL_PREFIX_CN: String =
+            "https://wear.googleapis-cn.com/3p_auth/"
+
+        internal const val REDIRECT_URI_KEY: String = "redirect_uri"
     }
 
     /**
      * Builder for constructing new instance of OAuth request.
+     *
+     * @param context The Context of the app sending the auth request.
      */
-    public class Builder(private val packageName: String) {
+    public class Builder(private val context: Context) {
         private var authProviderUrl: Uri? = null
         private var codeChallenge: CodeChallenge? = null
         private var clientId: String? = null
         private var redirectUrl: Uri? = null
+        private val packageName: String = context.packageName
+
         /**
          * Set the url of the auth provider site.
-         * It provides the address pointing to the 3p/4p auth site. Appending query parameters in
-         * this uri is optional, it is recommended to let the builder append query parameters
-         * automatically through the use of setters (no setter is required for the builder to
-         * append the redirect_uri).
+         * Appending query parameters in this uri is optional, it is recommended to let the
+         * builder append query parameters automatically through the use of setters (no setter is
+         * required for the builder to append the redirect_uri).
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public fun setAuthProviderUrl(authProviderUrl: Uri): Builder =
@@ -91,7 +115,8 @@ public class OAuthRequest internal constructor(
          * routed from the auth server back to the companion.
          *
          * Calling this method is optional. If the redirect URL is not specified, it will be
-         * automatically set to [WEAR_REDIRECT_URL_PREFIX]
+         * automatically set to [WEAR_REDIRECT_URL_PREFIX] or [WEAR_REDIRECT_URL_PREFIX_CN] for
+         * rest of the world or China, respectively.
          *
          * Note, the app package name should NOT be included here, it will be appended to the end
          * of redirect_uri automatically in [Builder.build].
@@ -122,9 +147,17 @@ public class OAuthRequest internal constructor(
              */
             appendQueryParameter(
                 requestUriBuilder,
-                "redirect_uri",
+                REDIRECT_URI_KEY,
                 Uri.withAppendedPath(
-                    if (redirectUrl == null) Uri.parse(WEAR_REDIRECT_URL_PREFIX) else redirectUrl,
+                    if (redirectUrl == null) {
+                        if (WearTypeHelper.isChinaBuild(context)) {
+                            Uri.parse(WEAR_REDIRECT_URL_PREFIX_CN)
+                        } else {
+                            Uri.parse(WEAR_REDIRECT_URL_PREFIX)
+                        }
+                    } else {
+                        redirectUrl
+                    },
                     packageName
                 ).toString()
             )
@@ -134,7 +167,7 @@ public class OAuthRequest internal constructor(
                 appendQueryParameter(
                     requestUriBuilder,
                     "code_challenge",
-                    codeChallenge!!.getValue()
+                    it.value
                 )
                 appendQueryParameter(requestUriBuilder, "code_challenge_method", "S256")
             }
@@ -148,14 +181,14 @@ public class OAuthRequest internal constructor(
             expectedQueryParam: String
         ) {
             val currentQueryParam = authProviderUrl!!.getQueryParameter(queryKey)
-            currentQueryParam?.let {
+            if (currentQueryParam != null) {
                 require(expectedQueryParam == currentQueryParam) {
                     "The '$queryKey' query param already exists in the authProviderUrl, " +
                         "expect to have the value of '$expectedQueryParam', but " +
                         "'$currentQueryParam' is given. Please correct it,  or leave it out " +
                         "to allow the request builder to append it automatically."
                 }
-            } ?: run {
+            } else {
                 requestUriBuilder.appendQueryParameter(queryKey, expectedQueryParam)
             }
         }
@@ -200,19 +233,11 @@ public class OAuthRequest internal constructor(
         }
     }
 
-    /** Get the package name of the app that send the auth request */
-    public fun getPackageName(): String = packageName
-
     /**
-     * Get the Url of the auth request.
-     * The request is expected to craft a URL something like:
-     *     https://authorization-server.com/auth?client_id=XXXXX
-     *     &redirect_uri=https://wear.googleapis.com/3p_auth/mypackagename
-     *     &response_type=code
-     *     &code_challenge=XXXXX...XXX
-     *     &code_challenge_method=S256
+     * The redirect url the companion app is registered to.
      */
-    public fun getRequestUrl(): Uri = requestUrl
+    // It is save to put non-null check here as it is always set in the builder.
+    public fun redirectUrl(): String = requestUrl.getQueryParameter(REDIRECT_URI_KEY)!!
 
     internal fun toBundle(): Bundle = Bundle().apply {
         putParcelable(RemoteAuthClient.KEY_REQUEST_URL, requestUrl)

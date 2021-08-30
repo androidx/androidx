@@ -16,10 +16,69 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.ext.AndroidTypeNames
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
+import androidx.room.ext.N
+import androidx.room.ext.RoomPagingTypeNames
+import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import javax.lang.model.element.Modifier
 
+/**
+ * This Binder uses room/room-paging artifact and binds queries directly to native Paging3
+ * PagingSource through `LimitOffsetPagingSource`. Used solely by Paging3.
+ */
 class PagingSourceQueryResultBinder(
-    positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder
-) : PagingQueryResultBinder(positionalDataSourceQueryResultBinder) {
-    override fun returnStatementTemplate() = "return $L.asPagingSourceFactory().invoke()"
+    private val listAdapter: ListQueryResultAdapter?,
+    private val tableNames: Set<String>,
+) : QueryResultBinder(listAdapter) {
+    private val itemTypeName: TypeName =
+        listAdapter?.rowAdapters?.firstOrNull()?.out?.typeName ?: TypeName.OBJECT
+    private val limitOffsetPagingSourceTypeNam: ParameterizedTypeName = ParameterizedTypeName.get(
+        RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE, itemTypeName
+    )
+
+    override fun convertAndReturn(
+        roomSQLiteQueryVar: String,
+        canReleaseQuery: Boolean,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
+        scope.builder().apply {
+            val tableNamesList = tableNames.joinToString(", ") { "\"$it\"" }
+            val limitOffsetPagingSourceSpec = TypeSpec.anonymousClassBuilder(
+                "$L, $N, $L",
+                roomSQLiteQueryVar,
+                dbField,
+                tableNamesList
+            ).apply {
+                addSuperinterface(limitOffsetPagingSourceTypeNam)
+                addMethod(createConvertRowsMethod(scope))
+            }.build()
+            addStatement("return $L", limitOffsetPagingSourceSpec)
+        }
+    }
+
+    private fun createConvertRowsMethod(scope: CodeGenScope): MethodSpec {
+        return MethodSpec.methodBuilder("convertRows").apply {
+            addAnnotation(Override::class.java)
+            addModifiers(Modifier.PROTECTED)
+            returns(ParameterizedTypeName.get(CommonTypeNames.LIST, itemTypeName))
+            val cursorParam = ParameterSpec.builder(AndroidTypeNames.CURSOR, "cursor")
+                .build()
+            addParameter(cursorParam)
+            val resultVar = scope.getTmpVar("_result")
+            val rowsScope = scope.fork()
+            listAdapter?.convert(resultVar, cursorParam.name, rowsScope)
+            addCode(rowsScope.builder().build())
+            addStatement("return $L", resultVar)
+        }.build()
+    }
 }

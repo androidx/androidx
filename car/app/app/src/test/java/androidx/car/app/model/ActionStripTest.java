@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.car.app.TestUtils;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -59,6 +61,21 @@ public class ActionStripTest {
 
         // Duplicated custom types will not throw.
         new ActionStrip.Builder().addAction(action1).addAction(action2).addAction(action2).build();
+    }
+
+    @Test
+    public void unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        Action action1 = new Action.Builder().setTitle(title).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionStrip.Builder().addAction(action1));
+
+        CarText title2 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        Action action2 = new Action.Builder().setTitle(title2).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionStrip.Builder().addAction(action2));
     }
 
     @Test

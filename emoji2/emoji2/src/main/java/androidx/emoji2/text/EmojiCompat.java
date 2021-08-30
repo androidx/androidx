@@ -19,10 +19,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.TESTS;
 
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
@@ -56,28 +58,54 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Main class to keep Android devices up to date with the newest emojis by adding {@link EmojiSpan}s
- * to a given {@link CharSequence}. It is a singleton class that can be configured using a {@link
- * EmojiCompat.Config} instance.
+ * to a given {@link CharSequence}.
  * <p/>
- * EmojiCompat has to be initialized using {@link #init(EmojiCompat.Config)} function before it can
- * process a {@link CharSequence}.
- * <pre><code>EmojiCompat.init(&#47;* a config instance *&#47;);</code></pre>
+ * By default, EmojiCompat is initialized by {@link EmojiCompatInitializer}, which performs
+ * deferred font loading to avoid potential app startup delays. The default behavior is to load
+ * the font shortly after the first Activity resumes. EmojiCompatInitializer will configure
+ * EmojiCompat to use the system emoji font provider via {@link DefaultEmojiCompatConfig} and
+ * always creates a new background thread for font loading.
  * <p/>
- * It is suggested to make the initialization as early as possible in your app. Please check {@link
- * EmojiCompat.Config} for more configuration parameters. Once {@link #init(EmojiCompat.Config)} is
- * called a singleton instance will be created. Any call after that will not create a new instance
- * and will return immediately.
+ * EmojiCompat will only allow one instance to be initialized and any calls to
+ * {@link #init(Config)} after the first one will have no effect. As a result, configuration options
+ * may not be provided when using {@link EmojiCompatInitializer}. To provide a custom configuration,
+ * disable {@link EmojiCompatInitializer} in the manifest with:
+ *
+ * <pre>
+ *     <provider
+ *         android:name="androidx.startup.InitializationProvider"
+ *         android:authorities="${applicationId}.androidx-startup"
+ *         android:exported="false"
+ *         tools:node="merge">
+ *         <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer"
+ *                   tools:node="remove" />
+ *     </provider>
+ * </pre>
+ *
+ * When not using EmojiCompatInitializer, EmojiCompat must to be initialized manually using
+ * {@link #init(EmojiCompat.Config)}. It is recommended to make the initialization as early as
+ * possible in your app, such as from {@link Application#onCreate()}.
  * <p/>
- * During initialization information about emojis is loaded on a background thread. Before the
- * EmojiCompat instance is initialized, calls to functions such as {@link
- * EmojiCompat#process(CharSequence)} will throw an exception. You can use the {@link InitCallback}
- * class to be informed about the state of initialization.
+ * {@link #init(Config)} is fast and may be called from the main thread on the path to
+ * displaying the first activity. However, loading the emoji font takes significant resources on a
+ * background thread, so it is suggested to use {@link #LOAD_STRATEGY_MANUAL} in all manual
+ * configurations to defer font loading until after the first screen displays. Font loading may
+ * be started by calling {@link #load()}}. See the implementation {@link EmojiCompatInitializer}
+ * for ideas when building a manual configuration.
  * <p/>
  * After initialization the {@link #get()} function can be used to get the configured instance and
  * the {@link #process(CharSequence)} function can be used to update a CharSequence with emoji
  * EmojiSpans.
  * <p/>
  * <pre><code>CharSequence processedSequence = EmojiCompat.get().process("some string")</pre>
+ * <p/>
+ * During loading information about emojis is not available. Before the
+ * EmojiCompat instance has finished loading, calls to functions such as {@link
+ * EmojiCompat#process(CharSequence)} will throw an exception. It is safe to call process when
+ * {@link #getLoadState()} returns {@link #LOAD_STATE_SUCCEEDED}. To register a callback when
+ * loading completes use {@link InitCallback}.
+ * <p/>
+
  */
 @AnyThread
 public class EmojiCompat {
@@ -269,6 +297,39 @@ public class EmojiCompat {
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     private final GlyphChecker mGlyphChecker;
+
+    private static final String NOT_INITIALIZED_ERROR_TEXT = "EmojiCompat is not initialized.\n"
+            + "\n"
+            + "You must initialize EmojiCompat prior to referencing the EmojiCompat instance.\n"
+            + "\n"
+            + "The most likely cause of this error is disabling the EmojiCompatInitializer\n"
+            + "either explicitly in AndroidManifest.xml, or by including\n"
+            + "androidx.emoji2:emoji2-bundled.\n"
+            + "\n"
+            + "Automatic initialization is typically performed by EmojiCompatInitializer. If\n"
+            + "you are not expecting to initialize EmojiCompat manually in your application,\n"
+            + "please check to ensure it has not been removed from your APK's manifest. You can\n"
+            + "do this in Android Studio using Build > Analyze APK.\n"
+            + "\n"
+            + "In the APK Analyzer, ensure that the startup entry for\n"
+            + "EmojiCompatInitializer and InitializationProvider is present in\n"
+            + " AndroidManifest.xml. If it is missing or contains tools:node=\"remove\", and you\n"
+            + "intend to use automatic configuration, verify:\n"
+            + "\n"
+            + "  1. Your application does not include emoji2-bundled\n"
+            + "  2. All modules do not contain an exclusion manifest rule for\n"
+            + "     EmojiCompatInitializer or InitializationProvider. For more information\n"
+            + "     about manifest exclusions see the documentation for the androidx startup\n"
+            + "     library.\n"
+            + "\n"
+            + "If you intend to use emoji2-bundled, please call EmojiCompat.init. You can\n"
+            + "learn more in the documentation for BundledEmojiCompatConfig.\n"
+            + "\n"
+            + "If you intended to perform manual configuration, it is recommended that you call\n"
+            + "EmojiCompat.init immediately on application startup.\n"
+            + "\n"
+            + "If you still cannot resolve this issue, please open a bug with your specific\n"
+            + "configuration to help improve error message.";
 
     /**
      * Private constructor for singleton instance.
@@ -466,8 +527,7 @@ public class EmojiCompat {
     public static EmojiCompat get() {
         synchronized (INSTANCE_LOCK) {
             EmojiCompat localInstance = sInstance;
-            Preconditions.checkState(localInstance != null,
-                    "EmojiCompat is not initialized. Please call EmojiCompat.init() first");
+            Preconditions.checkState(localInstance != null, NOT_INITIALIZED_ERROR_TEXT);
             return localInstance;
         }
     }
@@ -914,20 +974,30 @@ public class EmojiCompat {
      * Updates the EditorInfo attributes in order to communicate information to Keyboards. When
      * used on devices running API 18 or below, does not update EditorInfo attributes.
      *
+     * This is called from EditText integrations that use EmojiEditTextHelper. Custom
+     * widgets that allow IME not subclassing EditText should call this method when creating an
+     * input connection.
+     *
+     * When EmojiCompat is not in {@link #LOAD_STATE_SUCCEEDED}, this method has no effect.
+     *
+     * Calling this method on API levels below API 19 will have no effect, as EmojiCompat may
+     * never be configured. However, it is always safe to call, even on older API levels.
+     *
      * @param outAttrs EditorInfo instance passed to
      *                 {@link android.widget.TextView#onCreateInputConnection(EditorInfo)}
      *
      * @see #EDITOR_INFO_METAVERSION_KEY
      * @see #EDITOR_INFO_REPLACE_ALL_KEY
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
+    public void updateEditorInfo(@NonNull final EditorInfo outAttrs) {
         //noinspection ConstantConditions
-        if (isInitialized() && outAttrs != null && outAttrs.extras != null) {
-            mHelper.updateEditorInfoAttrs(outAttrs);
+        if (!isInitialized() || outAttrs == null) {
+            return;
         }
+        if (outAttrs.extras == null) {
+            outAttrs.extras = new Bundle();
+        }
+        mHelper.updateEditorInfoAttrs(outAttrs);
     }
 
     /**

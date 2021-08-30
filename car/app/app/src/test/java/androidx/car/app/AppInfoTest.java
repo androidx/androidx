@@ -28,6 +28,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.car.app.versioning.CarAppApiLevels;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -89,5 +90,12 @@ public class AppInfoTest {
         mApplicationInfo.metaData = new Bundle();
         mApplicationInfo.metaData.putInt(AppInfo.MIN_API_LEVEL_METADATA_KEY, minApiLevel);
         assertThat(AppInfo.retrieveMinCarAppApiLevel(mContext)).isEqualTo(minApiLevel);
+    }
+
+    @Test
+    public void libraryVersion_isReadFromGeneratedResource() {
+        Context appContext = ApplicationProvider.getApplicationContext();
+        assertThat(AppInfo.create(appContext).getLibraryDisplayVersion())
+                .isEqualTo(appContext.getString(R.string.car_app_library_version));
     }
 }

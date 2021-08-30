@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -52,6 +53,37 @@ class ComponentActivityResultTest {
                 destinationIntent.putExtra("parcelable", ActivityResult(1, null))
                 intent.putExtra("destinationIntent", destinationIntent)
                 startActivity(intent)
+            }
+        }
+    }
+
+    @Test
+    fun registerBeforeOnCreateTest() {
+        ActivityScenario.launch(RegisterBeforeOnCreateActivity::class.java).use { scenario ->
+            scenario.withActivity {
+                recreate()
+                launcher.launch(Intent(this, FinishActivity::class.java))
+            }
+
+            scenario.withActivity { }
+
+            scenario.withActivity {
+                assertThat(firstLaunchCount).isEqualTo(0)
+                assertThat(secondLaunchCount).isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
+    fun registerInInitTest() {
+        ActivityScenario.launch(RegisterInInitActivity::class.java).use { scenario ->
+            scenario.withActivity {
+                recreate()
+                launcher.launch(Intent(this, FinishActivity::class.java))
+            }
+
+            scenario.withActivity {
+                assertThat(launchCount).isEqualTo(1)
             }
         }
     }
@@ -90,5 +122,51 @@ class ResultComponentActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         launcher.launch(Intent())
+    }
+}
+
+class RegisterBeforeOnCreateActivity : ComponentActivity() {
+    lateinit var launcher: ActivityResultLauncher<Intent>
+    var firstLaunchCount = 0
+    var secondLaunchCount = 0
+    var recreated = false
+
+    init {
+        addOnContextAvailableListener {
+            launcher = if (!recreated) {
+                registerForActivityResult(StartActivityForResult()) {
+                    firstLaunchCount++
+                }
+            } else {
+                registerForActivityResult(StartActivityForResult()) {
+                    secondLaunchCount++
+                }
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) {
+            recreated = true
+        }
+        super.onCreate(savedInstanceState)
+    }
+}
+
+class RegisterInInitActivity : ComponentActivity() {
+    var launcher: ActivityResultLauncher<Intent>
+    var launchCount = 0
+
+    init {
+        launcher = registerForActivityResult(StartActivityForResult()) {
+            launchCount++
+        }
+    }
+}
+
+class FinishActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        finish()
     }
 }

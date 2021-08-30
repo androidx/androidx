@@ -121,7 +121,6 @@ public final class CarAppActivity extends FragmentActivity {
                     requireNonNull(bundleable);
                     try {
                         Object surfacePackage = bundleable.get();
-                        Log.d(LogTags.TAG, "setSurfacePackage");
                         ThreadUtils.runOnMain(() -> mSurfaceView.setSurfacePackage(surfacePackage));
                     } catch (BundlerException e) {
                         Log.e(LogTags.TAG, "Unable to set surface package", e);
@@ -132,7 +131,6 @@ public final class CarAppActivity extends FragmentActivity {
                 @Override
                 public void registerRendererCallback(@NonNull IRendererCallback callback) {
                     requireNonNull(callback);
-                    Log.d(LogTags.TAG, "registerRendererCallback");
                     ThreadUtils.runOnMain(
                             () -> {
                                 mSurfaceView.setOnCreateInputConnectionListener(editorInfo ->
@@ -154,7 +152,6 @@ public final class CarAppActivity extends FragmentActivity {
                 @Override
                 public void setSurfaceListener(@NonNull ISurfaceListener listener) {
                     requireNonNull(listener);
-                    Log.d(LogTags.TAG, "setSurfaceListener");
                     ThreadUtils.runOnMain(
                             () -> requireNonNull(mSurfaceHolderListener)
                                     .setSurfaceListener(listener));
@@ -162,33 +159,34 @@ public final class CarAppActivity extends FragmentActivity {
 
                 @Override
                 public void onStartInput() {
-                    Log.d(LogTags.TAG, "onStartInput");
                     ThreadUtils.runOnMain(() -> mSurfaceView.onStartInput());
                 }
 
                 @Override
                 public void onStopInput() {
-                    Log.d(LogTags.TAG, "onStopInput");
                     ThreadUtils.runOnMain(() -> mSurfaceView.onStopInput());
                 }
 
                 @Override
                 public void startCarApp(@NonNull Intent intent) {
-                    Log.d(LogTags.TAG, "startCarApp");
                     startActivity(intent);
                 }
 
                 @Override
                 public void finishCarApp() {
-                    Log.d(LogTags.TAG, "finishCarApp");
                     finish();
+                }
+
+                @Override
+                public void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart,
+                        int newSelEnd) {
+                    ThreadUtils.runOnMain(() -> mSurfaceView.onUpdateSelection(oldSelStart,
+                            oldSelEnd, newSelStart, newSelEnd));
                 }
             };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        // Set before the onCreate() as this method sets windowing information based on the theme.
-        setTheme(android.R.style.Theme_DeviceDefault_NoActionBar);
         super.onCreate(savedInstanceState);
         setSoftInputHandling();
         setContentView(R.layout.activity_template);
@@ -207,6 +205,7 @@ public final class CarAppActivity extends FragmentActivity {
                 serviceComponentName);
         mViewModel = new ViewModelProvider(this, factory).get(CarAppViewModel.class);
         mViewModel.setActivity(this);
+        mViewModel.resetState();
         mViewModel.getError().observe(this, this::onErrorChanged);
         mViewModel.getState().observe(this, this::onStateChanged);
 
@@ -241,43 +240,50 @@ public final class CarAppActivity extends FragmentActivity {
     }
 
     private void onErrorChanged(@Nullable ErrorHandler.ErrorType errorType) {
-        mErrorMessageView.setError(errorType);
+        ThreadUtils.runOnMain(() -> {
+            mErrorMessageView.setError(errorType);
+        });
     }
 
     private void onStateChanged(@NonNull CarAppViewModel.State state) {
-        requireNonNull(mSurfaceView);
-        requireNonNull(mSurfaceHolderListener);
+        ThreadUtils.runOnMain(() -> {
+            requireNonNull(mSurfaceView);
+            requireNonNull(mSurfaceHolderListener);
 
-        switch (state) {
-            case IDLE:
-                mSurfaceView.setVisibility(View.GONE);
-                mSurfaceHolderListener.setSurfaceListener(null);
-                mErrorMessageView.setVisibility(View.GONE);
-                mLoadingView.setVisibility(View.GONE);
-                break;
-            case ERROR:
-                mSurfaceView.setVisibility(View.GONE);
-                mSurfaceHolderListener.setSurfaceListener(null);
-                mErrorMessageView.setVisibility(View.VISIBLE);
-                mLoadingView.setVisibility(View.GONE);
-                break;
-            case CONNECTING:
-                mSurfaceView.setVisibility(View.GONE);
-                mSurfaceHolderListener.setSurfaceListener(null);
-                mErrorMessageView.setVisibility(View.GONE);
-                mLoadingView.setVisibility(View.VISIBLE);
-                break;
-            case CONNECTED:
-                mSurfaceView.setVisibility(View.VISIBLE);
-                mErrorMessageView.setVisibility(View.GONE);
-                mLoadingView.setVisibility(View.GONE);
-                break;
-        }
+            switch (state) {
+                case IDLE:
+                    mSurfaceView.setVisibility(View.GONE);
+                    mSurfaceHolderListener.setSurfaceListener(null);
+                    mErrorMessageView.setVisibility(View.GONE);
+                    mLoadingView.setVisibility(View.GONE);
+                    break;
+                case ERROR:
+                    mSurfaceView.setVisibility(View.GONE);
+                    mSurfaceHolderListener.setSurfaceListener(null);
+                    mErrorMessageView.setVisibility(View.VISIBLE);
+                    mLoadingView.setVisibility(View.GONE);
+                    break;
+                case CONNECTING:
+                    mSurfaceView.setVisibility(View.GONE);
+                    mErrorMessageView.setVisibility(View.GONE);
+                    mLoadingView.setVisibility(View.VISIBLE);
+                    break;
+                case CONNECTED:
+                    mSurfaceView.setVisibility(View.VISIBLE);
+                    mErrorMessageView.setVisibility(View.GONE);
+                    mLoadingView.setVisibility(View.GONE);
+                    break;
+            }
+        });
     }
 
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
+
+        requireNonNull(mSurfaceHolderListener).setSurfaceListener(null);
+        requireNonNull(mActivityLifecycleDelegate).registerRendererCallback(null);
+
         requireNonNull(mViewModel).bind(intent, mCarActivity, getDisplayId());
     }
 
@@ -296,6 +302,7 @@ public final class CarAppActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         requireNonNull(mHostUpdateReceiver).unregister(this);
+        requireNonNull(mViewModel).setActivity(null);
         super.onDestroy();
     }
 

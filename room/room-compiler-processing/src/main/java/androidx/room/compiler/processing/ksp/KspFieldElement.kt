@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_FIELD
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 
@@ -63,11 +64,16 @@ internal class KspFieldElement(
         )
     }
 
-    fun copyTo(newContaining: KspTypeElement) = KspFieldElement(
-        env = env,
-        declaration = declaration,
-        containing = newContaining
-    )
+    override fun copyTo(newContainer: XTypeElement): KspFieldElement {
+        check(newContainer is KspTypeElement) {
+            "Unexpected container (${newContainer::class}), expected KspTypeElement"
+        }
+        return KspFieldElement(
+            env = env,
+            declaration = declaration,
+            containing = newContainer
+        )
+    }
 
     companion object {
         fun create(

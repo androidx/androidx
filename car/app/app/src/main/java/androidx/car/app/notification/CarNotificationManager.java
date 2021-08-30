@@ -39,10 +39,13 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.os.Build;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StyleRes;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.R;
@@ -51,7 +54,6 @@ import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationChannelGroupCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.Collection;
 import java.util.List;
@@ -332,23 +334,27 @@ public final class CarNotificationManager {
     @NonNull
     Notification updateForCar(@NonNull NotificationCompat.Builder notification) {
         if (isAutomotiveOS(mContext)) {
-            return upddateForAutomotive(notification);
+            return updateForAutomotive(notification);
         } else if (!CarAppExtender.isExtended(notification.build())) {
             notification.extend(new CarAppExtender.Builder().build());
         }
         return notification.build();
     }
 
-    private Notification upddateForAutomotive(@NonNull NotificationCompat.Builder notification) {
+    private Notification updateForAutomotive(@NonNull NotificationCompat.Builder notification) {
+        if (Build.VERSION.SDK_INT < 29) {
+            throw new UnsupportedOperationException(
+                    "Not supported for Automotive OS before API 29.");
+        }
+
         CarAppExtender carAppExtender = new CarAppExtender(notification.build());
 
-        List<Notification.Action> actions = carAppExtender.getActions();
-        if (!actions.isEmpty()) {
-            notification.clearActions();
-            for (Notification.Action action : actions) {
-                notification.addAction(fromAndroidAction(action));
-            }
-        }
+        // CarAppExtender only supports adding Icon to Notification.Action via resource.
+        // To convert the Notification.Action in the extender back to NotificationCompat.Action,
+        // we need to rely on the Icon.getResId() API which is added in API 28. The other ctors
+        // for NotificationCompat.Action would throw an exception because the Icon was created
+        // without a res package. See CarAppExtender.Builder.addAction(...) for reference.
+        Api29Impl.convertActionsToCompatActions(notification, carAppExtender.getActions());
 
         CarColor color = carAppExtender.getColor();
         if (color != null) {
@@ -427,21 +433,6 @@ public final class CarNotificationManager {
         }
     }
 
-    /**
-     * Creates an {@link NotificationCompat.Action} from the {@code action} provided.
-     *
-     * <p>This is copied from {@link NotificationCompat.Action}'s fromAndroidAction method which
-     * is not visible outside the package.
-     */
-    private NotificationCompat.Action fromAndroidAction(@NonNull Notification.Action action) {
-        final NotificationCompat.Action.Builder builder =
-                new NotificationCompat.Action.Builder(action.getIcon() == null ? null
-                        : IconCompat.createFromIcon(mContext, action.getIcon()),
-                        action.title,
-                        action.actionIntent);
-        return builder.build();
-    }
-
     @StyleRes
     private static int loadThemeId(Context context) {
         int theme = Resources.ID_NULL;
@@ -503,5 +494,42 @@ public final class CarNotificationManager {
         int carColorSecondaryDark = themedResources.getIdentifier("carColorSecondaryDark", "attr",
                 context.getPackageName());
         mSecondaryColorDark = getColor(carColorSecondaryDark, theme);
+    }
+
+    @RequiresApi(28)
+    private static final class Api29Impl {
+        /**
+         * Convert the list of {@link Notification.Action} to {@link NotificationCompat.Action} and
+         * add them to the input {@code notification}.
+         */
+        @DoNotInline
+        static void convertActionsToCompatActions(@NonNull NotificationCompat.Builder notification,
+                @NonNull List<Notification.Action> actions) {
+            if (actions.isEmpty()) {
+                return;
+            }
+
+            notification.clearActions();
+            for (Notification.Action action : actions) {
+                notification.addAction(fromAndroidAction(action));
+            }
+        }
+
+        /**
+         * Creates an {@link NotificationCompat.Action} from the {@code action} provided.
+         *
+         * <p>This is copied from {@link NotificationCompat.Action}'s fromAndroidAction method which
+         * is not visible outside the package.
+         */
+        private static NotificationCompat.Action fromAndroidAction(
+                @NonNull Notification.Action action) {
+            return new NotificationCompat.Action(action.getIcon() == null ? 0 :
+                    action.getIcon().getResId(),
+                    action.title,
+                    action.actionIntent);
+        }
+
+        private Api29Impl() {
+        }
     }
 }

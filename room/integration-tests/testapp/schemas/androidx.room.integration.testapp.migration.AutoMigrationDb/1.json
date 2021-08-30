@@ -820,6 +820,33 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "Entity27",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id27` INTEGER NOT NULL, `addedInV1` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id27`))",
+        "fields": [
+          {
+            "fieldPath": "id27",
+            "columnName": "id27",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "addedInV1",
+            "columnName": "addedInV1",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id27"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [

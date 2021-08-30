@@ -1,5 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 16): `android.app.Activity#setTurnScreenOn`"
+        errorLine1="                mActivity.setTurnScreenOn(true);"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"
+            line="111"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 16): `android.app.Activity#setShowWhenLocked`"
+        errorLine1="                mActivity.setShowWhenLocked(true);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"
+            line="112"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 16): `android.app.KeyguardManager#requestDismissKeyguard`"
+        errorLine1="                mKeyguardManager.requestDismissKeyguard(mActivity, null);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"
+            line="113"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 16): `android.media.MediaDrm.KeyRequest#getData`"
+        errorLine1="        if (0 == getKeyIds(keyRequest.getData(), keyIds)) {"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"
+            line="874"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 16): `android.app.Activity#setTurnScreenOn`"
+        errorLine1="                mActivity.setTurnScreenOn(true);"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"
+            line="129"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 16): `android.app.Activity#setShowWhenLocked`"
+        errorLine1="                mActivity.setShowWhenLocked(true);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"
+            line="130"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 16): `android.app.KeyguardManager#requestDismissKeyguard`"
+        errorLine1="                mKeyguardManager.requestDismissKeyguard(mActivity, null);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"
+            line="131"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 18 (current min is 16): `android.media.MediaDrm.KeyRequest#getData`"
+        errorLine1="        if (0 == getKeyIds(keyRequest.getData(), keyIds)) {"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"
+            line="955"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: BaseResult.RESULT_SUCCESS, DrmResult.RESULT_ERROR_PROVISIONING_NETWORK_ERROR, DrmResult.RESULT_ERROR_PROVISIONING_SERVER_ERROR, DrmResult.RESULT_ERROR_PREPARATION_ERROR, DrmResult.RESULT_ERROR_UNSUPPORTED_SCHEME, DrmResult.RESULT_ERROR_RESOURCE_BUSY"
+        errorLine1="            return super.getResultCode();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaPlayer.java"
+            line="3859"
+            column="20"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -47,255 +146,35 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (FileDescriptor) method.invoke(object, fileDescriptor);"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
-            line="100"
+            line="102"
             column="37"/>
     </issue>
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            method.invoke(object, fileDescriptor, position, /* whence= */ SEEK_SET);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
-            line="125"
+            line="127"
             column="13"/>
     </issue>
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return (FileDescriptor) method.invoke(object, fileDescriptor);"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
-            line="150"
+            line="152"
             column="37"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media2.player.ExoPlayerWrapper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        PersistableBundle bundle = new PersistableBundle();"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="401"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media2.player.ExoPlayerWrapper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            bundle.putString(MediaPlayer2.MetricsConstants.MIME_TYPE_VIDEO, primaryVideoMimeType);"
-        errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="403"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media2.player.ExoPlayerWrapper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            bundle.putString(MediaPlayer2.MetricsConstants.MIME_TYPE_AUDIO, primaryAudioMimeType);"
-        errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="406"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media2.player.ExoPlayerWrapper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        bundle.putLong(MediaPlayer2.MetricsConstants.DURATION,"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="408"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media2.player.ExoPlayerWrapper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        bundle.putLong(MediaPlayer2.MetricsConstants.PLAYING, playingTimeMs);"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="410"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media2.player.FileDescriptorUtil is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return Os.dup(fileDescriptor);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
-            line="84"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media2.player.FileDescriptorUtil is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Os.lseek(fileDescriptor, position, /* whence= */ OsConstants.SEEK_SET);"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
-            line="109"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.media2.player.FileDescriptorUtil is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Os.close(fileDescriptor);"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
-            line="134"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.MediaTimestamp is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mMediaTimeUs = timestamp.getAnchorMediaTimeUs();"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaTimestamp.java"
-            line="84"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.MediaTimestamp is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mNanoTime = timestamp.getAnchorSytemNanoTime();"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaTimestamp.java"
-            line="85"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.MediaTimestamp is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mClockRate = timestamp.getMediaClockRate();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaTimestamp.java"
-            line="86"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.PlaybackParams is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                return mPlaybackParams.getAudioFallbackMode();"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"
-            line="115"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.PlaybackParams is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                return mPlaybackParams.getPitch();"
-        errorLine2="                                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"
-            line="130"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.PlaybackParams is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                return mPlaybackParams.getSpeed();"
-        errorLine2="                                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"
-            line="145"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.PlaybackParams.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mPlaybackParams = new android.media.PlaybackParams();"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"
-            line="188"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.PlaybackParams.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mPlaybackParams.setAudioFallbackMode(audioFallbackMode);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"
-            line="224"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.PlaybackParams.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mPlaybackParams.setPitch(pitch);"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"
-            line="246"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.PlaybackParams.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mPlaybackParams.setSpeed(speed);"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"
-            line="268"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.TimedMetaData is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mTimestampUs = timedMetaData.getTimestamp();"
-        errorLine2="                                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/TimedMetaData.java"
-            line="46"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.media2.player.TimedMetaData is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mMetaData = timedMetaData.getMetaData();"
-        errorLine2="                                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/TimedMetaData.java"
-            line="47"
-            column="35"/>
     </issue>
 
     <issue
@@ -756,7 +635,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/PlaybackParams.java"
-            line="165"
+            line="166"
             column="12"/>
     </issue>
 
@@ -767,7 +646,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/PlaybackParams.java"
-            line="195"
+            line="196"
             column="24"/>
     </issue>
 
@@ -785,22 +664,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public TimedMetaData(android.media.TimedMetaData timedMetaData) {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/TimedMetaData.java"
-            line="45"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public TimedMetaData(long timestampUs, byte[] metaData) {"
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/TimedMetaData.java"
-            line="54"
+            line="43"
             column="44"/>
     </issue>
 
@@ -811,7 +679,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/TimedMetaData.java"
-            line="71"
+            line="60"
             column="12"/>
     </issue>
 

@@ -229,5 +229,21 @@ public class DynamicIncludeGraphNavigator(
                 context.packageName
             ) ?: "${context.packageName}.$moduleName"
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is DynamicIncludeNavGraph) return false
+            return super.equals(other) &&
+                graphResourceName == other.graphResourceName &&
+                graphPackage == other.graphPackage &&
+                moduleName == other.moduleName
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + graphResourceName.hashCode()
+            result = 31 * result + graphPackage.hashCode()
+            result = 31 * result + moduleName.hashCode()
+            return result
+        }
     }
 }

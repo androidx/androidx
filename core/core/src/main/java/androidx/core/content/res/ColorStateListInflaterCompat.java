@@ -36,6 +36,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.XmlRes;
 import androidx.core.R;
+import androidx.core.math.MathUtils;
+import androidx.core.os.BuildCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -165,6 +167,14 @@ public final class ColorStateListInflaterCompat {
                 alphaMod = a.getFloat(R.styleable.ColorStateListItem_alpha, alphaMod);
             }
 
+            final float lStar;
+            if (BuildCompat.isAtLeastS()
+                    && a.hasValue(R.styleable.ColorStateListItem_android_lStar)) {
+                lStar = a.getFloat(R.styleable.ColorStateListItem_android_lStar, -1.0f);
+            } else {
+                lStar = a.getFloat(R.styleable.ColorStateListItem_lStar, -1.0f);
+            }
+
             a.recycle();
 
             // Parse all unrecognized attributes as state specifiers.
@@ -173,8 +183,10 @@ public final class ColorStateListInflaterCompat {
             int[] stateSpec = new int[numAttrs];
             for (int i = 0; i < numAttrs; i++) {
                 final int stateResId = attrs.getAttributeNameResource(i);
-                if (stateResId != android.R.attr.color && stateResId != android.R.attr.alpha
-                        && stateResId != R.attr.alpha) {
+                if (stateResId != android.R.attr.color
+                        && stateResId != android.R.attr.alpha
+                        && stateResId != R.attr.alpha
+                        && stateResId != R.attr.lStar) {
                     // Unrecognized attribute, add to state set
                     stateSpec[j++] = attrs.getAttributeBooleanValue(i, false)
                             ? stateResId : -stateResId;
@@ -182,10 +194,10 @@ public final class ColorStateListInflaterCompat {
             }
             stateSpec = StateSet.trimStateSet(stateSpec, j);
 
-            // Apply alpha modulation. If we couldn't resolve the color or
+            // Apply alpha and luminance modulation. If we couldn't resolve the color or
             // alpha yet, the default values leave us enough information to
             // modulate again during applyTheme().
-            final int color = modulateColorAlpha(baseColor, alphaMod);
+            final int color = modulateColorAlpha(baseColor, alphaMod, lStar);
 
             colorList = GrowingArrayUtils.append(colorList, listSize, color);
             stateSpecList = GrowingArrayUtils.append(stateSpecList, listSize, stateSpec);
@@ -225,8 +237,21 @@ public final class ColorStateListInflaterCompat {
 
     @ColorInt
     private static int modulateColorAlpha(@ColorInt int color,
-            @FloatRange(from = 0f, to = 1f) float alphaMod) {
-        int alpha = Math.round(Color.alpha(color) * alphaMod);
-        return (color & 0x00ffffff) | (alpha << 24);
+            @FloatRange(from = 0f, to = 1f) float alphaMod,
+            @FloatRange(from = 0f, to = 100f) float lStar) {
+        final boolean validLStar = lStar >= 0.0f && lStar <= 100.0f;
+        if (alphaMod == 1.0f && !validLStar) {
+            return color;
+        }
+
+        final int baseAlpha = Color.alpha(color);
+        final int alpha = MathUtils.clamp((int) (baseAlpha * alphaMod + 0.5f), 0, 255);
+
+        if (validLStar) {
+            final CamColor baseCam = CamColor.fromColor(color);
+            color = CamColor.toColor(baseCam.getHue(), baseCam.getChroma(), lStar);
+        }
+
+        return (color & 0xFFFFFF) | (alpha << 24);
     }
 }

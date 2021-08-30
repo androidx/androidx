@@ -342,6 +342,6 @@ public final class TextClassificationTest {
     }
 
     private PendingIntent createPendingIntent(Intent intent) {
-        return PendingIntent.getActivity(mContext, 0, intent, 0);
+        return PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_IMMUTABLE);
     }
 }

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `SETTINGS_AUTHORITY_URI`"
+        errorLine1="            PlayStoreAvailability.SETTINGS_AUTHORITY_URI,"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/remote/interactions/PlayStoreAvailabilityTest.kt"
+            line="51"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `SYSTEM_FEATURE_WATCH`"
+        errorLine1="        shadowPackageManager?.setSystemFeature(PlayStoreAvailability.SYSTEM_FEATURE_WATCH, true)"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/remote/interactions/PlayStoreAvailabilityTest.kt"
+            line="57"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `PLAY_STORE_AVAILABLE`"
+        errorLine1="        createFakePlayStoreAvailabilityQuery(PlayStoreAvailability.PLAY_STORE_AVAILABLE)"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/remote/interactions/PlayStoreAvailabilityTest.kt"
+            line="63"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `PLAY_STORE_AVAILABLE`"
+        errorLine1="            PlayStoreAvailability.PLAY_STORE_AVAILABLE"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/remote/interactions/PlayStoreAvailabilityTest.kt"
+            line="68"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `PLAY_STORE_UNAVAILABLE`"
+        errorLine1="        createFakePlayStoreAvailabilityQuery(PlayStoreAvailability.PLAY_STORE_UNAVAILABLE)"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/remote/interactions/PlayStoreAvailabilityTest.kt"
+            line="75"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `PLAY_STORE_UNAVAILABLE`"
+        errorLine1="            PlayStoreAvailability.PLAY_STORE_UNAVAILABLE"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/remote/interactions/PlayStoreAvailabilityTest.kt"
+            line="80"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `PLAY_STORE_ERROR_UNKNOWN`"
+        errorLine1="            PlayStoreAvailability.PLAY_STORE_ERROR_UNKNOWN"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/remote/interactions/PlayStoreAvailabilityTest.kt"
+            line="91"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `KEY_PLAY_STORE_AVAILABILITY`"
+        errorLine1="                arrayOf&lt;Any>(PlayStoreAvailability.KEY_PLAY_STORE_AVAILABILITY, availability)"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/remote/interactions/PlayStoreAvailabilityTest.kt"
+            line="104"
+            column="52"/>
+    </issue>
+
+</issues>

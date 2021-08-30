@@ -46,8 +46,8 @@ public interface RemoteAuthRequestHandler {
     /**
      * Handle the auth request by sending it to the phone.
      * Typically, if the paired phone is not connected, send a response with error code of
-     * ERROR_PHONE_UNAVAILABLE; otherwise listening for the response from the phone and send it
-     * back to the 3p app.
+     * [RemoteAuthClient.ERROR_PHONE_UNAVAILABLE]; otherwise listening for the response from the
+     * phone and send it back to the 3p app.
      *
      * [RemoteAuthService.sendResponseToCallback] is provided for sending response back to the
      * callback provided by the 3p app.
@@ -109,8 +109,8 @@ public abstract class RemoteAuthService : Service() {
 
         internal fun buildBundleFromResponse(response: OAuthResponse, packageName: String): Bundle =
             Bundle().apply {
-                putParcelable(KEY_RESPONSE_URL, response.getResponseUrl())
-                putInt(KEY_ERROR_CODE, response.getErrorCode())
+                putParcelable(KEY_RESPONSE_URL, response.responseUrl)
+                putInt(KEY_ERROR_CODE, response.errorCode)
                 putString(KEY_PACKAGE_NAME, packageName)
             }
     }

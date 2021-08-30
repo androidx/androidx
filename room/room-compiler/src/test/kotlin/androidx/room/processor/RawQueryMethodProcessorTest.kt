@@ -372,6 +372,206 @@ class RawQueryMethodProcessorTest {
         }
     }
 
+    @Test
+    fun testUseMapInfoWithBothEmptyColumnsProvided() {
+        singleQueryMethod(
+            """
+                @MapInfo
+                @RawQuery
+                abstract Map<User, Book> getMultimap(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(ProcessorErrors.MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED)
+            }
+        }
+    }
+
+    @Test
+    fun testDoesNotImplementEqualsAndHashcodeRawQuery() {
+        singleQueryMethod(
+            """
+                @RawQuery
+                abstract Map<User, Book> getMultimap(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarningCount(1)
+                hasWarningContaining(
+                    ProcessorErrors.classMustImplementEqualsAndHashCode(
+                        "foo.bar.User"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoOneToOneString() {
+        singleQueryMethod(
+            """
+                @RawQuery
+                abstract Map<Artist, String> getAllArtistsWithAlbumCoverYear(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "String")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoOneToManyString() {
+        singleQueryMethod(
+            """
+                @RawQuery
+                abstract Map<Artist, List<String>> getAllArtistsWithAlbumCoverYear(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "String")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoImmutableListMultimapOneToOneString() {
+        singleQueryMethod(
+            """
+                @RawQuery
+                abstract ImmutableListMultimap<Artist, String> getAllArtistsWithAlbumCoverYear(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "String")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoOneToOneLong() {
+        singleQueryMethod(
+            """
+                @RawQuery
+                Map<Artist, Long> getAllArtistsWithAlbumCoverYear(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "Long")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoOneToManyLong() {
+        singleQueryMethod(
+            """
+                @RawQuery
+                Map<Artist, Set<Long>> getAllArtistsWithAlbumCoverYear(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "Long")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoImmutableListMultimapOneToOneLong() {
+        singleQueryMethod(
+            """
+                @RawQuery
+                ImmutableListMultimap<Artist, Long> getAllArtistsWithAlbumCoverYear(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "Long")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoImmutableListMultimapOneToOneTypeConverterKey() {
+        singleQueryMethod(
+            """
+                @TypeConverters(DateConverter.class)
+                @RawQuery
+                ImmutableMap<java.util.Date, Artist> getAlbumDateWithBandActivity(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.keyMayNeedMapInfo(
+                        ClassName.get("java.util", "Date")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoImmutableListMultimapOneToOneTypeConverterValue() {
+        singleQueryMethod(
+            """
+                @TypeConverters(DateConverter.class)
+                @RawQuery
+                ImmutableMap<Artist, java.util.Date> getAlbumDateWithBandActivity(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.valueMayNeedMapInfo(
+                        ClassName.get("java.util", "Date")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testOneToOneStringMapInfoForKeyInsteadOfColumn() {
+        singleQueryMethod(
+            """
+                @MapInfo(keyColumn = "mArtistName")
+                @RawQuery
+                abstract Map<Artist, String> getAllArtistsWithAlbumCoverYear(SupportSQLiteQuery query);
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "String")
+                    )
+                )
+            }
+        }
+    }
+
     private fun singleQueryMethod(
         vararg input: String,
         handler: (RawQueryMethod, XTestInvocation) -> Unit
@@ -385,7 +585,8 @@ class RawQueryMethodProcessorTest {
         val commonSources = listOf(
             COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER,
             COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE,
-            COMMON.NOT_AN_ENTITY
+            COMMON.NOT_AN_ENTITY, COMMON.BOOK, COMMON.ARTIST, COMMON.SONG, COMMON.IMAGE,
+            COMMON.IMAGE_FORMAT, COMMON.CONVERTER
         )
         runProcessorTest(
             sources = commonSources + inputSource
@@ -398,7 +599,7 @@ class RawQueryMethodProcessorTest {
                         it,
                         it.getAllMethods().filter {
                             it.hasAnnotation(RawQuery::class)
-                        }
+                        }.toList()
                     )
                 }.first { it.second.isNotEmpty() }
             val parser = RawQueryMethodProcessor(
@@ -418,6 +619,8 @@ class RawQueryMethodProcessorTest {
                 import androidx.room.*;
                 import androidx.sqlite.db.SupportSQLiteQuery;
                 import androidx.lifecycle.LiveData;
+                import java.util.*;
+                import com.google.common.collect.*;
                 @Dao
                 abstract class MyClass {
                 """

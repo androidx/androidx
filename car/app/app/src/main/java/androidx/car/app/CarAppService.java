@@ -73,7 +73,7 @@ import java.security.InvalidParameterException;
  * }</pre>
  *
  * <p>For a list of all the supported categories see
- * <a href="https://developer.android.com/training/cars/navigation#supported-app-categories">Supported App Categories</a>.
+ * <a href="https://developer.android.com/training/cars/apps#supported-app-categories">Supported App Categories</a>.
  *
  * <h4>Accessing Location</h4>
  *
@@ -85,8 +85,9 @@ import java.security.InvalidParameterException;
  *
  * <p>To reliably get location for your car app, we recommended that you use a <a
  * href="https://developer.android.com/guide/components/services?#Types-of-services">foreground
- * service</a>. Also note that accessing location may become unreliable when the phone is in the
- * battery saver mode.
+ * service</a>. If you have a service other than your {@link CarAppService} that accesses
+ * location, run the service and your `CarAppService` in the same process. Also note that
+ * accessing location may become unreliable when the phone is in the battery saver mode.
  */
 public abstract class CarAppService extends Service {
     /**
@@ -191,8 +192,8 @@ public abstract class CarAppService extends Service {
      * don't hold the aforementioned permission (for example, Android Auto and Android
      * Automotive OS hosts below API level 31), by allow-listing the signatures of those hosts.
      *
-     * <p>Please refer to {@link androidx.car.app.R.array#hosts_allowlist_sample} to obtain a list
-     * of package names and signatures that should be allow-listed by default.
+     * <p>Refer to {@code androidx.car.app.R.array.hosts_allowlist_sample} to obtain a
+     * list of package names and signatures that should be allow-listed by default.
      *
      * <p>It is also advised to allow connections from unknown hosts in debug builds to facilitate
      * debugging and testing.
@@ -365,7 +366,9 @@ public abstract class CarAppService extends Service {
                             setCurrentSession(session);
                         }
 
-                        session.configure(CarAppService.this, requireNonNull(getHandshakeInfo()),
+                        session.configure(CarAppService.this,
+                                requireNonNull(getHandshakeInfo()),
+                                requireNonNull(getHostInfo()),
                                 carHost, configuration);
 
                         // Whenever the host unbinds, the screens in the stack are destroyed.  If

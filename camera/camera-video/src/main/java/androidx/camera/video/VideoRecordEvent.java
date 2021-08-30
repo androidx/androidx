@@ -16,17 +16,26 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
+import static androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.Executor;
 
 /**
  * VideoRecordEvent is used to report the video recording events and status.
+ *
+ * <p>Upon starting a recording by {@link PendingRecording#start()}, recording events will start to
+ * be sent to the listener set in {@link PendingRecording#withEventListener(Executor, Consumer)}.
  *
  * <p>There are {@link Start}, {@link Finalize}, {@link Status}, {@link Pause} and {@link Resume}
  * events. The {@link #getEventType()} can be used to check what type of event is.
@@ -37,19 +46,19 @@ import java.lang.annotation.RetentionPolicy;
  *
  * VideoRecordEvent videoRecordEvent = obtainVideoRecordEvent();
  * switch (videoRecordEvent.getEventType()) {
- * case START:
+ * case VideoRecordEvent.EVENT_TYPE_START:
  *     VideoRecordEvent.Start start = (VideoRecordEvent.Start) videoRecordEvent;
  *     break;
- * case FINALIZE:
+ * case VideoRecordEvent.EVENT_TYPE_FINALIZE:
  *     VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) videoRecordEvent;
  *     break;
- * case STATUS:
+ * case VideoRecordEvent.EVENT_TYPE_STATUS:
  *     VideoRecordEvent.Status status = (VideoRecordEvent.Status) videoRecordEvent;
  *     break;
- * case PAUSE:
+ * case VideoRecordEvent.EVENT_TYPE_PAUSE:
  *     VideoRecordEvent.Pause pause = (VideoRecordEvent.Pause) videoRecordEvent;
  *     break;
- * case RESUME:
+ * case VideoRecordEvent.EVENT_TYPE_RESUME:
  *     VideoRecordEvent.Resume resume = (VideoRecordEvent.Resume) videoRecordEvent;
  *     break;
  * }
@@ -58,11 +67,11 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>When a video recording is requested, {@link Start} event will be reported at first and
  * {@link Finalize} event will be reported when the recording is finished. The stop reason can be
- * obtained via {@link Finalize#getError()}. {@link #ERROR_NONE} means that the video was recorded
- * successfully, and other error code indicate the recording is failed or stopped due to a certain
- * reason. Please note that a failed result does not mean that the video file has not been
- * generated. In some cases, the file can still be successfully generated. For example,
- * the result {@link #ERROR_INSUFFICIENT_DISK} will still have video file.
+ * obtained via {@link Finalize#getError()}. {@link Finalize#ERROR_NONE} means that the video was
+ * recorded successfully, and other error code indicate the recording is failed or stopped due to
+ * a certain reason. Please note that a failed result does not mean that the video file has not been
+ * generated. In some cases, the file can still be successfully generated. For example, the
+ * result {@link Finalize#ERROR_INSUFFICIENT_DISK} will still have video file.
  *
  * <p>The {@link Status} event will be triggered continuously during the recording process,
  * {@link #getRecordingStats} can be used to get the recording state such as total recorded bytes
@@ -70,111 +79,47 @@ import java.lang.annotation.RetentionPolicy;
  */
 public abstract class VideoRecordEvent {
 
-    /** The event types. */
-    public enum EventType {
-        /**
-         * Indicates the start of recording.
-         *
-         * @see Start
-         */
-        START,
-
-        /**
-         * Indicates the finalization of recording.
-         *
-         * @see Finalize
-         */
-        FINALIZE,
-
-        /**
-         * The status report of the recording in progress.
-         *
-         * @see Status
-         */
-        STATUS,
-
-        /**
-         * Indicates the pause event of recording.
-         *
-         * @see Pause
-         */
-        PAUSE,
-
-        /**
-         * Indicates the resume event of recording.
-         *
-         * @see Resume
-         */
-        RESUME
-    }
-
     /**
-     * No error. The recording succeeds.
-     */
-    public static final int ERROR_NONE = 0;
-
-    /**
-     * Unknown error.
-     */
-    public static final int ERROR_UNKNOWN = 1;
-
-    /**
-     * The recording failed due to file size limitation.
-     */
-    // TODO(b/167481981): add more descriptions about the restrictions after getting into more
-    //  details.
-    public static final int ERROR_FILE_SIZE_LIMIT_REACHED = 2;
-
-    /**
-     * The recording failed due to insufficient disk space.
-     */
-    // TODO(b/167484136): add more descriptions about the restrictions after getting into more
-    //  details.
-    public static final int ERROR_INSUFFICIENT_DISK = 3;
-
-    /**
-     * The recording failed because the camera was closed.
+     * Indicates the start of recording.
      *
-     * <p>One case is that camera has been closed due to lifecycle has stopped, so video
-     * recording cannot be started.
+     * @see Start
      */
-    public static final int ERROR_CAMERA_CLOSED = 4;
+    public static final int EVENT_TYPE_START = 0;
 
     /**
-     * The recording failed due to the output options are invalid.
-     */
-    public static final int ERROR_INVALID_OUTPUT_OPTIONS = 5;
-
-    /**
-     * The recording failed while encoding.
-     */
-    public static final int ERROR_ENCODING_FAILED = 6;
-
-    /**
-     * The recording failed due to the recorder encountered errors.
+     * Indicates the finalization of recording.
      *
-     * <p>Usually it can only be recovered by recreating a recorder and recordings with it.
+     * @see Finalize
      */
-    public static final int ERROR_RECORDER_ERROR = 7;
+    public static final int EVENT_TYPE_FINALIZE = 1;
 
     /**
-     * The recording failed due to the recorder has not been initialized.
+     * The status report of the recording in progress.
+     *
+     * @see Status
      */
-    public static final int ERROR_RECORDER_UNINITIALIZED = 8;
+    public static final int EVENT_TYPE_STATUS = 2;
 
     /**
-     * Describes the error that occurred during a video recording.
+     * Indicates the pause event of recording.
      *
-     * <p>This is the error code returning from {@link Finalize#getError()}.
-     *
-     * @hide
+     * @see Pause
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int EVENT_TYPE_PAUSE = 3;
+
+    /**
+     * Indicates the resume event of recording.
+     *
+     * @see Resume
+     */
+    public static final int EVENT_TYPE_RESUME = 4;
+
+    /** @hide */
+    @IntDef({EVENT_TYPE_START, EVENT_TYPE_FINALIZE, EVENT_TYPE_STATUS, EVENT_TYPE_PAUSE,
+            EVENT_TYPE_RESUME})
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(value = {ERROR_NONE, ERROR_UNKNOWN, ERROR_FILE_SIZE_LIMIT_REACHED,
-            ERROR_INSUFFICIENT_DISK, ERROR_CAMERA_CLOSED, ERROR_INVALID_OUTPUT_OPTIONS,
-            ERROR_ENCODING_FAILED, ERROR_RECORDER_ERROR, ERROR_RECORDER_UNINITIALIZED})
-    public @interface VideoRecordError {
+    @RestrictTo(Scope.LIBRARY)
+    public @interface EventType {
     }
 
     private final OutputOptions mOutputOptions;
@@ -190,9 +135,12 @@ public abstract class VideoRecordEvent {
 
     /**
      * Gets the event type.
+     *
+     * <p>Possible values are {@link #EVENT_TYPE_START}, {@link #EVENT_TYPE_FINALIZE},
+     * {@link #EVENT_TYPE_PAUSE}, {@link #EVENT_TYPE_RESUME} and {@link #EVENT_TYPE_STATUS}.
      */
-    @NonNull
-    public abstract EventType getEventType();
+    @EventType
+    public abstract int getEventType();
 
     /**
      * Gets the recording status of current event.
@@ -219,7 +167,8 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the start of recording.
      *
-     * <p>When a video recording is requested, start event will be reported at first.
+     * <p>When a video recording is successfully requested by {@link PendingRecording#start()},
+     * a {@code Start} event will be the first event.
      */
     public static final class Start extends VideoRecordEvent {
 
@@ -229,10 +178,10 @@ public abstract class VideoRecordEvent {
         }
 
         /** {@inheritDoc} */
-        @NonNull
+        @EventType
         @Override
-        public EventType getEventType() {
-            return EventType.START;
+        public int getEventType() {
+            return EVENT_TYPE_START;
         }
     }
 
@@ -254,18 +203,111 @@ public abstract class VideoRecordEvent {
     }
 
     /**
-     * Indicates the stop of recording.
+     * Indicates the finalization of recording.
      *
-     * <p>The stop event will be triggered regardless of whether the recording succeeds or
+     * <p>The finalize event will be triggered regardless of whether the recording succeeds or
      * fails. Use {@link Finalize#getError()} to obtain the error type and
      * {@link Finalize#getCause()} to get the error cause. If there is no error,
-     * {@link #ERROR_NONE} will be returned. Other error code indicate the recording is failed or
-     * stopped due to a certain reason. Please note that a failed result does not mean that the
-     * video file has not been generated. In some cases, the file can still be successfully
-     * generated. For example, the result {@link #ERROR_INSUFFICIENT_DISK} will still have video
-     * file.
+     * {@link #ERROR_NONE} will be returned. Other error types indicate the recording is failed or
+     * stopped due to a certain reasons. Please note that receiving a finalize event with error
+     * does not necessarily mean that the video file has not been generated. In some cases, the
+     * file can still be successfully generated depending on the error type. For example, a file
+     * will still be generated when the recording is finalized with
+     * {@link #ERROR_INSUFFICIENT_DISK}.
+     *
+     * <p>If there's no error that prevents the file to be generated, the file can be accessed
+     * safely after receiving the finalize event.
      */
     public static final class Finalize extends VideoRecordEvent {
+        /**
+         * The recording succeeded with no error.
+         */
+        public static final int ERROR_NONE = 0;
+
+        /**
+         * An unknown error occurred.
+         */
+        public static final int ERROR_UNKNOWN = 1;
+
+        /**
+         * The recording failed due to file size limitation.
+         *
+         * <p>The file size limitation will refer to {@link OutputOptions#getFileSizeLimit()}.
+         */
+        // TODO(b/167481981): add more descriptions about the restrictions after getting into more
+        //  details.
+        public static final int ERROR_FILE_SIZE_LIMIT_REACHED = 2;
+
+        /**
+         * The recording failed due to insufficient storage space.
+         */
+        // TODO(b/167484136): add more descriptions about the restrictions after getting into more
+        //  details.
+        public static final int ERROR_INSUFFICIENT_DISK = 3;
+
+        /**
+         * The recording failed because the source becomes inactive and stops sending frames.
+         *
+         * <p>One case is that if camera is closed due to lifecycle stopped, the active recording
+         * will be finalized with this error, and the output will be generated, containing the
+         * frames produced before camera closing. Attempting to start a new recording will be
+         * finalized immediately if the source remains inactive.
+         */
+        public static final int ERROR_SOURCE_INACTIVE = 4;
+
+        /**
+         * The recording failed due to invalid output options.
+         *
+         * <p>This error is generated when invalid output options have been used while preparing a
+         * recording, such as with the {@link Recorder#prepareRecording(MediaStoreOutputOptions)}
+         * method. The error will depend on the {@linkplain OutputOptions#getType() type} of options
+         * used, and more information about the error can be retrieved from
+         * {@link Finalize#getCause()}.
+         */
+        public static final int ERROR_INVALID_OUTPUT_OPTIONS = 5;
+
+        /**
+         * The recording failed while encoding.
+         *
+         * <p>This error may be generated when the video or audio codec encounters an error during
+         * encoding. See {@link Finalize#getCause()} for more information about the error
+         * encountered by the codec.
+         */
+        public static final int ERROR_ENCODING_FAILED = 6;
+
+        /**
+         * The recording failed because the {@link Recorder} is in an unrecoverable error state.
+         *
+         * <p>More information about the error can be retrieved from {@link Finalize#getCause()}.
+         * Such an error will usually require creating a new {@link Recorder} object to start a
+         * new recording.
+         */
+        public static final int ERROR_RECORDER_ERROR = 7;
+
+        /**
+         * The recording failed because no valid data was produced to be recorded.
+         *
+         * <p>This error is generated when the essential data for a recording to be played correctly
+         * is missing, for example, a recording must contain at least one key frame. See
+         * {@link Finalize#getCause()} for more information.
+         */
+        public static final int ERROR_NO_VALID_DATA = 8;
+
+        /**
+         * Describes the error that occurred during a video recording.
+         *
+         * <p>This is the error code returning from {@link Finalize#getError()}.
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Retention(RetentionPolicy.SOURCE)
+        @IntDef(value = {ERROR_NONE, ERROR_UNKNOWN, ERROR_FILE_SIZE_LIMIT_REACHED,
+                ERROR_INSUFFICIENT_DISK, ERROR_INVALID_OUTPUT_OPTIONS, ERROR_ENCODING_FAILED,
+                ERROR_RECORDER_ERROR, ERROR_NO_VALID_DATA, ERROR_SOURCE_INACTIVE})
+        public @interface VideoRecordError {
+        }
+
         private final OutputResults mOutputResults;
         @VideoRecordError
         private final int mError;
@@ -284,10 +326,10 @@ public abstract class VideoRecordEvent {
         }
 
         /** {@inheritDoc} */
-        @NonNull
+        @EventType
         @Override
-        public EventType getEventType() {
-            return EventType.FINALIZE;
+        public int getEventType() {
+            return EVENT_TYPE_FINALIZE;
         }
 
         /**
@@ -311,7 +353,11 @@ public abstract class VideoRecordEvent {
         /**
          * Gets the error type for a video recording.
          *
-         * <p>Returns {@link #ERROR_NONE} if the recording did not stop due to an error.
+         * <p>Possible values are {@link #ERROR_NONE}, {@link #ERROR_UNKNOWN},
+         * {@link #ERROR_FILE_SIZE_LIMIT_REACHED}, {@link #ERROR_INSUFFICIENT_DISK},
+         * {@link #ERROR_INVALID_OUTPUT_OPTIONS}, {@link #ERROR_ENCODING_FAILED},
+         * {@link #ERROR_RECORDER_ERROR}, {@link #ERROR_NO_VALID_DATA} and
+         * {@link #ERROR_SOURCE_INACTIVE}.
          */
         @VideoRecordError
         public int getError() {
@@ -346,10 +392,10 @@ public abstract class VideoRecordEvent {
         }
 
         /** {@inheritDoc} */
-        @NonNull
+        @EventType
         @Override
-        public EventType getEventType() {
-            return EventType.STATUS;
+        public int getEventType() {
+            return EVENT_TYPE_STATUS;
         }
     }
 
@@ -361,6 +407,8 @@ public abstract class VideoRecordEvent {
 
     /**
      * Indicates the pause event of recording.
+     *
+     * <p>A {@code Pause} event will be triggered after calling {@link ActiveRecording#pause()}.
      */
     public static final class Pause extends VideoRecordEvent {
 
@@ -370,10 +418,10 @@ public abstract class VideoRecordEvent {
         }
 
         /** {@inheritDoc} */
-        @NonNull
+        @EventType
         @Override
-        public EventType getEventType() {
-            return EventType.PAUSE;
+        public int getEventType() {
+            return EVENT_TYPE_PAUSE;
         }
     }
 
@@ -385,6 +433,8 @@ public abstract class VideoRecordEvent {
 
     /**
      * Indicates the resume event of recording.
+     *
+     * <p>A {@code Resume} event will be triggered after calling {@link ActiveRecording#resume()}.
      */
     public static final class Resume extends VideoRecordEvent {
 
@@ -394,10 +444,10 @@ public abstract class VideoRecordEvent {
         }
 
         /** {@inheritDoc} */
-        @NonNull
+        @EventType
         @Override
-        public EventType getEventType() {
-            return EventType.RESUME;
+        public int getEventType() {
+            return EVENT_TYPE_RESUME;
         }
     }
 }

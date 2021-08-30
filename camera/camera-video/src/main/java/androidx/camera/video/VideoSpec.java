@@ -26,6 +26,7 @@ import android.util.Range;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
 
@@ -34,7 +35,9 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Video specification that is options to config video encoding.
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class VideoSpec {
 
@@ -44,6 +47,7 @@ public abstract class VideoSpec {
      * <p>Using this value with {@link Builder#setFrameRate(Range)} informs the video frame producer
      * it should choose any appropriate frame rate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> FRAME_RATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -53,6 +57,7 @@ public abstract class VideoSpec {
      * <p>Using this value with {@link Builder#setBitrate(Range)} informs the video frame producer
      * it should choose any appropriate bitrate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> BITRATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -62,6 +67,7 @@ public abstract class VideoSpec {
      * <p>Using this value with {@link Builder#setQualitySelector(QualitySelector)} allows the
      * video frame producer to choose video quality based on its current state.
      */
+    @NonNull
     public static final QualitySelector QUALITY_SELECTOR_AUTO =
             QualitySelector.firstTry(QUALITY_FHD)
                     .thenTry(QUALITY_HD)
@@ -74,17 +80,16 @@ public abstract class VideoSpec {
      * <p>Using this value with {@link Builder#setAspectRatio(int)} allows the video frame
      * producer to choose an appropriate aspect ratio based on its current state.
      */
-    public static final int ASPECT_RATIO_AUTO = -1;
+    static final int ASPECT_RATIO_AUTO = -1;
     /** The aspect ratio with width 16 by height 9. */
-    public static final int ASPECT_RATIO_4_3 = androidx.camera.core.AspectRatio.RATIO_4_3;
+    static final int ASPECT_RATIO_4_3 = androidx.camera.core.AspectRatio.RATIO_4_3;
     /** The aspect ratio with width 4 by height 3. */
-    public static final int ASPECT_RATIO_16_9 = androidx.camera.core.AspectRatio.RATIO_16_9;
+    static final int ASPECT_RATIO_16_9 = androidx.camera.core.AspectRatio.RATIO_16_9;
 
     /** @hide */
     @IntDef({ASPECT_RATIO_AUTO, ASPECT_RATIO_4_3, ASPECT_RATIO_16_9})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public @interface AspectRatio {
+    @interface AspectRatio {
     }
 
     // Restrict constructor to same package
@@ -115,7 +120,7 @@ public abstract class VideoSpec {
 
     /** Gets the aspect ratio. */
     @AspectRatio
-    public abstract int getAspectRatio();
+    abstract int getAspectRatio();
 
     /**
      * Returns a {@link Builder} instance with the same property values as this instance.
@@ -123,7 +128,12 @@ public abstract class VideoSpec {
     @NonNull
     public abstract Builder toBuilder();
 
-    /** The builder of the {@link VideoSpec}. */
+    /**
+     * The builder of the {@link VideoSpec}.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
         // Restrict construction to same package
@@ -168,7 +178,7 @@ public abstract class VideoSpec {
          * <p>If not set, defaults to {@link #ASPECT_RATIO_AUTO}.
          */
         @NonNull
-        public abstract Builder setAspectRatio(@AspectRatio int aspectRatio);
+        abstract Builder setAspectRatio(@AspectRatio int aspectRatio);
 
         /** Builds the VideoSpec instance. */
         @NonNull

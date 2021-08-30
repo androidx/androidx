@@ -21,9 +21,13 @@ import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
+import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.NavigationTemplate;
+import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.ShowcaseSession;
+import androidx.car.app.sample.showcase.common.renderer.CarHardwareRenderer;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -31,26 +35,30 @@ import androidx.lifecycle.LifecycleOwner;
 /** Simple demo of how access car hardware information. */
 public final class CarHardwareDemoScreen extends Screen {
 
+    final CarHardwareRenderer mCarHardwareRenderer;
+
     public CarHardwareDemoScreen(@NonNull CarContext carContext,
             @NonNull ShowcaseSession showcaseSession) {
         super(carContext);
+        mCarHardwareRenderer = new CarHardwareRenderer(carContext);
         Lifecycle lifecycle = getLifecycle();
         lifecycle.addObserver(new DefaultLifecycleObserver() {
 
-            @NonNull final ShowcaseSession mShowcaseSession = showcaseSession;
+            @NonNull
+            final ShowcaseSession mShowcaseSession = showcaseSession;
 
             @Override
             public void onResume(@NonNull LifecycleOwner owner) {
                 // When this screen is visible set the SurfaceRenderer to show
                 // CarHardware information.
-                mShowcaseSession.setCarHardwareSurfaceRendererEnabledState(true);
+                mShowcaseSession.overrideRenderer(mCarHardwareRenderer);
             }
 
             @Override
             public void onPause(@NonNull LifecycleOwner owner) {
                 // When this screen is hidden set the SurfaceRenderer to show
                 // CarHardware information.
-                mShowcaseSession.setCarHardwareSurfaceRendererEnabledState(false);
+                mShowcaseSession.overrideRenderer(null);
             }
         });
     }
@@ -60,6 +68,17 @@ public final class CarHardwareDemoScreen extends Screen {
     public Template onGetTemplate() {
         ActionStrip actionStrip =
                 new ActionStrip.Builder()
+                        // Add a Button to show the CarHardware info screen
+                        .addAction(new Action.Builder()
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        getCarContext(),
+                                                        R.drawable.info_gm_grey_24dp))
+                                                .build())
+                                .setOnClickListener(() -> getScreenManager().push(
+                                        new CarHardwareInfoScreen(getCarContext())))
+                                .build())
                         .addAction(
                                 new Action.Builder()
                                         .setTitle("BACK")

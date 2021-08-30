@@ -15,6 +15,8 @@
  */
 package androidx.car.app.hardware.info;
 
+import static androidx.car.app.hardware.common.CarUnit.CarDistanceUnit;
+
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Keep;
@@ -45,12 +47,12 @@ public final class EnergyLevel {
     private final CarValue<Boolean> mEnergyIsLow;
 
     @Keep
-    @NonNull
-    private final CarValue<Float> mRangeRemaining;
+    @Nullable
+    private final CarValue<Float> mRangeRemainingMeters;
 
     @Keep
     @NonNull
-    private final CarValue<Integer> mDistanceDisplayUnit;
+    private final CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
 
     /** Returns the battery percentage remaining from the car hardware. */
     @NonNull
@@ -72,8 +74,8 @@ public final class EnergyLevel {
 
     /** Returns the range remaining from the car hardware in meters. */
     @NonNull
-    public CarValue<Float> getRangeRemaining() {
-        return requireNonNull(mRangeRemaining);
+    public CarValue<Float> getRangeRemainingMeters() {
+        return requireNonNull(mRangeRemainingMeters);
     }
 
     /**
@@ -82,7 +84,7 @@ public final class EnergyLevel {
      * <p>See {@link CarUnit} for possible distance values.
      */
     @NonNull
-    public CarValue<Integer> getDistanceDisplayUnit() {
+    public CarValue<@CarDistanceUnit Integer> getDistanceDisplayUnit() {
         return requireNonNull(mDistanceDisplayUnit);
     }
 
@@ -96,7 +98,7 @@ public final class EnergyLevel {
                 + ", energyIsLow: "
                 + mEnergyIsLow
                 + ", range remaining: "
-                + mRangeRemaining
+                + getRangeRemainingMeters()
                 + ", distance display unit: "
                 + mDistanceDisplayUnit
                 + "]";
@@ -104,7 +106,7 @@ public final class EnergyLevel {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mBatteryPercent, mFuelPercent, mEnergyIsLow, mRangeRemaining,
+        return Objects.hash(mBatteryPercent, mFuelPercent, mEnergyIsLow, getRangeRemainingMeters(),
                 mDistanceDisplayUnit);
     }
 
@@ -121,7 +123,8 @@ public final class EnergyLevel {
         return Objects.equals(mBatteryPercent, otherEnergyLevel.mBatteryPercent)
                 && Objects.equals(mFuelPercent, otherEnergyLevel.mFuelPercent)
                 && Objects.equals(mEnergyIsLow, otherEnergyLevel.mEnergyIsLow)
-                && Objects.equals(mRangeRemaining, otherEnergyLevel.mRangeRemaining)
+                && Objects.equals(getRangeRemainingMeters(),
+                otherEnergyLevel.getRangeRemainingMeters())
                 && Objects.equals(mDistanceDisplayUnit, otherEnergyLevel.mDistanceDisplayUnit);
     }
 
@@ -129,7 +132,7 @@ public final class EnergyLevel {
         mBatteryPercent = requireNonNull(builder.mBatteryPercent);
         mFuelPercent = requireNonNull(builder.mFuelPercent);
         mEnergyIsLow = requireNonNull(builder.mEnergyIsLow);
-        mRangeRemaining = requireNonNull(builder.mRangeRemaining);
+        mRangeRemainingMeters = requireNonNull(builder.mRangeRemainingMeters);
         mDistanceDisplayUnit = requireNonNull(builder.mDistanceDisplayUnit);
     }
 
@@ -138,7 +141,7 @@ public final class EnergyLevel {
         mBatteryPercent = CarValue.UNIMPLEMENTED_FLOAT;
         mFuelPercent = CarValue.UNIMPLEMENTED_FLOAT;
         mEnergyIsLow = CarValue.UNIMPLEMENTED_BOOLEAN;
-        mRangeRemaining = CarValue.UNIMPLEMENTED_FLOAT;
+        mRangeRemainingMeters = CarValue.UNIMPLEMENTED_FLOAT;
         mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
     }
 
@@ -147,8 +150,9 @@ public final class EnergyLevel {
         CarValue<Float> mBatteryPercent = CarValue.UNIMPLEMENTED_FLOAT;
         CarValue<Float> mFuelPercent = CarValue.UNIMPLEMENTED_FLOAT;
         CarValue<Boolean> mEnergyIsLow = CarValue.UNIMPLEMENTED_BOOLEAN;
-        CarValue<Float> mRangeRemaining = CarValue.UNIMPLEMENTED_FLOAT;
-        CarValue<Integer> mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<Float> mRangeRemainingMeters = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit =
+                CarValue.UNIMPLEMENTED_INTEGER;
 
         /** Sets the remaining batter percentage. */
         @NonNull
@@ -185,8 +189,8 @@ public final class EnergyLevel {
          * @throws NullPointerException if {@code rangeRemaining} is {@code null}
          */
         @NonNull
-        public Builder setRangeRemaining(@NonNull CarValue<Float> rangeRemaining) {
-            mRangeRemaining = requireNonNull(rangeRemaining);
+        public Builder setRangeRemainingMeters(@NonNull CarValue<Float> rangeRemainingMeters) {
+            mRangeRemainingMeters = requireNonNull(rangeRemainingMeters);
             return this;
         }
 
@@ -198,7 +202,8 @@ public final class EnergyLevel {
          * @throws NullPointerException if {@code distanceDisplayUnit} is {@code null}
          */
         @NonNull
-        public Builder setDistanceDisplayUnit(@NonNull CarValue<Integer> distanceDisplayUnit) {
+        public Builder setDistanceDisplayUnit(
+                @NonNull CarValue<@CarDistanceUnit Integer> distanceDisplayUnit) {
             mDistanceDisplayUnit = requireNonNull(distanceDisplayUnit);
             return this;
         }

@@ -31,11 +31,16 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
+import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
+import androidx.room.processor.ProcessorErrors.MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
+import androidx.room.processor.ProcessorErrors.keyMayNeedMapInfo
+import androidx.room.processor.ProcessorErrors.valueMayNeedMapInfo
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
 import androidx.room.solver.query.result.PojoRowAdapter
+import androidx.room.solver.query.result.SingleColumnRowAdapter
 import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
 import androidx.room.testing.context
 import androidx.room.vo.Field
@@ -72,6 +77,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 package foo.bar;
                 import androidx.annotation.NonNull;
                 import androidx.room.*;
+                import java.util.*;
+                import com.google.common.collect.*;
                 @Dao
                 abstract class MyClass {
                 """
@@ -794,7 +801,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             val adapter = parsedQuery.queryResultBinder.adapter
             assertThat(checkNotNull(adapter))
             assertThat(adapter::class, `is`(SingleEntityQueryResultAdapter::class))
-            val rowAdapter = adapter.rowAdapter
+            val rowAdapter = adapter.rowAdapters.single()
             assertThat(checkNotNull(rowAdapter))
             assertThat(rowAdapter::class, `is`(PojoRowAdapter::class))
         }
@@ -843,8 +850,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 instanceOf(ListQueryResultAdapter::class.java)
             )
             val listAdapter = method.queryResultBinder.adapter as ListQueryResultAdapter
-            assertThat(listAdapter.rowAdapter, instanceOf(PojoRowAdapter::class.java))
-            val pojoRowAdapter = listAdapter.rowAdapter as PojoRowAdapter
+            assertThat(listAdapter.rowAdapters.single(), instanceOf(PojoRowAdapter::class.java))
+            val pojoRowAdapter = listAdapter.rowAdapters.single() as PojoRowAdapter
             assertThat(pojoRowAdapter.relationCollectors.size, `is`(1))
             assertThat(
                 pojoRowAdapter.relationCollectors[0].relationTypeName,
@@ -916,6 +923,28 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
     }
 
     @Test
+    fun primitive_removeUnusedColumns() {
+        if (!enableVerification) {
+            throw AssumptionViolatedException("nothing to test w/o db verification")
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @RewriteQueriesToDropUnusedColumns
+                @Query("select 1 from user")
+                abstract int getOne();
+                """
+        ) { method, invocation ->
+            val adapter = method.queryResultBinder.adapter?.rowAdapters?.single()
+            check(adapter is SingleColumnRowAdapter)
+            assertThat(method.query.original)
+                .isEqualTo("select 1 from user")
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
     fun pojo_removeUnusedColumns() {
         if (!enableVerification) {
             throw AssumptionViolatedException("nothing to test w/o db verification")
@@ -931,10 +960,62 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract Pojo loadUsers();
                 """
         ) { method, invocation ->
-            val adapter = method.queryResultBinder.adapter?.rowAdapter
+            val adapter = method.queryResultBinder.adapter?.rowAdapters?.single()
             check(adapter is PojoRowAdapter)
             assertThat(method.query.original)
                 .isEqualTo("SELECT `name`, `lastName` FROM (select * from user LIMIT 1)")
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun pojo_multimapQuery_removeUnusedColumns() {
+        if (!enableVerification) {
+            throw AssumptionViolatedException("nothing to test w/o db verification")
+        }
+        val relatingEntity = Source.java(
+            "foo.bar.Relation",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            @Entity
+            public class Relation {
+              @PrimaryKey
+              long relationId;
+              long userId;
+            }
+            """.trimIndent()
+        )
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                public static class Username {
+                    public String name;
+                    @Override
+                    public boolean equals(Object o) {
+                        if (this == o) return true;
+                        if (o == null || getClass() != o.getClass()) return false;
+                        Username username = (Username) o;
+                        if (name != username.name) return false;
+                        return true;
+                    }
+                    @Override
+                    public int hashCode() {
+                        return name.hashCode();
+                    }
+                }
+                @RewriteQueriesToDropUnusedColumns
+                @Query("SELECT * FROM User JOIN Relation ON (User.uid = Relation.userId)")
+                abstract Map<Username, List<Relation>> loadUserRelations();
+                """,
+            additionalSources = listOf(relatingEntity)
+        ) { method, invocation ->
+            assertThat(method.query.original)
+                .isEqualTo(
+                    "SELECT `name`, `relationId`, `userId` FROM " +
+                        "(SELECT * FROM User JOIN Relation ON (User.uid = Relation.userId))"
+                )
             invocation.assertCompilationResult {
                 hasNoWarnings()
             }
@@ -957,7 +1038,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract Pojo loadUsers();
                 """
         ) { method, invocation ->
-            val adapter = method.queryResultBinder.adapter?.rowAdapter
+            val adapter = method.queryResultBinder.adapter?.rowAdapters?.single()
             check(adapter is PojoRowAdapter)
             assertThat(method.query.original).isEqualTo("select * from user u, user u2 LIMIT 1")
             invocation.assertCompilationResult {
@@ -1003,17 +1084,15 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 )
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeName = POJO,
+                        pojoTypeNames = listOf(POJO),
                         unusedColumns = listOf("name", "lastName"),
-                        unusedFields = listOf(
-                            createField("nameX"),
-                            createField("lastNameX")
+                        pojoUnusedFields = mapOf(
+                            POJO to listOf(
+                                createField("nameX"),
+                                createField("lastNameX")
+                            )
                         ),
                         allColumns = listOf("name", "lastName"),
-                        allFields = listOf(
-                            createField("nameX"),
-                            createField("lastNameX")
-                        )
                     )
                 )
             }
@@ -1058,11 +1137,10 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeName = POJO,
+                        pojoTypeNames = listOf(POJO),
                         unusedColumns = listOf("uid"),
-                        unusedFields = emptyList(),
+                        pojoUnusedFields = emptyMap(),
                         allColumns = listOf("uid", "name", "lastName"),
-                        allFields = listOf(createField("name"), createField("lastName"))
                     )
                 )
             }
@@ -1088,11 +1166,10 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeName = POJO,
+                        pojoTypeNames = listOf(POJO),
                         unusedColumns = emptyList(),
-                        unusedFields = listOf(createField("name")),
                         allColumns = listOf("lastName"),
-                        allFields = listOf(createField("name"), createField("lastName"))
+                        pojoUnusedFields = mapOf(POJO to listOf(createField("name"))),
                     )
                 )
             }
@@ -1119,11 +1196,10 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeName = POJO,
+                        pojoTypeNames = listOf(POJO),
                         unusedColumns = emptyList(),
-                        unusedFields = listOf(createField("name")),
+                        pojoUnusedFields = mapOf(POJO to listOf(createField("name"))),
                         allColumns = listOf("lastName"),
-                        allFields = listOf(createField("name"), createField("lastName"))
                     )
                 )
                 hasErrorContaining(
@@ -1156,11 +1232,10 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.cursorPojoMismatch(
-                        pojoTypeName = POJO,
+                        pojoTypeNames = listOf(POJO),
                         unusedColumns = listOf("uid"),
-                        unusedFields = listOf(createField("lastName")),
                         allColumns = listOf("uid", "name"),
-                        allFields = listOf(createField("name"), createField("lastName"))
+                        pojoUnusedFields = mapOf(POJO to listOf(createField("lastName")))
                     )
                 )
             }
@@ -1206,7 +1281,11 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             val adapter = parsedQuery.queryResultBinder.adapter
             if (enableVerification) {
                 if (adapter is SingleEntityQueryResultAdapter) {
-                    handler(adapter.rowAdapter as? PojoRowAdapter, parsedQuery, invocation)
+                    handler(
+                        adapter.rowAdapters.single() as? PojoRowAdapter,
+                        parsedQuery,
+                        invocation
+                    )
                 } else {
                     handler(null, parsedQuery, invocation)
                 }
@@ -1228,7 +1307,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         )
         val commonSources = listOf(
             COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK,
-            COMMON.NOT_AN_ENTITY
+            COMMON.NOT_AN_ENTITY, COMMON.ARTIST, COMMON.SONG, COMMON.IMAGE, COMMON.IMAGE_FORMAT,
+            COMMON.CONVERTER
         )
         runProcessorTest(
             sources = additionalSources + commonSources + inputSource,
@@ -1242,7 +1322,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                         typeElement,
                         typeElement.getAllMethods().filter { method ->
                             method.hasAnnotation(Query::class)
-                        }
+                        }.toList()
                     )
                 }.first { it.second.isNotEmpty() }
             val verifier = if (enableVerification) {
@@ -1261,6 +1341,274 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             val parsedQuery = parser.process()
             @Suppress("UNCHECKED_CAST")
             handler(parsedQuery as T, invocation)
+        }
+    }
+
+    @Test
+    fun testInvalidLinkedListCollectionInMultimapJoin() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("select * from User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<User, LinkedList<Book>> getInvalidCollectionMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(2)
+                hasErrorContaining("Multimap 'value' collection type must be a List or Set.")
+                hasErrorContaining("Not sure how to convert a Cursor to this method's return type")
+            }
+        }
+    }
+
+    @Test
+    fun testInvalidGenericMultimapJoin() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("select * from User u JOIN Book b ON u.uid == b.uid")
+                abstract com.google.common.collect.ImmutableMultimap<User, Book>
+                getInvalidCollectionMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(2)
+                hasErrorContaining(DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP)
+                hasErrorContaining("Not sure how to convert a Cursor to this method's return type")
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapInfoWithBothEmptyColumnsProvided() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @MapInfo
+                @Query("select * from User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<User, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED)
+            }
+        }
+    }
+
+    @Test
+    fun testDoesNotImplementEqualsAndHashcodeQuery() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("select * from User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<User, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarningCount(1)
+                hasWarningContaining(
+                    ProcessorErrors.classMustImplementEqualsAndHashCode(
+                        "foo.bar.User"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoOneToOneString() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("select * from Artist JOIN Song ON Artist.mArtistName == Song.mArtist")
+                abstract Map<Artist, String> getAllArtistsWithAlbumCoverYear();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "String")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testOneToOneStringMapInfoForKeyInsteadOfColumn() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @MapInfo(keyColumn = "mArtistName")
+                @Query("select * from Artist JOIN Song ON Artist.mArtistName == Song.mArtist")
+                abstract Map<Artist, String> getAllArtistsWithAlbumCoverYear();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "String")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoOneToManyString() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("select * from Artist JOIN Song ON Artist.mArtistName == Song.mArtist")
+                abstract Map<Artist, List<String>> getAllArtistsWithAlbumCoverYear();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "String")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoImmutableListMultimapOneToOneString() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("select * from Artist JOIN Song ON Artist.mArtistName == Song.mArtist")
+                abstract ImmutableListMultimap<Artist, String> getAllArtistsWithAlbumCoverYear();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "String")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoOneToOneLong() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+                Map<Artist, Long> getAllArtistsWithAlbumCoverYear();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "Long")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoOneToManyLong() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+                Map<Artist, Set<Long>> getAllArtistsWithAlbumCoverYear();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "Long")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoImmutableListMultimapOneToOneLong() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+                ImmutableListMultimap<Artist, Long> getAllArtistsWithAlbumCoverYear();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    valueMayNeedMapInfo(
+                        ClassName.get("java.lang", "Long")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoImmutableListMultimapOneToOneTypeConverterKey() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @TypeConverters(DateConverter.class)
+                @Query("SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image.mArtistInImage")
+                ImmutableMap<java.util.Date, Artist> getAlbumDateWithBandActivity();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    keyMayNeedMapInfo(
+                        ClassName.get("java.util", "Date")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testMissingMapInfoImmutableListMultimapOneToOneTypeConverterValue() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @TypeConverters(DateConverter.class)
+                @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+                ImmutableMap<Artist, java.util.Date> getAlbumDateWithBandActivity();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    valueMayNeedMapInfo(
+                        ClassName.get("java.util", "Date")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapInfoWithColumnsNotInQuery() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @MapInfo(keyColumn="cat", valueColumn="dog")
+                @Query("select * from User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<User, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarningCount(1)
+                hasWarningContaining(
+                    ProcessorErrors.classMustImplementEqualsAndHashCode(
+                        "foo.bar.User"
+                    )
+                )
+                hasErrorCount(2)
+                hasErrorContaining(
+                    "Column(s) specified in the provided @MapInfo annotation must " +
+                        "be present in the query. Provided: cat."
+                )
+                hasErrorContaining(
+                    "Column(s) specified in the provided @MapInfo annotation must " +
+                        "be present in the query. Provided: dog."
+                )
+            }
         }
     }
 }

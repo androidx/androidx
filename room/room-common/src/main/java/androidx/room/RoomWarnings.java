@@ -31,6 +31,13 @@ public class RoomWarnings {
     public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
 
     /**
+     * The warning dispatched by Room when the object in the provided method's multimap return
+     * type does not implement equals() and hashCode().
+     */
+    public static final String DOES_NOT_IMPLEMENT_EQUALS_HASHCODE =
+            "ROOM_TYPE_DOES_NOT_IMPLEMENT_EQUALS_HASHCODE";
+
+    /**
      * Reported when Room cannot verify database queries during compilation due to lack of
      * tmp dir access in JVM.
      */

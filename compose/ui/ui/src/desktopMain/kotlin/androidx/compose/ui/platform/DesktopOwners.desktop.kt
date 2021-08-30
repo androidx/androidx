@@ -67,8 +67,6 @@ internal class DesktopOwners(
     val list = LinkedHashSet<DesktopOwner>()
     private val listCopy = mutableListOf<DesktopOwner>()
 
-    var keyboard: Keyboard? = null
-
     private var pointerId = 0L
     private var isMousePressed = false
 
@@ -104,6 +102,9 @@ internal class DesktopOwners(
         desktopOwner.onNeedsRender = ::invalidateIfNeeded
         desktopOwner.onDispatchCommand = ::dispatchCommand
         invalidateIfNeeded()
+        if (desktopOwner.isFocusable) {
+            focusedOwner = desktopOwner
+        }
     }
 
     fun unregister(desktopOwner: DesktopOwner) {
@@ -111,6 +112,9 @@ internal class DesktopOwners(
         desktopOwner.onDispatchCommand = null
         desktopOwner.onNeedsRender = null
         invalidateIfNeeded()
+        if (desktopOwner == focusedOwner) {
+            focusedOwner = list.lastOrNull { it.isFocusable }
+        }
     }
 
     fun onFrame(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
@@ -130,7 +134,7 @@ internal class DesktopOwners(
         invalidateIfNeeded()
     }
 
-    internal var focusedOwner: DesktopOwner? = null
+    private var focusedOwner: DesktopOwner? = null
     private val hoveredOwner: DesktopOwner?
         get() {
             listCopy.addAll(list)
@@ -145,13 +149,17 @@ internal class DesktopOwners(
             return list.lastOrNull()
         }
 
+    private fun DesktopOwner?.isAbove(
+        targetOwner: DesktopOwner?
+    ) = list.indexOf(this) > list.indexOf(targetOwner)
+
     fun onMousePressed(x: Int, y: Int, nativeEvent: MouseEvent? = null) {
         isMousePressed = true
         val currentOwner = hoveredOwner
         if (currentOwner != null) {
-            if (currentOwner.isFocusable && focusedOwner != currentOwner) {
+            if (focusedOwner.isAbove(currentOwner)) {
                 focusedOwner?.onDismissRequest?.invoke()
-                focusedOwner = currentOwner
+                return
             } else {
                 currentOwner.processPointerInput(
                     pointerInputEvent(nativeEvent, x, y, isMousePressed)
@@ -166,14 +174,11 @@ internal class DesktopOwners(
         isMousePressed = false
         val currentOwner = hoveredOwner
         if (currentOwner != null) {
-            if (currentOwner.isFocusable) {
-                focusedOwner = currentOwner
-            } else {
-                currentOwner.processPointerInput(
-                    pointerInputEvent(nativeEvent, x, y, isMousePressed)
-                )
-                return
-            }
+            currentOwner.processPointerInput(
+                pointerInputEvent(nativeEvent, x, y, isMousePressed)
+            )
+            pointerId += 1
+            return
         }
         focusedOwner?.processPointerInput(pointerInputEvent(nativeEvent, x, y, isMousePressed))
         pointerId += 1
@@ -183,11 +188,12 @@ internal class DesktopOwners(
 
     fun onMouseMoved(x: Int, y: Int, nativeEvent: MouseEvent? = null) {
         pointLocation = IntOffset(x, y)
+        val currentOwner = hoveredOwner
         val event = pointerInputEvent(nativeEvent, x, y, isMousePressed)
-        val result = hoveredOwner?.processPointerInput(event)
+        val result = currentOwner?.processPointerInput(event)
         if (result?.anyMovementConsumed != true) {
             val position = Offset(x.toFloat(), y.toFloat())
-            hoveredOwner?.onPointerMove(position)
+            currentOwner?.onPointerMove(position)
         }
     }
 
@@ -205,18 +211,18 @@ internal class DesktopOwners(
         hoveredOwner?.onPointerExit()
     }
 
-    private fun consumeKeyEvent(event: KeyEvent) {
-        focusedOwner?.sendKeyEvent(ComposeKeyEvent(event))
+    private fun consumeKeyEvent(event: KeyEvent): Boolean {
+        return focusedOwner?.sendKeyEvent(ComposeKeyEvent(event)) == true
     }
 
-    fun onKeyPressed(event: KeyEvent) = consumeKeyEvent(event)
+    fun onKeyPressed(event: KeyEvent): Boolean = consumeKeyEvent(event)
 
-    fun onKeyReleased(event: KeyEvent) = consumeKeyEvent(event)
+    fun onKeyReleased(event: KeyEvent): Boolean = consumeKeyEvent(event)
 
-    fun onKeyTyped(event: KeyEvent) = consumeKeyEvent(event)
+    fun onKeyTyped(event: KeyEvent): Boolean = consumeKeyEvent(event)
 
     fun onInputMethodEvent(event: InputMethodEvent) {
-        if (!event.isConsumed()) {
+        if (!event.isConsumed) {
             when (event.id) {
                 InputMethodEvent.INPUT_METHOD_TEXT_CHANGED -> {
                     platformInputService.replaceInputMethodText(event)

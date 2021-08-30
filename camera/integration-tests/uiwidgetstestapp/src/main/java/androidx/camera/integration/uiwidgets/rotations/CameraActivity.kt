@@ -147,7 +147,7 @@ open class CameraActivity : AppCompatActivity() {
         return ImageAnalysis.Analyzer { imageProxy ->
             mAnalysisImageRotation = imageProxy.imageInfo.rotationDegrees
             mAnalysisRunning.release()
-            Log.d(TAG, "Analyzed image rotation = $mAnalysisImageRotation")
+            Log.d(TAG, "Analyzed image rotation = $mAnalysisImageRotation, $mAnalysisRunning")
             imageProxy.close()
         }
     }

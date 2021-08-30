@@ -195,7 +195,7 @@ class XTypeTest {
                 }
             }.map { (first, second) ->
                 first.name to second.name
-            }
+            }.toList()
 
             val expected = setOf(
                 "intField" to "intProp",
@@ -364,7 +364,7 @@ class XTypeTest {
     @Test
     fun isVoidObject() {
         val javaBase = Source.java(
-            "JavaInterface.java",
+            "JavaInterface",
             """
             import java.lang.Void;
             interface JavaInterface {

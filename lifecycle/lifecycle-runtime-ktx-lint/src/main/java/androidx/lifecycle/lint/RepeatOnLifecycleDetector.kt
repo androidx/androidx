@@ -28,6 +28,8 @@ import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.UastFacade
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 /**
@@ -97,8 +99,11 @@ private class RecursiveMethodVisitor(
         }
         // Check current method and report if there's a wrong repeatOnLifecycle usage
         if (!checkMethodCall(psiMethod, node)) {
-            val uastNode = context.uastContext.getMethod(psiMethod)
-            uastNode.uastBody?.accept(this)
+            val uastNode = UastFacade.convertElementWithParent(
+                psiMethod,
+                UMethod::class.java
+            ) as? UMethod
+            uastNode?.uastBody?.accept(this)
         }
         return super.visitCallExpression(node)
     }

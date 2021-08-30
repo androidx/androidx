@@ -17,6 +17,7 @@
 package androidx.compose.compiler.plugins.kotlin.lower.decoys
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.lower.AbstractComposeLowering
 import androidx.compose.compiler.plugins.kotlin.lower.ModuleLoweringPass
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -49,6 +50,7 @@ import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.util.hasDefaultValue
 import org.jetbrains.kotlin.ir.util.isLocal
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
 import org.jetbrains.kotlin.name.Name
@@ -82,11 +84,13 @@ class CreateDecoysTransformer(
     pluginContext: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
     bindingTrace: BindingTrace,
-    override val signatureBuilder: IdSignatureSerializer
+    override val signatureBuilder: IdSignatureSerializer,
+    metrics: ModuleMetrics,
 ) : AbstractComposeLowering(
     context = pluginContext,
     symbolRemapper = symbolRemapper,
-    bindingTrace = bindingTrace
+    bindingTrace = bindingTrace,
+    metrics = metrics
 ),
     ModuleLoweringPass,
     DecoyTransformBase {
@@ -99,6 +103,9 @@ class CreateDecoysTransformer(
     private val decoyImplementationAnnotation by lazy {
         getTopLevelClass(DecoyFqNames.DecoyImplementation).owner
     }
+
+    private val decoyImplementationDefaultsBitmaskAnnotation =
+        getTopLevelClass(DecoyFqNames.DecoyImplementationDefaultsBitMask).owner
 
     private val decoyStub by lazy {
         getInternalFunction("illegalDecoyCallException").owner
@@ -244,6 +251,18 @@ class CreateDecoysTransformer(
             ).also {
                 it.putValueArgument(0, irConst(name))
                 it.putValueArgument(1, irConst(signatureId))
+            }
+
+        annotations = annotations +
+            IrConstructorCallImpl.fromSymbolOwner(
+                type = decoyImplementationDefaultsBitmaskAnnotation.defaultType,
+                constructorSymbol =
+                    decoyImplementationDefaultsBitmaskAnnotation.constructors.first().symbol
+            ).also {
+                val paramsWithDefaultsBitMask = bitMask(
+                    *valueParameters.map { it.hasDefaultValue() }.toBooleanArray()
+                )
+                it.putValueArgument(0, irConst(paramsWithDefaultsBitMask))
             }
     }
 

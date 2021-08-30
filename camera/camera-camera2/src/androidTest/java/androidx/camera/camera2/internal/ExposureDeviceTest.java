@@ -147,7 +147,7 @@ public class ExposureDeviceTest {
         CameraManagerCompat cameraManagerCompat =
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
-                mCameraId, cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId));
+                mCameraId, cameraManagerCompat);
         mCamera2CameraImpl = new Camera2CameraImpl(
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext()),
                 mCameraId,
@@ -284,7 +284,7 @@ public class ExposureDeviceTest {
     }
 
     @Test
-    public void setExposureAndTriggerAe_theExposureSettingShouldApply()
+    public void setExposureAndStartFlashSequence_theExposureSettingShouldApply()
             throws InterruptedException, ExecutionException, TimeoutException,
             CameraUseCaseAdapter.CameraException {
         ExposureState exposureState = mCameraInfoInternal.getExposureState();
@@ -303,7 +303,7 @@ public class ExposureDeviceTest {
         // Set the exposure compensation
         int upper = exposureState.getExposureCompensationRange().getUpper();
         mCameraControlInternal.setExposureCompensationIndex(upper).get(3000, TimeUnit.MILLISECONDS);
-        mCameraControlInternal.triggerAePrecapture().get(3000, TimeUnit.MILLISECONDS);
+        mCameraControlInternal.startFlashSequence().get(3000, TimeUnit.MILLISECONDS);
 
         // Verify the exposure compensation target result is in the capture result.
         verify(callback, timeout(3000).atLeastOnce()).onCaptureCompleted(

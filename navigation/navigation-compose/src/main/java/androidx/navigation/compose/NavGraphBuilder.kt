@@ -17,6 +17,7 @@
 package androidx.navigation.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
@@ -38,6 +39,44 @@ public fun NavGraphBuilder.composable(
 ) {
     addDestination(
         ComposeNavigator.Destination(provider[ComposeNavigator::class], content).apply {
+            this.route = route
+            arguments.forEach { (argumentName, argument) ->
+                addArgument(argumentName, argument)
+            }
+            deepLinks.forEach { deepLink ->
+                addDeepLink(deepLink)
+            }
+        }
+    )
+}
+
+/**
+ * Add the [Composable] to the [NavGraphBuilder] that will be hosted within a
+ * [androidx.compose.ui.window.Dialog]. This is suitable only when this dialog represents
+ * a separate screen in your app that needs its own lifecycle and saved state, independent
+ * of any other destination in your navigation graph. For use cases such as `AlertDialog`,
+ * you should use those APIs directly in the [composable] destination that wants to show that
+ * dialog.
+ *
+ * @param route route for the destination
+ * @param arguments list of arguments to associate with destination
+ * @param deepLinks list of deep links to associate with the destinations
+ * @param dialogProperties properties that should be passed to [androidx.compose.ui.window.Dialog].
+ * @param content composable content for the destination that will be hosted within the Dialog
+ */
+public fun NavGraphBuilder.dialog(
+    route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    deepLinks: List<NavDeepLink> = emptyList(),
+    dialogProperties: DialogProperties = DialogProperties(),
+    content: @Composable (NavBackStackEntry) -> Unit
+) {
+    addDestination(
+        DialogNavigator.Destination(
+            provider[DialogNavigator::class],
+            dialogProperties,
+            content
+        ).apply {
             this.route = route
             arguments.forEach { (argumentName, argument) ->
                 addArgument(argumentName, argument)

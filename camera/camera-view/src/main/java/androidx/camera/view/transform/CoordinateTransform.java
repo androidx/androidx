@@ -97,13 +97,12 @@ public final class CoordinateTransform {
     }
 
     /**
-     * Gets the transform matrix.
+     * Copies the current transform to the specified {@link Matrix}.
      *
-     * @param matrix a {@link android.graphics.Matrix} that represents the transform from source
-     *               to target.
+     * @param outMatrix a {@link android.graphics.Matrix} in which to copy the current transform.
      */
-    public void getTransform(@NonNull Matrix matrix) {
-        matrix.set(mMatrix);
+    public void transform(@NonNull Matrix outMatrix) {
+        outMatrix.set(mMatrix);
     }
 
     /**

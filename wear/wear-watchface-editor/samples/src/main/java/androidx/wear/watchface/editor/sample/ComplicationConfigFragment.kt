@@ -30,12 +30,12 @@ import android.widget.Button
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
-import androidx.wear.complications.ComplicationProviderInfo
+import androidx.wear.complications.ComplicationDataSourceInfo
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.RenderParameters.HighlightLayer
-import androidx.wear.watchface.editor.ChosenComplicationProvider
+import androidx.wear.watchface.editor.ChosenComplicationDataSource
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.widget.SwipeDismissFrameLayout
 import kotlinx.coroutines.launch
@@ -93,7 +93,7 @@ internal class ConfigView(
     private val complicationButtons =
         watchFaceConfigActivity.editorSession.complicationSlotsState.mapValues { stateEntry ->
             // TODO(alexclarke): This button is a Rect which makes the tap animation look bad.
-            if (stateEntry.value.fixedComplicationProvider ||
+            if (stateEntry.value.fixedComplicationDataSource ||
                 !stateEntry.value.isEnabled ||
                 stateEntry.key == watchFaceConfigActivity.editorSession.backgroundComplicationSlotId
             ) {
@@ -113,13 +113,11 @@ internal class ConfigView(
                         }.resourceId
                     )
                     setOnClickListener { onComplicationButtonClicked(stateEntry.key) }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        setOnLongClickListener {
-                            TooltipApi26.updateTooltip(it, watchFaceConfigActivity, stateEntry.key)
-                            // Do not consume the long click so that the tooltip is shown by the
-                            // default handler.
-                            false
-                        }
+                    setOnLongClickListener {
+                        TooltipApi26.updateTooltip(it, watchFaceConfigActivity, stateEntry.key)
+                        // Do not consume the long click so that the tooltip is shown by the
+                        // default handler.
+                        false
                     }
                     addView(this)
                 }
@@ -149,12 +147,12 @@ internal class ConfigView(
 
     private fun onComplicationButtonClicked(complicationSlotId: Int) {
         watchFaceConfigActivity.coroutineScope.launch {
-            val chosenComplicationProvider =
+            val chosenComplicationDataSource =
                 watchFaceConfigActivity.fragmentController.showComplicationConfig(
                     complicationSlotId
                 )
-            updateUi(chosenComplicationProvider)
-            // Redraw after the complication provider chooser has run.
+            updateUi(chosenComplicationDataSource)
+            // Redraw after the complication data source chooser has run.
             invalidate()
         }
     }
@@ -167,15 +165,15 @@ internal class ConfigView(
             complicationSlotId: Int
         ) {
             watchFaceConfigActivity.coroutineScope.launch {
-                val providerInfo =
+                val dataSourceInfo =
                     watchFaceConfigActivity.editorSession
-                        .getComplicationsProviderInfo()[complicationSlotId]
-                button.tooltipText = getProviderInfoToast(providerInfo)
+                        .getComplicationsDataSourceInfo()[complicationSlotId]
+                button.tooltipText = getDataSourceInfoToast(dataSourceInfo)
             }
         }
 
-        private fun getProviderInfoToast(providerInfo: ComplicationProviderInfo?): String =
-            providerInfo?.name ?: "Empty complication provider"
+        private fun getDataSourceInfoToast(dataSourceInfo: ComplicationDataSourceInfo?): String =
+            dataSourceInfo?.name ?: "Empty complication data source"
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
@@ -194,7 +192,7 @@ internal class ConfigView(
                     Color.argb(128, 0, 0, 0) // Darken everything else.
                 )
             ),
-            editingSession.previewReferenceTimeMillis,
+            editingSession.previewReferenceInstant,
             previewComplicationData
         )
         canvas.drawBitmap(bitmap, drawRect, drawRect, null)
@@ -202,7 +200,7 @@ internal class ConfigView(
 
     private fun updateUi(
         @Suppress("UNUSED_PARAMETER")
-        chosenComplicationProvider: ChosenComplicationProvider?
+        chosenComplicationDataSource: ChosenComplicationDataSource?
     ) {
         // The fragment can use the chosen complication to update the UI.
     }

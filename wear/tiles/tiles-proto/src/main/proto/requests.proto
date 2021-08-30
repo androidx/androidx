@@ -9,7 +9,7 @@ import "state.proto";
 option java_package = "androidx.wear.tiles.proto";
 option java_outer_classname = "RequestProto";
 
-// Parameters passed to a Tile provider when the renderer is requesting a new
+// Parameters passed to a Tile Service when the renderer is requesting a new
 // version of the tile.
 message TileRequest {
   // Parameters describing the device requesting the tile update.
@@ -19,15 +19,20 @@ message TileRequest {
   State state = 2;
 }
 
-// Parameters passed to a Tile provider when the renderer is requesting a
+// Parameters passed to a Tile Service when the renderer is requesting a
 // specific resource version.
 message ResourcesRequest {
   // The version of the resources being fetched. This is the same as the
   // requested resource version, passed in Tile.
   string version = 1;
 
-  // Requested resource IDs. If not specified, all resources for the given
-  // version must be provided in the response.
+  // Requested resource IDs. This specifies which tile resources should be
+  // returned in the Resources response. If not specified, all resources for the
+  // given version must be provided in the response.
+  //
+  // Note that resource IDs here correspond to tile resources (i.e. keys that
+  // would be used in Resources.idToImage), not Android resource names or
+  // similar.
   repeated string resource_ids = 2;
 
   // Parameters describing the device requesting the resources.

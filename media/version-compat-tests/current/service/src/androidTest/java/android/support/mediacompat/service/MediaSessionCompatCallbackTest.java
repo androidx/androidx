@@ -744,7 +744,7 @@ public class MediaSessionCompatCallbackTest {
                 .setComponent(new ComponentName(getApplicationContext(),
                         getApplicationContext().getClass()));
         PendingIntent pi = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent,
-                0);
+                Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0);
         mSession.setMediaButtonReceiver(pi);
 
         // Set state to STATE_PLAYING to get higher priority.

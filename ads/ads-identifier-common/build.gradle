@@ -26,7 +26,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
-    testImplementation(project(":ads-identifier-testing"))
+    testImplementation(project(":ads:ads-identifier-testing"))
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)

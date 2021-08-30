@@ -91,10 +91,10 @@ public class Row {
      * three places:
      * <ul>
      *   <li>If {@link #setId(long)} is ever called on this row, it will return
-     *   this id.
+     *   this id.</li>
      *   <li>If {@link #setId(long)} has not been called but the header item is
-     *   not null, the result of {@link HeaderItem#getId()} is returned.
-     *   <li>Otherwise {@link ObjectAdapter#NO_ID NO_ID} is returned.
+     *   not null, the result of {@link HeaderItem#getId()} is returned.</li>
+     *   <li>Otherwise {@link ObjectAdapter#NO_ID NO_ID} is returned.</li>
      * </ul>
      */
     public final long getId() {

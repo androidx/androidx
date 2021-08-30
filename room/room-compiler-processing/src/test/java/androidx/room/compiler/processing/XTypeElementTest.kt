@@ -22,7 +22,6 @@ import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
-import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -397,6 +396,144 @@ class XTypeElementTest {
     }
 
     @Test
+    fun fieldsMethodsWithoutBacking() {
+        fun buildSrc(pkg: String) = Source.kotlin(
+            "Foo.kt",
+            """
+            package $pkg;
+            class Subject {
+                val realField: String = ""
+                    get() = field
+                val noBackingVal: String
+                    get() = ""
+                var noBackingVar: String
+                    get() = ""
+                    set(value) {}
+
+                companion object {
+                    @JvmStatic
+                    val staticRealField: String = ""
+                    get() = field
+                    @JvmStatic
+                    val staticNoBackingVal: String
+                        get() = ""
+                    @JvmStatic
+                    var staticNoBackingVar: String
+                        get() = ""
+                        set(value) {}
+                }
+            }
+            """.trimIndent()
+        )
+        val lib = compileFiles(listOf(buildSrc("lib")))
+        runProcessorTest(
+            sources = listOf(buildSrc("main")),
+            classpath = lib
+        ) { invocation ->
+            listOf("lib", "main").forEach { pkg ->
+                val subject = invocation.processingEnv.requireTypeElement("$pkg.Subject")
+                val declaredFields = subject.getDeclaredFields().map { it.name } -
+                    listOf("Companion") // skip Companion, KAPT generates it
+                val expectedFields = if (invocation.isKsp && pkg == "lib") {
+                    // TODO https://github.com/google/ksp/issues/491
+                    //  KSP returns false for companions in compiled code
+                    listOf("realField")
+                } else {
+                    listOf("realField", "staticRealField")
+                }
+                assertWithMessage(subject.qualifiedName)
+                    .that(declaredFields)
+                    .containsExactlyElementsIn(expectedFields)
+                val allFields = subject.getAllFieldsIncludingPrivateSupers().map { it.name } -
+                    listOf("Companion") // skip Companion, KAPT generates it
+                assertWithMessage(subject.qualifiedName)
+                    .that(allFields.toList())
+                    .containsExactlyElementsIn(expectedFields)
+                val methodNames = subject.getDeclaredMethods().map { it.name }
+                assertWithMessage(subject.qualifiedName)
+                    .that(methodNames)
+                    .containsAtLeast("getNoBackingVal", "getNoBackingVar", "setNoBackingVar")
+                assertWithMessage(subject.qualifiedName)
+                    .that(methodNames)
+                    .doesNotContain("setNoBackingVal")
+            }
+        }
+    }
+
+    @Test
+    fun abstractFields() {
+        fun buildSource(pkg: String) = Source.kotlin(
+            "Foo.kt",
+            """
+            package $pkg;
+            abstract class Subject {
+                val value: String = ""
+                abstract val abstractValue: String
+                companion object {
+                    var realCompanion: String = ""
+                    @JvmStatic
+                    var jvmStatic: String = ""
+                }
+            }
+            """.trimIndent()
+        )
+
+        val lib = compileFiles(listOf(buildSource("lib")))
+        runProcessorTest(
+            sources = listOf(buildSource("main")),
+            classpath = lib
+        ) { invocation ->
+            listOf("lib", "main").forEach { pkg ->
+                val subject = invocation.processingEnv.requireTypeElement("$pkg.Subject")
+                val declaredFields = subject.getDeclaredFields().map { it.name } -
+                    listOf("Companion")
+                val expectedFields = if (invocation.isKsp && pkg == "lib") {
+                    // TODO https://github.com/google/ksp/issues/491
+                    //  KSP returns false for companions in compiled code
+                    listOf("value")
+                } else {
+                    listOf("value", "realCompanion", "jvmStatic")
+                }
+                assertWithMessage(subject.qualifiedName)
+                    .that(declaredFields)
+                    .containsExactlyElementsIn(expectedFields)
+            }
+        }
+    }
+
+    @Test
+    fun lateinitFields() {
+        fun buildSource(pkg: String) = Source.kotlin(
+            "Foo.kt",
+            """
+            package $pkg
+            class Subject {
+                lateinit var x:String
+                var y:String = "abc"
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(buildSource("app")),
+            classpath = compileFiles(listOf(buildSource("lib")))
+        ) { invocation ->
+            listOf("app", "lib").forEach { pkg ->
+                val subject = invocation.processingEnv.requireTypeElement("$pkg.Subject")
+                assertWithMessage(subject.fallbackLocationText)
+                    .that(subject.getDeclaredFields().map { it.name })
+                    .containsExactly(
+                        "x", "y"
+                    )
+                assertWithMessage(subject.fallbackLocationText)
+                    .that(subject.getDeclaredMethods().map { it.name })
+                    .containsExactly(
+                        "getX", "setX", "getY", "setY"
+                    )
+            }
+        }
+    }
+
+    @Test
     fun fieldsInInterfaces() {
         val src = Source.kotlin(
             "Foo.kt",
@@ -408,7 +545,7 @@ class XTypeElementTest {
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("MyInterface")
-            assertThat(element.getAllFieldsIncludingPrivateSupers()).isEmpty()
+            assertThat(element.getAllFieldsIncludingPrivateSupers().toList()).isEmpty()
             element.getMethod("getX").let {
                 assertThat(it.isAbstract()).isTrue()
             }
@@ -511,7 +648,7 @@ class XTypeElementTest {
         )
         runProcessorTest(
             listOf(javaSource, kotlinSource),
-            classpath = listOf(dependency)
+            classpath = dependency
         ) { invocation ->
             listOf(
                 "JavaSubject", "DependencyJavaSubject",
@@ -577,6 +714,82 @@ class XTypeElementTest {
             ).containsExactly(
                 "baseFun", "suspendFun", "subFun"
             )
+        }
+    }
+
+    @Test
+    fun diamondOverride() {
+        fun buildSrc(pkg: String) = Source.kotlin(
+            "Foo.kt",
+            """
+            package $pkg;
+            interface Parent<T> {
+                fun parent(t: T)
+            }
+
+            interface Child1<T> : Parent<T> {
+                fun child1(t: T)
+            }
+
+            interface Child2<T> : Parent<T> {
+                fun child2(t: T)
+            }
+
+            abstract class Subject1 : Child1<String>, Child2<String>, Parent<String>
+            abstract class Subject2 : Child1<String>, Parent<String>
+            abstract class Subject3 : Child1<String>, Parent<String> {
+                abstract override fun parent(t: String)
+            }
+            """.trimIndent()
+        )
+
+        runProcessorTest(
+            sources = listOf(buildSrc("app")),
+            classpath = compileFiles(listOf(buildSrc("lib")))
+        ) { invocation ->
+            listOf("lib", "app").forEach { pkg ->
+                val objectMethodNames = invocation.processingEnv.requireTypeElement(Any::class)
+                    .getAllMethods().names()
+
+                fun XMethodElement.signature(
+                    owner: XType
+                ): String {
+                    val methodType = this.asMemberOf(owner)
+                    val params = methodType.parameterTypes.joinToString(",") {
+                        it.typeName.toString()
+                    }
+                    return "$name($params):${returnType.typeName}"
+                }
+
+                fun XTypeElement.allMethodSignatures(): List<String> = getAllMethods().filterNot {
+                    it.name in objectMethodNames
+                }.map { it.signature(this.type) }.toList()
+                invocation.processingEnv.requireTypeElement("$pkg.Subject1").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        subject.allMethodSignatures()
+                    ).containsExactly(
+                        "child1(java.lang.String):void",
+                        "child2(java.lang.String):void",
+                        "parent(java.lang.String):void",
+                    )
+                }
+                invocation.processingEnv.requireTypeElement("$pkg.Subject2").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        subject.allMethodSignatures()
+                    ).containsExactly(
+                        "child1(java.lang.String):void",
+                        "parent(java.lang.String):void",
+                    )
+                }
+                invocation.processingEnv.requireTypeElement("$pkg.Subject3").let { subject ->
+                    assertWithMessage(subject.qualifiedName).that(
+                        subject.allMethodSignatures()
+                    ).containsExactly(
+                        "child1(java.lang.String):void",
+                        "parent(java.lang.String):void",
+                    )
+                }
+            }
         }
     }
 
@@ -677,7 +890,7 @@ class XTypeElementTest {
     }
 
     @Test
-    fun gettersSetters_companion() {
+    fun companion() {
         val src = Source.kotlin(
             "Foo.kt",
             """
@@ -688,30 +901,80 @@ class XTypeElementTest {
                     @JvmStatic
                     val immutableStatic: String = "bar"
                     val companionProp: Int = 3
+                    @get:JvmStatic
+                    var companionProp_getterJvmStatic:Int =3
+                    @set:JvmStatic
+                    var companionProp_setterJvmStatic:Int =3
+
+                    fun companionMethod() {
+                    }
+
+                    @JvmStatic
+                    fun companionMethodWithJvmStatic() {}
                 }
             }
             class SubClass : CompanionSubject()
             """.trimIndent()
         )
-        // KAPT is a bit aggressive in adding fields, specifically, it adds companionProp and
-        // Companion as static fields which are not really fields from room's perspective.
-        runKspTest(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val objectMethodNames = invocation.processingEnv.requireTypeElement(
+                Any::class
+            ).getAllMethods().names()
             val subject = invocation.processingEnv.requireTypeElement("CompanionSubject")
-            assertThat(subject.getAllFieldNames()).containsExactly(
-                "mutableStatic", "immutableStatic"
+            assertThat(subject.getAllFieldNames() - "Companion").containsExactly(
+                "mutableStatic", "immutableStatic", "companionProp",
+                "companionProp_getterJvmStatic", "companionProp_setterJvmStatic"
             )
-            assertThat(subject.getDeclaredMethods().names()).containsExactly(
-                "getMutableStatic", "setMutableStatic", "getImmutableStatic"
+            val expectedMethodNames = listOf(
+                "getMutableStatic", "setMutableStatic", "getImmutableStatic",
+                "getCompanionProp_getterJvmStatic", "setCompanionProp_setterJvmStatic",
+                "companionMethodWithJvmStatic"
             )
-            assertThat(subject.getAllMethods().names()).containsExactly(
-                "getMutableStatic", "setMutableStatic", "getImmutableStatic"
+            assertThat(
+                subject.getDeclaredMethods().names()
+            ).containsExactlyElementsIn(
+                expectedMethodNames
             )
-            assertThat(subject.getAllNonPrivateInstanceMethods().names()).isEmpty()
+            assertThat(
+                subject.getAllMethods().names() - objectMethodNames
+            ).containsExactlyElementsIn(
+                expectedMethodNames
+            )
+            assertThat(
+                subject.getAllNonPrivateInstanceMethods().names() - objectMethodNames
+            ).isEmpty()
             val subClass = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(subClass.getDeclaredMethods()).isEmpty()
-            assertThat(subClass.getAllMethods().names()).containsExactly(
-                "getMutableStatic", "setMutableStatic", "getImmutableStatic"
+            assertThat(
+                subClass.getAllMethods().names() - objectMethodNames
+            ).containsExactlyElementsIn(
+                expectedMethodNames
             )
+
+            // make sure everything coming from companion is marked as static
+            subject.getDeclaredFields().forEach {
+                assertWithMessage(it.name).that(it.isStatic()).isTrue()
+            }
+            subject.getDeclaredMethods().forEach {
+                assertWithMessage(it.name).that(it.isStatic()).isTrue()
+            }
+
+            // make sure asMemberOf works fine for statics
+            val subClassType = subClass.type
+            subject.getDeclaredFields().forEach {
+                try {
+                    it.asMemberOf(subClassType)
+                } catch (th: Throwable) {
+                    throw AssertionError("Couldn't run asMemberOf for ${it.name}")
+                }
+            }
+            subject.getDeclaredMethods().forEach {
+                try {
+                    it.asMemberOf(subClassType)
+                } catch (th: Throwable) {
+                    throw AssertionError("Couldn't run asMemberOf for ${it.name}")
+                }
+            }
         }
     }
 
@@ -949,7 +1212,7 @@ class XTypeElementTest {
         )
         runProcessorTest(
             sources = createSources("app"),
-            classpath = listOf(classpath)
+            classpath = classpath
         ) { invocation ->
             listOf(
                 "lib.KotlinEnum", "lib.JavaEnum",
@@ -974,6 +1237,9 @@ class XTypeElementTest {
                         contains("x")
                         containsNoneOf("VAL1", "VAL2")
                     }
+                assertWithMessage("$qName  does not report enum constants in declared fields")
+                    .that(typeElement.getDeclaredFields().map { it.name })
+                    .containsExactly("x")
             }
         }
     }
@@ -1049,7 +1315,11 @@ class XTypeElementTest {
         .getAllMethods()
         .names()
 
+    private fun Sequence<XMethodElement>.names() = map {
+        it.name
+    }.toList()
+
     private fun List<XMethodElement>.names() = map {
         it.name
-    }
+    }.toList()
 }

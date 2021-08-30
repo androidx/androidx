@@ -16,9 +16,11 @@
 
 package androidx.camera.camera2.internal.compat.quirk;
 
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
+import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -69,8 +71,16 @@ public class CamcorderProfileResolutionQuirk implements Quirk {
         if (map == null) {
             Logger.e(TAG, "StreamConfigurationMap is null");
         }
-        Size[] sizes = map != null ? map.getOutputSizes(
-                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) : null;
+        Size[] sizes;
+        // Before Android 23, use {@link SurfaceTexture} will finally mapped to 0x22 in
+        // StreamConfigurationMap to retrieve the output sizes information.
+        if (Build.VERSION.SDK_INT < 23) {
+            sizes = map != null ? map.getOutputSizes(SurfaceTexture.class) : null;
+        } else {
+            sizes = map != null ? map.getOutputSizes(
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) : null;
+        }
+
         mSupportedResolutions = sizes != null ? Arrays.asList(sizes.clone())
                 : Collections.emptyList();
 

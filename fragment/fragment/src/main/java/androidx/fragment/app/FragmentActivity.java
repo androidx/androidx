@@ -234,8 +234,8 @@ public class FragmentActivity extends ComponentActivity implements
      */
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
         mFragments.noteStateNotSaved();
+        super.onConfigurationChanged(newConfig);
         mFragments.dispatchConfigurationChanged(newConfig);
     }
 
@@ -382,8 +382,8 @@ public class FragmentActivity extends ComponentActivity implements
     @Override
     @CallSuper
     protected void onNewIntent(@SuppressLint("UnknownNullness") Intent intent) {
-        super.onNewIntent(intent);
         mFragments.noteStateNotSaved();
+        super.onNewIntent(intent);
     }
 
     /**
@@ -406,9 +406,9 @@ public class FragmentActivity extends ComponentActivity implements
      */
     @Override
     protected void onResume() {
+        mFragments.noteStateNotSaved();
         super.onResume();
         mResumed = true;
-        mFragments.noteStateNotSaved();
         mFragments.execPendingActions();
     }
 
@@ -468,6 +468,7 @@ public class FragmentActivity extends ComponentActivity implements
      */
     @Override
     protected void onStart() {
+        mFragments.noteStateNotSaved();
         super.onStart();
 
         mStopped = false;
@@ -477,7 +478,6 @@ public class FragmentActivity extends ComponentActivity implements
             mFragments.dispatchActivityCreated();
         }
 
-        mFragments.noteStateNotSaved();
         mFragments.execPendingActions();
 
         // NOTE: HC onStart goes here.

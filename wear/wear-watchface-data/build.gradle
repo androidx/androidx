@@ -36,12 +36,8 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 25
-        testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
+        minSdkVersion 26
     }
-
-    sourceSets.androidTest.assets.srcDirs +=
-            project.rootDir.absolutePath + "/../../golden/wear/wear-watchface"
 
     buildFeatures {
         aidl = true

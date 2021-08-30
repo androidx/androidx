@@ -190,12 +190,10 @@ public final class ResourcesCompat {
     @SuppressWarnings("deprecation")
     public static ColorStateList getColorStateList(@NonNull Resources res, @ColorRes int id,
             @Nullable Theme theme) throws NotFoundException {
-        if (SDK_INT >= 23) {
-            // On M+ we can use the framework
-            return res.getColorStateList(id, theme);
-        }
+        // We explicitly do not attempt to use the platform Resources impl on S+
+        // in case the CSL is using only app:lStar
 
-        // Before that, we'll try handle it ourselves
+        // First, try and handle the inflation ourselves
         ColorStateListCacheKey key = new ColorStateListCacheKey(res, theme);
         ColorStateList csl = getCachedColorStateList(key, id);
         if (csl != null) {
@@ -209,7 +207,11 @@ public final class ResourcesCompat {
             return csl;
         }
         // If we reach here then we couldn't inflate it, so let the framework handle it
-        return res.getColorStateList(id);
+        if (SDK_INT >= 23) {
+            return Api23Impl.getColorStateList(res, id, theme);
+        } else {
+            return res.getColorStateList(id);
+        }
     }
 
     /**
@@ -625,6 +627,19 @@ public final class ResourcesCompat {
         private ImplApi29() {}
         static float getFloat(@NonNull Resources res, @DimenRes int id) {
             return res.getFloat(id);
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @NonNull
+        static ColorStateList getColorStateList(@NonNull Resources res, @ColorRes int id,
+                @Nullable Theme theme) {
+            return res.getColorStateList(id, theme);
         }
     }
 

@@ -19,8 +19,7 @@ package androidx.navigation.dynamicfeatures
 import androidx.navigation.NavDestination
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.dynamicfeatures.shared.TestDynamicInstallManager
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -37,13 +36,14 @@ public class DynamicGraphNavigatorTest {
 
     @Test
     public fun testCreateDestination() {
-        assertNotNull(navigator.createDestination())
+        assertThat(navigator.createDestination()).isNotNull()
     }
 
     @Test
     public fun testInstallDefaultProgressDestination() {
         val navDestination = mock(NavDestination::class.java)
         navigator.installDefaultProgressDestination { navDestination }
-        assertEquals(navDestination, navigator.defaultProgressDestinationSupplier!!.invoke())
+        assertThat(navigator.defaultProgressDestinationSupplier!!.invoke())
+            .isSameInstanceAs(navDestination)
     }
 }

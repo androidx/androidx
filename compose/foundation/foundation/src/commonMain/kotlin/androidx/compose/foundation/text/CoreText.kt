@@ -33,6 +33,7 @@ import androidx.compose.runtime.DisposableEffectResult
 import androidx.compose.runtime.DisposableEffectScope
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -127,9 +128,12 @@ internal fun CoreText(
     // When text is updated, the selection on this CoreText becomes invalid. It can be treated
     // as a brand new CoreText.
     // When SelectionRegistrar is updated, CoreText have to request a new ID to avoid ID collision.
-    val selectableId = rememberSaveable(text, selectionRegistrar) {
-        selectionRegistrar?.nextSelectableId() ?: SelectionRegistrar.InvalidSelectableId
-    }
+
+    val selectableId =
+        rememberSaveable(text, selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
+            selectionRegistrar?.nextSelectableId() ?: SelectionRegistrar.InvalidSelectableId
+        }
+
     val state = remember {
         TextState(
             TextDelegate(
@@ -181,8 +185,7 @@ internal fun CoreText(
                     } else {
                         Modifier.pointerInput(controller.mouseSelectionObserver) {
                             mouseSelectionDetector(
-                                controller.mouseSelectionObserver,
-                                finalPass = true
+                                controller.mouseSelectionObserver
                             )
                         }
                     }
@@ -383,7 +386,7 @@ internal class TextController(val state: TextState) {
                     selectionRegistrar?.notifySelectionUpdateStart(
                         layoutCoordinates = it,
                         startPosition = startPoint,
-                        adjustment = SelectionAdjustment.WORD
+                        adjustment = SelectionAdjustment.Word
                     )
                 }
 
@@ -404,11 +407,15 @@ internal class TextController(val state: TextState) {
                 dragTotalDistance += delta
 
                 if (!outOfBoundary(dragBeginPosition, dragBeginPosition + dragTotalDistance)) {
+                    // Notice that only the end position needs to be updated here.
+                    // Start position is left unchanged. This is typically important when
+                    // long-press is using SelectionAdjustment.WORD or
+                    // SelectionAdjustment.PARAGRAPH that updates the start handle position from
+                    // the dragBeginPosition.
                     selectionRegistrar?.notifySelectionUpdate(
                         layoutCoordinates = it,
-                        startPosition = dragBeginPosition,
                         endPosition = dragBeginPosition + dragTotalDistance,
-                        adjustment = SelectionAdjustment.CHARACTER
+                        adjustment = SelectionAdjustment.Character
                     )
                 }
             }
@@ -437,7 +444,7 @@ internal class TextController(val state: TextState) {
                 selectionRegistrar?.notifySelectionUpdate(
                     layoutCoordinates = it,
                     endPosition = downPosition,
-                    adjustment = SelectionAdjustment.NONE
+                    adjustment = SelectionAdjustment.None
                 )
                 return selectionRegistrar.hasSelection(state.selectableId)
             }
@@ -452,7 +459,7 @@ internal class TextController(val state: TextState) {
                 selectionRegistrar?.notifySelectionUpdate(
                     layoutCoordinates = it,
                     endPosition = dragPosition,
-                    adjustment = SelectionAdjustment.NONE
+                    adjustment = SelectionAdjustment.None
                 )
             }
             return true
@@ -465,10 +472,9 @@ internal class TextController(val state: TextState) {
             state.layoutCoordinates?.let {
                 if (!it.isAttached) return false
 
-                selectionRegistrar?.notifySelectionUpdate(
+                selectionRegistrar?.notifySelectionUpdateStart(
                     layoutCoordinates = it,
                     startPosition = downPosition,
-                    endPosition = downPosition,
                     adjustment = adjustment
                 )
 
@@ -639,3 +645,11 @@ private fun resolveInlineContent(
     }
     return Pair(placeholders, inlineComposables)
 }
+
+/**
+ * A custom saver that won't save if no selection is active.
+ */
+private fun selectionIdSaver(selectionRegistrar: SelectionRegistrar?) = Saver<Long, Long>(
+    save = { if (selectionRegistrar.hasSelection(it)) it else null },
+    restore = { it }
+)

@@ -10,7 +10,7 @@ package androidx.navigation.dynamicfeatures {
     ctor public DynamicActivityNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     ctor public DynamicActivityNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.ActivityNavigator.Destination> activityNavigator);
     method public String? getModuleName();
-    method public void setModuleName(String? p);
+    method public void setModuleName(String? moduleName);
     property public final String? moduleName;
   }
 
@@ -24,12 +24,12 @@ package androidx.navigation.dynamicfeatures {
     method public String? getDataPattern();
     method public String? getModuleName();
     method public String? getTargetPackage();
-    method public void setAction(String? p);
-    method public void setActivityClassName(String? p);
-    method public void setData(android.net.Uri? p);
-    method public void setDataPattern(String? p);
-    method public void setModuleName(String? p);
-    method public void setTargetPackage(String? p);
+    method public void setAction(String? action);
+    method public void setActivityClassName(String? activityClassName);
+    method public void setData(android.net.Uri? data);
+    method public void setDataPattern(String? dataPattern);
+    method public void setModuleName(String? moduleName);
+    method public void setTargetPackage(String? targetPackage);
     property public final String? action;
     property public final String? activityClassName;
     property public final android.net.Uri? data;
@@ -62,8 +62,8 @@ package androidx.navigation.dynamicfeatures {
     ctor public DynamicGraphNavigator.DynamicNavGraph(androidx.navigation.dynamicfeatures.DynamicGraphNavigator navGraphNavigator, androidx.navigation.NavigatorProvider navigatorProvider);
     method public String? getModuleName();
     method public int getProgressDestination();
-    method public void setModuleName(String? p);
-    method public void setProgressDestination(int p);
+    method public void setModuleName(String? moduleName);
+    method public void setProgressDestination(int progressDestination);
     property public final String? moduleName;
     property public final int progressDestination;
   }
@@ -77,9 +77,9 @@ package androidx.navigation.dynamicfeatures {
     method public String? getGraphPackage();
     method public String? getGraphResourceName();
     method public String? getModuleName();
-    method public void setGraphPackage(String? p);
-    method public void setGraphResourceName(String? p);
-    method public void setModuleName(String? p);
+    method public void setGraphPackage(String? graphPackage);
+    method public void setGraphResourceName(String? graphResourceName);
+    method public void setModuleName(String? moduleName);
     property public final String? graphPackage;
     property public final String? graphResourceName;
     property public final String? moduleName;
@@ -90,7 +90,7 @@ package androidx.navigation.dynamicfeatures {
     ctor public DynamicIncludeNavGraphBuilder(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator dynamicIncludeGraphNavigator, String route, String moduleName, String graphResourceName);
     method public androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph build();
     method public String? getGraphPackage();
-    method public void setGraphPackage(String? p);
+    method public void setGraphPackage(String? graphPackage);
     property public final String? graphPackage;
   }
 
@@ -124,7 +124,7 @@ package androidx.navigation.dynamicfeatures {
     method public String? getModuleName();
     method public int getProgressDestination();
     method public String? getProgressDestinationRoute();
-    method public void setModuleName(String? p);
+    method public void setModuleName(String? moduleName);
     method public void setProgressDestination(int p);
     method public void setProgressDestinationRoute(String? progDestRoute);
     property public final String? moduleName;

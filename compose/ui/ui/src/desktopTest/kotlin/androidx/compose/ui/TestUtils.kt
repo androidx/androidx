@@ -16,7 +16,50 @@
 
 package androidx.compose.ui
 
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.Painter
+import java.awt.Image
+import java.awt.Window
+import java.awt.event.KeyEvent
+import java.awt.image.BufferedImage
+import java.awt.image.MultiResolutionImage
+import javax.swing.Icon
+import javax.swing.ImageIcon
+
+fun testImage(color: Color): Painter = run {
+    val bitmap = ImageBitmap(100, 100)
+    val paint = Paint().apply { this.color = color }
+    Canvas(bitmap).drawRect(0f, 0f, 100f, 100f, paint)
+    BitmapPainter(bitmap)
+}
+
+fun Image.readFirstPixel(): Color {
+    val image = (this as MultiResolutionImage).getResolutionVariant(1.0, 1.0) as BufferedImage
+    return Color(image.getRGB(0, 0))
+}
+
+fun Icon.readFirstPixel() = (this as ImageIcon).image.readFirstPixel()
+
 private val os = System.getProperty("os.name").lowercase()
 internal val isLinux = os.startsWith("linux")
 internal val isWindows = os.startsWith("win")
 internal val isMacOs = os.startsWith("mac")
+
+fun Window.sendKey(
+    code: Int,
+    modifiers: Int = 0
+) = dispatchEvent(
+    KeyEvent(
+        focusOwner,
+        KeyEvent.KEY_PRESSED,
+        0,
+        modifiers,
+        code,
+        code.toChar(),
+        KeyEvent.KEY_LOCATION_STANDARD
+    )
+)
