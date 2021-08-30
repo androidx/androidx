@@ -38,8 +38,8 @@ public abstract class OutputResults {
     /**
      * Gets the {@link Uri} of the output.
      *
-     * <p>Returns the actual {@link Uri} of the output destination if the
-     * {@link OutputOptions} is implemented by {@link MediaStoreOutputOptions}, otherwise
+     * <p>Returns the actual {@link Uri} of the output destination if the {@link OutputOptions}
+     * is implemented by {@link MediaStoreOutputOptions} or {@link FileOutputOptions}, otherwise
      * returns {@link Uri#EMPTY}.
      */
     @NonNull

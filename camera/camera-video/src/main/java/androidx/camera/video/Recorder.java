@@ -1294,8 +1294,9 @@ public final class Recorder implements VideoOutput {
                     throw new AssertionError("Invalid OutputOptions type");
                 }
                 FileOutputOptions fileOutputOptions = (FileOutputOptions) options;
-                mMediaMuxer = new MediaMuxer(
-                        fileOutputOptions.getFile().getAbsolutePath(), muxerOutputFormat);
+                File file = fileOutputOptions.getFile();
+                mMediaMuxer = new MediaMuxer(file.getAbsolutePath(), muxerOutputFormat);
+                mOutputUri = Uri.fromFile(file);
                 break;
             case OutputOptions.OPTIONS_TYPE_FILE_DESCRIPTOR:
                 if (!(options instanceof FileDescriptorOutputOptions)) {
