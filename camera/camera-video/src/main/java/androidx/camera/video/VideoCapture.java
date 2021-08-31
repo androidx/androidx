@@ -35,6 +35,7 @@ import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_E
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
 
 import android.graphics.Rect;
+import android.media.MediaCodec;
 import android.util.Pair;
 import android.util.Size;
 import android.view.Display;
@@ -387,6 +388,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         config.getVideoOutput().onSurfaceRequested(mSurfaceRequest);
         sendTransformationInfoIfReady(resolution);
         mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
+        // Since VideoCapture is in video module and can't be recognized by core module, use
+        // MediaCodec class instead.
+        mDeferrableSurface.setContainerClass(MediaCodec.class);
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         if (fetchObservableValue(getOutput().getStreamState(), StreamState.INACTIVE)

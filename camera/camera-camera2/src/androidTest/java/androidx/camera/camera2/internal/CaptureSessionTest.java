@@ -34,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -46,6 +47,7 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
@@ -864,6 +866,20 @@ public final class CaptureSessionTest {
         return captureSession;
     }
 
+    @NonNull
+    private DeferrableSurface createSurfaceTextureDeferrableSurface() {
+        SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+        surfaceTexture.setDefaultBufferSize(640, 480);
+        surfaceTexture.detachFromGLContext();
+        Surface surface = new Surface(surfaceTexture);
+        DeferrableSurface deferrableSurface = new ImmediateSurface(surface);
+        deferrableSurface.getTerminationFuture().addListener(() -> {
+            surface.release();
+            surfaceTexture.release();
+        }, CameraXExecutors.directExecutor());
+        return deferrableSurface;
+    }
+
     @Test
     public void issueCaptureCancelledBeforeExecuting() {
         CaptureSession captureSession = createCaptureSession();
@@ -1087,6 +1103,47 @@ public final class CaptureSessionTest {
     }
 
     @Test
+    public void openCaptureSession_surfaceOrderShouldBeRetained()
+            throws ExecutionException, InterruptedException {
+        // If this test is flaky, the more surfaces produced, the more likely it is able to detect
+        // problems.
+        final int surfaceCount = 6;
+        List<DeferrableSurface> surfaceList = new ArrayList<>();
+        for (int i = 0; i < surfaceCount; i++) {
+            surfaceList.add(createSurfaceTextureDeferrableSurface());
+        }
+        SessionConfig.Builder sessionConfigBuilder = new SessionConfig.Builder();
+        sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        for (DeferrableSurface deferrableSurface : surfaceList) {
+            sessionConfigBuilder.addSurface(deferrableSurface);
+        }
+
+        FakeOpenerImpl fakeOpener = new FakeOpenerImpl();
+        SynchronizedCaptureSessionOpener opener = new SynchronizedCaptureSessionOpener(fakeOpener);
+        // Don't use #createCaptureSession since FakeOpenerImpl won't create CameraCaptureSession
+        // so no need to be released.
+        CaptureSession captureSession = new CaptureSession();
+        captureSession.open(sessionConfigBuilder.build(), mCameraDeviceHolder.get(), opener);
+
+        ArgumentCaptor<SessionConfigurationCompat> captor =
+                ArgumentCaptor.forClass(SessionConfigurationCompat.class);
+        verify(fakeOpener.mMock).openCaptureSession(any(), captor.capture(), any());
+
+        List<OutputConfigurationCompat> outputConfigurationCompatList =
+                captor.getValue().getOutputConfigurations();
+        assertThat(outputConfigurationCompatList.size()).isEqualTo(surfaceCount);
+        for (int i = 0; i < surfaceCount; i++) {
+            assertThat(outputConfigurationCompatList.get(i).getSurface())
+                    .isEqualTo(surfaceList.get(i).getSurface().get());
+        }
+
+        // Clean up.
+        for (DeferrableSurface deferrableSurface : surfaceList) {
+            deferrableSurface.close();
+        }
+    }
+
+    @Test
     public void closePreviousCaptureSession_afterNewCaptureSessionCreated_runningRepeating()
             throws ExecutionException, InterruptedException {
 
@@ -1263,6 +1320,56 @@ public final class CaptureSessionTest {
         captureConfigBuilder.addImplementationOptions(camera2ConfigurationBuilder.build());
         captureConfigBuilder.addCameraCaptureCallback(callback);
         return captureConfigBuilder.build();
+    }
+
+    private static class FakeOpenerImpl implements SynchronizedCaptureSessionOpener.OpenerImpl {
+
+        final SynchronizedCaptureSessionOpener.OpenerImpl mMock = mock(
+                SynchronizedCaptureSessionOpener.OpenerImpl.class);
+
+        @NonNull
+        @Override
+        public ListenableFuture<Void> openCaptureSession(@NonNull CameraDevice cameraDevice,
+                @NonNull SessionConfigurationCompat sessionConfigurationCompat,
+                @NonNull List<DeferrableSurface> deferrableSurfaces) {
+            mMock.openCaptureSession(cameraDevice, sessionConfigurationCompat, deferrableSurfaces);
+            return Futures.immediateFuture(null);
+        }
+
+        @NonNull
+        @Override
+        public SessionConfigurationCompat createSessionConfigurationCompat(int sessionType,
+                @NonNull List<OutputConfigurationCompat> outputsCompat,
+                @NonNull SynchronizedCaptureSession.StateCallback stateCallback) {
+            mMock.createSessionConfigurationCompat(sessionType, outputsCompat, stateCallback);
+            return new SessionConfigurationCompat(sessionType, outputsCompat, getExecutor(),
+                    mock(CameraCaptureSession.StateCallback.class));
+        }
+
+        @NonNull
+        @Override
+        public Executor getExecutor() {
+            mMock.getExecutor();
+            return CameraXExecutors.directExecutor();
+        }
+
+        @NonNull
+        @Override
+        public ListenableFuture<List<Surface>> startWithDeferrableSurface(
+                @NonNull List<DeferrableSurface> deferrableSurfaces, long timeout) {
+            mMock.startWithDeferrableSurface(deferrableSurfaces, timeout);
+            List<ListenableFuture<Surface>> listenableFutureSurfaces = new ArrayList<>();
+            for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
+                listenableFutureSurfaces.add(deferrableSurface.getSurface());
+            }
+            return Futures.successfulAsList(listenableFutureSurfaces);
+        }
+
+        @Override
+        public boolean stop() {
+            mMock.stop();
+            return false;
+        }
     }
 
     /**

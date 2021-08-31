@@ -155,8 +155,10 @@ class RecorderTest {
         cameraUseCaseAdapter = CameraUtil.createCameraAndAttachUseCase(
             context,
             cameraSelector,
-            preview,
-            surfaceTexturePreview
+            // Must put surfaceTexturePreview before preview while addUseCases, otherwise
+            // an issue on Samsung device will occur. See b/196755459.
+            surfaceTexturePreview,
+            preview
         )
     }
 
