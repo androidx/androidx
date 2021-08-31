@@ -62,7 +62,10 @@ public final class CameraCaptureMetaData {
         SCANNING,
 
         /** AF currently believes it is in focus. */
-        FOCUSED,
+        PASSIVE_FOCUSED,
+
+        /** AF finished a passive scan without finding focus. */
+        PASSIVE_NOT_FOCUSED,
 
         /** AF believes it is focused correctly and has locked focus. */
         LOCKED_FOCUSED,
