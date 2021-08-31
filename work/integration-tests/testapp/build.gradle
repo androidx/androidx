@@ -34,8 +34,6 @@ android {
         }
     }
     defaultConfig {
-        // This is necessary because "S" is a pre-release SDK.
-        targetSdkVersion "S"
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
@@ -62,6 +60,8 @@ dependencies {
     }
 
     implementation(libs.constraintLayout)
+    // Fix for BuildCompat.isAtleastS()
+    implementation("androidx.core:core:1.7.0-alpha01")
     implementation("androidx.lifecycle:lifecycle-service:2.2.0")
     implementation(project(":work:work-runtime-ktx"))
     implementation(project(":work:work-multiprocess"))
