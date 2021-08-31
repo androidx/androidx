@@ -135,6 +135,9 @@ public class ShortTextComplicationData internal constructor(
      * Builder for [ShortTextComplicationData].
      *
      * You must at a minimum set the [text] and [contentDescription] fields.
+     *
+     * @param text The main localized [ComplicationText]. This must be less than 7 characters long
+     * @param contentDescription Localized description for use by screen readers
      */
     public class Builder(
         private val text: ComplicationText,
@@ -241,6 +244,10 @@ public class LongTextComplicationData internal constructor(
      * Builder for [LongTextComplicationData].
      *
      * You must at a minimum set the [text] and [contentDescription] fields.
+     *
+     * @param text Localized main [ComplicationText] to display within the complication. There
+     * isn't an explicit character limit but text may be truncated if too long
+     * @param contentDescription Localized description for use by screen readers
      */
     public class Builder(
         private val text: ComplicationText,
@@ -353,6 +360,12 @@ public class RangedValueComplicationData internal constructor(
      * Builder for [RangedValueComplicationData].
      *
      * You must at a minimum set the [value], [min], [max] and [contentDescription] fields.
+     *
+     * @param value The value of the ranged complication which should be in the range
+     * [[min]] .. [[max]]
+     * @param min The minimum value
+     * @param max The maximum value
+     * @param contentDescription Localized description for use by screen readers
      */
     public class Builder(
         private val value: Float,
@@ -466,6 +479,9 @@ public class MonochromaticImageComplicationData internal constructor(
      * Builder for [MonochromaticImageComplicationData].
      *
      * You must at a minimum set the [monochromaticImage] and [contentDescription] fields.
+     *
+     * @param monochromaticImage The [MonochromaticImage] to be displayed
+     * @param contentDescription Localized description for use by screen readers
      */
     public class Builder(
         private val monochromaticImage: MonochromaticImage,
@@ -549,6 +565,9 @@ public class SmallImageComplicationData internal constructor(
      * Builder for [SmallImageComplicationData].
      *
      * You must at a minimum set the [smallImage] and [contentDescription] fields.
+     *
+     * @param smallImage The [SmallImage] to be displayed
+     * @param contentDescription Localized description for use by screen readers
      */
     public class Builder(
         private val smallImage: SmallImage,
@@ -636,6 +655,9 @@ public class PhotoImageComplicationData internal constructor(
      * Builder for [PhotoImageComplicationData].
      *
      * You must at a minimum set the [photoImage] and [contentDescription] fields.
+     *
+     * @param photoImage The [Icon] to be displayed
+     * @param contentDescription Localized description for use by screen readers
      */
     public class Builder(
         private val photoImage: Icon,
