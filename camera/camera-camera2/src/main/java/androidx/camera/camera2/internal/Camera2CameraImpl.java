@@ -1594,7 +1594,8 @@ final class Camera2CameraImpl implements CameraInternal {
                     reopenCameraAfterError(error);
                     break;
                 default:
-                    // TODO: Properly handle other errors. For now, we will close the camera.
+                    // An irrecoverable error occurred. Close the camera and publish the error
+                    // via CameraState so the user can take appropriate action.
                     Logger.e(
                             TAG,
                             "Error observed on open (or opening) camera device "
