@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
  */
-public interface ScalingLazyColumnScope {
+public interface ScalingLazyListScope {
     /**
      * Adds a single item.
      *
@@ -91,8 +91,8 @@ public fun ScalingLazyColumn(
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(4.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
-    state: ScalingLazyColumnState = rememberScalingLazyColumnState(),
-    content: ScalingLazyColumnScope.() -> Unit
+    state: ScalingLazyListState = rememberScalingLazyListState(),
+    content: ScalingLazyListScope.() -> Unit
 ) {
     BoxWithConstraints(modifier = modifier) {
         val extraPaddingInPixels = scalingParams.resolveViewportVerticalOffset(constraints)
@@ -134,7 +134,7 @@ public fun ScalingLazyColumn(
             verticalArrangement = verticalArrangement,
             state = state.lazyListState
         ) {
-            val scope = ScalingLazyColumnScopeImpl(
+            val scope = ScalingLazyListScopeImpl(
                 state,
                 this,
             )
@@ -272,10 +272,10 @@ public object ScalingLazyColumnDefaults {
     )
 }
 
-private class ScalingLazyColumnScopeImpl(
-    private val state: ScalingLazyColumnState,
+private class ScalingLazyListScopeImpl(
+    private val state: ScalingLazyListState,
     private val scope: LazyListScope,
-) : ScalingLazyColumnScope {
+) : ScalingLazyListScope {
 
     private var currentStartIndex = 0
 
@@ -308,7 +308,7 @@ private class ScalingLazyColumnScopeImpl(
 @Composable
 private fun ScalingLazyColumnItemWrapper(
     index: Int,
-    state: ScalingLazyColumnState,
+    state: ScalingLazyListState,
     content: @Composable () -> Unit
 ) {
     Box(

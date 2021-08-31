@@ -18,9 +18,9 @@ package androidx.wear.compose.material
 /**
  * Contains useful information about an individual item in a [ScalingLazyColumn].
  *
- * @see ScalingLazyColumnLayoutInfo
+ * @see ScalingLazyListLayoutInfo
  */
-interface ScalingLazyColumnItemInfo {
+interface ScalingLazyListItemInfo {
     /**
      * The index of the item in the list.
      */

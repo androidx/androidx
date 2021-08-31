@@ -31,12 +31,12 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 
 /**
- * Creates a [ScalingLazyColumnState] that is remembered across compositions.
+ * Creates a [ScalingLazyListState] that is remembered across compositions.
  */
 @Composable
-public fun rememberScalingLazyColumnState(): ScalingLazyColumnState {
-    return rememberSaveable(saver = ScalingLazyColumnState.Saver) {
-        ScalingLazyColumnState()
+public fun rememberScalingLazyListState(): ScalingLazyListState {
+    return rememberSaveable(saver = ScalingLazyListState.Saver) {
+        ScalingLazyListState()
     }
 }
 
@@ -44,10 +44,10 @@ public fun rememberScalingLazyColumnState(): ScalingLazyColumnState {
  * A state object that can be hoisted to control and observe scrolling.
  * TODO (b/193792848): Add scrolling and snap support.
  *
- * In most cases, this will be created via [rememberScalingLazyColumnState].
+ * In most cases, this will be created via [rememberScalingLazyListState].
  */
 @Stable
-public class ScalingLazyColumnState : ScrollableState {
+public class ScalingLazyListState : ScrollableState {
 
     internal var lazyListState: LazyListState = LazyListState(0, 0)
     internal val extraPaddingInPixels = mutableStateOf<Int?>(null)
@@ -56,16 +56,16 @@ public class ScalingLazyColumnState : ScrollableState {
     internal val viewportHeightPx = mutableStateOf<Int?>(null)
 
     /**
-     * The object of [ScalingLazyColumnLayoutInfo] calculated during the last layout pass. For
+     * The object of [ScalingLazyListLayoutInfo] calculated during the last layout pass. For
      * example, you can use it to calculate what items are currently visible.
      */
-    public val layoutInfo: ScalingLazyColumnLayoutInfo by derivedStateOf {
+    public val layoutInfo: ScalingLazyListLayoutInfo by derivedStateOf {
         if (extraPaddingInPixels.value == null || scalingParams.value == null ||
             gapBetweenItemsPx.value == null || viewportHeightPx.value == null
         ) {
-            EmptyScalingLazyColumnLayoutInfo
+            EmptyScalingLazyListLayoutInfo
         } else {
-            val visibleItemsInfo = mutableListOf<ScalingLazyColumnItemInfo>()
+            val visibleItemsInfo = mutableListOf<ScalingLazyListItemInfo>()
 
             if (lazyListState.layoutInfo.visibleItemsInfo.isNotEmpty()) {
                 val verticalAdjustment =
@@ -138,7 +138,7 @@ public class ScalingLazyColumnState : ScrollableState {
                         }
                     }
             }
-            DefaultScalingLazyColumnLayoutInfo(
+            DefaultScalingLazyListLayoutInfo(
                 visibleItemsInfo = visibleItemsInfo,
                 totalItemsCount = lazyListState.layoutInfo.totalItemsCount,
                 viewportStartOffset = lazyListState.layoutInfo.viewportStartOffset +
@@ -169,9 +169,9 @@ public class ScalingLazyColumnState : ScrollableState {
 
     companion object {
         /**
-         * The default [Saver] implementation for [ScalingLazyColumnState].
+         * The default [Saver] implementation for [ScalingLazyListState].
          */
-        val Saver: Saver<ScalingLazyColumnState, *> = listSaver(
+        val Saver: Saver<ScalingLazyListState, *> = listSaver(
             save = {
                 listOf(
                     it.lazyListState.firstVisibleItemIndex,
@@ -179,7 +179,7 @@ public class ScalingLazyColumnState : ScrollableState {
                 )
             },
             restore = {
-                val scalingLazyColumnState = ScalingLazyColumnState()
+                val scalingLazyColumnState = ScalingLazyListState()
                 scalingLazyColumnState.lazyListState = LazyListState(
                     firstVisibleItemIndex = it[0],
                     firstVisibleItemScrollOffset = it[1],
@@ -206,8 +206,8 @@ public class ScalingLazyColumnState : ScrollableState {
     }
 }
 
-private object EmptyScalingLazyColumnLayoutInfo : ScalingLazyColumnLayoutInfo {
-    override val visibleItemsInfo = emptyList<ScalingLazyColumnItemInfo>()
+private object EmptyScalingLazyListLayoutInfo : ScalingLazyListLayoutInfo {
+    override val visibleItemsInfo = emptyList<ScalingLazyListItemInfo>()
     override val viewportStartOffset = 0
     override val viewportEndOffset = 0
     override val totalItemsCount = 0

@@ -32,7 +32,7 @@ import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignetteValue
-import androidx.wear.compose.material.rememberScalingLazyColumnState
+import androidx.wear.compose.material.rememberScalingLazyListState
 
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalAnimationApi::class)
@@ -40,14 +40,14 @@ import androidx.wear.compose.material.rememberScalingLazyColumnState
 @Composable
 fun SimpleScaffoldWithScrollIndicator() {
 
-    val listState = rememberScalingLazyColumnState()
+    val listState = rememberScalingLazyListState()
     val vignetteState = mutableStateOf(VignetteValue.Both)
     val showVignette = mutableStateOf(true)
 
     Scaffold(
         positionIndicator = {
             PositionIndicator(
-                scalingLazyColumnState = listState,
+                scalingLazyListState = listState,
                 modifier = Modifier
             )
         },
