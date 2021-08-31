@@ -480,7 +480,7 @@ includeProject(":lifecycle:integration-tests:incrementality", "lifecycle/integra
 includeProject(":lifecycle:integration-tests:lifecycle-testapp", "lifecycle/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:integration-tests:lifecycle-testapp-kotlin", "lifecycle/integration-tests/kotlintestapp", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-common", "lifecycle/lifecycle-common", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
-includeProject(":lifecycle:lifecycle-common-java8", "lifecycle/lifecycle-common-java8", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":lifecycle:lifecycle-common-java8", "lifecycle/lifecycle-common-java8", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":lifecycle:lifecycle-compiler", "lifecycle/lifecycle-compiler", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-extensions", "lifecycle/lifecycle-extensions", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-livedata", "lifecycle/lifecycle-livedata", [BuildType.MAIN, BuildType.FLAN])
