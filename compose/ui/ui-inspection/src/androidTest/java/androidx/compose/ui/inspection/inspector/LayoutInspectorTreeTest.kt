@@ -56,7 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.inspection.rules.show
+import androidx.compose.ui.inspection.compose.flatten
 import androidx.compose.ui.inspection.testdata.TestActivity
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.platform.LocalDensity
@@ -65,6 +65,7 @@ import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -79,7 +80,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -107,11 +107,11 @@ class LayoutInspectorTreeTest {
     private lateinit var density: Density
 
     @get:Rule
-    val activityScenario = ActivityScenarioRule(TestActivity::class.java)
+    val composeTestRule = createAndroidComposeRule<TestActivity>()
 
     @Before
     fun before() {
-        activityScenario.scenario.onActivity {
+        composeTestRule.activityRule.scenario.onActivity {
             density = Density(it)
         }
         isDebugInspectorInfoEnabled = true
@@ -121,23 +121,26 @@ class LayoutInspectorTreeTest {
         return findAllAndroidComposeViews().single()
     }
 
-    private fun findAllAndroidComposeViews(): List<View> {
-        val composeViews = mutableListOf<View>()
+    private fun findAllAndroidComposeViews(): List<View> =
+        findAllViews("AndroidComposeView")
+
+    private fun findAllViews(className: String): List<View> {
+        val views = mutableListOf<View>()
         WindowInspector.getGlobalWindowViews().forEach {
-            collectAllAndroidComposeView(it.rootView, composeViews)
+            collectAllViews(it.rootView, className, views)
         }
-        return composeViews
+        return views
     }
 
-    private fun collectAllAndroidComposeView(view: View, composeViews: MutableList<View>) {
-        if (view.javaClass.simpleName == "AndroidComposeView") {
-            composeViews.add(view)
+    private fun collectAllViews(view: View, className: String, views: MutableList<View>) {
+        if (view.javaClass.simpleName == className) {
+            views.add(view)
         }
         if (view !is ViewGroup) {
             return
         }
         for (i in 0 until view.childCount) {
-            collectAllAndroidComposeView(view.getChildAt(i), composeViews)
+            collectAllViews(view.getChildAt(i), className, views)
         }
     }
 
@@ -639,6 +642,47 @@ class LayoutInspectorTreeTest {
         }
     }
 
+    @Test
+    fun testDoubleAndroidView() {
+        val slotTableRecord = CompositionDataRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                Column {
+                    Text("Compose Text1")
+                    AndroidView({ context ->
+                        TextView(context).apply {
+                            text = "first"
+                        }
+                    })
+                    Text("Compose Text2")
+                    AndroidView({ context ->
+                        TextView(context).apply {
+                            text = "second"
+                        }
+                    })
+                }
+            }
+        }
+        val composeView = findAndroidComposeView() as ViewGroup
+        composeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
+        val builder = LayoutInspectorTree()
+        builder.hideSystemNodes = false
+        val nodes = builder.convert(composeView)
+        dumpSlotTableSet(slotTableRecord)
+        dumpNodes(nodes, composeView, builder)
+        val textViews = findAllViews("TextView")
+        val firstTextView = textViews
+            .filterIsInstance<TextView>()
+            .first { it.text == "first" }
+        val secondTextView = textViews
+            .filterIsInstance<TextView>()
+            .first { it.text == "second" }
+        val composeNodes = nodes.flatMap { it.flatten() }.filter { it.name == "ComposeNode" }
+        assertThat(composeNodes[0].viewId).isEqualTo(viewParent(secondTextView)?.uniqueDrawingId)
+        assertThat(composeNodes[1].viewId).isEqualTo(viewParent(firstTextView)?.uniqueDrawingId)
+    }
+
     // WARNING: The formatting of the lines below here affect test results.
     val titleLine = Throwable().stackTrace[0].lineNumber + 3
 
@@ -897,11 +941,14 @@ class LayoutInspectorTreeTest {
         }
 
         private fun View.hasChild(id: Long): Boolean {
+            if (uniqueDrawingId == id) {
+                return true
+            }
             if (this !is ViewGroup) {
                 return false
             }
             for (index in 0..childCount) {
-                if (getChildAt(index).uniqueDrawingId == id) {
+                if (getChildAt(index).hasChild(id)) {
                     return true
                 }
             }
@@ -911,6 +958,12 @@ class LayoutInspectorTreeTest {
 
     private fun flatten(node: InspectorNode): List<InspectorNode> =
         listOf(node).plus(node.children.flatMap { flatten(it) })
+
+    private fun viewParent(view: View): View? =
+        view.parent as? View
+
+    private fun show(composable: @Composable () -> Unit) =
+        composeTestRule.setContent(composable)
 
     // region DEBUG print methods
     private fun dumpNodes(nodes: List<InspectorNode>, view: View, builder: LayoutInspectorTree) {
@@ -1039,8 +1092,6 @@ class LayoutInspectorTreeTest {
     private fun round(dp: Dp): Dp = Dp((dp.value * 10.0f).roundToInt() / 10.0f)
 
     //endregion
-
-    fun show(composable: @Composable () -> Unit) = activityScenario.scenario.show(composable)
 }
 
 /**
