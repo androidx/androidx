@@ -36,7 +36,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.Map;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 @RunWith(JUnit4.class)
@@ -49,9 +48,9 @@ public class ProfileTranscoderTests {
         try (InputStream is = new FileInputStream(pprof)) {
             expectBytes(is, MAGIC);
             expectBytes(is, version);
-            Map<String, DexProfileData> data = ProfileTranscoder.readProfile(is, version, APK_NAME);
-            Truth.assertThat(data).hasSize(1);
-            DexProfileData item = data.values().iterator().next();
+            DexProfileData[] data = ProfileTranscoder.readProfile(is, version, APK_NAME);
+            Truth.assertThat(data).hasLength(1);
+            DexProfileData item = data[0];
             Truth.assertThat(item.dexChecksum).isEqualTo(147004379);
             Truth.assertThat(item.numMethodIds).isEqualTo(18487);
             Truth.assertThat(item.hotMethodRegionSize).isEqualTo(140);
@@ -85,6 +84,24 @@ public class ProfileTranscoderTests {
         );
     }
 
+    @Test
+    public void testMultidexTranscodeForO() throws IOException {
+        assertGoldenTranscode(
+                testFile("baseline-multidex.prof"),
+                testFile("baseline-multidex-o.prof"),
+                ProfileVersion.V005_O
+        );
+    }
+
+    @Test
+    public void testMultidexTranscodeForN() throws IOException {
+        assertGoldenTranscode(
+                testFile("baseline-multidex.prof"),
+                testFile("baseline-multidex-n.prof"),
+                ProfileVersion.V001_N
+        );
+    }
+
     private static File testFile(@NonNull String fileName) {
         return new File("src/test/test-data", fileName);
     }
@@ -100,7 +117,7 @@ public class ProfileTranscoderTests {
         ) {
             byte[] version = ProfileTranscoder.readHeader(is);
             ProfileTranscoder.writeHeader(os, desiredVersion);
-            Map<String, DexProfileData> data = ProfileTranscoder.readProfile(
+            DexProfileData[] data = ProfileTranscoder.readProfile(
                     is,
                     version,
                     APK_NAME
