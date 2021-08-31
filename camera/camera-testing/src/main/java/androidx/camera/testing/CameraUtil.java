@@ -119,6 +119,29 @@ public final class CameraUtil {
     }
 
     /**
+     * Gets a new instance of a {@link CameraDevice} by given camera id.
+     *
+     * <p>This method attempts to open up a new camera. Since the camera api is asynchronous it
+     * needs to wait for camera open
+     *
+     * <p>After the camera is no longer needed {@link #releaseCameraDevice(CameraDeviceHolder)}
+     * should be called to clean up resources.
+     *
+     * @throws CameraAccessException if the device is unable to access the camera
+     * @throws InterruptedException  if a {@link CameraDevice} can not be retrieved within a set
+     *                               time
+     */
+    @RequiresPermission(Manifest.permission.CAMERA)
+    @NonNull
+    public static CameraDeviceHolder getCameraDevice(
+            @NonNull String cameraId,
+            @Nullable CameraDevice.StateCallback stateCallback)
+            throws CameraAccessException, InterruptedException, TimeoutException,
+            ExecutionException {
+        return new CameraDeviceHolder(getCameraManager(), cameraId, stateCallback);
+    }
+
+    /**
      * A container class used to hold a {@link CameraDevice}.
      *
      * <p>This class should contain a valid {@link CameraDevice} that can be retrieved with

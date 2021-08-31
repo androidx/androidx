@@ -64,6 +64,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
     androidTestImplementation("androidx.exifinterface:exifinterface:1.0.0")
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 }
 android {
     defaultConfig {

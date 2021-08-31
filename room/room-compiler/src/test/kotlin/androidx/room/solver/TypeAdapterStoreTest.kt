@@ -58,10 +58,12 @@ import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.EnumColumnTypeAdapter
 import androidx.room.solver.types.PrimitiveColumnTypeAdapter
+import androidx.room.solver.types.SingleStatementTypeConverter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.context
 import androidx.room.vo.ReadQueryMethod
 import com.google.common.truth.Truth.assertThat
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
@@ -221,8 +223,7 @@ class TypeAdapterStoreTest {
                 bindScope.generate().toString().trim(),
                 `is`(
                     """
-                    final int ${tmp(0)};
-                    ${tmp(0)} = fooVar ? 1 : 0;
+                    final int ${tmp(0)} = fooVar ? 1 : 0;
                     stmt.bindLong(41, ${tmp(0)});
                     """.trimIndent()
                 )
@@ -257,9 +258,11 @@ class TypeAdapterStoreTest {
                     this.x = x;
                     this.y = y;
                 }
+                @TypeConverter
                 public static Point fromBoolean(boolean val) {
                     return val ? new Point(1, 1) : new Point(0, 0);
                 }
+                @TypeConverter
                 public static boolean toBoolean(Point point) {
                     return point.x > 0;
                 }
@@ -269,9 +272,15 @@ class TypeAdapterStoreTest {
         runProcessorTest(
             sources = listOf(point)
         ) { invocation ->
+
+            val context = Context(invocation.processingEnv)
+            val converters = CustomConverterProcessor(
+                context = context,
+                element = invocation.processingEnv.requireTypeElement("foo.bar.Point")
+            ).process().map(::CustomTypeConverterWrapper)
             val store = TypeAdapterStore.create(
-                Context(invocation.processingEnv),
-                pointTypeConverters(invocation.processingEnv)
+                context,
+                converters
             )
             val pointType = invocation.processingEnv.requireType("foo.bar.Point")
             val adapter = store.findColumnTypeAdapter(
@@ -288,11 +297,9 @@ class TypeAdapterStoreTest {
                 bindScope.generate().toString().trim(),
                 `is`(
                     """
-                    final int ${tmp(0)};
-                    final boolean ${tmp(1)};
-                    ${tmp(1)} = foo.bar.Point.toBoolean(fooVar);
-                    ${tmp(0)} = ${tmp(1)} ? 1 : 0;
-                    stmt.bindLong(41, ${tmp(0)});
+                    final boolean ${tmp(0)} = foo.bar.Point.toBoolean(fooVar);
+                    final int ${tmp(1)} = ${tmp(0)} ? 1 : 0;
+                    stmt.bindLong(41, ${tmp(1)});
                     """.trimIndent()
                 )
             )
@@ -305,8 +312,7 @@ class TypeAdapterStoreTest {
                     """
                     final int ${tmp(0)};
                     ${tmp(0)} = curs.getInt(11);
-                    final boolean ${tmp(1)};
-                    ${tmp(1)} = ${tmp(0)} != 0;
+                    final boolean ${tmp(1)} = ${tmp(0)} != 0;
                     res = foo.bar.Point.fromBoolean(${tmp(1)});
                     """.trimIndent()
                 )
@@ -337,7 +343,7 @@ class TypeAdapterStoreTest {
                 } else {
                   _tmp = curs.getLong(0);
                 }
-                // convert Long to Date;
+                outDate = new java.util.Date(_tmp);
                     """.trimIndent()
                 )
             )
@@ -366,8 +372,7 @@ class TypeAdapterStoreTest {
                 bindScope.generate().toString().trim(),
                 `is`(
                     """
-                final java.lang.String ${tmp(0)};
-                ${tmp(0)} = androidx.room.util.StringUtil.joinIntoString(fooVar);
+                final java.lang.String ${tmp(0)} = androidx.room.util.StringUtil.joinIntoString(fooVar);
                 if (${tmp(0)} == null) {
                   stmt.bindNull(41);
                 } else {
@@ -1177,102 +1182,42 @@ class TypeAdapterStoreTest {
         val intType = invocation.processingEnv.requireType(Integer::class)
         val listElement = invocation.processingEnv.requireTypeElement(java.util.List::class)
         val listOfInts = invocation.processingEnv.getDeclaredType(listElement, intType)
-        val intListConverter = object : TypeConverter(
+        val intListConverter = object : SingleStatementTypeConverter(
             listOfInts,
             invocation.context.COMMON_TYPES.STRING
         ) {
-            override fun convert(
-                inputVarName: String,
-                outputVarName: String,
-                scope: CodeGenScope
-            ) {
-                scope.builder().apply {
-                    addStatement(
-                        "$L = $T.joinIntoString($L)", outputVarName, STRING_UTIL,
-                        inputVarName
-                    )
-                }
+            override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                return CodeBlock.of(
+                    "$T.joinIntoString($L)", STRING_UTIL, inputVarName
+                )
             }
         }
 
-        val stringToIntListConverter = object : TypeConverter(
+        val stringToIntListConverter = object : SingleStatementTypeConverter(
             invocation.context.COMMON_TYPES.STRING, listOfInts
         ) {
-            override fun convert(
-                inputVarName: String,
-                outputVarName: String,
-                scope: CodeGenScope
-            ) {
-                scope.builder().apply {
-                    addStatement(
-                        "$L = $T.splitToIntList($L)", outputVarName, STRING_UTIL,
-                        inputVarName
-                    )
-                }
+            override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                return CodeBlock.of(
+                    "$T.splitToIntList($L)", STRING_UTIL,
+                    inputVarName
+                )
             }
         }
         return listOf(intListConverter, stringToIntListConverter)
     }
 
-    fun pointTypeConverters(env: XProcessingEnv): List<TypeConverter> {
-        val tPoint = env.requireType("foo.bar.Point")
-        val tBoolean = env.requireType(TypeName.BOOLEAN)
-        return listOf(
-            object : TypeConverter(tPoint, tBoolean) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().apply {
-                        addStatement(
-                            "$L = $T.toBoolean($L)", outputVarName, from.typeName,
-                            inputVarName
-                        )
-                    }
-                }
-            },
-            object : TypeConverter(tBoolean, tPoint) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().apply {
-                        addStatement(
-                            "$L = $T.fromBoolean($L)", outputVarName, tPoint.typeName,
-                            inputVarName
-                        )
-                    }
-                }
-            }
-        )
-    }
-
-    fun dateTypeConverters(env: XProcessingEnv): List<TypeConverter> {
+    private fun dateTypeConverters(env: XProcessingEnv): List<TypeConverter> {
         val tDate = env.requireType("java.util.Date").makeNullable()
         val tLong = env.requireType("java.lang.Long").makeNullable()
         return listOf(
-            object : TypeConverter(tDate, tLong) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().apply {
-                        addStatement("// convert Date to Long")
-                    }
+            object : SingleStatementTypeConverter(tDate, tLong) {
+                override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                    return CodeBlock.of("$L.time", inputVarName)
                 }
             },
-            object : TypeConverter(tLong, tDate) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().apply {
-                        addStatement("// convert Long to Date")
-                    }
+            object : SingleStatementTypeConverter(tLong, tDate) {
+                override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                    return CodeBlock.of("new $T($L)", tDate.typeName, inputVarName)
                 }
             }
         )

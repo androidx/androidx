@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.List;
 
@@ -32,21 +31,30 @@ import java.util.List;
  */
 public interface RequestProcessor {
     /**
-     * Submit a request. Returning true if request is submitted or false otherwise.
+     * Submit a request.
+     *
+     * @return the id of the capture sequence or -1 in case the processor encounters a fatal error
+     *         or receives an invalid argument.
      */
-    boolean submit(@NonNull Request request,
+    int submit(@NonNull Request request,
             @NonNull Callback callback);
 
     /**
-     * Submit a list of requests. Returning true if request is submitted or false otherwise.
+     * Submit a list of requests.
+     *
+     * @return the id of the capture sequence or -1 in case the processor encounters a fatal error
+     *         or receives an invalid argument.
      */
-    boolean submit(@NonNull List<Request> requests,
+    int submit(@NonNull List<Request> requests,
             @NonNull Callback callback);
 
     /**
-     * Set a repeating request. Returning true if request is submitted or false otherwise.
+     * Set a repeating request.
+     *
+     * @return the id of the capture sequence or -1 in case the processor encounters a fatal error
+     *         or receives an invalid argument.
      */
-    boolean setRepeating(@NonNull Request request,
+    int setRepeating(@NonNull Request request,
             @NonNull Callback callback);
 
     /**
@@ -98,16 +106,16 @@ public interface RequestProcessor {
 
         void onCaptureCompleted(
                 @NonNull Request request,
-                @Nullable CameraCaptureResult captureResult);
+                @NonNull CameraCaptureResult captureResult);
 
         void onCaptureFailed(
                 @NonNull Request request,
-                @Nullable CameraCaptureFailure captureFailure);
+                @NonNull CameraCaptureFailure captureFailure);
 
         void onCaptureBufferLost(
                 @NonNull Request request,
                 long frameNumber,
-                int outputStreamId);
+                int outputConfigId);
 
         void onCaptureSequenceCompleted(int sequenceId, long frameNumber);
 

@@ -33,7 +33,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -75,7 +74,7 @@ public class DeviceProfileWriter {
     private final String mProfileSourceLocation;
     private boolean mDeviceSupportsAotProfile = false;
     @Nullable
-    private Map<String, DexProfileData> mProfile;
+    private DexProfileData[] mProfile;
     @Nullable
     private byte[] mTranscodedProfile;
 
@@ -188,7 +187,7 @@ public class DeviceProfileWriter {
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public DeviceProfileWriter transcodeIfNeeded() {
-        Map<String, DexProfileData> profile = mProfile;
+        DexProfileData[] profile = mProfile;
         byte[] desiredVersion = mDesiredVersion;
         if (profile == null || desiredVersion == null) {
             return this;
