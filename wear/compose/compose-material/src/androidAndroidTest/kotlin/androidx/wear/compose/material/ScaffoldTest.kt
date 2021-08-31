@@ -101,7 +101,7 @@ class ScaffoldTest {
         val vignetteValue = mutableStateOf(VignetteValue.Both)
 
         rule.setContentWithTheme {
-            val scrollState = rememberScalingLazyColumnState()
+            val scrollState = rememberScalingLazyListState()
 
             Scaffold(
                 modifier = Modifier.testTag(TEST_TAG).background(Color.Black),
@@ -113,7 +113,7 @@ class ScaffoldTest {
                 },
                 positionIndicator = {
                     PositionIndicator(
-                        scalingLazyColumnState = scrollState,
+                        scalingLazyListState = scrollState,
                         modifier = Modifier.testTag("POSITION_INDICATOR")
                     )
                 }

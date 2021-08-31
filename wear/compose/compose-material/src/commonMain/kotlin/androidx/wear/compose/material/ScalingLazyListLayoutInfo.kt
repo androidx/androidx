@@ -19,13 +19,13 @@ package androidx.wear.compose.material
  * Contains useful information about the currently displayed layout state of [ScalingLazyColumn].
  * For example you can get the list of currently displayed item.
  *
- * Use [ScalingLazyColumnState.layoutInfo] to retrieve this
+ * Use [ScalingLazyListState.layoutInfo] to retrieve this
  */
-interface ScalingLazyColumnLayoutInfo {
+interface ScalingLazyListLayoutInfo {
     /**
-     * The list of [ScalingLazyColumnItemInfo] representing all the currently visible items.
+     * The list of [ScalingLazyListItemInfo] representing all the currently visible items.
      */
-    val visibleItemsInfo: List<ScalingLazyColumnItemInfo>
+    val visibleItemsInfo: List<ScalingLazyListItemInfo>
 
     /**
      * The start offset of the layout's viewport. You can think of it as a minimum offset which

@@ -50,13 +50,13 @@ import kotlin.math.abs
 /**
  * An object representing the relative position of a scrollbar or rolling side button or rotating
  * bezel position. This interface is implemented by classes that adapt other state information such
- * as [ScalingLazyColumnState] or [ScrollState] of scrollable containers or to represent the
+ * as [ScalingLazyListState] or [ScrollState] of scrollable containers or to represent the
  * position of say a volume control that can be 'ticked' using a rolling side button or rotating
  * bezel.
  *
  * Implementing classes provide [indicatorPosition] to determine where in the range [0..1] that the
  * indicator should be displayed and [indicatorSize] to determine the size of the indicator in the
- * range [0..1]. E.g. If a [ScalingLazyColumnState] had 50 items and the last 5 were visible it
+ * range [0..1]. E.g. If a [ScalingLazyListState] had 50 items and the last 5 were visible it
  * would have a position of 1.0f to show that the scroll is positioned at the end of the list and a
  * size of 5 / 50 = 0.1f to indicate that 10% of the visible items are currently visible.
  */
@@ -106,22 +106,22 @@ public fun PositionIndicator(
 )
 
 /**
- * Creates an [PositionIndicator] based on the values in a [ScalingLazyColumnState] object that
+ * Creates an [PositionIndicator] based on the values in a [ScalingLazyListState] object that
  * a [ScalingLazyColumn] uses.
  *
- * @param scalingLazyColumnState the [ScalingLazyColumnState] to use as the basis for the
+ * @param scalingLazyListState the [ScalingLazyListState] to use as the basis for the
  * PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
  */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 public fun PositionIndicator(
-    scalingLazyColumnState: ScalingLazyColumnState,
+    scalingLazyListState: ScalingLazyListState,
     modifier: Modifier = Modifier,
     reverseDirection: Boolean = false
 ) = PositionIndicator(
     state = ScalingLazyColumnStateAdapter(
-        state = scalingLazyColumnState
+        state = scalingLazyListState
     ),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
@@ -321,14 +321,14 @@ internal class ScrollStateAdapter(private val scrollState: ScrollState) : Positi
 
 /**
  * An implementation of [PositionIndicatorState] to display the amount and position of a
- * [ScalingLazyColumn] component via its [ScalingLazyColumnState].
+ * [ScalingLazyColumn] component via its [ScalingLazyListState].
  *
- * @param state the [ScalingLazyColumnState] to adapt.
+ * @param state the [ScalingLazyListState] to adapt.
  *
  * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
  */
 internal class ScalingLazyColumnStateAdapter(
-    private val state: ScalingLazyColumnState
+    private val state: ScalingLazyListState
 ) : PositionIndicatorState {
     override fun indicatorPosition() =
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) {
