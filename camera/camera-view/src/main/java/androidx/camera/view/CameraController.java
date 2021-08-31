@@ -509,7 +509,7 @@ public abstract class CameraController {
         Threads.checkMainThread();
         if (mCameraProvider != null) {
             // Preview is required. Unbind everything if Preview is down.
-            mCameraProvider.unbindAll();
+            mCameraProvider.unbind(mPreview, mImageCapture, mImageAnalysis, mVideoCapture);
         }
         mPreview.setSurfaceProvider(null);
         mCamera = null;
@@ -1199,7 +1199,7 @@ public abstract class CameraController {
         if (mCameraProvider == null) {
             return;
         }
-        mCameraProvider.unbindAll();
+        mCameraProvider.unbind(mPreview, mImageCapture, mImageAnalysis, mVideoCapture);
         startCameraAndTrackStates(() -> mCameraSelector = oldCameraSelector);
     }
 
