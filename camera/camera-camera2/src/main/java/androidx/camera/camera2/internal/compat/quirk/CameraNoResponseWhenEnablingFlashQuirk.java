@@ -25,24 +25,48 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
  * Camera gets stuck when taking pictures with flash ON or AUTO in dark environment.
  *
- * <p>See b/193336562 for details.
+ * <p>See b/193336562 and b/194046401 for details.
  */
 public class CameraNoResponseWhenEnablingFlashQuirk implements UseTorchAsFlashQuirk {
     @VisibleForTesting
     public static final String BUILD_BRAND = "SAMSUNG";
 
     @VisibleForTesting
-    public static final String BUILD_MODEL = "SM-N920";
+    public static final List<String> AFFECTED_MODELS = Arrays.asList(
+            // Enables on all Samsung Galaxy Note 5 devices.
+            "SM-N9200",
+            "SM-N9208",
+            "SAMSUNG-SM-N920A",
+            "SM-N920C",
+            "SM-N920F",
+            "SM-N920G",
+            "SM-N920I",
+            "SM-N920K",
+            "SM-N920L",
+            "SM-N920P",
+            "SM-N920R4",
+            "SM-N920R6",
+            "SM-N920R7",
+            "SM-N920S",
+            "SM-N920T",
+            "SM-N920V",
+            "SM-N920W8",
+            "SM-N920X",
+
+            // Galaxy J5
+            "SM-J510FN"
+    );
 
     static boolean load(@NonNull CameraCharacteristicsCompat characteristics) {
         return BUILD_BRAND.equals(Build.BRAND.toUpperCase(Locale.US))
-                // Enables on all Samsung Galaxy Note 5 devices.
-                && Build.MODEL.toUpperCase(Locale.US).startsWith(BUILD_MODEL)
+                && AFFECTED_MODELS.contains(Build.MODEL.toUpperCase())
                 && characteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
     }
 }
