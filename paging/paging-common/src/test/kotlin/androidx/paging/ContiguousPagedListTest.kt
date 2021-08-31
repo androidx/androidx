@@ -162,17 +162,22 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         return data
     }
 
-    private fun <E : Any> PagedList<E>.addLoadStateCapture(desiredType: LoadType):
-        Pair<Any, MutableList<StateChange>> {
-            val list = mutableListOf<StateChange>()
-            val listener = { type: LoadType, state: LoadState ->
-                if (type == desiredType) {
-                    list.add(StateChange(type, state))
-                }
+    private fun <E : Any> PagedList<E>.withLoadStateCapture(
+        desiredType: LoadType,
+        callback: (list: MutableList<StateChange>) -> Unit,
+    ) {
+        val list = mutableListOf<StateChange>()
+        val listener = { type: LoadType, state: LoadState ->
+            if (type == desiredType) {
+                list.add(StateChange(type, state))
             }
-            addWeakLoadStateListener(listener)
-            return Pair(listener, list)
         }
+
+        addWeakLoadStateListener(listener)
+        callback(list)
+        // Note: Referencing listener here prevents it from getting gc'd before the test finishes.
+        removeWeakLoadStateListener(listener)
+    }
 
     private fun verifyRange(start: Int, count: Int, actual: PagedStorage<Item>) {
         if (placeholdersEnabled) {
@@ -651,82 +656,81 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     @Test
     fun loadingListenerAppend() {
         val pagedList = createCountedPagedList(0)
-        val capture = pagedList.addLoadStateCapture(APPEND)
-        val states = capture.second
+        pagedList.withLoadStateCapture(APPEND) { states ->
+            // No loading going on currently
+            assertEquals(
+                listOf(
+                    StateChange(
+                        APPEND,
+                        NotLoading(endOfPaginationReached = false)
+                    )
+                ),
+                states.getAllAndClear()
+            )
+            verifyRange(0, 40, pagedList)
 
-        // No loading going on currently
-        assertEquals(
-            listOf(
-                StateChange(
-                    APPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            states.getAllAndClear()
-        )
-        verifyRange(0, 40, pagedList)
+            // trigger load
+            pagedList.loadAround(35)
+            mainThread.executeAll()
+            assertEquals(
+                listOf(StateChange(APPEND, Loading)),
+                states.getAllAndClear()
+            )
+            verifyRange(0, 40, pagedList)
 
-        // trigger load
-        pagedList.loadAround(35)
-        mainThread.executeAll()
-        assertEquals(
-            listOf(StateChange(APPEND, Loading)),
-            states.getAllAndClear()
-        )
-        verifyRange(0, 40, pagedList)
+            // load finishes
+            drain()
+            assertEquals(
+                listOf(
+                    StateChange(
+                        APPEND,
+                        NotLoading(endOfPaginationReached = false)
+                    )
+                ),
+                states.getAllAndClear()
+            )
+            verifyRange(0, 60, pagedList)
 
-        // load finishes
-        drain()
-        assertEquals(
-            listOf(
-                StateChange(
-                    APPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            states.getAllAndClear()
-        )
-        verifyRange(0, 60, pagedList)
+            pagedList.pagingSource.enqueueErrorForIndex(65)
 
-        pagedList.pagingSource.enqueueErrorForIndex(65)
+            // trigger load which will error
+            pagedList.loadAround(55)
+            mainThread.executeAll()
+            assertEquals(
+                listOf(StateChange(APPEND, Loading)),
+                states.getAllAndClear()
+            )
+            verifyRange(0, 60, pagedList)
 
-        // trigger load which will error
-        pagedList.loadAround(55)
-        mainThread.executeAll()
-        assertEquals(
-            listOf(StateChange(APPEND, Loading)),
-            states.getAllAndClear()
-        )
-        verifyRange(0, 60, pagedList)
+            // load now in error state
+            drain()
+            assertEquals(
+                listOf(StateChange(APPEND, Error(EXCEPTION))),
+                states.getAllAndClear()
+            )
+            verifyRange(0, 60, pagedList)
 
-        // load now in error state
-        drain()
-        assertEquals(
-            listOf(StateChange(APPEND, Error(EXCEPTION))),
-            states.getAllAndClear()
-        )
-        verifyRange(0, 60, pagedList)
+            // retry
+            pagedList.retry()
+            mainThread.executeAll()
+            assertEquals(
+                listOf(StateChange(APPEND, Loading)),
+                states.getAllAndClear()
+            )
 
-        // retry
-        pagedList.retry()
-        mainThread.executeAll()
-        assertEquals(
-            listOf(StateChange(APPEND, Loading)),
-            states.getAllAndClear()
-        )
-
-        // load finishes
-        drain()
-        assertEquals(
-            listOf(
-                StateChange(
-                    APPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            states.getAllAndClear()
-        )
-        verifyRange(0, 80, pagedList)
+            // load finishes
+            drain()
+            assertEquals(
+                listOf(
+                    StateChange(
+                        APPEND,
+                        NotLoading(endOfPaginationReached = false)
+                    )
+                ),
+                states.getAllAndClear()
+            )
+            verifyRange(0, 80, pagedList)
+        }
     }
 
     @Test
@@ -739,54 +743,53 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             prefetchDistance = 1,
             maxSize = 3
         )
-        val capture = pagedList.addLoadStateCapture(PREPEND)
-        val states = capture.second
-
-        // load 3 pages - 2nd, 3rd, 4th
-        pagedList.loadAround(if (placeholdersEnabled) 2 else 0)
-        drain()
-        verifyRange(1, 3, pagedList)
-        assertEquals(
-            listOf(
-                StateChange(
-                    PREPEND,
-                    NotLoading(endOfPaginationReached = false)
+        pagedList.withLoadStateCapture(PREPEND) { states ->
+            // load 3 pages - 2nd, 3rd, 4th
+            pagedList.loadAround(if (placeholdersEnabled) 2 else 0)
+            drain()
+            verifyRange(1, 3, pagedList)
+            assertEquals(
+                listOf(
+                    StateChange(
+                        PREPEND,
+                        NotLoading(endOfPaginationReached = false)
+                    ),
+                    StateChange(PREPEND, Loading),
+                    StateChange(
+                        PREPEND,
+                        NotLoading(endOfPaginationReached = false)
+                    )
                 ),
-                StateChange(PREPEND, Loading),
-                StateChange(
-                    PREPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            states.getAllAndClear()
-        )
+                states.getAllAndClear()
+            )
 
-        // start a load at the beginning, which will fail
-        pagedList.pagingSource.enqueueErrorForIndex(0)
-        pagedList.loadAround(if (placeholdersEnabled) 1 else 0)
-        drain()
-        verifyRange(1, 3, pagedList)
-        assertEquals(
-            listOf(
-                StateChange(PREPEND, Loading),
-                StateChange(PREPEND, Error(EXCEPTION))
-            ),
-            states.getAllAndClear()
-        )
+            // start a load at the beginning, which will fail
+            pagedList.pagingSource.enqueueErrorForIndex(0)
+            pagedList.loadAround(if (placeholdersEnabled) 1 else 0)
+            drain()
+            verifyRange(1, 3, pagedList)
+            assertEquals(
+                listOf(
+                    StateChange(PREPEND, Loading),
+                    StateChange(PREPEND, Error(EXCEPTION))
+                ),
+                states.getAllAndClear()
+            )
 
-        // but without that failure being retried, access near end of list, which drops the error
-        pagedList.loadAround(if (placeholdersEnabled) 3 else 2)
-        drain()
-        assertEquals(
-            listOf(
-                StateChange(
-                    PREPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            states.getAllAndClear()
-        )
-        verifyRange(2, 3, pagedList)
+            // but without that failure being retried, access near end of list, which drops the error
+            pagedList.loadAround(if (placeholdersEnabled) 3 else 2)
+            drain()
+            assertEquals(
+                listOf(
+                    StateChange(
+                        PREPEND,
+                        NotLoading(endOfPaginationReached = false)
+                    )
+                ),
+                states.getAllAndClear()
+            )
+            verifyRange(2, 3, pagedList)
+        }
     }
 
     @Test
@@ -799,78 +802,76 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             prefetchDistance = 1,
             maxSize = 3
         )
-        val capture = pagedList.addLoadStateCapture(APPEND)
-        val states = capture.second
-
-        // load 3 pages - 2nd, 3rd, 4th
-        pagedList.loadAround(if (placeholdersEnabled) 2 else 0)
-        drain()
-        verifyRange(1, 3, pagedList)
-        assertEquals(
-            listOf(
-                StateChange(
-                    APPEND,
-                    NotLoading(endOfPaginationReached = false)
+        pagedList.withLoadStateCapture(APPEND) { states ->
+            // load 3 pages - 2nd, 3rd, 4th
+            pagedList.loadAround(if (placeholdersEnabled) 2 else 0)
+            drain()
+            verifyRange(1, 3, pagedList)
+            assertEquals(
+                listOf(
+                    StateChange(
+                        APPEND,
+                        NotLoading(endOfPaginationReached = false)
+                    ),
+                    StateChange(APPEND, Loading),
+                    StateChange(
+                        APPEND,
+                        NotLoading(endOfPaginationReached = false)
+                    )
                 ),
-                StateChange(APPEND, Loading),
-                StateChange(
-                    APPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            states.getAllAndClear()
-        )
+                states.getAllAndClear()
+            )
 
-        // start a load at the end, which will fail
-        pagedList.pagingSource.enqueueErrorForIndex(4)
-        pagedList.loadAround(if (placeholdersEnabled) 3 else 2)
-        drain()
-        verifyRange(1, 3, pagedList)
-        assertEquals(
-            listOf(
-                StateChange(APPEND, Loading),
-                StateChange(APPEND, Error(EXCEPTION))
-            ),
-            states.getAllAndClear()
-        )
+            // start a load at the end, which will fail
+            pagedList.pagingSource.enqueueErrorForIndex(4)
+            pagedList.loadAround(if (placeholdersEnabled) 3 else 2)
+            drain()
+            verifyRange(1, 3, pagedList)
+            assertEquals(
+                listOf(
+                    StateChange(APPEND, Loading),
+                    StateChange(APPEND, Error(EXCEPTION))
+                ),
+                states.getAllAndClear()
+            )
 
-        // but without that failure being retried, access near start of list, which drops the error
-        pagedList.loadAround(if (placeholdersEnabled) 1 else 0)
-        drain()
-        assertEquals(
-            listOf(
-                StateChange(
-                    APPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            states.getAllAndClear()
-        )
-        verifyRange(0, 3, pagedList)
+            // but without that failure being retried, access near start of list, which drops the error
+            pagedList.loadAround(if (placeholdersEnabled) 1 else 0)
+            drain()
+            assertEquals(
+                listOf(
+                    StateChange(
+                        APPEND,
+                        NotLoading(endOfPaginationReached = false)
+                    )
+                ),
+                states.getAllAndClear()
+            )
+            verifyRange(0, 3, pagedList)
+        }
     }
 
     @Test
     fun errorIntoDrop() {
         // have an error, move loading range, error goes away
         val pagedList = createCountedPagedList(0)
-        val capture = pagedList.addLoadStateCapture(APPEND)
-        val states = capture.second
-
-        pagedList.pagingSource.enqueueErrorForIndex(45)
-        pagedList.loadAround(35)
-        drain()
-        assertEquals(
-            listOf(
-                StateChange(
-                    APPEND,
-                    NotLoading(endOfPaginationReached = false)
+        pagedList.withLoadStateCapture(APPEND) { states ->
+            pagedList.pagingSource.enqueueErrorForIndex(45)
+            pagedList.loadAround(35)
+            drain()
+            assertEquals(
+                listOf(
+                    StateChange(
+                        APPEND,
+                        NotLoading(endOfPaginationReached = false)
+                    ),
+                    StateChange(APPEND, Loading),
+                    StateChange(APPEND, Error(EXCEPTION))
                 ),
-                StateChange(APPEND, Loading),
-                StateChange(APPEND, Error(EXCEPTION))
-            ),
-            states.getAllAndClear()
-        )
-        verifyRange(0, 40, pagedList)
+                states.getAllAndClear()
+            )
+            verifyRange(0, 40, pagedList)
+        }
     }
 
     @Test
