@@ -27,6 +27,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
@@ -232,16 +233,15 @@ public final class LocationRequestCompat {
      * Converts an instance to an equivalent {@link LocationRequest}, with the provider field of
      * the resulting LocationRequest set to the provider argument provided to this method.
      *
-     * <p>May throw an {@link UnsupportedOperationException} on some SDKs if various reflective
-     * operations fail. This should only occur on non-standard Android devices, and thus should
-     * be rare.
+     * <p>May return null on some SDKs if various reflective operations fail. This should only
+     * occur on non-standard Android devices, and thus should be rare.
      *
      * @return platform class object
      * @see LocationRequest
      */
     @SuppressWarnings("JavaReflectionMemberAccess")
     @RequiresApi(19)
-    @NonNull
+    @Nullable
     public LocationRequest toLocationRequest(@NonNull String provider) {
         if (VERSION.SDK_INT >= 31) {
             return toLocationRequest();
@@ -259,7 +259,7 @@ public final class LocationRequestCompat {
                                 mIntervalMillis,
                                 mMinUpdateDistanceMeters, false);
                 if (request == null) {
-                    throw new UnsupportedOperationException();
+                    return null;
                 }
 
                 if (sSetQualityMethod == null) {
@@ -301,7 +301,7 @@ public final class LocationRequestCompat {
 
                 return request;
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                throw new UnsupportedOperationException(e);
+                return null;
             }
         }
     }

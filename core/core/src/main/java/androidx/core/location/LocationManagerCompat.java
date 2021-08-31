@@ -255,9 +255,12 @@ public final class LocationManagerCompat {
                     sRequestLocationUpdatesExecutorMethod.setAccessible(true);
                 }
 
-                sRequestLocationUpdatesExecutorMethod.invoke(locationManager,
-                        locationRequest.toLocationRequest(provider), executor, listener);
-                return;
+                LocationRequest request = locationRequest.toLocationRequest(provider);
+                if (request != null) {
+                    sRequestLocationUpdatesExecutorMethod.invoke(locationManager, request, executor,
+                            listener);
+                    return;
+                }
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                 // ignored
             } catch (UnsupportedOperationException e) {
@@ -276,13 +279,15 @@ public final class LocationManagerCompat {
                     sRequestLocationUpdatesLooperMethod.setAccessible(true);
                 }
 
-                synchronized (sLocationListeners) {
-                    sRequestLocationUpdatesLooperMethod.invoke(locationManager,
-                            locationRequest.toLocationRequest(provider), transport,
-                            Looper.getMainLooper());
-                    transport.register();
+                LocationRequest request = locationRequest.toLocationRequest(provider);
+                if (request != null) {
+                    synchronized (sLocationListeners) {
+                        sRequestLocationUpdatesLooperMethod.invoke(locationManager, request,
+                                transport, Looper.getMainLooper());
+                        transport.register();
+                        return;
+                    }
                 }
-                return;
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                 // ignored
             } catch (UnsupportedOperationException e) {
@@ -329,9 +334,12 @@ public final class LocationManagerCompat {
                     sRequestLocationUpdatesLooperMethod.setAccessible(true);
                 }
 
-                sRequestLocationUpdatesLooperMethod.invoke(locationManager,
-                        locationRequest.toLocationRequest(provider), listener, looper);
-                return;
+                LocationRequest request = locationRequest.toLocationRequest(provider);
+                if (request != null) {
+                    sRequestLocationUpdatesLooperMethod.invoke(locationManager, request, listener,
+                            looper);
+                    return;
+                }
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                 // ignored
             } catch (UnsupportedOperationException e) {
