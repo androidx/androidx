@@ -43,6 +43,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.ArgumentMatchers;
 
+@SuppressWarnings("deprecation")
 @RunWith(JUnit4.class)
 public class ReflectiveGenericLifecycleObserverTest {
     private LifecycleOwner mOwner;
@@ -86,6 +87,7 @@ public class ReflectiveGenericLifecycleObserverTest {
     }
 
     private static class AnyStateListener implements LifecycleObserver {
+        @SuppressWarnings("deprecation")
         @OnLifecycleEvent(ON_ANY)
         void onAnyState(LifecycleOwner owner, Lifecycle.Event event) {
 
@@ -102,6 +104,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         verify(obj).onCreated(mOwner);
     }
 
+    @SuppressWarnings("deprecation")
     private static class CreatedStateListener implements LifecycleObserver {
         @OnLifecycleEvent(ON_CREATE)
         void onCreated() {
@@ -114,6 +117,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void eachEvent() {
         AllMethodsListener obj = mock(AllMethodsListener.class);
@@ -151,6 +155,7 @@ public class ReflectiveGenericLifecycleObserverTest {
     }
 
 
+    @SuppressWarnings("deprecation")
     private static class AllMethodsListener implements LifecycleObserver {
         @OnLifecycleEvent(ON_CREATE)
         void created() {}
@@ -172,6 +177,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testFailingObserver() {
         class UnprecedentedError extends Error {

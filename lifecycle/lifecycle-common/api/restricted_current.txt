@@ -68,8 +68,8 @@ package androidx.lifecycle {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean approveCall(String!, int);
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
-    method public abstract androidx.lifecycle.Lifecycle.Event! value();
+  @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
+    method @Deprecated public abstract androidx.lifecycle.Lifecycle.Event! value();
   }
 
 }

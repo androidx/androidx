@@ -26,8 +26,6 @@ import androidx.fragment.testing.test.R.style.ThemedFragmentTheme
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
@@ -491,12 +489,11 @@ class FragmentScenarioTest {
         var destroyed = false
         launchFragment<StateRecordingFragment>().use {
             it.onFragment { fragment ->
-                fragment.lifecycle.addObserver(object : LifecycleObserver {
-                    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-                    fun onDestroy() {
-                        destroyed = true
+                fragment.lifecycle.addObserver(
+                    LifecycleEventObserver { _, event ->
+                        destroyed = event == Lifecycle.Event.ON_DESTROY
                     }
-                })
+                )
             }
         }
         assertThat(destroyed).isTrue()

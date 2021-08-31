@@ -18,11 +18,11 @@ package androidx.lifecycle.observers;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
 
+@SuppressWarnings("deprecation")
 public class Base implements LifecycleObserver {
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     public void onCreate() {
     }
 }
