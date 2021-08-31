@@ -59,10 +59,8 @@ class CompositeAdapter(
             return
         }
         scope.builder().apply {
-            val tmpVar = scope.getTmpVar()
-            addStatement("final $T $L", columnTypeAdapter.out.typeName, tmpVar)
-            intoStatementConverter.convert(valueVarName, tmpVar, scope)
-            columnTypeAdapter.bindToStmt(stmtName, indexVarName, tmpVar, scope)
+            val bindVar = intoStatementConverter.convert(valueVarName, scope)
+            columnTypeAdapter.bindToStmt(stmtName, indexVarName, bindVar, scope)
         }
     }
 }
