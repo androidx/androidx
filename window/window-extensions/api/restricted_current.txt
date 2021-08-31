@@ -2,7 +2,8 @@
 package androidx.window.extensions {
 
   public class WindowLibraryInfo {
-    method public static String getLibraryVersion();
+    method public int getApiLevel();
+    method public static androidx.window.extensions.WindowLibraryInfo getInstance();
   }
 
 }
