@@ -46,7 +46,7 @@ import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-public class ScalingLazyColumnLayoutInfoTest {
+public class ScalingLazyListLayoutInfoTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -65,10 +65,10 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreCorrect() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it },
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
@@ -86,10 +86,10 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreCorrectAfterScrolling() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it },
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
@@ -110,10 +110,10 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreCorrectNoScaling() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it },
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
@@ -133,10 +133,10 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreCorrectAfterScrollNoScaling() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it },
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
@@ -167,10 +167,10 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreCorrectAfterDispatchRawDeltaScrollNoScaling() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it },
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
@@ -201,11 +201,11 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreCorrectWithCustomSpacing() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         val spacing: Dp = 10.dp
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it },
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + spacing * 2.5f),
                 verticalArrangement = Arrangement.spacedBy(spacing)
             ) {
@@ -228,19 +228,19 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Composable
     fun ObservingFun(
-        state: ScalingLazyColumnState,
-        currentInfo: StableRef<ScalingLazyColumnLayoutInfo?>
+        state: ScalingLazyListState,
+        currentInfo: StableRef<ScalingLazyListLayoutInfo?>
     ) {
         currentInfo.value = state.layoutInfo
     }
 
     @Test
     fun visibleItemsAreObservableWhenWeScroll() {
-        lateinit var state: ScalingLazyColumnState
-        val currentInfo = StableRef<ScalingLazyColumnLayoutInfo?>(null)
+        lateinit var state: ScalingLazyListState
+        val currentInfo = StableRef<ScalingLazyListLayoutInfo?>(null)
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it },
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
             ) {
                 items(6) {
@@ -266,11 +266,11 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreObservableWhenWeDispatchRawDeltaScroll() {
-        lateinit var state: ScalingLazyColumnState
-        val currentInfo = StableRef<ScalingLazyColumnLayoutInfo?>(null)
+        lateinit var state: ScalingLazyListState
+        val currentInfo = StableRef<ScalingLazyListLayoutInfo?>(null)
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it },
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
             ) {
                 items(6) {
@@ -296,7 +296,7 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Composable
     fun ObservingIsScrollInProgressTrueFun(
-        state: ScalingLazyColumnState,
+        state: ScalingLazyListState,
         currentInfo: StableRef<Boolean?>
     ) {
         // If isScrollInProgress is ever true record it - otherwise leave the value as null
@@ -307,13 +307,13 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Test
     fun isScrollInProgressIsObservableWhenWeScroll() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         var scope: CoroutineScope? = null
         val currentInfo = StableRef<Boolean?>(null)
         rule.setContent {
             scope = rememberCoroutineScope()
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it },
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
             ) {
                 items(6) {
@@ -337,16 +337,16 @@ public class ScalingLazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreObservableWhenResize() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         var size by mutableStateOf(itemSizeDp * 2)
-        var currentInfo: ScalingLazyColumnLayoutInfo? = null
+        var currentInfo: ScalingLazyListLayoutInfo? = null
         @Composable
         fun observingFun() {
             currentInfo = state.layoutInfo
         }
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it }
+                state = rememberScalingLazyListState().also { state = it }
             ) {
                 item {
                     Box(Modifier.requiredSize(size))
@@ -372,11 +372,11 @@ public class ScalingLazyColumnLayoutInfoTest {
     fun viewportOffsetsAreCorrect() {
         val sizePx = 45
         val sizeDp = with(rule.density) { sizePx.toDp() }
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
                 Modifier.requiredSize(sizeDp),
-                state = rememberScalingLazyColumnState().also { state = it }
+                state = rememberScalingLazyListState().also { state = it }
             ) {
                 items(4) {
                     Box(Modifier.requiredSize(sizeDp))
@@ -398,12 +398,12 @@ public class ScalingLazyColumnLayoutInfoTest {
         val sizeDp = with(rule.density) { sizePx.toDp() }
         val topPaddingDp = with(rule.density) { startPaddingPx.toDp() }
         val bottomPaddingDp = with(rule.density) { endPaddingPx.toDp() }
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
                 Modifier.requiredSize(sizeDp),
                 contentPadding = PaddingValues(top = topPaddingDp, bottom = bottomPaddingDp),
-                state = rememberScalingLazyColumnState().also { state = it }
+                state = rememberScalingLazyListState().also { state = it }
             ) {
                 items(4) {
                     Box(Modifier.requiredSize(sizeDp))
@@ -420,10 +420,10 @@ public class ScalingLazyColumnLayoutInfoTest {
     @Test
     fun totalCountIsCorrect() {
         var count by mutableStateOf(10)
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyColumnState().also { state = it }
+                state = rememberScalingLazyListState().also { state = it }
             ) {
                 items(count) {
                     Box(Modifier.requiredSize(10.dp))
@@ -441,7 +441,7 @@ public class ScalingLazyColumnLayoutInfoTest {
         }
     }
 
-    fun ScalingLazyColumnLayoutInfo.assertVisibleItems(
+    fun ScalingLazyListLayoutInfo.assertVisibleItems(
         count: Int,
         startIndex: Int = 0,
         unscaledSize: Int = itemSizePx,

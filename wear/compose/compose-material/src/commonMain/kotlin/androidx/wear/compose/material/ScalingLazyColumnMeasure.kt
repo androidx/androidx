@@ -317,7 +317,7 @@ internal fun calculateScaleAndAlpha(
 }
 
 /**
- * Create a [ScalingLazyColumnItemInfo] given an unscaled start and end position for an item.
+ * Create a [ScalingLazyListItemInfo] given an unscaled start and end position for an item.
  *
  * @param itemStart the x-axis position of a list item. The x-axis position takes into account
  * any adjustment to the original position based on the scaling of other list items.
@@ -335,7 +335,7 @@ internal fun createItemInfo(
     verticalAdjustment: Int,
     viewportHeightPx: Int,
     scalingParams: ScalingParams,
-): ScalingLazyColumnItemInfo {
+): ScalingLazyListItemInfo {
     val adjustedItemStart = itemStart - verticalAdjustment
     val adjustedItemEnd = itemStart + item.size - verticalAdjustment
 
@@ -352,7 +352,7 @@ internal fun createItemInfo(
         itemStart + item.size - scaledHeight
     }
 
-    return DefaultScalingLazyColumnItemInfo(
+    return DefaultScalingLazyListItemInfo(
         index = item.index,
         unadjustedOffset = item.offset,
         offset = scaledItemTop,
@@ -362,21 +362,21 @@ internal fun createItemInfo(
     )
 }
 
-internal class DefaultScalingLazyColumnLayoutInfo(
-    override val visibleItemsInfo: List<ScalingLazyColumnItemInfo>,
+internal class DefaultScalingLazyListLayoutInfo(
+    override val visibleItemsInfo: List<ScalingLazyListItemInfo>,
     override val viewportStartOffset: Int,
     override val viewportEndOffset: Int,
     override val totalItemsCount: Int
-) : ScalingLazyColumnLayoutInfo
+) : ScalingLazyListLayoutInfo
 
-internal class DefaultScalingLazyColumnItemInfo(
+internal class DefaultScalingLazyListItemInfo(
     override val index: Int,
     override val unadjustedOffset: Int,
     override val offset: Int,
     override val size: Int,
     override val scale: Float,
     override val alpha: Float
-) : ScalingLazyColumnItemInfo
+) : ScalingLazyListItemInfo
 
 @Immutable
 internal data class ScaleAndAlpha(

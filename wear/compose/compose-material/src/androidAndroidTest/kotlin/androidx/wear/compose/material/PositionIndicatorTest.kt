@@ -64,11 +64,11 @@ public class PositionIndicatorTest {
 
     @Test
     fun emptyScalingLazyColumnGivesCorrectPositionAndSize() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
         var viewPortHeight = 0
         rule.setContent {
-            state = rememberScalingLazyColumnState()
+            state = rememberScalingLazyListState()
             positionIndicatorState = ScalingLazyColumnStateAdapter(state)
             ScalingLazyColumn(
                 state = state,
@@ -98,11 +98,11 @@ public class PositionIndicatorTest {
 
     @Test
     fun scalingLazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
         var viewPortHeight = 0
         rule.setContent {
-            state = rememberScalingLazyColumnState()
+            state = rememberScalingLazyListState()
             positionIndicatorState = ScalingLazyColumnStateAdapter(state)
             ScalingLazyColumn(
                 state = state,
@@ -135,11 +135,11 @@ public class PositionIndicatorTest {
 
     @Test
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSize() {
-        lateinit var state: ScalingLazyColumnState
+        lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
         var viewPortHeight = 0
         rule.setContent {
-            state = rememberScalingLazyColumnState()
+            state = rememberScalingLazyListState()
             positionIndicatorState = ScalingLazyColumnStateAdapter(state)
             Box(modifier = Modifier.background(Color.Black)) {
                 ScalingLazyColumn(
@@ -523,7 +523,7 @@ public class PositionIndicatorTest {
         }
     }
 
-    private fun ScalingLazyColumnLayoutInfo.assertWhollyVisibleItems(
+    private fun ScalingLazyListLayoutInfo.assertWhollyVisibleItems(
         firstItemIndex: Int,
         firstItemNotVisible: Int = 0,
         lastItemIndex: Int,
