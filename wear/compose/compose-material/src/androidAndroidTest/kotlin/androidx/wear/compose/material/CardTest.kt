@@ -399,7 +399,7 @@ public class CardFontTest {
 
         rule.setContentWithTheme {
             expectedTimeTextStyle = MaterialTheme.typography.caption1
-            expectedTitleTextStyle = MaterialTheme.typography.button
+            expectedTitleTextStyle = MaterialTheme.typography.title3
             expectedBodyTextStyle = MaterialTheme.typography.body1
 
             TitleCard(
