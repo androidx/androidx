@@ -200,7 +200,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                         name = arg.sanitizedName,
                         type = arg.type.typeName().copy(nullable = arg.isNullable)
                     ).apply { arg.defaultValue?.let { defaultValue(it.write()) } }.build()
-                }
+                }.sortedBy { it.defaultValue != null }
             )
             .build()
 
