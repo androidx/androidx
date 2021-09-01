@@ -109,21 +109,6 @@ fun CardDemo() {
         Spacer(modifier = Modifier.size(4.dp))
         TitleCard(
             onClick = {},
-            title = {
-                Column {
-                    Text("Custom TitleCard")
-                    Text("With a Coloured Secondary Label", color = Color.Yellow)
-                }
-            },
-            body = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text("This title card emphasises the title with custom color")
-                }
-            },
-        )
-        Spacer(modifier = Modifier.size(4.dp))
-        TitleCard(
-            onClick = {},
             title = { Text("TitleCard With an ImageBackground") },
             body = {
                 Column(modifier = Modifier.fillMaxWidth()) {
