@@ -25,8 +25,9 @@ package androidx.window.extensions.layout {
   }
 
   public class WindowLayoutComponent {
-    method public static void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
-    method public static void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+    method public void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+    method public static androidx.window.extensions.layout.WindowLayoutComponent? getInstance();
+    method public void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
   }
 
   public class WindowLayoutInfo {
