@@ -42,7 +42,6 @@ fun ToggleButtons() {
     var toggleButtonsEnabled by remember { mutableStateOf(true) }
     var singularButton1Enabled by remember { mutableStateOf(true) }
     var singularButton2Enabled by remember { mutableStateOf(true) }
-    var groupButtonState by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center,
@@ -90,39 +89,6 @@ fun ToggleButtons() {
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
             ) {
                 DemoIcon(R.drawable.ic_airplanemode_active_24px)
-            }
-        }
-        Spacer(modifier = Modifier.size(4.dp))
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Grouped",
-                style = MaterialTheme.typography.body2,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            ToggleButton(
-                checked = !groupButtonState,
-                onCheckedChange = {
-                    groupButtonState = !it
-                },
-                enabled = toggleButtonsEnabled,
-                modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
-            ) {
-                DemoIcon(R.drawable.ic_check_24px)
-            }
-            Spacer(modifier = Modifier.size(4.dp))
-            ToggleButton(
-                checked = groupButtonState,
-                onCheckedChange = {
-                    groupButtonState = it
-                },
-                enabled = toggleButtonsEnabled,
-                modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
-            ) {
-                DemoIcon(R.drawable.ic_clear_24px)
             }
         }
         Spacer(modifier = Modifier.size(4.dp))
