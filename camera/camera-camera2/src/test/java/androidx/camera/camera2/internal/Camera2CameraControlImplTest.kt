@@ -32,6 +32,8 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
 import androidx.camera.camera2.internal.compat.quirk.UseTorchAsFlashQuirk
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH
+import androidx.camera.core.ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Quirks
@@ -121,7 +123,7 @@ class Camera2CameraControlImplTest {
     @Test
     fun startFlashSequence_aePrecaptureSent() {
         // Act.
-        cameraControl.startFlashSequence()
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
         HandlerUtil.waitForLooperToIdle(handler)
 
         // Assert.
@@ -132,7 +134,7 @@ class Camera2CameraControlImplTest {
     fun startFlashSequence_flashModeWasSet() {
         // Act 1
         cameraControl.flashMode = ImageCapture.FLASH_MODE_ON
-        cameraControl.startFlashSequence()
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
         HandlerUtil.waitForLooperToIdle(handler)
 
         // Assert 1: ensures AePrecapture is not invoked.
@@ -161,7 +163,7 @@ class Camera2CameraControlImplTest {
     @Test
     fun finishFlashSequence_cancelAePrecaptureSent() {
         // Act.
-        cameraControl.startFlashSequence()
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
         HandlerUtil.waitForLooperToIdle(handler)
 
         reset(controlUpdateCallback)
@@ -176,7 +178,7 @@ class Camera2CameraControlImplTest {
     @Test
     fun cancelAfAndFinishFlashSequence_cancelAfAndAePrecaptureSent() {
         // Act.
-        cameraControl.startFlashSequence()
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
         HandlerUtil.waitForLooperToIdle(handler)
 
         reset(controlUpdateCallback)
@@ -195,7 +197,20 @@ class Camera2CameraControlImplTest {
         createCameraControl(quirks = Quirks(listOf(object : UseTorchAsFlashQuirk {})))
 
         // Act.
-        cameraControl.startFlashSequence()
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        assertTorchEnable()
+    }
+
+    @Test
+    fun startFlashSequence_withFlashTypeTorch_enableTorchSent() {
+        // Arrange.
+        createCameraControl()
+
+        // Act.
+        cameraControl.startFlashSequence(FLASH_TYPE_USE_TORCH_AS_FLASH)
         HandlerUtil.waitForLooperToIdle(handler)
 
         // Assert.
@@ -208,7 +223,7 @@ class Camera2CameraControlImplTest {
         cameraControl.setTemplate(CameraDevice.TEMPLATE_RECORD)
 
         // Act.
-        cameraControl.startFlashSequence()
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
         HandlerUtil.waitForLooperToIdle(handler)
 
         // Assert.
@@ -221,7 +236,25 @@ class Camera2CameraControlImplTest {
         createCameraControl(quirks = Quirks(listOf(object : UseTorchAsFlashQuirk {})))
 
         // Act.
-        cameraControl.startFlashSequence()
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        reset(controlUpdateCallback)
+
+        cameraControl.cancelAfAndFinishFlashSequence(false, true)
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        assertTorchDisable()
+    }
+
+    @Test
+    fun finishFlashSequence_withFlashTypeTorch_disableTorch() {
+        // Arrange.
+        createCameraControl()
+
+        // Act.
+        cameraControl.startFlashSequence(FLASH_TYPE_USE_TORCH_AS_FLASH)
         HandlerUtil.waitForLooperToIdle(handler)
 
         reset(controlUpdateCallback)
@@ -242,7 +275,35 @@ class Camera2CameraControlImplTest {
         reset(controlUpdateCallback)
 
         // Act.
-        cameraControl.startFlashSequence()
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        verify(controlUpdateCallback, never()).onCameraControlCaptureRequests(any())
+        verify(controlUpdateCallback, never()).onCameraControlUpdateSessionConfig()
+
+        // Arrange.
+        reset(controlUpdateCallback)
+
+        // Act.
+        cameraControl.cancelAfAndFinishFlashSequence(false, true)
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        verify(controlUpdateCallback, never()).onCameraControlCaptureRequests(any())
+        verify(controlUpdateCallback, never()).onCameraControlUpdateSessionConfig()
+    }
+
+    @Test
+    fun startFlashSequence_withFlashTypeTorch_torchIsAlreadyOn() {
+        // Arrange.
+        createCameraControl()
+        cameraControl.enableTorchInternal(true)
+        HandlerUtil.waitForLooperToIdle(handler)
+        reset(controlUpdateCallback)
+
+        // Act.
+        cameraControl.startFlashSequence(FLASH_TYPE_USE_TORCH_AS_FLASH)
         HandlerUtil.waitForLooperToIdle(handler)
 
         // Assert.
