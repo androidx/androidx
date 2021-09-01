@@ -185,7 +185,7 @@ package androidx.wear.compose.material {
   }
 
   public final class ScalingLazyColumnKt {
-    method @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.ScalingParams scalingParams, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.wear.compose.material.ScalingLazyListState state, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.ScalingLazyListScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.ScalingParams scalingParams, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.wear.compose.material.ScalingLazyListState state, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.ScalingLazyListScope,kotlin.Unit> content);
   }
 
   public final class ScalingLazyColumnMeasureKt {

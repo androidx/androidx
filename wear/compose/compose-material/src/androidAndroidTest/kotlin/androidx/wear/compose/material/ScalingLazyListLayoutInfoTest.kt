@@ -29,7 +29,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -85,6 +89,28 @@ public class ScalingLazyListLayoutInfoTest {
     }
 
     @Test
+    fun visibleItemsAreCorrectForReverseLayout() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                reverseLayout = true
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            state.layoutInfo.assertVisibleItems(count = 4)
+        }
+    }
+
+    @Test
     fun visibleItemsAreCorrectAfterScrolling() {
         lateinit var state: ScalingLazyListState
         rule.setContent {
@@ -93,6 +119,31 @@ public class ScalingLazyListLayoutInfoTest {
                 modifier = Modifier.requiredSize(
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+            }
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
+        }
+    }
+
+    @Test
+    fun visibleItemsAreCorrectAfterScrollingReverseLayout() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                reverseLayout = true,
             ) {
                 items(5) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -132,6 +183,37 @@ public class ScalingLazyListLayoutInfoTest {
     }
 
     @Test
+    fun visibleItemsAreCorrectNoScalingForReverseLayout() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
+                reverseLayout = true
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        // Assert that items are being shown at the end of the parent as this is reverseLayout
+        rule.onNodeWithTag(testTag = "Item:0").assertIsDisplayed()
+        rule.onNodeWithTag(testTag = "Item:0")
+            .assertTopPositionInRootIsEqualTo(itemSizeDp * 2.5f + defaultItemSpacingDp * 2.5f)
+
+        rule.runOnIdle {
+            state.layoutInfo.assertVisibleItems(count = 4)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        }
+    }
+
+    @Test
     fun visibleItemsAreCorrectAfterScrollNoScaling() {
         lateinit var state: ScalingLazyListState
         rule.setContent {
@@ -143,10 +225,58 @@ public class ScalingLazyListLayoutInfoTest {
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
             ) {
                 items(5) {
-                    Box(Modifier.requiredSize(itemSizeDp))
+                    Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
                 }
             }
         }
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(testTag = "Item:0").assertIsDisplayed()
+        // Assert that the 0th item is displayed at the end of the parent for reversedLayout
+        rule.onNodeWithTag(testTag = "Item:0").assertTopPositionInRootIsEqualTo(0.dp)
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+            }
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollBy(-(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
+            }
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun visibleItemsAreCorrectAfterScrollNoScalingForReverseLayout() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
+                reverseLayout = true
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(testTag = "Item:0").assertIsDisplayed()
+        // Assert that the 0th item is displayed at the end of the parent for reversedLayout
+        rule.onNodeWithTag(testTag = "Item:0")
+            .assertTopPositionInRootIsEqualTo(itemSizeDp * 2.5f + defaultItemSpacingDp * 2.5f)
 
         rule.runOnIdle {
             runBlocking {
@@ -175,6 +305,41 @@ public class ScalingLazyListLayoutInfoTest {
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.dispatchRawDelta(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+            }
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.dispatchRawDelta(-(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
+            }
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun visibleItemsAreCorrectAfterDispatchRawDeltaScrollNoScalingForReverseLayout() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
+                reverseLayout = true
             ) {
                 items(5) {
                     Box(Modifier.requiredSize(itemSizeDp))
