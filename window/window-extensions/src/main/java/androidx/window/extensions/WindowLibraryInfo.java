@@ -20,39 +20,26 @@ import androidx.annotation.NonNull;
 
 /**
  * A class to return global information about the library. From this class you can get the
- * library version corresponding to the extensions jar. This is useful since multiple versions of
- * extensions may have the same API.
+ * API level supported by the library.
  *
- * @see WindowLibraryInfo#getLibraryVersion()
+ * @see WindowLibraryInfo#getApiLevel() ()
  */
 public class WindowLibraryInfo {
 
-    private WindowLibraryInfo() {
-    }
+    private WindowLibraryInfo() {}
 
     /**
-     * Gets the version of the vendor library on this device. If the returned version is not
-     * supported by the WindowManager library, then some functions may not be available or
-     * replaced with stub implementations.
-     *
-     * <p>WindowManager library provides the Semantic Versioning string in a form of
-     * MAJOR.MINOR.PATCH-description
-     * We will increment the
-     * MAJOR version when make incompatible API changes,
-     * MINOR version when add functionality in a backwards-compatible manner, and
-     * PATCH version when make backwards-compatible bug fixes.
-     * And the description can be ignored.
-     *
-     * <p>Vendor extension library should provide MAJOR.MINOR.PATCH to the WindowManager library.
-     * The MAJOR and MINOR version are used to identify the interface version that the library will
-     * use. The PATCH version does not indicate compatibility. The patch version should be
-     * incremented whenever the vendor library makes bug fixes or updates to the algorithm.
-     *
-     * @return the version that vendor supported in this device. The MAJOR.MINOR.PATCH format
-     * should be used.
+     * Returns the API level of the vendor library on the device. If the returned version is not
+     * supported by the WindowManager library, then some functions may not be available or replaced
+     * with stub implementations.
+     * @return the API level supported by the library.
      */
+    public int getApiLevel() {
+        return 1;
+    }
+
     @NonNull
-    public static String getLibraryVersion() {
-        throw new UnsupportedOperationException("Stub, replace with implementation.");
+    public static WindowLibraryInfo getInstance() {
+        return new WindowLibraryInfo();
     }
 }
