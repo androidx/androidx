@@ -188,7 +188,7 @@ public final class Recorder implements VideoOutput {
         /**
          * The recording is being recorded with audio.
          */
-        RECORDING,
+        ACTIVE,
         /**
          * The recording is muted because the audio source is silenced.
          */
@@ -359,6 +359,8 @@ public final class Recorder implements VideoOutput {
     EncodedData mPendingFirstVideoData = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     EncodedData mPendingFirstAudioData = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Throwable mAudioErrorCause = null;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec) {
@@ -838,7 +840,7 @@ public final class Recorder implements VideoOutput {
                         recordingToFinalize.getOutputOptions(),
                         RecordingStats.of(/*duration=*/0L,
                                 /*bytes=*/0L,
-                                RecordingStats.AUDIO_DISABLED),
+                                AudioStats.of(AudioStats.AUDIO_STATE_DISABLED, mAudioErrorCause)),
                         OutputResults.of(Uri.EMPTY),
                         error,
                         cause));
@@ -1105,16 +1107,19 @@ public final class Recorder implements VideoOutput {
                             case INITIALIZING:
                                 // No-op
                                 break;
-                            case RECORDING:
+                            case ACTIVE:
                                 if (silenced) {
                                     mCachedAudioState = mAudioState;
                                     setAudioState(AudioState.SOURCE_SILENCED);
+                                    mAudioErrorCause = new IllegalStateException("The audio "
+                                            + "source has been silenced.");
                                     updateInProgressStatusEvent();
                                 }
                                 break;
                             case SOURCE_SILENCED:
                                 if (!silenced) {
                                     setAudioState(mCachedAudioState);
+                                    mAudioErrorCause = null;
                                     updateInProgressStatusEvent();
                                 }
                                 break;
@@ -1381,7 +1386,7 @@ public final class Recorder implements VideoOutput {
 
         mInProgressRecording = recordingToStart;
         if (mAudioState == AudioState.INITIALIZING) {
-            setAudioState(recordingToStart.hasAudioEnabled() ? AudioState.RECORDING
+            setAudioState(recordingToStart.hasAudioEnabled() ? AudioState.ACTIVE
                     : AudioState.DISABLED);
         }
 
@@ -1515,6 +1520,7 @@ public final class Recorder implements VideoOutput {
                                 // If the audio encoder encounters error, update the status event
                                 // to notify users. Then continue recording without audio data.
                                 setAudioState(AudioState.ENCODER_ERROR);
+                                mAudioErrorCause = e;
                                 updateInProgressStatusEvent();
                                 completer.set(null);
                             }
@@ -1720,18 +1726,18 @@ public final class Recorder implements VideoOutput {
         mAudioInitialized = false;
     }
 
-    private int internalAudioStateToEventAudioState(AudioState audioState) {
+    private int internalAudioStateToAudioStatsState(@NonNull AudioState audioState) {
         switch (audioState) {
             case DISABLED:
-                return RecordingStats.AUDIO_DISABLED;
+                return AudioStats.AUDIO_STATE_DISABLED;
             case INITIALIZING:
                 // Fall-through
-            case RECORDING:
-                return RecordingStats.AUDIO_RECORDING;
+            case ACTIVE:
+                return AudioStats.AUDIO_STATE_ACTIVE;
             case SOURCE_SILENCED:
-                return RecordingStats.AUDIO_SOURCE_SILENCED;
+                return AudioStats.AUDIO_STATE_SOURCE_SILENCED;
             case ENCODER_ERROR:
-                return RecordingStats.AUDIO_ENCODER_ERROR;
+                return AudioStats.AUDIO_STATE_ENCODER_ERROR;
         }
         // Should not reach.
         throw new AssertionError("Invalid internal audio state: " + audioState);
@@ -1805,6 +1811,7 @@ public final class Recorder implements VideoOutput {
         mRecordingDurationNs = 0L;
         mFirstRecordingVideoDataTimeUs = 0L;
         mRecordingStopError = ERROR_UNKNOWN;
+        mAudioErrorCause = null;
 
         onRecordingFinalized(finalizedRecording);
     }
@@ -2019,7 +2026,7 @@ public final class Recorder implements VideoOutput {
     @NonNull
     RecordingStats getInProgressRecordingStats() {
         return RecordingStats.of(mRecordingDurationNs, mRecordingBytes,
-                internalAudioStateToEventAudioState(mAudioState));
+                AudioStats.of(internalAudioStateToAudioStatsState(mAudioState), mAudioErrorCause));
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
