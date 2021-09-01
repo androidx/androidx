@@ -13,419 +13,344 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.fragment.app
 
-package androidx.fragment.app;
-
-import android.animation.LayoutTransition;
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.os.Build;
-import android.os.Bundle;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowInsets;
-import android.widget.FrameLayout;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.R;
-
-import java.util.ArrayList;
+import android.widget.FrameLayout
+import androidx.fragment.R
+import android.animation.LayoutTransition
+import android.content.Context
+import android.graphics.Canvas
+import android.os.Build
+import android.util.AttributeSet
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowInsets
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+import androidx.core.content.withStyledAttributes
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 /**
  * FragmentContainerView is a customized Layout designed specifically for Fragments. It extends
- * {@link FrameLayout}, so it can reliably handle Fragment Transactions, and it also has additional
+ * [FrameLayout], so it can reliably handle Fragment Transactions, and it also has additional
  * features to coordinate with fragment behavior.
  *
- * <p>FragmentContainerView should be used as the container for Fragments, commonly set in the
- * xml layout of an activity, e.g.: <p>
+ * FragmentContainerView should be used as the container for Fragments, commonly set in the
+ * xml layout of an activity, e.g.:
  *
- * <pre class="prettyprint">
- * &lt;androidx.fragment.app.FragmentContainerView
- *        xmlns:android="http://schemas.android.com/apk/res/android"
- *        xmlns:app="http://schemas.android.com/apk/res-auto"
- *        android:id="@+id/fragment_container_view"
- *        android:layout_width="match_parent"
- *        android:layout_height="match_parent"&gt;
- * &lt;/androidx.fragment.app.FragmentContainerView&gt;
- * </pre>
+ * ```
+ * <androidx.fragment.app.FragmentContainerView
+ * xmlns:android="http://schemas.android.com/apk/res/android"
+ * xmlns:app="http://schemas.android.com/apk/res-auto"
+ * android:id="@+id/fragment_container_view"
+ * android:layout_width="match_parent"
+ * android:layout_height="match_parent">
+ * </androidx.fragment.app.FragmentContainerView>
+ * ```
  *
- * <p> FragmentContainerView can also be used to add a Fragment by using the
- * <code>android:name</code> attribute. FragmentContainerView will perform a one time operation
+ * FragmentContainerView can also be used to add a Fragment by using the
+ * `android:name` attribute. FragmentContainerView will perform a one time operation
  * that:
  *
- * <ul>
- * <li>Creates a new instance of the Fragment</li>
- * <li>Calls {@link Fragment#onInflate(Context, AttributeSet, Bundle)}</li>
- * <li>Executes a FragmentTransaction to add the Fragment to the appropriate FragmentManager</li>
- * </ul>
+ * 1. Creates a new instance of the Fragment
+ * 2. Calls [Fragment.onInflate]
+ * 3. Executes a FragmentTransaction to add the Fragment to the appropriate FragmentManager
  *
- * <p> You can optionally include an <code>android:tag</code> which allows you to use
- * {@link FragmentManager#findFragmentByTag(String)} to retrieve the added Fragment.
+ * You can optionally include an `android:tag` which allows you to use
+ * [FragmentManager.findFragmentByTag] to retrieve the added Fragment.
  *
- * <pre class="prettyprint">
- * &lt;androidx.fragment.app.FragmentContainerView
- *        xmlns:android="http://schemas.android.com/apk/res/android"
- *        xmlns:app="http://schemas.android.com/apk/res-auto"
- *        android:id="@+id/fragment_container_view"
- *        android:layout_width="match_parent"
- *        android:layout_height="match_parent"
- *        android:name="com.example.MyFragment"
- *        android:tag="my_tag"&gt;
- * &lt;/androidx.fragment.app.FragmentContainerView&gt;
- * </pre>
+ * ```
+ * <androidx.fragment.app.FragmentContainerView
+ * xmlns:android="http://schemas.android.com/apk/res/android"
+ * xmlns:app="http://schemas.android.com/apk/res-auto"
+ * android:id="@+id/fragment_container_view"
+ * android:layout_width="match_parent"
+ * android:layout_height="match_parent"
+ * android:name="com.example.MyFragment"
+ * android:tag="my_tag">
+ * </androidx.fragment.app.FragmentContainerView>
+ * ```
  *
- * <p>FragmentContainerView should not be used as a replacement for other ViewGroups (FrameLayout,
+ * FragmentContainerView should not be used as a replacement for other ViewGroups (FrameLayout,
  * LinearLayout, etc) outside of Fragment use cases.
  *
- * <p>FragmentContainerView will only allow views returned by a Fragment's
- * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any other
- * view will result in an {@link IllegalStateException}.
+ * FragmentContainerView will only allow views returned by a Fragment's
+ * [Fragment.onCreateView]. Attempting to add any other
+ * view will result in an [IllegalStateException].
  *
- * <p>Layout animations and transitions are disabled for FragmentContainerView for APIs above 17.
- * Otherwise, Animations should be done through
- * {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. If animateLayoutChanges is
- * set to <code>true</code> or {@link #setLayoutTransition(LayoutTransition)} is called directly an
- * {@link UnsupportedOperationException} will be thrown.
+ * Layout animations and transitions are disabled for FragmentContainerView for APIs above 17.
+ * Otherwise, Animations should be done through [FragmentTransaction.setCustomAnimations]. If
+ * animateLayoutChanges is set to `true` or [setLayoutTransition] is called directly an
+ * [UnsupportedOperationException] will be thrown.
  *
- * <p>Fragments using exit animations are drawn before all others for FragmentContainerView. This
+ * Fragments using exit animations are drawn before all others for FragmentContainerView. This
  * ensures that exiting Fragments do not appear on top of the view.
  */
-public final class FragmentContainerView extends FrameLayout {
-
-    private ArrayList<View> mDisappearingFragmentChildren;
-
-    private ArrayList<View> mTransitioningFragmentViews;
-
-    private OnApplyWindowInsetsListener mApplyWindowInsetsListener;
+public class FragmentContainerView : FrameLayout {
+    private val disappearingFragmentChildren: MutableList<View> = mutableListOf()
+    private val transitioningFragmentViews: MutableList<View> = mutableListOf()
+    private var applyWindowInsetsListener: OnApplyWindowInsetsListener? = null
 
     // Used to indicate whether the FragmentContainerView should override the default ViewGroup
     // drawing order.
-    private boolean mDrawDisappearingViewsFirst = true;
+    private var drawDisappearingViewsFirst = true
 
-    public FragmentContainerView(@NonNull Context context) {
-        super(context);
-    }
+    public constructor(context: Context) : super(context)
 
     /**
      * Do not call this constructor directly. Doing so will result in an
-     * {@link UnsupportedOperationException}.
+     * [UnsupportedOperationException].
      */
-    public FragmentContainerView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    /**
-     * Do not call this constructor directly. Doing so will result in an
-     * {@link UnsupportedOperationException}.
-     */
-    public FragmentContainerView(
-            @NonNull Context context,
-            @Nullable AttributeSet attrs,
-            int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    @JvmOverloads
+    public constructor(
+        context: Context,
+        attrs: AttributeSet?,
+        defStyleAttr: Int = 0
+    ) : super(context, attrs, defStyleAttr) {
         if (attrs != null) {
-            String name = attrs.getClassAttribute();
-            String attribute = "class";
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FragmentContainerView);
-            if (name == null) {
-                name = a.getString(R.styleable.FragmentContainerView_android_name);
-                attribute = "android:name";
+            var name = attrs.classAttribute
+            var attribute = "class"
+            context.withStyledAttributes(attrs, R.styleable.FragmentContainerView) {
+                if (name == null) {
+                    name = getString(R.styleable.FragmentContainerView_android_name)
+                    attribute = "android:name"
+                }
             }
-            a.recycle();
-            if (name != null && !isInEditMode()) {
-                throw new UnsupportedOperationException("FragmentContainerView must be within "
-                        + "a FragmentActivity to use " + attribute + "=\"" + name + "\"");
+            if (name != null && !isInEditMode) {
+                throw UnsupportedOperationException(
+                    "FragmentContainerView must be within a FragmentActivity to use $attribute" +
+                        "=\"$name\""
+                )
             }
         }
     }
 
-    FragmentContainerView(
-            @NonNull Context context,
-            @NonNull AttributeSet attrs,
-            @NonNull FragmentManager fm) {
-        super(context, attrs);
-
-        String name = attrs.getClassAttribute();
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FragmentContainerView);
-        if (name == null) {
-            name = a.getString(R.styleable.FragmentContainerView_android_name);
+    internal constructor(
+        context: Context,
+        attrs: AttributeSet,
+        fm: FragmentManager
+    ) : super(context, attrs) {
+        var name = attrs.classAttribute
+        var tag: String? = null
+        context.withStyledAttributes(attrs, R.styleable.FragmentContainerView) {
+            if (name == null) {
+                name = getString(R.styleable.FragmentContainerView_android_name)
+            }
+            tag = getString(R.styleable.FragmentContainerView_android_tag)
         }
-        String tag = a.getString(R.styleable.FragmentContainerView_android_tag);
-        a.recycle();
-
-        int id = getId();
-        Fragment existingFragment = fm.findFragmentById(id);
+        val id = id
+        val existingFragment: Fragment? = fm.findFragmentById(id)
         // If there is a name and there is no existing fragment,
         // we should add an inflated Fragment to the view.
         if (name != null && existingFragment == null) {
             if (id <= 0) {
-                final String tagMessage = tag != null
-                        ? " with tag " + tag
-                        : "";
-                throw new IllegalStateException("FragmentContainerView must have an android:id to "
-                        + "add Fragment " + name + tagMessage);
+                val tagMessage = if (tag != null) " with tag $tag" else ""
+                throw IllegalStateException(
+                    "FragmentContainerView must have an android:id to add Fragment $name$tagMessage"
+                )
             }
-            Fragment containerFragment =
-                    fm.getFragmentFactory().instantiate(context.getClassLoader(), name);
-            containerFragment.onInflate(context, attrs, null);
+            val containerFragment: Fragment =
+                fm.fragmentFactory.instantiate(context.classLoader, name)
+            containerFragment.onInflate(context, attrs, null)
             fm.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(this, containerFragment, tag)
-                    .commitNowAllowingStateLoss();
+                .setReorderingAllowed(true)
+                .add(this, containerFragment, tag)
+                .commitNowAllowingStateLoss()
         }
-        fm.onContainerAvailable(this);
+        fm.onContainerAvailable(this)
     }
 
     /**
-     * When called, this method throws a {@link UnsupportedOperationException} on APIs above 17.
-     * On APIs 17 and below, it calls {@link FrameLayout#setLayoutTransition(LayoutTransition)}
-     * This can be called either explicitly, or implicitly by setting animateLayoutChanges to
-     * <code>true</code>.
+     * When called, this method throws a [UnsupportedOperationException] on APIs above 17.
+     * On APIs 17 and below, it calls [FrameLayout.setLayoutTransition]. This can be called
+     * either explicitly, or implicitly by setting animateLayoutChanges to `true`.
      *
-     * <p>View animations and transitions are disabled for FragmentContainerView for APIs above 17.
-     * Use {@link FragmentTransaction#setCustomAnimations(int, int, int, int)} and
-     * {@link FragmentTransaction#setTransition(int)}.
+     * View animations and transitions are disabled for FragmentContainerView for APIs above 17.
+     * Use [FragmentTransaction.setCustomAnimations] and [FragmentTransaction.setTransition].
      *
      * @param transition The LayoutTransition object that will animated changes in layout. A value
-     * of <code>null</code> means no transition will run on layout changes.
+     * of `null` means no transition will run on layout changes.
      * @attr ref android.R.styleable#ViewGroup_animateLayoutChanges
      */
-    @Override
-    public void setLayoutTransition(@Nullable LayoutTransition transition) {
+    public override fun setLayoutTransition(transition: LayoutTransition?) {
         if (Build.VERSION.SDK_INT < 18) {
             // Transitions on APIs below 18 are using an empty LayoutTransition as a replacement
             // for suppressLayout(true) and null LayoutTransition to then unsuppress it. If the
             // API is below 18, we should allow FrameLayout to handle this call.
-            super.setLayoutTransition(transition);
-            return;
+            super.setLayoutTransition(transition)
+            return
         }
-
-        throw new UnsupportedOperationException(
-                "FragmentContainerView does not support Layout Transitions or "
-                        + "animateLayoutChanges=\"true\".");
+        throw UnsupportedOperationException(
+            "FragmentContainerView does not support Layout Transitions or " +
+                "animateLayoutChanges=\"true\"."
+        )
     }
 
-    @Override
-    public void setOnApplyWindowInsetsListener(@NonNull OnApplyWindowInsetsListener listener) {
-        mApplyWindowInsetsListener = listener;
+    public override fun setOnApplyWindowInsetsListener(listener: OnApplyWindowInsetsListener) {
+        applyWindowInsetsListener = listener
     }
 
-    @NonNull
     @RequiresApi(20)
-    @Override
-    public WindowInsets onApplyWindowInsets(@NonNull WindowInsets insets) {
-        return insets;
-    }
+    public override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets = insets
 
     /**
      * {@inheritDoc}
      *
-     * <p>The sys ui flags must be set to enable extending the layout into the window insets.
+     * The sys ui flags must be set to enable extending the layout into the window insets.
      */
-    @NonNull
     @RequiresApi(20)
-    @Override
-    public WindowInsets dispatchApplyWindowInsets(@NonNull WindowInsets insets) {
-        WindowInsetsCompat insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(insets);
-        WindowInsetsCompat dispatchInsets = mApplyWindowInsetsListener != null
-                ? WindowInsetsCompat.toWindowInsetsCompat(
-                Api20Impl.onApplyWindowInsets(mApplyWindowInsetsListener, this, insets)
-        ) : ViewCompat.onApplyWindowInsets(this, insetsCompat);
-        if (!dispatchInsets.isConsumed()) {
-            int count = getChildCount();
-            for (int i = 0; i < count; i++) {
-                ViewCompat.dispatchApplyWindowInsets(getChildAt(i), dispatchInsets);
+    public override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets {
+        val insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(insets)
+        val dispatchInsets = if (applyWindowInsetsListener != null) {
+            WindowInsetsCompat.toWindowInsetsCompat(
+                Api20Impl.onApplyWindowInsets(applyWindowInsetsListener!!, this, insets)
+            )
+        } else {
+            ViewCompat.onApplyWindowInsets(this, insetsCompat)
+        }
+        if (!dispatchInsets.isConsumed) {
+            for (i in 0 until childCount) {
+                ViewCompat.dispatchApplyWindowInsets(getChildAt(i), dispatchInsets)
             }
         }
-        return insets;
+        return insets
     }
 
-    @Override
-    protected void dispatchDraw(@NonNull Canvas canvas) {
-        if (mDrawDisappearingViewsFirst && mDisappearingFragmentChildren != null) {
-            for (int i = 0; i < mDisappearingFragmentChildren.size(); i++) {
-                super.drawChild(canvas, mDisappearingFragmentChildren.get(i), getDrawingTime());
+    protected override fun dispatchDraw(canvas: Canvas) {
+        if (drawDisappearingViewsFirst) {
+            disappearingFragmentChildren.forEach { child ->
+                super.drawChild(canvas, child, drawingTime)
             }
         }
-        super.dispatchDraw(canvas);
+        super.dispatchDraw(canvas)
     }
 
-    @Override
-    protected boolean drawChild(@NonNull Canvas canvas, @NonNull View child, long drawingTime) {
-        if (mDrawDisappearingViewsFirst && mDisappearingFragmentChildren != null
-                && mDisappearingFragmentChildren.size() > 0) {
+    protected override fun drawChild(canvas: Canvas, child: View, drawingTime: Long): Boolean {
+        if (drawDisappearingViewsFirst && disappearingFragmentChildren.isNotEmpty()) {
             // If the child is disappearing, we have already drawn it so skip.
-            if (mDisappearingFragmentChildren.contains(child)) {
-                return false;
+            if (disappearingFragmentChildren.contains(child)) {
+                return false
             }
         }
-        return super.drawChild(canvas, child, drawingTime);
+        return super.drawChild(canvas, child, drawingTime)
     }
 
-    @Override
-    public void startViewTransition(@NonNull View view) {
-        if (view.getParent() == this) {
-            if (mTransitioningFragmentViews == null) {
-                mTransitioningFragmentViews = new ArrayList<>();
-            }
-            mTransitioningFragmentViews.add(view);
+    public override fun startViewTransition(view: View) {
+        if (view.parent === this) {
+            transitioningFragmentViews.add(view)
         }
-        super.startViewTransition(view);
+        super.startViewTransition(view)
     }
 
-    @Override
-    public void endViewTransition(@NonNull View view) {
-        if (mTransitioningFragmentViews != null) {
-            mTransitioningFragmentViews.remove(view);
-            if (mDisappearingFragmentChildren != null
-                    && mDisappearingFragmentChildren.remove(view)) {
-                mDrawDisappearingViewsFirst = true;
-            }
+    public override fun endViewTransition(view: View) {
+        transitioningFragmentViews.remove(view)
+        if (disappearingFragmentChildren.remove(view)) {
+            drawDisappearingViewsFirst = true
         }
-        super.endViewTransition(view);
+        super.endViewTransition(view)
     }
 
     // Used to indicate the container should change the default drawing order.
-    void setDrawDisappearingViewsLast(boolean drawDisappearingViewsFirst) {
-        mDrawDisappearingViewsFirst = drawDisappearingViewsFirst;
+    @JvmName("setDrawDisappearingViewsLast")
+    internal fun setDrawDisappearingViewsLast(drawDisappearingViewsFirst: Boolean) {
+        this.drawDisappearingViewsFirst = drawDisappearingViewsFirst
     }
 
     /**
-     * <p>FragmentContainerView will only allow views returned by a Fragment's
-     * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any
-     *  other view will result in an {@link IllegalStateException}.
+     * FragmentContainerView will only allow views returned by a Fragment's [Fragment.onCreateView].
+     * Attempting to add any other view will result in an [IllegalStateException].
      *
      * {@inheritDoc}
      */
-    @Override
-    public void addView(@NonNull View child, int index, @Nullable ViewGroup.LayoutParams params) {
-        if (FragmentManager.getViewFragment(child) == null) {
-            throw new IllegalStateException("Views added to a FragmentContainerView must be"
-                    + " associated with a Fragment. View " + child + " is not associated with a"
-                    + " Fragment.");
+    public override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams?) {
+        checkNotNull(FragmentManager.getViewFragment(child)) {
+            (
+                "Views added to a FragmentContainerView must be associated with a Fragment. View " +
+                    "$child is not associated with a Fragment."
+                )
         }
-        super.addView(child, index, params);
+        super.addView(child, index, params)
     }
 
-    /**
-     * <p>FragmentContainerView will only allow views returned by a Fragment's
-     * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any
-     *  other view will result in an {@link IllegalStateException}.
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean addViewInLayout(@NonNull View child, int index,
-            @Nullable ViewGroup.LayoutParams params, boolean preventRequestLayout) {
-        if (FragmentManager.getViewFragment(child) == null) {
-            throw new IllegalStateException("Views added to a FragmentContainerView must be"
-                    + " associated with a Fragment. View " + child + " is not associated with a"
-                    + " Fragment.");
+    public override fun removeViewAt(index: Int) {
+        val view = getChildAt(index)
+        addDisappearingFragmentView(view)
+        super.removeViewAt(index)
+    }
+
+    public override fun removeViewInLayout(view: View) {
+        addDisappearingFragmentView(view)
+        super.removeViewInLayout(view)
+    }
+
+    public override fun removeView(view: View) {
+        addDisappearingFragmentView(view)
+        super.removeView(view)
+    }
+
+    public override fun removeViews(start: Int, count: Int) {
+        for (i in start until start + count) {
+            val view = getChildAt(i)
+            addDisappearingFragmentView(view)
         }
-        return super.addViewInLayout(child, index, params, preventRequestLayout);
+        super.removeViews(start, count)
     }
 
-    @Override
-    public void removeViewAt(int index) {
-        View view = getChildAt(index);
-        addDisappearingFragmentView(view);
-        super.removeViewAt(index);
-    }
-
-    @Override
-    public void removeViewInLayout(@NonNull View view) {
-        addDisappearingFragmentView(view);
-        super.removeViewInLayout(view);
-    }
-
-    @Override
-    public void removeView(@NonNull View view) {
-        addDisappearingFragmentView(view);
-        super.removeView(view);
-    }
-
-    @Override
-    public void removeViews(int start, int count) {
-        for (int i = start; i < start + count; i++) {
-            final View view = getChildAt(i);
-            addDisappearingFragmentView(view);
+    public override fun removeViewsInLayout(start: Int, count: Int) {
+        for (i in start until start + count) {
+            val view = getChildAt(i)
+            addDisappearingFragmentView(view)
         }
-        super.removeViews(start, count);
+        super.removeViewsInLayout(start, count)
     }
 
-    @Override
-    public void removeViewsInLayout(int start, int count) {
-        for (int i = start; i < start + count; i++) {
-            final View view = getChildAt(i);
-            addDisappearingFragmentView(view);
+    public override fun removeAllViewsInLayout() {
+        for (i in childCount - 1 downTo 0) {
+            val view = getChildAt(i)
+            addDisappearingFragmentView(view)
         }
-        super.removeViewsInLayout(start, count);
+        super.removeAllViewsInLayout()
     }
 
-    @Override
-    public void removeAllViewsInLayout() {
-        for (int i = getChildCount() - 1; i >= 0; i--) {
-            final View view = getChildAt(i);
-            addDisappearingFragmentView(view);
-        }
-        super.removeAllViewsInLayout();
-    }
-
-    @Override
-    protected void removeDetachedView(@NonNull View child, boolean animate) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override fun removeDetachedView(child: View, animate: Boolean) {
         if (animate) {
-            addDisappearingFragmentView(child);
+            addDisappearingFragmentView(child)
         }
-        super.removeDetachedView(child, animate);
+        super.removeDetachedView(child, animate)
     }
 
     /**
-     * This method adds a {@link View} to the list of disappearing views only if it meets the
-     * proper conditions to be considered a disappearing view.
+     * This method adds a [View] to the list of disappearing views only if it meets the proper
+     * conditions to be considered a disappearing view.
      *
-     * @param v {@link View} that might be added to list of disappearing views
+     * @param v [View] that might be added to list of disappearing views
      */
-    private void addDisappearingFragmentView(@NonNull View v) {
-        if (mTransitioningFragmentViews != null && mTransitioningFragmentViews.contains(v)) {
-            if (mDisappearingFragmentChildren == null) {
-                mDisappearingFragmentChildren = new ArrayList<>();
-            }
-            mDisappearingFragmentChildren.add(v);
+    private fun addDisappearingFragmentView(v: View) {
+        if (transitioningFragmentViews.contains(v)) {
+            disappearingFragmentChildren.add(v)
         }
     }
 
     /**
-     * This method grabs the {@link Fragment} whose view was most recently
-     * added to the container. This may used as an alternative to calling
-     * {@link FragmentManager#findFragmentById(int)} and passing in the
-     * {@link FragmentContainerView}'s id.
+     * This method grabs the [Fragment] whose view was most recently added to the container. This
+     * may used as an alternative to calling [FragmentManager.findFragmentById] and passing in the
+     * [FragmentContainerView]'s id.
      *
      * @return The fragment if any exist, null otherwise.
      */
-    @Nullable
-    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"}) // a ClassCastException is
-    // automatically thrown if the given type of F is wrong
-    public <F extends Fragment> F getFragment() {
-        return (F) FragmentManager.findFragmentManager(this).findFragmentById(this.getId());
-    }
+    @Suppress("UNCHECKED_CAST") // a ClassCastException is automatically thrown if the given type
+    // of F is wrong
+    public fun <F : Fragment?> getFragment(): F =
+        FragmentManager.findFragmentManager(this).findFragmentById(this.id) as F
 
     @RequiresApi(20)
-    static class Api20Impl {
-        private Api20Impl() { }
-
-        static WindowInsets onApplyWindowInsets(
-                @NonNull OnApplyWindowInsetsListener onApplyWindowInsetsListener,
-                @NonNull View v,
-                @NonNull WindowInsets insets
-        ) {
-            return onApplyWindowInsetsListener.onApplyWindowInsets(v, insets);
-        }
+    internal object Api20Impl {
+        fun onApplyWindowInsets(
+            onApplyWindowInsetsListener: OnApplyWindowInsetsListener,
+            v: View,
+            insets: WindowInsets
+        ): WindowInsets = onApplyWindowInsetsListener.onApplyWindowInsets(v, insets)
     }
 }

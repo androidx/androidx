@@ -285,22 +285,6 @@ class FragmentContainerViewTest {
     }
 
     @Test
-    fun addViewInLayoutNotAssociatedWithFragment() {
-        val view = View(context)
-
-        try {
-            FragmentContainerView(context).addViewInLayout(view, 0, null, false)
-            fail("View without a Fragment added to FragmentContainerView should throw an exception")
-        } catch (e: IllegalStateException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "Views added to a FragmentContainerView must be associated with a Fragment. " +
-                        "View " + view + " is not associated with a Fragment."
-                )
-        }
-    }
-
-    @Test
     fun removeViewAt() {
         val childView2 = FragmentContainerView(context)
 
@@ -717,7 +701,7 @@ class FragmentContainerViewTest {
             R.id.fragment_container_view
         )
 
-        assertThat(fragmentContainerView.getFragment<StrictViewFragment>()).isNull()
+        assertThat(fragmentContainerView.getFragment<StrictViewFragment?>()).isNull()
     }
 
     @Test
