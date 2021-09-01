@@ -46,7 +46,15 @@ function buildStudio() {
     return 1
   fi
 }
+
+function zipStudio() {
+  cd "$STUDIO_DIR/out/"
+  zip -r "$DIST_DIR/tools.zip" repo
+  cd -
+}
+
 buildStudio
+zipStudio
 
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=buildVersion = ).*"`
 export LINT_VERSION=`perl -nle'print $& while m{(?<=baseVersion = ).*}g' $TOOLS_DIR/buildSrc/base/version.properties`
