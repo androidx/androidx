@@ -18,7 +18,6 @@ package androidx.window.testing.layout
 
 import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.junit.rules.TestRule
@@ -54,7 +53,6 @@ public class WindowLayoutInfoPublisherRule() : TestRule {
     )
     private val overrideServices = PublishWindowInfoRepositoryDecorator(flow)
 
-    @ExperimentalCoroutinesApi
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {

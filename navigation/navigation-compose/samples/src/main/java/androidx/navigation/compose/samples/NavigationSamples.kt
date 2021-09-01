@@ -266,6 +266,7 @@ class SearchParametersType : NavType<SearchParameters>(isNullableAllowed = false
     }
 
     override fun parseValue(value: String): SearchParameters {
+        @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
         return Json.decodeFromString(value)
     }
 
