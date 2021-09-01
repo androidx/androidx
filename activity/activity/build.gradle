@@ -23,6 +23,7 @@ dependencies {
     api("androidx.savedstate:savedstate:1.1.0")
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1")
     implementation("androidx.tracing:tracing:1.0.0")
+    api(libs.kotlinStdlib)
 
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation(libs.kotlinStdlib)
