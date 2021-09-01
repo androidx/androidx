@@ -15,7 +15,12 @@ package androidx.glance.appwidget {
   public abstract class GlanceAppWidget {
     ctor public GlanceAppWidget();
     method @androidx.compose.runtime.Composable public abstract void Content();
+    method public androidx.glance.appwidget.SizeMode getSizeMode();
     method public final suspend Object? update(android.content.Context context, androidx.glance.appwidget.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    property public androidx.glance.appwidget.SizeMode sizeMode;
+  }
+
+  public final class GlanceAppWidgetKt {
   }
 
   public abstract class GlanceAppWidgetReceiver extends android.appwidget.AppWidgetProvider {
@@ -28,6 +33,23 @@ package androidx.glance.appwidget {
   }
 
   public final class RemoteViewsTranslatorKt {
+  }
+
+  public sealed interface SizeMode {
+  }
+
+  public static final class SizeMode.Exact implements androidx.glance.appwidget.SizeMode {
+    field public static final androidx.glance.appwidget.SizeMode.Exact INSTANCE;
+  }
+
+  public static final class SizeMode.Responsive implements androidx.glance.appwidget.SizeMode {
+    ctor public SizeMode.Responsive(java.util.Set<androidx.glance.unit.DpSize> sizes);
+    method public java.util.Set<androidx.glance.unit.DpSize> getSizes();
+    property public final java.util.Set<androidx.glance.unit.DpSize> sizes;
+  }
+
+  public static final class SizeMode.Single implements androidx.glance.appwidget.SizeMode {
+    field public static final androidx.glance.appwidget.SizeMode.Single INSTANCE;
   }
 
 }

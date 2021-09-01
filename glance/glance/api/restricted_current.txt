@@ -284,6 +284,7 @@ package androidx.glance.unit {
   public final class DpSizeKt {
     method @androidx.compose.runtime.Stable public static operator androidx.glance.unit.DpSize times(int, androidx.glance.unit.DpSize size);
     method @androidx.compose.runtime.Stable public static operator androidx.glance.unit.DpSize times(float, androidx.glance.unit.DpSize size);
+    method @androidx.compose.runtime.Stable public static android.util.SizeF toSizeF(androidx.glance.unit.DpSize);
   }
 
   public final inline class Sp implements java.lang.Comparable<androidx.glance.unit.Sp> {
