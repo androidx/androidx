@@ -1237,6 +1237,14 @@ public abstract class AppSearchSessionCtsTestBase {
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(1);
         assertThat(documents).containsExactly(inDoc);
+
+        // Query only for non-exist type
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+                .addFilterSchemas("nonExistType")
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).isEmpty();
     }
 
     @Test
@@ -1315,6 +1323,15 @@ public abstract class AppSearchSessionCtsTestBase {
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(1);
         assertThat(documents).containsExactly(expectedEmail);
+
+        // Query only for non-exist namespace
+        searchResults = mDb1.search("body",
+                new SearchSpec.Builder()
+                        .addFilterNamespaces("nonExistNamespace")
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).isEmpty();
     }
 
     @Test
