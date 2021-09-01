@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.LibraryVersions
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -27,16 +27,8 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(libs.kotlinStdlib)
+    api(project(":wear:wear-input"))
 
-    testImplementation(libs.testExtJunit)
-    testImplementation(libs.testCore)
-    testImplementation(libs.testRunner)
-    testImplementation(libs.testRules)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
-    testImplementation(project(":wear:wear-input-testing"))
-
-    compileOnly(fileTree(dir: "../wear_stubs", include: ["com.google.android.wearable-stubs.jar"]))
     compileOnly(project(":annotation:annotation-sampled"))
 }
 
@@ -44,16 +36,13 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {
-    name = "Android Wear Support Input"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    name = "Android Wear Input Samples"
+    type = LibraryType.SAMPLES
     mavenGroup = LibraryGroups.WEAR
     mavenVersion = LibraryVersions.WEAR_INPUT
-    inceptionYear = "2020"
-    description = "Android Wear Support Input"
+    inceptionYear = "2021"
+    description = "Contains the sample code for the Android Wear Input Classes"
 }

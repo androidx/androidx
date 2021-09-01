@@ -63,5 +63,16 @@ package androidx.wear.input {
     method public android.os.Bundle getButtonInfo(android.content.Context, int);
   }
 
+  public final class WearableRemoteInputExtender {
+    ctor public WearableRemoteInputExtender(android.app.RemoteInput.Builder remoteInput);
+    method public androidx.wear.input.WearableRemoteInputExtender disallowEmoji();
+    method public android.app.RemoteInput.Builder get();
+    method public androidx.wear.input.WearableRemoteInputExtender setInputActionType(int imeActionType);
+  }
+
+  public final class WearableRemoteInputExtenderKt {
+    method public static android.app.RemoteInput.Builder wearableExtender(android.app.RemoteInput.Builder, kotlin.jvm.functions.Function1<? super androidx.wear.input.WearableRemoteInputExtender,kotlin.Unit> block);
+  }
+
 }
 
