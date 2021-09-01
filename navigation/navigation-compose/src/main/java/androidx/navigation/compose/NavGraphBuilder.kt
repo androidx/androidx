@@ -51,6 +51,36 @@ public fun NavGraphBuilder.composable(
 }
 
 /**
+ * Construct a nested [NavGraph]
+ *
+ * @param startDestination the starting destination's route for this NavGraph
+ * @param route the destination's unique route
+ * @param arguments list of arguments to associate with destination
+ * @param deepLinks list of deep links to associate with the destinations
+ * @param builder the builder used to construct the graph
+ *
+ * @return the newly constructed nested NavGraph
+ */
+public fun NavGraphBuilder.navigation(
+    startDestination: String,
+    route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    deepLinks: List<NavDeepLink> = emptyList(),
+    builder: NavGraphBuilder.() -> Unit
+) {
+    addDestination(
+        NavGraphBuilder(provider, startDestination, route).apply(builder).build().apply {
+            arguments.forEach { (argumentName, argument) ->
+                addArgument(argumentName, argument)
+            }
+            deepLinks.forEach { deepLink ->
+                addDeepLink(deepLink)
+            }
+        }
+    )
+}
+
+/**
  * Add the [Composable] to the [NavGraphBuilder] that will be hosted within a
  * [androidx.compose.ui.window.Dialog]. This is suitable only when this dialog represents
  * a separate screen in your app that needs its own lifecycle and saved state, independent
