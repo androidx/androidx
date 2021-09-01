@@ -25,99 +25,101 @@ import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 
+private val redStyleOption =
+    ListUserStyleSetting.ListOption(Option.Id("red_style"), "Red", icon = null)
+
+private val greenStyleOption =
+    ListUserStyleSetting.ListOption(Option.Id("green_style"), "Green", icon = null)
+
+private val blueStyleOption =
+    ListUserStyleSetting.ListOption(Option.Id("blue_style"), "Blue", icon = null)
+
+private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
+
+private val colorStyleSetting = ListUserStyleSetting(
+    UserStyleSetting.Id("color_style_setting"),
+    "Colors",
+    "Watchface colorization", /* icon = */
+    null,
+    colorStyleList,
+    listOf(WatchFaceLayer.BASE)
+)
+
+private val classicStyleOption =
+    ListUserStyleSetting.ListOption(Option.Id("classic_style"), "Classic", icon = null)
+
+private val modernStyleOption =
+    ListUserStyleSetting.ListOption(Option.Id("modern_style"), "Modern", icon = null)
+
+private val gothicStyleOption =
+    ListUserStyleSetting.ListOption(Option.Id("gothic_style"), "Gothic", icon = null)
+
+private val watchHandStyleList =
+    listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
+
+private val watchHandStyleSetting = ListUserStyleSetting(
+    UserStyleSetting.Id("hand_style_setting"),
+    "Hand Style",
+    "Hand visual look", /* icon = */
+    null,
+    watchHandStyleList,
+    listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+)
+private val watchHandLengthStyleSetting =
+    DoubleRangeUserStyleSetting(
+        UserStyleSetting.Id("watch_hand_length_style_setting"),
+        "Hand length",
+        "Scale of watch hands",
+        null,
+        0.25,
+        1.0,
+        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
+        0.75
+    )
+private val booleanSetting = BooleanUserStyleSetting(
+    UserStyleSetting.Id("setting"),
+    "setting",
+    "setting description",
+    null,
+    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+    true
+)
+private val booleanSettingCopy = BooleanUserStyleSetting(
+    UserStyleSetting.Id("setting"),
+    "setting",
+    "setting description",
+    null,
+    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+    true
+)
+private val booleanSettingModifiedInfo = BooleanUserStyleSetting(
+    UserStyleSetting.Id("setting"),
+    "setting modified",
+    "setting description modified",
+    null,
+    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+    false
+)
+
+private val booleanSettingModifiedId = BooleanUserStyleSetting(
+    UserStyleSetting.Id("setting_modified"),
+    "setting",
+    "setting description",
+    null,
+    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+    true
+)
+
+private val optionTrue = BooleanUserStyleSetting.BooleanOption.TRUE
+private val optionFalse = BooleanUserStyleSetting.BooleanOption.FALSE
+
 @RunWith(StyleTestRunner::class)
 class CurrentUserStyleRepositoryTest {
-    private val redStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("red_style"), "Red", icon = null)
-
-    private val greenStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("green_style"), "Green", icon = null)
-
-    private val blueStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("blue_style"), "Blue", icon = null)
-
-    private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
-
-    private val colorStyleSetting = ListUserStyleSetting(
-        UserStyleSetting.Id("color_style_setting"),
-        "Colors",
-        "Watchface colorization", /* icon = */
-        null,
-        colorStyleList,
-        listOf(WatchFaceLayer.BASE)
-    )
-
-    private val classicStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("classic_style"), "Classic", icon = null)
-
-    private val modernStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("modern_style"), "Modern", icon = null)
-
-    private val gothicStyleOption =
-        ListUserStyleSetting.ListOption(Option.Id("gothic_style"), "Gothic", icon = null)
-
-    private val watchHandStyleList =
-        listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
-
-    private val watchHandStyleSetting = ListUserStyleSetting(
-        UserStyleSetting.Id("hand_style_setting"),
-        "Hand Style",
-        "Hand visual look", /* icon = */
-        null,
-        watchHandStyleList,
-        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
-    )
-    private val watchHandLengthStyleSetting =
-        DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id("watch_hand_length_style_setting"),
-            "Hand length",
-            "Scale of watch hands",
-            null,
-            0.25,
-            1.0,
-            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
-            0.75
-        )
-    private val booleanSetting = BooleanUserStyleSetting(
-        UserStyleSetting.Id("setting"),
-        "setting",
-        "setting description",
-        null,
-        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-        true
-    )
-    private val booleanSettingCopy = BooleanUserStyleSetting(
-        UserStyleSetting.Id("setting"),
-        "setting",
-        "setting description",
-        null,
-        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-        true
-    )
-    private val booleanSettingModifiedInfo = BooleanUserStyleSetting(
-        UserStyleSetting.Id("setting"),
-        "setting modified",
-        "setting description modified",
-        null,
-        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-        false
-    )
-
-    private val booleanSettingModifiedId = BooleanUserStyleSetting(
-        UserStyleSetting.Id("setting_modified"),
-        "setting",
-        "setting description",
-        null,
-        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-        true
-    )
-
-    private val optionTrue = BooleanUserStyleSetting.BooleanOption.TRUE
-    private val optionFalse = BooleanUserStyleSetting.BooleanOption.FALSE
 
     private val mockListener1 =
         Mockito.mock(CurrentUserStyleRepository.UserStyleChangeListener::class.java)
@@ -477,14 +479,10 @@ class CurrentUserStyleRepositoryTest {
             assertThat(newUserStyle[booleanSettingModifiedId]).isEqualTo(null)
         }
 
-        userStyle.toMutableUserStyle().apply {
-            this[booleanSettingModifiedId] = optionFalse
-        }.toUserStyle().let { newUserStyle: UserStyle ->
-            assertThat(userStyle[booleanSetting]).isEqualTo(optionTrue)
-            assertThat(newUserStyle[booleanSetting]).isEqualTo(optionTrue)
-            assertThat(newUserStyle[booleanSettingCopy]).isEqualTo(optionTrue)
-            assertThat(newUserStyle[booleanSettingModifiedInfo]).isEqualTo(optionTrue)
-            assertThat(newUserStyle[booleanSettingModifiedId]).isEqualTo(optionFalse)
+        assertThrows(IllegalArgumentException::class.java) {
+            userStyle.toMutableUserStyle().apply {
+                this[booleanSettingModifiedId] = optionFalse
+            }
         }
     }
 
@@ -723,5 +721,51 @@ class CurrentUserStyleRepositoryTest {
         assertThat(userStyleA).isNotEqualTo(userStyleD)
         assertThat(userStyleB).isNotEqualTo(userStyleC)
         assertThat(userStyleB).isNotEqualTo(userStyleD)
+    }
+}
+
+@RunWith(StyleTestRunner::class)
+public class MutableUserStyleTest {
+
+    @Test
+    public fun cantAssignUnknownSetting() {
+        val mutableUserStyle = UserStyle(mapOf(booleanSetting to optionTrue)).toMutableUserStyle()
+
+        assertThrows(IllegalArgumentException::class.java) {
+            mutableUserStyle[colorStyleSetting] = optionFalse
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            mutableUserStyle[colorStyleSetting] = optionFalse.id
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            mutableUserStyle[colorStyleSetting.id] = optionFalse
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            mutableUserStyle[colorStyleSetting.id] = optionFalse.id
+        }
+    }
+
+    @Test
+    public fun cantAssignUnrelatedOption() {
+        val mutableUserStyle = UserStyle(mapOf(booleanSetting to optionTrue)).toMutableUserStyle()
+
+        assertThrows(IllegalArgumentException::class.java) {
+            mutableUserStyle[booleanSetting] = blueStyleOption
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            mutableUserStyle[booleanSetting.id] = blueStyleOption
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            mutableUserStyle[booleanSetting] = blueStyleOption.id
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            mutableUserStyle[booleanSetting.id] = blueStyleOption.id
+        }
     }
 }

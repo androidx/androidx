@@ -34,13 +34,13 @@ dependencies {
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
 
-    testImplementation(libs.testExtJunit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
+    testImplementation("junit:junit:4.13")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

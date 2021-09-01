@@ -275,6 +275,10 @@ public sealed class UserStyleSetting private constructor(
             @Px maxHeight: Int
         ): Int = id.value.size
 
+        // We don't want Option to be subclassed by users.
+        @SuppressWarnings("HiddenAbstractMethod")
+        internal abstract fun getUserStyleSettingClass(): Class<out UserStyleSetting>
+
         /**
          * Machine readable identifier for [Option]s. The length of this identifier may not exceed
          * [MAX_LENGTH].
@@ -497,6 +501,9 @@ public sealed class UserStyleSetting private constructor(
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): BooleanOptionWireFormat =
                 BooleanOptionWireFormat(id.value)
+
+            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+                BooleanUserStyleSetting::class.java
 
             override fun toString(): String = if (id.value[0] == 1.toByte()) "true" else "false"
 
@@ -840,6 +847,9 @@ public sealed class UserStyleSetting private constructor(
                 icon = wireFormat.mIcon
             }
 
+            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+                ComplicationSlotsUserStyleSetting::class.java
+
             internal override fun estimateWireSizeInBytesAndValidateIconDimensions(
                 context: Context,
                 @Px maxWidth: Int,
@@ -1026,6 +1036,9 @@ public sealed class UserStyleSetting private constructor(
             ) : super(Id(wireFormat.mId)) {
                 value = ByteBuffer.wrap(wireFormat.mId).double
             }
+
+            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+                DoubleRangeUserStyleSetting::class.java
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -1221,6 +1234,9 @@ public sealed class UserStyleSetting private constructor(
                 icon = wireFormat.mIcon
             }
 
+            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+                ListUserStyleSetting::class.java
+
             internal override fun estimateWireSizeInBytesAndValidateIconDimensions(
                 context: Context,
                 @Px maxWidth: Int,
@@ -1407,6 +1423,9 @@ public sealed class UserStyleSetting private constructor(
                 value = ByteBuffer.wrap(wireFormat.mId).long
             }
 
+            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+                LongRangeUserStyleSetting::class.java
+
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): LongRangeOptionWireFormat =
@@ -1515,6 +1534,9 @@ public sealed class UserStyleSetting private constructor(
             internal constructor(
                 wireFormat: CustomValueOptionWireFormat
             ) : super(Id(wireFormat.mId))
+
+            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+                CustomValueUserStyleSetting::class.java
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
