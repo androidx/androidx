@@ -630,13 +630,16 @@ class RecorderTest {
 
         activeRecording.pause()
 
-        // Shouldn't receive an additional Pause event.
-        inOrder.verifyNoMoreInteractions()
-
         activeRecording.stopSafely()
 
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        // As described in b/197416199, there might be encoded data in flight which will trigger
+        // Status event after pausing. So here it checks there's only one Pause event.
+        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
+        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
+        assertThat(captor.allValues.count { it is VideoRecordEvent.Pause }).isAtMost(1)
 
         file.delete()
     }
