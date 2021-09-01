@@ -33,12 +33,21 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.EmittableBox
+import androidx.glance.layout.FontStyle
+import androidx.glance.layout.FontWeight
 import androidx.glance.layout.Row
+import androidx.glance.layout.Text
+import androidx.glance.layout.TextDecoration
+import androidx.glance.layout.TextStyle
 import androidx.glance.layout.expandHeight
 import androidx.glance.layout.expandWidth
 import androidx.glance.layout.size
 import androidx.glance.unit.Color
 import androidx.glance.unit.dp
+import androidx.glance.unit.sp
+import androidx.glance.wear.layout.AnchorType
+import androidx.glance.wear.layout.CurvedRow
+import androidx.glance.wear.layout.RadialAlignment
 import androidx.glance.wear.layout.background
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -84,6 +93,56 @@ class ScreenshotTests {
                 Box(modifier = Modifier.size(20.dp).background(Color.Blue)) {}
                 Box(modifier = Modifier.size(20.dp).background(Color.Cyan)) {}
             }
+        }
+    }
+
+    @Test
+    fun basicText() = runSingleGoldenTest("basic-text") {
+        Column {
+            Text(text = "Normal")
+            Text(text = "Bold", style = TextStyle(fontWeight = FontWeight.Bold))
+            Text(text = "Italic", style = TextStyle(fontStyle = FontStyle.Italic))
+            Text(text = "Underline", style = TextStyle(textDecoration = TextDecoration.Underline))
+            Text(
+                text = "Everything",
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = FontStyle.Italic,
+                    textDecoration = TextDecoration.Underline
+                )
+            )
+        }
+    }
+
+    @Test
+    fun textWithSize() = runSingleGoldenTest("text-with-size") {
+        Text(
+            text = "Hello World! This is a test",
+            modifier = Modifier.size(200.dp).background(Color.Red)
+        )
+    }
+
+    @Test
+    fun curvedText() = runSingleGoldenTest("curved-text") {
+        CurvedRow(
+            modifier = Modifier.background(Color.Blue),
+            radialAlignment = RadialAlignment.Center,
+            anchor = -90f,
+            anchorType = AnchorType.Center
+        ) {
+            CurvedText(text = "Hello World")
+            CurvedText(text = "This is a test!", textStyle = TextStyle(size = 24.sp))
+        }
+    }
+
+    @Test
+    fun curvedRowWithNormalElements() = runSingleGoldenTest("curved-row-with-normal-elements") {
+        CurvedRow {
+            Box(modifier = Modifier.size(30.dp).background(Color.Red)) {}
+            Box(modifier = Modifier.size(30.dp).background(Color.Green)) {}
+            Box(modifier = Modifier.size(30.dp).background(Color.Blue)) {}
+            Box(modifier = Modifier.size(30.dp).background(Color.Cyan)) {}
+            Box(modifier = Modifier.size(30.dp).background(Color.Magenta)) {}
         }
     }
 
