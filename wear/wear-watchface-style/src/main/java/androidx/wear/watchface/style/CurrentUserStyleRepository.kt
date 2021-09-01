@@ -40,7 +40,7 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 public class UserStyle private constructor(
     selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>,
     copySelectedOptions: Boolean
-) : Iterable<Map.Entry<UserStyleSetting, UserStyleSetting.Option>> {
+) : Map<UserStyleSetting, UserStyleSetting.Option> {
     private val selectedOptions =
         if (copySelectedOptions) HashMap(selectedOptions) else selectedOptions
 
@@ -60,7 +60,7 @@ public class UserStyle private constructor(
     ) : this(selectedOptions, true)
 
     /** The number of entries in the style. */
-    val size: Int by selectedOptions::size
+    override val size: Int by selectedOptions::size
 
     /**
      * Constructs a [UserStyle] from a [UserStyleData] and the [UserStyleSchema]. Unrecognized
@@ -97,17 +97,13 @@ public class UserStyle private constructor(
     /** Returns a mutable instance initialized with the same mapping. */
     public fun toMutableUserStyle(): MutableUserStyle = MutableUserStyle(this)
 
-    /** Iterator over the elements of the user style. */
-    override fun iterator(): Iterator<Map.Entry<UserStyleSetting, UserStyleSetting.Option>> =
-        selectedOptions.iterator()
-
     /** Returns the style as a [Map]<[String], [ByteArray]>. */
     private fun toMap(): Map<String, ByteArray> =
         selectedOptions.entries.associate { it.key.id.value to it.value.id.value }
 
-    /** Returns the [UserStyleSetting.Option] for [setting] if there is one or `null` otherwise. */
-    public operator fun get(setting: UserStyleSetting): UserStyleSetting.Option? =
-        selectedOptions[setting]
+    /** Returns the [UserStyleSetting.Option] for [key] if there is one or `null` otherwise. */
+    public override operator fun get(key: UserStyleSetting): UserStyleSetting.Option? =
+        selectedOptions[key]
 
     /**
      * Returns the [UserStyleSetting.Option] for [settingId] if there is one or `null` otherwise.
@@ -164,6 +160,22 @@ public class UserStyle private constructor(
             return merged?.toUserStyle()
         }
     }
+
+    override val entries: Set<Map.Entry<UserStyleSetting, UserStyleSetting.Option>>
+        get() = selectedOptions.entries
+
+    override val keys: Set<UserStyleSetting>
+        get() = selectedOptions.keys
+
+    override val values: Collection<UserStyleSetting.Option>
+        get() = selectedOptions.values
+
+    override fun containsKey(key: UserStyleSetting): Boolean = selectedOptions.containsKey(key)
+
+    override fun containsValue(value: UserStyleSetting.Option): Boolean =
+        selectedOptions.containsValue(value)
+
+    override fun isEmpty(): Boolean = selectedOptions.isEmpty()
 }
 
 /**
@@ -198,37 +210,71 @@ public class MutableUserStyle internal constructor(userStyle: UserStyle) :
 
     /**
      * Sets the [UserStyleSetting.Option] for [setting] to the given [option].
+     *
+     * @param setting The [UserStyleSetting] we're setting the [option] for, must be in the schema.
+     * @param option the [UserStyleSetting.Option] we're setting. Must be a valid option for
+     * [setting].
+     * @throws IllegalArgumentException if [setting] is not in the schema or if [option] is invalid
+     * for [setting].
      */
     public operator fun set(setting: UserStyleSetting, option: UserStyleSetting.Option) {
+        require(selectedOptions.containsKey(setting)) { "Unknown setting $setting" }
+        require(option.getUserStyleSettingClass() == setting::class.java) {
+            "The option class (${option::class.java.canonicalName}) must match the setting class " +
+                setting::class.java.canonicalName
+        }
         selectedOptions[setting] = option
     }
 
     /**
      * Sets the [UserStyleSetting.Option] for the setting with the given [settingId] to the given
      * [option].
+     *
+     * @param settingId The [UserStyleSetting.Id] of the  [UserStyleSetting] we're setting the
+     * [option] for, must be in the schema.
+     * @param option the [UserStyleSetting.Option] we're setting. Must be a valid option for
+     * [settingId].
+     * @throws IllegalArgumentException if [settingId] is not in the schema or if [option] is
+     * invalid for [settingId].
      */
     public operator fun set(settingId: UserStyleSetting.Id, option: UserStyleSetting.Option) {
-        getSettingForId(settingId)?.let { selectedOptions[it] = option }
+        val setting = getSettingForId(settingId)
+        require(setting != null) { "Unknown setting $settingId" }
+        require(option.getUserStyleSettingClass() == setting::class.java) {
+            "The option must be a subclass of the setting"
+        }
+        selectedOptions[setting] = option
     }
 
     /**
-     * Sets the [UserStyleSetting.Option] for [setting] to the option
-     * with the given [optionId].
+     * Sets the [UserStyleSetting.Option] for [setting] to the option with the given [optionId].
+     *
+     * @param setting The [UserStyleSetting] we're setting the [optionId] for, must be in the
+     * schema.
+     * @param optionId the [UserStyleSetting.Option.Id] for the [UserStyleSetting.Option] we're
+     * setting.
+     * @throws IllegalArgumentException if [setting] is not in the schema or if [optionId] is
+     * unrecognized.
      */
     public operator fun set(setting: UserStyleSetting, optionId: UserStyleSetting.Option.Id) {
-        getOptionForId(setting, optionId)?.let { selectedOptions[setting] = it }
+        require(selectedOptions.containsKey(setting)) { "Unknown setting $setting" }
+        val option = getOptionForId(setting, optionId)
+        require(option != null) { "Unrecognized optionId $optionId" }
+        selectedOptions[setting] = option
     }
 
     /**
      * Sets the [UserStyleSetting.Option] for the setting with the given [settingId] to the option
      * with the given [optionId].
+     * @throws IllegalArgumentException if [settingId] is not in the schema or if [optionId] is
+     * unrecognized.
      */
     public operator fun set(settingId: UserStyleSetting.Id, optionId: UserStyleSetting.Option.Id) {
-        getSettingForId(settingId)?.let { setting ->
-            getOptionForId(setting, optionId)?.let { option ->
-                selectedOptions[setting] = option
-            }
-        }
+        val setting = getSettingForId(settingId)
+        require(setting != null) { "Unknown setting $settingId" }
+        val option = getOptionForId(setting, optionId)
+        require(option != null) { "Unrecognized optionId $optionId" }
+        selectedOptions[setting] = option
     }
 
     /** Converts this instance to an immutable [UserStyle] with the same mapping. */
