@@ -655,6 +655,7 @@ includeProject(":wear:compose:integration-tests:demos", "wear/compose/integratio
 includeProject(":wear:compose:integration-tests:macrobenchmark", "wear/compose/integration-tests/macrobenchmark", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:macrobenchmark-target", "wear/compose/integration-tests/macrobenchmark-target", [BuildType.COMPOSE])
 includeProject(":wear:wear-input", "wear/wear-input", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-input-samples", "wear/wear-input/samples", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-input-testing", "wear/wear-input-testing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-ongoing", "wear/wear-ongoing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-phone-interactions", "wear/wear-phone-interactions", [BuildType.MAIN, BuildType.WEAR])

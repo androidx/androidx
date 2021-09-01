@@ -269,6 +269,7 @@ dependencies {
     samples(project(":wear:compose:compose-material-samples"))
     docs(project(":wear:wear-input"))
     docs(project(":wear:wear-input-testing"))
+    samples(project(":wear:wear-input-samples"))
     docs(project(":wear:wear-ongoing"))
     docs(project(":wear:wear-phone-interactions"))
     docs(project(":wear:wear-remote-interactions"))
