@@ -16,13 +16,9 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -33,6 +29,7 @@ import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.SwipeDismissTarget
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.SwipeToDismissBoxState
@@ -96,35 +93,37 @@ internal fun DisplayDemoList(
             }
         }
     ) {
-        Column(
+        ScalingLazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+            contentPadding = PaddingValues(vertical = 16.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Spacer(modifier = Modifier.size(16.dp))
-            Text(
-                text = category.title,
-                style = MaterialTheme.typography.caption1,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            category.demos.forEach { demo ->
-                CompactChip(
-                    onClick = { onNavigateTo(demo) },
-                    colors = ChipDefaults.secondaryChipColors(),
-                    label = {
-                        Text(
-                            text = demo.title,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth().padding(
-                        start = 10.dp,
-                        end = 10.dp,
-                        bottom = 4.dp
-                    )
+            item {
+                Text(
+                    text = category.title,
+                    style = MaterialTheme.typography.caption1,
+                    color = Color.White
                 )
             }
-            Spacer(modifier = Modifier.size(16.dp))
+            category.demos.forEach { demo ->
+                item {
+                    CompactChip(
+                        onClick = { onNavigateTo(demo) },
+                        colors = ChipDefaults.secondaryChipColors(),
+                        label = {
+                            Text(
+                                text = demo.title,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(
+                            start = 10.dp,
+                            end = 10.dp,
+                            bottom = 4.dp
+                        )
+                    )
+                }
+            }
         }
     }
 }
