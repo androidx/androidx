@@ -608,13 +608,17 @@ class RemoteViewsTranslatorKtTest {
 
     private suspend fun runAndTranslate(
         context: Context = this.context,
+        appWidgetId: Int = 0,
         content: @Composable () -> Unit
     ): RemoteViews {
         val root = runTestingComposition(content)
-        return translateComposition(context, root)
+        return translateComposition(context, appWidgetId, root)
     }
 
-    private suspend fun runAndTranslateInRtl(content: @Composable () -> Unit): RemoteViews {
+    private suspend fun runAndTranslateInRtl(
+        appWidgetId: Int = 0,
+        content: @Composable () -> Unit
+    ): RemoteViews {
         val rtlLocale = Locale.getAvailableLocales().first {
             TextUtils.getLayoutDirectionFromLocale(it) == View.LAYOUT_DIRECTION_RTL
         }
@@ -623,7 +627,7 @@ class RemoteViewsTranslatorKtTest {
                 it.setLayoutDirection(rtlLocale)
             }
         )
-        return runAndTranslate(rtlContext, content)
+        return runAndTranslate(rtlContext, appWidgetId, content = content)
     }
 
     private fun Dp.toPixels() = toPixels(displayMetrics)

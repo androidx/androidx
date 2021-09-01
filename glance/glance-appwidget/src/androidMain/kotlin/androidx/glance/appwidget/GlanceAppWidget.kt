@@ -261,7 +261,7 @@ public abstract class GlanceAppWidget {
         recomposer.close()
         recomposer.join()
 
-        translateComposition(context, root)
+        translateComposition(context, appWidgetId, root)
     }
 
     private companion object {
