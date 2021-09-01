@@ -171,7 +171,7 @@ class SearchSessionImpl implements AppSearchSession {
                 mPlatformSession.search(
                         queryExpression,
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec));
-        return new SearchResultsImpl(platformSearchResults, mExecutor);
+        return new SearchResultsImpl(platformSearchResults, searchSpec, mExecutor);
     }
 
     @Override
