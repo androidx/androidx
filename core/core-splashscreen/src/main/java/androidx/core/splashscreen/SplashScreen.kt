@@ -208,11 +208,6 @@ public class SplashScreen private constructor(activity: Activity) {
                 if (finalThemeId != 0) {
                     activity.setTheme(finalThemeId)
                 }
-            } else {
-                throw Resources.NotFoundException(
-                    "Cannot set AppTheme. No theme value defined for attribute " +
-                        activity.resources.getResourceName(R.attr.postSplashScreenTheme)
-                )
             }
         }
 
