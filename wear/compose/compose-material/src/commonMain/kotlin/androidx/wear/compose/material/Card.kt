@@ -300,7 +300,7 @@ public fun TitleCard(
             ) {
                 CompositionLocalProvider(
                     LocalContentColor provides titleColor,
-                    LocalTextStyle provides MaterialTheme.typography.button,
+                    LocalTextStyle provides MaterialTheme.typography.title3,
                     content = title
                 )
                 if (time != null) {
@@ -314,7 +314,7 @@ public fun TitleCard(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             CompositionLocalProvider(
                 LocalContentColor provides bodyColor,
                 LocalTextStyle provides MaterialTheme.typography.body1,
@@ -345,11 +345,11 @@ public object CardDefaults {
     @Composable
     public fun cardBackgroundPainter(
         startBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.3f)
-                .compositeOver(MaterialTheme.colors.surface),
+            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
+                .compositeOver(MaterialTheme.colors.background),
         endBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant2.copy(alpha = 0.2f)
-                .compositeOver(MaterialTheme.colors.surface),
+            MaterialTheme.colors.onSurfaceVariant2.copy(alpha = 0.13f)
+                .compositeOver(MaterialTheme.colors.background),
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): Painter {
         val backgroundColors: List<Color> = if (gradientDirection == LayoutDirection.Ltr) {
