@@ -88,10 +88,10 @@ public class PositionIndicatorTest {
 
         rule.runOnIdle {
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isEqualTo(0)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isEqualTo(1)
         }
     }
@@ -125,10 +125,10 @@ public class PositionIndicatorTest {
 
         rule.runOnIdle {
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isEqualTo(0f)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isEqualTo(1f)
         }
     }
@@ -175,10 +175,10 @@ public class PositionIndicatorTest {
 
             // And that the indicator is at position 0 and of expected size
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isEqualTo(0f)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
@@ -192,10 +192,10 @@ public class PositionIndicatorTest {
 
             // And that the indicator is at position 0.5 and of expected size
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isWithin(0.05f).of(0.5f)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
@@ -209,10 +209,10 @@ public class PositionIndicatorTest {
 
             // And that the indicator is at position 1 and of expected size
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isWithin(0.05f).of(1.0f)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
         }
     }
@@ -242,10 +242,10 @@ public class PositionIndicatorTest {
 
         rule.runOnIdle {
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isEqualTo(0)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isEqualTo(1)
         }
     }
@@ -276,10 +276,10 @@ public class PositionIndicatorTest {
 
         rule.runOnIdle {
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isEqualTo(0)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isEqualTo(1)
         }
     }
@@ -313,10 +313,10 @@ public class PositionIndicatorTest {
 
         rule.runOnIdle {
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isEqualTo(0)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isEqualTo(1)
         }
     }
@@ -351,10 +351,10 @@ public class PositionIndicatorTest {
 
         rule.runOnIdle {
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isEqualTo(0)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isEqualTo(1)
         }
     }
@@ -394,10 +394,10 @@ public class PositionIndicatorTest {
         rule.runOnIdle {
             // And that the indicator is at position 0 and of expected size
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isEqualTo(0)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
@@ -406,10 +406,10 @@ public class PositionIndicatorTest {
 
             // And that the indicator is at position 0.5 and of expected size
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isWithin(0.05f).of(0.5f)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
@@ -418,10 +418,10 @@ public class PositionIndicatorTest {
 
             // And that the indicator is at position 0.5 and of expected size
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isWithin(0.05f).of(1.0f)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
         }
     }
@@ -461,10 +461,10 @@ public class PositionIndicatorTest {
         rule.runOnIdle {
             // And that the indicator is at position 0 and of expected size
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isWithin(0.05f).of(0.0f)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
@@ -473,10 +473,10 @@ public class PositionIndicatorTest {
 
             // And that the indicator is at position 0 and of expected size
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isWithin(0.05f).of(0.5f)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
 
             runBlocking {
@@ -485,10 +485,10 @@ public class PositionIndicatorTest {
 
             // And that the indicator is at position 0.5 and of expected size
             assertThat(
-                positionIndicatorState.indicatorPosition()
+                positionIndicatorState.positionFraction
             ).isWithin(0.05f).of(1.0f)
             assertThat(
-                positionIndicatorState.indicatorSize(viewPortHeight.toFloat())
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
         }
     }
@@ -508,18 +508,18 @@ public class PositionIndicatorTest {
         }
 
         rule.runOnIdle {
-            assertThat(positionIndicatorState.indicatorPosition()).isWithin(0.05f).of(1.0f)
-            assertThat(positionIndicatorState.indicatorSize(0f)).isWithin(0.05f).of(0.0f)
+            assertThat(positionIndicatorState.positionFraction).isWithin(0.05f).of(1.0f)
+            assertThat(positionIndicatorState.sizeFraction(0f)).isWithin(0.05f).of(0.0f)
 
             state.value = 0.5f
 
-            assertThat(positionIndicatorState.indicatorPosition()).isWithin(0.05f).of(1.0f)
-            assertThat(positionIndicatorState.indicatorSize(0f)).isWithin(0.05f).of(0.5f)
+            assertThat(positionIndicatorState.positionFraction).isWithin(0.05f).of(1.0f)
+            assertThat(positionIndicatorState.sizeFraction(0f)).isWithin(0.05f).of(0.5f)
 
             state.value = 1.0f
 
-            assertThat(positionIndicatorState.indicatorPosition()).isWithin(0.05f).of(1.0f)
-            assertThat(positionIndicatorState.indicatorSize(0f)).isWithin(0.05f).of(1.0f)
+            assertThat(positionIndicatorState.positionFraction).isWithin(0.05f).of(1.0f)
+            assertThat(positionIndicatorState.sizeFraction(0f)).isWithin(0.05f).of(1.0f)
         }
     }
 

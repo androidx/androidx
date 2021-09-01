@@ -54,8 +54,8 @@ import kotlin.math.abs
  * position of say a volume control that can be 'ticked' using a rolling side button or rotating
  * bezel.
  *
- * Implementing classes provide [indicatorPosition] to determine where in the range [0..1] that the
- * indicator should be displayed and [indicatorSize] to determine the size of the indicator in the
+ * Implementing classes provide [positionFraction] to determine where in the range [0..1] that the
+ * indicator should be displayed and [sizeFraction] to determine the size of the indicator in the
  * range [0..1]. E.g. If a [ScalingLazyListState] had 50 items and the last 5 were visible it
  * would have a position of 1.0f to show that the scroll is positioned at the end of the list and a
  * size of 5 / 50 = 0.1f to indicate that 10% of the visible items are currently visible.
@@ -63,24 +63,25 @@ import kotlin.math.abs
 @Stable
 interface PositionIndicatorState {
     /**
-     * Position of the indicator in the range [0f,1f]. 0f means it is at the top, 1f means it is
-     * positioned at the bottom.
-     *
+     * Position of the indicator in the range [0f,1f]. 0f means it is at the top|start, 1f means
+     * it is positioned at the bottom|end.
      */
 //    @FloatRange(
 //        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
 //    )
-    fun indicatorPosition(): Float
+    val positionFraction: Float
 
     /**
      * Size of the indicator in the range [0f,1f]. 1f means it takes the whole space.
      *
-     * @param scrollableContainerHeight the height of the container in pixels
+     * @param scrollableContainerSizePx the height or width of the container
+     * in pixels depending on orientation of the indicator, (height for vertical, width for
+     * horizontal)
      */
 //    @FloatRange(
 //        fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0
 //    )
-    fun indicatorSize(scrollableContainerHeight: Float): Float
+    fun sizeFraction(scrollableContainerSizePx: Float): Float
 }
 
 /**
@@ -199,9 +200,9 @@ public fun PositionIndicator(
 
     val actuallyVisible = remember { mutableStateOf(true) }
     val indicatorPosition = if (reverseDirection) {
-        1 - state.indicatorPosition()
+        1 - state.positionFraction
     } else {
-        state.indicatorPosition()
+        state.positionFraction
     }
     if (autoHide) {
         LaunchedEffect(indicatorPosition) {
@@ -223,7 +224,7 @@ public fun PositionIndicator(
                     val indicatorWidthPx = indicatorWidth.toPx()
 
                     val actualHeight = size.height
-                    val indicatorSize = state.indicatorSize(actualHeight)
+                    val indicatorSize = state.sizeFraction(actualHeight)
 
                     // We want position = 0 be the indicator aligned at the top of its area and
                     // position = 1 be aligned at the bottom of the area.
@@ -276,9 +277,9 @@ public fun PositionIndicator(
 internal class RsbPositionIndicatorState(
     private val rsbRatio: State<Float>
 ) : PositionIndicatorState {
-    override fun indicatorPosition() = 1f
+    override val positionFraction = 1f
 
-    override fun indicatorSize(scrollableContainerHeight: Float) = rsbRatio.value
+    override fun sizeFraction(scrollableContainerSizePx: Float) = rsbRatio.value
 
     override fun equals(other: Any?) = (other as? RsbPositionIndicatorState)?.rsbRatio == rsbRatio
 
@@ -296,18 +297,20 @@ internal class RsbPositionIndicatorState(
  * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
  */
 internal class ScrollStateAdapter(private val scrollState: ScrollState) : PositionIndicatorState {
-    override fun indicatorPosition() =
-        if (scrollState.maxValue == 0) {
-            0f
-        } else {
-            scrollState.value.toFloat() / scrollState.maxValue
+    override val positionFraction: Float
+        get() {
+            return if (scrollState.maxValue == 0) {
+                0f
+            } else {
+                scrollState.value.toFloat() / scrollState.maxValue
+            }
         }
 
-    override fun indicatorSize(scrollableContainerHeight: Float) =
-        if (scrollableContainerHeight + scrollState.maxValue == 0.0f) {
+    override fun sizeFraction(scrollableContainerSizePx: Float) =
+        if (scrollableContainerSizePx + scrollState.maxValue == 0.0f) {
             1.0f
         } else {
-            scrollableContainerHeight / (scrollableContainerHeight + scrollState.maxValue)
+            scrollableContainerSizePx / (scrollableContainerSizePx + scrollState.maxValue)
         }
 
     override fun equals(other: Any?): Boolean {
@@ -330,24 +333,26 @@ internal class ScrollStateAdapter(private val scrollState: ScrollState) : Positi
 internal class ScalingLazyColumnStateAdapter(
     private val state: ScalingLazyListState
 ) : PositionIndicatorState {
-    override fun indicatorPosition() =
-        if (state.layoutInfo.visibleItemsInfo.isEmpty()) {
-            0.0f
-        } else {
-            val decimalFirstItemIndex = decimalFirstItemIndex()
-            val decimalLastItemIndex = decimalLastItemIndex()
-            val decimalLastItemIndexDistanceFromEnd = state.layoutInfo.totalItemsCount -
-                decimalLastItemIndex
-
-            if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
+    override val positionFraction: Float
+        get() {
+            return if (state.layoutInfo.visibleItemsInfo.isEmpty()) {
                 0.0f
             } else {
-                decimalFirstItemIndex /
-                    (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
+                val decimalFirstItemIndex = decimalFirstItemIndex()
+                val decimalLastItemIndex = decimalLastItemIndex()
+                val decimalLastItemIndexDistanceFromEnd = state.layoutInfo.totalItemsCount -
+                    decimalLastItemIndex
+
+                if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
+                    0.0f
+                } else {
+                    decimalFirstItemIndex /
+                        (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
+                }
             }
         }
 
-    override fun indicatorSize(scrollableContainerHeight: Float) =
+    override fun sizeFraction(scrollableContainerSizePx: Float) =
         if (state.layoutInfo.totalItemsCount == 0) {
             1.0f
         } else {

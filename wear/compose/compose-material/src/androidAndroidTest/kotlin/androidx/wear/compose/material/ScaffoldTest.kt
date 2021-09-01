@@ -75,14 +75,14 @@ class ScaffoldTest {
 
     @Test
     fun displays_vignette() {
-        val showVignette = mutableStateOf(VignetteValue.Both)
+        val showVignette = mutableStateOf(VignettePosition.TopAndBottom)
         rule.setContentWithTheme {
             Scaffold(
                 modifier = Modifier.testTag(TEST_TAG),
                 timeText = { Text(TIME_TEXT_MESSAGE) },
                 vignette = {
                     Vignette(
-                        vignetteValue = showVignette.value,
+                        vignettePosition = showVignette.value,
                         modifier = Modifier.testTag("VIGNETTE")
                     )
                 },
@@ -98,7 +98,7 @@ class ScaffoldTest {
     @Test
     fun displays_scrollbar() {
         val showVignette = mutableStateOf(false)
-        val vignetteValue = mutableStateOf(VignetteValue.Both)
+        val vignetteValue = mutableStateOf(VignettePosition.TopAndBottom)
 
         rule.setContentWithTheme {
             val scrollState = rememberScalingLazyListState()
@@ -108,7 +108,7 @@ class ScaffoldTest {
                 timeText = { Text(TIME_TEXT_MESSAGE) },
                 vignette = {
                     if (showVignette.value) {
-                        Vignette(vignetteValue = vignetteValue.value)
+                        Vignette(vignettePosition = vignetteValue.value)
                     }
                 },
                 positionIndicator = {
