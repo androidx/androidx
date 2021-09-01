@@ -32,15 +32,25 @@ import androidx.glance.layout.FontWeight
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.TextDecoration
+import androidx.glance.layout.TextStyle
 import androidx.glance.layout.WidthModifier
+import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.BackgroundModifier
+import androidx.glance.wear.layout.EmittableCurvedRow
+import androidx.glance.wear.layout.EmittableCurvedText
+import androidx.glance.wear.layout.RadialAlignment
 import androidx.wear.tiles.ColorBuilders.argb
 import androidx.wear.tiles.DimensionBuilders
+import androidx.wear.tiles.DimensionBuilders.degrees
 import androidx.wear.tiles.DimensionBuilders.dp
 import androidx.wear.tiles.DimensionBuilders.expand
 import androidx.wear.tiles.DimensionBuilders.sp
 import androidx.wear.tiles.DimensionBuilders.wrap
 import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_CENTER
+import androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_END
+import androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_START
+import androidx.wear.tiles.LayoutElementBuilders.ArcAnchorType
 import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD
 import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM
 import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL
@@ -91,6 +101,24 @@ private fun Dimension.toContainerDimension(): DimensionBuilders.ContainerDimensi
         is Dimension.Wrap -> wrap()
         is Dimension.Expand -> expand()
         is Dimension.Dp -> dp(this.dp.value)
+    }
+
+@ArcAnchorType
+private fun AnchorType.toProto(): Int =
+    when (this) {
+        AnchorType.Start -> ARC_ANCHOR_START
+        AnchorType.Center -> ARC_ANCHOR_CENTER
+        AnchorType.End -> ARC_ANCHOR_END
+        else -> throw IllegalArgumentException("Unknown arc anchor type $this")
+    }
+
+@VerticalAlignment
+private fun RadialAlignment.toProto(): Int =
+    when (this) {
+        RadialAlignment.Outer -> VERTICAL_ALIGN_TOP
+        RadialAlignment.Center -> VERTICAL_ALIGN_CENTER
+        RadialAlignment.Inner -> VERTICAL_ALIGN_BOTTOM
+        else -> throw IllegalArgumentException("Unknown radial alignment $this")
     }
 
 private fun Modifier.getWidth(
@@ -168,6 +196,28 @@ private fun translateEmittableColumn(
     }
 }
 
+private fun translateTextStyle(style: TextStyle): LayoutElementBuilders.FontStyle {
+    val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
+
+    style.size?.let { fontStyleBuilder.setSize(sp(it.value)) }
+    style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
+    style.fontWeight?.let {
+        fontStyleBuilder.setWeight(
+            when (it) {
+                FontWeight.Normal -> FONT_WEIGHT_NORMAL
+                FontWeight.Medium -> FONT_WEIGHT_MEDIUM
+                FontWeight.Bold -> FONT_WEIGHT_BOLD
+                else -> throw IllegalArgumentException("Unknown font weight $it")
+            }
+        )
+    }
+    style.textDecoration?.let {
+        fontStyleBuilder.setUnderline(TextDecoration.Underline in it)
+    }
+
+    return fontStyleBuilder.build()
+}
+
 private fun translateEmittableText(element: EmittableText): LayoutElementBuilders.LayoutElement {
     // Does it have a width or height set? If so, we need to wrap it in a Box.
     val width = element.modifier.getWidth()
@@ -176,25 +226,7 @@ private fun translateEmittableText(element: EmittableText): LayoutElementBuilder
     val textBuilder = LayoutElementBuilders.Text.Builder()
         .setText(element.text)
 
-    element.style?.let { style ->
-        val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
-
-        style.size?.let { fontStyleBuilder.setSize(sp(it.value)) }
-        style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
-        style.fontWeight?.let {
-            fontStyleBuilder.setWeight(
-                when (it) {
-                    FontWeight.Normal -> FONT_WEIGHT_NORMAL
-                    FontWeight.Medium -> FONT_WEIGHT_MEDIUM
-                    FontWeight.Bold -> FONT_WEIGHT_BOLD
-                    else -> throw IllegalArgumentException("Unknown font weight $it")
-                }
-            )
-        }
-        style.textDecoration?.let { fontStyleBuilder.setUnderline(it == TextDecoration.Underline) }
-
-        textBuilder.setFontStyle(fontStyleBuilder.build())
-    }
+    element.style?.let { textBuilder.setFontStyle(translateTextStyle(it)) }
 
     return if (width !is Dimension.Wrap || height !is Dimension.Wrap) {
         LayoutElementBuilders.Box.Builder()
@@ -208,6 +240,56 @@ private fun translateEmittableText(element: EmittableText): LayoutElementBuilder
     }
 }
 
+private fun translateEmittableCurvedRow(
+    element: EmittableCurvedRow
+): LayoutElementBuilders.LayoutElement {
+    // Does it have a width or height set? If so, we need to wrap it in a Box.
+    val width = element.modifier.getWidth()
+    val height = element.modifier.getHeight()
+
+    // Note: Wear Tiles uses 0 degrees = 12 o clock, but Glance / Wear Compose use 0 degrees = 3
+    // o clock. Tiles supports wraparound etc though, so just add on the 90 degrees here.
+    val arcBuilder = LayoutElementBuilders.Arc.Builder()
+        .setAnchorAngle(degrees(element.anchor + 90f))
+        .setAnchorType(element.anchorType.toProto())
+        .setVerticalAlign(element.radialAlignment.toProto())
+
+    // Add all the children first...
+    element.children.forEach { arcBuilder.addContent(translateCompositionInArc(it)) }
+
+    return if (width is Dimension.Dp || height is Dimension.Dp) {
+        LayoutElementBuilders.Box.Builder()
+            .setWidth(width.toContainerDimension())
+            .setHeight(height.toContainerDimension())
+            .setModifiers(translateModifiers(element.modifier))
+            .addContent(arcBuilder.build())
+            .build()
+    } else {
+        arcBuilder
+            .setModifiers(translateModifiers(element.modifier))
+            .build()
+    }
+}
+
+private fun translateEmittableCurvedText(
+    element: EmittableCurvedText
+): LayoutElementBuilders.ArcLayoutElement {
+    // Modifiers are currently ignored for this element; we'll have to add CurvedScope modifiers in
+    // future which can be used with ArcModifiers, but we don't have any of those added right now.
+    val arcTextBuilder = LayoutElementBuilders.ArcText.Builder()
+        .setText(element.text)
+
+    element.textStyle?.let { arcTextBuilder.setFontStyle(translateTextStyle(it)) }
+
+    return arcTextBuilder.build()
+}
+
+private fun translateEmittableElementInArc(
+    element: Emittable
+): LayoutElementBuilders.ArcLayoutElement = LayoutElementBuilders.ArcAdapter.Builder()
+    .setContent(translateComposition(element))
+    .build()
+
 private fun translateModifiers(modifier: Modifier): ModifiersBuilders.Modifiers = modifier
     .foldOut(ModifiersBuilders.Modifiers.Builder()) { element, builder ->
         when (element) {
@@ -218,6 +300,13 @@ private fun translateModifiers(modifier: Modifier): ModifiersBuilders.Modifiers 
             else -> throw IllegalArgumentException("Unknown modifier type")
         }
     }.build()
+
+private fun translateCompositionInArc(element: Emittable): LayoutElementBuilders.ArcLayoutElement {
+    return when (element) {
+        is EmittableCurvedText -> translateEmittableCurvedText(element)
+        else -> translateEmittableElementInArc(element)
+    }
+}
 
 /**
  * Translates a Glance Composition to a Wear Tile.
@@ -231,6 +320,7 @@ internal fun translateComposition(element: Emittable): LayoutElementBuilders.Lay
         is EmittableRow -> translateEmittableRow(element)
         is EmittableColumn -> translateEmittableColumn(element)
         is EmittableText -> translateEmittableText(element)
+        is EmittableCurvedRow -> translateEmittableCurvedRow(element)
         else -> throw IllegalArgumentException("Unknown element $element")
     }
 }
