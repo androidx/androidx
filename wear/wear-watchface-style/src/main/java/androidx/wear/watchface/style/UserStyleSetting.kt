@@ -1484,9 +1484,7 @@ public sealed class UserStyleSetting private constructor(
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value [ByteArray].
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor (
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
             defaultValue: ByteArray
