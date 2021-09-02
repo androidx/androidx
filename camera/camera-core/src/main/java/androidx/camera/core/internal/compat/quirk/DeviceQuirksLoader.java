@@ -41,6 +41,9 @@ public class DeviceQuirksLoader {
         if (ImageCaptureRotationOptionQuirk.load()) {
             quirks.add(new ImageCaptureRotationOptionQuirk());
         }
+        if (SurfaceOrderQuirk.load()) {
+            quirks.add(new SurfaceOrderQuirk());
+        }
 
         return quirks;
     }

@@ -24,12 +24,13 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.Logger;
+import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -187,7 +188,8 @@ public final class SessionConfig {
      * Base builder for easy modification/rebuilding of a {@link SessionConfig}.
      */
     static class BaseBuilder {
-        final Set<DeferrableSurface> mSurfaces = new HashSet<>();
+        // Use LinkedHashSet to preserve the adding order for bug fixing and testing.
+        final Set<DeferrableSurface> mSurfaces = new LinkedHashSet<>();
         final CaptureConfig.Builder mCaptureConfigBuilder = new CaptureConfig.Builder();
         final List<CameraDevice.StateCallback> mDeviceStateCallbacks = new ArrayList<>();
         final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks = new ArrayList<>();
@@ -405,6 +407,7 @@ public final class SessionConfig {
         );
 
         private static final String TAG = "ValidatingBuilder";
+        private final SurfaceSorter mSurfaceSorter = new SurfaceSorter();
         private boolean mValid = true;
         private boolean mTemplateSet = false;
 
@@ -481,8 +484,12 @@ public final class SessionConfig {
             if (!mValid) {
                 throw new IllegalArgumentException("Unsupported session configuration combination");
             }
+
+            List<DeferrableSurface> surfaces = new ArrayList<>(mSurfaces);
+            mSurfaceSorter.sort(surfaces);
+
             return new SessionConfig(
-                    new ArrayList<>(mSurfaces),
+                    surfaces,
                     mDeviceStateCallbacks,
                     mSessionStateCallbacks,
                     mSingleCameraCaptureCallbacks,

@@ -320,7 +320,9 @@ public abstract class UseCase {
     protected void updateSessionConfig(@NonNull SessionConfig sessionConfig) {
         mAttachedSessionConfig = sessionConfig;
         for (DeferrableSurface surface : sessionConfig.getSurfaces()) {
-            surface.setContainerClass(this.getClass());
+            if (surface.getContainerClass() == null) {
+                surface.setContainerClass(this.getClass());
+            }
         }
     }
 
