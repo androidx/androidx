@@ -17,7 +17,7 @@
 package androidx.room.writer
 
 import androidx.annotation.NonNull
-import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
@@ -38,9 +38,9 @@ import javax.lang.model.element.Modifier
  * Writes the implementation of migrations that were annotated with @AutoMigration.
  */
 class AutoMigrationWriter(
-    private val dbElement: XElement,
+    private val dbElement: XTypeElement,
     val autoMigration: AutoMigration
-) : ClassWriter(autoMigration.implTypeName) {
+) : ClassWriter(autoMigration.getImplTypeName(dbElement.className)) {
     private val addedColumns = autoMigration.schemaDiff.addedColumns
     private val addedTables = autoMigration.schemaDiff.addedTables
     private val renamedTables = autoMigration.schemaDiff.renamedTables
@@ -48,7 +48,7 @@ class AutoMigrationWriter(
     private val deletedTables = autoMigration.schemaDiff.deletedTables
 
     override fun createTypeSpecBuilder(): TypeSpec.Builder {
-        val builder = TypeSpec.classBuilder(autoMigration.implTypeName)
+        val builder = TypeSpec.classBuilder(autoMigration.getImplTypeName(dbElement.className))
         builder.apply {
             addOriginatingElement(dbElement)
             superclass(RoomTypeNames.MIGRATION)
