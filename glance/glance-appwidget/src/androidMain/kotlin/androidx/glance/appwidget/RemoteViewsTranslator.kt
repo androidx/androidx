@@ -33,6 +33,8 @@ import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
+import androidx.core.widget.setLinearLayoutGravity
+import androidx.core.widget.setRelativeLayoutGravity
 import androidx.glance.Emittable
 import androidx.glance.GlanceInternalApi
 import androidx.glance.layout.Alignment
@@ -86,7 +88,7 @@ private fun Alignment.toGravity() = horizontal.toGravity() or vertical.toGravity
 private fun translateEmittableBox(context: Context, element: EmittableBox): RemoteViews =
     remoteViews(context, R.layout.box_layout)
         .also { rv ->
-            rv.setInt(R.id.glanceView, "setGravity", element.contentAlignment.toGravity())
+            rv.setRelativeLayoutGravity(R.id.glanceView, element.contentAlignment.toGravity())
             applyModifiers(context, rv, element.modifier)
             rv.setChildren(context, R.id.glanceView, element.children)
         }
@@ -94,9 +96,8 @@ private fun translateEmittableBox(context: Context, element: EmittableBox): Remo
 private fun translateEmittableRow(context: Context, element: EmittableRow): RemoteViews =
     remoteViews(context, R.layout.row_layout)
         .also { rv ->
-            rv.setInt(
+            rv.setLinearLayoutGravity(
                 R.id.glanceView,
-                "setGravity",
                 element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
             )
             applyModifiers(context, rv, element.modifier)
@@ -106,9 +107,8 @@ private fun translateEmittableRow(context: Context, element: EmittableRow): Remo
 private fun translateEmittableColumn(context: Context, element: EmittableColumn): RemoteViews =
     remoteViews(context, R.layout.column_layout)
         .also { rv ->
-            rv.setInt(
+            rv.setLinearLayoutGravity(
                 R.id.glanceView,
-                "setGravity",
                 element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
             )
             applyModifiers(context, rv, element.modifier)
