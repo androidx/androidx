@@ -47,25 +47,39 @@ import androidx.glance.layout.FontWeight
 import androidx.glance.layout.TextDecoration
 import androidx.glance.layout.TextStyle
 
-internal fun translateComposition(context: Context, element: RemoteViewsRoot): RemoteViews {
+internal fun translateComposition(context: Context, appWidgetId: Int, element: RemoteViewsRoot) =
+    translateComposition(TranslationContext(context, appWidgetId), element)
+
+private fun translateComposition(
+    translationContext: TranslationContext,
+    element: RemoteViewsRoot
+): RemoteViews {
     if (element.children.size == 1) {
-        return translateChild(context, element.children[0])
+        return translateChild(translationContext, element.children[0])
     }
-    return translateChild(context, EmittableBox().also { it.children.addAll(element.children) })
+    return translateChild(
+        translationContext,
+        EmittableBox().also { it.children.addAll(element.children) }
+    )
 }
 
-private fun translateChild(context: Context, element: Emittable): RemoteViews {
+private data class TranslationContext(val context: Context, val appWidgetId: Int)
+
+private fun translateChild(
+    translationContext: TranslationContext,
+    element: Emittable
+): RemoteViews {
     return when (element) {
-        is EmittableBox -> translateEmittableBox(context, element)
-        is EmittableRow -> translateEmittableRow(context, element)
-        is EmittableColumn -> translateEmittableColumn(context, element)
-        is EmittableText -> translateEmittableText(context, element)
+        is EmittableBox -> translateEmittableBox(translationContext, element)
+        is EmittableRow -> translateEmittableRow(translationContext, element)
+        is EmittableColumn -> translateEmittableColumn(translationContext, element)
+        is EmittableText -> translateEmittableText(translationContext, element)
         else -> throw IllegalArgumentException("Unknown element type ${element::javaClass}")
     }
 }
 
-private fun remoteViews(context: Context, @LayoutRes layoutId: Int) =
-    RemoteViews(context.packageName, layoutId)
+private fun remoteViews(translationContext: TranslationContext, @LayoutRes layoutId: Int) =
+    RemoteViews(translationContext.context.packageName, layoutId)
 
 private fun Alignment.Horizontal.toGravity(): Int =
     when (this) {
@@ -85,41 +99,53 @@ private fun Alignment.Vertical.toGravity(): Int =
 
 private fun Alignment.toGravity() = horizontal.toGravity() or vertical.toGravity()
 
-private fun translateEmittableBox(context: Context, element: EmittableBox): RemoteViews =
-    remoteViews(context, R.layout.box_layout)
+private fun translateEmittableBox(
+    translationContext: TranslationContext,
+    element: EmittableBox
+): RemoteViews =
+    remoteViews(translationContext, R.layout.box_layout)
         .also { rv ->
             rv.setRelativeLayoutGravity(R.id.glanceView, element.contentAlignment.toGravity())
-            applyModifiers(context, rv, element.modifier)
-            rv.setChildren(context, R.id.glanceView, element.children)
+            applyModifiers(translationContext.context, rv, element.modifier)
+            rv.setChildren(translationContext, R.id.glanceView, element.children)
         }
 
-private fun translateEmittableRow(context: Context, element: EmittableRow): RemoteViews =
-    remoteViews(context, R.layout.row_layout)
+private fun translateEmittableRow(
+    translationContext: TranslationContext,
+    element: EmittableRow
+): RemoteViews =
+    remoteViews(translationContext, R.layout.row_layout)
         .also { rv ->
             rv.setLinearLayoutGravity(
                 R.id.glanceView,
                 element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
             )
-            applyModifiers(context, rv, element.modifier)
-            rv.setChildren(context, R.id.glanceView, element.children)
+            applyModifiers(translationContext.context, rv, element.modifier)
+            rv.setChildren(translationContext, R.id.glanceView, element.children)
         }
 
-private fun translateEmittableColumn(context: Context, element: EmittableColumn): RemoteViews =
-    remoteViews(context, R.layout.column_layout)
+private fun translateEmittableColumn(
+    translationContext: TranslationContext,
+    element: EmittableColumn
+): RemoteViews =
+    remoteViews(translationContext, R.layout.column_layout)
         .also { rv ->
             rv.setLinearLayoutGravity(
                 R.id.glanceView,
                 element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
             )
-            applyModifiers(context, rv, element.modifier)
-            rv.setChildren(context, R.id.glanceView, element.children)
+            applyModifiers(translationContext.context, rv, element.modifier)
+            rv.setChildren(translationContext, R.id.glanceView, element.children)
         }
 
-private fun translateEmittableText(context: Context, element: EmittableText): RemoteViews =
-    remoteViews(context, R.layout.text_layout)
+private fun translateEmittableText(
+    translationContext: TranslationContext,
+    element: EmittableText
+): RemoteViews =
+    remoteViews(translationContext, R.layout.text_layout)
         .also { rv ->
-            rv.setText(context, element.text, element.style)
-            applyModifiers(context, rv, element.modifier)
+            rv.setText(translationContext.context, element.text, element.style)
+            applyModifiers(translationContext.context, rv, element.modifier)
         }
 
 private fun RemoteViews.setText(context: Context, text: String, style: TextStyle?) {
@@ -160,13 +186,13 @@ private fun RemoteViews.setText(context: Context, text: String, style: TextStyle
 // add a view per child, with a stable id if of Android S+. Currently the stable id is the index
 // of the child in the iterable.
 private fun RemoteViews.setChildren(
-    context: Context,
+    translationContext: TranslationContext,
     viewId: Int,
     children: Iterable<Emittable>
 ) {
     removeAllViews(viewId)
     children.forEachIndexed { index, child ->
-        addChildView(viewId, translateChild(context, child), index)
+        addChildView(viewId, translateChild(translationContext, child), index)
     }
 }
 
