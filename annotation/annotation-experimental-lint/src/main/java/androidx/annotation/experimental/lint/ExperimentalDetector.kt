@@ -679,7 +679,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                     </issue>
                 </lint>
                 ```
-                """.trimIndent(),
+                """,
                 category = Category.CORRECTNESS,
                 priority = 4,
                 severity = severity,

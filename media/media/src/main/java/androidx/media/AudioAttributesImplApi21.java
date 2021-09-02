@@ -19,6 +19,7 @@ package androidx.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
 
+import android.annotation.SuppressLint;
 import android.media.AudioAttributes;
 
 import androidx.annotation.NonNull;
@@ -144,6 +145,7 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
 
         @Override
         @NonNull
+        @SuppressLint("WrongConstant")
         public Builder setUsage(int usage) {
             if (usage == AudioAttributes.USAGE_ASSISTANT) {
                 // TODO: shouldn't we keep the origin usage?
