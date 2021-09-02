@@ -167,8 +167,9 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Stable public interface PositionIndicatorState {
-    method public float indicatorPosition();
-    method public float indicatorSize(float scrollableContainerHeight);
+    method public float getPositionFraction();
+    method public float sizeFraction(float scrollableContainerSizePx);
+    property public abstract float positionFraction;
   }
 
   public final class Resources_androidKt {
@@ -366,20 +367,20 @@ package androidx.wear.compose.material {
   }
 
   public final class VignetteKt {
-    method @androidx.compose.runtime.Composable public static void Vignette(int vignetteValue, optional androidx.compose.ui.Modifier modifier);
+    method @androidx.compose.runtime.Composable public static void Vignette(int vignettePosition, optional androidx.compose.ui.Modifier modifier);
   }
 
-  public final inline class VignetteValue {
-    ctor public VignetteValue();
+  public final inline class VignettePosition {
+    ctor public VignettePosition();
   }
 
-  public static final class VignetteValue.Companion {
-    method public int getBoth();
+  public static final class VignettePosition.Companion {
     method public int getBottom();
     method public int getTop();
-    property public final int Both;
+    method public int getTopAndBottom();
     property public final int Bottom;
     property public final int Top;
+    property public final int TopAndBottom;
   }
 
 }
