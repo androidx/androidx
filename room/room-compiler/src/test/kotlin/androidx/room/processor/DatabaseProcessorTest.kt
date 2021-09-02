@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.compileFilesIntoJar
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
@@ -36,6 +37,7 @@ import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
+import com.google.auto.service.processor.AutoServiceProcessor
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
@@ -55,6 +57,8 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URL
+import java.net.URLClassLoader
 
 @RunWith(JUnit4::class)
 class DatabaseProcessorTest {
@@ -1366,6 +1370,71 @@ class DatabaseProcessorTest {
                 )
             }
         }
+    }
+
+    @Test
+    fun differentSchemaResolver() {
+        val tempDirPath = schemaFolder.root.absolutePath
+        val serviceSource = Source.java(
+            "foo.bar.TestResolver",
+            """
+            package foo.bar;
+            import androidx.room.util.SchemaFileResolver;
+            import com.google.auto.service.AutoService;
+            import java.io.File;
+            import java.nio.file.Path;
+            @AutoService(SchemaFileResolver.class)
+            public class TestResolver implements SchemaFileResolver {
+                @Override
+                public File getFile(Path path) {
+                    return Path.of("$tempDirPath").resolve(path).toFile();
+                }
+            }
+            """.trimIndent()
+        )
+        val resolverLib = compileFilesIntoJar(
+            outputDirectory = schemaFolder.root,
+            sources = listOf(serviceSource),
+            annotationProcessors = listOf(AutoServiceProcessor()),
+        )
+        val dbSource = Source.java(
+            "foo.bar.MyDb",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            @Database(entities = {User.class}, version = 1, exportSchema = true)
+            public abstract class MyDb extends RoomDatabase {}
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(dbSource, USER),
+            options = mapOf("room.schemaLocation" to "schemas/")
+        ) { invocation ->
+            val dbAnnotationName = "androidx.room.Database"
+            val roundElements = mapOf(
+                dbAnnotationName to invocation.roundEnv.getElementsAnnotatedWith(dbAnnotationName)
+            )
+            // Temporarily change the current's thread class loader so that the ServiceLocator can
+            // find the compiled TestResolver. It is not enough to pass the compiled jar in the
+            // classpath argument when running processors because the processor classpath is
+            // different from the user classpath and specifically the processor classes are already
+            // loaded.
+            val currentClassLoader = Thread.currentThread().contextClassLoader
+            try {
+                Thread.currentThread().contextClassLoader = URLClassLoader(
+                    arrayOf(URL("file://${resolverLib.absolutePath}")),
+                    currentClassLoader,
+                )
+                DatabaseProcessingStep().process(invocation.processingEnv, roundElements)
+            } finally {
+                Thread.currentThread().contextClassLoader = currentClassLoader
+            }
+        }
+        // Assert schema file is created in a directory different from the room.schemaLocation
+        // verbatim since it was resolved by the compiled TestResolver.
+        assertThat(
+            File(schemaFolder.root, "schemas/foo.bar.MyDb/1.json").exists()
+        ).isTrue()
     }
 
     private fun resolveDatabaseViews(

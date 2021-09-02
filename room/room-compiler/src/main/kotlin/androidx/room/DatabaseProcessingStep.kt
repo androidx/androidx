@@ -24,12 +24,14 @@ import androidx.room.processor.Context
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.processor.MissingTypeException
 import androidx.room.processor.ProcessorErrors
+import androidx.room.util.SchemaFileResolver
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Warning
 import androidx.room.writer.AutoMigrationWriter
 import androidx.room.writer.DaoWriter
 import androidx.room.writer.DatabaseWriter
 import java.io.File
+import java.nio.file.Path
 
 class DatabaseProcessingStep : XProcessingStep {
     override fun process(
@@ -71,13 +73,16 @@ class DatabaseProcessingStep : XProcessingStep {
         databases?.forEach { db ->
             DatabaseWriter(db).write(context.processingEnv)
             if (db.exportSchema) {
-                val schemaOutFolder = context.schemaOutFolder
-                if (schemaOutFolder == null) {
+                val schemaOutFolderPath = context.schemaOutFolderPath
+                if (schemaOutFolderPath == null) {
                     context.logger.w(
                         Warning.MISSING_SCHEMA_LOCATION, db.element,
                         ProcessorErrors.MISSING_SCHEMA_EXPORT_DIRECTORY
                     )
                 } else {
+                    val schemaOutFolder = SchemaFileResolver.RESOLVER.getFile(
+                        Path.of(schemaOutFolderPath)
+                    )
                     if (!schemaOutFolder.exists()) {
                         schemaOutFolder.mkdirs()
                     }
