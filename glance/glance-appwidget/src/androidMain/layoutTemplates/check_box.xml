@@ -14,13 +14,5 @@
   limitations under the License.
   -->
 
-<resources>
-    <id name="checkBoxIcon"/>
-    <id name="checkBoxText"/>
-    <id name="glanceView"/>
-    <id name="glanceListView1"/>
-    <id name="glanceListView2"/>
-    <id name="glanceListView3"/>
-    <id name="relativeLayout"/>
-    <id name="sizeView"/>
-</resources>
+<CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@id/glanceView"/>

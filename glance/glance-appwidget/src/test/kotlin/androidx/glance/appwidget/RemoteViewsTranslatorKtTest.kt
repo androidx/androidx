@@ -31,6 +31,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.RelativeLayout
@@ -40,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.core.view.children
 import androidx.glance.Modifier
 import androidx.glance.appwidget.layout.AndroidRemoteViews
+import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.LazyColumn
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.test.R
@@ -730,6 +732,52 @@ class RemoteViewsTranslatorKtTest {
                 }
             }
         }
+
+    @Test
+    @Config(maxSdk = 30)
+    fun canTranslateCheckbox_pre31_unchecked() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            CheckBox(
+                checked = false,
+                text = "test",
+                textStyle = TextStyle(textDecoration = TextDecoration.Underline),
+            )
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<ViewGroup>(view)
+        val iconView = view.findViewById<ImageView>(R.id.checkBoxIcon)
+        assertThat(iconView.isEnabled).isFalse()
+
+        val textView = view.findViewById<TextView>(R.id.checkBoxText)
+        val textContent = textView.text as SpannedString
+        assertThat(textContent.toString()).isEqualTo("test")
+        assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
+        textContent.checkHasSingleTypedSpan<UnderlineSpan> { }
+    }
+
+    @Test
+    @Config(maxSdk = 30)
+    fun canTranslateCheckbox_pre31_checked() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            CheckBox(
+                checked = true,
+                text = "test checked",
+                textStyle = TextStyle(textDecoration = TextDecoration.LineThrough),
+            )
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<ViewGroup>(view)
+        val iconView = view.findViewById<ImageView>(R.id.checkBoxIcon)
+        assertThat(iconView.isEnabled).isTrue()
+
+        val textView = view.findViewById<TextView>(R.id.checkBoxText)
+        val textContent = textView.text as SpannedString
+        assertThat(textContent.toString()).isEqualTo("test checked")
+        assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
+        textContent.checkHasSingleTypedSpan<StrikethroughSpan> { }
+    }
 
     // Check there is a single span, that it's of the correct type and passes the [check].
     private inline fun <reified T> SpannedString.checkSingleSpan(check: (T) -> Unit) {

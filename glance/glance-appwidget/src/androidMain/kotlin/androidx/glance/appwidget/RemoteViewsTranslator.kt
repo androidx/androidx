@@ -37,6 +37,7 @@ import androidx.core.widget.setLinearLayoutGravity
 import androidx.core.widget.setRelativeLayoutGravity
 import androidx.glance.Emittable
 import androidx.glance.appwidget.layout.EmittableAndroidRemoteViews
+import androidx.glance.appwidget.layout.EmittableCheckBox
 import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyListItem
 import androidx.glance.layout.Alignment
@@ -119,6 +120,7 @@ internal fun translateChild(
         is EmittableAndroidRemoteViews -> {
             translateEmittableAndroidRemoteViews(translationContext, element)
         }
+        is EmittableCheckBox -> translateEmittableCheckBox(translationContext, element)
         else -> throw IllegalArgumentException("Unknown element type ${element::javaClass}")
     }
 }
@@ -265,7 +267,7 @@ private fun translateEmittableAndroidRemoteViews(
     return element.remoteViews
 }
 
-private fun RemoteViews.setText(context: Context, resId: Int, text: String, style: TextStyle?) {
+internal fun RemoteViews.setText(context: Context, resId: Int, text: String, style: TextStyle?) {
     if (style == null) {
         setTextViewText(resId, text)
         return
@@ -273,7 +275,7 @@ private fun RemoteViews.setText(context: Context, resId: Int, text: String, styl
     val content = SpannableString(text)
     val length = content.length
     style.fontSize?.let {
-        setTextViewTextSize(R.id.glanceView, TypedValue.COMPLEX_UNIT_SP, it.value)
+        setTextViewTextSize(resId, TypedValue.COMPLEX_UNIT_SP, it.value)
     }
     val spans = mutableListOf<ParcelableSpan>()
     style.textDecoration?.let {
