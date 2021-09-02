@@ -677,7 +677,7 @@ public class WatchFaceImpl @UiThread constructor(
 
             slotIdToComplicationData?.let {
                 for ((id, complicationData) in it) {
-                    complicationSlotsManager[id]!!.renderer.loadData(complicationData, false)
+                    complicationSlotsManager.setComplicationDataUpdateSync(id, complicationData)
                 }
             }
             val screenShot = renderer.takeScreenshot(
@@ -685,8 +685,8 @@ public class WatchFaceImpl @UiThread constructor(
                 renderParameters
             )
             if (slotIdToComplicationData != null) {
-                for ((id, data) in oldComplicationData) {
-                    complicationSlotsManager[id]!!.renderer.loadData(data, false)
+                for ((id, complicationData) in oldComplicationData) {
+                    complicationSlotsManager.setComplicationDataUpdateSync(id, complicationData)
                 }
             }
             return screenShot
@@ -944,13 +944,8 @@ public class WatchFaceImpl @UiThread constructor(
 
         params.idAndComplicationDatumWireFormats?.let {
             for (idAndData in it) {
-                val complicationSlot = complicationSlotsManager[idAndData.id]
-                require(complicationSlot != null) {
-                    "ComplicationSlot ID ${idAndData.id} is unknown"
-                }
-                complicationSlot.renderer.loadData(
-                    idAndData.complicationData.toApiComplicationData(),
-                    false
+                complicationSlotsManager.setComplicationDataUpdateSync(
+                    idAndData.id, idAndData.complicationData.toApiComplicationData()
                 )
             }
         }
@@ -969,8 +964,8 @@ public class WatchFaceImpl @UiThread constructor(
         }
 
         if (params.idAndComplicationDatumWireFormats != null) {
-            for ((id, data) in oldComplicationData) {
-                complicationSlotsManager[id]!!.renderer.loadData(data, false)
+            for ((id, complicationData) in oldComplicationData) {
+                complicationSlotsManager.setComplicationDataUpdateSync(id, complicationData)
             }
         }
 
@@ -1004,9 +999,9 @@ public class WatchFaceImpl @UiThread constructor(
             val screenshotComplicationData = params.complicationData
             if (screenshotComplicationData != null) {
                 prevData = it.renderer.getData()
-                it.renderer.loadData(
-                    screenshotComplicationData.toApiComplicationData(),
-                    false
+                complicationSlotsManager.setComplicationDataUpdateSync(
+                    params.complicationSlotId,
+                    screenshotComplicationData.toApiComplicationData()
                 )
             }
 
@@ -1020,7 +1015,10 @@ public class WatchFaceImpl @UiThread constructor(
 
             // Restore previous ComplicationData & style if required.
             if (prevData != null) {
-                it.renderer.loadData(prevData, false)
+                complicationSlotsManager.setComplicationDataUpdateSync(
+                    params.complicationSlotId,
+                    prevData
+                )
             }
 
             if (newStyle != null) {

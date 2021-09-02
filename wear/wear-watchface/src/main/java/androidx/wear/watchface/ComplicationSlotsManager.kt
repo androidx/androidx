@@ -266,6 +266,16 @@ public class ComplicationSlotsManager(
             data
     }
 
+    /**
+     * For use by screen shot code which will reset the data afterwards, hence dirty bit not set.
+     */
+    internal fun setComplicationDataUpdateSync(complicationSlotId: Int, data: ComplicationData) {
+        val complication = complicationSlots[complicationSlotId] ?: return
+        complication.renderer.loadData(data, false)
+        (complication.complicationData as MutableObservableWatchData<ComplicationData>).value =
+            data
+    }
+
     @UiThread
     internal fun clearComplicationData() {
         for ((_, complication) in complicationSlots) {

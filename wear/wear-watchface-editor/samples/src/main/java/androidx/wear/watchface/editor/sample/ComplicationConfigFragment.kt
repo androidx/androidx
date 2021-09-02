@@ -20,17 +20,14 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
-import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
-import androidx.wear.complications.ComplicationDataSourceInfo
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
@@ -38,6 +35,8 @@ import androidx.wear.watchface.RenderParameters.HighlightLayer
 import androidx.wear.watchface.editor.ChosenComplicationDataSource
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.widget.SwipeDismissFrameLayout
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -82,20 +81,16 @@ internal class ConfigView(
     private val watchFaceConfigActivity: WatchFaceConfigActivity
 ) : SwipeDismissFrameLayout(context) {
 
-    companion object {
-        private const val TAG = "ConfigView"
-    }
-
-    private lateinit var previewComplicationData: Map<Int, ComplicationData>
+    private lateinit var previewComplicationData: StateFlow<Map<Int, ComplicationData>>
     private val drawRect = Rect()
 
     // One invisible button per complication.
     private val complicationButtons =
-        watchFaceConfigActivity.editorSession.complicationSlotsState.mapValues { stateEntry ->
+        watchFaceConfigActivity.editorSession.complicationSlotsState.value.mapValues { entry ->
             // TODO(alexclarke): This button is a Rect which makes the tap animation look bad.
-            if (stateEntry.value.fixedComplicationDataSource ||
-                !stateEntry.value.isEnabled ||
-                stateEntry.key == watchFaceConfigActivity.editorSession.backgroundComplicationSlotId
+            if (entry.value.fixedComplicationDataSource ||
+                !entry.value.isEnabled ||
+                entry.key == watchFaceConfigActivity.editorSession.backgroundComplicationSlotId
             ) {
                 // Do not create a button for fixed complicationSlots, disabled complicationSlots,
                 // or background complicationSlots.
@@ -112,9 +107,15 @@ internal class ConfigView(
                             )
                         }.resourceId
                     )
-                    setOnClickListener { onComplicationButtonClicked(stateEntry.key) }
+                    setOnClickListener { onComplicationButtonClicked(entry.key) }
                     setOnLongClickListener {
-                        TooltipApi26.updateTooltip(it, watchFaceConfigActivity, stateEntry.key)
+                        watchFaceConfigActivity.coroutineScope.launch {
+                            val dataSourceInfo =
+                                watchFaceConfigActivity.editorSession
+                                    .getComplicationsDataSourceInfo().value[entry.key]
+                            it.tooltipText =
+                                dataSourceInfo?.name ?: "Empty complication data source"
+                        }
                         // Do not consume the long click so that the tooltip is shown by the
                         // default handler.
                         false
@@ -129,14 +130,22 @@ internal class ConfigView(
             previewComplicationData =
                 watchFaceConfigActivity.editorSession.getComplicationsPreviewData()
             setWillNotDraw(false)
+            previewComplicationData.collect {
+                requestLayout()
+                invalidate()
+            }
         }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
-        for ((id, view) in complicationButtons) {
-            val rect = watchFaceConfigActivity.editorSession.complicationSlotsState[id]!!.bounds
-            view?.layout(
+        for ((id, button) in complicationButtons) {
+            val rect =
+                watchFaceConfigActivity.editorSession.complicationSlotsState.value[id]!!.bounds
+            button?.width = rect.width()
+            button?.height = rect.width()
+            button?.layoutParams = LayoutParams(rect.width(), rect.height())
+            button?.layout(
                 rect.left,
                 rect.top,
                 rect.right,
@@ -152,28 +161,7 @@ internal class ConfigView(
                     complicationSlotId
                 )
             updateUi(chosenComplicationDataSource)
-            // Redraw after the complication data source chooser has run.
-            invalidate()
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private object TooltipApi26 {
-        fun updateTooltip(
-            button: View,
-            watchFaceConfigActivity: WatchFaceConfigActivity,
-            complicationSlotId: Int
-        ) {
-            watchFaceConfigActivity.coroutineScope.launch {
-                val dataSourceInfo =
-                    watchFaceConfigActivity.editorSession
-                        .getComplicationsDataSourceInfo()[complicationSlotId]
-                button.tooltipText = getDataSourceInfoToast(dataSourceInfo)
-            }
-        }
-
-        private fun getDataSourceInfoToast(dataSourceInfo: ComplicationDataSourceInfo?): String =
-            dataSourceInfo?.name ?: "Empty complication data source"
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
@@ -193,7 +181,7 @@ internal class ConfigView(
                 )
             ),
             editingSession.previewReferenceInstant,
-            previewComplicationData
+            previewComplicationData.value
         )
         canvas.drawBitmap(bitmap, drawRect, drawRect, null)
     }
