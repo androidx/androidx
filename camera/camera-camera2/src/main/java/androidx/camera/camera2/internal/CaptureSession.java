@@ -53,7 +53,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -276,7 +276,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     // Some DeferrableSurfaces might actually point to the same Surface. And we
                     // need to pass the unique Surface list to createCaptureSession.
                     List<Surface> uniqueConfiguredSurface = new ArrayList<>(
-                            new HashSet<>(configuredSurfaces));
+                            new LinkedHashSet<>(configuredSurfaces));
 
                     mState = State.OPENING;
                     Logger.d(TAG, "Opening capture session.");

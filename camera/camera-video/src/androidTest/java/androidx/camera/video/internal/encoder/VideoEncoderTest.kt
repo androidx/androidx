@@ -41,8 +41,8 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
-import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
@@ -111,27 +111,27 @@ class VideoEncoderTest {
         val cameraXConfig: CameraXConfig = Camera2Config.defaultConfig()
         CameraX.initialize(context, cameraXConfig).get()
 
+        camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
+
         mainExecutor = ContextCompat.getMainExecutor(context)
         encoderExecutor = CameraXExecutors.ioExecutor()
 
-        previewForVideoEncoder = Preview.Builder().build()
         // Binding one more preview use case to create a surface texture, this is for testing on
         // Pixel API 26, it needs a surface texture at least.
         preview = Preview.Builder().build()
-
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context,
-            cameraSelector,
-            previewForVideoEncoder,
-            preview
-        )
-
-        initVideoEncoder()
-
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider(
                 getSurfaceProvider()
             )
+        }
+
+        previewForVideoEncoder = Preview.Builder().build()
+        initVideoEncoder()
+
+        instrumentation.runOnMainSync {
+            // Must put preview before previewForVideoEncoder while addUseCases, otherwise an issue
+            // on Samsung device will occur. See b/196755459.
+            camera.addUseCases(listOf(preview, previewForVideoEncoder))
         }
     }
 
