@@ -27,7 +27,7 @@ import androidx.compose.ui.layout.ContentScale
  * Possible combinations for vignette state.
  */
 @Suppress("INLINE_CLASS_DEPRECATED")
-public inline class VignetteValue constructor(private val key: Int) {
+public inline class VignettePosition constructor(private val key: Int) {
     internal fun drawTop(): Boolean {
         return when (key) {
             1 -> false
@@ -50,17 +50,17 @@ public inline class VignetteValue constructor(private val key: Int) {
         /**
          * Only the top part of the vignette is displayed.
          */
-        val Top = VignetteValue(0)
+        val Top = VignettePosition(0)
 
         /**
          * Only the bottom part of the vignette is displayed.
          */
-        val Bottom = VignetteValue(1)
+        val Bottom = VignettePosition(1)
 
         /**
          * Both the top and bottom of the vignette is displayed.
          */
-        val Both = VignetteValue(2)
+        val TopAndBottom = VignettePosition(2)
     }
 
     override fun toString(): String {
@@ -84,17 +84,17 @@ public inline class VignetteValue constructor(private val key: Int) {
  *
  * @sample androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
  *
- * @param vignetteValue whether to draw top and/or bottom images for this [Vignette]
+ * @param vignettePosition whether to draw top and/or bottom images for this [Vignette]
  * @param modifier optional Modifier for the root of the [Vignette]
  */
 @Composable
 public fun Vignette(
-    vignetteValue: VignetteValue,
+    vignettePosition: VignettePosition,
     modifier: Modifier = Modifier,
 ) {
 
     Box(modifier = modifier.fillMaxSize()) {
-        if (vignetteValue.drawTop()) {
+        if (vignettePosition.drawTop()) {
             Image(
                 painter = imageResource(
                     if (isRoundDevice()) "circular_vignette_top"
@@ -105,7 +105,7 @@ public fun Vignette(
                 modifier = Modifier.align(Alignment.TopCenter),
             )
         }
-        if (vignetteValue.drawBottom()) {
+        if (vignettePosition.drawBottom()) {
             Image(
                 painter = imageResource(
                     if (isRoundDevice()) "circular_vignette_bottom"

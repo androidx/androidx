@@ -31,7 +31,7 @@ import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.Vignette
-import androidx.wear.compose.material.VignetteValue
+import androidx.wear.compose.material.VignettePosition
 import androidx.wear.compose.material.rememberScalingLazyListState
 
 @SuppressLint("UnrememberedMutableState")
@@ -41,7 +41,7 @@ import androidx.wear.compose.material.rememberScalingLazyListState
 fun SimpleScaffoldWithScrollIndicator() {
 
     val listState = rememberScalingLazyListState()
-    val vignetteState = mutableStateOf(VignetteValue.Both)
+    val vignetteState = mutableStateOf(VignettePosition.TopAndBottom)
     val showVignette = mutableStateOf(true)
 
     Scaffold(
@@ -53,7 +53,7 @@ fun SimpleScaffoldWithScrollIndicator() {
         },
         vignette = {
             if (showVignette.value) {
-                Vignette(vignetteValue = vignetteState.value)
+                Vignette(vignettePosition = vignetteState.value)
             }
         },
         timeText = {
@@ -75,7 +75,7 @@ fun SimpleScaffoldWithScrollIndicator() {
                 Chip(
                     onClick = {
                         showVignette.value = true
-                        vignetteState.value = VignetteValue.Top
+                        vignetteState.value = VignettePosition.Top
                     },
                     label = { Text("Top Vignette only") },
                     colors = ChipDefaults.secondaryChipColors()
@@ -85,7 +85,7 @@ fun SimpleScaffoldWithScrollIndicator() {
                 Chip(
                     onClick = {
                         showVignette.value = true
-                        vignetteState.value = VignetteValue.Bottom
+                        vignetteState.value = VignettePosition.Bottom
                     },
                     label = { Text("Bottom Vignette only") },
                     colors = ChipDefaults.secondaryChipColors()
@@ -95,7 +95,7 @@ fun SimpleScaffoldWithScrollIndicator() {
                 Chip(
                     onClick = {
                         showVignette.value = true
-                        vignetteState.value = VignetteValue.Both
+                        vignetteState.value = VignettePosition.TopAndBottom
                     },
                     label = { Text("Top and Bottom Vignette") },
                     colors = ChipDefaults.secondaryChipColors()
