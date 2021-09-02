@@ -27,6 +27,7 @@ import androidx.room.ext.isNotByte
 import androidx.room.ext.isNotKotlinUnit
 import androidx.room.ext.isNotVoid
 import androidx.room.ext.isNotVoidObject
+import androidx.room.ext.isUUID
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
@@ -97,6 +98,7 @@ import androidx.room.solver.types.PrimitiveColumnTypeAdapter
 import androidx.room.solver.types.StatementValueBinder
 import androidx.room.solver.types.StringColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
+import androidx.room.solver.types.UuidColumnTypeAdapter
 import androidx.room.vo.MapInfo
 import androidx.room.vo.ShortcutQueryParameter
 import com.google.common.annotations.VisibleForTesting
@@ -241,9 +243,9 @@ class TypeAdapterStore private constructor(
         if (adapterByTypeConverter != null) {
             return adapterByTypeConverter
         }
-        val enumAdapter = createEnumTypeAdapter(input)
-        if (enumAdapter != null) {
-            return enumAdapter
+        val defaultAdapter = createDefaultTypeAdapter(input)
+        if (defaultAdapter != null) {
+            return defaultAdapter
         }
         return null
     }
@@ -267,7 +269,7 @@ class TypeAdapterStore private constructor(
         if (output.isError()) {
             return null
         }
-        val adapter = findColumnTypeAdapter(output, affinity, skipEnumConverter = true)
+        val adapter = findColumnTypeAdapter(output, affinity, skipDefaultConverter = true)
         if (adapter != null) {
             // two way is better
             return adapter
@@ -288,9 +290,9 @@ class TypeAdapterStore private constructor(
             return typeConverterAdapter
         }
 
-        val enumAdapter = createEnumTypeAdapter(output)
-        if (enumAdapter != null) {
-            return enumAdapter
+        val defaultAdapter = createDefaultTypeAdapter(output)
+        if (defaultAdapter != null) {
+            return defaultAdapter
         }
 
         return null
@@ -311,7 +313,7 @@ class TypeAdapterStore private constructor(
     fun findColumnTypeAdapter(
         out: XType,
         affinity: SQLTypeAffinity?,
-        skipEnumConverter: Boolean
+        skipDefaultConverter: Boolean
     ): ColumnTypeAdapter? {
         if (out.isError()) {
             return null
@@ -336,21 +338,23 @@ class TypeAdapterStore private constructor(
         if (adapterByTypeConverter != null) {
             return adapterByTypeConverter
         }
-        if (!skipEnumConverter) {
-            val enumAdapter = createEnumTypeAdapter(out)
-            if (enumAdapter != null) {
-                return enumAdapter
+
+        if (!skipDefaultConverter) {
+            val defaultAdapter = createDefaultTypeAdapter(out)
+            if (defaultAdapter != null) {
+                return defaultAdapter
             }
         }
         return null
     }
 
-    private fun createEnumTypeAdapter(type: XType): ColumnTypeAdapter? {
-        val typeElement = type.typeElement ?: return null
-        if (typeElement.isEnum()) {
-            return EnumColumnTypeAdapter(typeElement)
+    private fun createDefaultTypeAdapter(type: XType): ColumnTypeAdapter? {
+        val typeElement = type.typeElement
+        return when {
+            typeElement?.isEnum() == true -> EnumColumnTypeAdapter(typeElement)
+            type.isUUID() -> UuidColumnTypeAdapter(type)
+            else -> null
         }
-        return null
     }
 
     private fun findDirectAdapterFor(

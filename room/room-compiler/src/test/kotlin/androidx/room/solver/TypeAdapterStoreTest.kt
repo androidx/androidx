@@ -36,6 +36,7 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
 import androidx.room.ext.implementsEqualsAndHashcode
+import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
 import androidx.room.processor.CustomConverterProcessor
@@ -60,6 +61,7 @@ import androidx.room.solver.types.EnumColumnTypeAdapter
 import androidx.room.solver.types.PrimitiveColumnTypeAdapter
 import androidx.room.solver.types.SingleStatementTypeConverter
 import androidx.room.solver.types.TypeConverter
+import androidx.room.solver.types.UuidColumnTypeAdapter
 import androidx.room.testing.context
 import androidx.room.vo.ReadQueryMethod
 import com.google.common.truth.Truth.assertThat
@@ -74,6 +76,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import testCodeGenScope
+import java.util.UUID
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -145,7 +148,7 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(
                 primitiveType,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, notNullValue())
         }
@@ -164,7 +167,7 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(
                 boolean,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -199,9 +202,27 @@ class TypeAdapterStoreTest {
             val enum = invocation
                 .processingEnv
                 .requireType("foo.bar.Fruit")
-            val adapter = store.findColumnTypeAdapter(enum, null, skipEnumConverter = false)
+            val adapter = store.findColumnTypeAdapter(enum, null, skipDefaultConverter = false)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(EnumColumnTypeAdapter::class.java))
+        }
+    }
+
+    @Test
+    fun testJavaUtilUUIDCompilesWithoutError() {
+        runProcessorTest { invocation ->
+            val store = TypeAdapterStore.create(Context(invocation.processingEnv))
+            val uuid = invocation
+                .processingEnv
+                .requireType(UUID::class.typeName)
+            val adapter = store.findColumnTypeAdapter(
+                out = uuid,
+                affinity = null,
+                skipDefaultConverter = false
+            )
+
+            assertThat(adapter).isNotNull()
+            assertThat(adapter).isInstanceOf(UuidColumnTypeAdapter::class.java)
         }
     }
 
@@ -213,7 +234,7 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(
                 booleanType,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -286,7 +307,7 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(
                 pointType,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -362,7 +383,7 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(
                 binders[0].from,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, notNullValue())
 
@@ -399,7 +420,7 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(
                 binders[0].from,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, nullValue())
 
