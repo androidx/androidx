@@ -3,7 +3,7 @@ package androidx.window.extensions {
 
   public class WindowLibraryInfo {
     method public int getApiLevel();
-    method public static androidx.window.extensions.WindowLibraryInfo getInstance();
+    method public static androidx.window.extensions.WindowLibraryInfo getInstance(android.content.Context);
   }
 
 }
@@ -27,7 +27,7 @@ package androidx.window.extensions.layout {
 
   public class WindowLayoutComponent {
     method public void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
-    method public static androidx.window.extensions.layout.WindowLayoutComponent? getInstance();
+    method public static androidx.window.extensions.layout.WindowLayoutComponent? getInstance(android.content.Context);
     method public void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
   }
 
