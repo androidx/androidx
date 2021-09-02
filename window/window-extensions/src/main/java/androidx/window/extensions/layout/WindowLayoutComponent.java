@@ -19,6 +19,7 @@ package androidx.window.extensions.layout;
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.function.Consumer;
 
@@ -45,7 +46,7 @@ public class WindowLayoutComponent {
      * @param activity hosting a {@link android.view.Window}
      * @param consumer interested in receiving updates to {@link WindowLayoutInfo}
      */
-    public static void addWindowLayoutInfoListener(@NonNull Activity activity,
+    public void addWindowLayoutInfoListener(@NonNull Activity activity,
             @NonNull Consumer<WindowLayoutInfo> consumer) {
         throw new UnsupportedOperationException("Stub, replace with implementation.");
     }
@@ -54,8 +55,23 @@ public class WindowLayoutComponent {
      * Removes a listener no longer interested in receiving updates.
      * @param consumer no longer interested in receiving updates to {@link WindowLayoutInfo}
      */
-    public static void removeWindowLayoutInfoListener(
+    public void removeWindowLayoutInfoListener(
             @NonNull Consumer<WindowLayoutInfo> consumer) {
+        throw new UnsupportedOperationException("Stub, replace with implementation.");
+    }
+
+    /**
+     * Returns the OEM implementation of {@link WindowLayoutComponent} if it is supported on the
+     * device. The implementation must match the API level reported in
+     * {@link androidx.window.extensions.WindowLibraryInfo}. A {@code null} value may be returned
+     * if the device does not support {@link WindowLayoutInfo}. If {@code null} is returned the
+     * core library will ignore all features related to {@link WindowLayoutComponent}. Currently
+     * the developer will receive a single callback with empty data where possible. For
+     * synchronous methods we will return a default value or {@code null}.
+     * @return the OEM implementation of {@link WindowLayoutComponent}
+     */
+    @Nullable
+    public static WindowLayoutComponent getInstance() {
         throw new UnsupportedOperationException("Stub, replace with implementation.");
     }
 }
