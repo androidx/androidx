@@ -2838,18 +2838,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     void absorbGlows(int velocityX, int velocityY) {
         if (velocityX < 0) {
             ensureLeftGlow();
-            mLeftGlow.onAbsorb(-velocityX);
+            if (mLeftGlow.isFinished()) {
+                mLeftGlow.onAbsorb(-velocityX);
+            }
         } else if (velocityX > 0) {
             ensureRightGlow();
-            mRightGlow.onAbsorb(velocityX);
+            if (mRightGlow.isFinished()) {
+                mRightGlow.onAbsorb(velocityX);
+            }
         }
 
         if (velocityY < 0) {
             ensureTopGlow();
-            mTopGlow.onAbsorb(-velocityY);
+            if (mTopGlow.isFinished()) {
+                mTopGlow.onAbsorb(-velocityY);
+            }
         } else if (velocityY > 0) {
             ensureBottomGlow();
-            mBottomGlow.onAbsorb(velocityY);
+            if (mBottomGlow.isFinished()) {
+                mBottomGlow.onAbsorb(velocityY);
+            }
         }
 
         if (velocityX != 0 || velocityY != 0) {
