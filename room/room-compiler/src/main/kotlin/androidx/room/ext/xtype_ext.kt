@@ -57,6 +57,11 @@ fun XType.isNotNone() = !isNone()
 fun XType.isNotByte() = !isByte()
 
 /**
+ * Returns `true` if this represents a `UUID` type.
+ */
+fun XType.isUUID(): Boolean = typeName == CommonTypeNames.UUID
+
+/**
  * Checks if the class of the provided type has the equals() and hashCode() methods declared.
  *
  * Certain Room types and database primitive types are considered to implements equals and
