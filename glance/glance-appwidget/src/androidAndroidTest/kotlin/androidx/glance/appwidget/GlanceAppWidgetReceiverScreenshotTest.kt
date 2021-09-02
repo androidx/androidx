@@ -53,6 +53,6 @@ class GlanceAppWidgetReceiverScreenshotTest {
 
         mHostRule.startHost()
 
-        mScreenshotRule.checkScreenshot(mHostRule.hostView, "simpleAppWidget")
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "simpleAppWidget")
     }
 }
