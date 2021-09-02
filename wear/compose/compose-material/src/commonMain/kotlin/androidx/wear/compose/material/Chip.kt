@@ -267,6 +267,9 @@ public fun Chip(
  * default height of [ChipDefaults.CompactChipHeight] and the default width of
  * [ChipDefaults.IconOnlyCompactChipWidth]
  *
+ * If neither icon nor label is provided then the chip will displayed like an icon only chip but
+ * with no contents and [ChipColors.background()] color.
+ *
  * The [CompactChip] can have different styles with configurable content colors, background colors
  * including gradients, these are provided by [ChipColors] implementations.
  *
