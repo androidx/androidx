@@ -60,6 +60,8 @@ const val CAMERA_ID = "0"
 const val PREVIEW_OUTPUT_CONFIG_ID = 1
 const val CAPTURE_OUTPUT_CONFIG_ID = 2
 const val INVALID_OUTPUT_CONFIG_ID = 99999
+const val ORIENTATION_1 = 90
+const val ORIENTATION_2 = 270
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -73,7 +75,9 @@ class Camera2RequestProcessorTest {
     private lateinit var mainThreadExecutor: Executor
     private lateinit var previewSurface: SessionProcessorSurface
     private lateinit var captureSurface: SessionProcessorSurface
-    private val captureImageRetrieved = CompletableDeferred<Unit>()
+    private val captureImagesRetrieved =
+        listOf(CompletableDeferred<Unit>(), CompletableDeferred<Unit>())
+    private var numOfCapturedImages = 0
     private val previewImageRetrieved = CompletableDeferred<Unit>()
 
     private fun getHardwareLevel(cameraId: String): Int {
@@ -118,7 +122,17 @@ class Camera2RequestProcessorTest {
 
         // Capture Surface
         val imageReader = ImageReader.newInstance(640, 480, ImageFormat.JPEG, 2)
-        imageReader.setOnImageAvailableListener({ captureImageRetrieved.complete(Unit) }, handler)
+        imageReader.setOnImageAvailableListener(
+            {
+                if (numOfCapturedImages <= 1) {
+                    captureImagesRetrieved[numOfCapturedImages].complete(Unit)
+                    numOfCapturedImages++
+                }
+                val image = imageReader.acquireNextImage()
+                image.close()
+            },
+            handler
+        )
         captureSurface = SessionProcessorSurface(imageReader.surface, CAPTURE_OUTPUT_CONFIG_ID)
         captureSurface.terminationFuture.addListener(
             {
@@ -163,8 +177,8 @@ class Camera2RequestProcessorTest {
             setParameters(
                 CaptureRequestOptions.Builder().apply {
                     setCaptureRequestOption(
-                        CaptureRequest.CONTROL_CAPTURE_INTENT,
-                        CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW
+                        CaptureRequest.JPEG_ORIENTATION,
+                        ORIENTATION_1
                     )
                 }.build()
             )
@@ -180,11 +194,14 @@ class Camera2RequestProcessorTest {
         withTimeout(5000) {
             val (captureResult, receivedRequest) = callbackToVerify.awaitCaptureResults()[0]
             val camera2CaptureResult =
-                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult)
-            assertThat(camera2CaptureResult!!.get(CaptureResult.CONTROL_CAPTURE_INTENT))
-                .isEqualTo(CaptureResult.CONTROL_CAPTURE_INTENT_PREVIEW)
+                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult)!!
+            assertThat(camera2CaptureResult.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
+                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
+            assertThat(camera2CaptureResult.request.get(CaptureRequest.JPEG_ORIENTATION))
+                .isEqualTo(ORIENTATION_1)
+
             assertThat(receivedRequest).isSameInstanceAs(request)
-            captureImageRetrieved.await()
+            captureImagesRetrieved[0].await()
             assertThat(callbackToVerify.awaitCaptureSequenceId()).isEqualTo(sequenceId)
         }
     }
@@ -275,20 +292,20 @@ class Camera2RequestProcessorTest {
             setParameters(
                 CaptureRequestOptions.Builder().apply {
                     setCaptureRequestOption(
-                        CaptureRequest.CONTROL_CAPTURE_INTENT,
-                        CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW
+                        CaptureRequest.JPEG_ORIENTATION,
+                        ORIENTATION_1
                     )
                 }.build()
             )
         }.build()
         val request2 = RequestProcessorRequest.Builder().apply {
-            addTargetOutputConfigId(PREVIEW_OUTPUT_CONFIG_ID)
+            addTargetOutputConfigId(CAPTURE_OUTPUT_CONFIG_ID)
             setTemplateId(CameraDevice.TEMPLATE_PREVIEW)
             setParameters(
                 CaptureRequestOptions.Builder().apply {
                     setCaptureRequestOption(
-                        CaptureRequest.CONTROL_CAPTURE_INTENT,
-                        CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE
+                        CaptureRequest.JPEG_ORIENTATION,
+                        ORIENTATION_2
                     )
                 }.build()
             )
@@ -306,19 +323,23 @@ class Camera2RequestProcessorTest {
             val captureResults = callbackToVerify.awaitCaptureResults()
             val (captureResult1, receivedRequest1) = captureResults[0]
             val (captureResult2, receivedRequest2) = captureResults[1]
-            captureImageRetrieved.await()
-            previewImageRetrieved.await()
+            captureImagesRetrieved[0].await()
+            captureImagesRetrieved[1].await()
 
             val camera2CaptureResult1 =
-                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult1)
-            assertThat(camera2CaptureResult1!!.get(CaptureResult.CONTROL_CAPTURE_INTENT))
-                .isEqualTo(CaptureResult.CONTROL_CAPTURE_INTENT_PREVIEW)
+                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult1)!!
+            assertThat(camera2CaptureResult1.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
+                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
+            assertThat(camera2CaptureResult1.request.get(CaptureRequest.JPEG_ORIENTATION))
+                .isEqualTo(ORIENTATION_1)
             assertThat(receivedRequest1).isSameInstanceAs(request1)
 
             val camera2CaptureResult2 =
-                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult2)
-            assertThat(camera2CaptureResult2!!.get(CaptureResult.CONTROL_CAPTURE_INTENT))
-                .isEqualTo(CaptureResult.CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
+                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult2)!!
+            assertThat(camera2CaptureResult2.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
+                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW)
+            assertThat(camera2CaptureResult2.request.get(CaptureRequest.JPEG_ORIENTATION))
+                .isEqualTo(ORIENTATION_2)
             assertThat(receivedRequest2).isSameInstanceAs(request2)
 
             assertThat(callbackToVerify.awaitCaptureSequenceId()).isEqualTo(sequenceId)
@@ -349,8 +370,8 @@ class Camera2RequestProcessorTest {
             setParameters(
                 CaptureRequestOptions.Builder().apply {
                     setCaptureRequestOption(
-                        CaptureRequest.CONTROL_CAPTURE_INTENT,
-                        CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE
+                        CaptureRequest.JPEG_ORIENTATION,
+                        ORIENTATION_1
                     )
                 }.build()
             )
@@ -368,9 +389,11 @@ class Camera2RequestProcessorTest {
             val (captureResult, receivedRequest) = callbackToVerify.awaitCaptureResults()[0]
             previewImageRetrieved.await()
             val camera2CaptureResult =
-                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult)
-            assertThat(camera2CaptureResult!!.get(CaptureResult.CONTROL_CAPTURE_INTENT))
-                .isEqualTo(CaptureResult.CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
+                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult)!!
+            assertThat(camera2CaptureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
+                .isEqualTo(CaptureResult.CONTROL_CAPTURE_INTENT_PREVIEW)
+            assertThat(camera2CaptureResult.get(CaptureResult.JPEG_ORIENTATION))
+                .isEqualTo(ORIENTATION_1)
             assertThat(receivedRequest).isSameInstanceAs(request)
 
             // Repeating request needs to be stopped to trigger onCaptureSequenceCompleted.
