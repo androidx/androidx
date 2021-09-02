@@ -46,6 +46,17 @@
     </issue>
 
     <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Synchronized"
+        errorLine2="    ^">
+        <location
+            file="integration-tests/src/main/java/androidx/SynchronizedMethodKotlin.kt"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
         id="IdeaSuppression"
         message="Uses IntelliJ-specific suppression, should use `@SuppressWarnings(&quot;deprecation&quot;)`"
         errorLine1="        //noinspection deprecation"
