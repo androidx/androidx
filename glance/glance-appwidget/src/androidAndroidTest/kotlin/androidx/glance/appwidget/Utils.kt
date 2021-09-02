@@ -16,9 +16,16 @@
 
 package androidx.glance.appwidget
 
+import android.appwidget.AppWidgetManager
+import android.os.Build
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
+import androidx.glance.unit.DpSize
+import androidx.glance.unit.max
+import androidx.glance.unit.min
+import androidx.glance.unit.toSizeF
 
 inline fun <reified T : View> View.findChild(noinline pred: (T) -> Boolean) =
     findChild(pred, T::class.java)
@@ -39,4 +46,26 @@ fun <T : View> View.findChild(predicate: (T) -> Boolean, klass: Class<T>): T? {
         return null
     }
     return children.mapNotNull { it.findChild(predicate, klass) }.firstOrNull()
+}
+
+internal inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)
+
+internal fun optionsBundleOf(vararg sizes: DpSize) = optionsBundleOf(sizes.toList())
+
+internal fun optionsBundleOf(sizes: List<DpSize>): Bundle {
+    require(sizes.isNotEmpty()) { "There must be at least one size" }
+    val (minSize, maxSize) = sizes.fold(sizes[0] to sizes[0]) { acc, s ->
+        DpSize(min(acc.first.width, s.width), min(acc.first.height, s.height)) to
+            DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
+    }
+    return Bundle().apply {
+        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minSize.width.value.toInt())
+        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minSize.height.value.toInt())
+        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxSize.width.value.toInt())
+        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, maxSize.height.value.toInt())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val sizeList = sizes.map { it.toSizeF() }.toArrayList()
+            putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, sizeList)
+        }
+    }
 }

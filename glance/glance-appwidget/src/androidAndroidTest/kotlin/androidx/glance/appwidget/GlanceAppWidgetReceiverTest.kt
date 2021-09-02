@@ -17,16 +17,20 @@
 package androidx.glance.appwidget
 
 import android.widget.TextView
+import androidx.glance.LocalSize
 import androidx.glance.layout.FontStyle
 import androidx.glance.layout.FontWeight
 import androidx.glance.layout.Text
 import androidx.glance.layout.TextDecoration
 import androidx.glance.layout.TextStyle
+import androidx.glance.unit.DpSize
+import androidx.glance.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertIs
 
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
@@ -52,6 +56,80 @@ class GlanceAppWidgetReceiverTest {
         mHostRule.onHostView { hostView ->
             assertThat(hostView.findChild<TextView> { it.text.toString() == "text" })
                 .isNotNull()
+        }
+    }
+
+    @Test
+    fun createExactAppWidget() {
+        TestGlanceAppWidget.sizeMode = SizeMode.Exact
+        TestGlanceAppWidget.uiDefinition = {
+            val size = LocalSize.current
+            Text("size = ${size.width} x ${size.height}")
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.setPortraitOrientation()
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val child = hostView.getChildAt(0)
+            assertIs<TextView>(child)
+            assertThat(child.text).isEqualTo("size = 200.0.dp x 300.0.dp")
+        }
+
+        mHostRule.setLandscapeOrientation()
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val child = hostView.getChildAt(0)
+            assertIs<TextView>(child)
+            assertThat(child.text).isEqualTo("size = 300.0.dp x 200.0.dp")
+        }
+    }
+
+    @Test
+    fun createResponsiveAppWidget() {
+        TestGlanceAppWidget.sizeMode =
+            SizeMode.Responsive(DpSize(100.dp, 150.dp), DpSize(250.dp, 150.dp))
+
+        TestGlanceAppWidget.uiDefinition = {
+            val size = LocalSize.current
+            Text("size = ${size.width} x ${size.height}")
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.setPortraitOrientation()
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val child = hostView.getChildAt(0)
+            assertIs<TextView>(child)
+            assertThat(child.text).isEqualTo("size = 100.0.dp x 150.0.dp")
+        }
+
+        mHostRule.setLandscapeOrientation()
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val child = hostView.getChildAt(0)
+            assertIs<TextView>(child)
+            assertThat(child.text).isEqualTo("size = 250.0.dp x 150.0.dp")
+        }
+
+        mHostRule.setSizes(DpSize(50.dp, 100.dp), DpSize(100.dp, 50.dp))
+
+        mHostRule.setPortraitOrientation()
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val child = hostView.getChildAt(0)
+            assertIs<TextView>(child)
+            assertThat(child.text).isEqualTo("size = 100.0.dp x 150.0.dp")
+        }
+
+        mHostRule.setLandscapeOrientation()
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val child = hostView.getChildAt(0)
+            assertIs<TextView>(child)
+            assertThat(child.text).isEqualTo("size = 100.0.dp x 150.0.dp")
         }
     }
 }

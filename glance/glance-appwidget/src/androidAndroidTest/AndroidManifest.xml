@@ -21,6 +21,7 @@
         <uses-library android:name="android.test.runner" />
         <activity
             android:name="androidx.glance.appwidget.AppWidgetHostTestActivity"
+            android:configChanges="orientation"
             android:exported="true"/>
 
         <receiver
