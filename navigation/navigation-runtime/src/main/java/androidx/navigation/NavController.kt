@@ -1559,52 +1559,7 @@ public open class NavController(
         val finalArgs = node.addInDefaultArgs(args)
         // Now determine what new destinations we need to add to the back stack
         if (navOptions?.shouldRestoreState() == true && backStackMap.containsKey(node.id)) {
-            val backStackId = backStackMap[node.id]
-            // Clear out the state we're going to restore so that it isn't restored a second time
-            backStackMap.values.removeAll { it == backStackId }
-            val backStackState = backStackStates.remove(backStackId)
-            // Now restore the back stack from its saved state
-            val entries = instantiateBackStack(backStackState)
-            // Split up the entries by Navigator so we can restore them as an atomic operation
-            val entriesGroupedByNavigator = mutableListOf<MutableList<NavBackStackEntry>>()
-            entries.filterNot { entry ->
-                // Skip navigation graphs - they'll be added by addEntryToBackStack()
-                entry.destination is NavGraph
-            }.forEach { entry ->
-                val previousEntryList = entriesGroupedByNavigator.lastOrNull()
-                val previousNavigatorName = previousEntryList?.last()?.destination?.navigatorName
-                if (previousNavigatorName == entry.destination.navigatorName) {
-                    // Group back to back entries associated with the same Navigator together
-                    previousEntryList += entry
-                } else {
-                    // Create a new group for the new Navigator
-                    entriesGroupedByNavigator += mutableListOf(entry)
-                }
-            }
-            // Now actually navigate to each set of entries
-            for (entryList in entriesGroupedByNavigator) {
-                val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
-                    entryList.first().destination.navigatorName
-                )
-                var lastNavigatedIndex = 0
-                var lastDestination = node
-                navigator.navigateInternal(entryList, navOptions, navigatorExtras) { entry ->
-                    navigated = true
-                    // If this destination is part of the restored back stack,
-                    // pass all destinations between the last navigated entry and this one
-                    // to ensure that any navigation graphs are properly restored as well
-                    val entryIndex = entries.indexOf(entry)
-                    val restoredEntries = if (entryIndex != -1) {
-                        entries.subList(lastNavigatedIndex, entryIndex + 1).also {
-                            lastNavigatedIndex = entryIndex + 1
-                            lastDestination = entry.destination
-                        }
-                    } else {
-                        emptyList()
-                    }
-                    addEntryToBackStack(lastDestination, finalArgs, entry, restoredEntries)
-                }
-            }
+            navigated = restoreStateInternal(node, finalArgs, navOptions, navigatorExtras)
         } else {
             val currentBackStackEntry = currentBackStackEntry
             val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
@@ -1637,6 +1592,65 @@ public open class NavController(
         } else {
             updateBackStackLifecycle()
         }
+    }
+
+    private fun restoreStateInternal(
+        node: NavDestination,
+        args: Bundle?,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
+    ): Boolean {
+        if (!backStackMap.containsKey(node.id)) {
+            return false
+        }
+        val backStackId = backStackMap[node.id]
+        // Clear out the state we're going to restore so that it isn't restored a second time
+        backStackMap.values.removeAll { it == backStackId }
+        val backStackState = backStackStates.remove(backStackId)
+        // Now restore the back stack from its saved state
+        val entries = instantiateBackStack(backStackState)
+        // Split up the entries by Navigator so we can restore them as an atomic operation
+        val entriesGroupedByNavigator = mutableListOf<MutableList<NavBackStackEntry>>()
+        entries.filterNot { entry ->
+            // Skip navigation graphs - they'll be added by addEntryToBackStack()
+            entry.destination is NavGraph
+        }.forEach { entry ->
+            val previousEntryList = entriesGroupedByNavigator.lastOrNull()
+            val previousNavigatorName = previousEntryList?.last()?.destination?.navigatorName
+            if (previousNavigatorName == entry.destination.navigatorName) {
+                // Group back to back entries associated with the same Navigator together
+                previousEntryList += entry
+            } else {
+                // Create a new group for the new Navigator
+                entriesGroupedByNavigator += mutableListOf(entry)
+            }
+        }
+        var navigated = false
+        // Now actually navigate to each set of entries
+        for (entryList in entriesGroupedByNavigator) {
+            val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
+                entryList.first().destination.navigatorName
+            )
+            var lastNavigatedIndex = 0
+            var lastDestination = node
+            navigator.navigateInternal(entryList, navOptions, navigatorExtras) { entry ->
+                navigated = true
+                // If this destination is part of the restored back stack,
+                // pass all destinations between the last navigated entry and this one
+                // to ensure that any navigation graphs are properly restored as well
+                val entryIndex = entries.indexOf(entry)
+                val restoredEntries = if (entryIndex != -1) {
+                    entries.subList(lastNavigatedIndex, entryIndex + 1).also {
+                        lastNavigatedIndex = entryIndex + 1
+                        lastDestination = entry.destination
+                    }
+                } else {
+                    emptyList()
+                }
+                addEntryToBackStack(lastDestination, args, entry, restoredEntries)
+            }
+        }
+        return navigated
     }
 
     private fun instantiateBackStack(
