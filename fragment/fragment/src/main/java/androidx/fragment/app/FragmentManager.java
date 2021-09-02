@@ -856,11 +856,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
             // else, save the result for later
             mResults.put(requestKey, result);
         }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Setting fragment result with key " + requestKey + " and "
+                    + "result " + result);
+        }
     }
 
     @Override
     public final void clearFragmentResult(@NonNull String requestKey) {
         mResults.remove(requestKey);
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Clearing fragment result with key " + requestKey);
+        }
     }
 
     @SuppressLint("SyntheticAccessor")
@@ -900,6 +907,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (storedListener != null) {
             storedListener.removeObserver();
         }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Setting FragmentResultListener with key " + requestKey
+                    + " lifecycleOwner " + lifecycle + " and listener " + listener);
+        }
     }
 
     @Override
@@ -907,6 +918,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
         LifecycleAwareResultListener listener = mResultListeners.remove(requestKey);
         if (listener != null) {
             listener.removeObserver();
+        }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Clearing FragmentResultListener for key " + requestKey);
         }
     }
 
