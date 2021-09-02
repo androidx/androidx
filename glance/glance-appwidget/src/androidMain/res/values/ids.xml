@@ -19,4 +19,6 @@
     <id name="glanceListView1"/>
     <id name="glanceListView2"/>
     <id name="glanceListView3"/>
+    <id name="relativeLayout"/>
+    <id name="sizeView"/>
 </resources>

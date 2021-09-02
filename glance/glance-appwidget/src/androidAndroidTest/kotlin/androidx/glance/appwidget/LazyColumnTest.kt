@@ -202,6 +202,7 @@ class LazyColumnTest {
         }
     }
 
+    @FlakyTest
     @Test
     fun itemContent_emptyItem() {
         TestGlanceAppWidget.uiDefinition = {
@@ -245,14 +246,14 @@ class LazyColumnTest {
 
         mHostRule.runAndObserveUntilDraw(condition = "ListView did not load in time") {
             mHostRule.mHostView.let { host ->
-                val list = host.findViewByType<ListView>()
+                val list = host.findChildByType<ListView>()
                 host.childCount > 0 &&
                     list?.let { it.childCount > 0 && it.adapter != null } ?: false
             }
         }
 
         mHostRule.onHostView {
-            action(mHostRule.mHostView.findViewByType<ListView>()!!)
+            action(mHostRule.mHostView.findChildByType<ListView>()!!)
         }
     }
 

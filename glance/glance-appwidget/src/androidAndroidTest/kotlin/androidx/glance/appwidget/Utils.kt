@@ -30,7 +30,7 @@ import androidx.glance.unit.toSizeF
 inline fun <reified T : View> View.findChild(noinline pred: (T) -> Boolean) =
     findChild(pred, T::class.java)
 
-inline fun <reified T : View> View.findViewByType() =
+inline fun <reified T : View> View.findChildByType() =
     findChild({ true }, T::class.java)
 
 fun <T : View> View.findChild(predicate: (T) -> Boolean, klass: Class<T>): T? {
