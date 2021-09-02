@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Capabilities;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
@@ -70,6 +71,7 @@ class SearchSessionImpl implements AppSearchSession {
     private static final String TAG = "AppSearchSessionImpl";
     private final AppSearchImpl mAppSearchImpl;
     private final Executor mExecutor;
+    private final Capabilities mCapabilities;
     private final String mPackageName;
     private final String mDatabaseName;
     private volatile boolean mIsMutated = false;
@@ -79,11 +81,13 @@ class SearchSessionImpl implements AppSearchSession {
     SearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull Executor executor,
+            @NonNull Capabilities capabilities,
             @NonNull String packageName,
             @NonNull String databaseName,
             @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
+        mCapabilities = Preconditions.checkNotNull(capabilities);
         mPackageName = packageName;
         mDatabaseName = Preconditions.checkNotNull(databaseName);
         mLogger = logger;
@@ -431,6 +435,12 @@ class SearchSessionImpl implements AppSearchSession {
             mAppSearchImpl.persistToDisk(PersistType.Code.FULL);
             return null;
         });
+    }
+
+    @NonNull
+    @Override
+    public Capabilities getCapabilities() {
+        return mCapabilities;
     }
 
     @Override

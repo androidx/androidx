@@ -16,7 +16,7 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.cts.app;
 
-import static android.os.Build.VERSION;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.os.Build;
@@ -28,6 +28,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;
 
@@ -49,9 +51,14 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
                         .setWorkerExecutor(executor).build());
     }
 
-    @Override
-    protected int getAppSearchApiTarget() {
-        // Feature availability in the platform backend depends on the device's API level.
-        return VERSION.SDK_INT;
+    @Test
+    public void testCapabilities() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchSession db2 = PlatformStorage.createSearchSession(
+                new PlatformStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
+
+        // TODO(b/201316758) Update to reflect support in Android T+ once this feature is synced
+        // over into service-appsearch.
+        assertThat(db2.getCapabilities().isSubmatchSupported()).isFalse();
     }
 }

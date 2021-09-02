@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Capabilities;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
@@ -60,12 +61,15 @@ import java.util.concurrent.Executor;
 class SearchSessionImpl implements AppSearchSession {
     private final android.app.appsearch.AppSearchSession mPlatformSession;
     private final Executor mExecutor;
+    private final Capabilities mCapabilities;
 
     SearchSessionImpl(
             @NonNull android.app.appsearch.AppSearchSession platformSession,
-            @NonNull Executor executor) {
+            @NonNull Executor executor,
+            @NonNull Capabilities capabilities) {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
         mExecutor = Preconditions.checkNotNull(executor);
+        mCapabilities = Preconditions.checkNotNull(capabilities);
     }
 
     @Override
@@ -243,6 +247,12 @@ class SearchSessionImpl implements AppSearchSession {
         // flush.
         future.set(null);
         return future;
+    }
+
+    @NonNull
+    @Override
+    public Capabilities getCapabilities() {
+        return mCapabilities;
     }
 
     @Override
