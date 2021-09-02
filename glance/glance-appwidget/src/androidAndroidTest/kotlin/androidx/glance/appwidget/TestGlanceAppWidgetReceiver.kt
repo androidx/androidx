@@ -23,6 +23,9 @@ class TestGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 object TestGlanceAppWidget : GlanceAppWidget() {
+
+    override var sizeMode: SizeMode = SizeMode.Single
+
     @Composable
     override fun Content() {
         uiDefinition()

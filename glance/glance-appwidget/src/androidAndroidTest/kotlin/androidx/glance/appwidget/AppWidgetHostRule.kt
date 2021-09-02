@@ -18,10 +18,15 @@ package androidx.glance.appwidget
 
 import android.Manifest
 import android.appwidget.AppWidgetHostView
+import android.appwidget.AppWidgetManager
+import android.content.Context
+import android.content.pm.ActivityInfo
 import android.view.ViewTreeObserver
 import androidx.glance.unit.DpSize
 import androidx.glance.unit.dp
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onIdle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -33,73 +38,125 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 @SdkSuppress(minSdkVersion = 29)
-class AppWidgetHostRule(private val defaultSize: DpSize = DpSize(200.dp, 300.dp)) : TestRule {
+class AppWidgetHostRule(
+    private var mPortraitSize: DpSize = DpSize(200.dp, 300.dp),
+    private var mLandscapeSize: DpSize = DpSize(300.dp, 200.dp)
+) : TestRule {
 
     private val mUiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
 
-    private val activityRule: ActivityScenarioRule<AppWidgetHostTestActivity> =
+    private val mActivityRule: ActivityScenarioRule<AppWidgetHostTestActivity> =
         ActivityScenarioRule(AppWidgetHostTestActivity::class.java)
 
-    private var hostStarted = false
-    lateinit var hostView: TestAppWidgetHostView
-    var appWidgetId = 0
-
-    val scenario: ActivityScenario<AppWidgetHostTestActivity>
-        get() = activityRule.scenario
+    private var mHostStarted = false
+    lateinit var mHostView: TestAppWidgetHostView
+    private var mAppWidgetId = 0
+    private val mScenario: ActivityScenario<AppWidgetHostTestActivity>
+        get() = mActivityRule.scenario
+    private val mContext = ApplicationProvider.getApplicationContext<Context>()
 
     override fun apply(base: Statement, description: Description) = object : Statement() {
 
         override fun evaluate() {
-            activityRule.apply(base, description).evaluate()
+            mActivityRule.apply(base, description).evaluate()
             stopHost()
         }
 
         private fun stopHost() {
-            if (hostStarted) {
+            if (mHostStarted) {
                 mUiAutomation.dropShellPermissionIdentity()
             }
         }
     }
 
+    /** Start the host and bind the app widget. */
     fun startHost() {
         mUiAutomation.adoptShellPermissionIdentity(Manifest.permission.BIND_APPWIDGET)
-        hostStarted = true
+        mHostStarted = true
 
-        activityRule.scenario.onActivity { activity ->
-            hostView = activity.bindAppWidget(defaultSize)
+        mActivityRule.scenario.onActivity { activity ->
+            mHostView = activity.bindAppWidget(mPortraitSize, mLandscapeSize)
         }
 
         runAndWaitForChildren {
-            appWidgetId = hostView.appWidgetId
-            hostView.waitForRemoteViews()
+            mAppWidgetId = mHostView.appWidgetId
+            mHostView.waitForRemoteViews()
+        }
+    }
+
+    fun onHostActivity(block: (AppWidgetHostTestActivity) -> Unit) {
+        mScenario.onActivity(block)
+    }
+
+    fun onHostView(block: (AppWidgetHostView) -> Unit) {
+        onHostActivity { block(mHostView) }
+    }
+
+    /** Change the orientation to landscape using [setOrientation] .*/
+    fun setLandscapeOrientation() {
+        setOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+    }
+
+    /** Change the orientation to portrait using [setOrientation] .*/
+    fun setPortraitOrientation() {
+        setOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+    }
+
+    /**
+     * Change the orientation of the screen, then update the view sizes and reapply the RemoteViews.
+     */
+    private fun setOrientation(orientation: Int) {
+        mScenario.onActivity { it.requestedOrientation = orientation }
+        onIdle()
+        mScenario.onActivity {
+            it.updateAllSizes()
+            it.reapplyRemoteViews()
+        }
+        onIdle()
+    }
+
+    /**
+     * Set the sizes for portrait and landscape for the host view.
+     *
+     * If specified, the options bundle for the AppWidget is updated and the code waits for the
+     * new RemoteViews from the provider.
+     */
+    fun setSizes(portraitSize: DpSize, landscapeSize: DpSize, updateRemoteViews: Boolean = true) {
+        mLandscapeSize = landscapeSize
+        mPortraitSize = portraitSize
+        mScenario.onActivity {
+            mHostView.setSizes(portraitSize, landscapeSize)
+        }
+
+        if (updateRemoteViews) {
+            runAndWaitForChildren {
+                mHostView.resetRemoteViewsLatch()
+                AppWidgetManager.getInstance(mContext).updateAppWidgetOptions(
+                    mAppWidgetId,
+                    optionsBundleOf(portraitSize, landscapeSize)
+                )
+                mHostView.waitForRemoteViews()
+            }
         }
     }
 
     private fun runAndWaitForChildren(action: () -> Unit) {
         val latch = CountDownLatch(1)
         val onDrawListener = ViewTreeObserver.OnDrawListener {
-            if (hostView.childCount > 0) latch.countDown()
+            if (mHostView.childCount > 0) latch.countDown()
         }
-        activityRule.scenario.onActivity {
-            hostView.viewTreeObserver.addOnDrawListener(onDrawListener)
+        mActivityRule.scenario.onActivity {
+            mHostView.viewTreeObserver.addOnDrawListener(onDrawListener)
         }
 
         action()
 
         val countedDown = latch.await(5, TimeUnit.SECONDS)
-        activityRule.scenario.onActivity {
-            hostView.viewTreeObserver.removeOnDrawListener(onDrawListener)
+        mActivityRule.scenario.onActivity {
+            mHostView.viewTreeObserver.removeOnDrawListener(onDrawListener)
         }
-        if (!countedDown && hostView.childCount == 0) {
+        if (!countedDown && mHostView.childCount == 0) {
             Assert.fail("Expected new children on HostView within 5 seconds")
         }
-    }
-
-    fun onHostActivity(block: (AppWidgetHostTestActivity) -> Unit) {
-        scenario.onActivity(block)
-    }
-
-    fun onHostView(block: (AppWidgetHostView) -> Unit) {
-        onHostActivity { block(hostView) }
     }
 }
