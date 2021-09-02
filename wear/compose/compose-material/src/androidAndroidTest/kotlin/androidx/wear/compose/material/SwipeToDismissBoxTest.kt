@@ -22,15 +22,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.GestureScope
+import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performGesture
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import androidx.compose.ui.test.width
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.SwipeDismissTarget
@@ -73,7 +71,6 @@ class SwipeToDismissBoxTest {
         verifySwipe(gesture = { swipeLeft() }, expectedToDismiss = false)
 
     @Test
-    @ExperimentalTestApi
     fun does_not_dismiss_when_swipe_right_incomplete() =
         // Execute a partial swipe over a longer-than-default duration so that there
         // is insufficient velocity to perform a 'fling'.
@@ -101,16 +98,14 @@ class SwipeToDismissBoxTest {
     }
 
     @Test
-    @ExperimentalTestApi
     fun displays_background_during_swipe() =
         verifyPartialSwipe(expectedMessage = BACKGROUND_MESSAGE)
 
     @Test
-    @ExperimentalTestApi
     fun displays_content_during_swipe() =
         verifyPartialSwipe(expectedMessage = CONTENT_MESSAGE)
 
-    fun verifySwipe(gesture: GestureScope.() -> Unit, expectedToDismiss: Boolean) {
+    private fun verifySwipe(gesture: TouchInjectionScope.() -> Unit, expectedToDismiss: Boolean) {
         var dismissed = false
         rule.setContentWithTheme {
             val state = rememberSwipeToDismissBoxState()
@@ -126,15 +121,14 @@ class SwipeToDismissBoxTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).performGesture(gesture)
+        rule.onNodeWithTag(TEST_TAG).performTouchInput(gesture)
 
         rule.runOnIdle {
             assertEquals(expectedToDismiss, dismissed)
         }
     }
 
-    @ExperimentalTestApi
-    fun verifyPartialSwipe(expectedMessage: String) {
+    private fun verifyPartialSwipe(expectedMessage: String) {
         rule.setContentWithTheme {
             val state = rememberSwipeToDismissBoxState()
             SwipeToDismissBox(
@@ -151,7 +145,7 @@ class SwipeToDismissBoxTest {
         // Advance the clock by half the length of time configured for the swipe gesture,
         // so that the background ought to be revealed.
         rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag(TEST_TAG).performGesture { swipeRight(durationMillis = LONG_SWIPE) }
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight(durationMillis = LONG_SWIPE) }
         rule.waitForIdle()
         rule.mainClock.advanceTimeBy(milliseconds = LONG_SWIPE / 2)
 
