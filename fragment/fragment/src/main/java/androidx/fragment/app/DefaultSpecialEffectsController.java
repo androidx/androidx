@@ -77,6 +77,9 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     break;
             }
         }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Executing operations from " + firstOut + " to " + lastIn);
+        }
 
         // Now iterate through the operations, collecting the set of animations
         // and transitions that need to be executed
@@ -124,6 +127,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             applyContainerChanges(operation);
         }
         awaitingContainerChanges.clear();
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG,
+                    "Completed executing operations from " + firstOut + " to " + lastIn);
+        }
     }
 
     private void startAnimations(@NonNull List<AnimationInfo> animationInfos,
@@ -188,16 +195,28 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         operation.getFinalState().applyState(viewToAnimate);
                     }
                     animationInfo.completeSpecialEffect();
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG, "Animator from operation " + operation + " has "
+                                + "ended.");
+                    }
                 }
             });
             animator.setTarget(viewToAnimate);
             animator.start();
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG, "Animator from operation " + operation + " has "
+                        + "started.");
+            }
             // Listen for cancellation and use that to cancel the Animator
             CancellationSignal signal = animationInfo.getSignal();
             signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
                 @Override
                 public void onCancel() {
                     animator.end();
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG, "Animator from operation " + operation + " has "
+                                + "been canceled.");
+                    }
                 }
             });
         }
@@ -245,6 +264,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 animation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
+                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                            Log.v(FragmentManager.TAG, "Animation from operation " + operation
+                                    + " has reached onAnimationStart.");
+                        }
                     }
 
                     @Override
@@ -259,6 +282,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                                 animationInfo.completeSpecialEffect();
                             }
                         });
+                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                            Log.v(FragmentManager.TAG, "Animation from operation " + operation
+                                    + " has ended.");
+                        }
                     }
 
                     @Override
@@ -266,6 +293,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     }
                 });
                 viewToAnimate.startAnimation(animation);
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG, "Animation from operation " + operation
+                            + " has started.");
+                }
             }
             // Listen for cancellation and use that to cancel the Animation
             CancellationSignal signal = animationInfo.getSignal();
@@ -275,6 +306,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     viewToAnimate.clearAnimation();
                     container.endViewTransition(viewToAnimate);
                     animationInfo.completeSpecialEffect();
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG, "Animation from operation " + operation
+                                + " has been cancelled.");
+                    }
                 }
             });
         }
@@ -376,12 +411,27 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     sharedElementNameMapping.put(exitingName, enteringName);
                 }
 
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG, ">>> entering view names <<<");
+                    for (String name: enteringNames) {
+                        Log.v(FragmentManager.TAG,  "Name: " + name);
+                    }
+                    Log.v(FragmentManager.TAG, ">>> exiting view names <<<");
+                    for (String name: exitingNames) {
+                        Log.v(FragmentManager.TAG,  "Name: " + name);
+                    }
+                }
+
                 // Find all of the Views from the firstOut fragment that are
                 // part of the shared element transition
                 final ArrayMap<String, View> firstOutViews = new ArrayMap<>();
                 findNamedViews(firstOutViews, firstOut.getFragment().mView);
                 firstOutViews.retainAll(exitingNames);
                 if (exitingCallback != null) {
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG,
+                                "Executing exit callback for operation " + firstOut);
+                    }
                     // Give the SharedElementCallback a chance to override the default mapping
                     exitingCallback.onMapSharedElements(exitingNames, firstOutViews);
                     for (int i = exitingNames.size() - 1; i >= 0; i--) {
@@ -407,6 +457,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 lastInViews.retainAll(enteringNames);
                 lastInViews.retainAll(sharedElementNameMapping.values());
                 if (enteringCallback != null) {
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG,
+                                "Executing enter callback for operation " + lastIn);
+                    }
                     // Give the SharedElementCallback a chance to override the default mapping
                     enteringCallback.onMapSharedElements(enteringNames, lastInViews);
                     for (int i = enteringNames.size() - 1; i >= 0; i--) {
@@ -640,6 +694,11 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                                 @Override
                                 public void run() {
                                     transitionInfo.completeSpecialEffect();
+                                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                        Log.v(FragmentManager.TAG,
+                                                "Transition for operation " + operation + "has "
+                                                        + "completed");
+                                    }
                                 }
                             });
                 }
@@ -655,6 +714,19 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         FragmentTransition.setViewVisibility(enteringViews, View.INVISIBLE);
         ArrayList<String> inNames =
                 transitionImpl.prepareSetNameOverridesReordered(sharedElementLastInViews);
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, ">>>>> Beginning transition <<<<<");
+            Log.v(FragmentManager.TAG, ">>>>> SharedElementFirstOutViews <<<<<");
+            for (View view: sharedElementFirstOutViews) {
+                Log.v(FragmentManager.TAG,
+                        "View: " + view + " Name: " + ViewCompat.getTransitionName(view));
+            }
+            Log.v(FragmentManager.TAG, ">>>>> SharedElementLastInViews <<<<<");
+            for (View view: sharedElementLastInViews) {
+                Log.v(FragmentManager.TAG,  "View: " + view + " Name: "
+                        + ViewCompat.getTransitionName(view));
+            }
+        }
         // Now actually start the transition
         transitionImpl.beginDelayedTransition(getContainer(), mergedTransition);
         transitionImpl.setNameOverridesReordered(getContainer(), sharedElementFirstOutViews,
