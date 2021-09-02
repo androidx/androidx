@@ -868,6 +868,7 @@ public final class ImageCapture extends UseCase {
                     () -> takePicture(outputFileOptions, executor, imageSavedCallback));
             return;
         }
+
         /*
          * We need to chain the following callbacks to save the image to disk:
          *
@@ -914,6 +915,8 @@ public final class ImageCapture extends UseCase {
                     }
                 };
 
+        int jpegQuality = getJpegQuality();
+
         // Wrap the ImageCapture.OnImageSavedCallback with an OnImageCapturedCallback so it can
         // be put into the capture request queue
         OnImageCapturedCallback imageCaptureCallbackWrapper =
@@ -925,6 +928,7 @@ public final class ImageCapture extends UseCase {
                                         image,
                                         outputFileOptions,
                                         image.getImageInfo().getRotationDegrees(),
+                                        jpegQuality,
                                         executor,
                                         mSequentialIoExecutor,
                                         imageSavedCallbackWrapper));
