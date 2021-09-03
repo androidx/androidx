@@ -25,16 +25,25 @@ plugins {
 }
 
 dependencies {
+    api(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.annotation:annotation-experimental:1.1.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
 }
 
 androidx {
-    name = "Jetpack WindowManager library Sidecar"
+    name = "Jetpack WindowManager library Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
-    runApiTasks = new RunApiTasks.Yes("Need to track API surface but should never publish")
-    mavenGroup = LibraryGroups.WINDOW
-    mavenVersion = LibraryVersions.WINDOW_SIDECAR
+    runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
+    mavenGroup = LibraryGroups.WINDOW_EXTENSIONS
     inceptionYear = "2020"
-    description = "This version of the OEM extension is deprecated. Please use window-extensions " +
-            "module instead."
+    description = "OEM extension interface definition for the Jetpack WindowManager. " +
+            "This module declares the interface the the core component of this library " +
+            "(androidx.window:window) will use when communicating with the " +
+            "device-specific OEM extension."
 }

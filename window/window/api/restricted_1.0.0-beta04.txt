@@ -46,20 +46,12 @@ package androidx.window.layout {
 
   public interface WindowInfoTracker {
     method public default static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void overrideDecorator(androidx.window.layout.WindowInfoTrackerDecorator overridingDecorator);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void reset();
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
     field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
   }
 
   public static final class WindowInfoTracker.Companion {
     method public androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void overrideDecorator(androidx.window.layout.WindowInfoTrackerDecorator overridingDecorator);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void reset();
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WindowInfoTrackerDecorator {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.window.layout.WindowInfoTracker decorate(androidx.window.layout.WindowInfoTracker tracker);
   }
 
   public final class WindowLayoutInfo {

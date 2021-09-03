@@ -49,7 +49,6 @@ dependencies {
 androidx {
     name = "WindowManager Test Library"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.WINDOW
     mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2021"
     description = "WindowManager Test Library"
