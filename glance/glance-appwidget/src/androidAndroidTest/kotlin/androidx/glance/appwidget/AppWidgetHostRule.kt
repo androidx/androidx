@@ -21,6 +21,7 @@ import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.view.ViewTreeObserver
 import androidx.glance.unit.DpSize
 import androidx.glance.unit.dp
@@ -31,6 +32,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert
+import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -48,6 +50,25 @@ class AppWidgetHostRule(
     private val mActivityRule: ActivityScenarioRule<AppWidgetHostTestActivity> =
         ActivityScenarioRule(AppWidgetHostTestActivity::class.java)
 
+    // Ensure the screen starts in portrait and restore the orientation on leaving
+    private val mOrientationRule = TestRule { base, _ ->
+        object : Statement() {
+            override fun evaluate() {
+                var orientation: Int = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                mScenario.onActivity {
+                    orientation = it.resources.configuration.orientation.toActivityInfoOrientation()
+                    it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                }
+                base.evaluate()
+                mScenario.onActivity {
+                    it.requestedOrientation = orientation
+                }
+            }
+        }
+    }
+
+    private val mInnerRules = RuleChain.outerRule(mActivityRule).around(mOrientationRule)
+
     private var mHostStarted = false
     lateinit var mHostView: TestAppWidgetHostView
     private var mAppWidgetId = 0
@@ -58,7 +79,7 @@ class AppWidgetHostRule(
     override fun apply(base: Statement, description: Description) = object : Statement() {
 
         override fun evaluate() {
-            mActivityRule.apply(base, description).evaluate()
+            mInnerRules.apply(base, description).evaluate()
             stopHost()
         }
 
@@ -160,3 +181,10 @@ class AppWidgetHostRule(
         }
     }
 }
+
+private fun Int.toActivityInfoOrientation(): Int =
+    if (this == Configuration.ORIENTATION_PORTRAIT) {
+        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    } else {
+        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+    }

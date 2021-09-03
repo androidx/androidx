@@ -16,6 +16,12 @@
 
 package androidx.glance.appwidget
 
+import android.graphics.Typeface
+import android.os.Build
+import android.text.SpannedString
+import android.text.style.StyleSpan
+import android.text.style.TextAppearanceSpan
+import android.text.style.UnderlineSpan
 import android.widget.TextView
 import androidx.glance.LocalSize
 import androidx.glance.layout.FontStyle
@@ -42,7 +48,7 @@ class GlanceAppWidgetReceiverTest {
     fun createSimpleAppWidget() {
         TestGlanceAppWidget.uiDefinition = {
             Text(
-                "text",
+                "text content",
                 style = TextStyle(
                     textDecoration = TextDecoration.Underline,
                     fontWeight = FontWeight.Medium,
@@ -54,8 +60,17 @@ class GlanceAppWidgetReceiverTest {
         mHostRule.startHost()
 
         mHostRule.onHostView { hostView ->
-            assertThat(hostView.findChild<TextView> { it.text.toString() == "text" })
-                .isNotNull()
+            assertThat(hostView.childCount).isEqualTo(1)
+            val child = assertIs<TextView>(hostView.getChildAt(0))
+            assertThat(child.text.toString()).isEqualTo("text content")
+            val content = child.text as SpannedString
+            content.checkHasSingleTypedSpan<UnderlineSpan> { }
+            content.checkHasSingleTypedSpan<StyleSpan> {
+                assertThat(it.style).isEqualTo(Typeface.ITALIC)
+            }
+            content.checkHasSingleTypedSpan<TextAppearanceSpan> {
+                assertThat(it.textFontWeight).isEqualTo(500)
+            }
         }
     }
 
@@ -69,20 +84,17 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.setPortraitOrientation()
         mHostRule.onHostView { hostView ->
             assertThat(hostView.childCount).isEqualTo(1)
-            val child = hostView.getChildAt(0)
-            assertIs<TextView>(child)
-            assertThat(child.text).isEqualTo("size = 200.0.dp x 300.0.dp")
+            val child = assertIs<TextView>(hostView.getChildAt(0))
+            assertThat(child.text.toString()).isEqualTo("size = 200.0.dp x 300.0.dp")
         }
 
         mHostRule.setLandscapeOrientation()
         mHostRule.onHostView { hostView ->
             assertThat(hostView.childCount).isEqualTo(1)
-            val child = hostView.getChildAt(0)
-            assertIs<TextView>(child)
-            assertThat(child.text).isEqualTo("size = 300.0.dp x 200.0.dp")
+            val child = assertIs<TextView>(hostView.getChildAt(0))
+            assertThat(child.text.toString()).isEqualTo("size = 300.0.dp x 200.0.dp")
         }
     }
 
@@ -98,38 +110,43 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.setPortraitOrientation()
         mHostRule.onHostView { hostView ->
             assertThat(hostView.childCount).isEqualTo(1)
-            val child = hostView.getChildAt(0)
-            assertIs<TextView>(child)
-            assertThat(child.text).isEqualTo("size = 100.0.dp x 150.0.dp")
+            val child = assertIs<TextView>(hostView.getChildAt(0))
+            assertThat(child.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
         }
 
         mHostRule.setLandscapeOrientation()
         mHostRule.onHostView { hostView ->
             assertThat(hostView.childCount).isEqualTo(1)
-            val child = hostView.getChildAt(0)
-            assertIs<TextView>(child)
-            assertThat(child.text).isEqualTo("size = 250.0.dp x 150.0.dp")
+            val child = assertIs<TextView>(hostView.getChildAt(0))
+            assertThat(child.text.toString()).isEqualTo("size = 250.0.dp x 150.0.dp")
         }
 
-        mHostRule.setSizes(DpSize(50.dp, 100.dp), DpSize(100.dp, 50.dp))
+        mHostRule.setSizes(
+            DpSize(50.dp, 100.dp), DpSize(100.dp, 50.dp),
+            updateRemoteViews = Build.VERSION.SDK_INT < Build.VERSION_CODES.S,
+        )
 
         mHostRule.setPortraitOrientation()
         mHostRule.onHostView { hostView ->
             assertThat(hostView.childCount).isEqualTo(1)
-            val child = hostView.getChildAt(0)
-            assertIs<TextView>(child)
-            assertThat(child.text).isEqualTo("size = 100.0.dp x 150.0.dp")
+            val child = assertIs<TextView>(hostView.getChildAt(0))
+            assertThat(child.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
         }
 
         mHostRule.setLandscapeOrientation()
         mHostRule.onHostView { hostView ->
             assertThat(hostView.childCount).isEqualTo(1)
-            val child = hostView.getChildAt(0)
-            assertIs<TextView>(child)
-            assertThat(child.text).isEqualTo("size = 100.0.dp x 150.0.dp")
+            val child = assertIs<TextView>(hostView.getChildAt(0))
+            assertThat(child.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
         }
+    }
+
+    // Check there is a single span of the given type and that it passes the [check].
+    private inline fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
+        val spans = getSpans(0, length, T::class.java)
+        assertThat(spans).hasLength(1)
+        check(spans[0])
     }
 }
