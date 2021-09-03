@@ -24,6 +24,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.layout.Column
 import androidx.glance.layout.FontWeight
+import androidx.glance.layout.Row
 import androidx.glance.layout.Text
 import androidx.glance.layout.TextDecoration
 import androidx.glance.layout.TextStyle
@@ -50,13 +51,22 @@ class ResponsiveAppWidget : GlanceAppWidget() {
                 "Current layout: ${size.width.value}dp x ${size.height.value}dp"
             }
             if (size.height >= 100.dp) {
-                Text(
-                    "Responsive",
-                    style = TextStyle(
-                        size = 15.sp, fontWeight = FontWeight.Bold,
-                        textDecoration = TextDecoration.Underline
+                Row {
+                    Text(
+                        "Responsive",
+                        style = TextStyle(
+                            size = 15.sp, fontWeight = FontWeight.Bold,
+                            textDecoration = TextDecoration.Underline
+                        )
                     )
-                )
+                    Text(
+                        " layout",
+                        style = TextStyle(
+                            size = 15.sp, fontWeight = FontWeight.Medium,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    )
+                }
             }
             Text(content)
         }
