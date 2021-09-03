@@ -393,6 +393,22 @@ task:
 Places the documentation in
 `{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dokkaKotlinDocs`
 
+#### Dackka docs
+
+To build API reference docs for both Java and Kotlin source code using Dackka,
+run the Gradle task:
+
+```
+./gradlew dackkaDocs
+```
+
+Location of generated refdocs:
+
+*   docs-public (what is published to DAC):
+    `{androidx-main}/out/dist/out/androidx/docs-public/build/dackkaDocs`
+*   docs-tip-of-tree:
+    `{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dackkaDocs`
+
 #### Release docs
 
 To build API reference docs for published artifacts formatted for use on
@@ -423,6 +439,15 @@ difference being that we use the Gradle command:
 ```
 
 This will create the artifact `{androidx-main}/out/dist/dokka-public-docs-0.zip`
+
+To generate a zip artifact for both Java and Kotlin source code using Dackka:
+
+```
+./gradlew zipDackkaDocs
+```
+
+This will create the artifact
+`{androidx-main}/out/dist/dackka-public-docs-0.zip`
 
 ### Updating public APIs {#updating-public-apis}
 
@@ -634,11 +659,11 @@ monitoring tests.
 
 The Android Studio instance started by `./studiow` uses a custom SDK directory,
 which means any virtual devices created by a "standard" non-AndroidX instance of
-Android Studio will be _visible_ from the `./studiow` instance but will be
+Android Studio will be *visible* from the `./studiow` instance but will be
 unable to locate the SDK artifacts -- they will display a `Download` button.
 
 You can either use the `Download` button to download an extra copy of the SDK
-artifacts _or_ you can set up a symlink to your "standard" non-AndroidX SDK
+artifacts *or* you can set up a symlink to your "standard" non-AndroidX SDK
 directory to expose your existing artifacts to the `./studiow` instance:
 
 ```shell
