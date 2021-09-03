@@ -41,7 +41,8 @@ internal class KaptCompilationStep(
         return KaptOptions.Builder().also {
             it.stubsOutputDir = workingDir.resolve("kapt-stubs") // IGNORED
             it.sourcesOutputDir = workingDir.resolve(JAVA_SRC_OUT_FOLDER_NAME)
-            it.classesOutputDir = workingDir.resolve("kapt-classes-out") // IGNORED
+            // Compiled classes don't end up here but generated resources do.
+            it.classesOutputDir = workingDir.resolve(RESOURCES_OUT_FOLDER_NAME)
             it.projectBaseDir = workingDir
             it.processingOptions["kapt.kotlin.generated"] =
                 workingDir.resolve(KOTLIN_SRC_OUT_FOLDER_NAME)
@@ -86,6 +87,8 @@ internal class KaptCompilationStep(
             diagnostics = result.diagnostics + kaptMessages.getDiagnostics(),
             sourceSets = arguments.sourceSets + generatedSources
         )
+        val outputClasspath =
+            listOf(result.compiledClasspath) + workingDir.resolve(RESOURCES_OUT_FOLDER_NAME)
         return CompilationStepResult(
             success = result.exitCode == ExitCode.OK,
             generatedSourceRoots = generatedSources,
@@ -93,13 +96,14 @@ internal class KaptCompilationStep(
             nextCompilerArguments = arguments.copy(
                 sourceSets = arguments.sourceSets + generatedSources
             ),
-            outputClasspath = listOf(result.compiledClasspath)
+            outputClasspath = outputClasspath
         )
     }
 
     companion object {
         private const val JAVA_SRC_OUT_FOLDER_NAME = "kapt-java-src-out"
         private const val KOTLIN_SRC_OUT_FOLDER_NAME = "kapt-kotlin-src-out"
+        private const val RESOURCES_OUT_FOLDER_NAME = "kapt-classes-out"
         private const val CLASS_OUT_FOLDER_NAME = "class-out"
     }
 }

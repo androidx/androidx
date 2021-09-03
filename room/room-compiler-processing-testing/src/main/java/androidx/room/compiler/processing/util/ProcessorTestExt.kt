@@ -31,6 +31,8 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import java.io.File
+import java.util.jar.JarEntry
+import java.util.jar.JarOutputStream
 import javax.annotation.processing.Processor
 
 @ExperimentalProcessingApi
@@ -322,7 +324,8 @@ fun compileFiles(
     options: Map<String, String> = emptyMap(),
     annotationProcessors: List<Processor> = emptyList(),
     symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
-    javacArguments: List<String> = emptyList()
+    javacArguments: List<String> = emptyList(),
+    includeSystemClasspath: Boolean = true
 ): List<File> {
     val workingDir = Files.createTempDir()
     val result = compile(
@@ -336,7 +339,89 @@ fun compileFiles(
         )
     )
     assertThat(result.success).isTrue()
-    return result.outputClasspath + getSystemClasspathFiles()
+    return result.outputClasspath.let {
+        if (includeSystemClasspath) {
+            it + getSystemClasspathFiles()
+        } else {
+            it
+        }
+    }
+}
+
+/**
+ * Compiles the given set of sources into a jar located in the output directory and returns the jar
+ * file.
+ *
+ * @param outputDirectory The directory where the jar will be created in.
+ * @param sources The list of source files to compile
+ * @param options The annotation processor arguments
+ * @param annotationProcessors The list of Java annotation processors to run with compilation
+ * @param symbolProcessorProviders The list of Kotlin symbol processor providers to run with
+ * compilation
+ * @param javacArguments The command line arguments that will be passed into javac
+ */
+fun compileFilesIntoJar(
+    outputDirectory: File,
+    sources: List<Source>,
+    options: Map<String, String> = emptyMap(),
+    annotationProcessors: List<Processor> = emptyList(),
+    symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
+    javacArguments: List<String> = emptyList(),
+): File {
+    val compiledFiles = compileFiles(
+        sources = sources,
+        options = options,
+        annotationProcessors = annotationProcessors,
+        symbolProcessorProviders = symbolProcessorProviders,
+        javacArguments = javacArguments,
+        includeSystemClasspath = false,
+    )
+    val outputFile = File.createTempFile("compiled_", ".jar", outputDirectory)
+    createJar(compiledFiles, outputFile)
+    return outputFile
+}
+
+/**
+ * Creates a jar with the content of the inputs. If an input is a file, it is placed a the root
+ * of the jar, if it is a directory, then the contents of the directory is individually placed
+ * at the root of the jar. Duplicate files are not allowed.
+ */
+private fun createJar(inputs: List<File>, outputFile: File) {
+    JarOutputStream(outputFile.outputStream()).use {
+        inputs.forEach { input ->
+            addJarEntry(input, if (input.isFile) input.parent else input.absolutePath, it)
+        }
+    }
+}
+
+private fun addJarEntry(source: File, changeDir: String, target: JarOutputStream) {
+    if (source.isDirectory) {
+        var name = source.path.replace("\\", "/")
+        if (name.isNotEmpty()) {
+            if (!name.endsWith("/")) {
+                name += "/"
+            }
+            val entry = JarEntry(name.substring(changeDir.length + 1))
+            entry.time = source.lastModified()
+            if (entry.name.isNotEmpty()) {
+                target.putNextEntry(entry)
+                target.closeEntry()
+            }
+        }
+        source.listFiles()!!.forEach { nestedFile ->
+            addJarEntry(nestedFile, changeDir, target)
+        }
+    } else if (source.isFile) {
+        val entry = JarEntry(
+            source.path.replace("\\", "/").substring(changeDir.length + 1)
+        )
+        entry.time = source.lastModified()
+        target.putNextEntry(entry)
+        source.inputStream().use { inputStream ->
+            inputStream.copyTo(target)
+        }
+        target.closeEntry()
+    }
 }
 
 /**
