@@ -72,6 +72,13 @@ internal fun <T : Annotation> AnnotationMirror.box(
         val returnType = method.returnType
         val defaultValue = method.defaultValue
         val result: Any? = when {
+            returnType == Int::class.java -> value.getAsInt(defaultValue as Int?)
+            returnType == Double::class.java -> value.getAsDouble(defaultValue as Double?)
+            returnType == Float::class.java -> value.getAsFloat(defaultValue as Float?)
+            returnType == Char::class.java -> value.getAsChar(defaultValue as Char?)
+            returnType == Byte::class.java -> value.getAsByte(defaultValue as Byte?)
+            returnType == Short::class.java -> value.getAsShort(defaultValue as Short?)
+            returnType == Long::class.java -> value.getAsLong(defaultValue as Long?)
             returnType == Boolean::class.java -> value.getAsBoolean(defaultValue as Boolean)
             returnType == String::class.java -> value.getAsString(defaultValue as String?)
             returnType == Array<String>::class.java -> value.getAsStringList().toTypedArray()
@@ -91,7 +98,6 @@ internal fun <T : Annotation> AnnotationMirror.box(
                     null
                 }
             }
-            returnType == Int::class.java -> value.getAsInt(defaultValue as Int?)
             returnType.isAnnotation -> {
                 @Suppress("UNCHECKED_CAST")
                 AnnotationClassVisitor(env, returnType as Class<out Annotation>).visit(value)
@@ -294,6 +300,30 @@ private val ANNOTATION_VALUE_BOOLEAN_ARR_VISITOR = object :
 
 private fun AnnotationValue.getAsInt(def: Int? = null): Int? {
     return ANNOTATION_VALUE_TO_INT_VISITOR.visit(this) ?: def
+}
+
+private fun AnnotationValue.getAsDouble(def: Double? = null): Double? {
+    return ANNOTATION_VALUE_TO_DOUBLE_VISITOR.visit(this) ?: def
+}
+
+private fun AnnotationValue.getAsFloat(def: Float? = null): Float? {
+    return ANNOTATION_VALUE_TO_FLOAT_VISITOR.visit(this) ?: def
+}
+
+private fun AnnotationValue.getAsChar(def: Char? = null): Char? {
+    return ANNOTATION_VALUE_TO_CHAR_VISITOR.visit(this) ?: def
+}
+
+private fun AnnotationValue.getAsByte(def: Byte? = null): Byte? {
+    return ANNOTATION_VALUE_TO_BYTE_VISITOR.visit(this) ?: def
+}
+
+private fun AnnotationValue.getAsShort(def: Short? = null): Short? {
+    return ANNOTATION_VALUE_TO_SHORT_VISITOR.visit(this) ?: def
+}
+
+private fun AnnotationValue.getAsLong(def: Long? = null): Long? {
+    return ANNOTATION_VALUE_TO_LONG_VISITOR.visit(this) ?: def
 }
 
 private fun AnnotationValue.getAsIntList(): List<Int> {

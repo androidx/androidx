@@ -119,6 +119,13 @@ class XAnnotationBoxTest(
                 typeList = {String.class, Integer.class},
                 singleType = Long.class,
                 intMethod = 3,
+                doubleMethodWithDefault = 3.0,
+                floatMethodWithDefault = 3f,
+                charMethodWithDefault = '3',
+                byteMethodWithDefault = 3,
+                shortMethodWithDefault = 3,
+                longMethodWithDefault = 3L,
+                boolMethodWithDefault = false,
                 otherAnnotationArray = {
                     @OtherAnnotation(
                         value = "other list 1"
@@ -150,6 +157,13 @@ class XAnnotationBoxTest(
                 )
 
                 assertThat(annotation.value.intMethod).isEqualTo(3)
+                assertThat(annotation.value.doubleMethodWithDefault).isEqualTo(3.0)
+                assertThat(annotation.value.floatMethodWithDefault).isEqualTo(3f)
+                assertThat(annotation.value.charMethodWithDefault).isEqualTo('3')
+                assertThat(annotation.value.byteMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.shortMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.longMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.boolMethodWithDefault).isEqualTo(false)
                 annotation.getAsAnnotationBox<OtherAnnotation>("singleOtherAnnotation")
                     .let { other ->
                         assertThat(other.value.value).isEqualTo("other single")
@@ -201,6 +215,13 @@ class XAnnotationBoxTest(
                 typeList = [String::class, Int::class],
                 singleType = Long::class,
                 intMethod = 3,
+                doubleMethodWithDefault = 3.0,
+                floatMethodWithDefault = 3f,
+                charMethodWithDefault = '3',
+                byteMethodWithDefault = 3,
+                shortMethodWithDefault = 3,
+                longMethodWithDefault = 3L,
+                boolMethodWithDefault = false,
                 otherAnnotationArray = [
                     OtherAnnotation(
                         value = "other list 1"
@@ -235,6 +256,13 @@ class XAnnotationBoxTest(
                 )
 
                 assertThat(annotation.value.intMethod).isEqualTo(3)
+                assertThat(annotation.value.doubleMethodWithDefault).isEqualTo(3.0)
+                assertThat(annotation.value.floatMethodWithDefault).isEqualTo(3f)
+                assertThat(annotation.value.charMethodWithDefault).isEqualTo('3')
+                assertThat(annotation.value.byteMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.shortMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.longMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.boolMethodWithDefault).isEqualTo(false)
                 annotation.getAsAnnotationBox<OtherAnnotation>("singleOtherAnnotation")
                     .let { other ->
                         assertThat(other.value.value).isEqualTo("other single")

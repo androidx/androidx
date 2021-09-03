@@ -166,7 +166,7 @@ private fun <R> Any.readAs(returnType: Class<R>): R? {
                         (values as Collection<Boolean>).toBooleanArray()
                     }
                     else -> {
-                       error("Unsupported primitive array type: $returnType")
+                        error("Unsupported primitive array type: $returnType")
                     }
                 }
             } else {
