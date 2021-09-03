@@ -17,6 +17,7 @@ package androidx.fragment.app
 
 import android.transition.Transition
 import androidx.annotation.LayoutRes
+import androidx.annotation.RequiresApi
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
 import com.google.common.truth.Truth.assertThat
@@ -27,6 +28,7 @@ import java.util.concurrent.TimeUnit
 /**
  * A fragment that has transitions that can be tracked.
  */
+@RequiresApi(21)
 open class TransitionFragment(
     @LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment
 ) : StrictViewFragment(contentLayoutId) {
@@ -75,6 +77,7 @@ open class TransitionFragment(
     }
 }
 
+@RequiresApi(21)
 open class TestTransitionFragmentListener(
     val fragment: TransitionFragment
 ) : Transition.TransitionListener {

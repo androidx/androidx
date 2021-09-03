@@ -15,7 +15,6 @@
  */
 package androidx.fragment.app
 
-import android.os.Build
 import android.os.Bundle
 import android.transition.Transition
 import android.transition.TransitionSet
@@ -52,7 +51,7 @@ import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+@SdkSuppress(minSdkVersion = 31)
 class FragmentTransitionTest(
     private val reorderingAllowed: ReorderingAllowed
 ) {
