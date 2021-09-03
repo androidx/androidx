@@ -19,6 +19,9 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspElement
+import androidx.room.compiler.processing.ksp.KspMemberContainer
+import androidx.room.compiler.processing.ksp.containingFileAsOriginatingElement
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import javax.lang.model.element.Element
 import kotlin.contracts.contract
 
@@ -35,6 +38,7 @@ interface XElement : XAnnotated {
      * Returns the string representation of the Element's kind.
      */
     fun kindName(): String
+
     /**
      * When the location of an element is unknown, this String is appended to the diagnostic
      * message. Without this information, developer gets no clue on where the error is.
@@ -96,7 +100,15 @@ fun XElement.isConstructor(): Boolean {
 internal fun XElement.originatingElementForPoet(): Element? {
     return when (this) {
         is JavacElement -> element
-        is KspElement -> containingFileAsOriginatingElement()
+        is KspElement -> {
+            declaration.containingFileAsOriginatingElement()
+        }
+        is KspSyntheticPropertyMethodElement -> {
+            field.declaration.containingFileAsOriginatingElement()
+        }
+        is KspMemberContainer -> {
+            declaration?.containingFileAsOriginatingElement()
+        }
         else -> error("Originating element is not implemented for ${this.javaClass}")
     }
 }
