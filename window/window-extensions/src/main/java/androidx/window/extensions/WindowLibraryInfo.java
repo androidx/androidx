@@ -16,6 +16,8 @@
 
 package androidx.window.extensions;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -39,7 +41,7 @@ public class WindowLibraryInfo {
     }
 
     @NonNull
-    public static WindowLibraryInfo getInstance() {
+    public static WindowLibraryInfo getInstance(@NonNull Context context) {
         return new WindowLibraryInfo();
     }
 }
