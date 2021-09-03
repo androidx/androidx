@@ -27,10 +27,13 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.graphics.drawable.shapes.Shape;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.ProgressBar;
 
+import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.graphics.drawable.WrappedDrawable;
 
 class AppCompatProgressBarHelper {
@@ -69,7 +72,8 @@ class AppCompatProgressBarHelper {
      * Converts a drawable to a tiled version of itself. It will recursively
      * traverse layer and state list drawables.
      */
-    private Drawable tileify(Drawable drawable, boolean clip) {
+    @VisibleForTesting
+    Drawable tileify(Drawable drawable, boolean clip) {
         if (drawable instanceof WrappedDrawable) {
             Drawable inner = ((WrappedDrawable) drawable).getWrappedDrawable();
             if (inner != null) {
@@ -86,13 +90,16 @@ class AppCompatProgressBarHelper {
                 outDrawables[i] = tileify(background.getDrawable(i),
                         (id == android.R.id.progress || id == android.R.id.secondaryProgress));
             }
-            LayerDrawable newBg = new LayerDrawable(outDrawables);
 
+            LayerDrawable clone = new LayerDrawable(outDrawables);
             for (int i = 0; i < N; i++) {
-                newBg.setId(i, background.getId(i));
+                clone.setId(i, background.getId(i));
+                if (Build.VERSION.SDK_INT >= 23) {
+                    Api23Impl.transferLayerProperties(background, clone, i);
+                }
             }
 
-            return newBg;
+            return clone;
 
         } else if (drawable instanceof BitmapDrawable) {
             final BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
@@ -145,4 +152,25 @@ class AppCompatProgressBarHelper {
         return mSampleTile;
     }
 
+    @RequiresApi(23)
+    private static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        /**
+         * Transfers all layer properties that were made public in SDK 23.
+         */
+        public static void transferLayerProperties(LayerDrawable src, LayerDrawable dst, int i) {
+            dst.setLayerGravity(i, src.getLayerGravity(i));
+            dst.setLayerWidth(i, src.getLayerWidth(i));
+            dst.setLayerHeight(i, src.getLayerHeight(i));
+            dst.setLayerInsetLeft(i, src.getLayerInsetLeft(i));
+            dst.setLayerInsetRight(i, src.getLayerInsetRight(i));
+            dst.setLayerInsetTop(i, src.getLayerInsetTop(i));
+            dst.setLayerInsetBottom(i, src.getLayerInsetBottom(i));
+            dst.setLayerInsetStart(i, src.getLayerInsetStart(i));
+            dst.setLayerInsetEnd(i, src.getLayerInsetEnd(i));
+        }
+    }
 }
