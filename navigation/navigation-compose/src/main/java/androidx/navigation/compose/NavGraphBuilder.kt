@@ -54,6 +54,8 @@ public fun NavGraphBuilder.composable(
 /**
  * Construct a nested [NavGraph]
  *
+ * @sample androidx.navigation.compose.samples.NestedNavInGraphWithArgs
+ *
  * @param startDestination the starting destination's route for this NavGraph
  * @param route the destination's unique route
  * @param arguments list of arguments to associate with destination
