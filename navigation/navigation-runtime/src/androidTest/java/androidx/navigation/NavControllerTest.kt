@@ -1801,8 +1801,18 @@ class NavControllerTest {
         val testValue = "testValue"
         args.putString(testKey, testValue)
 
-        var destinationListenerExecuted = false
+        var destinationListenerExecutionCount = 0
         val currentBackStackEntry = navController.currentBackStackEntry
+
+        navController.addOnDestinationChangedListener { _, destination, arguments ->
+            assertThat(destination.id).isEqualTo(R.id.start_test)
+            if (destinationListenerExecutionCount == 0) {
+                assertThat(arguments).isNull()
+            } else {
+                assertThat(arguments?.getString(testKey)).isEqualTo(testValue)
+            }
+            destinationListenerExecutionCount++
+        }
 
         navController.navigate(
             R.id.start_test, args,
@@ -1811,18 +1821,12 @@ class NavControllerTest {
             }
         )
 
-        navController.addOnDestinationChangedListener { _, destination, arguments ->
-            destinationListenerExecuted = true
-            assertThat(destination.id).isEqualTo(R.id.start_test)
-            assertThat(arguments?.getString(testKey)).isEqualTo(testValue)
-        }
-
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
 
         val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
-        assertThat(destinationListenerExecuted).isTrue()
+        assertThat(destinationListenerExecutionCount).isEqualTo(2)
         assertThat(navController.currentBackStackEntry).isNotSameInstanceAs(
             currentBackStackEntry
         )
@@ -1846,8 +1850,20 @@ class NavControllerTest {
         val testValue = "testValue"
         args.putString(testKey, testValue)
 
-        var destinationListenerExecuted = false
+        var destinationListenerExecutionCount = 0
         val currentBackStackEntry = navController.currentBackStackEntry
+
+        navController.addOnDestinationChangedListener { _, destination, arguments ->
+            assertThat(destination.id).isEqualTo(R.id.start_test_with_default_arg)
+            // Assert that the default value is there
+            assertThat(arguments?.getBoolean("defaultArg", false)).isTrue()
+            if (destinationListenerExecutionCount == 0) {
+                assertThat(arguments?.containsKey(testKey)).isFalse()
+            } else {
+                assertThat(arguments?.getString(testKey)).isEqualTo(testValue)
+            }
+            destinationListenerExecutionCount++
+        }
 
         navController.navigate(
             R.id.start_test_with_default_arg, args,
@@ -1856,13 +1872,6 @@ class NavControllerTest {
             }
         )
 
-        navController.addOnDestinationChangedListener { _, destination, arguments ->
-            destinationListenerExecuted = true
-            assertThat(destination.id).isEqualTo(R.id.start_test_with_default_arg)
-            assertThat(arguments?.getString(testKey)).isEqualTo(testValue)
-            assertThat(arguments?.getBoolean("defaultArg", false)).isTrue()
-        }
-
         assertThat(navController.currentDestination?.id ?: 0)
             .isEqualTo(R.id.start_test_with_default_arg)
         assertThat(navigator.backStack.size).isEqualTo(2)
@@ -1870,7 +1879,7 @@ class NavControllerTest {
         val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(returnedArgs?.getBoolean("defaultArg", false)).isTrue()
-        assertThat(destinationListenerExecuted).isTrue()
+        assertThat(destinationListenerExecutionCount).isEqualTo(2)
         assertThat(navController.currentBackStackEntry).isNotSameInstanceAs(
             currentBackStackEntry
         )
