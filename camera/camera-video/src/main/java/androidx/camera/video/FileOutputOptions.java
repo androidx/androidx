@@ -57,7 +57,8 @@ public abstract class FileOutputOptions extends OutputOptions {
     /** The builder of the {@link FileOutputOptions}. */
     @AutoValue.Builder
     @SuppressWarnings("StaticFinalBuilder")
-    public abstract static class Builder {
+    public abstract static class Builder implements
+            OutputOptions.Builder<FileOutputOptions, Builder> {
         Builder() {
         }
 
@@ -70,12 +71,20 @@ public abstract class FileOutputOptions extends OutputOptions {
          * Sets the limit for the file length in bytes. Zero or negative values are considered
          * unlimited.
          *
+         * <p>When used to
+         * {@link Recorder#prepareRecording(FileOutputOptions) generate} recording, if the
+         * specified file size limit is reached while the recording is being recorded, the
+         * recording will be finalized with
+         * {@link VideoRecordEvent.Finalize#ERROR_FILE_SIZE_LIMIT_REACHED}.
+         *
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
          */
+        @Override
         @NonNull
         public abstract Builder setFileSizeLimit(long bytes);
 
-        /** Builds the FileOutputOptions instance. */
+        /** Builds the {@link FileOutputOptions} instance. */
+        @Override
         @NonNull
         public abstract FileOutputOptions build();
     }

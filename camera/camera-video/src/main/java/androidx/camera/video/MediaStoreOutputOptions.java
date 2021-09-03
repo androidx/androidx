@@ -89,7 +89,8 @@ public abstract class MediaStoreOutputOptions extends OutputOptions {
     /** The builder of the {@link MediaStoreOutputOptions}. */
     @AutoValue.Builder
     @SuppressWarnings("StaticFinalBuilder")
-    public abstract static class Builder {
+    public abstract static class Builder implements
+            OutputOptions.Builder<MediaStoreOutputOptions, Builder> {
         Builder() {
         }
 
@@ -109,12 +110,20 @@ public abstract class MediaStoreOutputOptions extends OutputOptions {
          * Sets the limit for the file length in bytes. Zero or negative values are considered
          * unlimited.
          *
+         * <p>When used to
+         * {@link Recorder#prepareRecording(MediaStoreOutputOptions) generate} recording, if the
+         * specified file size limit is reached while the recording is being recorded, the
+         * recording will be finalized with
+         * {@link VideoRecordEvent.Finalize#ERROR_FILE_SIZE_LIMIT_REACHED}.
+         *
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
          */
+        @Override
         @NonNull
         public abstract Builder setFileSizeLimit(long bytes);
 
-        /** Builds the MediaStoreOutputOptions instance. */
+        /** Builds the {@link MediaStoreOutputOptions} instance. */
+        @Override
         @NonNull
         public abstract MediaStoreOutputOptions build();
     }
