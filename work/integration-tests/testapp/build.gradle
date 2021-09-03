@@ -71,3 +71,9 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation(libs.material)
 }
+
+// Enable parameter names to support Room incremental when its a project() dep.
+// See b/198431380
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-parameters"
+}
