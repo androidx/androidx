@@ -198,10 +198,11 @@ package androidx.fragment.app {
   }
 
   public final class FragmentContainerView extends android.widget.FrameLayout {
-    ctor public FragmentContainerView(android.content.Context);
-    ctor public FragmentContainerView(android.content.Context, android.util.AttributeSet?);
-    ctor public FragmentContainerView(android.content.Context, android.util.AttributeSet?, int);
-    method public <F extends androidx.fragment.app.Fragment> F? getFragment();
+    ctor public FragmentContainerView(android.content.Context context);
+    ctor public FragmentContainerView(android.content.Context context, android.util.AttributeSet? attrs, optional int defStyleAttr);
+    ctor public FragmentContainerView(android.content.Context context, android.util.AttributeSet? attrs);
+    method public <F extends androidx.fragment.app.Fragment> F! getFragment();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void removeDetachedView(android.view.View child, boolean animate);
   }
 
   public class FragmentController {
