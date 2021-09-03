@@ -54,6 +54,7 @@ public class ScalingLazyListState : ScrollableState {
     internal val scalingParams = mutableStateOf<ScalingParams?>(null)
     internal val gapBetweenItemsPx = mutableStateOf<Int?>(null)
     internal val viewportHeightPx = mutableStateOf<Int?>(null)
+    internal val reverseLayout = mutableStateOf<Boolean?>(null)
 
     /**
      * The object of [ScalingLazyListLayoutInfo] calculated during the last layout pass. For
@@ -61,7 +62,8 @@ public class ScalingLazyListState : ScrollableState {
      */
     public val layoutInfo: ScalingLazyListLayoutInfo by derivedStateOf {
         if (extraPaddingInPixels.value == null || scalingParams.value == null ||
-            gapBetweenItemsPx.value == null || viewportHeightPx.value == null
+            gapBetweenItemsPx.value == null || viewportHeightPx.value == null ||
+            reverseLayout.value == null
         ) {
             EmptyScalingLazyListLayoutInfo
         } else {
