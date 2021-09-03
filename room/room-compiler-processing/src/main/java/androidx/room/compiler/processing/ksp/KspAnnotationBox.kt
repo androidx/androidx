@@ -141,13 +141,32 @@ private fun <R> Any.readAs(returnType: Class<R>): R? {
             }
             if (returnType.componentType.isPrimitive) {
                 when (returnType) {
-                    IntArray::class.java ->
+                    IntArray::class.java -> {
                         (values as Collection<Int>).toIntArray()
+                    }
+                    DoubleArray::class.java -> {
+                        (values as Collection<Double>).toDoubleArray()
+                    }
+                    FloatArray::class.java -> {
+                        (values as Collection<Float>).toFloatArray()
+                    }
+                    CharArray::class.java -> {
+                        (values as Collection<Char>).toCharArray()
+                    }
+                    ByteArray::class.java -> {
+                        (values as Collection<Byte>).toByteArray()
+                    }
+                    ShortArray::class.java -> {
+                        (values as Collection<Short>).toShortArray()
+                    }
+                    LongArray::class.java -> {
+                        (values as Collection<Long>).toLongArray()
+                    }
+                    BooleanArray::class.java -> {
+                        (values as Collection<Boolean>).toBooleanArray()
+                    }
                     else -> {
-                        // We don't have the use case for these yet but could be implemented in
-                        // the future. Also need to implement them in JavacAnnotationBox
-                        // b/179081610
-                        error("Unsupported primitive array type: $returnType")
+                       error("Unsupported primitive array type: $returnType")
                     }
                 }
             } else {
