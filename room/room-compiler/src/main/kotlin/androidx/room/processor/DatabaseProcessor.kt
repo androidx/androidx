@@ -29,6 +29,7 @@ import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_S
 import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_SCHEMA_OUT_FOLDER_NULL
 import androidx.room.processor.ProcessorErrors.autoMigrationSchemasMustBeRoomGenerated
 import androidx.room.processor.ProcessorErrors.invalidAutoMigrationSchema
+import androidx.room.util.SchemaFileResolver
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
@@ -42,6 +43,7 @@ import androidx.room.vo.findFieldByColumnName
 import com.squareup.javapoet.TypeName
 import java.io.File
 import java.io.FileInputStream
+import java.nio.file.Path
 import java.util.Locale
 
 class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
@@ -145,7 +147,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 )
                 return emptyList()
             }
-            if (context.schemaOutFolder == null) {
+            if (context.schemaOutFolderPath == null) {
                 context.logger.e(
                     element,
                     AUTO_MIGRATION_SCHEMA_OUT_FOLDER_NULL
@@ -155,12 +157,14 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         }
 
         return autoMigrationList.mapNotNull {
-            val schemaOutFolderPath = context.schemaOutFolder!!.absolutePath +
-                File.separator + element.className.canonicalName()
+            val databaseSchemaFolderPath = Path.of(
+                context.schemaOutFolderPath!!,
+                element.className.canonicalName()
+            )
             val autoMigration = it.value
             val validatedFromSchemaFile = getValidatedSchemaFile(
                 autoMigration.from,
-                schemaOutFolderPath
+                databaseSchemaFolderPath
             )
 
             fun deserializeSchemaFile(fileInputStream: FileInputStream, versionNumber: Int): Any {
@@ -169,7 +173,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 } catch (th: Throwable) {
                     invalidAutoMigrationSchema(
                         "$versionNumber.json",
-                        schemaOutFolderPath
+                        databaseSchemaFolderPath.toString()
                     )
                 }
             }
@@ -183,7 +187,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 } else {
                     val validatedToSchemaFile = getValidatedSchemaFile(
                         autoMigration.to,
-                        schemaOutFolderPath
+                        databaseSchemaFolderPath
                     )
                     if (validatedToSchemaFile != null) {
                         validatedToSchemaFile.inputStream().use {
@@ -217,16 +221,15 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         }
     }
 
-    private fun getValidatedSchemaFile(version: Int, schemaOutFolderPath: String): File? {
-        val schemaFile = File(
-            context.schemaOutFolder,
-            element.className.canonicalName() + File.separatorChar + "$version.json"
+    private fun getValidatedSchemaFile(version: Int, schemaFolderPath: Path): File? {
+        val schemaFile = SchemaFileResolver.RESOLVER.getFile(
+            schemaFolderPath.resolve("$version.json")
         )
         if (!schemaFile.exists()) {
             context.logger.e(
                 ProcessorErrors.autoMigrationSchemasNotFound(
                     "$version.json",
-                    schemaOutFolderPath
+                    schemaFolderPath.toString()
                 ),
                 element
             )
@@ -237,7 +240,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             context.logger.e(
                 ProcessorErrors.autoMigrationSchemaIsEmpty(
                     "$version.json",
-                    schemaOutFolderPath
+                    schemaFolderPath.toString()
                 ),
                 element
             )

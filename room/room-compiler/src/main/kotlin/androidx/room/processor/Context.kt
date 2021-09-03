@@ -28,7 +28,6 @@ import androidx.room.processor.cache.Cache
 import androidx.room.solver.TypeAdapterStore
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Warning
-import java.io.File
 import java.util.LinkedHashSet
 
 class Context private constructor(
@@ -110,10 +109,10 @@ class Context private constructor(
         }
     }
 
-    val schemaOutFolder by lazy {
+    val schemaOutFolderPath by lazy {
         val arg = processingEnv.options[ProcessorOptions.OPTION_SCHEMA_FOLDER.argName]
-        if (arg?.isNotEmpty() ?: false) {
-            File(arg)
+        if (arg?.isNotEmpty() == true) {
+            arg
         } else {
             null
         }
