@@ -54,7 +54,13 @@ class EvCompControl @Inject constructor(
         compat.step,
     )
 
-    override var useCaseCamera: UseCaseCamera? = null
+    private var _useCaseCamera: UseCaseCamera? = null
+    override var useCaseCamera: UseCaseCamera?
+        get() = _useCaseCamera
+        set(value) {
+            _useCaseCamera = value
+            updateAsync(evCompIndex)
+        }
 
     override fun reset() {
         evCompIndex = 0
