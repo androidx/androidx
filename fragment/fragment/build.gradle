@@ -24,7 +24,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.2.0")
+    api("androidx.core:core-ktx:1.2.0")
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
@@ -34,6 +34,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1")
     api("androidx.savedstate:savedstate:1.1.0")
     api("androidx.annotation:annotation-experimental:1.0.0")
+    api(libs.kotlinStdlib)
 
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0", {
         exclude group: "androidx.fragment", module: "fragment"
