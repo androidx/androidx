@@ -104,7 +104,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         IMAGE_CAPTURE_TYPE_HDR(0),
         IMAGE_CAPTURE_TYPE_BOKEH(1),
         IMAGE_CAPTURE_TYPE_NIGHT(2),
-        IMAGE_CAPTURE_TYPE_BEAUTY(3),
+        IMAGE_CAPTURE_TYPE_FACE_RETOUCH(3),
         IMAGE_CAPTURE_TYPE_AUTO(4),
         IMAGE_CAPTURE_TYPE_DEFAULT(5);
 
@@ -143,8 +143,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 return ExtensionMode.BOKEH;
             case IMAGE_CAPTURE_TYPE_NIGHT:
                 return ExtensionMode.NIGHT;
-            case IMAGE_CAPTURE_TYPE_BEAUTY:
-                return ExtensionMode.BEAUTY;
+            case IMAGE_CAPTURE_TYPE_FACE_RETOUCH:
+                return ExtensionMode.FACE_RETOUCH;
             case IMAGE_CAPTURE_TYPE_AUTO:
                 return ExtensionMode.AUTO;
             case IMAGE_CAPTURE_TYPE_DEFAULT:
