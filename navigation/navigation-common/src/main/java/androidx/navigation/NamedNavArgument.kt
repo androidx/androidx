@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.navigation.compose
-
-import androidx.navigation.NavArgument
-import androidx.navigation.NavArgumentBuilder
-import androidx.navigation.NavDestinationDsl
+package androidx.navigation
 
 /**
  * Construct a new [NavArgument]
- *
- * @sample androidx.navigation.compose.samples.NavWithArgs
  */
 @NavDestinationDsl
 public fun navArgument(
