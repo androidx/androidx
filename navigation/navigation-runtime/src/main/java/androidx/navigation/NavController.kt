@@ -1572,6 +1572,7 @@ public open class NavController(
                 val newEntry = NavBackStackEntry(currentBackStackEntry, finalArgs)
                 backQueue.addLast(newEntry)
                 navigator.onLaunchSingleTop(newEntry)
+                launchSingleTop = true
             } else {
                 // Not a single top operation, so we're looking to add the node to the back stack
                 val backStackEntry = NavBackStackEntry.create(
