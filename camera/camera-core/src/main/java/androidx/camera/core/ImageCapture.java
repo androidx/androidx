@@ -1503,15 +1503,14 @@ public final class ImageCapture extends UseCase {
             return false;
         }
 
-        // If afMode is CAF, don't check af locked to speed up.
         // If afMode is OFF or UNKNOWN , no need for waiting.
         // otherwise wait until af is locked or focused.
-        boolean isAfReady = (captureResult.getAfMode() == AfMode.ON_CONTINUOUS_AUTO
-                || captureResult.getAfMode() == AfMode.OFF
+        boolean isAfReady = captureResult.getAfMode() == AfMode.OFF
                 || captureResult.getAfMode() == AfMode.UNKNOWN
-                || captureResult.getAfState() == AfState.FOCUSED
+                || captureResult.getAfState() == AfState.PASSIVE_FOCUSED
+                || captureResult.getAfState() == AfState.PASSIVE_NOT_FOCUSED
                 || captureResult.getAfState() == AfState.LOCKED_FOCUSED
-                || captureResult.getAfState() == AfState.LOCKED_NOT_FOCUSED);
+                || captureResult.getAfState() == AfState.LOCKED_NOT_FOCUSED;
 
         // Unknown means cannot get valid state from CaptureResult
         boolean isAeReady = captureResult.getAeState() == AeState.CONVERGED
