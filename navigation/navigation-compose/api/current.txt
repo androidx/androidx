@@ -43,6 +43,7 @@ package androidx.navigation.compose {
   public final class NavGraphBuilderKt {
     method public static void composable(androidx.navigation.NavGraphBuilder, String route, optional java.util.List<androidx.navigation.compose.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
     method public static void dialog(androidx.navigation.NavGraphBuilder, String route, optional java.util.List<androidx.navigation.compose.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, optional androidx.compose.ui.window.DialogProperties dialogProperties, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+    method public static void navigation(androidx.navigation.NavGraphBuilder, String startDestination, String route, optional java.util.List<androidx.navigation.compose.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavHostControllerKt {
