@@ -17,6 +17,7 @@
 package androidx.window.extensions.layout;
 
 import android.app.Activity;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -71,7 +72,7 @@ public class WindowLayoutComponent {
      * @return the OEM implementation of {@link WindowLayoutComponent}
      */
     @Nullable
-    public static WindowLayoutComponent getInstance() {
+    public static WindowLayoutComponent getInstance(@NonNull Context context) {
         throw new UnsupportedOperationException("Stub, replace with implementation.");
     }
 }
