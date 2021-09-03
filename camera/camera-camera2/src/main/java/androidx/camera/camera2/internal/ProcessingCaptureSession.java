@@ -21,8 +21,10 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
@@ -76,6 +78,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * </pre>
  * <p>This class is not thread-safe. All methods must be executed sequentially.
  */
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 final class ProcessingCaptureSession implements CaptureSessionInterface {
     private static final String TAG = "ProcessingCaptureSession";
     private final SessionProcessor mSessionProcessor;
@@ -101,6 +104,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     volatile boolean mIsExecutingStillCaptureRequest = false;
     private final SessionProcessorCaptureCallback mSessionProcessorCaptureCallback;
+
     private CaptureRequestOptions mSessionOptions = new CaptureRequestOptions.Builder().build();
     private CaptureRequestOptions mStillCaptureOptions =
             new CaptureRequestOptions.Builder().build();
