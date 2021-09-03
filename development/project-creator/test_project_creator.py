@@ -72,6 +72,14 @@ class TestNewDirectory(unittest.TestCase):
         package_info_dir_fp = get_package_documentation_file_dir("androidx.foo.bar", "bar-qux")
         self.assertEqual(frameworks_support_fp + "/foo/bar/bar-qux/src/main/androidx/foo/bar", package_info_dir_fp)
 
+        package_info_dir_fp = get_package_documentation_file_dir("androidx.compose.bar", "bar-qux")
+        self.assertEqual(frameworks_support_fp + "/compose/bar/bar-qux/src/commonMain/kotlin/androidx/compose/bar",
+                         package_info_dir_fp)
+
+        package_info_dir_fp = get_package_documentation_file_dir("androidx.foo.compose", "compose-qux")
+        self.assertEqual(frameworks_support_fp + "/foo/compose/compose-qux/src/commonMain/kotlin/androidx/foo/compose",
+                         package_info_dir_fp)
+
     def test_get_package_documentation_filename(self):
         frameworks_support_fp = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
 
