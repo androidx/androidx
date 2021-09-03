@@ -17,8 +17,8 @@
 package androidx.camera.extensions.util;
 
 import static androidx.camera.extensions.ExtensionMode.AUTO;
-import static androidx.camera.extensions.ExtensionMode.BEAUTY;
 import static androidx.camera.extensions.ExtensionMode.BOKEH;
+import static androidx.camera.extensions.ExtensionMode.FACE_RETOUCH;
 import static androidx.camera.extensions.ExtensionMode.HDR;
 import static androidx.camera.extensions.ExtensionMode.NIGHT;
 
@@ -60,8 +60,8 @@ public class ExtensionsTestUtil {
                 {BOKEH, CameraSelector.LENS_FACING_BACK},
                 {HDR, CameraSelector.LENS_FACING_FRONT},
                 {HDR, CameraSelector.LENS_FACING_BACK},
-                {BEAUTY, CameraSelector.LENS_FACING_FRONT},
-                {BEAUTY, CameraSelector.LENS_FACING_BACK},
+                {FACE_RETOUCH, CameraSelector.LENS_FACING_FRONT},
+                {FACE_RETOUCH, CameraSelector.LENS_FACING_BACK},
                 {NIGHT, CameraSelector.LENS_FACING_FRONT},
                 {NIGHT, CameraSelector.LENS_FACING_BACK},
                 {AUTO, CameraSelector.LENS_FACING_FRONT},
@@ -90,7 +90,7 @@ public class ExtensionsTestUtil {
             case BOKEH:
                 impl = new BokehImageCaptureExtenderImpl();
                 break;
-            case BEAUTY:
+            case FACE_RETOUCH:
                 impl = new BeautyImageCaptureExtenderImpl();
                 break;
             case NIGHT:
@@ -135,7 +135,7 @@ public class ExtensionsTestUtil {
             case BOKEH:
                 impl = new BokehPreviewExtenderImpl();
                 break;
-            case BEAUTY:
+            case FACE_RETOUCH:
                 impl = new BeautyPreviewExtenderImpl();
                 break;
             case NIGHT:

@@ -63,7 +63,7 @@ public class AdvancedVendorExtender implements VendorExtender {
                 case ExtensionMode.NIGHT:
                     mAdvancedExtenderImpl = new NightAdvancedExtenderImpl();
                     break;
-                case ExtensionMode.BEAUTY:
+                case ExtensionMode.FACE_RETOUCH:
                     mAdvancedExtenderImpl = new BeautyAdvancedExtenderImpl();
                     break;
                 case ExtensionMode.AUTO:

@@ -77,7 +77,7 @@ public class BasicVendorExtender implements VendorExtender {
                     mPreviewExtenderImpl = new NightPreviewExtenderImpl();
                     mImageCaptureExtenderImpl = new NightImageCaptureExtenderImpl();
                     break;
-                case ExtensionMode.BEAUTY:
+                case ExtensionMode.FACE_RETOUCH:
                     mPreviewExtenderImpl = new BeautyPreviewExtenderImpl();
                     mImageCaptureExtenderImpl = new BeautyImageCaptureExtenderImpl();
                     break;

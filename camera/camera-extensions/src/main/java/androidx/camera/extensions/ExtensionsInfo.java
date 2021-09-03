@@ -266,8 +266,8 @@ final class ExtensionsInfo {
             case ExtensionMode.NIGHT:
                 id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_NIGHT";
                 break;
-            case ExtensionMode.BEAUTY:
-                id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_BEAUTY";
+            case ExtensionMode.FACE_RETOUCH:
+                id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_FACE_RETOUCH";
                 break;
             case ExtensionMode.AUTO:
                 id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_AUTO";
