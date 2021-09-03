@@ -628,4 +628,4 @@ public class ScalingLazyListLayoutInfoTest {
 }
 
 @Stable
-class StableRef<T>(var value: T)
+public class StableRef<T>(var value: T)
