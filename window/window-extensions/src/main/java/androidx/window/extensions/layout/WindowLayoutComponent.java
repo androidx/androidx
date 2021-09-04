@@ -36,11 +36,9 @@ import java.util.function.Consumer;
  * relevant logical areas.
  *
  * <p>This interface should be implemented by OEM and deployed to the target devices.
- *
+ * @see WindowLayoutComponentProvider
  */
-public class WindowLayoutComponent {
-
-    private WindowLayoutComponent() {}
+public interface WindowLayoutComponent {
 
     /**
      * Adds a listener interested in receiving updates to {@link WindowLayoutInfo}
@@ -48,18 +46,14 @@ public class WindowLayoutComponent {
      * @param consumer interested in receiving updates to {@link WindowLayoutInfo}
      */
     public void addWindowLayoutInfoListener(@NonNull Activity activity,
-            @NonNull Consumer<WindowLayoutInfo> consumer) {
-        throw new UnsupportedOperationException("Stub, replace with implementation.");
-    }
+            @NonNull Consumer<WindowLayoutInfo> consumer);
 
     /**
      * Removes a listener no longer interested in receiving updates.
      * @param consumer no longer interested in receiving updates to {@link WindowLayoutInfo}
      */
     public void removeWindowLayoutInfoListener(
-            @NonNull Consumer<WindowLayoutInfo> consumer) {
-        throw new UnsupportedOperationException("Stub, replace with implementation.");
-    }
+            @NonNull Consumer<WindowLayoutInfo> consumer);
 
     /**
      * Returns the OEM implementation of {@link WindowLayoutComponent} if it is supported on the
