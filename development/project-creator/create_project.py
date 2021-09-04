@@ -259,15 +259,22 @@ def get_package_documentation_file_dir(group_id, artifact_id):
     Given androidx.foo.bar:bar-qux, the structure will be:
     frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/package-info.java
 
-    or for Kotlin:
+    For Kotlin:
     frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/<group>-<artifact>-documentation.md
+
+    For Compose:
+    frameworks/support/foo/bar/bar-qux/src/commonMain/kotlin/androidx/foo/<group>-<artifact>-documentation.md
 
     Args:
         group_id: group_id of the new library
         artifact_id: group_id of the new library
     """
     full_artifact_path = get_full_artifact_path(group_id, artifact_id)
-    group_id_subpath = "/src/main/" + \
+    if "compose" in group_id:
+        group_id_subpath = "/src/commonMain/kotlin/" + \
+                        group_id.replace(".", "/")
+    else:
+        group_id_subpath = "/src/main/" + \
                         group_id.replace(".", "/")
     return full_artifact_path + group_id_subpath
 
@@ -331,9 +338,11 @@ def create_directories(group_id, artifact_id, is_kotlin_project):
         copyfile(SAMPLE_OWNERS_FP, group_id_path + "/OWNERS")
 
     # Copy the full src structure, depending on the project source code
+    is_compose_project = False
     if "compose" in group_id or "compose" in artifact_id:
         print("Auto-detected Compose project.")
         cp(SAMPLE_COMPOSE_SRC_FP, full_artifact_path)
+        is_compose_project = True
     elif is_kotlin_project:
         cp(SAMPLE_KOTLIN_SRC_FP, full_artifact_path)
     else:
@@ -366,11 +375,18 @@ def create_directories(group_id, artifact_id, is_kotlin_project):
     full_package_docs_dir = get_package_documentation_file_dir(group_id, artifact_id)
     package_docs_filename = get_package_documentation_filename(group_id, artifact_id, is_kotlin_project)
     full_package_docs_file = os.path.join(full_package_docs_dir, package_docs_filename)
-    # Kotlin projects use -documentation.md files, so we need to rename it appropriately.
-    if is_kotlin_project:
-        rename_file(full_artifact_path + "/src/main/groupId/artifactId-documentation.md",
+    # Compose projects use multiple main directories, so we handle it separately
+    if is_compose_project:
+        # Kotlin projects use -documentation.md files, so we need to rename it appropriately.
+        rename_file(full_artifact_path + "/src/commonMain/kotlin/groupId/artifactId-documentation.md",
                     package_docs_filename)
-    mv_dir(full_artifact_path + "/src/main/groupId", full_package_docs_dir)
+        mv_dir(full_artifact_path + "/src/commonMain/kotlin/groupId", full_package_docs_dir)
+    else:
+        if is_kotlin_project:
+            # Kotlin projects use -documentation.md files, so we need to rename it appropriately.
+            rename_file(full_artifact_path + "/src/main/groupId/artifactId-documentation.md",
+                        package_docs_filename)
+        mv_dir(full_artifact_path + "/src/main/groupId", full_package_docs_dir)
 
     # Populate the library type
     library_type = get_library_type(artifact_id)
@@ -379,14 +395,24 @@ def create_directories(group_id, artifact_id, is_kotlin_project):
     # Populate the YEAR
     year = get_year()
     sed("<YEAR>", year, full_artifact_path + "/build.gradle")
-    sed("<YEAR>", year, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
-    sed("<YEAR>", year, full_artifact_path + "/src/main/AndroidManifest.xml")
     sed("<YEAR>", year, full_package_docs_file)
+    if is_compose_project:
+        sed("<YEAR>", year, full_artifact_path + "/src/androidAndroidTest/AndroidManifest.xml")
+        sed("<YEAR>", year, full_artifact_path + "/src/androidMain/AndroidManifest.xml")
+    else:
+        sed("<YEAR>", year, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
+        sed("<YEAR>", year, full_artifact_path + "/src/main/AndroidManifest.xml")
+
     # Populate the PACKAGE
     package = generate_package_name(group_id, artifact_id)
-    sed("<PACKAGE>", package, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
-    sed("<PACKAGE>", package, full_artifact_path + "/src/main/AndroidManifest.xml")
     sed("<PACKAGE>", package, full_package_docs_file)
+    if is_compose_project:
+        sed("<PACKAGE>", package, full_artifact_path + "/src/androidAndroidTest/AndroidManifest.xml")
+        sed("<PACKAGE>", package, full_artifact_path + "/src/androidMain/AndroidManifest.xml")
+    else:
+        sed("<PACKAGE>", package, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
+        sed("<PACKAGE>", package, full_artifact_path + "/src/main/AndroidManifest.xml")
+
     # Populate the VERSION macro
     group_id_version_macro = get_group_id_version_macro(group_id)
     sed("<GROUPID>", group_id_version_macro, full_artifact_path + "/build.gradle")
