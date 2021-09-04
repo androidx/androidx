@@ -68,6 +68,34 @@ package androidx.glance {
 
 }
 
+package androidx.glance.action {
+
+  public interface Action {
+  }
+
+  public final class ActionKt {
+    method public static androidx.glance.Modifier clickable(androidx.glance.Modifier, androidx.glance.action.Action onClick);
+  }
+
+  @androidx.glance.GlanceInternalApi public final class ActionModifier implements androidx.glance.Modifier.Element {
+    ctor public ActionModifier(androidx.glance.action.Action action);
+    method public androidx.glance.action.Action getAction();
+    property public final androidx.glance.action.Action action;
+  }
+
+  @androidx.glance.GlanceInternalApi public final class LaunchActivityAction implements androidx.glance.action.Action {
+    ctor public LaunchActivityAction(Class<? extends android.app.Activity> activityClass);
+    method public Class<? extends android.app.Activity> getActivityClass();
+    property public final Class<? extends android.app.Activity> activityClass;
+  }
+
+  public final class LaunchActivityActionKt {
+    method public static <T extends android.app.Activity> androidx.glance.action.Action launchActivityAction(Class<T> activity);
+    method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! launchActivityAction();
+  }
+
+}
+
 package androidx.glance.layout {
 
   public final class Alignment {
