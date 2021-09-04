@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
@@ -25,10 +26,70 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+
 dependencies {
-    kotlinPlugin project(":compose:compiler:compiler")
-    api(libs.kotlinStdlib)
-    // Add dependencies here
+
+    kotlinPlugin(project(":compose:compiler:compiler"))
+
+    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block below
+         */
+        implementation(libs.kotlinStdlibCommon)
+
+        api("androidx.annotation:annotation:1.1.0")
+
+        testImplementation(libs.testRules)
+        testImplementation(libs.testRunner)
+        testImplementation(libs.junit)
+        testImplementation(libs.truth)
+
+        androidTestImplementation(libs.testRules)
+        androidTestImplementation(libs.testRunner)
+        androidTestImplementation(libs.junit)
+        androidTestImplementation(libs.truth)
+    }
+}
+
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    kotlin {
+        android()
+        jvm("desktop")
+
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+        sourceSets {
+            commonMain.dependencies {
+                implementation(libs.kotlinStdlibCommon)
+            }
+
+            androidMain.dependencies {
+                api("androidx.annotation:annotation:1.1.0")
+            }
+
+            desktopMain.dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+
+            test.dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+
+            androidAndroidTest.dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
+    }
 }
 
 androidx {
