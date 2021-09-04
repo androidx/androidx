@@ -59,6 +59,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
+import androidx.annotation.AnimRes;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -3247,7 +3248,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo;
     }
 
-    void setAnimations(int enter, int exit, int popEnter, int popExit) {
+    void setAnimations(
+            @AnimRes int enter,
+            @AnimRes int exit,
+            @AnimRes int popEnter,
+            @AnimRes int popExit) {
         if (mAnimationInfo == null && enter == 0 && exit == 0 && popEnter == 0 && popExit == 0) {
             return; // no change!
         }
@@ -3257,6 +3262,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         ensureAnimationInfo().mPopExitAnim = popExit;
     }
 
+    @AnimRes
     int getEnterAnim() {
         if (mAnimationInfo == null) {
             return 0;
@@ -3264,6 +3270,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mEnterAnim;
     }
 
+    @AnimRes
     int getExitAnim() {
         if (mAnimationInfo == null) {
             return 0;
@@ -3271,6 +3278,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mExitAnim;
     }
 
+    @AnimRes
     int getPopEnterAnim() {
         if (mAnimationInfo == null) {
             return 0;
@@ -3278,6 +3286,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mPopEnterAnim;
     }
 
+    @AnimRes
     int getPopExitAnim() {
         if (mAnimationInfo == null) {
             return 0;
@@ -3510,10 +3519,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         boolean mIsPop;
 
         // All possible animations
-        int mEnterAnim;
-        int mExitAnim;
-        int mPopEnterAnim;
-        int mPopExitAnim;
+        @AnimRes int mEnterAnim;
+        @AnimRes int mExitAnim;
+        @AnimRes int mPopEnterAnim;
+        @AnimRes int mPopExitAnim;
 
         // If app has requested a specific transition, this is the one to use.
         int mNextTransition;
