@@ -121,10 +121,10 @@ jobs:
           arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: activity
           configuration-cache-enabled: false
-          dependencies-cache-enabled: true
+          dependencies-cache-enabled: false
           gradle-executable: activity/gradlew
           wrapper-directory: activity/gradle/wrapper
-          distributions-cache-enabled: true
+          distributions-cache-enabled: false
   build-modules:
     strategy:
       fail-fast: false
