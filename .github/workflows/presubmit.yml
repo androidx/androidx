@@ -97,7 +97,7 @@ jobs:
           AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|\([^ ]\+\)|--changedFilePath=\1|g'`
           echo "::set-output name=files::$AFFECTED_FILES"
       - name: "ktlint"
-        uses: gradle/gradle-command-action@v1.4.1
+        uses: gradle/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
@@ -107,7 +107,7 @@ jobs:
           dependencies-cache-enabled: true
           gradle-executable: activity/gradlew
           wrapper-directory: activity/gradle/wrapper
-          wrapper-cache-enabled: true
+          distributions-cache-enabled: true
   build-modules:
     strategy:
       fail-fast: false
@@ -154,21 +154,41 @@ jobs:
           set -x
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+      # gradle action loads the dependencies cache only on the first run based on arguments.
+      # to control it, we explicitly invoke it once which makes it load the dependencies cache with the parameters
+      # we control
+      - name: "warm up gradle"
+        id: warm-up-gradle-cache
+        uses: gradle/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+          JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
+        with:
+          arguments: tasks -PandroidUnusedParameter=${{ env.project-root }} # add project name to cache key
+          build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
+          dependencies-cache-key: |
+            **/libs.versions.toml
+          dependencies-cache-exact: false
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          distributions-cache-enabled: true
       - name: "./gradlew findAffectedModules"
         id: find-affected-modules
         if: ${{ needs.lint.outputs.affectedFileArgs != '' }}
-        uses: gradle/gradle-command-action@v1.4.1
+        uses: gradle/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         with:
           arguments: findAffectedModules ${{ needs.lint.outputs.affectedFileArgs }} ${{ needs.setup.outputs.gradlew_flags }} --outputFilePath=${{ github.workspace }}/affected.txt
           build-root-directory: ${{ env.project-root }}
-          configuration-cache-enabled: true
-          dependencies-cache-enabled: true
+          configuration-cache-enabled: false
+          dependencies-cache-enabled: false
+          distributions-cache-enabled: false
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
-          wrapper-cache-enabled: true
       - name: "Parse the output of find affected modules step to see if we should build"
         id: affected-module-count
         run: |
@@ -176,7 +196,7 @@ jobs:
           AFFECTED_MODULE_COUNT=`grep -c ".*" ${{ github.workspace }}/affected.txt || true`
           echo "::set-output name=count::$AFFECTED_MODULE_COUNT"
       - name: "./gradlew buildOnServer buildTestApks"
-        uses: gradle/gradle-command-action@v1.4.1
+        uses: gradle/gradle-command-action@v1
         if: ${{ steps.affected-module-count.outputs.count > 0 }}
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
@@ -184,11 +204,11 @@ jobs:
         with:
           arguments: buildOnServer buildTestApks ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
-          configuration-cache-enabled: true
-          dependencies-cache-enabled: true
+          configuration-cache-enabled: false
+          dependencies-cache-enabled: false
+          distributions-cache-enabled: false
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
-          wrapper-cache-enabled: true
 
       - name: "Upload build artifacts"
         continue-on-error: true
