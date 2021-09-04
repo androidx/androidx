@@ -376,7 +376,7 @@ internal class ScalingLazyColumnStateAdapter(
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
         val lastItemVisibleSize = state.layoutInfo.viewportEndOffset - lastItem.offset
         val decimalLastItemIndex = lastItem.index.toFloat() +
-            lastItemVisibleSize / lastItem.size
+            lastItemVisibleSize.toFloat() / lastItem.size.toFloat()
         return decimalLastItemIndex
     }
 
@@ -386,7 +386,7 @@ internal class ScalingLazyColumnStateAdapter(
         val firstItemOffset = firstItem.offset - state.layoutInfo.viewportStartOffset
         val decimalFirstItemIndex =
             if (firstItemOffset < 0)
-                firstItem.index + abs(firstItemOffset) / firstItem.size.toFloat()
+                firstItem.index.toFloat() + abs(firstItemOffset) / firstItem.size.toFloat()
             else firstItem.index.toFloat()
         return decimalFirstItemIndex
     }

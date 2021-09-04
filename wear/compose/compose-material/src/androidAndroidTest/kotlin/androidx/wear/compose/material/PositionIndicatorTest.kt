@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -42,6 +43,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -134,6 +136,47 @@ public class PositionIndicatorTest {
     }
 
     @Test
+    @Ignore("Offsets not being handled correctly due to b/198751807")
+    fun scalingLazyColumnNotLargeEnoughToScrollSwapVerticalAlignmentGivesCorrectPositionAndSize() {
+        lateinit var state: ScalingLazyListState
+        lateinit var positionIndicatorState: PositionIndicatorState
+        var viewPortHeight = 0
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            positionIndicatorState = ScalingLazyColumnStateAdapter(state)
+            ScalingLazyColumn(
+                state = state,
+                verticalArrangement = Arrangement.spacedBy(
+                    space = itemSpacingDp,
+                    alignment = Alignment.Bottom
+                ),
+                modifier = Modifier
+                    .onSizeChanged { viewPortHeight = it.height }
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
+            ) {
+                items(3) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+            PositionIndicator(
+                state = positionIndicatorState,
+                indicatorHeight = 50.dp,
+                indicatorWidth = 4.dp,
+                paddingRight = 5.dp,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(
+                positionIndicatorState.positionFraction
+            ).isEqualTo(0f)
+            assertThat(
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
+            ).isEqualTo(1f)
+        }
+    }
+
+    @Test
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSize() {
         lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
@@ -141,46 +184,31 @@ public class PositionIndicatorTest {
         rule.setContent {
             state = rememberScalingLazyListState()
             positionIndicatorState = ScalingLazyColumnStateAdapter(state)
-            Box(modifier = Modifier.background(Color.Black)) {
-                ScalingLazyColumn(
-                    state = state,
-                    verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
-                    modifier = Modifier
-                        .onSizeChanged { viewPortHeight = it.height }
-                        .requiredHeight(
-                            // Exactly the right size to hold 3 items with spacing
-                            itemSizeDp * 3f + itemSpacingDp * 2f
-                        )
-                        .background(Color.Black),
-                    scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
-                ) {
-                    items(5) {
-                        Box(Modifier.requiredSize(itemSizeDp))
-                    }
+            ScalingLazyColumn(
+                state = state,
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
+                modifier = Modifier
+                    .onSizeChanged { viewPortHeight = it.height }
+                    .requiredHeight(
+                        // Exactly the right size to hold 3 items with spacing
+                        itemSizeDp * 3f + itemSpacingDp * 2f
+                    ),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
                 }
-                PositionIndicator(
-                    state = positionIndicatorState,
-                    indicatorHeight = 50.dp,
-                    indicatorWidth = 4.dp,
-                    paddingRight = 5.dp,
-                )
             }
+            PositionIndicator(
+                state = positionIndicatorState,
+                indicatorHeight = 50.dp,
+                indicatorWidth = 4.dp,
+                paddingRight = 5.dp,
+            )
         }
 
         rule.runOnIdle {
-            state.layoutInfo.assertWhollyVisibleItems(
-                firstItemIndex = 0, lastItemIndex = 2,
-                viewPortHeight = viewPortHeight
-            )
-
-            // And that the indicator is at position 0 and of expected size
-            assertThat(
-                positionIndicatorState.positionFraction
-            ).isEqualTo(0f)
-            assertThat(
-                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
-            ).isWithin(0.05f).of(0.6f)
-
+            // Scroll forwards
             runBlocking {
                 state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
             }
@@ -197,20 +225,134 @@ public class PositionIndicatorTest {
             assertThat(
                 positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
+        }
+    }
 
+    @Test
+    fun emptyReverseLayoutScalingLazyColumnGivesCorrectPositionAndSize() {
+        lateinit var state: ScalingLazyListState
+        lateinit var positionIndicatorState: PositionIndicatorState
+        var viewPortHeight = 0
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            positionIndicatorState = ScalingLazyColumnStateAdapter(state)
+            ScalingLazyColumn(
+                state = state,
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
+                reverseLayout = true,
+                modifier = Modifier
+                    .onSizeChanged { viewPortHeight = it.height }
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
+            ) {
+            }
+            PositionIndicator(
+                state = positionIndicatorState,
+                indicatorHeight = 50.dp,
+                indicatorWidth = 4.dp,
+                paddingRight = 5.dp,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(
+                positionIndicatorState.positionFraction
+            ).isEqualTo(0)
+            assertThat(
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
+            ).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun reverseLayoutScalingLazyColumnNotLargeEnoughToScrollGivesCorrectPositionAndSize() {
+        lateinit var state: ScalingLazyListState
+        lateinit var positionIndicatorState: PositionIndicatorState
+        var viewPortHeight = 0
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            positionIndicatorState = ScalingLazyColumnStateAdapter(state)
+            ScalingLazyColumn(
+                state = state,
+                verticalArrangement = Arrangement.spacedBy(
+                    space = itemSpacingDp,
+                    alignment = Alignment.Bottom
+                ),
+                reverseLayout = true,
+                modifier = Modifier
+                    .onSizeChanged { viewPortHeight = it.height }
+                    .fillMaxWidth()
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
+                    .background(Color.DarkGray),
+            ) {
+                items(3) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+            PositionIndicator(
+                state = positionIndicatorState,
+                indicatorHeight = 50.dp,
+                indicatorWidth = 4.dp,
+                paddingRight = 5.dp,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(
+                positionIndicatorState.positionFraction
+            ).isEqualTo(0f)
+            assertThat(
+                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
+            ).isEqualTo(1f)
+        }
+    }
+
+    @Test
+    fun reverseLayoutScrollableScalingLazyColumnGivesCorrectPositionAndSize() {
+        lateinit var state: ScalingLazyListState
+        lateinit var positionIndicatorState: PositionIndicatorState
+        var viewPortHeight = 0
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            positionIndicatorState = ScalingLazyColumnStateAdapter(state)
+            ScalingLazyColumn(
+                state = state,
+                verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
+                reverseLayout = true,
+                modifier = Modifier
+                    .onSizeChanged { viewPortHeight = it.height }
+                    .requiredHeight(
+                        // Exactly the right size to hold 3 items with spacing
+                        itemSizeDp * 3f + itemSpacingDp * 2f
+                    )
+                    .background(Color.DarkGray),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+            PositionIndicator(
+                state = positionIndicatorState,
+                indicatorHeight = 50.dp,
+                indicatorWidth = 4.dp,
+                paddingRight = 5.dp,
+            )
+        }
+
+        rule.runOnIdle {
             runBlocking {
                 state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
             }
 
             state.layoutInfo.assertWhollyVisibleItems(
-                firstItemIndex = 2, lastItemIndex = 4,
+                firstItemIndex = 1, lastItemIndex = 3,
                 viewPortHeight = viewPortHeight
             )
 
-            // And that the indicator is at position 1 and of expected size
+            // And that the indicator is at position 0.5 and of expected size
             assertThat(
                 positionIndicatorState.positionFraction
-            ).isWithin(0.05f).of(1.0f)
+            ).isWithin(0.05f).of(0.5f)
             assertThat(
                 positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
@@ -392,14 +534,6 @@ public class PositionIndicatorTest {
         }
 
         rule.runOnIdle {
-            // And that the indicator is at position 0 and of expected size
-            assertThat(
-                positionIndicatorState.positionFraction
-            ).isEqualTo(0)
-            assertThat(
-                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
-            ).isWithin(0.05f).of(0.6f)
-
             runBlocking {
                 state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
             }
@@ -408,18 +542,6 @@ public class PositionIndicatorTest {
             assertThat(
                 positionIndicatorState.positionFraction
             ).isWithin(0.05f).of(0.5f)
-            assertThat(
-                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
-            ).isWithin(0.05f).of(0.6f)
-
-            runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
-            }
-
-            // And that the indicator is at position 0.5 and of expected size
-            assertThat(
-                positionIndicatorState.positionFraction
-            ).isWithin(0.05f).of(1.0f)
             assertThat(
                 positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
@@ -459,14 +581,6 @@ public class PositionIndicatorTest {
         }
 
         rule.runOnIdle {
-            // And that the indicator is at position 0 and of expected size
-            assertThat(
-                positionIndicatorState.positionFraction
-            ).isWithin(0.05f).of(0.0f)
-            assertThat(
-                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
-            ).isWithin(0.05f).of(0.6f)
-
             runBlocking {
                 state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
             }
@@ -475,18 +589,6 @@ public class PositionIndicatorTest {
             assertThat(
                 positionIndicatorState.positionFraction
             ).isWithin(0.05f).of(0.5f)
-            assertThat(
-                positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
-            ).isWithin(0.05f).of(0.6f)
-
-            runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
-            }
-
-            // And that the indicator is at position 0.5 and of expected size
-            assertThat(
-                positionIndicatorState.positionFraction
-            ).isWithin(0.05f).of(1.0f)
             assertThat(
                 positionIndicatorState.sizeFraction(viewPortHeight.toFloat())
             ).isWithin(0.05f).of(0.6f)
