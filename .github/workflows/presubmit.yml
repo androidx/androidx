@@ -96,6 +96,23 @@ jobs:
           set -x
           AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|\([^ ]\+\)|--changedFilePath=\1|g'`
           echo "::set-output name=files::$AFFECTED_FILES"
+      - name: "warm up gradle"
+        id: warm-up-gradle-cache
+        uses: gradle/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+          JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
+        with:
+          arguments: tasks -PandroidXUnusedParameter=activity # add project name to cache key
+          build-root-directory: activity
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
+          dependencies-cache-key: |
+            **/libs.versions.toml
+          dependencies-cache-exact: false
+          gradle-executable: activity/gradlew
+          wrapper-directory: activity/gradle/wrapper
+          distributions-cache-enabled: true
       - name: "ktlint"
         uses: gradle/gradle-command-action@v1
         env:
@@ -103,7 +120,7 @@ jobs:
         with:
           arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: activity
-          configuration-cache-enabled: true
+          configuration-cache-enabled: false
           dependencies-cache-enabled: true
           gradle-executable: activity/gradlew
           wrapper-directory: activity/gradle/wrapper
@@ -164,7 +181,7 @@ jobs:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         with:
-          arguments: tasks -PandroidUnusedParameter=${{ env.project-root }} # add project name to cache key
+          arguments: tasks -PandroidXUnusedParameter=${{ env.project-root }} # add project name to cache key
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
