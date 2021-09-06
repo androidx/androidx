@@ -186,7 +186,7 @@ internal class ConfigFragment : Fragment() {
                 watchFaceConfigActivity.fragmentController.showStyleConfigFragment(
                     configKey,
                     editingSession.userStyleSchema,
-                    editingSession.userStyle
+                    editingSession.userStyle.value
                 )
             }
         }

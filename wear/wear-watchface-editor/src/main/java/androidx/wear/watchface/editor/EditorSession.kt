@@ -71,6 +71,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -109,7 +110,7 @@ public interface EditorSession : AutoCloseable {
      * The current [UserStyle]. Assigning to this will cause the style to update. However, styling
      * changes to the watch face will be reverted upon exit.
      */
-    public var userStyle: UserStyle
+    public val userStyle: MutableStateFlow<UserStyle>
 
     /** The reference preview [Instant] for this watch face to render previews with. */
     public val previewReferenceInstant: Instant
@@ -685,7 +686,7 @@ public abstract class BaseEditorSession internal constructor(
                     EditorService.globalEditorService.broadcastEditorState(
                         EditorStateWireFormat(
                             watchFaceId.id,
-                            userStyle.toWireFormat(),
+                            userStyle.value.toWireFormat(),
                             getComplicationsPreviewData().value.mapNotNull {
                                 if (complicationSlotsState.value[it.key]!!.isEnabled) {
                                     IdAndComplicationDataWireFormat(
@@ -788,26 +789,7 @@ internal class OnWatchFaceEditorSessionImpl(
         }
     }
 
-    private var _userStyle: UserStyle? = null
-
-    // We make a deep copy of the style because assigning to it can otherwise have unexpected
-    // side effects (it would apply to the active watch face).
-    override var userStyle: UserStyle
-        get() {
-            requireNotClosed()
-            if (_userStyle == null) {
-                _userStyle = UserStyle(editorDelegate.userStyle)
-            }
-            return _userStyle!!
-        }
-        set(value) {
-            requireNotClosed()
-            _userStyle = value
-            editorDelegate.userStyle = UserStyle(value)
-
-            // Changing the style may enable/disable complications.
-            maybeUpdateComplicationSlotsState()
-        }
+    override val userStyle by lazy { MutableStateFlow(editorDelegate.userStyle) }
 
     private lateinit var previousWatchFaceUserStyle: UserStyle
     private lateinit var backgroundCoroutineScope: CoroutineScope
@@ -839,7 +821,7 @@ internal class OnWatchFaceEditorSessionImpl(
         // fail to persist this change and we rely on the system reverting the style change in this
         // eventuality.
         if (!commitChangesOnClose && this::previousWatchFaceUserStyle.isInitialized) {
-            userStyle = previousWatchFaceUserStyle
+            userStyle.value = previousWatchFaceUserStyle
         }
 
         if (this::fetchComplicationsDataJob.isInitialized) {
@@ -866,7 +848,7 @@ internal class OnWatchFaceEditorSessionImpl(
     fun setEditorDelegate(editorDelegate: WatchFace.EditorDelegate) {
         this.editorDelegate = editorDelegate
 
-        previousWatchFaceUserStyle = UserStyle(editorDelegate.userStyle)
+        previousWatchFaceUserStyle = editorDelegate.userStyle
 
         // Apply any initial style from the intent.  Note we don't restore the previous style at
         // the end since we assume we're editing the current active watchface.
@@ -880,6 +862,20 @@ internal class OnWatchFaceEditorSessionImpl(
         )
 
         fetchComplicationsDataJob = fetchComplicationsData(backgroundCoroutineScope)
+
+        coroutineScope.launch {
+            var first = true
+            userStyle.collect {
+                // We can ignore the first callback because it's for the initial style.
+                if (!first) {
+                    editorDelegate.userStyle = it
+
+                    // Changing the style may enable/disable complications.
+                    maybeUpdateComplicationSlotsState()
+                }
+                first = false
+            }
+        }
     }
 }
 
@@ -901,13 +897,21 @@ internal class HeadlessEditorSession(
 ) {
     override val userStyleSchema = headlessWatchFaceClient.userStyleSchema
 
-    override var userStyle = UserStyle(initialUserStyle, userStyleSchema)
-        set(value) {
-            field = value
+    override val userStyle = MutableStateFlow(UserStyle(initialUserStyle, userStyleSchema))
 
-            // Changing the style may enable/disable complications.
-            maybeUpdateComplicationSlotsState()
+    init {
+        coroutineScope.launch {
+            var first = true
+            userStyle.collect {
+                // Changing the style may enable/disable complications. We can ignore the first
+                // callback because it's for the initial style.
+                if (!first) {
+                    maybeUpdateComplicationSlotsState()
+                }
+                first = false
+            }
         }
+    }
 
     override val previewReferenceInstant = headlessWatchFaceClient.previewReferenceInstant
 
@@ -928,7 +932,7 @@ internal class HeadlessEditorSession(
             } else {
                 instant
             },
-            userStyle,
+            userStyle.value,
             slotIdToComplicationData
         )
     }

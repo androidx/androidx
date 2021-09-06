@@ -36,6 +36,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -119,7 +120,7 @@ public class ListenableEditorSession(
     @RequiresApi(Build.VERSION_CODES.R)
     override val watchFaceId: WatchFaceId = wrappedEditorSession.watchFaceId
 
-    override var userStyle: UserStyle by wrappedEditorSession::userStyle
+    override val userStyle: MutableStateFlow<UserStyle> by wrappedEditorSession::userStyle
 
     override val previewReferenceInstant: Instant = wrappedEditorSession.previewReferenceInstant
 

@@ -98,10 +98,10 @@ public class ConfigActivity extends ComponentActivity {
             return;
         }
 
-        UserStyle userStyle = mEditorSession.getUserStyle();
+        UserStyle userStyle = mEditorSession.getUserStyle().getValue();
         TimeStyle.Value value = mTimeStyle.get(userStyle);
         TimeStyle.Value newValue = NEXT_VALUE_MAP.get(value);
-        mEditorSession.setUserStyle(mTimeStyle.set(userStyle, newValue));
+        mEditorSession.getUserStyle().setValue(mTimeStyle.set(userStyle, newValue));
         updateStyleValue();
     }
 
@@ -109,7 +109,7 @@ public class ConfigActivity extends ComponentActivity {
         if (mEditorSession == null) {
             return;
         }
-        TimeStyle.Value value = mTimeStyle.get(mEditorSession.getUserStyle());
+        TimeStyle.Value value = mTimeStyle.get(mEditorSession.getUserStyle().getValue());
         mStyleValue.setText(mTimeStyle.getDisplayName(value));
     }
 

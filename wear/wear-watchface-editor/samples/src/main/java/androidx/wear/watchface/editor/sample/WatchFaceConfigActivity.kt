@@ -195,7 +195,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 fragmentController.showStyleConfigFragment(
                     onlyStyleSetting.id.value,
                     editorSession.userStyleSchema,
-                    editorSession.userStyle
+                    editorSession.userStyle.value
                 )
             }
         }
