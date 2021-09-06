@@ -1,0 +1,37 @@
+// Signature format: 4.0
+package androidx.wear.compose.navigation {
+
+  public final class NamedNavArgument {
+    method public operator String component1();
+    method public operator androidx.navigation.NavArgument component2();
+    method public androidx.navigation.NavArgument getArgument();
+    method public String getName();
+    property public final androidx.navigation.NavArgument argument;
+    property public final String name;
+  }
+
+  public final class NamedNavArgumentKt {
+    method @androidx.navigation.NavDestinationDsl public static androidx.wear.compose.navigation.NamedNavArgument navArgument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> builder);
+  }
+
+  public final class NavGraphBuilderKt {
+    method public static void composable(androidx.navigation.NavGraphBuilder, String route, optional java.util.List<androidx.wear.compose.navigation.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+  }
+
+  public final class SwipeDismissableNavHostControllerKt {
+  }
+
+  public final class SwipeDismissableNavHostKt {
+  }
+
+  @androidx.navigation.Navigator.Name("wear-navigator") public final class WearNavigator extends androidx.navigation.Navigator<androidx.wear.compose.navigation.WearNavigator.Destination> {
+    ctor public WearNavigator();
+    method public androidx.wear.compose.navigation.WearNavigator.Destination createDestination();
+  }
+
+  @androidx.navigation.NavDestination.ClassType(Composable::class) public static final class WearNavigator.Destination extends androidx.navigation.NavDestination {
+    ctor public WearNavigator.Destination(androidx.wear.compose.navigation.WearNavigator navigator, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+  }
+
+}
+
