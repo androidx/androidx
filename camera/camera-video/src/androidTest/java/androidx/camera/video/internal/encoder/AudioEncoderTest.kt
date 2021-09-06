@@ -166,9 +166,7 @@ class AudioEncoderTest {
         encoder.pause()
 
         // Assert.
-        // Since there is no exact event to know the encoder is paused, wait for a while until no
-        // callback.
-        verify(encoderCallback, noInvocation(3000L, 10000L)).onEncodedData(any())
+        verify(encoderCallback, timeout(5000L)).onEncodePaused()
 
         // Arrange.
         clearInvocations(encoderCallback)
@@ -195,9 +193,7 @@ class AudioEncoderTest {
         encoder.pause()
 
         // Assert.
-        // Since there is no exact event to know the encoder is paused, wait for a while until no
-        // callback.
-        verify(encoderCallback, noInvocation(3000L, 10000L)).onEncodedData(any())
+        verify(encoderCallback, timeout(5000L)).onEncodePaused()
 
         // Act.
         encoder.stop()
@@ -213,6 +209,26 @@ class AudioEncoderTest {
 
         // Assert.
         verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+    }
+
+    @Test
+    fun canRestartPauseEncoder() {
+        // Arrange.
+        fakeAudioLoop.start()
+
+        // Act.
+        encoder.start()
+
+        // Assert.
+        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        // Act.
+        encoder.stop()
+        encoder.start()
+        encoder.pause()
+
+        // Assert.
+        verify(encoderCallback, timeout(5000L)).onEncodePaused()
     }
 
     @Test
@@ -271,7 +287,7 @@ class AudioEncoderTest {
         verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
         encoder.pause()
-        verify(encoderCallback, noInvocation(2000L, 10000L)).onEncodedData(any())
+        verify(encoderCallback, timeout(5000L)).onEncodePaused()
 
         // Save all values before clear invocations
         var startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
