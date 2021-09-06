@@ -187,7 +187,7 @@ class Camera2CameraControlDeviceTest {
                 )
                 .setCaptureRequestOption<Int>(
                     CaptureRequest.COLOR_CORRECTION_MODE,
-                    CameraMetadata.COLOR_CORRECTION_ABERRATION_MODE_OFF
+                    CameraMetadata.COLOR_CORRECTION_MODE_FAST
                 )
         assertFutureCompletes(camera2CameraControl.setCaptureRequestOptions(builder.build()))
 
@@ -213,7 +213,7 @@ class Camera2CameraControlDeviceTest {
             Truth.assertThat(it.last().request[CaptureRequest.CONTROL_CAPTURE_INTENT])
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL)
             Truth.assertThat(it.last().request[CaptureRequest.COLOR_CORRECTION_MODE])
-                .isNotEqualTo(CaptureRequest.COLOR_CORRECTION_ABERRATION_MODE_OFF)
+                .isNotEqualTo(CaptureRequest.COLOR_CORRECTION_MODE_FAST)
         })
     }
 

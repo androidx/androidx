@@ -162,7 +162,7 @@ public final class Camera2CameraControlDeviceTest {
                         CaptureRequest.CONTROL_CAPTURE_INTENT,
                         CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL)
                 .setCaptureRequestOption(CaptureRequest.COLOR_CORRECTION_MODE,
-                        CameraMetadata.COLOR_CORRECTION_ABERRATION_MODE_OFF);
+                        CaptureRequest.COLOR_CORRECTION_MODE_FAST);
 
         ListenableFuture<Void> future =
                 mCamera2CameraControl.setCaptureRequestOptions(builder.build());
@@ -180,17 +180,6 @@ public final class Camera2CameraControlDeviceTest {
                 CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
         assertThat(mCamera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
                 CaptureRequest.COLOR_CORRECTION_MODE, null)).isEqualTo(null);
-
-        ArgumentCaptor<CaptureRequest> captureRequest =
-                ArgumentCaptor.forClass(CaptureRequest.class);
-        verify(mMockCaptureCallback, timeout(5000).atLeastOnce()).onCaptureCompleted(
-                any(CameraCaptureSession.class),
-                captureRequest.capture(), any(TotalCaptureResult.class));
-        CaptureRequest request = captureRequest.getValue();
-        assertThat(request.get(CaptureRequest.CONTROL_CAPTURE_INTENT)).isEqualTo(
-                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
-        assertThat(request.get(CaptureRequest.COLOR_CORRECTION_MODE)).isNotEqualTo(
-                CameraMetadata.COLOR_CORRECTION_ABERRATION_MODE_OFF);
     }
 
     @Test
