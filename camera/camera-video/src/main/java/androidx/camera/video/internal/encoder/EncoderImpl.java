@@ -165,7 +165,7 @@ public class EncoderImpl implements Encoder {
     EncoderCallback mEncoderCallback = EncoderCallback.EMPTY;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mLock")
-    Executor mEncoderCallbackExecutor = CameraXExecutors.mainThreadExecutor();
+    Executor mEncoderCallbackExecutor = CameraXExecutors.directExecutor();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     InternalState mState;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -645,7 +645,7 @@ public class EncoderImpl implements Encoder {
             setState(CONFIGURED);
             if (oldState == PENDING_START || oldState == PENDING_START_PAUSED) {
                 start();
-                if (oldState == PENDING_START_PAUSED && mState == STARTED) {
+                if (oldState == PENDING_START_PAUSED) {
                     pause();
                 }
             }
@@ -978,6 +978,15 @@ public class EncoderImpl implements Encoder {
                 Logger.d(mTag, "Switch to pause state");
                 // From resume to pause
                 mIsOutputBufferInPauseState = true;
+
+                // Invoke paused callback
+                Executor executor;
+                EncoderCallback encoderCallback;
+                synchronized (mLock) {
+                    executor = mEncoderCallbackExecutor;
+                    encoderCallback = mEncoderCallback;
+                }
+                executor.execute(() -> encoderCallback.onEncodePaused());
 
                 // It has to ensure the current state is PAUSED state and then stop the input
                 // source. This is because start() will resume input source and could be called

@@ -190,9 +190,7 @@ class VideoEncoderTest {
 
         videoEncoder.pause()
 
-        // Since there is no exact event to know the encoder is paused, wait for a while until no
-        // callback.
-        verify(videoEncoderCallback, noInvocation(3000L, 10000L)).onEncodedData(any())
+        verify(videoEncoderCallback, timeout(5000L)).onEncodePaused()
 
         clearInvocations(videoEncoderCallback)
 
@@ -209,9 +207,7 @@ class VideoEncoderTest {
 
         videoEncoder.pause()
 
-        // Since there is no exact event to know the encoder is paused, wait for a while until no
-        // callback.
-        verify(videoEncoderCallback, noInvocation(3000L, 10000L)).onEncodedData(any())
+        verify(videoEncoderCallback, timeout(5000L)).onEncodePaused()
 
         videoEncoder.stopSafely()
 
@@ -225,6 +221,18 @@ class VideoEncoderTest {
     }
 
     @Test
+    fun canRestartPauseVideoEncoder() {
+        videoEncoder.start()
+        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        videoEncoder.stopSafely()
+        videoEncoder.start()
+        videoEncoder.pause()
+
+        verify(videoEncoderCallback, timeout(10000L)).onEncodePaused()
+    }
+
+    @Test
     fun pauseResumeVideoEncoder_getChronologicalData() {
         val dataList = ArrayList<EncodedData>()
 
@@ -232,7 +240,7 @@ class VideoEncoderTest {
         verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
         videoEncoder.pause()
-        verify(videoEncoderCallback, noInvocation(2000L, 10000L)).onEncodedData(any())
+        verify(videoEncoderCallback, timeout(5000L)).onEncodePaused()
 
         // Save all values before clear invocations
         val startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
@@ -275,7 +283,7 @@ class VideoEncoderTest {
         verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
         videoEncoder.pause()
-        verify(videoEncoderCallback, noInvocation(2000L, 10000L)).onEncodedData(any())
+        verify(videoEncoderCallback, timeout(5000L)).onEncodePaused()
 
         clearInvocations(videoEncoderCallback)
 
