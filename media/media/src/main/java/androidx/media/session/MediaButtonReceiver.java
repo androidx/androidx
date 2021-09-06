@@ -37,6 +37,7 @@ import android.view.KeyEvent;
 
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
+import androidx.core.os.BuildCompat;
 import androidx.media.MediaBrowserServiceCompat;
 
 import java.util.List;
@@ -271,7 +272,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         }
         return PendingIntent.getBroadcast(context, keyCode, intent,
-                Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0);
+                BuildCompat.isAtLeastS() ? PendingIntent.FLAG_MUTABLE : 0);
     }
 
     /**
