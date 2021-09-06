@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -142,11 +141,8 @@ public fun SwipeDismissableNavHost(
     SwipeToDismissBox(
         state = state,
         modifier = Modifier,
-        background = {
-            BoxedStackEntryContent(previous, stateHolder, modifier)
-        },
-        content = {
-            BoxedStackEntryContent(current, stateHolder, modifier)
+        content = { isBackground ->
+            BoxedStackEntryContent(if (isBackground) previous else current, stateHolder, modifier)
         },
     )
 }
@@ -159,11 +155,9 @@ private fun BoxedStackEntryContent(
 ) {
     if (entry != null) {
         Box(modifier, propagateMinConstraints = true) {
-            key(entry.id) {
-                val destination = entry.destination as WearNavigator.Destination
-                entry.LocalOwnersProvider(saveableStateHolder) {
-                    destination.content(entry)
-                }
+            val destination = entry.destination as WearNavigator.Destination
+            entry.LocalOwnersProvider(saveableStateHolder) {
+                destination.content(entry)
             }
         }
     }

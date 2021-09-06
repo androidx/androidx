@@ -62,13 +62,14 @@ private fun DisplayDemo(
         is ComposableDemo -> {
             SwipeToDismissBox(
                 state = swipeDismissStateWithNavigation(onNavigateBack),
-                background = {
+            ) { isBackground ->
+                if (isBackground) {
                     if (parentDemo != null) {
                         DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
                     }
+                } else {
+                    demo.content(onNavigateBack)
                 }
-            ) {
-                demo.content(onNavigateBack)
             }
         }
         is DemoCategory -> {
@@ -87,41 +88,42 @@ internal fun DisplayDemoList(
 ) {
     SwipeToDismissBox(
         state = swipeDismissStateWithNavigation(onNavigateBack),
-        background = {
+    ) { isBackground ->
+        if (isBackground) {
             if (parentDemo != null) {
                 DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
             }
-        }
-    ) {
-        ScalingLazyColumn(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(vertical = 16.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            item {
-                Text(
-                    text = category.title,
-                    style = MaterialTheme.typography.caption1,
-                    color = Color.White
-                )
-            }
-            category.demos.forEach { demo ->
+        } else {
+            ScalingLazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                contentPadding = PaddingValues(vertical = 16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 item {
-                    CompactChip(
-                        onClick = { onNavigateTo(demo) },
-                        colors = ChipDefaults.secondaryChipColors(),
-                        label = {
-                            Text(
-                                text = demo.title,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth().padding(
-                            start = 10.dp,
-                            end = 10.dp,
-                            bottom = 4.dp
-                        )
+                    Text(
+                        text = category.title,
+                        style = MaterialTheme.typography.caption1,
+                        color = Color.White
                     )
+                }
+                category.demos.forEach { demo ->
+                    item {
+                        CompactChip(
+                            onClick = { onNavigateTo(demo) },
+                            colors = ChipDefaults.secondaryChipColors(),
+                            label = {
+                                Text(
+                                    text = demo.title,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth().padding(
+                                start = 10.dp,
+                                end = 10.dp,
+                                bottom = 4.dp
+                            )
+                        )
+                    }
                 }
             }
         }

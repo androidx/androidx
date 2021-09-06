@@ -48,16 +48,17 @@ fun SimpleSwipeToDismissBox(
     }
     SwipeToDismissBox(
         state = state,
-        background = {
+    ) { isBackground ->
+        if (isBackground) {
             Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.secondaryVariant))
-        },
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.primary),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text("Swipe right to dismiss", color = MaterialTheme.colors.onPrimary)
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.primary),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text("Swipe right to dismiss", color = MaterialTheme.colors.onPrimary)
+            }
         }
     }
 }
