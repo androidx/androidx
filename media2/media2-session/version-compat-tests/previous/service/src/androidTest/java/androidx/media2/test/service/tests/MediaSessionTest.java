@@ -21,18 +21,21 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.SessionCallback;
 import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.test.common.CustomParcelable;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.MockPlayer;
@@ -74,8 +77,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
                 .setId(TAG)
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            MediaSession.ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull MediaSession.ControllerInfo controller) {
                         if (Process.myUid() == controller.getUid()) {
                             return super.onConnect(session, controller);
                         }
@@ -95,7 +98,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void builder() {
-        prepareLooper();
         MediaSession.Builder builder;
         try {
             builder = new MediaSession.Builder(mContext, null);
@@ -117,11 +119,19 @@ public class MediaSessionTest extends MediaSessionTestBase {
         } catch (NullPointerException e) {
             // expected. pass-through
         }
+        try {
+            Bundle extras = new Bundle();
+            extras.putParcelable("key", new CustomParcelable(1));
+            builder = new MediaSession.Builder(mContext, mPlayer);
+            builder.setExtras(extras);
+            fail("custom parcelables shouldn't be allowed for extras");
+        } catch (IllegalArgumentException e) {
+            // expected. pass-through
+        }
     }
 
     @Test
     public void getDuration() throws Exception {
-        prepareLooper();
         final long testDuration = 9999;
         mPlayer.mLastPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
         mPlayer.mDuration = testDuration;
@@ -130,7 +140,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void getPlaybackSpeed() throws Exception {
-        prepareLooper();
         final float speed = 1.5f;
         mPlayer.mLastPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
         mPlayer.setPlaybackSpeed(speed);
@@ -139,7 +148,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void getPlayerState() {
-        prepareLooper();
         final int state = SessionPlayer.PLAYER_STATE_PLAYING;
         mPlayer.mLastPlayerState = state;
         assertEquals(state, mSession.getPlayer().getPlayerState());
@@ -147,7 +155,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void getBufferingState() {
-        prepareLooper();
         final int bufferingState = SessionPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         mPlayer.mLastBufferingState = bufferingState;
         assertEquals(bufferingState, mSession.getPlayer().getBufferingState());
@@ -155,7 +162,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void getPosition() {
-        prepareLooper();
         final long position = 150000;
         mPlayer.mCurrentPosition = position;
         mPlayer.mLastPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
@@ -164,7 +170,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void getBufferedPosition() {
-        prepareLooper();
         final long bufferedPosition = 900000;
         mPlayer.mBufferedPosition = bufferedPosition;
         mPlayer.mLastPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
@@ -173,7 +178,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void getCurrentMediaItem() {
-        prepareLooper();
         MediaItem item = MediaTestUtils.createMediaItemWithMetadata();
         mPlayer.mCurrentMediaItem = item;
         assertEquals(item, mSession.getPlayer().getCurrentMediaItem());
@@ -181,7 +185,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void getPlaylist() {
-        prepareLooper();
         final List<MediaItem> list = MediaTestUtils.createPlaylist(2);
         mPlayer.mPlaylist = list;
         assertEquals(list, mSession.getPlayer().getPlaylist());
@@ -189,7 +192,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void getPlaylistMetadata() {
-        prepareLooper();
         final MediaMetadata testMetadata = MediaTestUtils.createMetadata();
         mPlayer.mMetadata = testMetadata;
         assertEquals(testMetadata, mSession.getPlayer().getPlaylistMetadata());
@@ -197,7 +199,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void getShuffleMode() throws InterruptedException {
-        prepareLooper();
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
         mPlayer.setShuffleMode(testShuffleMode);
         assertEquals(testShuffleMode, mSession.getPlayer().getShuffleMode());
@@ -205,7 +206,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void getRepeatMode() throws InterruptedException {
-        prepareLooper();
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_GROUP;
         mPlayer.setRepeatMode(testRepeatMode);
         assertEquals(testRepeatMode, mSession.getPlayer().getRepeatMode());
@@ -213,7 +213,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void updatePlayer() throws Exception {
-        prepareLooper();
         MockPlayer player = new MockPlayer(0);
 
         // Test if setPlayer doesn't crash with various situations.
@@ -224,13 +223,67 @@ public class MediaSessionTest extends MediaSessionTestBase {
         assertEquals(player, mSession.getPlayer());
     }
 
+    @Test
+    public void getCurrentMediaItem_withMetadata_returnsMediaItemWithDuration()
+            throws InterruptedException {
+        long testDuration = 1023;
+        MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
+
+        mPlayer.mDuration = testDuration;
+        mPlayer.mCurrentMediaItem = testMediaItem;
+        mPlayer.notifyCurrentMediaItemChanged(testMediaItem);
+        sHandler.postAndSync(() -> {
+            assertEquals(testDuration,
+                    mSession.getPlayer().getCurrentMediaItem().getMetadata().getLong(
+                            MediaMetadata.METADATA_KEY_DURATION));
+        });
+    }
+
+    @Test
+    public void getCurrentMediaItem_withoutMetadata_returnsMediaItemWithDuration()
+            throws InterruptedException {
+        long testDuration = 1055;
+        MediaItem testMediaItem = MediaTestUtils.createMediaItem("testCurrentMediaItemChanged");
+
+        mPlayer.mDuration = testDuration;
+        mPlayer.mCurrentMediaItem = testMediaItem;
+        mPlayer.notifyCurrentMediaItemChanged(testMediaItem);
+        sHandler.postAndSync(() -> {
+            assertEquals(testDuration,
+                    mSession.getPlayer().getCurrentMediaItem().getMetadata().getLong(
+                            MediaMetadata.METADATA_KEY_DURATION));
+        });
+    }
+
+    @Test
+    public void getCurrentMediaItem_withMetadataUpdated_returnsMediaItemWithDuration()
+            throws InterruptedException {
+        long testDuration = 1023;
+        MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
+        String testDisplayTitle = "testDisplayTitle";
+        MediaMetadata testMetadata = new MediaMetadata.Builder(testMediaItem.getMetadata())
+                .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, testDisplayTitle).build();
+
+        mPlayer.mDuration = testDuration;
+        mPlayer.mCurrentMediaItem = testMediaItem;
+        mPlayer.notifyCurrentMediaItemChanged(testMediaItem);
+        mPlayer.mCurrentMediaItem.setMetadata(testMetadata);
+        sHandler.postAndSync(() -> {
+            assertEquals(testDuration,
+                    mPlayer.mCurrentMediaItem.getMetadata().getLong(
+                            MediaMetadata.METADATA_KEY_DURATION));
+            assertEquals(testDisplayTitle,
+                    mPlayer.mCurrentMediaItem.getMetadata().getText(
+                            MediaMetadata.METADATA_KEY_DISPLAY_TITLE));
+        });
+    }
+
     /**
      * Test potential deadlock for calls between controller and session.
      */
     @Test
     @LargeTest
     public void deadlock() throws InterruptedException {
-        prepareLooper();
         sHandler.postAndSync(new Runnable() {
             @Override
             public void run() {
@@ -348,7 +401,6 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     public void creatingTwoSessionWithSameId() {
-        prepareLooper();
         final String sessionId = "testSessionId";
         MediaSession session = new MediaSession.Builder(mContext, new MockPlayer(0))
                 .setId(sessionId)

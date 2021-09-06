@@ -17,6 +17,7 @@
 package androidx.media2.test.service.tests;
 
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_RATING;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_USER_RATING;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -64,12 +66,12 @@ public class MediaMetadataTest {
         Builder builder = new Builder();
         builder.putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, title);
         builder.putLong(MediaMetadata.METADATA_KEY_DISC_NUMBER, discNumber);
-        builder.putRating(MediaMetadata.METADATA_KEY_USER_RATING, rating);
+        builder.putRating(METADATA_KEY_USER_RATING, rating);
 
         MediaMetadata metadata = builder.build();
         assertEquals(title, metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE));
         assertEquals(discNumber, metadata.getLong(MediaMetadata.METADATA_KEY_DISC_NUMBER));
-        assertEquals(rating, metadata.getRating(MediaMetadata.METADATA_KEY_USER_RATING));
+        assertEquals(rating, metadata.getRating(METADATA_KEY_USER_RATING));
     }
 
     @Test
@@ -90,7 +92,65 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void parcelingWithSmallBitmaps() {
+    public void parcelling_withSmallBitmap_bitmapPreservedAfterParcelled() {
+        // A small bitmap (160kB) that doesn't need to be scaled down.
+        final int testBitmapSize = 200;
+        Bitmap testBitmap = Bitmap.createBitmap(
+                testBitmapSize, testBitmapSize, Bitmap.Config.ARGB_8888);
+        testBitmap.setPixel(2, 2, Color.GREEN);
+        String testKey = MediaMetadata.METADATA_KEY_ALBUM_ART;
+        MediaMetadata metadata = new Builder().putBitmap(testKey, testBitmap).build();
+
+        Parcel parcel = Parcel.obtain();
+        try {
+            // Test twice to ensure internal cache works correctly.
+            for (int i = 0; i < 2; i++) {
+                ParcelImpl parcelImpl = (ParcelImpl) ParcelUtils.toParcelable(metadata);
+                parcelImpl.writeToParcel(parcel, 0 /* flags */);
+                parcel.setDataPosition(0);
+
+                MediaMetadata metadataFromParcel =
+                        ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
+                assertEquals(testBitmap, metadata.getBitmap(testKey));
+                assertEquals(testBitmapSize, testBitmap.getHeight());
+                assertEquals(testBitmapSize, testBitmap.getWidth());
+            }
+        } finally {
+            parcel.recycle();
+        }
+    }
+
+    @Test
+    public void parcelling_withLargeBitmap_bitmapPreservedAfterParcelled() {
+        // A large bitmap (4MB) which exceeds the binder limit. Scaling down would happen.
+        final int testBitmapSize = 1024;
+        Bitmap testBitmap = Bitmap.createBitmap(
+                testBitmapSize, testBitmapSize, Bitmap.Config.ARGB_8888);
+        testBitmap.setPixel(2, 2, Color.GREEN);
+        String testKey = MediaMetadata.METADATA_KEY_ALBUM_ART;
+        MediaMetadata metadata = new Builder().putBitmap(testKey, testBitmap).build();
+
+        Parcel parcel = Parcel.obtain();
+        try {
+            // Test twice to ensure internal cache works correctly.
+            for (int i = 0; i < 2; i++) {
+                ParcelImpl parcelImpl = (ParcelImpl) ParcelUtils.toParcelable(metadata);
+                parcelImpl.writeToParcel(parcel, 0 /* flags */);
+                parcel.setDataPosition(0);
+
+                MediaMetadata metadataFromParcel =
+                        ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
+                assertEquals(testBitmap, metadata.getBitmap(testKey));
+                assertEquals(testBitmapSize, testBitmap.getHeight());
+                assertEquals(testBitmapSize, testBitmap.getWidth());
+            }
+        } finally {
+            parcel.recycle();
+        }
+    }
+
+    @Test
+    public void parceling_withSmallBitmaps() {
         final int bitmapCount = 100;
         final List<String> keyList = new ArrayList<>(bitmapCount);
         final String bitmapKeyPrefix = "bitmap_";
@@ -141,7 +201,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void parcelingWithLargeBitmaps() {
+    public void parceling_withLargeBitmaps() {
         final int bitmapCount = 100;
         final List<String> keyList = new ArrayList<>(bitmapCount);
         final String bitmapKeyPrefix = "bitmap_";
@@ -214,7 +274,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void mediaUtils_convertToMediaItem() {
+    public void mediaUtils_convertToMediaItem_withoutUserRating() {
         RatingCompat testRating = RatingCompat.newHeartRating(true);
         long testState = MediaDescriptionCompat.STATUS_DOWNLOADING;
         String testCustomKey = "android.media.test";
@@ -225,15 +285,34 @@ public class MediaMetadataTest {
                 .putString(testCustomKey, testCustomValue)
                 .build();
 
-        MediaItem item = MediaUtils.convertToMediaItem(testMetadataCompat);
+        MediaItem item = MediaUtils.convertToMediaItem(
+                testMetadataCompat, RatingCompat.RATING_HEART);
         Rating returnedRating = item.getMetadata().getRating(METADATA_KEY_RATING);
         assertTrue(returnedRating instanceof HeartRating);
         assertTrue(returnedRating.isRated());
         assertEquals(testRating.hasHeart(), ((HeartRating) returnedRating).hasHeart());
+        Rating returnedUserRating = item.getMetadata().getRating(METADATA_KEY_USER_RATING);
+        assertTrue(returnedUserRating instanceof HeartRating);
+        assertFalse(returnedUserRating.isRated());
         assertEquals(MediaMetadata.STATUS_DOWNLOADING,
                 item.getMetadata().getLong(MediaMetadata.METADATA_KEY_DOWNLOAD_STATUS));
         assertFalse(item.getMetadata().containsKey(
                 MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS));
         assertEquals(testCustomValue, item.getMetadata().getString(testCustomKey));
+    }
+
+    @Test
+    public void mediaUtils_convertToMediaItem_withUserRating() {
+        RatingCompat testRating = RatingCompat.newHeartRating(true);
+        MediaMetadataCompat testMetadataCompat = new MediaMetadataCompat.Builder()
+                .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING, testRating)
+                .build();
+
+        MediaItem item = MediaUtils.convertToMediaItem(
+                testMetadataCompat, RatingCompat.RATING_HEART);
+        Rating returnedUserRating = item.getMetadata().getRating(METADATA_KEY_USER_RATING);
+        assertTrue(returnedUserRating instanceof HeartRating);
+        assertTrue(returnedUserRating.isRated());
+        assertTrue(((HeartRating) returnedUserRating).hasHeart());
     }
 }

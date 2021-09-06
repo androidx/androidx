@@ -72,7 +72,6 @@ public class MediaBrowserTest extends MediaControllerTest {
      */
     @Test
     public void testBrowserCallback() {
-        prepareLooper();
         Method[] methods = TestBrowserCallback.class.getMethods();
         assertNotNull(methods);
         for (int i = 0; i < methods.length; i++) {

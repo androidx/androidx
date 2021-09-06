@@ -30,6 +30,8 @@ import static androidx.media2.test.common.CommonConstants.KEY_PLAYBACK_SPEED;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST_METADATA;
+import static androidx.media2.test.common.CommonConstants.KEY_REPEAT_MODE;
+import static androidx.media2.test.common.CommonConstants.KEY_SHUFFLE_MODE;
 import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
 import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
@@ -143,8 +145,8 @@ public class MediaSessionProviderService extends Service {
                 case TEST_CONTROLLER_CALLBACK_SESSION_REJECTS: {
                     builder.setSessionCallback(mExecutor, new MediaSession.SessionCallback() {
                         @Override
-                        public SessionCommandGroup onConnect(MediaSession session,
-                                MediaSession.ControllerInfo controller) {
+                        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                                @NonNull MediaSession.ControllerInfo controller) {
                             return null;
                         }
                     });
@@ -153,8 +155,8 @@ public class MediaSessionProviderService extends Service {
                 case TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST: {
                     builder.setSessionCallback(mExecutor, new MediaSession.SessionCallback() {
                         @Override
-                        public SessionCommandGroup onConnect(MediaSession session,
-                                MediaSession.ControllerInfo controller) {
+                        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                                @NonNull MediaSession.ControllerInfo controller) {
                             SessionCommandGroup commands = new SessionCommandGroup.Builder()
                                     .addCommand(new SessionCommand(
                                             SessionCommand
@@ -223,15 +225,15 @@ public class MediaSessionProviderService extends Service {
                 localPlayer.mCurrentPosition = config.getLong(KEY_CURRENT_POSITION);
                 localPlayer.mBufferedPosition = config.getLong(KEY_BUFFERED_POSITION);
                 localPlayer.mPlaybackSpeed = config.getFloat(KEY_PLAYBACK_SPEED);
+                localPlayer.mShuffleMode = config.getInt(KEY_SHUFFLE_MODE);
+                localPlayer.mRepeatMode = config.getInt(KEY_REPEAT_MODE);
 
                 ParcelImplListSlice listSlice = config.getParcelable(KEY_PLAYLIST);
                 if (listSlice != null) {
-                    localPlayer.mPlaylist = MediaTestUtils.convertToMediaItems(listSlice.getList(),
-                            false /* createItem */);
+                    localPlayer.mPlaylist = MediaTestUtils.convertToMediaItems(listSlice.getList());
                 }
-                ParcelImpl currentItem = config.getParcelable(KEY_MEDIA_ITEM);
-                localPlayer.mCurrentMediaItem = (currentItem == null)
-                        ? null : (MediaItem) MediaParcelUtils.fromParcelable(currentItem);
+                localPlayer.mCurrentMediaItem =
+                        MediaTestUtils.convertToMediaItem(config.getParcelable(KEY_MEDIA_ITEM));
                 localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config,
                         KEY_PLAYLIST_METADATA);
                 ParcelImpl videoSize = config.getParcelable(KEY_VIDEO_SIZE);
@@ -240,7 +242,7 @@ public class MediaSessionProviderService extends Service {
                 }
                 List<SessionPlayer.TrackInfo> trackInfos =
                         ParcelUtils.getVersionedParcelableList(config, KEY_TRACK_INFO);
-                localPlayer.mTrackInfos = trackInfos;
+                localPlayer.mTracks = trackInfos;
                 player = localPlayer;
             }
             ParcelImpl attrImpl = config.getParcelable(KEY_AUDIO_ATTRIBUTES);
@@ -407,9 +409,9 @@ public class MediaSessionProviderService extends Service {
                 throws RemoteException {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
-            List<SessionPlayer.TrackInfo> trackInfos =
+            List<SessionPlayer.TrackInfo> tracks =
                     MediaParcelUtils.fromParcelableList(trackInfoParcelList);
-            player.notifyTrackInfoChanged(trackInfos);
+            player.notifyTracksChanged(tracks);
         }
 
         @Override
@@ -440,7 +442,7 @@ public class MediaSessionProviderService extends Service {
                 throws RemoteException {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
-            player.mPlaylist = MediaTestUtils.convertToMediaItems(playlist, false /* createItem */);
+            player.mPlaylist = MediaTestUtils.convertToMediaItems(playlist);
         }
 
         @Override
@@ -591,7 +593,10 @@ public class MediaSessionProviderService extends Service {
 
         @Override
         public void notifyVolumeChanged(String sessionId, int volume) {
-            throw new UnsupportedOperationException("not implemented");
+            MediaSession session = mSessionMap.get(sessionId);
+            MockRemotePlayer player = (MockRemotePlayer) session.getPlayer();
+            player.mCurrentVolume = volume;
+            player.notifyVolumeChanged();
         }
     }
 }

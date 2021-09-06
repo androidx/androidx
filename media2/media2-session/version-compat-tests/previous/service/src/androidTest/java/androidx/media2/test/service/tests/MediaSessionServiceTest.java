@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import android.content.ComponentName;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -112,7 +113,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
      */
     @Test
     public void onGetSession_returnsSession() throws InterruptedException {
-        prepareLooper();
         final List<ControllerInfo> controllerInfoList = new ArrayList<>();
         final CountDownLatch latch = new CountDownLatch(1);
 
@@ -120,8 +120,8 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
                 .setId("testOnGetSession_returnsSession")
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
                         controllerInfoList.add(controller);
                         latch.countDown();
                         return new SessionCommandGroup.Builder().build();
@@ -157,7 +157,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
      */
     @Test
     public void onGetSession_returnsDifferentSessions() {
-        prepareLooper();
         final List<SessionToken> tokens = new ArrayList<>();
         TestServiceRegistry.getInstance().setOnGetSessionHandler(
                 new TestServiceRegistry.OnGetSessionHandler() {
@@ -199,7 +198,7 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
                 .setSessionToken(mToken)
                 .setControllerCallback(sHandlerExecutor, new MediaController.ControllerCallback() {
                     @Override
-                    public void onDisconnected(MediaController controller) {
+                    public void onDisconnected(@NonNull MediaController controller) {
                         latch.countDown();
                     }
                 })
@@ -213,7 +212,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
 
     @Test
     public void allControllersDisconnected_oneSession() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         TestServiceRegistry.getInstance().setSessionServiceCallback(
                 new TestServiceRegistry.SessionServiceCallback() {
@@ -238,7 +236,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
 
     @Test
     public void allControllersDisconnected_multipleSessions() throws InterruptedException {
-        prepareLooper();
         TestServiceRegistry.getInstance().setOnGetSessionHandler(
                 new TestServiceRegistry.OnGetSessionHandler() {
                     @Override
@@ -274,7 +271,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
 
     @Test
     public void getSessions() throws InterruptedException {
-        prepareLooper();
         RemoteMediaController controller = createRemoteController(mToken, true, null);
         MediaSessionService service = TestServiceRegistry.getInstance().getServiceInstance();
         try (MediaSession session = createMediaSession("testGetSessions")) {
@@ -291,7 +287,6 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
 
     @Test
     public void addSessions_removedWhenClose() throws InterruptedException {
-        prepareLooper();
         RemoteMediaController controller = createRemoteController(mToken, true, null);
         MediaSessionService service = TestServiceRegistry.getInstance().getServiceInstance();
         try (MediaSession session = createMediaSession("testAddSessions_removedWhenClose")) {
