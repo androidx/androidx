@@ -50,20 +50,19 @@ public class ListenableEditorSession(
         /**
          * Constructs a [ListenableFuture] for a [ListenableEditorSession] for an on watch face
          * editor. This registers an activity result handler and so it must be called during an
-         * Activity or Fragment initialization path.
+         * Activity or Fragment initialization path. The EditorSession is lifecycle aware and will
+         * automatically close when onDestroy is received.
          *
          * If watch face editor takes more than 4s to create a watch face, returned future will be
          * resolved with [TimeoutCancellationException] exception.
          *
          * @param activity The [ComponentActivity] associated with the EditorSession.
-         * @param editIntent [Intent] sent by SysUI to launch the editing session.
          */
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
         @UiThread
         public fun listenableCreateOnWatchEditorSession(
-            activity: ComponentActivity,
-            editIntent: Intent
+            activity: ComponentActivity
         ): ListenableFuture<ListenableEditorSession?> {
             val result = ResolvableFuture.create<ListenableEditorSession?>()
             val coroutineScope =
@@ -76,7 +75,7 @@ public class ListenableEditorSession(
                 try {
                     result.set(
                         ListenableEditorSession(
-                            EditorSession.createOnWatchEditorSession(activity, editIntent)
+                            EditorSession.createOnWatchEditorSession(activity)
                         )
                     )
                 } catch (e: Exception) {
