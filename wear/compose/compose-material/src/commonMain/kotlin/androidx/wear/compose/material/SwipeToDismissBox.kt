@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -34,30 +35,43 @@ import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
 
 /**
- * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture. Takes two slots,
- * the background (only displayed during the swipe gesture) and a content slot.
+ * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture. Takes a single
+ * slot for the background (only displayed during the swipe gesture) and the foreground content.
+ *
+ * [SwipeToDismissBox] has not yet been integrated with Android's
+ * default handling for swipe to dismiss on Wear applications. Until that is completed,
+ * applications using [SwipeToDismissBox] must disable android:windowSwipeToDismiss.
  *
  * Example usage:
  * @sample androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
  *
  * @param state State containing information about ongoing swipe or animation.
  * @param modifier Optional [Modifier] for this component.
- * @param background Optional slot for content to be displayed behind the foreground content -
- * the background is normally hidden, is shown behind a scrim during the swipe gesture,
- * and is shown without scrim once the finger passes the swipe-to-dismiss threshold.
  * @param scrimColor Optional [Color] used for the scrim over the background and
  * content composables during the swipe gesture. The alpha on the color is ignored,
  * instead being set individually for each of the background and content layers in order to
  * indicate to the user which state will result if the gesture is released.
+ * @param backgroundKey Optional [key] which identifies the content currently composed in
+ * the [content] block when isBackground == true. Provide the backgroundKey if your background
+ * content will be displayed as a foreground after the swipe animation ends
+ * (as is common when [SwipeToDismissBox] is used for the navigation). This allows
+ * remembered state to be correctly moved between background and foreground.
+ * @Param contentKey Optional [key] which identifies the content currently composed in the
+ * [content] block when isBackground == false. See [backgroundKey].
+ * @param content Slot for content, with the isBackground parameter enabling content to be
+ * displayed behind the foreground content - the background is normally hidden,
+ * is shown behind a scrim during the swipe gesture,
+ * and is shown without scrim once the finger passes the swipe-to-dismiss threshold.
  */
 @Composable
 @ExperimentalWearMaterialApi
 fun SwipeToDismissBox(
     state: SwipeToDismissBoxState,
     modifier: Modifier = Modifier,
-    background: (@Composable BoxScope.() -> Unit)? = null,
     scrimColor: Color = MaterialTheme.colors.surface,
-    content: @Composable BoxScope.() -> Unit
+    backgroundKey: Any = DefaultBackgroundKey,
+    contentKey: Any = DefaultContentKey,
+    content: @Composable BoxScope.(isBackground: Boolean) -> Unit
 ) = BoxWithConstraints(modifier) {
     val maxWidth = constraints.maxWidth.toFloat()
     // Map pixel position to states - initially, don't know the width in pixels so omit upper bound.
@@ -78,47 +92,31 @@ fun SwipeToDismissBox(
             )
     ) {
         val offsetPx = state.offset.value.roundToInt()
-        if (background != null && offsetPx > 0) {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                background()
-                // TODO(b/193606660): Add animations that follow after swipe confirmation.
-                val backgroundScrimAlpha =
-                    if (state.targetValue == SwipeDismissTarget.Original) {
-                        SwipeStartedBackgroundAlpha
-                    } else {
-                        SwipeConfirmedBackgroundAlpha
-                    }
-                Box(
-                    modifier =
-                        Modifier
-                            .matchParentSize()
-                            .background(
-                                scrimColor.copy(alpha = backgroundScrimAlpha)
-                            )
-                )
-            }
-        }
-        Box(
-            Modifier
-                .offset { IntOffset(offsetPx, 0) }
-                .fillMaxSize()
-        ) {
-            content()
-            val contentScrimAlpha =
+        repeat(2) {
+            val isBackground = it == 0
+            // TODO(b/193606660): Add animations that follow after swipe confirmation.
+            val scrimAlpha =
                 if (state.targetValue == SwipeDismissTarget.Original) {
-                    SwipeStartedContentAlpha
+                    if (isBackground) SwipeStartedBackgroundAlpha else SwipeStartedContentAlpha
                 } else {
-                    SwipeConfirmedContentAlpha
+                    if (isBackground) SwipeConfirmedBackgroundAlpha else SwipeConfirmedContentAlpha
                 }
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(
-                        scrimColor.copy(alpha = contentScrimAlpha)
-                    )
-            )
+            val contentModifier =
+                if (isBackground)
+                    Modifier.fillMaxSize()
+                else
+                    Modifier.offset { IntOffset(offsetPx, 0) }.fillMaxSize()
+            key(if (isBackground) backgroundKey else contentKey) {
+                if (!isBackground || offsetPx > 0) {
+                    Box(contentModifier) {
+                        content(isBackground)
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize().background(scrimColor.copy(alpha = scrimAlpha))
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -207,6 +205,8 @@ public enum class SwipeDismissTarget {
     Dismissal
 }
 
+private val DefaultBackgroundKey = "background"
+private val DefaultContentKey = "content"
 private val SwipeStartedBackgroundAlpha = 0.5f
 private val SwipeConfirmedBackgroundAlpha = 0.0f
 private val SwipeStartedContentAlpha = 0.0f

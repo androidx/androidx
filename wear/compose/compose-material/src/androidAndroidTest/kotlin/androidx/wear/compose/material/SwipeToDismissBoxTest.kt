@@ -19,22 +19,34 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.SaveableStateHolder
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TouchInjectionScope
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.SwipeDismissTarget
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.TEST_TAG
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.ToggleButton
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.setContentWithTheme
 import org.junit.Assert.assertEquals
@@ -86,15 +98,89 @@ class SwipeToDismissBoxTest {
             SwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG),
-                background = {
-                    Text(BACKGROUND_MESSAGE)
-                },
-            ) {
-                messageContent()
+            ) { isBackground ->
+                if (isBackground) Text(BACKGROUND_MESSAGE) else messageContent()
             }
         }
 
         rule.onNodeWithText(BACKGROUND_MESSAGE).assertDoesNotExist()
+    }
+
+    @Test
+    fun remembers_saved_state() {
+        val showCounterForContent = mutableStateOf(true)
+        rule.setContentWithTheme {
+            val state = rememberSwipeToDismissBoxState()
+            val holder = rememberSaveableStateHolder()
+            LaunchedEffect(state.currentValue) {
+                if (state.currentValue == SwipeDismissTarget.Dismissal) {
+                    showCounterForContent.value = !showCounterForContent.value
+                    state.snapTo(SwipeDismissTarget.Original)
+                }
+            }
+            SwipeToDismissBox(
+                state = state,
+                modifier = Modifier.testTag(TEST_TAG),
+                backgroundKey = if (showCounterForContent.value) TOGGLE_SCREEN else COUNTER_SCREEN,
+                contentKey = if (showCounterForContent.value) COUNTER_SCREEN else TOGGLE_SCREEN,
+                content = { isBackground ->
+                    if (showCounterForContent.value xor isBackground)
+                        counterScreen(holder)
+                    else
+                        toggleScreen(holder)
+                }
+            )
+        }
+
+        // Start with foreground showing Counter screen.
+        rule.onNodeWithTag(COUNTER_SCREEN).assertTextContains("0")
+        rule.onNodeWithTag(COUNTER_SCREEN).performClick()
+        rule.waitForIdle()
+        rule.onNodeWithTag(COUNTER_SCREEN).assertTextContains("1")
+
+        // Swipe to switch to Toggle screen
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.waitForIdle()
+        rule.onNodeWithTag(TOGGLE_SCREEN).assertIsOff()
+        rule.onNodeWithTag(TOGGLE_SCREEN).performClick()
+        rule.waitForIdle()
+        rule.onNodeWithTag(TOGGLE_SCREEN).assertIsOn()
+
+        // Swipe back to Counter screen
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.waitForIdle()
+        rule.onNodeWithTag(COUNTER_SCREEN).assertTextContains("1")
+
+        // Swipe back to Toggle screen
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.waitForIdle()
+        rule.onNodeWithTag(TOGGLE_SCREEN).assertIsOn()
+    }
+
+    @Composable
+    fun toggleScreen(saveableStateHolder: SaveableStateHolder) {
+        saveableStateHolder.SaveableStateProvider(TOGGLE_SCREEN) {
+            var toggle by rememberSaveable { mutableStateOf(false) }
+            ToggleButton(
+                checked = toggle,
+                onCheckedChange = { toggle = !toggle },
+                content = { Text(text = if (toggle) TOGGLE_ON else TOGGLE_OFF) },
+                modifier = Modifier.testTag(TOGGLE_SCREEN)
+            )
+        }
+    }
+
+    @Composable
+    fun counterScreen(saveableStateHolder: SaveableStateHolder) {
+        saveableStateHolder.SaveableStateProvider(COUNTER_SCREEN) {
+            var counter by rememberSaveable { mutableStateOf(0) }
+            Button(
+                onClick = { ++counter },
+                modifier = Modifier.testTag(COUNTER_SCREEN)
+            ) {
+                Text(text = "" + counter)
+            }
+        }
     }
 
     @Test
@@ -134,11 +220,8 @@ class SwipeToDismissBoxTest {
             SwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG),
-                background = {
-                    Text(BACKGROUND_MESSAGE)
-                },
-            ) {
-                messageContent()
+            ) { isBackground ->
+                if (isBackground) Text(BACKGROUND_MESSAGE) else messageContent()
             }
         }
 
@@ -167,3 +250,7 @@ class SwipeToDismissBoxTest {
 internal const val BACKGROUND_MESSAGE = "The Background"
 internal const val CONTENT_MESSAGE = "The Content"
 internal const val LONG_SWIPE = 1000L
+internal const val TOGGLE_SCREEN = "Toggle"
+internal const val COUNTER_SCREEN = "Counter"
+internal const val TOGGLE_ON = "On"
+internal const val TOGGLE_OFF = "Off"
