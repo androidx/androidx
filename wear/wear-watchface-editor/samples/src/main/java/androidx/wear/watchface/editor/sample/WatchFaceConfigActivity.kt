@@ -17,23 +17,18 @@
 package androidx.wear.watchface.editor.sample
 
 import android.annotation.SuppressLint
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
-import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.editor.ChosenComplicationDataSource
 import androidx.wear.watchface.editor.EditorSession
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /** @hide */
@@ -76,23 +71,16 @@ class WatchFaceConfigActivity : FragmentActivity() {
         private const val TAG = "WatchFaceConfigActivity"
     }
 
-    internal val complicationData = HashMap<Int, ComplicationData>()
-
+    internal val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
     internal lateinit var editorSession: EditorSession
     internal lateinit var fragmentController: FragmentController
-    internal lateinit var handler: Handler
-    internal lateinit var coroutineScope: CoroutineScope
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        handler = Handler(Looper.getMainLooper())
-        coroutineScope = CoroutineScope(handler.asCoroutineDispatcher().immediate)
+    init {
         coroutineScope.launch {
+            val editorSession =
+                EditorSession.createOnWatchEditorSession(this@WatchFaceConfigActivity)
             init(
-                EditorSession.createOnWatchEditorSession(
-                    this@WatchFaceConfigActivity,
-                    intent!!
-                ),
+                editorSession,
                 object : FragmentController {
                     @SuppressLint("SyntheticAccessor")
                     override fun showConfigFragment() {
@@ -153,8 +141,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
             .commit()
     }
 
-    @VisibleForTesting
-    internal fun init(
+    private fun init(
         editorSession: EditorSession,
         fragmentController: FragmentController
     ) {
@@ -211,13 +198,6 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 )
             }
         }
-    }
-
-    override fun onDestroy() {
-        editorSession.close()
-        // Make sure the activity closes.
-        finish()
-        super.onDestroy()
     }
 
     private fun updateUi(

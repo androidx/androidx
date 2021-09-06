@@ -18,6 +18,8 @@ package androidx.wear.watchface.samples.minimal.complications;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -26,7 +28,6 @@ import android.widget.TextView;
 import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
 import androidx.wear.complications.ComplicationDataSourceInfo;
 import androidx.wear.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable;
@@ -42,7 +43,14 @@ public class ConfigActivity extends ComponentActivity {
 
     private static final String TAG = "ConfigActivity";
 
-    private Executor mMainExecutor;
+    private Executor mMainExecutor = new Executor() {
+        private final Handler mHandler = new Handler(Looper.getMainLooper());
+
+        @Override
+        public void execute(Runnable runnable) {
+            mHandler.post(runnable);
+        }
+    };
 
     private TextView mComplicationProviderName;
     private ImageView mComplicationPreview;
@@ -50,11 +58,24 @@ public class ConfigActivity extends ComponentActivity {
 
     @Nullable private ListenableEditorSession mEditorSession;
 
+    public ConfigActivity() {
+        addCallback(
+                ListenableEditorSession.listenableCreateOnWatchEditorSession(this),
+                new BaseFutureCallback<ListenableEditorSession>(
+                        this, TAG, "listenableCreateOnWatchEditingSession") {
+                    @Override
+                    public void onSuccess(ListenableEditorSession editorSession) {
+                        super.onSuccess(editorSession);
+                        ConfigActivity.this.mEditorSession = editorSession;
+                        updateComplicationSlotStatus();
+                    }
+                });
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config_activity_layout);
-        mMainExecutor = ContextCompat.getMainExecutor(getApplicationContext());
 
         mComplicationProviderName = findViewById(R.id.complication_provider_name);
         mComplicationPreview = findViewById(R.id.complication_preview);
@@ -66,18 +87,6 @@ public class ConfigActivity extends ComponentActivity {
         } else {
             mComplicationPreview.setVisibility(View.GONE);
         }
-
-        addCallback(
-                ListenableEditorSession.listenableCreateOnWatchEditorSession(this, getIntent()),
-                new BaseFutureCallback<ListenableEditorSession>(
-                        this, TAG, "listenableCreateOnWatchEditingSession") {
-                    @Override
-                    public void onSuccess(ListenableEditorSession editorSession) {
-                        super.onSuccess(editorSession);
-                        ConfigActivity.this.mEditorSession = editorSession;
-                        updateComplicationSlotStatus();
-                    }
-                });
     }
 
     private void changeComplication() {
@@ -98,10 +107,6 @@ public class ConfigActivity extends ComponentActivity {
 
     @Override
     protected void onDestroy() {
-        if (mEditorSession != null) {
-            mEditorSession.setCommitChangesOnClose(true);
-            mEditorSession.close();
-        }
         finish();
         super.onDestroy();
     }

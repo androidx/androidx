@@ -34,6 +34,7 @@ dependencies {
     api(libs.kotlinCoroutinesAndroid)
 
     implementation("androidx.core:core:1.1.0")
+    implementation project(path: ':lifecycle:lifecycle-common-java8')
 
     androidTestImplementation(project(":wear:wear-watchface-complications-rendering"))
     androidTestImplementation(project(":wear:wear-watchface-editor-guava"))
