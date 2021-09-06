@@ -78,10 +78,10 @@ class CoroutineBroadcastReceiverTest {
         shadowOf(getMainLooper()).idle()
 
         assertWithMessage("Broadcast receiver did not execute")
-            .that(broadcastReceiver.broadcastExecuted.await(1, TimeUnit.SECONDS))
+            .that(broadcastReceiver.broadcastExecuted.await(5, TimeUnit.SECONDS))
             .isTrue()
         assertWithMessage("Coroutine scope did not get cancelled")
-            .that(broadcastReceiver.scopeCancelled.await(1, TimeUnit.SECONDS))
+            .that(broadcastReceiver.scopeCancelled.await(5, TimeUnit.SECONDS))
             .isTrue()
         assertThat(broadcastReceiver.extraValue.get()).isEqualTo(value)
     }
