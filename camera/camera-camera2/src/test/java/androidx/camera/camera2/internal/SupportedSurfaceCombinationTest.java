@@ -2372,10 +2372,9 @@ public final class SupportedSurfaceCombinationTest {
                 .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                 .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> mCameraFactory)
                 .build();
-        CameraX.initialize(mContext, cameraXConfig);
         CameraX cameraX;
         try {
-            cameraX = CameraX.getOrCreateInstance(mContext).get();
+            cameraX = CameraX.getOrCreateInstance(mContext, () -> cameraXConfig).get();
         } catch (ExecutionException | InterruptedException e) {
             throw new IllegalStateException("Unable to initialize CameraX for test.");
         }

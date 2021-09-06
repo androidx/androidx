@@ -96,48 +96,6 @@ public final class CameraXTest {
     }
 
     @Test
-    public void failedInit_doesNotRequireReconfigure() throws InterruptedException {
-        // Create an empty config to cause a failed init.
-        CameraXConfig cameraXConfig = new CameraXConfig.Builder().build();
-        Exception exception = null;
-        CameraX.configureInstance(cameraXConfig);
-        boolean firstInitFailed = false;
-        try {
-            CameraX.getOrCreateInstance(mContext).get();
-        } catch (ExecutionException e) {
-            firstInitFailed = true;
-        }
-
-        // Does not throw IllegalStateException (though initialization will fail)
-        boolean secondInitFailed = false;
-        try {
-            CameraX.getOrCreateInstance(mContext).get();
-        } catch (ExecutionException e) {
-            secondInitFailed = true;
-        }
-        assertThat(firstInitFailed).isTrue();
-        assertThat(secondInitFailed).isTrue();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void cannotConfigureTwice() {
-        CameraX.configureInstance(mConfigBuilder.build());
-        CameraX.configureInstance(mConfigBuilder.build());
-    }
-
-    @Test
-    public void shutdown_clearsPreviousConfiguration()
-            throws ExecutionException, InterruptedException {
-        CameraX.configureInstance(mConfigBuilder.build());
-
-        // Clear the configuration so we can reinit
-        CameraX.shutdown().get();
-
-        // Should not throw
-        CameraX.configureInstance(mConfigBuilder.build());
-    }
-
-    @Test
     public void initDeinit_withDirectExecutor() {
         mConfigBuilder.setCameraExecutor(CameraXExecutors.directExecutor());
 
@@ -174,21 +132,17 @@ public final class CameraXTest {
                 (ignored0, ignored1, ignored2) -> cameraFactory1;
 
         mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider0);
-        CameraX.initialize(mContext, mConfigBuilder.build());
-        CameraX cameraX0 = CameraX.getOrCreateInstance(mContext).get();
+        CameraX cameraX0 =
+                CameraX.getOrCreateInstance(mContext, () -> mConfigBuilder.build()).get();
 
         assertThat(cameraX0.getCameraFactory()).isEqualTo(cameraFactory0);
 
         CameraX.shutdown();
 
         mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider1);
-        CameraX.initialize(mContext, mConfigBuilder.build());
-        CameraX cameraX1 = CameraX.getOrCreateInstance(mContext).get();
+        CameraX cameraX1 =
+                CameraX.getOrCreateInstance(mContext, () -> mConfigBuilder.build()).get();
 
         assertThat(cameraX1.getCameraFactory()).isEqualTo(cameraFactory1);
-    }
-
-    private void initCameraX() {
-        CameraX.initialize(mContext, mConfigBuilder.build());
     }
 }

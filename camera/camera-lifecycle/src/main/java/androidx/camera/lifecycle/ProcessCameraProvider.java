@@ -20,6 +20,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -79,8 +80,11 @@ import java.util.concurrent.Executor;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ProcessCameraProvider implements LifecycleCameraProvider {
-
+    static final Object INSTANCE_LOCK = new Object();
+    @GuardedBy("INSTANCE_LOCK")
     private static final ProcessCameraProvider sAppInstance = new ProcessCameraProvider();
+    @GuardedBy("INSTANCE_LOCK")
+    private static CameraXConfig.Provider sCameraXConfigProvider = null;
 
     private final LifecycleCameraRepository
             mLifecycleCameraRepository = new LifecycleCameraRepository();
@@ -150,14 +154,18 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * @see #configureInstance(CameraXConfig)
      */
     @NonNull
-    public static ListenableFuture<ProcessCameraProvider> getInstance(
-            @NonNull Context context) {
-        Preconditions.checkNotNull(context);
-        return Futures.transform(CameraX.getOrCreateInstance(context), cameraX -> {
-            sAppInstance.setCameraX(cameraX);
-            sAppInstance.setContext(ContextUtil.getApplicationContext(context));
-            return sAppInstance;
-        }, CameraXExecutors.directExecutor());
+    public static ListenableFuture<ProcessCameraProvider> getInstance(@NonNull Context context) {
+        synchronized (INSTANCE_LOCK) {
+            Preconditions.checkNotNull(context);
+            return Futures.transform(CameraX.getOrCreateInstance(context, sCameraXConfigProvider),
+                    cameraX -> {
+                        synchronized (INSTANCE_LOCK) {
+                            sAppInstance.setCameraX(cameraX);
+                            sAppInstance.setContext(ContextUtil.getApplicationContext(context));
+                            return sAppInstance;
+                        }
+                    }, CameraXExecutors.directExecutor());
+        }
     }
 
     /**
@@ -192,7 +200,13 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      */
     @ExperimentalCameraProviderConfiguration
     public static void configureInstance(@NonNull CameraXConfig cameraXConfig) {
-        CameraX.configureInstance(cameraXConfig);
+        synchronized (INSTANCE_LOCK) {
+            Preconditions.checkNotNull(cameraXConfig);
+            Preconditions.checkState(sCameraXConfigProvider == null, "CameraX has already been "
+                    + "configured. To use a different configuration, shutdown() must be called.");
+
+            sCameraXConfigProvider = () -> cameraXConfig;
+        }
     }
 
     /**
@@ -213,8 +227,11 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @RestrictTo(Scope.TESTS)
     @NonNull
     public ListenableFuture<Void> shutdown() {
-        mLifecycleCameraRepository.clear();
-        return CameraX.shutdown();
+        synchronized (INSTANCE_LOCK) {
+            sCameraXConfigProvider = null;
+            mLifecycleCameraRepository.clear();
+            return CameraX.shutdown();
+        }
     }
 
     private void setCameraX(CameraX cameraX) {

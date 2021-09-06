@@ -586,10 +586,9 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     private void initCameraX() {
         CameraXConfig cameraXConfig = createFakeAppConfig();
-        CameraX.initialize(mContext, cameraXConfig);
         CameraX cameraX;
         try {
-            cameraX = CameraX.getOrCreateInstance(mContext).get();
+            cameraX = CameraX.getOrCreateInstance(mContext, () -> cameraXConfig).get();
         } catch (ExecutionException | InterruptedException e) {
             throw new IllegalStateException("Unable to initialize CameraX for test.");
         }

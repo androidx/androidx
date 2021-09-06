@@ -145,7 +145,7 @@ public class CameraXTestActivity extends AppCompatActivity {
                 createSurfaceTextureProvider(new SurfaceTextureCallbackImpl(textureView)));
 
         try {
-            final CameraX cameraX = CameraX.getOrCreateInstance(this).get();
+            final CameraX cameraX = CameraX.getOrCreateInstance(this, null).get();
             final LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             mCameraUseCaseAdapter = new CameraUseCaseAdapter(cameras,

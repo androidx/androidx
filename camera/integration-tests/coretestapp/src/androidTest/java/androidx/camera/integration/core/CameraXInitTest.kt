@@ -68,7 +68,6 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
             packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
                 packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)
         )
-        CameraX.configureInstance(cameraXConfig)
     }
 
     @After
@@ -78,13 +77,14 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
 
     @Test
     fun initOnDevice() {
-        CameraX.getOrCreateInstance(context).get(10, TimeUnit.SECONDS)
+        CameraX.getOrCreateInstance(context, { cameraXConfig }).get(10, TimeUnit.SECONDS)
         assertThat(CameraX.isInitialized()).isTrue()
     }
 
     @Test
     fun initOnDevice_hasCamera() {
-        val cameraX = CameraX.getOrCreateInstance(context).get(10, TimeUnit.SECONDS)
+        val cameraX =
+            CameraX.getOrCreateInstance(context, { cameraXConfig }).get(10, TimeUnit.SECONDS)
         try {
             if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
                 CameraSelector.DEFAULT_BACK_CAMERA.select(cameraX.cameraRepository.cameras)

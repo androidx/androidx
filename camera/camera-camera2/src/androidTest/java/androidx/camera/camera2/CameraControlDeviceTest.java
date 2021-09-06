@@ -95,7 +95,7 @@ public class CameraControlDeviceTest {
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraX.initialize(context, cameraXConfig).get();
 
-        CameraX cameraX = CameraX.getOrCreateInstance(context).get();
+        CameraX cameraX = CameraX.getOrCreateInstance(context, null).get();
 
         assumeTrue(CameraAvailabilityUtil.hasCamera(cameraX.getCameraRepository(),
                 mCameraSelector));

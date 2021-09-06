@@ -331,7 +331,8 @@ public final class CameraUtil {
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(@NonNull Context context,
             @NonNull CameraSelector cameraSelector) {
         try {
-            CameraX cameraX = CameraX.getOrCreateInstance(context).get(5000, TimeUnit.MILLISECONDS);
+            CameraX cameraX = CameraX.getOrCreateInstance(context, null).get(5000,
+                    TimeUnit.MILLISECONDS);
             LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             return new CameraUseCaseAdapter(cameras,

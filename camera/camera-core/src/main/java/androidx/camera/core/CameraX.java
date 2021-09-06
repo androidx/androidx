@@ -152,17 +152,6 @@ public final class CameraX {
         }
     }
 
-    /**
-     * Configures the CameraX singleton with the given {@link androidx.camera.core.CameraXConfig}.
-     *
-     * @param cameraXConfig configuration options for the singleton instance.
-     */
-    public static void configureInstance(@NonNull CameraXConfig cameraXConfig) {
-        synchronized (INSTANCE_LOCK) {
-            configureInstanceLocked(() -> cameraXConfig);
-        }
-    }
-
     @GuardedBy("INSTANCE_LOCK")
     private static void configureInstanceLocked(@NonNull CameraXConfig.Provider configProvider) {
         Preconditions.checkNotNull(configProvider);
@@ -295,15 +284,18 @@ public final class CameraX {
     /**
      * Returns a future which contains a CameraX instance after initialization is complete.
      *
+     * @param configProvider If this is non-null, it will be used to run the initialization
+     *                      process. Otherwise, the initialization process will attempt to
+     *                      retrieve the config provider from Application or meta-data.
      * @hide
      */
     @SuppressWarnings("FutureReturnValueIgnored") // shutdownLocked() should always succeed.
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static ListenableFuture<CameraX> getOrCreateInstance(@NonNull Context context) {
+    public static ListenableFuture<CameraX> getOrCreateInstance(@NonNull Context context,
+            @Nullable CameraXConfig.Provider configProvider) {
         Preconditions.checkNotNull(context, "Context must not be null.");
         synchronized (INSTANCE_LOCK) {
-            boolean isConfigured = sConfigProvider != null;
             ListenableFuture<CameraX> instanceFuture = getInstanceLocked();
             if (instanceFuture.isDone()) {
                 try {
@@ -321,15 +313,17 @@ public final class CameraX {
             }
 
             if (instanceFuture == null) {
-                if (!isConfigured) {
+                if (configProvider == null) {
                     // Attempt initialization through Application or meta-data
-                    CameraXConfig.Provider configProvider = getConfigProvider(context);
-                    if (configProvider == null) {
+                    CameraXConfig.Provider provider = getConfigProvider(context);
+                    if (provider == null) {
                         throw new IllegalStateException("CameraX is not configured properly. "
                                 + "The most likely cause is you did not include a default "
                                 + "implementation in your build such as 'camera-camera2'.");
                     }
 
+                    configureInstanceLocked(provider);
+                } else {
                     configureInstanceLocked(configProvider);
                 }
 
