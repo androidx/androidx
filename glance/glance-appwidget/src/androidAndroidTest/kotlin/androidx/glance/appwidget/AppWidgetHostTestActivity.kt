@@ -82,6 +82,7 @@ class AppWidgetHostTestActivity : Activity() {
 
         val info = appWidgetManager.getAppWidgetInfo(appWidgetId)
         val hostView = host.createView(this, appWidgetId, info) as TestAppWidgetHostView
+        hostView.setPadding(0, 0, 0, 0)
         val contentFrame = findViewById<FrameLayout>(R.id.content)
         contentFrame.addView(hostView)
         hostView.setSizes(portraitSize, landscapeSize)
