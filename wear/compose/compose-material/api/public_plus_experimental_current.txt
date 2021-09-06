@@ -177,6 +177,7 @@ package androidx.wear.compose.material {
   public final class PositionIndicatorKt {
     method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.compose.foundation.ScrollState scrollState, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection);
     method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.wear.compose.material.ScalingLazyListState scalingLazyListState, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection);
+    method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.compose.foundation.lazy.LazyListState lazyListState, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection);
     method @androidx.compose.runtime.Composable public static void PositionIndicator(float rsbRatio, optional androidx.compose.ui.Modifier modifier, optional long color, optional boolean reverseDirection);
     method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.wear.compose.material.PositionIndicatorState state, float indicatorHeight, float indicatorWidth, float paddingRight, optional androidx.compose.ui.Modifier modifier, optional long color, optional long background, optional boolean autoHide, optional boolean reverseDirection);
   }
