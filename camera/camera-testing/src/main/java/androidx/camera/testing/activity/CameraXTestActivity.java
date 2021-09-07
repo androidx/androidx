@@ -173,8 +173,7 @@ public class CameraXTestActivity extends AppCompatActivity {
             return;
         }
 
-        mCameraId = CameraX.getCameraWithCameraSelector(
-                cameraSelector).getCameraInfoInternal().getCameraId();
+        mCameraId = CameraUtil.getCameraIdWithLensFacing(cameraSelector.getLensFacing());
     }
 
     @Nullable

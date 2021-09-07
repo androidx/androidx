@@ -18,7 +18,10 @@ package androidx.camera.extensions
 
 import android.content.Context
 import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfoUnavailableException
 import androidx.camera.core.CameraSelector
 import androidx.camera.extensions.ExtensionMode.Mode
@@ -27,10 +30,14 @@ import androidx.camera.extensions.internal.Version
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
@@ -50,12 +57,13 @@ class ImageCaptureExtenderValidationTest(
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraProvider: ProcessCameraProvider
-
     private lateinit var extensionsManager: ExtensionsManager
+    private lateinit var cameraId: String
+    private lateinit var cameraCharacteristics: CameraCharacteristics
 
     @Before
     @Throws(Exception::class)
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         Assume.assumeTrue(
             CameraUtil.hasCameraWithLensFacing(
@@ -72,6 +80,20 @@ class ImageCaptureExtenderValidationTest(
                 extensionMode
             )
         )
+
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            cameraProvider,
+            baseCameraSelector,
+            extensionMode
+        )
+        lateinit var camera: Camera
+        withContext(Dispatchers.Main) {
+            camera = cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }
+
+        cameraId = Camera2CameraInfo.from(camera.cameraInfo).cameraId
+        cameraCharacteristics = Camera2CameraInfo.extractCameraCharacteristics(camera.cameraInfo)
     }
 
     @After
@@ -109,7 +131,11 @@ class ImageCaptureExtenderValidationTest(
 
         // Creates the ImageCaptureExtenderImpl to retrieve the target format/resolutions pair list
         // from vendor library for the target effect mode.
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(extensionMode, lensFacing)
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(
+            extensionMode,
+            cameraId,
+            cameraCharacteristics
+        )
 
         // NoSuchMethodError will be thrown if getSupportedResolutions is not implemented in
         // vendor library, and then the test will fail.
@@ -125,7 +151,11 @@ class ImageCaptureExtenderValidationTest(
     fun returnsNullFromOnPresetSession_whenAPILevelOlderThan28() {
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(extensionMode, lensFacing)
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(
+            extensionMode,
+            cameraId,
+            cameraCharacteristics
+        )
         assertThat(impl.onPresetSession()).isNull()
     }
 
@@ -142,7 +172,11 @@ class ImageCaptureExtenderValidationTest(
 
         // Creates the ImageCaptureExtenderImpl to retrieve the estimated capture latency range
         // from vendor library for the target effect mode.
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(extensionMode, lensFacing)
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(
+            extensionMode,
+            cameraId,
+            cameraCharacteristics
+        )
 
         // NoSuchMethodError will be thrown if getEstimatedCaptureLatencyRange is not implemented
         // in vendor library, and then the test will fail.

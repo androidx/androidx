@@ -337,7 +337,7 @@ class ExtensionsManagerTest(
     }
 
     @Test
-    fun getEstimatedCaptureLatencyRangeSameAsImplClass_aboveVersion1_2() {
+    fun getEstimatedCaptureLatencyRangeSameAsImplClass_aboveVersion1_2(): Unit = runBlocking {
         assumeTrue(
             ExtensionVersion.getRuntimeVersion()!!.compareTo(Version.VERSION_1_2) >= 0
         )
@@ -362,9 +362,31 @@ class ExtensionsManagerTest(
             null
         )
 
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(extensionMode, lensFacing)
+        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            cameraProvider,
+            baseCameraSelector,
+            extensionMode
+        )
+
+        // Calls bind to lifecycle to get the selected camera
+        lateinit var camera: Camera
+        withContext(Dispatchers.Main) {
+            camera = cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }
+
+        val cameraId = Camera2CameraInfo.from(camera.cameraInfo).cameraId
+        val characteristics = Camera2CameraInfo.extractCameraCharacteristics(camera.cameraInfo)
+
+        // Creates ImageCaptureExtenderImpl directly to retrieve the capture latency range info
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(
+            extensionMode,
+            cameraId,
+            characteristics
+        )
         val expectedLatencyInfo = impl.getEstimatedCaptureLatencyRange(null)
 
+        // Compares the values obtained from ExtensionsManager and ImageCaptureExtenderImpl are
+        // the same.
         assertThat(latencyInfo).isEqualTo(expectedLatencyInfo)
     }
 
@@ -534,11 +556,15 @@ class ExtensionsManagerTest(
 
     private fun isExtensionAvailableByCameraInfo(cameraInfo: CameraInfo): Boolean {
         val characteristics = Camera2CameraInfo.extractCameraCharacteristics(cameraInfo)
-        val imageCaptureExtenderImpl =
-            ExtensionsTestUtil.createImageCaptureExtenderImpl(extensionMode, lensFacing)
-        val previewExtenderImpl =
-            ExtensionsTestUtil.createPreviewExtenderImpl(extensionMode, lensFacing)
         val cameraId = (cameraInfo as CameraInfoInternal).cameraId
+        val imageCaptureExtenderImpl =
+            ExtensionsTestUtil.createImageCaptureExtenderImpl(
+                extensionMode,
+                cameraId,
+                characteristics
+            )
+        val previewExtenderImpl =
+            ExtensionsTestUtil.createPreviewExtenderImpl(extensionMode, cameraId, characteristics)
 
         return imageCaptureExtenderImpl.isExtensionAvailable(
             cameraId,
