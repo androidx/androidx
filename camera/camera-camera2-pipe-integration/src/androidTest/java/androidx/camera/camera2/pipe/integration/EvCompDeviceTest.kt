@@ -30,6 +30,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.test.core.app.ApplicationProvider
@@ -166,7 +167,7 @@ class EvCompDeviceTest {
         val upper = exposureState.exposureCompensationRange.upper
         cameraControl.setExposureCompensationIndex(upper).get(3000, TimeUnit.MILLISECONDS)
         // Test the flash API after exposure changed.
-        cameraControl.startFlashSequence().get(3000, TimeUnit.MILLISECONDS)
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH).get(3000, TimeUnit.MILLISECONDS)
 
         // Assert. Verify the exposure compensation target result is in the capture result.
         registerListener().verifyCaptureResultParameter(CONTROL_AE_EXPOSURE_COMPENSATION, upper)

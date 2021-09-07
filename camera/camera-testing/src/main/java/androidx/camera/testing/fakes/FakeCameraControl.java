@@ -121,7 +121,7 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @Override
     @NonNull
-    public ListenableFuture<Void> startFlashSequence() {
+    public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
         Logger.d(TAG, "startFlashSequence()");
         return Futures.immediateFuture(null);
     }
