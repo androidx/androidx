@@ -98,7 +98,7 @@ internal fun DisplayDemoList(
             ScalingLazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 contentPadding = PaddingValues(vertical = 16.dp),
-                modifier = Modifier.fillMaxWidth().testTag(DemoListTag)
+                modifier = Modifier.fillMaxWidth().testTag(DemoListTag),
             ) {
                 item {
                     Text(

@@ -50,6 +50,29 @@ val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
         DemoCategory(
+            "TimeText",
+            listOf(
+                ComposableDemo("Clock only") {
+                    TimeTextClockOnly()
+                },
+                ComposableDemo("Clock with leading text") {
+                    TimeTextWithLeadingText()
+                },
+                ComposableDemo("Clock with trailing text") {
+                    TimeTextWithTrailingText()
+                },
+                ComposableDemo("Clock with leading and trailing text") {
+                    TimeTextWithLeadingAndTrailingText()
+                },
+                ComposableDemo("Clock with custom separator") {
+                    TimeTextWithCustomSeparator()
+                },
+                ComposableDemo("Clock with full date and time format") {
+                    TimeTextWithFullDateAndTimeFormat()
+                },
+            )
+        ),
+        DemoCategory(
             "Button",
             listOf(
                 ComposableDemo("Button Sizes") { ButtonSizes() },
@@ -96,28 +119,5 @@ val WearMaterialDemos = DemoCategory(
                 },
             )
         ),
-        DemoCategory(
-            "TimeText",
-            listOf(
-                ComposableDemo("Clock only") {
-                    TimeTextClockOnly()
-                },
-                ComposableDemo("Clock with leading text") {
-                    TimeTextWithLeadingText()
-                },
-                ComposableDemo("Clock with trailing text") {
-                    TimeTextWithTrailingText()
-                },
-                ComposableDemo("Clock with leading and trailing text") {
-                    TimeTextWithLeadingAndTrailingText()
-                },
-                ComposableDemo("Clock with custom separator") {
-                    TimeTextWithCustomSeparator()
-                },
-                ComposableDemo("Clock with full date and time format") {
-                    TimeTextWithFullDateAndTimeFormat()
-                },
-            )
-        )
     ),
 )
