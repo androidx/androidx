@@ -17,6 +17,7 @@
 package androidx.camera.video;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -72,4 +73,25 @@ public abstract class OutputOptions {
      * @return the file size limit in bytes.
      */
     public abstract long getFileSizeLimit();
+
+    /**
+     * The builder of the {@link OutputOptions}.
+     */
+    interface Builder<T extends OutputOptions, B> {
+
+        /**
+         * Sets the limit for the file length in bytes. Zero or negative values are considered
+         * unlimited.
+         *
+         * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
+         */
+        @NonNull
+        B setFileSizeLimit(long bytes);
+
+        /**
+         * Builds the {@link OutputOptions} instance.
+         */
+        @NonNull
+        T build();
+    }
 }
