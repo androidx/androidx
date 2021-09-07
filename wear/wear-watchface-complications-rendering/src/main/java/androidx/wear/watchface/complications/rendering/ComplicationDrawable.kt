@@ -562,8 +562,7 @@ public class ComplicationDrawable : Drawable {
         }
 
     /**
-     * Sets the complication data to be drawn. If `complicationData` is `null`, nothing will be
-     * drawn when [draw] is called.
+     * Sets the complication data to be drawn.
      *
      * @param complicationData The [ComplicationData] to set
      * @param loadDrawablesAsync If true any drawables should be loaded asynchronously,
