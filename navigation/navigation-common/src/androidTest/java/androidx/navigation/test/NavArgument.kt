@@ -65,16 +65,18 @@ fun referenceArgument(
 // endregion
 
 // region StringType
-fun stringArgument(
-    isNullable: Boolean = false
-) = NavArgument.Builder().setType(StringType)
-    .setIsNullable(isNullable)
+fun stringArgument() = NavArgument.Builder().setType(StringType)
+    .setIsNullable(false)
     .build()
 
 fun stringArgument(
     defaultValue: String
 ) = NavArgument.Builder().setType(StringType)
     .setDefaultValue(defaultValue)
+    .build()
+
+fun nullableStringArgument() = NavArgument.Builder().setType(StringType)
+    .setIsNullable(true)
     .build()
 
 fun nullableStringArgument(
