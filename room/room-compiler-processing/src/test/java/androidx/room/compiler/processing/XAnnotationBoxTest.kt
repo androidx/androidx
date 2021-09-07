@@ -119,6 +119,13 @@ class XAnnotationBoxTest(
                 typeList = {String.class, Integer.class},
                 singleType = Long.class,
                 intMethod = 3,
+                doubleMethodWithDefault = 3.0,
+                floatMethodWithDefault = 3f,
+                charMethodWithDefault = '3',
+                byteMethodWithDefault = 3,
+                shortMethodWithDefault = 3,
+                longMethodWithDefault = 3L,
+                boolMethodWithDefault = false,
                 otherAnnotationArray = {
                     @OtherAnnotation(
                         value = "other list 1"
@@ -150,6 +157,13 @@ class XAnnotationBoxTest(
                 )
 
                 assertThat(annotation.value.intMethod).isEqualTo(3)
+                assertThat(annotation.value.doubleMethodWithDefault).isEqualTo(3.0)
+                assertThat(annotation.value.floatMethodWithDefault).isEqualTo(3f)
+                assertThat(annotation.value.charMethodWithDefault).isEqualTo('3')
+                assertThat(annotation.value.byteMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.shortMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.longMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.boolMethodWithDefault).isEqualTo(false)
                 annotation.getAsAnnotationBox<OtherAnnotation>("singleOtherAnnotation")
                     .let { other ->
                         assertThat(other.value.value).isEqualTo("other single")
@@ -201,6 +215,13 @@ class XAnnotationBoxTest(
                 typeList = [String::class, Int::class],
                 singleType = Long::class,
                 intMethod = 3,
+                doubleMethodWithDefault = 3.0,
+                floatMethodWithDefault = 3f,
+                charMethodWithDefault = '3',
+                byteMethodWithDefault = 3,
+                shortMethodWithDefault = 3,
+                longMethodWithDefault = 3L,
+                boolMethodWithDefault = false,
                 otherAnnotationArray = [
                     OtherAnnotation(
                         value = "other list 1"
@@ -235,6 +256,13 @@ class XAnnotationBoxTest(
                 )
 
                 assertThat(annotation.value.intMethod).isEqualTo(3)
+                assertThat(annotation.value.doubleMethodWithDefault).isEqualTo(3.0)
+                assertThat(annotation.value.floatMethodWithDefault).isEqualTo(3f)
+                assertThat(annotation.value.charMethodWithDefault).isEqualTo('3')
+                assertThat(annotation.value.byteMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.shortMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.longMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.boolMethodWithDefault).isEqualTo(false)
                 annotation.getAsAnnotationBox<OtherAnnotation>("singleOtherAnnotation")
                     .let { other ->
                         assertThat(other.value.value).isEqualTo("other single")
@@ -469,13 +497,21 @@ class XAnnotationBoxTest(
 
     @Test
     fun javaPrimitiveArray() {
-        // TODO: expand this test for other primitive types: 179081610
         val javaSrc = Source.java(
             "JavaSubject.java",
             """
             import androidx.room.compiler.processing.testcode.*;
             class JavaSubject {
-                @JavaAnnotationWithPrimitiveArray(intArray = {1, 2, 3})
+                @JavaAnnotationWithPrimitiveArray(
+                    intArray = {1, 2, 3},
+                    doubleArray = {1.0,2.0,3.0},
+                    floatArray = {1f,2f,3f},
+                    charArray = {'1','2','3'},
+                    byteArray = {1,2,3},
+                    shortArray = {1,2,3},
+                    longArray = {1,2,3},
+                    booleanArray = {true, false}
+                )
                 Object annotated1;
             }
             """.trimIndent()
@@ -485,7 +521,16 @@ class XAnnotationBoxTest(
             """
             import androidx.room.compiler.processing.testcode.*;
             class KotlinSubject {
-                @JavaAnnotationWithPrimitiveArray(intArray = [1, 2, 3])
+                @JavaAnnotationWithPrimitiveArray(
+                    intArray = [1, 2, 3],
+                    doubleArray = [1.0,2.0,3.0],
+                    floatArray = [1f,2f,3f],
+                    charArray = ['1','2','3'],
+                    byteArray = [1,2,3],
+                    shortArray = [1,2,3],
+                    longArray = [1,2,3],
+                    booleanArray = [true, false],
+                )
                 val annotated1:Any = TODO()
             }
             """.trimIndent()
@@ -503,6 +548,41 @@ class XAnnotationBoxTest(
                     annotation?.value?.intArray
                 ).isEqualTo(
                     intArrayOf(1, 2, 3)
+                )
+                assertThat(
+                    annotation?.value?.doubleArray
+                ).isEqualTo(
+                    doubleArrayOf(1.0, 2.0, 3.0)
+                )
+                assertThat(
+                    annotation?.value?.floatArray
+                ).isEqualTo(
+                    floatArrayOf(1f, 2f, 3f)
+                )
+                assertThat(
+                    annotation?.value?.charArray
+                ).isEqualTo(
+                    charArrayOf('1', '2', '3')
+                )
+                assertThat(
+                    annotation?.value?.byteArray
+                ).isEqualTo(
+                    byteArrayOf(1, 2, 3)
+                )
+                assertThat(
+                    annotation?.value?.shortArray
+                ).isEqualTo(
+                    shortArrayOf(1, 2, 3)
+                )
+                assertThat(
+                    annotation?.value?.longArray
+                ).isEqualTo(
+                    longArrayOf(1, 2, 3)
+                )
+                assertThat(
+                    annotation?.value?.booleanArray
+                ).isEqualTo(
+                    booleanArrayOf(true, false)
                 )
             }
         }
