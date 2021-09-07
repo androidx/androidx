@@ -25,6 +25,8 @@ import androidx.wear.complications.data.ComplicationType
  */
 public class SystemDataSources private constructor() {
     public companion object {
+        // NEXT AVAILABLE DATA SOURCE ID: 17
+
         /** Specifies that no complication data source should be used.  */
         public const val NO_DATA_SOURCE: Int = -1
 
@@ -110,6 +112,9 @@ public class SystemDataSources private constructor() {
          */
         public const val DATA_SOURCE_UNREAD_NOTIFICATION_COUNT: Int = 7
 
+        /** Deprecated data source, no longer available. Was GOOGLE_PAY. */
+        internal const val DATA_SOURCE_DEPRECATED8: Int = 8
+
         /**
          * Id for the 'next event' complication complication data source.
          *
@@ -121,6 +126,12 @@ public class SystemDataSources private constructor() {
          * [ComplicationType.SHORT_TEXT], [ComplicationType.LONG_TEXT].
          */
         public const val DATA_SOURCE_NEXT_EVENT: Int = 9
+
+        /** Deprecated data source, no longer available. Was RETAIL_STEP_COUNT. */
+        internal const val DATA_SOURCE_DEPRECATED10: Int = 10
+
+        /** Deprecated data source, no longer available. Was RETAIL_CHAT. */
+        internal const val DATA_SOURCE_DEPRECATED11: Int = 11
 
         /**
          * Id for the 'sunrise sunset' complication complication data source.
@@ -153,6 +164,9 @@ public class SystemDataSources private constructor() {
          * This complication data source supports only [ComplicationType.SMALL_IMAGE].
          */
         public const val DATA_SOURCE_FAVORITE_CONTACT: Int = 14
+
+        /** Deprecated data source, no longer available. Was MOST_RECENT_APP. */
+        internal const val DATA_SOURCE_DEPRECATED15: Int = 15
 
         /**
          * Id for the 'day and date' complication complication data source.
