@@ -16,12 +16,12 @@
 
 package androidx.health.services.client.impl;
 
-import android.app.PendingIntent;
 import androidx.health.services.client.impl.IPassiveMonitoringCallback;
 import androidx.health.services.client.impl.internal.IStatusCallback;
 import androidx.health.services.client.impl.request.BackgroundRegistrationRequest;
 import androidx.health.services.client.impl.request.CapabilitiesRequest;
-import androidx.health.services.client.impl.request.EventRequest;
+import androidx.health.services.client.impl.request.FlushRequest;
+import androidx.health.services.client.impl.request.PassiveGoalRequest;
 import androidx.health.services.client.impl.response.PassiveMonitoringCapabilitiesResponse;
 
 /** @hide */
@@ -30,7 +30,7 @@ interface IPassiveMonitoringApiService {
      * API version of the AIDL interface. Should be incremented every time a new
      * method is added.
      */
-    const int API_VERSION = 1;
+    const int API_VERSION = 2;
 
     /**
      * Returns version of this AIDL interface.
@@ -41,18 +41,18 @@ interface IPassiveMonitoringApiService {
     int getApiVersion() = 0;
 
     /**
-     * Method to subscribe to an event with corresponding callback intent.
+     * Method to subscribe to an passive goal with corresponding callback intent.
      */
-    void registerEventCallback(in EventRequest request, in PendingIntent intent, in IStatusCallback statusCallback) = 1;
+    void registerPassiveGoalCallback(in PassiveGoalRequest request, in IStatusCallback statusCallback) = 1;
 
     /**
      * Method to subscribe to a set of data types with corresponding callback
      * intent and an optional callback.
      *
      * <p>If a callback is present and is active, updates are provided via the callback. Otherwise,
-     * the provided PendingIntent gets the updates.
+     * an intent will be broadcast with the data.
      */
-    void registerDataCallback(in BackgroundRegistrationRequest request, in PendingIntent fallbackIntent, in IPassiveMonitoringCallback callback, in IStatusCallback statusCallback) = 2;
+    void registerDataCallback(in BackgroundRegistrationRequest request, in IPassiveMonitoringCallback callback, in IStatusCallback statusCallback) = 2;
 
     /**
      * Method to subscribe to a set of data types with corresponding callback intent.
@@ -62,8 +62,11 @@ interface IPassiveMonitoringApiService {
     /**
      * Method to subscribe to a set of data types with corresponding callback intent.
      */
-    void unregisterEventCallback(in EventRequest request, in IStatusCallback statusCallback) = 4;
+    void unregisterPassiveGoalCallback(in PassiveGoalRequest request, in IStatusCallback statusCallback) = 4;
 
     /** Method to get capabilities. */
     PassiveMonitoringCapabilitiesResponse getCapabilities(in CapabilitiesRequest request) = 5;
+
+    /** Method to flush data metrics. */
+    void flush(in FlushRequest request, in IStatusCallback statusCallback) = 6;
 }

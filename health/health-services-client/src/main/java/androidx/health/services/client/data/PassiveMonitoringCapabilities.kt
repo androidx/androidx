@@ -16,50 +16,55 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.PassiveMonitoringCapabilities as PassiveMonitoringCapabilitiesProto
 
 /**
  * A place holder class that represents the capabilities of the
  * [androidx.health.services.client.PassiveMonitoringClient] on the device.
  */
-public data class PassiveMonitoringCapabilities(
+@Suppress("ParcelCreator")
+public class PassiveMonitoringCapabilities(
 
     /**
      * Set of supported [DataType] s for background capture on this device.
      *
      * Some data types are only available during exercise (e.g. location) or for measurements.
      */
-    val supportedDataTypesPassiveMonitoring: Set<DataType>,
+    public val supportedDataTypesPassiveMonitoring: Set<DataType>,
 
     /** Set of supported [DataType] s for event callbacks on this device. */
-    val supportedDataTypesEvents: Set<DataType>,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val supportedDataTypesEvents: Set<DataType>,
+) : ProtoParcelable<PassiveMonitoringCapabilitiesProto>() {
+    internal constructor(
+        proto: DataProto.PassiveMonitoringCapabilities
+    ) : this(
+        proto.supportedDataTypesPassiveMonitoringList.map { DataType(it) }.toSet(),
+        proto.supportedDataTypesEventsList.map { DataType(it) }.toSet()
+    )
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeTypedList(supportedDataTypesPassiveMonitoring.toList())
-        dest.writeTypedList(supportedDataTypesEvents.toList())
+    /** @hide */
+    override val proto: PassiveMonitoringCapabilitiesProto by lazy {
+        PassiveMonitoringCapabilitiesProto.newBuilder()
+            .addAllSupportedDataTypesPassiveMonitoring(
+                supportedDataTypesPassiveMonitoring.map { it.proto }
+            )
+            .addAllSupportedDataTypesEvents(supportedDataTypesEvents.map { it.proto })
+            .build()
     }
+
+    override fun toString(): String =
+        "PassiveMonitoringCapabilities(" +
+            "supportedDataTypesPassiveMonitoring=$supportedDataTypesPassiveMonitoring, " +
+            "supportedDataTypesEvents=$supportedDataTypesEvents)"
 
     public companion object {
         @JvmField
         public val CREATOR: Parcelable.Creator<PassiveMonitoringCapabilities> =
-            object : Parcelable.Creator<PassiveMonitoringCapabilities> {
-                override fun createFromParcel(source: Parcel): PassiveMonitoringCapabilities? {
-                    val passiveMonitoringDataTypes = ArrayList<DataType>()
-                    source.readTypedList(passiveMonitoringDataTypes, DataType.CREATOR)
-                    val eventDataTypes = ArrayList<DataType>()
-                    source.readTypedList(eventDataTypes, DataType.CREATOR)
-                    return PassiveMonitoringCapabilities(
-                        passiveMonitoringDataTypes.toSet(),
-                        eventDataTypes.toSet()
-                    )
-                }
-
-                override fun newArray(size: Int): Array<PassiveMonitoringCapabilities?> {
-                    return arrayOfNulls(size)
-                }
+            newCreator { bytes ->
+                val proto = PassiveMonitoringCapabilitiesProto.parseFrom(bytes)
+                PassiveMonitoringCapabilities(proto)
             }
     }
 }

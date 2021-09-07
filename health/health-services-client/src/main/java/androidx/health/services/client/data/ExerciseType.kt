@@ -16,6 +16,8 @@
 
 package androidx.health.services.client.data
 
+import androidx.health.services.client.proto.DataProto
+
 // TODO(b/185276729): Keep track of values separately to maintain alphabetical order
 // once values are locked in
 /** Exercise type used to configure sensors and algorithms. */
@@ -57,58 +59,63 @@ public enum class ExerciseType(
     FRISBEE_DISC(28),
     FOOTBALL_AMERICAN(29),
     FOOTBALL_AUSTRALIAN(30),
-    GOLF(31),
-    GUIDED_BREATHING(32),
-    GYNMASTICS(33),
-    HANDBALL(34),
-    HIGH_INTENSITY_INTERVAL_TRAINING(35),
-    HIKING(36),
-    ICE_HOCKEY(37),
-    ICE_SKATING(38),
-    JUMP_ROPE(39),
-    JUMPING_JACK(40),
-    LAT_PULL_DOWN(41),
-    LUNGE(42),
-    MARTIAL_ARTS(43),
-    MEDITATION(44),
-    PADDLING(45),
-    PARA_GLIDING(46),
-    PILATES(47),
-    PLANK(48),
-    RACQUETBALL(49),
-    ROCK_CLIMBING(50),
-    ROLLER_HOCKEY(51),
-    ROWING(52),
-    ROWING_MACHINE(53),
-    RUNNING(54),
-    RUNNING_TREADMILL(55),
-    RUGBY(56),
-    SAILING(57),
-    SCUBA_DIVING(58),
-    SKATING(59),
-    SKIING(60),
-    SNOWBOARDING(61),
-    SNOWSHOEING(62),
-    SOCCER(63),
-    SOFTBALL(64),
-    SQUASH(65),
-    SQUAT(66),
-    STAIR_CLIMBING(67),
-    STAIR_CLIMBING_MACHINE(68),
-    STRENGTH_TRAINING(69),
-    STRETCHING(70),
-    SURFING(71),
-    SWIMMING_OPEN_WATER(72),
-    SWIMMING_POOL(73),
-    TABLE_TENNIS(74),
-    TENNIS(75),
-    VOLLEYBALL(76),
-    WALKING(77),
-    WATER_POLO(78),
-    WEIGHTLIFTING(79),
-    WORKOUT_INDOOR(80),
-    WORKOUT_OUTDOOR(81),
-    YOGA(82);
+    FORWARD_TWIST(31),
+    GOLF(32),
+    GUIDED_BREATHING(33),
+    GYMNASTICS(34),
+    HANDBALL(35),
+    HIGH_INTENSITY_INTERVAL_TRAINING(36),
+    HIKING(37),
+    ICE_HOCKEY(38),
+    ICE_SKATING(39),
+    JUMP_ROPE(40),
+    JUMPING_JACK(41),
+    LAT_PULL_DOWN(42),
+    LUNGE(43),
+    MARTIAL_ARTS(44),
+    MEDITATION(45),
+    PADDLING(46),
+    PARA_GLIDING(47),
+    PILATES(48),
+    PLANK(49),
+    RACQUETBALL(50),
+    ROCK_CLIMBING(51),
+    ROLLER_HOCKEY(52),
+    ROWING(53),
+    ROWING_MACHINE(54),
+    RUNNING(55),
+    RUNNING_TREADMILL(56),
+    RUGBY(57),
+    SAILING(58),
+    SCUBA_DIVING(59),
+    SKATING(60),
+    SKIING(61),
+    SNOWBOARDING(62),
+    SNOWSHOEING(63),
+    SOCCER(64),
+    SOFTBALL(65),
+    SQUASH(66),
+    SQUAT(67),
+    STAIR_CLIMBING(68),
+    STAIR_CLIMBING_MACHINE(69),
+    STRENGTH_TRAINING(70),
+    STRETCHING(71),
+    SURFING(72),
+    SWIMMING_OPEN_WATER(73),
+    SWIMMING_POOL(74),
+    TABLE_TENNIS(75),
+    TENNIS(76),
+    UPPER_TWIST(77),
+    VOLLEYBALL(78),
+    WALKING(79),
+    WATER_POLO(80),
+    WEIGHTLIFTING(81),
+    WORKOUT(82),
+    YOGA(83);
+
+    /** @hide */
+    public fun toProto(): DataProto.ExerciseType =
+        DataProto.ExerciseType.forNumber(id) ?: DataProto.ExerciseType.EXERCISE_TYPE_UNKNOWN
 
     public companion object {
         private val IDS = initialize()
@@ -131,5 +138,8 @@ public enum class ExerciseType(
             val exerciseType = IDS[id]
             return exerciseType ?: UNKNOWN
         }
+
+        /** @hide */
+        public fun fromProto(proto: DataProto.ExerciseType): ExerciseType = fromId(proto.number)
     }
 }

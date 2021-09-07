@@ -17,13 +17,12 @@
 package androidx.health.services.client.data
 
 import android.os.Bundle
-import android.os.Parcel
 import android.os.Parcelable
-import java.util.Objects
+import androidx.health.services.client.proto.DataProto
 
 /** Defines configuration for an exercise tracked using HealthServices. */
-@Suppress("DataClassPrivateConstructor")
-public data class ExerciseConfig
+@Suppress("DataClassPrivateConstructor", "ParcelCreator")
+public class ExerciseConfig
 protected constructor(
     /**
      * [ExerciseType] the user is performing for this exercise.
@@ -31,34 +30,43 @@ protected constructor(
      * This information can be used to tune sensors, e.g. the calories estimate can take the MET
      * value into account.
      */
-    val exerciseType: ExerciseType,
-    val dataTypes: Set<DataType>,
-    val autoPauseAndResume: Boolean,
-    val exerciseGoals: List<ExerciseGoal>,
-    val exerciseParams: Bundle,
-) : Parcelable {
+    public val exerciseType: ExerciseType,
+    public val dataTypes: Set<DataType>,
+    public val aggregateDataTypes: Set<DataType>,
+    @get:JvmName("shouldEnableAutoPauseAndResume")
+    public val shouldEnableAutoPauseAndResume: Boolean,
+    @get:JvmName("shouldEnableGps") public val shouldEnableGps: Boolean,
+    public val exerciseGoals: List<ExerciseGoal>,
+    public val exerciseParams: Bundle,
+) : ProtoParcelable<DataProto.ExerciseConfig>() {
+
+    /** @hide */
+    public constructor(
+        proto: DataProto.ExerciseConfig
+    ) : this(
+        ExerciseType.fromProto(proto.exerciseType),
+        proto.dataTypesList.map { DataType(it) }.toSet(),
+        proto.aggregateDataTypesList.map { DataType(it) }.toSet(),
+        proto.isAutoPauseAndResumeEnabled,
+        proto.isGpsUsageEnabled,
+        proto.exerciseGoalsList.map { ExerciseGoal(it) },
+        BundlesUtil.fromProto(proto.exerciseParams)
+    )
+
     init {
-        require(dataTypes.isNotEmpty()) { "Must specify the desired data types." }
-        require(exerciseType != ExerciseType.UNKNOWN) { "Must specify a valid exercise type." }
-    }
-
-    override fun describeContents(): Int = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(exerciseType.id)
-        dest.writeInt(dataTypes.size)
-        dest.writeTypedArray(dataTypes.toTypedArray(), flags)
-        dest.writeInt(if (autoPauseAndResume) 1 else 0)
-        dest.writeInt(exerciseGoals.size)
-        dest.writeTypedArray(exerciseGoals.toTypedArray(), flags)
-        dest.writeBundle(exerciseParams)
+        require(!dataTypes.contains(DataType.LOCATION) || shouldEnableGps) {
+            "If LOCATION data is being requested, setShouldEnableGps(true) must be configured in " +
+                "the ExerciseConfig. "
+        }
     }
 
     /** Builder for [ExerciseConfig] instances. */
     public class Builder {
         private var exerciseType: ExerciseType? = null
-        private var dataTypes: Set<DataType>? = null
-        private var autoPauseAndResume: Boolean = false
+        private var dataTypes: Set<DataType> = emptySet()
+        private var aggregateDataTypes: Set<DataType> = emptySet()
+        private var shouldEnableAutoPauseAndResume: Boolean = false
+        private var shouldEnableGps: Boolean = false
         private var exerciseGoals: List<ExerciseGoal> = emptyList()
         private var exerciseParams: Bundle = Bundle.EMPTY
 
@@ -70,13 +78,15 @@ protected constructor(
          * value into account.
          */
         public fun setExerciseType(exerciseType: ExerciseType): Builder {
+            require(exerciseType != ExerciseType.UNKNOWN) { "Must specify a valid exercise type." }
             this.exerciseType = exerciseType
             return this
         }
 
         /**
          * Sets the requested [DataType] s that should be tracked during this exercise. If not
-         * explicitly called, a default set of [DataType] will be chosen based on the [ ].
+         * explicitly called, a default set of [DataType] will be chosen based on the [ExerciseType]
+         * .
          */
         public fun setDataTypes(dataTypes: Set<DataType>): Builder {
             this.dataTypes = dataTypes.toSet()
@@ -84,11 +94,42 @@ protected constructor(
         }
 
         /**
-         * Sets whether auto pause and auto resume are enabled for this exercise. If not set,
-         * they're disabled by default.
+         * Sets the requested [DataType]s that should be tracked as aggregates (i.e. total steps or
+         * average heart rate) during this exercise. If not explicitly called, a default set of
+         * [DataType] will be chosen based on the [ExerciseType].
          */
-        public fun setAutoPauseAndResume(autoPauseAndResume: Boolean): Builder {
-            this.autoPauseAndResume = autoPauseAndResume
+        public fun setAggregateDataTypes(dataTypes: Set<DataType>): Builder {
+            this.aggregateDataTypes = dataTypes.toSet()
+            return this
+        }
+
+        /**
+         * Sets whether auto pause and auto resume should be enabled for this exercise. If not set,
+         * auto-pause is disabled by default.
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        public fun setShouldEnableAutoPauseAndResume(
+            shouldEnableAutoPauseAndResume: Boolean
+        ): Builder {
+            this.shouldEnableAutoPauseAndResume = shouldEnableAutoPauseAndResume
+            return this
+        }
+
+        /**
+         * Sets whether GPS will be used for this exercise. If not set, it's disabled by default.
+         *
+         * <p>If {@link DataType#LOCATION} is among the data types requested for the exercise, GPS
+         * usage MUST be enabled. Enabling GPS will improve data generation for types like distance
+         * and speed.
+         *
+         * <p>If no data type is specified in the configuration, WHS provides all data types
+         * supported for the exercise. In this case, if {@link DataType#LOCATION} is among the
+         * supported data types for the exercise but GPS usage is disabled (i.e. {@code
+         * shouldEnableGps} is {@code false}, then [ExerciseClient.startExercise] will fail.
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        public fun setShouldEnableGps(shouldEnableGps: Boolean): Builder {
+            this.shouldEnableGps = shouldEnableGps
             return this
         }
 
@@ -103,10 +144,9 @@ protected constructor(
         }
 
         /**
-         * Sets additional parameters for current exercise. Supported keys can be found in
-         * [ExerciseConfig].
+         * Sets additional OEM specific parameters for the current exercise. Intended to be used by
+         * OEMs or apps working closely with them.
          */
-        // TODO(b/180612514) expose keys on a per-OEM basis.
         public fun setExerciseParams(exerciseParams: Bundle): Builder {
             this.exerciseParams = exerciseParams
             return this
@@ -116,73 +156,45 @@ protected constructor(
         public fun build(): ExerciseConfig {
             return ExerciseConfig(
                 checkNotNull(exerciseType) { "No exercise type specified" },
-                checkNotNull(dataTypes) { "No data types specified" },
-                autoPauseAndResume,
+                dataTypes,
+                aggregateDataTypes,
+                shouldEnableAutoPauseAndResume,
+                shouldEnableGps,
                 exerciseGoals,
                 exerciseParams
             )
         }
     }
 
-    // TODO(b/180612514): Bundle doesn't have equals, so we need to override the data class default.
-    override fun equals(other: Any?): Boolean {
-        if (other === this) {
-            return true
-        }
-        if (other is ExerciseConfig) {
-            return exerciseType == other.exerciseType &&
-                dataTypes == other.dataTypes &&
-                autoPauseAndResume == other.autoPauseAndResume &&
-                exerciseGoals == other.exerciseGoals &&
-                BundlesUtil.equals(exerciseParams, other.exerciseParams)
-        }
-        return false
+    /** @hide */
+    override val proto: DataProto.ExerciseConfig by lazy {
+        DataProto.ExerciseConfig.newBuilder()
+            .setExerciseType(exerciseType.toProto())
+            .addAllDataTypes(dataTypes.map { it.proto })
+            .addAllAggregateDataTypes(aggregateDataTypes.map { it.proto })
+            .setIsAutoPauseAndResumeEnabled(shouldEnableAutoPauseAndResume)
+            .setIsGpsUsageEnabled(shouldEnableGps)
+            .addAllExerciseGoals(exerciseGoals.map { it.proto })
+            .setExerciseParams(BundlesUtil.toProto(exerciseParams))
+            .build()
     }
 
-    // TODO(b/180612514): Bundle doesn't have hashCode, so we need to override the data class
-    // default.
-    override fun hashCode(): Int {
-        return Objects.hash(
-            exerciseType,
-            dataTypes,
-            autoPauseAndResume,
-            exerciseGoals,
-            BundlesUtil.hashCode(exerciseParams)
-        )
-    }
+    override fun toString(): String =
+        "ExerciseConfig(" +
+            "exerciseType=$exerciseType, " +
+            "dataTypes=$dataTypes, " +
+            "aggregateDataTypes=$aggregateDataTypes, " +
+            "shouldEnableAutoPauseAndResume=$shouldEnableAutoPauseAndResume, " +
+            "shouldEnableGps=$shouldEnableGps, " +
+            "exerciseGoals=$exerciseGoals)"
 
     public companion object {
         @JvmStatic public fun builder(): Builder = Builder()
 
         @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseConfig> =
-            object : Parcelable.Creator<ExerciseConfig> {
-                override fun createFromParcel(source: Parcel): ExerciseConfig? {
-                    val exerciseType = ExerciseType.fromId(source.readInt())
-
-                    val dataTypesArray = Array<DataType?>(source.readInt()) { null }
-                    source.readTypedArray(dataTypesArray, DataType.CREATOR)
-
-                    val autoPauseAndResume = source.readInt() == 1
-
-                    val exerciseGoals = Array<ExerciseGoal?>(source.readInt()) { null }
-                    source.readTypedArray(exerciseGoals, ExerciseGoal.CREATOR)
-
-                    val exerciseParams =
-                        source.readBundle(ExerciseConfig::class.java.classLoader) ?: Bundle()
-
-                    return ExerciseConfig(
-                        exerciseType,
-                        dataTypesArray.filterNotNull().toSet(),
-                        autoPauseAndResume,
-                        exerciseGoals.filterNotNull().toList(),
-                        exerciseParams
-                    )
-                }
-
-                override fun newArray(size: Int): Array<ExerciseConfig?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<ExerciseConfig> = newCreator { bytes ->
+            val proto = DataProto.ExerciseConfig.parseFrom(bytes)
+            ExerciseConfig(proto)
+        }
     }
 }

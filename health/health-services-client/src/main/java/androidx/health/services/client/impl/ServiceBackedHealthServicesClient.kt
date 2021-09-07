@@ -21,22 +21,27 @@ import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.HealthServicesClient
 import androidx.health.services.client.MeasureClient
 import androidx.health.services.client.PassiveMonitoringClient
+import androidx.health.services.client.impl.IpcConstants.HEALTH_SERVICES_BIND_ACTION
+import androidx.health.services.client.impl.IpcConstants.SERVICE_PACKAGE_NAME
 import androidx.health.services.client.impl.internal.HsConnectionManager
-import androidx.health.services.client.impl.ipc.internal.ConnectionManager
+import androidx.health.services.client.impl.ipc.Client
+import androidx.health.services.client.impl.ipc.ClientConfiguration
 
 /**
  * A [HealthServicesClient] implementation.
  *
  * @hide
  */
-public class ServiceBackedHealthServicesClient
-internal constructor(context: Context, connectionManager: ConnectionManager) :
-    HealthServicesClient {
+public class ServiceBackedHealthServicesClient public constructor(context: Context) :
+    HealthServicesClient,
+    Client<IHealthServicesApiService>(
+        CLIENT_CONFIGURATION,
+        HsConnectionManager.getInstance(context),
+        { binder -> IHealthServicesApiService.Stub.asInterface(binder) },
+        { service -> service.apiVersion }
+    ) {
 
-    private val applicationContext: Context = context.applicationContext
-    private val ipcClient: HealthServicesIpcClient = HealthServicesIpcClient(connectionManager)
-
-    public constructor(context: Context) : this(context, HsConnectionManager.getInstance(context))
+    private val applicationContext = context.applicationContext
 
     override val exerciseClient: ExerciseClient
         get() = ServiceBackedExerciseClient.getClient(applicationContext)
@@ -44,4 +49,10 @@ internal constructor(context: Context, connectionManager: ConnectionManager) :
         get() = ServiceBackedPassiveMonitoringClient(applicationContext)
     override val measureClient: MeasureClient
         get() = ServiceBackedMeasureClient.getClient(applicationContext)
+
+    private companion object {
+        private const val CLIENT = "HealthServicesClient"
+        private val CLIENT_CONFIGURATION =
+            ClientConfiguration(CLIENT, SERVICE_PACKAGE_NAME, HEALTH_SERVICES_BIND_ACTION)
+    }
 }

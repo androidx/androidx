@@ -16,87 +16,85 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.ExerciseTypeCapabilities.SupportedGoalEntry
+import androidx.health.services.client.proto.DataProto.ExerciseTypeCapabilities.SupportedMilestoneEntry
 
 /** Provides exercise specific capabilities data. */
-public data class ExerciseTypeCapabilities(
-    val supportedDataTypes: Set<DataType>,
-    val supportedGoals: Map<DataType, Set<ComparisonType>>,
-    val supportedMilestones: Map<DataType, Set<ComparisonType>>,
-    val supportsAutoPauseAndResume: Boolean,
-    val supportsLaps: Boolean,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+@Suppress("ParcelCreator")
+public class ExerciseTypeCapabilities(
+    public val supportedDataTypes: Set<DataType>,
+    public val supportedGoals: Map<DataType, Set<ComparisonType>>,
+    public val supportedMilestones: Map<DataType, Set<ComparisonType>>,
+    public val supportsAutoPauseAndResume: Boolean,
+    public val supportsLaps: Boolean,
+) : ProtoParcelable<DataProto.ExerciseTypeCapabilities>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(supportedDataTypes.size)
-        dest.writeTypedArray(supportedDataTypes.toTypedArray(), flags)
+    internal constructor(
+        proto: DataProto.ExerciseTypeCapabilities
+    ) : this(
+        proto.supportedDataTypesList.map { DataType(it) }.toSet(),
+        proto
+            .supportedGoalsList
+            .map { entry ->
+                DataType(entry.dataType) to
+                    entry.comparisonTypesList.mapNotNull { ComparisonType.fromProto(it) }.toSet()
+            }
+            .toMap(),
+        proto
+            .supportedMilestonesList
+            .map { entry ->
+                DataType(entry.dataType) to
+                    entry.comparisonTypesList.mapNotNull { ComparisonType.fromProto(it) }.toSet()
+            }
+            .toMap(),
+        supportsAutoPauseAndResume = proto.isAutoPauseAndResumeSupported,
+        supportsLaps = proto.isLapsSupported
+    )
 
-        writeSupportedDataTypes(supportedGoals, dest, flags)
-        writeSupportedDataTypes(supportedMilestones, dest, flags)
-
-        dest.writeInt(if (supportsAutoPauseAndResume) 1 else 0)
-        dest.writeInt(if (supportsLaps) 1 else 0)
+    /** @hide */
+    override val proto: DataProto.ExerciseTypeCapabilities by lazy {
+        DataProto.ExerciseTypeCapabilities.newBuilder()
+            .addAllSupportedDataTypes(supportedDataTypes.map { it.proto })
+            .addAllSupportedGoals(
+                supportedGoals
+                    .map { entry ->
+                        SupportedGoalEntry.newBuilder()
+                            .setDataType(entry.key.proto)
+                            .addAllComparisonTypes(entry.value.map { it.toProto() })
+                            .build()
+                    }
+                    .sortedBy { it.dataType.name } // Sorting to ensure equals() works
+            )
+            .addAllSupportedMilestones(
+                supportedMilestones
+                    .map { entry ->
+                        SupportedMilestoneEntry.newBuilder()
+                            .setDataType(entry.key.proto)
+                            .addAllComparisonTypes(entry.value.map { it.toProto() })
+                            .build()
+                    }
+                    .sortedBy { it.dataType.name } // Sorting to ensure equals() works
+            )
+            .setIsAutoPauseAndResumeSupported(supportsAutoPauseAndResume)
+            .setIsLapsSupported(supportsLaps)
+            .build()
     }
+
+    override fun toString(): String =
+        "ExerciseTypeCapabilities(" +
+            "supportedDataTypes=$supportedDataTypes, " +
+            "supportedGoals=$supportedGoals, " +
+            "supportedMilestones=$supportedMilestones, " +
+            "supportsAutoPauseAndResume=$supportsAutoPauseAndResume, " +
+            "supportsLaps=$supportsLaps)"
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseTypeCapabilities> =
-            object : Parcelable.Creator<ExerciseTypeCapabilities> {
-                override fun createFromParcel(source: Parcel): ExerciseTypeCapabilities? {
-                    val supportedDataTypesArray = Array<DataType?>(source.readInt()) { null }
-                    source.readTypedArray(supportedDataTypesArray, DataType.CREATOR)
-
-                    val supportedGoals = readSupportedDataTypes(source) ?: return null
-                    val supportedMilestones = readSupportedDataTypes(source) ?: return null
-                    val supportsAutoPauseAndResume = source.readInt() == 1
-                    val supportsLaps = source.readInt() == 1
-
-                    return ExerciseTypeCapabilities(
-                        supportedDataTypesArray.filterNotNull().toSet(),
-                        supportedGoals,
-                        supportedMilestones,
-                        supportsAutoPauseAndResume,
-                        supportsLaps
-                    )
-                }
-
-                override fun newArray(size: Int): Array<ExerciseTypeCapabilities?> {
-                    return arrayOfNulls(size)
-                }
-            }
-
-        private fun writeSupportedDataTypes(
-            supportedDataTypes: Map<DataType, Set<ComparisonType>>,
-            dest: Parcel,
-            flags: Int
-        ) {
-            dest.writeInt(supportedDataTypes.size)
-            for ((dataType, comparisonTypeSet) in supportedDataTypes) {
-                dest.writeParcelable(dataType, flags)
-                dest.writeInt(comparisonTypeSet.size)
-                dest.writeIntArray(comparisonTypeSet.map { it.id }.toIntArray())
-            }
-        }
-
-        private fun readSupportedDataTypes(source: Parcel): Map<DataType, Set<ComparisonType>>? {
-            val supportedDataTypes = HashMap<DataType, Set<ComparisonType>>()
-
-            val numSupportedDataTypes = source.readInt()
-            repeat(numSupportedDataTypes) {
-                val dataType: DataType =
-                    source.readParcelable(DataType::class.java.classLoader) ?: return null
-
-                val comparisonTypeIntArray = IntArray(source.readInt())
-                source.readIntArray(comparisonTypeIntArray)
-                val comparisonTypeSet =
-                    comparisonTypeIntArray.map { ComparisonType.fromId(it) }.filterNotNull().toSet()
-
-                supportedDataTypes[dataType] = comparisonTypeSet
-            }
-
-            return supportedDataTypes
+        public val CREATOR: Parcelable.Creator<ExerciseTypeCapabilities> = newCreator { bytes ->
+            val proto = DataProto.ExerciseTypeCapabilities.parseFrom(bytes)
+            ExerciseTypeCapabilities(proto)
         }
     }
 }

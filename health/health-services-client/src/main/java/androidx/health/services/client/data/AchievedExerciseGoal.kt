@@ -16,38 +16,36 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
 
 /** Defines an achieved [ExerciseGoal]. */
-public data class AchievedExerciseGoal(
+@Suppress("ParcelCreator")
+public class AchievedExerciseGoal(
     /** [ExerciseGoal] that has been achieved. */
     // TODO(b/181235444): do we need to deliver the DataPoint to the user again here, given
     // that they will have already gotten it in the ExerciseState? And, what other data do we need
     // to
     // tag along an achieved ExerciseGoal?
-    val goal: ExerciseGoal,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val goal: ExerciseGoal,
+) : ProtoParcelable<DataProto.AchievedExerciseGoal>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(goal, flags)
+    internal constructor(
+        proto: DataProto.AchievedExerciseGoal
+    ) : this(ExerciseGoal(proto.exerciseGoal))
+
+    /** @hide */
+    override val proto: DataProto.AchievedExerciseGoal by lazy {
+        DataProto.AchievedExerciseGoal.newBuilder().setExerciseGoal(goal.proto).build()
     }
+
+    override fun toString(): String = "AchievedExerciseGoal(goal=$goal)"
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<AchievedExerciseGoal> =
-            object : Parcelable.Creator<AchievedExerciseGoal> {
-                override fun createFromParcel(source: Parcel): AchievedExerciseGoal? {
-                    val goal =
-                        source.readParcelable<ExerciseGoal>(ExerciseGoal::class.java.classLoader)
-                            ?: return null
-                    return AchievedExerciseGoal(goal)
-                }
-
-                override fun newArray(size: Int): Array<AchievedExerciseGoal?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<AchievedExerciseGoal> = newCreator {
+            val proto = DataProto.AchievedExerciseGoal.parseFrom(it)
+            AchievedExerciseGoal(proto)
+        }
     }
 }

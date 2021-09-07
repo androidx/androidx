@@ -23,16 +23,17 @@ import androidx.health.services.client.MeasureCallback
 import androidx.health.services.client.MeasureClient
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.MeasureCapabilities
+import androidx.health.services.client.impl.IpcConstants.MEASURE_API_BIND_ACTION
+import androidx.health.services.client.impl.IpcConstants.SERVICE_PACKAGE_NAME
 import androidx.health.services.client.impl.MeasureCallbackStub.MeasureCallbackCache
-import androidx.health.services.client.impl.MeasureIpcClient.Companion.getServiceInterface
 import androidx.health.services.client.impl.internal.HsConnectionManager
 import androidx.health.services.client.impl.internal.StatusCallback
-import androidx.health.services.client.impl.ipc.ServiceOperation
+import androidx.health.services.client.impl.ipc.Client
+import androidx.health.services.client.impl.ipc.ClientConfiguration
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.CapabilitiesRequest
 import androidx.health.services.client.impl.request.MeasureRegistrationRequest
 import androidx.health.services.client.impl.request.MeasureUnregistrationRequest
-import androidx.health.services.client.impl.response.MeasureCapabilitiesResponse
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
@@ -46,16 +47,20 @@ import java.util.concurrent.Executor
 public class ServiceBackedMeasureClient(
     private val context: Context,
     connectionManager: ConnectionManager
-) : MeasureClient {
-
-    private val ipcClient: MeasureIpcClient = MeasureIpcClient(connectionManager)
+) :
+    MeasureClient,
+    Client<IMeasureApiService>(
+        CLIENT_CONFIGURATION,
+        connectionManager,
+        { binder -> IMeasureApiService.Stub.asInterface(binder) },
+        { service -> service.apiVersion }
+    ) {
 
     override fun registerCallback(
         dataType: DataType,
         callback: MeasureCallback
-    ): ListenableFuture<Void> {
-        return registerCallback(dataType, callback, ContextCompat.getMainExecutor(context))
-    }
+    ): ListenableFuture<Void> =
+        registerCallback(dataType, callback, ContextCompat.getMainExecutor(context))
 
     override fun registerCallback(
         dataType: DataType,
@@ -64,12 +69,9 @@ public class ServiceBackedMeasureClient(
     ): ListenableFuture<Void> {
         val request = MeasureRegistrationRequest(context.packageName, dataType)
         val callbackStub = MeasureCallbackCache.INSTANCE.getOrCreate(dataType, callback, executor)
-        val serviceOperation =
-            ServiceOperation<Void> { binder, resultFuture ->
-                getServiceInterface(binder)
-                    .registerCallback(request, callbackStub, StatusCallback(resultFuture))
-            }
-        return ipcClient.registerListener(callbackStub.listenerKey, serviceOperation)
+        return registerListener(callbackStub.listenerKey) { service, resultFuture ->
+            service.registerCallback(request, callbackStub, StatusCallback(resultFuture))
+        }
     }
 
     override fun unregisterCallback(
@@ -82,29 +84,26 @@ public class ServiceBackedMeasureClient(
                     IllegalArgumentException("Given callback was not registered.")
                 )
         val request = MeasureUnregistrationRequest(context.packageName, dataType)
-        val serviceOperation =
-            ServiceOperation<Void> { binder, resultFuture ->
-                getServiceInterface(binder)
-                    .unregisterCallback(request, callbackStub, StatusCallback(resultFuture))
-            }
-        return ipcClient.unregisterListener(callbackStub.listenerKey, serviceOperation)
+        return unregisterListener(callbackStub.listenerKey) { service, resultFuture ->
+            service.unregisterCallback(request, callbackStub, StatusCallback(resultFuture))
+        }
     }
 
     override val capabilities: ListenableFuture<MeasureCapabilities>
-        get() {
-            val request = CapabilitiesRequest(context.packageName)
-            val serviceOperation =
-                ServiceOperation<MeasureCapabilitiesResponse> { binder, resultFuture ->
-                    resultFuture.set(getServiceInterface(binder).getCapabilities(request))
-                }
-            return Futures.transform(
-                ipcClient.execute(serviceOperation),
+        get() =
+            Futures.transform(
+                execute { service ->
+                    service.getCapabilities(CapabilitiesRequest(context.packageName))
+                },
                 { response -> response?.measureCapabilities },
                 ContextCompat.getMainExecutor(context)
             )
-        }
 
     internal companion object {
+        const val CLIENT = "HealthServicesMeasureClient"
+        private val CLIENT_CONFIGURATION =
+            ClientConfiguration(CLIENT, SERVICE_PACKAGE_NAME, MEASURE_API_BIND_ACTION)
+
         @JvmStatic
         fun getClient(context: Context): ServiceBackedMeasureClient {
             return ServiceBackedMeasureClient(context, HsConnectionManager.getInstance(context))

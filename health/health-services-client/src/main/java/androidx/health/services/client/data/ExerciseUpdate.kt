@@ -16,116 +16,142 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.AggregateDataPoint.AggregateCase.AGGREGATE_NOT_SET
+import androidx.health.services.client.proto.DataProto.AggregateDataPoint.AggregateCase.CUMULATIVE_DATA_POINT
+import androidx.health.services.client.proto.DataProto.AggregateDataPoint.AggregateCase.STATISTICAL_DATA_POINT
+import androidx.health.services.client.proto.DataProto.ExerciseUpdate.LatestMetricsEntry as LatestMetricsEntryProto
+import java.lang.IllegalStateException
 import java.time.Duration
 import java.time.Instant
 
 /** Contains the latest updated state and metrics for the current exercise. */
-public data class ExerciseUpdate(
+@Suppress("ParcelCreator")
+public class ExerciseUpdate(
     /** Returns the current status of the exercise. */
-    val state: ExerciseState,
+    public val state: ExerciseState,
 
-    /** Returns the time at which the exercise was started. */
-    val startTime: Instant,
+    /**
+     * Returns the time at which the exercise was started or `null` if the exercise is in prepare
+     * phase and hasn't started yet.
+     */
+    public val startTime: Instant?,
 
     /**
      * Returns the total elapsed time for which the exercise has been active, i.e. started but not
-     * paused.
+     * paused. The active duration is zero in prepare phase.
      */
-    val activeDuration: Duration,
+    public val activeDuration: Duration,
 
     /**
      * Returns the list of latest [DataPoint] for each metric keyed by data type name. This allows a
-     * client to easily query for the "current" values of each metric since last call. There will
-     * only be one value for an Aggregated DataType.
+     * client to easily query for the "current" values of each metric since last call.
      */
-    val latestMetrics: Map<DataType, List<DataPoint>>,
+    public val latestMetrics: Map<DataType, List<DataPoint>>,
+
+    /** Returns the latest aggregated values for each metric keyed by [DataType#name]. */
+    public val latestAggregateMetrics: Map<DataType, AggregateDataPoint>,
 
     /**
      * Returns the latest `#ONE_TIME_GOAL` [ExerciseGoal] s that have been achieved. `#MILESTONE`
      * [ExerciseGoal] s will be returned via `#getLatestMilestoneMarkerSummaries` below.
      */
-    val latestAchievedGoals: Set<AchievedExerciseGoal>,
+    public val latestAchievedGoals: Set<AchievedExerciseGoal>,
 
     /** Returns the latest [MilestoneMarkerSummary] s. */
-    val latestMilestoneMarkerSummaries: Set<MilestoneMarkerSummary>,
+    public val latestMilestoneMarkerSummaries: Set<MilestoneMarkerSummary>,
 
     /**
-     * Returns the [ExerciseConfig] used by the exercise when the [ExerciseUpdate] was dispatched.
+     * Returns the [ExerciseConfig] used by the exercise when the [ExerciseUpdate] was dispatched
+     * and returns `null` if the exercise is in prepare phase and hasn't been started yet.
      */
-    val exerciseConfig: ExerciseConfig,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val exerciseConfig: ExerciseConfig?,
+) : ProtoParcelable<DataProto.ExerciseUpdate>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(state.id)
-        dest.writeLong(startTime.toEpochMilli())
-        dest.writeLong(activeDuration.toMillis())
+    /** @hide */
+    public constructor(
+        proto: DataProto.ExerciseUpdate
+    ) : this(
+        ExerciseState.fromProto(proto.state)
+            ?: throw IllegalStateException("Invalid ExerciseState: ${proto.state}"),
+        if (proto.hasStartTimeEpochMs()) Instant.ofEpochMilli(proto.startTimeEpochMs) else null,
+        Duration.ofMillis(proto.activeDurationMs),
+        proto
+            .latestMetricsList
+            .map { metric ->
+                DataType(metric.dataType) to metric.dataPointsList.map { DataPoint(it) }
+            }
+            .toMap(),
+        proto
+            .latestAggregateMetricsList
+            .map { metric ->
+                when (metric.aggregateCase) {
+                    CUMULATIVE_DATA_POINT -> DataType(metric.cumulativeDataPoint.dataType)
+                    STATISTICAL_DATA_POINT -> DataType(metric.statisticalDataPoint.dataType)
+                    null, AGGREGATE_NOT_SET ->
+                        throw IllegalStateException("Aggregate not set on $metric")
+                } to AggregateDataPoint.fromProto(metric)
+            }
+            .toMap(),
+        proto.latestAchievedGoalsList.map { AchievedExerciseGoal(it) }.toSet(),
+        proto.mileStoneMarkerSummariesList.map { MilestoneMarkerSummary(it) }.toSet(),
+        if (proto.hasExerciseConfig()) ExerciseConfig(proto.exerciseConfig) else null
+    )
 
-        dest.writeInt(latestMetrics.size)
-        for ((dataType, dataPoints) in latestMetrics) {
-            dest.writeParcelable(dataType, flags)
-            dest.writeInt(dataPoints.size)
-            dest.writeTypedArray(dataPoints.toTypedArray(), flags)
-        }
+    /** @hide */
+    override val proto: DataProto.ExerciseUpdate by lazy {
+        val builder =
+            DataProto.ExerciseUpdate.newBuilder()
+                .setState(state.toProto())
+                .setActiveDurationMs(activeDuration.toMillis())
+                .addAllLatestMetrics(
+                    latestMetrics
+                        .map {
+                            LatestMetricsEntryProto.newBuilder()
+                                .setDataType(it.key.proto)
+                                .addAllDataPoints(it.value.map { dataPoint -> dataPoint.proto })
+                                .build()
+                        }
+                        .sortedBy { entry ->
+                            entry.dataType.name
+                        } // If we don't sort, equals() may not work.
+                )
+                .addAllLatestAggregateMetrics(
+                    latestAggregateMetrics.map { it.value.proto }.sortedBy { entry ->
+                        when (entry.aggregateCase) {
+                            CUMULATIVE_DATA_POINT -> entry.cumulativeDataPoint.dataType.name
+                            STATISTICAL_DATA_POINT -> entry.statisticalDataPoint.dataType.name
+                            null, AGGREGATE_NOT_SET ->
+                                throw IllegalStateException("Aggregate not set on $entry")
+                        }
+                    }
+                ) // If we don't sort, equals() may not work.
+                .addAllLatestAchievedGoals(latestAchievedGoals.map { it.proto })
+                .addAllMileStoneMarkerSummaries(latestMilestoneMarkerSummaries.map { it.proto })
 
-        dest.writeInt(latestAchievedGoals.size)
-        dest.writeTypedArray(latestAchievedGoals.toTypedArray(), flags)
+        startTime?.let { builder.setStartTimeEpochMs(startTime.toEpochMilli()) }
+        exerciseConfig?.let { builder.setExerciseConfig(exerciseConfig.proto) }
 
-        dest.writeInt(latestMilestoneMarkerSummaries.size)
-        dest.writeTypedArray(latestMilestoneMarkerSummaries.toTypedArray(), flags)
-
-        dest.writeParcelable(exerciseConfig, flags)
+        builder.build()
     }
+
+    override fun toString(): String =
+        "ExerciseUpdate(" +
+            "state=$state, " +
+            "startTime=$startTime, " +
+            "activeDuration=$activeDuration, " +
+            "latestMetrics=$latestMetrics, " +
+            "latestAggregateMetrics=$latestAggregateMetrics, " +
+            "latestAchievedGoals=$latestAchievedGoals, " +
+            "latestMilestoneMarkerSummaries=$latestMilestoneMarkerSummaries, " +
+            "exerciseConfig=$exerciseConfig)"
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseUpdate> =
-            object : Parcelable.Creator<ExerciseUpdate> {
-                override fun createFromParcel(source: Parcel): ExerciseUpdate? {
-                    val exerciseState = ExerciseState.fromId(source.readInt()) ?: return null
-                    val startTime = Instant.ofEpochMilli(source.readLong())
-                    val activeDuration = Duration.ofMillis(source.readLong())
-
-                    val numMetrics = source.readInt()
-                    val latestMetrics = HashMap<DataType, List<DataPoint>>()
-                    repeat(numMetrics) {
-                        val dataType: DataType =
-                            source.readParcelable(DataType::class.java.classLoader) ?: return null
-                        val dataPointsArray = Array<DataPoint?>(source.readInt()) { null }
-                        source.readTypedArray(dataPointsArray, DataPoint.CREATOR)
-                        latestMetrics[dataType] = dataPointsArray.filterNotNull().toList()
-                    }
-
-                    val latestAchievedGoalsArray =
-                        Array<AchievedExerciseGoal?>(source.readInt()) { null }
-                    source.readTypedArray(latestAchievedGoalsArray, AchievedExerciseGoal.CREATOR)
-
-                    val latestMilestoneMarkerSummariesArray =
-                        Array<MilestoneMarkerSummary?>(source.readInt()) { null }
-                    source.readTypedArray(
-                        latestMilestoneMarkerSummariesArray,
-                        MilestoneMarkerSummary.CREATOR
-                    )
-
-                    val exerciseConfig: ExerciseConfig =
-                        source.readParcelable(ExerciseConfig::class.java.classLoader) ?: return null
-
-                    return ExerciseUpdate(
-                        exerciseState,
-                        startTime,
-                        activeDuration,
-                        latestMetrics,
-                        latestAchievedGoalsArray.filterNotNull().toSet(),
-                        latestMilestoneMarkerSummariesArray.filterNotNull().toSet(),
-                        exerciseConfig,
-                    )
-                }
-
-                override fun newArray(size: Int): Array<ExerciseUpdate?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<ExerciseUpdate> = newCreator { bytes ->
+            val proto = DataProto.ExerciseUpdate.parseFrom(bytes)
+            ExerciseUpdate(proto)
+        }
     }
 }
