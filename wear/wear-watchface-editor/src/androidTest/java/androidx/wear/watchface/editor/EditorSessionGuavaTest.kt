@@ -287,8 +287,8 @@ public class EditorSessionGuavaTest {
 
             // Select [blueStyleOption] and [gothicStyleOption], which are the last options in the
             // corresponding setting definitions.
-            listenableEditorSession.userStyle =
-                listenableEditorSession.userStyle.toMutableUserStyle().apply {
+            listenableEditorSession.userStyle.value =
+                listenableEditorSession.userStyle.value.toMutableUserStyle().apply {
                     listenableEditorSession.userStyleSchema.userStyleSettings.forEach {
                         this[it] = it.options.last()
                     }

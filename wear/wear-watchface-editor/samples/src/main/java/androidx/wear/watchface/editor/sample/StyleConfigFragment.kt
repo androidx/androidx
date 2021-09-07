@@ -213,7 +213,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
     internal fun setUserStyleOption(userStyleOption: UserStyleSetting.Option) {
         val watchFaceConfigActivity = (activity as WatchFaceConfigActivity)
         val editorSession = watchFaceConfigActivity.editorSession
-        editorSession.userStyle = userStyle.toMutableUserStyle().apply {
+        editorSession.userStyle.value = userStyle.toMutableUserStyle().apply {
             this[styleSetting] = userStyleOption
         }.toUserStyle()
     }

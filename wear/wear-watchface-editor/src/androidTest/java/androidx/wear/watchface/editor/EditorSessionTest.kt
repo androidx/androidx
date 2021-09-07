@@ -1445,9 +1445,9 @@ public class EditorSessionTest {
         )
 
         scenario.onActivity { activity ->
-            assertThat(activity.editorSession.userStyle[colorStyleSetting])
+            assertThat(activity.editorSession.userStyle.value[colorStyleSetting])
                 .isEqualTo(greenStyleOption)
-            assertThat(activity.editorSession.userStyle[watchHandStyleSetting])
+            assertThat(activity.editorSession.userStyle.value[watchHandStyleSetting])
                 .isEqualTo(modernStyleOption)
         }
     }
@@ -1465,11 +1465,11 @@ public class EditorSessionTest {
 
         scenario.onActivity { activity ->
             // Select [blueStyleOption] and [gothicStyleOption].
-            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
+            val mutableUserStyle = activity.editorSession.userStyle.value.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
                 mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
+            activity.editorSession.userStyle.value = mutableUserStyle.toUserStyle()
             activity.editorSession.close()
             activity.finish()
         }
@@ -1527,9 +1527,9 @@ public class EditorSessionTest {
 
         scenario.onActivity { activity ->
             // Hide the left complication.
-            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
+            val mutableUserStyle = activity.editorSession.userStyle.value.toMutableUserStyle()
             mutableUserStyle[complicationsStyleSetting] = rightOnlyComplicationsOption
-            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
+            activity.editorSession.userStyle.value = mutableUserStyle.toUserStyle()
             activity.editorSession.close()
             activity.finish()
         }
@@ -1614,11 +1614,11 @@ public class EditorSessionTest {
                 .isEqualTo(classicStyleOption.id.value)
 
             // Select [blueStyleOption] and [gothicStyleOption].
-            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
+            val mutableUserStyle = activity.editorSession.userStyle.value.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
                 mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
+            activity.editorSession.userStyle.value = mutableUserStyle.toUserStyle()
 
             // The editorDelegate should be unaffected because a separate headless instance is
             // used.
@@ -1665,11 +1665,11 @@ public class EditorSessionTest {
                 activity.deferredDone.await()
             }
             // Select [blueStyleOption] and [gothicStyleOption].
-            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
+            val mutableUserStyle = activity.editorSession.userStyle.value.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
                 mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
+            activity.editorSession.userStyle.value = mutableUserStyle.toUserStyle()
             activity.editorSession.close()
             activity.finish()
         }
@@ -1709,11 +1709,11 @@ public class EditorSessionTest {
                 .isEqualTo(classicStyleOption.id.value)
 
             // Select [blueStyleOption] and [gothicStyleOption].
-            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
+            val mutableUserStyle = activity.editorSession.userStyle.value.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
                 mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
+            activity.editorSession.userStyle.value = mutableUserStyle.toUserStyle()
 
             // This should cause the style on the to be reverted back to the initial style.
             activity.editorSession.commitChangesOnClose = false
@@ -1758,11 +1758,11 @@ public class EditorSessionTest {
                 .isEqualTo(classicStyleOption.id.value)
 
             // Select [blueStyleOption] and [gothicStyleOption].
-            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
+            val mutableUserStyle = activity.editorSession.userStyle.value.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
                 mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
+            activity.editorSession.userStyle.value = mutableUserStyle.toUserStyle()
 
             activity.editorSession.close()
             activity.finish()
@@ -1853,11 +1853,11 @@ public class EditorSessionTest {
 
         scenario.onActivity { activity ->
             // Select [blueStyleOption] and [gothicStyleOption].
-            val mutableUserStyle = activity.editorSession.userStyle.toMutableUserStyle()
+            val mutableUserStyle = activity.editorSession.userStyle.value.toMutableUserStyle()
             for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
                 mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
             }
-            activity.editorSession.userStyle = mutableUserStyle.toUserStyle()
+            activity.editorSession.userStyle.value = mutableUserStyle.toUserStyle()
         }
 
         EditorService.globalEditorService.closeEditor()
