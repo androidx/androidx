@@ -17,9 +17,6 @@
 package androidx.media2.test.service.tests;
 
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
-import static androidx.media2.test.common.CommonConstants.KEY_CLIENT_VERSION;
-import static androidx.media2.test.common.CommonConstants.VERSION_TOT;
-import static androidx.test.platform.app.InstrumentationRegistry.getArguments;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -61,13 +58,11 @@ public class SessionPlayerTest extends MediaSessionTestBase {
     MediaSession mSession;
     MockPlayer mPlayer;
     RemoteMediaController mController;
-    String mRemoteControllerVersion;
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mRemoteControllerVersion = getArguments().getString(KEY_CLIENT_VERSION, "");
         mPlayer = new MockPlayer(1);
         mSession = new MediaSession.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
@@ -334,16 +329,12 @@ public class SessionPlayerTest extends MediaSessionTestBase {
         final int testIndex1 = 3;
         final int testIndex2 = 20;
 
-        // TODO: Run the test with previous remote controllers once its version becomes
-        //       COMMAND_VERSION_2 since movePlaylistItem is introduced in COMMAND_VERSION_2.
-        if (VERSION_TOT.equals(mRemoteControllerVersion)) {
-            mController.movePlaylistItem(testIndex1, testIndex2);
-            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        mController.movePlaylistItem(testIndex1, testIndex2);
+        assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
-            assertTrue(mPlayer.mMovePlaylistItemCalled);
-            assertEquals(testIndex1, mPlayer.mIndex);
-            assertEquals(testIndex2, mPlayer.mIndex2);
-        }
+        assertTrue(mPlayer.mMovePlaylistItemCalled);
+        assertEquals(testIndex1, mPlayer.mIndex);
+        assertEquals(testIndex2, mPlayer.mIndex2);
     }
 
     @Test

@@ -151,12 +151,9 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
                     queue.get(i).getDescription().getMediaId());
         }
         assertEquals(testPlaylistTitle, controller.getQueueTitle().toString());
-        // TODO(b/182255673): Remove this when the relevant fix is released.
-        if (MediaTestUtils.isServiceToT()) {
-            assertEquals(RatingCompat.RATING_HEART, controller.getRatingType());
-            assertEquals(testShuffleMode, controller.getShuffleMode());
-            assertEquals(testRepeatMode, controller.getRepeatMode());
-        }
+        assertEquals(RatingCompat.RATING_HEART, controller.getRatingType());
+        assertEquals(testShuffleMode, controller.getShuffleMode());
+        assertEquals(testRepeatMode, controller.getRepeatMode());
     }
 
     @Test
@@ -310,13 +307,10 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         }
         assertEquals(testPlaylistTitle, queueTitleRef.get().toString());
 
-        // TODO(b/182255673): Remove this when the relevant fix is released.
-        if (MediaTestUtils.isServiceToT()) {
-            assertTrue(latchForShuffleMode.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            assertEquals(testShuffleMode, shuffleModeRef.get());
-            assertTrue(latchForRepeatMode.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            assertEquals(testRepeatMode, repeatModeRef.get());
-        }
+        assertTrue(latchForShuffleMode.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testShuffleMode, shuffleModeRef.get());
+        assertTrue(latchForRepeatMode.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testRepeatMode, repeatModeRef.get());
     }
 
     @Test
@@ -645,18 +639,14 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         assertEquals(displayTitle,
                 mControllerCompat.getMetadata().getString(
                         MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE));
-        if (MediaTestUtils.isServiceToT()) {
-            // TODO(b/156594425): Move these assertions out of this condition once the
-            //  previous session is updated to have the fix of b/159147455.
-            assertTrue(latchForPlaybackState.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            assertEquals(testPosition, playbackStateRef.get().getPosition());
-            assertEquals(testPosition, mControllerCompat.getPlaybackState().getPosition());
-            assertEquals(MediaUtils.convertToQueueItemId(testItemIndex),
-                    playbackStateRef.get().getActiveQueueItemId());
-            assertEquals(MediaUtils.convertToQueueItemId(testItemIndex),
-                    mControllerCompat.getPlaybackState().getActiveQueueItemId());
-            assertEquals(RatingCompat.RATING_THUMB_UP_DOWN, mControllerCompat.getRatingType());
-        }
+        assertTrue(latchForPlaybackState.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testPosition, playbackStateRef.get().getPosition());
+        assertEquals(testPosition, mControllerCompat.getPlaybackState().getPosition());
+        assertEquals(MediaUtils.convertToQueueItemId(testItemIndex),
+                playbackStateRef.get().getActiveQueueItemId());
+        assertEquals(MediaUtils.convertToQueueItemId(testItemIndex),
+                mControllerCompat.getPlaybackState().getActiveQueueItemId());
+        assertEquals(RatingCompat.RATING_THUMB_UP_DOWN, mControllerCompat.getRatingType());
     }
 
     @Test
@@ -769,12 +759,6 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
 
     @Test
     public void onAudioInfoChanged_isCalled_byVolumeChange() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/156594425): Remove this condition once the previous session becomes to notify
-            //  volume changes of RemoteSessionPlayer (b/155059866).
-            return;
-        }
-
         Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
                 .setVolumeControlType(RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE)
                 .setMaxVolume(10)
