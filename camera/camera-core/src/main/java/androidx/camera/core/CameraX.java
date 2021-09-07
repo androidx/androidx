@@ -19,13 +19,14 @@ package androidx.camera.core;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.os.SystemClock;
+import android.util.Log;
+import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
@@ -79,9 +80,6 @@ public final class CameraX {
     static CameraX sInstance = null;
 
     @GuardedBy("INSTANCE_LOCK")
-    private static CameraXConfig.Provider sConfigProvider = null;
-
-    @GuardedBy("INSTANCE_LOCK")
     private static ListenableFuture<Void> sInitializeFuture =
             Futures.immediateFailedFuture(new IllegalStateException("CameraX is not initialized."));
 
@@ -103,17 +101,36 @@ public final class CameraX {
     // TODO(b/161302102): Remove the stored context. Only make use of the context within the
     //  called method.
     private Context mAppContext;
+    private final ListenableFuture<Void> mInitInternalFuture;
 
     @GuardedBy("mInitializeLock")
     private InternalInitState mInitState = InternalInitState.UNINITIALIZED;
     @GuardedBy("mInitializeLock")
     private ListenableFuture<Void> mShutdownInternalFuture = Futures.immediateFuture(null);
+    private final Integer mMinLogLevel;
 
-    CameraX(@NonNull CameraXConfig cameraXConfig) {
-        mCameraXConfig = Preconditions.checkNotNull(cameraXConfig);
+    private static final Object MIN_LOG_LEVEL_LOCK = new Object();
+    @GuardedBy("MIN_LOG_LEVEL_LOCK")
+    private static final SparseArray<Integer> sMinLogLevelReferenceCountMap = new SparseArray<>();
 
-        Executor executor = cameraXConfig.getCameraExecutor(null);
-        Handler schedulerHandler = cameraXConfig.getSchedulerHandler(null);
+    CameraX(@NonNull Context context, @Nullable CameraXConfig.Provider configProvider) {
+        if (configProvider != null) {
+            mCameraXConfig = configProvider.getCameraXConfig();
+        } else {
+            CameraXConfig.Provider provider =
+                    getConfigProvider(context);
+
+            if (provider == null) {
+                throw new IllegalStateException("CameraX is not configured properly. The most "
+                        + "likely cause is you did not include a default implementation in your "
+                        + "build such as 'camera-camera2'.");
+            }
+
+            mCameraXConfig = provider.getCameraXConfig();
+        }
+
+        Executor executor = mCameraXConfig.getCameraExecutor(null);
+        Handler schedulerHandler = mCameraXConfig.getSchedulerHandler(null);
         mCameraExecutor = executor == null ? new CameraExecutor() : executor;
         if (schedulerHandler == null) {
             mSchedulerThread = new HandlerThread(CameraXThreads.TAG + "scheduler",
@@ -124,6 +141,12 @@ public final class CameraX {
             mSchedulerThread = null;
             mSchedulerHandler = schedulerHandler;
         }
+
+        // Retrieves the mini log level setting from config provider
+        mMinLogLevel = mCameraXConfig.retrieveOption(CameraXConfig.OPTION_MIN_LOGGING_LEVEL, null);
+        increaseMinLogLevelReference(mMinLogLevel);
+
+        mInitInternalFuture = initInternal(context);
     }
 
     /**
@@ -146,41 +169,24 @@ public final class CameraX {
             @NonNull CameraXConfig cameraXConfig) {
         synchronized (INSTANCE_LOCK) {
             Preconditions.checkNotNull(context);
-            configureInstanceLocked(() -> cameraXConfig);
-            initializeInstanceLocked(context);
+            initializeInstanceLocked(context, () -> cameraXConfig);
             return sInitializeFuture;
         }
     }
 
     @GuardedBy("INSTANCE_LOCK")
-    private static void configureInstanceLocked(@NonNull CameraXConfig.Provider configProvider) {
-        Preconditions.checkNotNull(configProvider);
-        Preconditions.checkState(sConfigProvider == null, "CameraX has already been configured. "
-                + "To use a different configuration, shutdown() must be called.");
-
-        sConfigProvider = configProvider;
-
-        // Set the minimum logging level inside CameraX before it's initialization begins
-        final Integer minLogLevel = configProvider.getCameraXConfig().retrieveOption(
-                CameraXConfig.OPTION_MIN_LOGGING_LEVEL, null);
-        if (minLogLevel != null) {
-            Logger.setMinLogLevel(minLogLevel);
-        }
-    }
-
-    @GuardedBy("INSTANCE_LOCK")
-    private static void initializeInstanceLocked(@NonNull Context context) {
+    private static void initializeInstanceLocked(@NonNull Context context,
+            @Nullable CameraXConfig.Provider configProvider) {
         Preconditions.checkNotNull(context);
         Preconditions.checkState(sInstance == null, "CameraX already initialized.");
-        Preconditions.checkNotNull(sConfigProvider);
-        CameraX cameraX = new CameraX(sConfigProvider.getCameraXConfig());
+        CameraX cameraX = new CameraX(context, configProvider);
         sInstance = cameraX;
         sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
             synchronized (INSTANCE_LOCK) {
                 // The sShutdownFuture should always be successful, otherwise it will not
                 // propagate to transformAsync() due to the behavior of FutureChain.
                 ListenableFuture<Void> future = FutureChain.from(sShutdownFuture)
-                        .transformAsync(input -> cameraX.initInternal(context),
+                        .transformAsync(input -> cameraX.getInitializeFuture(),
                                 CameraXExecutors.directExecutor());
 
                 Futures.addCallback(future, new FutureCallback<Void>() {
@@ -217,8 +223,6 @@ public final class CameraX {
     @NonNull
     public static ListenableFuture<Void> shutdown() {
         synchronized (INSTANCE_LOCK) {
-            sConfigProvider = null;
-            Logger.resetMinLogLevel();
             return shutdownLocked();
         }
     }
@@ -244,7 +248,7 @@ public final class CameraX {
                         // Wait initialize complete
                         sInitializeFuture.addListener(() -> {
                             // Wait shutdownInternal complete
-                            Futures.propagate(cameraX.shutdownInternal(), completer);
+                            Futures.propagate(cameraX.getShutdownFuture(), completer);
                         }, CameraXExecutors.directExecutor());
                         return "CameraX shutdown";
                     }
@@ -313,21 +317,7 @@ public final class CameraX {
             }
 
             if (instanceFuture == null) {
-                if (configProvider == null) {
-                    // Attempt initialization through Application or meta-data
-                    CameraXConfig.Provider provider = getConfigProvider(context);
-                    if (provider == null) {
-                        throw new IllegalStateException("CameraX is not configured properly. "
-                                + "The most likely cause is you did not include a default "
-                                + "implementation in your build such as 'camera-camera2'.");
-                    }
-
-                    configureInstanceLocked(provider);
-                } else {
-                    configureInstanceLocked(configProvider);
-                }
-
-                initializeInstanceLocked(context);
+                initializeInstanceLocked(context, configProvider);
                 instanceFuture = getInstanceLocked();
             }
 
@@ -338,7 +328,7 @@ public final class CameraX {
     @Nullable
     private static CameraXConfig.Provider getConfigProvider(@NonNull Context context) {
         CameraXConfig.Provider configProvider = null;
-        Application application = getApplicationFromContext(context);
+        Application application = ContextUtil.getApplicationFromContext(context);
         if (application instanceof CameraXConfig.Provider) {
             // Application is a CameraXConfig.Provider, use this directly
             configProvider = (CameraXConfig.Provider) application;
@@ -382,29 +372,6 @@ public final class CameraX {
         }
 
         return configProvider;
-    }
-
-    /**
-     * Attempts to retrieve an {@link Application} object from the provided {@link Context}.
-     *
-     * <p>Because the contract does not specify that {@code Context.getApplicationContext()} must
-     * return an {@code Application} object, this method will attempt to retrieve the
-     * {@code Application} by unwrapping the context via {@link ContextWrapper#getBaseContext()} if
-     * {@code Context.getApplicationContext()}} does not succeed.
-     */
-    @Nullable
-    private static Application getApplicationFromContext(@NonNull Context context) {
-        Application application = null;
-        Context appContext = ContextUtil.getApplicationContext(context);
-        while (appContext instanceof ContextWrapper) {
-            if (appContext instanceof Application) {
-                application = (Application) appContext;
-                break;
-            } else {
-                appContext = ContextUtil.getBaseContext((ContextWrapper) appContext);
-            }
-        }
-        return application;
     }
 
     @GuardedBy("INSTANCE_LOCK")
@@ -463,6 +430,28 @@ public final class CameraX {
         return mDefaultConfigFactory;
     }
 
+    /**
+     * Returns the initialize future.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public ListenableFuture<Void> getInitializeFuture() {
+        return mInitInternalFuture;
+    }
+
+    /**
+     * Returns the shutdown future.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public ListenableFuture<Void> getShutdownFuture() {
+        return shutdownInternal();
+    }
+
     private ListenableFuture<Void> initInternal(@NonNull Context context) {
         synchronized (mInitializeLock) {
             Preconditions.checkState(mInitState == InternalInitState.UNINITIALIZED,
@@ -489,7 +478,7 @@ public final class CameraX {
             try {
                 // TODO(b/161302102): Remove the stored context. Only make use of
                 //  the context within the called method.
-                mAppContext = getApplicationFromContext(context);
+                mAppContext = ContextUtil.getApplicationFromContext(context);
                 if (mAppContext == null) {
                     mAppContext = ContextUtil.getApplicationContext(context);
                 }
@@ -594,6 +583,7 @@ public final class CameraX {
 
                 case INITIALIZED:
                     mInitState = InternalInitState.SHUTDOWN;
+                    decreaseMinLogLevelReference(mMinLogLevel);
                     mShutdownInternalFuture = CallbackToFutureAdapter.getFuture(
                             completer -> {
                                 ListenableFuture<Void> future = mCameraRepository.deinit();
@@ -627,6 +617,66 @@ public final class CameraX {
     private boolean isInitializedInternal() {
         synchronized (mInitializeLock) {
             return mInitState == InternalInitState.INITIALIZED;
+        }
+    }
+
+    private static void increaseMinLogLevelReference(@Nullable Integer minLogLevel) {
+        synchronized (MIN_LOG_LEVEL_LOCK) {
+            if (minLogLevel == null) {
+                return;
+            }
+
+            Preconditions.checkArgumentInRange(minLogLevel, Log.DEBUG, Log.ERROR, "minLogLevel");
+
+            int refCount = 1;
+            // Retrieves the value from the map and plus one if there has been some other
+            // instance refers to the same minimum log level.
+            if (sMinLogLevelReferenceCountMap.get(minLogLevel) != null) {
+                refCount = sMinLogLevelReferenceCountMap.get(minLogLevel) + 1;
+            }
+            sMinLogLevelReferenceCountMap.put(minLogLevel, refCount);
+            updateOrResetMinLogLevel();
+        }
+    }
+
+    private static void decreaseMinLogLevelReference(@Nullable Integer minLogLevel) {
+        synchronized (MIN_LOG_LEVEL_LOCK) {
+            if (minLogLevel == null) {
+                return;
+            }
+
+            int refCount = sMinLogLevelReferenceCountMap.get(minLogLevel) - 1;
+
+            if (refCount == 0) {
+                // Removes the entry if reference count becomes zero.
+                sMinLogLevelReferenceCountMap.remove(minLogLevel);
+            } else {
+                // Update the value if it is still referred by other instance.
+                sMinLogLevelReferenceCountMap.put(minLogLevel, refCount);
+            }
+            updateOrResetMinLogLevel();
+        }
+    }
+
+    @GuardedBy("MIN_LOG_LEVEL_LOCK")
+    private static void updateOrResetMinLogLevel() {
+        // Resets the minimum log level if there has been no instances refer to any minimum
+        // log level setting.
+        if (sMinLogLevelReferenceCountMap.size() == 0) {
+            Logger.resetMinLogLevel();
+            return;
+        }
+
+        // If the HashMap is not empty, find the minimum log level from the map and update it
+        // to Logger.
+        if (sMinLogLevelReferenceCountMap.get(Log.DEBUG) != null) {
+            Logger.setMinLogLevel(Log.DEBUG);
+        } else if (sMinLogLevelReferenceCountMap.get(Log.INFO) != null) {
+            Logger.setMinLogLevel(Log.INFO);
+        } else if (sMinLogLevelReferenceCountMap.get(Log.WARN) != null) {
+            Logger.setMinLogLevel(Log.WARN);
+        } else if (sMinLogLevelReferenceCountMap.get(Log.ERROR) != null) {
+            Logger.setMinLogLevel(Log.ERROR);
         }
     }
 

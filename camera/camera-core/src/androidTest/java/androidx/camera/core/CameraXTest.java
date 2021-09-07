@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -144,5 +145,50 @@ public final class CameraXTest {
                 CameraX.getOrCreateInstance(mContext, () -> mConfigBuilder.build()).get();
 
         assertThat(cameraX1.getCameraFactory()).isEqualTo(cameraFactory1);
+    }
+
+    @Test
+    public void minLogLevelIsCorrectlySetAndReset()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        mConfigBuilder.setMinimumLoggingLevel(Log.ERROR);
+        CameraX cameraX = new CameraX(mContext, () -> mConfigBuilder.build());
+        cameraX.getInitializeFuture().get(10000, TimeUnit.MILLISECONDS);
+
+        assertThat(Logger.getMinLogLevel()).isEqualTo(Log.ERROR);
+
+        cameraX.getShutdownFuture().get(10000, TimeUnit.MILLISECONDS);
+
+        assertThat(Logger.getMinLogLevel()).isEqualTo(Log.DEBUG);
+    }
+
+    @Test
+    public void minLogLevelIsCorrectlySetAndReset_whenSettingMultipleTimes()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        mConfigBuilder.setMinimumLoggingLevel(Log.INFO);
+        CameraX cameraX1 = new CameraX(mContext, () -> mConfigBuilder.build());
+        cameraX1.getInitializeFuture().get(10000, TimeUnit.MILLISECONDS);
+
+        // Checks whether minimum log level is correctly set by the first CameraX instance
+        assertThat(Logger.getMinLogLevel()).isEqualTo(Log.INFO);
+
+        mConfigBuilder.setMinimumLoggingLevel(Log.ERROR);
+        CameraX cameraX2 = new CameraX(mContext, () -> mConfigBuilder.build());
+        cameraX2.getInitializeFuture().get(10000, TimeUnit.MILLISECONDS);
+
+        // Checks whether minimum log level is correctly kept as INFO level since it is lower
+        // than the target minimum log level setting of the second CameraX instance
+        assertThat(Logger.getMinLogLevel()).isEqualTo(Log.INFO);
+
+        cameraX1.getShutdownFuture().get(10000, TimeUnit.MILLISECONDS);
+
+        // Checks whether minimum log level is correctly updated as ERROR level after the first
+        // CameraX instance is shutdown
+        assertThat(Logger.getMinLogLevel()).isEqualTo(Log.ERROR);
+
+        cameraX2.getShutdownFuture().get(10000, TimeUnit.MILLISECONDS);
+
+        // Checks whether minimum log level is correctly reset as DEBUG level after the second
+        // CameraX instance is shutdown
+        assertThat(Logger.getMinLogLevel()).isEqualTo(Log.DEBUG);
     }
 }

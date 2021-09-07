@@ -78,6 +78,13 @@ public final class Logger {
     }
 
     /**
+     * Returns current minimum logging level.
+     */
+    static int getMinLogLevel() {
+        return sMinLogLevel;
+    }
+
+    /**
      * Resets the minimum logging level to use in {@link Logger} to the default minimum logging
      * level. After calling this method, only logs at the default level and above are output.
      */
