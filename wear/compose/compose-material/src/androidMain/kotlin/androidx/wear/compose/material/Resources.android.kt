@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material
 
+import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
@@ -39,3 +40,8 @@ private fun drawableId(res: String): Int {
     val field = drawableClass.getDeclaredField(imageName)
     return field.get(drawableClass) as Int
 }
+
+@Composable
+internal actual fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
+
+internal actual fun currentTimeMillis(): Long = System.currentTimeMillis()

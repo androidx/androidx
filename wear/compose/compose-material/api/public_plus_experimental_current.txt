@@ -388,6 +388,26 @@ package androidx.wear.compose.material {
     method public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
   }
 
+  @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class TimeTextDefaults {
+    method @androidx.compose.runtime.Composable public void CurvedTextSeparator(androidx.wear.compose.foundation.CurvedRowScope, optional androidx.wear.compose.foundation.CurvedTextStyle curvedTextStyle, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
+    method @androidx.compose.runtime.Composable public void TextSeparator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding);
+    method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.CurvedTextStyle timeCurvedTextStyle(optional long color, optional long background, optional long fontSize);
+    method @androidx.compose.runtime.Composable public String timeFormat();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.text.TextStyle timeTextStyle(optional long color, optional long background, optional long fontSize);
+    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    field public static final androidx.wear.compose.material.TimeTextDefaults INSTANCE;
+    field public static final String Skeleton12Hr = "hm";
+    field public static final String Skeleton24Hr = "Hm";
+  }
+
+  public final class TimeTextKt {
+    method @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static void TimeText(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<java.lang.Long> timeMillis, optional String timeFormat, optional androidx.compose.ui.text.TextStyle timeTextStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingLinearContent, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit>? leadingCurvedContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingLinearContent, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit>? trailingCurvedContent, optional kotlin.jvm.functions.Function0<kotlin.Unit> textLinearSeparator, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit> textCurvedSeparator);
+  }
+
+  public final class TimeUpdateControllerKt {
+  }
+
   @androidx.compose.runtime.Stable public interface ToggleButtonColors {
     method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> backgroundColor(boolean enabled, boolean checked);
     method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> contentColor(boolean enabled, boolean checked);

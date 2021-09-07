@@ -17,21 +17,18 @@
 package androidx.wear.compose.material
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 
 @Composable
-internal actual fun isRoundDevice(): Boolean {
-    return false
+internal actual fun currentTime(
+    time: () -> Long,
+    timeFormat: String
+): State<String> {
+
+    val timeText = remember {
+        derivedStateOf { "Test time" }
+    }
+    return timeText
 }
-
-@Composable
-internal actual fun imageResource(res: String): Painter =
-    painterResource(res)
-
-@Composable
-internal actual fun is24HourFormat(): Boolean {
-    return true
-}
-
-internal actual fun currentTimeMillis(): Long = System.currentTimeMillis()
