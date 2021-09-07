@@ -461,15 +461,20 @@ package androidx.fragment.app.strictmode {
 
   public final class FragmentReuseViolation extends androidx.fragment.app.strictmode.Violation {
     method public String getPreviousFragmentId();
+    property public String message;
+    property public final String previousFragmentId;
   }
 
   public final class FragmentStrictMode {
-    method public static androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
-    method public static void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
+    method @VisibleForTesting public void onPolicyViolation(androidx.fragment.app.strictmode.Violation violation);
+    method public void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy defaultPolicy);
+    property public final androidx.fragment.app.strictmode.FragmentStrictMode.Policy defaultPolicy;
+    field public static final androidx.fragment.app.strictmode.FragmentStrictMode INSTANCE;
   }
 
-  public static interface FragmentStrictMode.OnViolationListener {
-    method public void onViolation(androidx.fragment.app.strictmode.Violation);
+  public static fun interface FragmentStrictMode.OnViolationListener {
+    method public void onViolation(androidx.fragment.app.strictmode.Violation violation);
   }
 
   public static final class FragmentStrictMode.Policy {
@@ -478,7 +483,7 @@ package androidx.fragment.app.strictmode {
 
   public static final class FragmentStrictMode.Policy.Builder {
     ctor public FragmentStrictMode.Policy.Builder();
-    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder allowViolation(Class<? extends androidx.fragment.app.Fragment>, Class<? extends androidx.fragment.app.strictmode.Violation>);
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder allowViolation(Class<? extends androidx.fragment.app.Fragment> fragmentClass, Class<? extends androidx.fragment.app.strictmode.Violation> violationClass);
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy build();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectFragmentReuse();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectFragmentTagUsage();
@@ -487,47 +492,61 @@ package androidx.fragment.app.strictmode {
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectTargetFragmentUsage();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectWrongFragmentContainer();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyDeath();
-    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyListener(androidx.fragment.app.strictmode.FragmentStrictMode.OnViolationListener);
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyListener(androidx.fragment.app.strictmode.FragmentStrictMode.OnViolationListener listener);
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyLog();
   }
 
   public final class FragmentTagUsageViolation extends androidx.fragment.app.strictmode.Violation {
     method public android.view.ViewGroup? getParentContainer();
+    property public String message;
+    property public final android.view.ViewGroup? parentContainer;
   }
 
   public final class GetRetainInstanceUsageViolation extends androidx.fragment.app.strictmode.RetainInstanceUsageViolation {
+    property public String message;
   }
 
   public final class GetTargetFragmentRequestCodeUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
+    property public String message;
   }
 
   public final class GetTargetFragmentUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
+    property public String message;
   }
 
   public abstract class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {
   }
 
   public final class SetRetainInstanceUsageViolation extends androidx.fragment.app.strictmode.RetainInstanceUsageViolation {
+    property public String message;
   }
 
   public final class SetTargetFragmentUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
     method public int getRequestCode();
     method public androidx.fragment.app.Fragment getTargetFragment();
+    property public String message;
+    property public final int requestCode;
+    property public final androidx.fragment.app.Fragment targetFragment;
   }
 
   public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
     method public boolean isVisibleToUser();
+    property public final boolean isVisibleToUser;
+    property public String message;
   }
 
   public abstract class TargetFragmentUsageViolation extends androidx.fragment.app.strictmode.Violation {
   }
 
   public abstract class Violation extends java.lang.RuntimeException {
-    method public androidx.fragment.app.Fragment getFragment();
+    method public final androidx.fragment.app.Fragment getFragment();
+    property public final androidx.fragment.app.Fragment fragment;
   }
 
   public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
     method public android.view.ViewGroup getContainer();
+    property public final android.view.ViewGroup container;
+    property public String message;
   }
 
 }

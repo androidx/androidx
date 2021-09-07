@@ -13,39 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.fragment.app.strictmode
 
-package androidx.fragment.app.strictmode;
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-/** See #{@link FragmentStrictMode.Policy.Builder#detectFragmentTagUsage()}. */
-public final class FragmentTagUsageViolation extends Violation {
-
-    @Nullable
-    private final ViewGroup mContainer;
-
-    FragmentTagUsageViolation(@NonNull Fragment fragment, @Nullable ViewGroup container) {
-        super(fragment);
-        this.mContainer = container;
-    }
-
+/**
+ * See [FragmentStrictMode.Policy.Builder.detectFragmentTagUsage].
+ */
+class FragmentTagUsageViolation internal constructor(
+    fragment: Fragment,
+    val parentContainer: ViewGroup?
+) : Violation(fragment) {
     /**
-     * Gets the parent container that the {@link Fragment} causing the Violation
+     * Gets the parent container that the [Fragment] causing the Violation
      * would have been added to.
      */
-    @Nullable
-    public ViewGroup getParentContainer() {
-        return mContainer;
-    }
-
-    @NonNull
-    @Override
-    public String getMessage() {
-        return "Attempting to use <fragment> tag to add fragment " + mFragment + " to container "
-                + mContainer;
-    }
+    override val message: String
+        get() = "Attempting to use <fragment> tag to add fragment $fragment to container " +
+            "$parentContainer"
 }

@@ -13,27 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.fragment.app.strictmode
 
-package androidx.fragment.app.strictmode;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.Fragment
 
 /** Root class for all FragmentStrictMode violations. */
 @SuppressWarnings("ExceptionName")
-public abstract class Violation extends RuntimeException {
-
-    final Fragment mFragment;
-
-    Violation(@NonNull Fragment fragment) {
-        mFragment = fragment;
-    }
-
+abstract class Violation internal constructor(
     /**
-     * Gets the {@link Fragment} causing the Violation.
+     * Gets the [Fragment] causing the Violation.
      */
-    @NonNull
-    public Fragment getFragment() {
-        return mFragment;
-    }
-}
+    val fragment: Fragment
+) : RuntimeException()

@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.fragment.app.strictmode
 
-package androidx.fragment.app.strictmode;
+import androidx.fragment.app.Fragment
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
-/** See #{@link FragmentStrictMode.Policy.Builder#detectRetainInstanceUsage()}. */
-public abstract class RetainInstanceUsageViolation extends Violation {
-
-    RetainInstanceUsageViolation(@NonNull Fragment fragment) {
-        super(fragment);
-    }
-}
+/**
+ * See [FragmentStrictMode.Policy.Builder.detectRetainInstanceUsage].
+ */
+abstract class RetainInstanceUsageViolation internal constructor(fragment: Fragment) :
+    Violation(fragment)

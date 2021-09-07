@@ -13,46 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.fragment.app.strictmode
 
-package androidx.fragment.app.strictmode;
+import androidx.fragment.app.Fragment
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
-/** See #{@link FragmentStrictMode.Policy.Builder#detectTargetFragmentUsage()}. */
-public final class SetTargetFragmentUsageViolation extends TargetFragmentUsageViolation {
-
-    private final Fragment mTargetFragment;
-    private final int mRequestCode;
-
-    SetTargetFragmentUsageViolation(
-            @NonNull Fragment violatingFragment,
-            @NonNull Fragment targetFragment,
-            int requestCode) {
-        super(violatingFragment);
-        this.mTargetFragment = targetFragment;
-        this.mRequestCode = requestCode;
-    }
-
+/**
+ * See [FragmentStrictMode.Policy.Builder.detectTargetFragmentUsage].
+ */
+class SetTargetFragmentUsageViolation internal constructor(
+    violatingFragment: Fragment,
     /**
-     * Gets the target {@link Fragment} that was being set in the call causing the Violation.
+     * Gets the target [Fragment] that was being set in the call causing the Violation.
      */
-    @NonNull
-    public Fragment getTargetFragment() {
-        return mTargetFragment;
-    }
-
+    val targetFragment: Fragment,
     /**
      * Gets the request code that was passed in the call causing the Violation.
      */
-    public int getRequestCode() {
-        return mRequestCode;
-    }
-
-    @NonNull
-    @Override
-    public String getMessage() {
-        return "Attempting to set target fragment " + mTargetFragment + " with request code "
-                + mRequestCode + " for fragment " + mFragment;
-    }
+    val requestCode: Int
+) : TargetFragmentUsageViolation(violatingFragment) {
+    override val message: String
+        get() = "Attempting to set target fragment $targetFragment with request code " +
+            "$requestCode for fragment $fragment"
 }

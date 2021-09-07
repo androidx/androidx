@@ -13,34 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.fragment.app.strictmode
 
-package androidx.fragment.app.strictmode;
+import androidx.fragment.app.Fragment
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
-/** See #{@link FragmentStrictMode.Policy.Builder#detectFragmentReuse()}. */
-public final class FragmentReuseViolation extends Violation {
-
-    @NonNull
-    private final String mPreviousWho;
-
-    FragmentReuseViolation(@NonNull Fragment fragment, @NonNull String previousWho) {
-        super(fragment);
-        this.mPreviousWho = previousWho;
-    }
-
+/**
+ * See [FragmentStrictMode.Policy.Builder.detectFragmentReuse].
+ */
+class FragmentReuseViolation internal constructor(
+    fragment: Fragment,
+    val previousFragmentId: String
+) : Violation(fragment) {
     /**
-     * Gets the unique ID of the previous instance of the {@link Fragment} causing the Violation.
+     * Gets the unique ID of the previous instance of the [Fragment] causing the Violation.
      */
-    @NonNull
-    public String getPreviousFragmentId() {
-        return mPreviousWho;
-    }
-
-    @NonNull
-    @Override
-    public String getMessage() {
-        return "Attempting to reuse fragment " + mFragment + " with previous ID " + mPreviousWho;
-    }
+    override val message: String
+        get() = "Attempting to reuse fragment $fragment with previous ID $previousFragmentId"
 }
