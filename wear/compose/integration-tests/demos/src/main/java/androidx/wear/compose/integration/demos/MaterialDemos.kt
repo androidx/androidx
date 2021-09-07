@@ -25,6 +25,8 @@ import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
+import androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
+import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 
 // Declare the swipe to dismiss demos so that we can use this variable as the background composable
 // for the SwipeToDismissDemo itself.
@@ -91,6 +93,29 @@ val WearMaterialDemos = DemoCategory(
             listOf(
                 ComposableDemo("Scaffold with Scrollbar") {
                     SimpleScaffoldWithScrollIndicator()
+                },
+            )
+        ),
+        DemoCategory(
+            "TimeText",
+            listOf(
+                ComposableDemo("Clock only") {
+                    TimeTextClockOnly()
+                },
+                ComposableDemo("Clock with leading text") {
+                    TimeTextWithLeadingText()
+                },
+                ComposableDemo("Clock with trailing text") {
+                    TimeTextWithTrailingText()
+                },
+                ComposableDemo("Clock with leading and trailing text") {
+                    TimeTextWithLeadingAndTrailingText()
+                },
+                ComposableDemo("Clock with custom separator") {
+                    TimeTextWithCustomSeparator()
+                },
+                ComposableDemo("Clock with full date and time format") {
+                    TimeTextWithFullDateAndTimeFormat()
                 },
             )
         )

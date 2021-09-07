@@ -24,3 +24,8 @@ internal expect fun imageResource(res: String): Painter
 
 @Composable
 internal expect fun isRoundDevice(): Boolean
+
+@Composable
+internal expect fun is24HourFormat(): Boolean
+
+internal expect fun currentTimeMillis(): Long

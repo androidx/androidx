@@ -40,6 +40,7 @@ dependencies {
         implementation("androidx.compose.material:material:1.0.0-rc02")
         implementation("androidx.compose.material:material-ripple:1.0.0-rc02")
         implementation(project(":compose:ui:ui-util"))
+        implementation(project(":wear:compose:compose-foundation"))
 
         androidTestImplementation project(path: ':compose:ui:ui-test')
         androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
@@ -72,6 +73,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:material:material-ripple"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":wear:compose:compose-foundation"))
             }
             jvmMain.dependencies {
                 implementation(libs.kotlinStdlib)
