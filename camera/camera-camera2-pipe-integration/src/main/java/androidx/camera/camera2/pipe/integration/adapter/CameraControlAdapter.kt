@@ -161,7 +161,9 @@ class CameraControlAdapter @Inject constructor(
         return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create())
     }
 
-    override fun startFlashSequence(): ListenableFuture<Void> {
+    override fun startFlashSequence(
+        @ImageCapture.FlashType flashType: Int
+    ): ListenableFuture<Void> {
         warn { "TODO: startFlashSequence is not yet supported" }
         return Futures.immediateFuture(null)
     }

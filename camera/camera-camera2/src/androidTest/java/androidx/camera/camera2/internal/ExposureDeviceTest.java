@@ -303,7 +303,8 @@ public class ExposureDeviceTest {
         // Set the exposure compensation
         int upper = exposureState.getExposureCompensationRange().getUpper();
         mCameraControlInternal.setExposureCompensationIndex(upper).get(3000, TimeUnit.MILLISECONDS);
-        mCameraControlInternal.startFlashSequence().get(3000, TimeUnit.MILLISECONDS);
+        mCameraControlInternal.startFlashSequence(ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH).get(3000,
+                TimeUnit.MILLISECONDS);
 
         // Verify the exposure compensation target result is in the capture result.
         verify(callback, timeout(3000).atLeastOnce()).onCaptureCompleted(
