@@ -186,6 +186,7 @@ public class CameraXActivity extends AppCompatActivity {
     private SeekBar mZoomSeekBar;
     private Button mZoomIn2XToggle;
     private Button mZoomResetToggle;
+    private Toast mEvToast = null;
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
@@ -223,15 +224,14 @@ public class CameraXActivity extends AppCompatActivity {
                 ExposureState exposureState = cameraInfo.getExposureState();
                 float ev = result * exposureState.getExposureCompensationStep().floatValue();
                 Log.d(TAG, "success new EV: " + ev);
-                Toast.makeText(getApplicationContext(), String.format("EV: %.2f", ev),
-                        Toast.LENGTH_SHORT).show();
+                showEVToast(String.format("EV: %.2f", ev));
             }
         }
 
         @Override
         public void onFailure(@NonNull Throwable t) {
             Log.d(TAG, "failed " + t);
-            Toast.makeText(getApplicationContext(), "Fail to set EV", Toast.LENGTH_SHORT).show();
+            showEVToast("Fail to set EV");
         }
     };
 
@@ -634,10 +634,8 @@ public class CameraXActivity extends AppCompatActivity {
                 Futures.addCallback(future, mEVFutureCallback,
                         CameraXExecutors.mainThreadExecutor());
             } else {
-                Toast.makeText(getApplicationContext(), String.format("EV: %.2f",
-                        range.getUpper()
-                                * exposureState.getExposureCompensationStep().floatValue()),
-                        Toast.LENGTH_LONG).show();
+                showEVToast(String.format("EV: %.2f", range.getUpper()
+                        * exposureState.getExposureCompensationStep().floatValue()));
             }
         });
 
@@ -655,12 +653,18 @@ public class CameraXActivity extends AppCompatActivity {
                 Futures.addCallback(future, mEVFutureCallback,
                         CameraXExecutors.mainThreadExecutor());
             } else {
-                Toast.makeText(getApplicationContext(), String.format("EV: %.2f",
-                        range.getLower()
-                                * exposureState.getExposureCompensationStep().floatValue()),
-                        Toast.LENGTH_LONG).show();
+                showEVToast(String.format("EV: %.2f", range.getLower()
+                        * exposureState.getExposureCompensationStep().floatValue()));
             }
         });
+    }
+
+    void showEVToast(String message) {
+        if (mEvToast != null) {
+            mEvToast.cancel();
+        }
+        mEvToast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        mEvToast.show();
     }
 
     private void updateButtonsUi() {
