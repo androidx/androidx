@@ -26,7 +26,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -311,14 +310,6 @@ public class FragmentContainerView : FrameLayout {
             addDisappearingFragmentView(view)
         }
         super.removeAllViewsInLayout()
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun removeDetachedView(child: View, animate: Boolean) {
-        if (animate) {
-            addDisappearingFragmentView(child)
-        }
-        super.removeDetachedView(child, animate)
     }
 
     /**
