@@ -696,6 +696,44 @@ class XAnnotationTest(
     }
 
     @Test
+    fun javaEnumArrayWithDefaultNameAndValue() {
+        val annotationSource = Source.java(
+            "foo.bar.MyAnnotation",
+            """
+            package foo.bar;
+            public @interface MyAnnotation {
+                MyEnum[] value() default {};
+            }
+            """.trimIndent()
+        )
+        val enumSource = Source.java(
+            "foo.bar.MyEnum",
+            """
+            package foo.bar;
+            enum MyEnum {
+                 Bar
+            }
+            """.trimIndent()
+        )
+        val classSource = Source.java(
+            "foo.bar.Subject",
+            """
+            package foo.bar;
+            @MyAnnotation
+            class Subject {}
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(annotationSource, enumSource, classSource)
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
+
+            val annotations = subject.getAllAnnotations().filter { it.name == "MyAnnotation" }
+            assertThat(annotations).hasSize(1)
+        }
+    }
+
+    @Test
     fun javaRepeatableAnnotation() {
         val javaSrc = Source.java(
             "JavaSubject",
