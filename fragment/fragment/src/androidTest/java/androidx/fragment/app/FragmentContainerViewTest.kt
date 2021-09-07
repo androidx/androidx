@@ -362,20 +362,6 @@ class FragmentContainerViewTest {
         assertThat(view.childCount).isEqualTo(0)
     }
 
-    // removeDetachedView should not actually remove the view
-    @Test
-    fun removeDetachedView() {
-        val childView1 = FragmentContainerView(context)
-        val childView2 = FragmentContainerView(context)
-
-        val view = setupRemoveTestsView(childView1, childView2)
-
-        view.removeDetachedView(childView1, false)
-
-        assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(1)).isEqualTo(childView2)
-    }
-
     private fun setupRemoveTestsView(
         childView1: View,
         childView2: View
