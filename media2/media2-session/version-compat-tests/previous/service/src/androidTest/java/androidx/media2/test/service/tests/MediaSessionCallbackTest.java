@@ -25,9 +25,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.Rating;
@@ -81,11 +83,11 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onPostConnect_afterConnected() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
-            public void onPostConnect(MediaSession session, ControllerInfo controller) {
+            public void onPostConnect(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
                 latch.countDown();
             }
         };
@@ -99,17 +101,17 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onPostConnect_afterConnectionRejected() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
-            public SessionCommandGroup onConnect(MediaSession session,
-                    ControllerInfo controller) {
+            public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
                 return null;
             }
 
             @Override
-            public void onPostConnect(MediaSession session, ControllerInfo controller) {
+            public void onPostConnect(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
                 latch.countDown();
             }
         };
@@ -123,7 +125,6 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onCommandRequest() throws InterruptedException {
-        prepareLooper();
         mPlayer = new MockPlayer(1);
 
         final MockOnCommandCallback callback = new MockOnCommandCallback();
@@ -152,7 +153,6 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onCreateMediaItem() throws InterruptedException {
-        prepareLooper();
         mPlayer = new MockPlayer(1);
 
         final List<String> list = MediaTestUtils.createMediaIds(3);
@@ -160,8 +160,8 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
         final MockOnCommandCallback callback = new MockOnCommandCallback() {
             @Override
-            public MediaItem onCreateMediaItem(MediaSession session,
-                    ControllerInfo controller, String mediaId) {
+            public MediaItem onCreateMediaItem(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String mediaId) {
                 for (int i = 0; i < list.size(); i++) {
                     if (Objects.equals(mediaId, list.get(i))) {
                         return convertedList.get(i);
@@ -194,7 +194,6 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onCustomCommand() throws InterruptedException {
-        prepareLooper();
         // TODO(jaewan): Need to revisit with the permission.
         final SessionCommand testCommand = new SessionCommand("testCustomCommand", null);
         final Bundle testArgs = new Bundle();
@@ -212,10 +211,11 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                 return commands;
             }
 
+            @NonNull
             @Override
-            public SessionResult onCustomCommand(MediaSession session,
-                    MediaSession.ControllerInfo controller, SessionCommand sessionCommand,
-                    Bundle args) {
+            public SessionResult onCustomCommand(@NonNull MediaSession session,
+                    @NonNull MediaSession.ControllerInfo controller,
+                    @NonNull SessionCommand sessionCommand, Bundle args) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(testCommand, sessionCommand);
                 assertTrue(TestUtils.equals(testArgs, args));
@@ -236,11 +236,11 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onFastForward() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
-            public int onFastForward(MediaSession session, ControllerInfo controller) {
+            public int onFastForward(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
                 return RESULT_SUCCESS;
@@ -257,11 +257,10 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onRewind() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
-            public int onRewind(MediaSession session, ControllerInfo controller) {
+            public int onRewind(@NonNull MediaSession session, @NonNull ControllerInfo controller) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
                 return RESULT_SUCCESS;
@@ -278,11 +277,11 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onSkipForward() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
-            public int onSkipForward(MediaSession session, ControllerInfo controller) {
+            public int onSkipForward(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
                 return RESULT_SUCCESS;
@@ -299,11 +298,11 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onSkipBackward() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
-            public int onSkipBackward(MediaSession session, ControllerInfo controller) {
+            public int onSkipBackward(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
                 return RESULT_SUCCESS;
@@ -319,8 +318,34 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
+    public void onSetMediaUri() throws InterruptedException {
+        final Uri testUri = Uri.parse("foo://boo");
+        final Bundle testExtras = TestUtils.createTestBundle();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
+            @Override
+            public int onSetMediaUri(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull Uri uri, @Nullable Bundle extras) {
+                assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
+                assertEquals(testUri, uri);
+                assertTrue(TestUtils.equals(testExtras, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnSetMediaUri")
+                .build()) {
+            RemoteMediaController controller = createRemoteController(session.getToken());
+
+            controller.setMediaUri(testUri, testExtras);
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
     public void onSetRating() throws InterruptedException {
-        prepareLooper();
         final float ratingValue = 3.5f;
         final Rating testRating = new StarRating(5, ratingValue);
         final String testMediaId = "media_id";
@@ -328,8 +353,9 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
-            public int onSetRating(MediaSession session, ControllerInfo controller,
-                    String mediaId, Rating rating) {
+            public int onSetRating(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String mediaId,
+                    @NonNull Rating rating) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(testMediaId, mediaId);
                 assertEquals(testRating, rating);
@@ -350,15 +376,14 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onConnect() throws InterruptedException {
-        prepareLooper();
         final AtomicReference<Bundle> connectionHints = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
                 .setId("testOnConnect")
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
                         // TODO: Get uid of client app's and compare.
                         if (!CLIENT_PACKAGE_NAME.equals(controller.getPackageName())) {
                             return null;
@@ -380,14 +405,13 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onDisconnected() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
                 .setId("testOnDisconnected")
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public void onDisconnected(MediaSession session,
-                            ControllerInfo controller) {
+                    public void onDisconnected(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
                         assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                         // TODO: Get uid of client app's and compare.
                         latch.countDown();
@@ -414,8 +438,8 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
         public final ArrayList<SessionCommand> commands = new ArrayList<>();
 
         @Override
-        public int onCommandRequest(MediaSession session, ControllerInfo controllerInfo,
-                SessionCommand command) {
+        public int onCommandRequest(@NonNull MediaSession session,
+                @NonNull ControllerInfo controllerInfo, @NonNull SessionCommand command) {
             // TODO: Get uid of client app's and compare.
             assertEquals(CLIENT_PACKAGE_NAME, controllerInfo.getPackageName());
             assertFalse(controllerInfo.isTrusted());

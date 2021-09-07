@@ -30,6 +30,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Build;
 import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -93,10 +94,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
                 .setSessionCallback(sHandlerExecutor, mSessionCallback)
                 .build();
 
-        // Make this test to get priority for handling media key event
-        // SDK < 26: Playback state should become *playing*
-        mPlayer.notifyPlayerStateChanged(SessionPlayer.PLAYER_STATE_PLAYING);
-
         // Make this test to get priority for handling media key event.
         // Here's the requirement for an app to receive media key events via MediaSession.
         // SDK < 26: Playback state should become *playing* for receiving key events.
@@ -155,7 +152,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
 
     @Test
     public void playKeyEvent() throws Exception {
-        prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPlayCalled);
@@ -163,7 +159,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
 
     @Test
     public void pauseKeyEvent() throws Exception {
-        prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPauseCalled);
@@ -171,7 +166,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
 
     @Test
     public void nextKeyEvent() throws Exception {
-        prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToNextItemCalled);
@@ -179,7 +173,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
 
     @Test
     public void previousKeyEvent() throws Exception {
-        prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToPreviousItemCalled);
@@ -187,7 +180,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
 
     @Test
     public void stopKeyEvent() throws Exception {
-        prepareLooper();
         mPlayer = new MockPlayer(2);
         mSession.updatePlayer(mPlayer);
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_STOP, false);
@@ -198,7 +190,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
 
     @Test
     public void fastForwardKeyEvent() throws Exception {
-        prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_FAST_FORWARD, false);
         assertTrue(mSessionCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mSessionCallback.mFastForwardCalled);
@@ -206,7 +197,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
 
     @Test
     public void rewindKeyEvent() throws Exception {
-        prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_REWIND, false);
         assertTrue(mSessionCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mSessionCallback.mRewindCalled);
@@ -214,7 +204,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
 
     @Test
     public void playPauseKeyEvent_play() throws Exception {
-        prepareLooper();
         mPlayer.notifyPlayerStateChanged(SessionPlayer.PLAYER_STATE_PAUSED);
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -223,7 +212,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
 
     @Test
     public void playPauseKeyEvent_pause() throws Exception {
-        prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPauseCalled);
@@ -231,7 +219,6 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
 
     @Test
     public void playPauseKeyEvent_doubleTapIsTranslatedToSkipToNext() throws Exception {
-        prepareLooper();
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, true);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToNextItemCalled);
@@ -245,7 +232,8 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
         boolean mRewindCalled;
 
         @Override
-        public SessionCommandGroup onConnect(MediaSession session, ControllerInfo controller) {
+        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller) {
             if (sExpectedControllerPackageName.equals(controller.getPackageName())) {
                 return super.onConnect(session, controller);
             }
@@ -253,14 +241,15 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onFastForward(MediaSession session, ControllerInfo controller) {
+        public int onFastForward(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller) {
             mFastForwardCalled = true;
             mCountDownLatch.countDown();
             return RESULT_SUCCESS;
         }
 
         @Override
-        public int onRewind(MediaSession session, ControllerInfo controller) {
+        public int onRewind(@NonNull MediaSession session, @NonNull ControllerInfo controller) {
             mRewindCalled = true;
             mCountDownLatch.countDown();
             return RESULT_SUCCESS;

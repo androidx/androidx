@@ -20,6 +20,7 @@ import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.MediaSessionService;
@@ -47,7 +48,7 @@ public class MockMediaSessionService extends MediaSessionService {
     }
 
     @Override
-    public MediaSession onGetSession(ControllerInfo controllerInfo) {
+    public MediaSession onGetSession(@NonNull ControllerInfo controllerInfo) {
         TestServiceRegistry registry = TestServiceRegistry.getInstance();
         TestServiceRegistry.OnGetSessionHandler onGetSessionHandler =
                 registry.getOnGetSessionHandler();
@@ -68,8 +69,8 @@ public class MockMediaSessionService extends MediaSessionService {
 
     private class TestSessionCallback extends MediaSession.SessionCallback {
         @Override
-        public SessionCommandGroup onConnect(MediaSession session,
-                MediaSession.ControllerInfo controller) {
+        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                @NonNull MediaSession.ControllerInfo controller) {
             if (TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName())) {
                 return super.onConnect(session, controller);
             }

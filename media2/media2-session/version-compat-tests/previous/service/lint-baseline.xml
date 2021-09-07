@@ -3,24 +3,13 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 28 (current min is 19): `getInstance`"
-        errorLine1="        MediaSessionManager sessionManager = MediaSessionManager.getInstance(mContext);"
-        errorLine2="                                                                 ~~~~~~~~~~~">
+        message="Call requires API level 19 (current min is 16): `java.util.Objects#equals`"
+        errorLine1="                    if (Objects.equals(mediaId, list.get(i))) {"
+        errorLine2="                                ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/media2/test/service/tests/MediaSessionManagerTest.java"
-            line="63"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 19): `getSessionServiceTokens`"
-        errorLine1="        Set&lt;SessionToken> serviceTokens = sessionManager.getSessionServiceTokens();"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/media2/test/service/tests/MediaSessionManagerTest.java"
-            line="64"
-            column="58"/>
+            file="src/androidTest/java/androidx/media2/test/service/tests/MediaSessionCallbackTest.java"
+            line="166"
+            column="33"/>
     </issue>
 
 </issues>

@@ -18,6 +18,7 @@ package androidx.media2.test.service.tests;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import androidx.media2.session.SessionCommand;
@@ -112,6 +113,24 @@ public class SessionCommandTest {
                         ((int) values.get(j - 1)) + 1, (int) values.get(j));
             }
         }
+    }
+
+    @Test
+    public void addAllPredefinedCommands_withVersion1_notHaveVersion2Commands() {
+        SessionCommandGroup.Builder builder = new SessionCommandGroup.Builder();
+        builder.addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_1);
+        SessionCommandGroup commands = builder.build();
+        assertFalse(commands.hasCommand(SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI));
+        assertFalse(commands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM));
+    }
+
+    @Test
+    public void addAllPredefinedCommands_withVersion2_hasVersion2Commands() {
+        SessionCommandGroup.Builder builder = new SessionCommandGroup.Builder();
+        builder.addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_2);
+        SessionCommandGroup commands = builder.build();
+        assertTrue(commands.hasCommand(SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI));
+        assertTrue(commands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM));
     }
 
     private static List<Field> getSessionCommandsFields(String prefix) {
