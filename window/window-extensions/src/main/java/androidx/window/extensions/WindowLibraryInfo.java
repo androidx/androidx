@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
  * A class to return global information about the library. From this class you can get the
  * API level supported by the library.
  *
- * @see WindowLibraryInfo#getApiLevel() ()
+ * @see WindowLibraryInfo#getVendorApiLevel() ()
  */
 public class WindowLibraryInfo {
 
@@ -34,9 +34,12 @@ public class WindowLibraryInfo {
      * Returns the API level of the vendor library on the device. If the returned version is not
      * supported by the WindowManager library, then some functions may not be available or replaced
      * with stub implementations.
+     *
+     * The expected use case is for the WindowManager library to determine which APIs are
+     * available and wrap the API so that app developers do not need to deal with the complexity.
      * @return the API level supported by the library.
      */
-    public int getApiLevel() {
+    public int getVendorApiLevel() {
         return 1;
     }
 
