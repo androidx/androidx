@@ -199,7 +199,8 @@ public class NavDeepLink internal constructor(
 
         // Check that all required arguments are present in bundle
         for ((argName, argument) in arguments.entries) {
-            val argumentIsRequired = argument != null && !argument.isDefaultValuePresent
+            val argumentIsRequired = argument != null && !argument.isNullable &&
+                !argument.isDefaultValuePresent
             if (argumentIsRequired && !bundle.containsKey(argName)) return null
         }
 

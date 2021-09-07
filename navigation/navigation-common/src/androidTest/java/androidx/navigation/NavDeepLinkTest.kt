@@ -1122,6 +1122,23 @@ class NavDeepLinkTest {
     }
 
     @Test
+    fun deepLinkNullableArgumentNotRequired() {
+        val deepLinkString = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkString)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkString),
+            mapOf("myarg" to nullableStringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args bundle should be empty")
+            .that(matchArgs?.isEmpty)
+            .isTrue()
+    }
+
+    @Test
     fun deepLinkMissingRequiredArgument() {
         val deepLinkString = "$DEEP_LINK_EXACT_HTTPS/greeting?title={title}&text={text}"
         val deepLink = NavDeepLink(deepLinkString)
