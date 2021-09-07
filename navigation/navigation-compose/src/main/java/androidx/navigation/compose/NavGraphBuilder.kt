@@ -58,8 +58,6 @@ public fun NavGraphBuilder.composable(
  * @param arguments list of arguments to associate with destination
  * @param deepLinks list of deep links to associate with the destinations
  * @param builder the builder used to construct the graph
- *
- * @return the newly constructed nested NavGraph
  */
 public fun NavGraphBuilder.navigation(
     startDestination: String,
