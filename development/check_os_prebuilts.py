@@ -29,13 +29,20 @@ def main():
   os_specific_files = {}
 
   for filename in sys.argv[1:]:
-    if "osx" in filename or "linux" in filename:
-      stripped_filename = filename.replace("osx", "").replace("linux", "")
-      if stripped_filename in os_specific_files.keys():
-        # Corresponding linux/osx pair, so no need to track
-        os_specific_files.pop(stripped_filename)
-      else:
-        os_specific_files[stripped_filename] = filename
+
+    # This technique makes sure that platform-specific files come in pairs.  Those will usually
+    # be either osx/linux or macos/linux.  Technically, if a osx/macos pair came through, we would
+    # let it through, but that seems unlikely
+
+    for platform in ["macos", "osx", "linux"]:
+      if platform in filename:
+        stripped_filename = filename.replace(platform, "")
+        if stripped_filename in os_specific_files.keys():
+          # Corresponding platform pair, so no need to track
+          os_specific_files.pop(stripped_filename)
+        else:
+          os_specific_files[stripped_filename] = filename
+        break # don't get hung up if file contains "macosx"
 
   # No matching files
   if not os_specific_files:
@@ -45,7 +52,8 @@ def main():
   for filename in os_specific_files.values():
     print(filename)
   print ("""\033[0m\nPlease make sure to import the corresponding prebuilts for missing platforms.
-If you imported a prebuilt similar to foo:bar:linux, try foo:bar:osx and vice versa.
+If you imported a prebuilt similar to foo:bar:linux, try foo:bar:osx (or foo:bar:macos),
+and vice versa.
 If there is no corresponding prebuilt, or only adding a prebuilt for one platform is intended, run:
 \033[92mrepo upload --no-verify\033[0m
 to skip this warning.""")

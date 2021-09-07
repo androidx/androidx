@@ -40,15 +40,14 @@ plugins {
 
 def githubBuild = project.properties['androidx.github.build'] ?: false
 
-kotlin {
+def enableMac = project.properties['androidx.kmp.mac.enabled'] ?: githubBuild
 
+kotlin {
     jvm {
         withJava()
     }
-    if (githubBuild) {
-        js {
-            nodejs()
-        }
+
+    if (enableMac) {
         macosX64 {
             binaries {
                 framework {
@@ -56,10 +55,15 @@ kotlin {
                 }
             }
         }
+    }
+
+    if (githubBuild) {
+        js {
+            nodejs()
+        }
 
         linuxX64()
         mingwX64()
-        macosX64()
         iosX64()
         iosArm64()
         iosArm32()
@@ -84,20 +88,39 @@ kotlin {
             }
         }
 
-        if (githubBuild) {
+        if (githubBuild || enableMac) {
             nonJvmMain {
                 // Used for JS and all native targets.
                 dependencies {
                     api(libs.atomicFu)
                 }
             }
+        }
 
-            configure([macosX64Main, linuxX64Main, mingwX64Main, iosX64Main, iosArm32Main, iosArm64Main]) {
+        if (enableMac) {
+            configure([macosX64Main]) {
                 dependsOn nonJvmMain
             }
+        }
 
+        if (githubBuild) {
+            configure([linuxX64Main, mingwX64Main, iosX64Main, iosArm32Main, iosArm64Main]) {
+                dependsOn nonJvmMain
+            }
+        }
+
+        if (githubBuild || enableMac) {
             nativeTest // Used for all native targets.
-            configure([macosX64Test, linuxX64Test, mingwX64Test, iosX64Test, iosArm32Test, iosArm64Test]) {
+        }
+
+        if (enableMac) {
+            configure([macosX64Test]) {
+                dependsOn nativeTest
+            }
+        }
+
+        if (githubBuild) {
+            configure([linuxX64Test, mingwX64Test, iosX64Test, iosArm32Test, iosArm64Test]) {
                 dependsOn nativeTest
             }
         }
@@ -130,9 +153,9 @@ kotlin {
     }
 }
 
-if (githubBuild) {
+if (githubBuild || enableMac) {
    // Workaround for https://youtrack.jetbrains.com/issue/KT-31603
-   sourceSets.test.java.srcDir('../collection/src/test/java')
+   sourceSets.test.java.srcDir('../../collection/collection/src/test/java')
 }
 
 androidx {

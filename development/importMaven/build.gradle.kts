@@ -469,6 +469,7 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
                     addFile("${id.name}-${id.version}.aar")
                     addFile("${id.name}-${id.version}-sources.jar")
                     addFile("${id.name}-${id.version}.klib")
+                    addFile("${id.name}-${id.version}-cinterop-interop.klib")
                 }
             }
         }
