@@ -316,10 +316,9 @@ package androidx.wear.watchface {
 
   public abstract static class Renderer.CanvasRenderer extends androidx.wear.watchface.Renderer {
     ctor @WorkerThread public Renderer.CanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis);
-    method @UiThread public void init();
+    method @UiThread public suspend Object? init(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method @UiThread public abstract void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, java.time.ZonedDateTime zonedDateTime);
     method @UiThread public abstract void renderHighlightLayer(android.graphics.Canvas canvas, android.graphics.Rect bounds, java.time.ZonedDateTime zonedDateTime);
-    method public void uiThreadInitInternal$metalava_module();
   }
 
   public abstract static class Renderer.GlesRenderer extends androidx.wear.watchface.Renderer {
@@ -330,12 +329,12 @@ package androidx.wear.watchface {
     method public final android.opengl.EGLConfig getEglConfig();
     method public final android.opengl.EGLDisplay getEglDisplay();
     method public final android.opengl.EGLContext getEglUiThreadContext();
-    method @WorkerThread public void onBackgroundThreadGlContextCreated();
-    method @UiThread public void onUiThreadGlSurfaceCreated(@Px int width, @Px int height);
+    method @WorkerThread public suspend Object? onBackgroundThreadGlContextCreated(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method @UiThread public suspend Object? onUiThreadGlSurfaceCreated(@Px int width, @Px int height, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method @UiThread public abstract void render(java.time.ZonedDateTime zonedDateTime);
     method @UiThread public abstract void renderHighlightLayer(java.time.ZonedDateTime zonedDateTime);
-    method @WorkerThread public final void runBackgroundThreadGlCommands(Runnable runnable);
-    method @UiThread public final void runUiThreadGlCommands(Runnable runnable);
+    method @WorkerThread public final suspend Object? runBackgroundThreadGlCommands(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> commands, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public final suspend Object? runUiThreadGlCommands(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> commands, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final void setEglConfig(android.opengl.EGLConfig eglConfig);
     method public final void setEglDisplay(android.opengl.EGLDisplay eglDisplay);
     property public final android.opengl.EGLContext eglBackgroundThreadContext;

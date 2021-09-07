@@ -20,9 +20,12 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.SurfaceTexture
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
@@ -41,21 +44,25 @@ import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.RangedValueComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
+import androidx.wear.watchface.client.InteractiveWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.control.WatchFaceControlService
-import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.samples.BLUE_STYLE
 import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
 import androidx.wear.watchface.samples.COMPLICATIONS_STYLE_SETTING
@@ -72,6 +79,7 @@ import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.Bo
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.android.asCoroutineDispatcher
@@ -91,6 +99,8 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -116,6 +126,9 @@ class WatchFaceControlClientTest {
     private lateinit var surfaceHolder: SurfaceHolder
 
     @Mock
+    private lateinit var surfaceHolder2: SurfaceHolder
+
+    @Mock
     private lateinit var surface: Surface
     private lateinit var engine: WatchFaceService.EngineWrapper
     private val handler = Handler(Looper.getMainLooper())
@@ -132,6 +145,7 @@ class WatchFaceControlClientTest {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
         Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
+        Mockito.`when`(surface.isValid).thenReturn(false)
     }
 
     @After
@@ -190,14 +204,17 @@ class WatchFaceControlClientTest {
         }
     }
 
-    private fun <X> awaitWithTimeout(thing: Deferred<X>): X {
+    private fun <X> awaitWithTimeout(
+        thing: Deferred<X>,
+        timeoutMillis: Long = CONNECT_TIMEOUT_MILLIS
+    ): X {
         var value: X? = null
         val latch = CountDownLatch(1)
         handlerCoroutineScope.launch {
             value = thing.await()
             latch.countDown()
         }
-        if (!latch.await(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+        if (!latch.await(timeoutMillis, TimeUnit.MILLISECONDS)) {
             throw TimeoutException("Timeout waiting for thing!")
         }
         return value!!
@@ -1069,6 +1086,160 @@ class WatchFaceControlClientTest {
             )
         )
     }
+
+    @Test
+    fun addWatchFaceReadyListener_canvasRender() {
+        val initCompletableDeferred = CompletableDeferred<Unit>()
+        val wallpaperService = TestAsyncCanvasRenderInitWatchFaceService(
+            context,
+            surfaceHolder,
+            initCompletableDeferred
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
+
+        // Create the engine which triggers the crashing watchface.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        try {
+            val wfReady = CompletableDeferred<Unit>()
+            interactiveInstance.addWatchFaceReadyListener(
+                { wfReady.complete(Unit) },
+                { runnable -> runnable.run() }
+            )
+            assertThat(wfReady.isCompleted).isFalse()
+
+            initCompletableDeferred.complete(Unit)
+
+            // This should not timeout.
+            awaitWithTimeout(wfReady)
+        } finally {
+            interactiveInstance.close()
+        }
+    }
+
+    @Test
+    fun removeWatchFaceReadyListener_canvasRender() {
+        val initCompletableDeferred = CompletableDeferred<Unit>()
+        val wallpaperService = TestAsyncCanvasRenderInitWatchFaceService(
+            context,
+            surfaceHolder,
+            initCompletableDeferred
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
+
+        val renderLatch = CountDownLatch(1)
+        Mockito.`when`(surfaceHolder.unlockCanvasAndPost(canvas)).then {
+            renderLatch.countDown()
+        }
+
+        // Create the engine which triggers the crashing watchface.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        try {
+            var listenerCalled = false
+            val listener =
+                InteractiveWatchFaceClient.WatchFaceReadyListener { listenerCalled = true }
+            interactiveInstance.addWatchFaceReadyListener(
+                listener,
+                { runnable -> runnable.run() }
+            )
+            interactiveInstance.removeWatchFaceReadyListener(listener)
+            assertThat(listenerCalled).isFalse()
+
+            initCompletableDeferred.complete(Unit)
+
+            assertTrue(renderLatch.await(DESTROY_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
+
+            assertThat(listenerCalled).isFalse()
+        } finally {
+            interactiveInstance.close()
+        }
+    }
+
+    @Test
+    fun addWatchFaceReadyListener_glesRender() {
+        val surfaceTexture = SurfaceTexture(false)
+        surfaceTexture.setDefaultBufferSize(10, 10)
+        Mockito.`when`(surfaceHolder2.surface).thenReturn(Surface(surfaceTexture))
+        Mockito.`when`(surfaceHolder2.surfaceFrame)
+            .thenReturn(Rect(0, 0, 10, 10))
+
+        val onUiThreadGlSurfaceCreatedCompletableDeferred = CompletableDeferred<Unit>()
+        val onBackgroundThreadGlContextCreatedCompletableDeferred = CompletableDeferred<Unit>()
+        val wallpaperService = TestAsyncGlesRenderInitWatchFaceService(
+            context,
+            surfaceHolder2,
+            onUiThreadGlSurfaceCreatedCompletableDeferred,
+            onBackgroundThreadGlContextCreatedCompletableDeferred
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+        // Create the engine which triggers the crashing watchface.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        try {
+            val wfReady = CompletableDeferred<Unit>()
+            interactiveInstance.addWatchFaceReadyListener(
+                { wfReady.complete(Unit) },
+                { runnable -> runnable.run() }
+            )
+            assertThat(wfReady.isCompleted).isFalse()
+
+            onUiThreadGlSurfaceCreatedCompletableDeferred.complete(Unit)
+            onBackgroundThreadGlContextCreatedCompletableDeferred.complete(Unit)
+
+            // This can be a bit slow.
+            awaitWithTimeout(wfReady, 2000)
+        } finally {
+            interactiveInstance.close()
+        }
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
@@ -1142,4 +1313,99 @@ internal class TestCrashingWatchFaceServiceWithBaseContext(
     }
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+}
+
+internal class TestAsyncCanvasRenderInitWatchFaceService(
+    testContext: Context,
+    private var surfaceHolderOverride: SurfaceHolder,
+    private var initCompletableDeferred: CompletableDeferred<Unit>
+) : WatchFaceService() {
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.DIGITAL,
+        object : Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            16
+        ) {
+            override suspend fun init() {
+                initCompletableDeferred.await()
+            }
+
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                // Actually rendering something isn't required.
+            }
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {
+                TODO("Not yet implemented")
+            }
+        }
+    ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
+        override fun getSystemTimeMillis() = 123456789L
+
+        override fun getSystemTimeZoneId() = ZoneId.of("UTC")
+    })
+}
+
+internal class TestAsyncGlesRenderInitWatchFaceService(
+    testContext: Context,
+    private var surfaceHolderOverride: SurfaceHolder,
+    private var onUiThreadGlSurfaceCreatedCompletableDeferred: CompletableDeferred<Unit>,
+    private var onBackgroundThreadGlContextCreatedCompletableDeferred: CompletableDeferred<Unit>
+) : WatchFaceService() {
+    internal lateinit var watchFace: WatchFace
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.DIGITAL,
+        object : Renderer.GlesRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            16
+        ) {
+            override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
+                onUiThreadGlSurfaceCreatedCompletableDeferred.await()
+            }
+
+            override suspend fun onBackgroundThreadGlContextCreated() {
+                onBackgroundThreadGlContextCreatedCompletableDeferred.await()
+            }
+
+            override fun render(zonedDateTime: ZonedDateTime) {
+                // GLES rendering is complicated and not strictly necessary for our test.
+            }
+
+            override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
+                TODO("Not yet implemented")
+            }
+        }
+    )
 }

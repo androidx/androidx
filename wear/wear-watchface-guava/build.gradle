@@ -27,8 +27,9 @@ plugins {
 
 dependencies {
     api(project(":wear:wear-watchface"))
-    api(libs.guavaListenableFuture)
+    api(libs.guavaAndroid)
 
+    androidTestImplementation(project(":wear:wear-watchface-client"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

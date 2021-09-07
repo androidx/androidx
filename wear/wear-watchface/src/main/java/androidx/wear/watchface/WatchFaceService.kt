@@ -56,6 +56,7 @@ import androidx.wear.complications.data.toWireTypes
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
+import androidx.wear.watchface.control.IWatchfaceReadyListener
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.InteractiveWatchFaceImpl
 import androidx.wear.watchface.control.data.CrashInfoParcel
@@ -925,6 +926,14 @@ public abstract class WatchFaceService : WallpaperService() {
             deferredWatchFaceImpl.await().complicationSlotsManager.clearComplicationData()
         }
 
+        /** This can be called on any thread. */
+        internal fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
+            uiThreadCoroutineScope.launch {
+                deferredWatchFaceImpl.await()
+                listener.onWatchfaceReady()
+            }
+        }
+
         @UiThread
         internal fun setImmutableSystemState(deviceConfig: DeviceConfig) {
             // These properties never change so set them once only.
@@ -1480,6 +1489,9 @@ public abstract class WatchFaceService : WallpaperService() {
                     broadcastsObserver,
                     broadcastsReceiver
                 )
+
+                // Perform UI thread render init.
+                watchFaceImpl.renderer.uiThreadInitInternal(uiThreadCoroutineScope)
 
                 // Make sure no UI thread rendering (a consequence of completing
                 // deferredWatchFaceImpl) occurs before initStyleAndComplications has

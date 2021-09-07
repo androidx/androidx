@@ -17,6 +17,7 @@
 package androidx.wear.watchface.control;
 
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
+import androidx.wear.watchface.control.IWatchfaceReadyListener;
 import androidx.wear.watchface.control.data.WatchFaceRenderParams;
 import androidx.wear.watchface.data.WatchUiState;
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
@@ -32,12 +33,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 17
+    // Next Id: 18
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 1;
+    const int API_VERSION = 2;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -175,4 +176,12 @@ interface IInteractiveWatchFace {
      * @since API version 1.
      */
     ContentDescriptionLabel[] getContentDescriptionLabels() = 16;
+
+    /**
+     * Adds a listener that will be called when the watch face is ready to render. If the watchface
+     * is already ready this will be called immediately.
+     *
+     * @since API version 2.
+     */
+    oneway void addWatchfaceReadyListener(in IWatchfaceReadyListener listener) = 17;
 }
