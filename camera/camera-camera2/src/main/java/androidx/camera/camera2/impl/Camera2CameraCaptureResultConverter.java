@@ -15,10 +15,14 @@
  */
 package androidx.camera.camera2.impl;
 
+import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureResult;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.internal.Camera2CameraCaptureFailure;
 import androidx.camera.camera2.internal.Camera2CameraCaptureResult;
+import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 
 /**
@@ -35,6 +39,21 @@ public final class Camera2CameraCaptureResultConverter {
             @Nullable CameraCaptureResult cameraCaptureResult) {
         if (cameraCaptureResult instanceof Camera2CameraCaptureResult) {
             return ((Camera2CameraCaptureResult) cameraCaptureResult).getCaptureResult();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Converts {@link CameraCaptureFailure} to camera2 {@link CaptureFailure}.
+     *
+     * @return The CaptureFailure instance or {@code null} if there is no underlying CaptureFailure.
+     */
+    @Nullable
+    public static CaptureFailure getCaptureFailure(
+            @NonNull CameraCaptureFailure cameraCaptureFailure) {
+        if (cameraCaptureFailure instanceof Camera2CameraCaptureFailure) {
+            return ((Camera2CameraCaptureFailure) cameraCaptureFailure).getCaptureFailure();
         } else {
             return null;
         }
