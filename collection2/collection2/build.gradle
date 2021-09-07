@@ -180,7 +180,6 @@ configurations {
 dependencies {
     jvmApiBaseline('androidx.collection:collection:1.1.0') {
         transitive = false
-        force = true
     }
 }
 
