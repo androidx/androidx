@@ -7,11 +7,11 @@ package androidx.wear.watchface.editor {
     method @RequiresApi(27) @UiThread public static androidx.wear.watchface.editor.ListenableEditorSession createHeadlessEditorSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
     method public Integer? getBackgroundComplicationSlotId();
     method public Integer? getComplicationSlotIdAt(int x, int y);
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
-    method public suspend Object? getComplicationsDataSourceInfo(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.ComplicationDataSourceInfo>> p);
-    method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
-    method public com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData>> getListenableComplicationPreviewData();
-    method public com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationDataSourceInfo>> getListenableComplicationsProviderInfo();
+    method public kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState>> getComplicationSlotsState();
+    method public suspend Object? getComplicationsDataSourceInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.StateFlow<? extends java.util.Map<java.lang.Integer,? extends androidx.wear.complications.ComplicationDataSourceInfo>>> p);
+    method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.StateFlow<? extends java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>>> p);
+    method public com.google.common.util.concurrent.ListenableFuture<kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData>>> getListenableComplicationPreviewData();
+    method public com.google.common.util.concurrent.ListenableFuture<kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationDataSourceInfo>>> getListenableComplicationsProviderInfo();
     method public java.time.Instant getPreviewReferenceInstant();
     method public androidx.wear.watchface.style.UserStyle getUserStyle();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
@@ -26,7 +26,7 @@ package androidx.wear.watchface.editor {
     method public void setUserStyle(androidx.wear.watchface.style.UserStyle userStyle);
     property public Integer? backgroundComplicationSlotId;
     property public boolean commitChangesOnClose;
-    property public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> complicationSlotsState;
+    property public kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState>> complicationSlotsState;
     property public java.time.Instant previewReferenceInstant;
     property public androidx.wear.watchface.style.UserStyle userStyle;
     property public androidx.wear.watchface.style.UserStyleSchema userStyleSchema;

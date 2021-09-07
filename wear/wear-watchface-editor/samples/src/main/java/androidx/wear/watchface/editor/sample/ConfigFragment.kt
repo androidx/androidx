@@ -85,7 +85,7 @@ internal class ConfigFragment : Fragment() {
     private fun initConfigOptions() {
         val editingSession = watchFaceConfigActivity.editorSession
         val hasBackgroundComplication = editingSession.backgroundComplicationSlotId != null
-        val numComplications = editingSession.complicationSlotsState.size
+        val numComplications = editingSession.complicationSlotsState.value.size
         val hasNonBackgroundComplication =
             numComplications > if (hasBackgroundComplication) 1 else 0
         val configOptions = ArrayList<ConfigOption>()

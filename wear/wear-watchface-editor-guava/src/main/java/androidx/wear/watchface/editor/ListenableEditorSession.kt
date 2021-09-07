@@ -36,6 +36,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.Instant
 import kotlin.coroutines.CoroutineContext
@@ -124,7 +125,7 @@ public class ListenableEditorSession(
 
     override val userStyleSchema: UserStyleSchema by wrappedEditorSession::userStyleSchema
 
-    override val complicationSlotsState: Map<Int, ComplicationSlotState> by
+    override val complicationSlotsState: StateFlow<Map<Int, ComplicationSlotState>> by
     wrappedEditorSession::complicationSlotsState
 
     @Suppress("INAPPLICABLE_JVM_NAME")
@@ -133,8 +134,8 @@ public class ListenableEditorSession(
 
     /** [ListenableFuture] wrapper around [EditorSession.getComplicationsPreviewData]. */
     public fun getListenableComplicationPreviewData():
-        ListenableFuture<Map<Int, ComplicationData>> {
-            val future = ResolvableFuture.create<Map<Int, ComplicationData>>()
+        ListenableFuture<StateFlow<Map<Int, ComplicationData>>> {
+            val future = ResolvableFuture.create<StateFlow<Map<Int, ComplicationData>>>()
             getCoroutineScope().launch {
                 try {
                     future.set(wrappedEditorSession.getComplicationsPreviewData())
@@ -147,8 +148,8 @@ public class ListenableEditorSession(
 
     /** [ListenableFuture] wrapper around [EditorSession.getComplicationsDataSourceInfo]. */
     public fun getListenableComplicationsProviderInfo():
-        ListenableFuture<Map<Int, ComplicationDataSourceInfo?>> {
-            val future = ResolvableFuture.create<Map<Int, ComplicationDataSourceInfo?>>()
+        ListenableFuture<StateFlow<Map<Int, ComplicationDataSourceInfo?>>> {
+            val future = ResolvableFuture.create<StateFlow<Map<Int, ComplicationDataSourceInfo?>>>()
             getCoroutineScope().launch {
                 try {
                     future.set(wrappedEditorSession.getComplicationsDataSourceInfo())
@@ -159,10 +160,11 @@ public class ListenableEditorSession(
             return future
         }
 
-    override suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData> =
+    override suspend fun getComplicationsPreviewData(): StateFlow<Map<Int, ComplicationData>> =
         wrappedEditorSession.getComplicationsPreviewData()
 
-    override suspend fun getComplicationsDataSourceInfo(): Map<Int, ComplicationDataSourceInfo?> =
+    override suspend fun
+    getComplicationsDataSourceInfo(): StateFlow<Map<Int, ComplicationDataSourceInfo?>> =
         wrappedEditorSession.getComplicationsDataSourceInfo()
 
     @get:SuppressWarnings("AutoBoxing")
