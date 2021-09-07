@@ -33,6 +33,7 @@ import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.SwipeDismissTarget
 import androidx.wear.compose.material.SwipeToDismissBox
+import androidx.wear.compose.material.SwipeToDismissBoxDefaults
 import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
@@ -63,6 +64,8 @@ private fun DisplayDemo(
         is ComposableDemo -> {
             SwipeToDismissBox(
                 state = swipeDismissStateWithNavigation(onNavigateBack),
+                backgroundKey = parentDemo?.title ?: SwipeToDismissBoxDefaults.BackgroundKey,
+                contentKey = demo.title,
             ) { isBackground ->
                 if (isBackground) {
                     if (parentDemo != null) {
@@ -89,6 +92,8 @@ internal fun DisplayDemoList(
 ) {
     SwipeToDismissBox(
         state = swipeDismissStateWithNavigation(onNavigateBack),
+        backgroundKey = parentDemo?.title ?: SwipeToDismissBoxDefaults.BackgroundKey,
+        contentKey = category.title,
     ) { isBackground ->
         if (isBackground) {
             if (parentDemo != null) {

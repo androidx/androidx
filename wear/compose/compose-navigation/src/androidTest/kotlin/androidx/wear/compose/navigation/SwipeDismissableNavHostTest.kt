@@ -38,7 +38,6 @@ import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -113,7 +112,6 @@ class SwipeDismissableNavHostTest {
     }
 
     @Test
-    @Ignore // TODO(stevebower): reinstate test once aosp/1818154 has been submitted.
     fun destinations_keep_saved_state() {
         val screenId = mutableStateOf(START)
         rule.setContentWithTheme {
