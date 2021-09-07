@@ -24,17 +24,21 @@ gbash::init_google "$@"
 # This list should match, or be a subset of, the list of libraries defined in
 # https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/docs/AndroidXDocsPlugin.kt;l=568
 readonly javaLibraryDirs=(
+  "activity"
 #  "benchmark"
 #  "collection"
+  "fragment"
   "navigation"
   "paging"
   "wear"
   "window"
 )
 readonly kotlinLibraryDirs=(
+  "activity"
 #  "benchmark"
   "compose"
 #  "collection"
+  "fragment"
   "navigation"
   "paging"
   "wear"
