@@ -191,7 +191,7 @@ public class EditorSessionGuavaTest {
 
         val resources = ApplicationProvider.getApplicationContext<Context>().resources
         val future = listenableEditorSession.getListenableComplicationPreviewData()
-        val previewData = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        val previewData = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS).value
 
         val leftComplicationData = previewData[LEFT_COMPLICATION_ID] as
             ShortTextComplicationData
@@ -255,7 +255,7 @@ public class EditorSessionGuavaTest {
         // This should update the preview data to point to the updated dataSource3 data.
         val previewComplication =
             listenableEditorSession.getListenableComplicationPreviewData()
-                .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)[LEFT_COMPLICATION_ID]
+                .get(TIMEOUT_MS, TimeUnit.MILLISECONDS).value[LEFT_COMPLICATION_ID]
                 as LongTextComplicationData
 
         assertThat(

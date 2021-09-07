@@ -38,6 +38,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import kotlinx.coroutines.flow.StateFlow;
+
 /** Configuration activity for the watch face. */
 public class ConfigActivity extends ComponentActivity {
 
@@ -127,13 +129,14 @@ public class ConfigActivity extends ComponentActivity {
         }
         addCallback(
                 mEditorSession.getListenableComplicationsProviderInfo(),
-                new BaseFutureCallback<Map<Integer, ComplicationDataSourceInfo>>(
+                new BaseFutureCallback<StateFlow<Map<Integer, ComplicationDataSourceInfo>>>(
                         this, TAG, "getListenableComplicationsProviderInfo") {
                     @Override
-                    public void onSuccess(Map<Integer, ComplicationDataSourceInfo> value) {
-                        super.onSuccess(value);
+                    public void onSuccess(
+                            StateFlow<Map<Integer, ComplicationDataSourceInfo>> flow) {
+                        super.onSuccess(flow);
                         ComplicationDataSourceInfo info =
-                                value.get(WatchFaceService.COMPLICATION_ID);
+                                flow.getValue().get(WatchFaceService.COMPLICATION_ID);
                         if (info == null) {
                             mComplicationProviderName.setText(
                                     getString(R.string.complication_none));
@@ -151,12 +154,13 @@ public class ConfigActivity extends ComponentActivity {
         }
         addCallback(
                 mEditorSession.getListenableComplicationPreviewData(),
-                new BaseFutureCallback<Map<Integer, ComplicationData>>(
+                new BaseFutureCallback<StateFlow<Map<Integer, ComplicationData>>>(
                         this, TAG, "getListenableComplicationPreviewData") {
                     @Override
-                    public void onSuccess(Map<Integer, ComplicationData> value) {
-                        super.onSuccess(value);
-                        ComplicationData preview = value.get(WatchFaceService.COMPLICATION_ID);
+                    public void onSuccess(StateFlow<Map<Integer, ComplicationData>> flow) {
+                        super.onSuccess(flow);
+                        ComplicationData preview =
+                                flow.getValue().get(WatchFaceService.COMPLICATION_ID);
                         if (preview != null) {
                             mComplicationPreview.setImageDrawable(mComplicationPreviewDrawable);
                             mComplicationPreviewDrawable.setComplicationData(preview, true);

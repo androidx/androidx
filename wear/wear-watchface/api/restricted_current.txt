@@ -72,6 +72,7 @@ package androidx.wear.watchface {
   }
 
   public final class ComplicationSlot {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.Rect computeBounds(android.graphics.Rect screen, androidx.wear.complications.data.ComplicationType complicationType);
     method public android.graphics.Rect computeBounds(android.graphics.Rect screen);
     method public static androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy);
     method public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);

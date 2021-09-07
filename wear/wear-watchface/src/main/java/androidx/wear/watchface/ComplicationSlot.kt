@@ -682,12 +682,18 @@ public class ComplicationSlot internal constructor(
         this.invalidateListener = invalidateListener
     }
 
-    /** Computes the bounds of the complication by converting the unitSquareBounds to pixels. */
-    public fun computeBounds(screen: Rect): Rect {
-        // Try the current type if there is one, otherwise fall back to the bounds for the default
-        // complication data source type.
-        val unitSquareBounds =
-            complicationSlotBounds.perComplicationTypeBounds[complicationData.value.type]!!
+    /**
+     * Computes the bounds of the complication by converting the unitSquareBounds of the specified
+     * [complicationType] to pixels based on the [screen]'s dimensions.
+     *
+     * @param screen A [Rect] describing the dimensions of the screen.
+     * @param complicationType The [ComplicationType] to use when looking up the slot's
+     * [ComplicationSlotBounds.perComplicationTypeBounds].
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun computeBounds(screen: Rect, complicationType: ComplicationType): Rect {
+        val unitSquareBounds = complicationSlotBounds.perComplicationTypeBounds[complicationType]!!
         unitSquareBounds.intersect(unitSquare)
         // We add 0.5 to make toInt() round to the nearest whole number rather than truncating.
         return Rect(
@@ -697,6 +703,15 @@ public class ComplicationSlot internal constructor(
             (0.5f + unitSquareBounds.bottom * screen.height()).toInt()
         )
     }
+
+    /**
+     * Computes the bounds of the complication by converting the unitSquareBounds of the current
+     * complication type to pixels based on the [screen]'s dimensions.
+     *
+     * @param screen A [Rect] describing the dimensions of the screen.
+     */
+    public fun computeBounds(screen: Rect): Rect =
+        computeBounds(screen, complicationData.value.type)
 
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {

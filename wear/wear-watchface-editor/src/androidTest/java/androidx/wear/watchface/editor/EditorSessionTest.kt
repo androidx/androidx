@@ -476,7 +476,15 @@ public class EditorSessionTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
-            ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ComplicationSlotBounds(
+                ComplicationType.values().associateWith {
+                    if (it == ComplicationType.LONG_TEXT) {
+                        RectF(0.1f, 0.4f, 0.4f, 0.6f)
+                    } else {
+                        RectF(0.3f, 0.4f, 0.4f, 0.6f)
+                    }
+                }
+            )
         ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -492,7 +500,15 @@ public class EditorSessionTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
-            ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+            ComplicationSlotBounds(
+                ComplicationType.values().associateWith {
+                    if (it == ComplicationType.LONG_TEXT) {
+                        RectF(0.6f, 0.4f, 0.9f, 0.6f)
+                    } else {
+                        RectF(0.6f, 0.4f, 0.7f, 0.6f)
+                    }
+                }
+            )
         ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .setConfigExtras(
                 Bundle().apply {
@@ -733,45 +749,37 @@ public class EditorSessionTest {
             listOf(leftComplication, rightComplication, backgroundComplication)
         )
         scenario.onActivity {
-            assertThat(it.editorSession.complicationSlotsState.size).isEqualTo(3)
-            assertThat(it.editorSession.complicationSlotsState[LEFT_COMPLICATION_ID]!!.bounds)
-                .isEqualTo(Rect(80, 160, 160, 240))
-            assertThat(it.editorSession.complicationSlotsState[LEFT_COMPLICATION_ID]!!.boundsType)
+            val complicationSlotsState = it.editorSession.complicationSlotsState.value
+            assertThat(complicationSlotsState.size).isEqualTo(3)
+            assertThat(complicationSlotsState[LEFT_COMPLICATION_ID]!!.bounds)
+                .isEqualTo(Rect(120, 160, 160, 240))
+            assertThat(complicationSlotsState[LEFT_COMPLICATION_ID]!!.boundsType)
                 .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
             assertFalse(
-                it.editorSession.complicationSlotsState[
-                    LEFT_COMPLICATION_ID
-                ]!!.fixedComplicationDataSource
+                complicationSlotsState[LEFT_COMPLICATION_ID]!!.fixedComplicationDataSource
             )
             assertTrue(
-                it.editorSession.complicationSlotsState[LEFT_COMPLICATION_ID]!!.isInitiallyEnabled
+                complicationSlotsState[LEFT_COMPLICATION_ID]!!.isInitiallyEnabled
             )
 
-            assertThat(it.editorSession.complicationSlotsState[RIGHT_COMPLICATION_ID]!!.bounds)
-                .isEqualTo(Rect(240, 160, 320, 240))
-            assertThat(it.editorSession.complicationSlotsState[RIGHT_COMPLICATION_ID]!!.boundsType)
+            assertThat(complicationSlotsState[RIGHT_COMPLICATION_ID]!!.bounds)
+                .isEqualTo(Rect(240, 160, 280, 240))
+            assertThat(complicationSlotsState[RIGHT_COMPLICATION_ID]!!.boundsType)
                 .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
             assertFalse(
-                it.editorSession.complicationSlotsState[RIGHT_COMPLICATION_ID]!!
-                    .fixedComplicationDataSource
+                complicationSlotsState[RIGHT_COMPLICATION_ID]!!.fixedComplicationDataSource
             )
-            assertTrue(
-                it.editorSession.complicationSlotsState[RIGHT_COMPLICATION_ID]!!.isInitiallyEnabled
-            )
+            assertTrue(complicationSlotsState[RIGHT_COMPLICATION_ID]!!.isInitiallyEnabled)
 
-            assertThat(it.editorSession.complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!.bounds)
+            assertThat(complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(screenBounds)
-            assertThat(
-                it.editorSession.complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!.boundsType
-            ).isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
+            assertThat(complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!.boundsType)
+                .isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
             assertFalse(
-                it.editorSession.complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!
-                    .fixedComplicationDataSource
+                complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!.fixedComplicationDataSource
             )
             assertFalse(
-                it.editorSession.complicationSlotsState[
-                    BACKGROUND_COMPLICATION_ID
-                ]!!.isInitiallyEnabled
+                complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!.isInitiallyEnabled
             )
             // We could test more state but this should be enough.
         }
@@ -808,7 +816,7 @@ public class EditorSessionTest {
         )
         scenario.onActivity {
             assertTrue(
-                it.editorSession.complicationSlotsState[
+                it.editorSession.complicationSlotsState.value[
                     LEFT_COMPLICATION_ID
                 ]!!.fixedComplicationDataSource
             )
@@ -1085,6 +1093,10 @@ public class EditorSessionTest {
         }
 
         runBlocking {
+            assertThat(
+                editorSession.complicationSlotsState.value[LEFT_COMPLICATION_ID]!!.bounds
+            ).isEqualTo(Rect(120, 160, 160, 240))
+
             /**
              * Invoke [TestComplicationHelperActivity] which will change the complication data
              * source (and hence the preview data) for [LEFT_COMPLICATION_ID].
@@ -1102,7 +1114,7 @@ public class EditorSessionTest {
 
             // This should update the preview data to point to the updated DataSource3 data.
             val previewComplication =
-                editorSession.getComplicationsPreviewData()[LEFT_COMPLICATION_ID]
+                editorSession.getComplicationsPreviewData().value[LEFT_COMPLICATION_ID]
                     as LongTextComplicationData
 
             assertThat(
@@ -1117,6 +1129,12 @@ public class EditorSessionTest {
                     ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID
                 )
             ).isEqualTo(testInstanceId.id)
+
+            // Selecting a LONG_TEXT complication should enlarge the complication's bounds due to
+            // it's set up.
+            assertThat(
+                editorSession.complicationSlotsState.value[LEFT_COMPLICATION_ID]!!.bounds
+            ).isEqualTo(Rect(40, 160, 160, 240))
         }
     }
 
@@ -1239,7 +1257,7 @@ public class EditorSessionTest {
             assertThat(chosenComplicationDataSource.complicationSlotId)
                 .isEqualTo(LEFT_COMPLICATION_ID)
             assertThat(chosenComplicationDataSource.complicationDataSourceInfo).isNull()
-            assertThat(editorSession.getComplicationsPreviewData()[LEFT_COMPLICATION_ID])
+            assertThat(editorSession.getComplicationsPreviewData().value[LEFT_COMPLICATION_ID])
                 .isInstanceOf(EmptyComplicationData::class.java)
         }
     }
@@ -1391,7 +1409,7 @@ public class EditorSessionTest {
         )
         scenario.onActivity {
             assertThat(it.editorSession.getComplicationSlotIdAt(0, 0)).isEqualTo(null)
-            assertThat(it.editorSession.getComplicationSlotIdAt(85, 165))
+            assertThat(it.editorSession.getComplicationSlotIdAt(125, 165))
                 .isEqualTo(LEFT_COMPLICATION_ID)
             assertThat(it.editorSession.getComplicationSlotIdAt(245, 165))
                 .isEqualTo(RIGHT_COMPLICATION_ID)
@@ -1978,7 +1996,7 @@ public class EditorSessionTest {
 
         scenario.onActivity { activity ->
             runBlocking {
-                val previewData = activity.editorSession.getComplicationsPreviewData()
+                val previewData = activity.editorSession.getComplicationsPreviewData().value
                 assertThat(previewData.size).isEqualTo(2)
                 assertThat(previewData[LEFT_COMPLICATION_ID])
                     .isInstanceOf(ShortTextComplicationData::class.java)
@@ -2013,7 +2031,7 @@ public class EditorSessionTest {
 
         scenario.onActivity { activity ->
             runBlocking {
-                val previewData = activity.editorSession.getComplicationsPreviewData()
+                val previewData = activity.editorSession.getComplicationsPreviewData().value
                 assertThat(previewData.size).isEqualTo(2)
                 assertThat(previewData[LEFT_COMPLICATION_ID])
                     .isInstanceOf(ShortTextComplicationData::class.java)
