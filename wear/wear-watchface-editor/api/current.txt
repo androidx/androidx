@@ -43,7 +43,7 @@ package androidx.wear.watchface.editor {
     method public suspend Object? getComplicationsDataSourceInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.StateFlow<? extends java.util.Map<java.lang.Integer,? extends androidx.wear.complications.ComplicationDataSourceInfo>>> p);
     method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.StateFlow<? extends java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>>> p);
     method public java.time.Instant getPreviewReferenceInstant();
-    method public androidx.wear.watchface.style.UserStyle getUserStyle();
+    method public kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> getUserStyle();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method public android.content.ComponentName getWatchFaceComponentName();
     method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
@@ -51,12 +51,11 @@ package androidx.wear.watchface.editor {
     method @UiThread public suspend Object? openComplicationDataSourceChooser(int complicationSlotId, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationDataSource> p);
     method @UiThread public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? slotIdToComplicationData);
     method @UiThread public void setCommitChangesOnClose(boolean commitChangesOnClose);
-    method public void setUserStyle(androidx.wear.watchface.style.UserStyle userStyle);
     property public abstract Integer? backgroundComplicationSlotId;
     property @UiThread public abstract boolean commitChangesOnClose;
     property public abstract kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState>> complicationSlotsState;
     property public abstract java.time.Instant previewReferenceInstant;
-    property public abstract androidx.wear.watchface.style.UserStyle userStyle;
+    property public abstract kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> userStyle;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
     property public abstract android.content.ComponentName watchFaceComponentName;
     property @RequiresApi(android.os.Build.VERSION_CODES.R) public abstract androidx.wear.watchface.client.WatchFaceId watchFaceId;
