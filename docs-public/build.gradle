@@ -17,9 +17,7 @@ dependencies {
     docs("androidx.appsearch:appsearch:1.0.0-alpha03")
     docs("androidx.appsearch:appsearch-ktx:1.0.0-alpha03")
     docs("androidx.appsearch:appsearch-local-storage:1.0.0-alpha03")
-    // b/193914745 - Re-enable appsearch-platform-storage when androidx-main
-    // compiles against API level 31.
-    // docs("androidx.appsearch:appsearch-platform-storage:1.0.0-alpha03")
+    docs("androidx.appsearch:appsearch-platform-storage:1.0.0-alpha03")
     docs("androidx.arch.core:core-common:2.1.0")
     docs("androidx.arch.core:core-runtime:2.1.0")
     docs("androidx.arch.core:core-testing:2.1.0")
