@@ -35,7 +35,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
-import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.CameraValidator;
@@ -55,8 +54,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Main interface for accessing CameraX library.
@@ -125,23 +122,6 @@ public final class CameraX {
             mSchedulerThread = null;
             mSchedulerHandler = schedulerHandler;
         }
-    }
-
-    /**
-     * Returns the camera id for a camera defined by the given {@link CameraSelector}.
-     *
-     * @param cameraSelector the camera selector
-     * @return the camera id if camera exists or {@code null} if no camera can be resolved with
-     * the camera selector.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public static CameraInternal getCameraWithCameraSelector(
-            @NonNull CameraSelector cameraSelector) {
-        CameraX cameraX = checkInitialized();
-
-        return cameraSelector.select(cameraX.getCameraRepository().getCameras());
     }
 
     /**
@@ -311,20 +291,6 @@ public final class CameraX {
     }
 
     /**
-     * Wait for the initialize or shutdown task finished and then check if it is initialized.
-     *
-     * @return CameraX instance
-     * @throws IllegalStateException if it is not initialized
-     */
-    @NonNull
-    private static CameraX checkInitialized() {
-        CameraX cameraX = waitInitialized();
-        Preconditions.checkState(cameraX.isInitializedInternal(),
-                "Must call CameraX.initialize() first");
-        return cameraX;
-    }
-
-    /**
      * Returns a future which contains a CameraX instance after initialization is complete.
      *
      * @hide
@@ -445,13 +411,6 @@ public final class CameraX {
         return application;
     }
 
-    @NonNull
-    private static ListenableFuture<CameraX> getInstance() {
-        synchronized (INSTANCE_LOCK) {
-            return getInstanceLocked();
-        }
-    }
-
     @GuardedBy("INSTANCE_LOCK")
     @NonNull
     private static ListenableFuture<CameraX> getInstanceLocked() {
@@ -463,21 +422,6 @@ public final class CameraX {
 
         return Futures.transform(sInitializeFuture, nullVoid -> cameraX,
                 CameraXExecutors.directExecutor());
-    }
-
-    /**
-     * Wait for the initialize or shutdown task finished.
-     *
-     * @throws IllegalStateException if the initialization is fail or timeout
-     */
-    @NonNull
-    private static CameraX waitInitialized() {
-        ListenableFuture<CameraX> future = getInstance();
-        try {
-            return future.get(WAIT_INITIALIZED_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-        } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     /**

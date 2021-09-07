@@ -67,38 +67,4 @@ public class CameraXConfigTest {
                                 .getSystemService(Context.CAMERA_SERVICE)))
                 .addCamera(cameraId, characteristics);
     }
-
-    @Test
-    public void canSelectFrontCamera_getAvailableCamerasLimiter() throws Exception {
-        initCharacterisics("0", CameraCharacteristics.LENS_FACING_BACK);
-        initCharacterisics("1", CameraCharacteristics.LENS_FACING_FRONT);
-        CameraXConfig cameraXConfig =
-                CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
-                        .setAvailableCamerasLimiter(CameraSelector.DEFAULT_FRONT_CAMERA)
-                        .build();
-
-        CameraX.initialize(ApplicationProvider.getApplicationContext(), cameraXConfig).get(3,
-                TimeUnit.SECONDS);
-
-        // Do not crash
-        CameraX.getCameraWithCameraSelector(CameraSelector.DEFAULT_FRONT_CAMERA);
-        CameraX.shutdown().get(3, TimeUnit.SECONDS);
-    }
-
-    @Test
-    public void canSelectBackCamera_getAvailableCamerasLimiter() throws Exception {
-        initCharacterisics("0", CameraCharacteristics.LENS_FACING_BACK);
-        initCharacterisics("1", CameraCharacteristics.LENS_FACING_FRONT);
-        CameraXConfig cameraXConfig =
-                CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
-                        .setAvailableCamerasLimiter(CameraSelector.DEFAULT_BACK_CAMERA)
-                        .build();
-
-        CameraX.initialize(ApplicationProvider.getApplicationContext(), cameraXConfig).get(3,
-                TimeUnit.SECONDS);
-
-        // Do not crash
-        CameraX.getCameraWithCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA);
-        CameraX.shutdown().get(3, TimeUnit.SECONDS);
-    }
 }
