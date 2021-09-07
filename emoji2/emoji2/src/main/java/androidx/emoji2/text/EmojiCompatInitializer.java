@@ -25,10 +25,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.core.os.TraceCompat;
+import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleInitializer;
 import androidx.startup.AppInitializer;
 import androidx.startup.Initializer;
@@ -105,9 +104,9 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
         LifecycleOwner lifecycleOwner = appInitializer
                 .initializeComponent(ProcessLifecycleInitializer.class);
         Lifecycle lifecycle = lifecycleOwner.getLifecycle();
-        lifecycle.addObserver(new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-            public void onResume() {
+        lifecycle.addObserver(new DefaultLifecycleObserver() {
+            @Override
+            public void onResume(@NonNull LifecycleOwner owner) {
                 loadEmojiCompatAfterDelay();
                 lifecycle.removeObserver(this);
             }
