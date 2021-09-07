@@ -52,16 +52,6 @@ internal abstract class KspElement(
         return declaration.toString()
     }
 
-    /**
-     * Return a reference to the containing file that implements the
-     * [javax.lang.model.element.Element] API so that we can report it to JavaPoet.
-     */
-    fun containingFileAsOriginatingElement(): KSFileAsOriginatingElement? {
-        return (declaration as? KSDeclaration)?.containingFile?.let {
-            KSFileAsOriginatingElement(it)
-        }
-    }
-
     override val docComment: String? by lazy {
         (declaration as? KSDeclaration)?.docString
     }

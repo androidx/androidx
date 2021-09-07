@@ -18,6 +18,7 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspTypeElement
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
@@ -25,6 +26,7 @@ import com.squareup.javapoet.TypeSpec
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
 @RunWith(JUnit4::class)
@@ -65,6 +67,50 @@ class OriginatingElementsTest {
                 assertThat(originatingElement).isInstanceOf(TypeElement::class.java)
                 assertThat((originatingElement as TypeElement).qualifiedName.toString())
                     .isEqualTo("foo.bar.Baz")
+            }
+        }
+    }
+
+    @Test
+    fun syntheticPropertyElementConvertedToOriginatingElement() {
+        runProcessorTest(
+            sources = listOf(
+                Source.kotlin(
+                    "Foo.kt",
+                    """
+            class Foo {
+                companion object {
+                    @JvmStatic
+                    var bar = 1
+                }
+            }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("Foo")
+            val syntheticPropertyElements = element.getDeclaredMethods()
+
+            // Synthetic getter and setter methods are created.
+            assertThat(syntheticPropertyElements).hasSize(2)
+
+            syntheticPropertyElements.forEach { syntheticPropertyElement ->
+                val originatingElement = syntheticPropertyElement.originatingElementForPoet()
+                assertThat(originatingElement).isNotNull()
+
+                if (invocation.isKsp) {
+                    assertThat(originatingElement)
+                        .isInstanceOf(KSFileAsOriginatingElement::class.java)
+
+                    val originatingFile = (originatingElement as KSFileAsOriginatingElement).ksFile
+                    assertThat(originatingFile)
+                        .isEqualTo(
+                            (syntheticPropertyElement as KspSyntheticPropertyMethodElement)
+                                .field.declaration.containingFile
+                        )
+                } else {
+                    assertThat(originatingElement).isInstanceOf(ExecutableElement::class.java)
+                }
             }
         }
     }
