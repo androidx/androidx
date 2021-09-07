@@ -38,7 +38,7 @@ internal fun XAnnotation.unwrapRepeatedAnnotationsFromContainer(): List<XAnnotat
         // the value of Repeatable is not present so the best we can do is check that all the nested
         // members are annotated with repeatable.
         // https://github.com/google/ksp/issues/358
-        val isRepeatable = nestedAnnotations.all {
+        val isRepeatable = nestedAnnotations.isNotEmpty() && nestedAnnotations.all {
             // The java and kotlin versions of Repeatable are not interchangeable.
             // https://github.com/google/ksp/issues/459 asks whether the built in type mapper
             // should convert them, but it may not be possible because there are differences
