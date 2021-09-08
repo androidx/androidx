@@ -52,7 +52,7 @@ function runBuild {
         echo "bad arg '$type'"
         exit 1
     fi
-    local cmd="./gradlew --no-daemon --init-script \
+    local cmd="./gradlew --init-script \
         $SCRIPT_DIR/rerun-requested-task-init-script.gradle \
         --profile $task"
     log "Executing $cmd"
@@ -62,14 +62,15 @@ function runBuild {
 }
 
 # Runs the compilation with kapt and ksp for the given number of times
-# usage: runTest 3
+# usage: runTest 3 ksp|kapt
 function runTest {
     local limit=$1
+    local type=$2
+
     for (( c=1; c<=$limit; c++ ))
     do
         echo "run #$c of $limit"
-        runBuild "ksp"
-        runBuild "kapt"
+        runBuild "$type"
     done
 }
 
@@ -83,8 +84,13 @@ function printData {
 }
 
 # build once so all other tasks are cached
-./gradlew $KSP_TASK $KAPT_TASK
+./gradlew --stop
+./gradlew $KSP_TASK
+runTest 10 "ksp"
 
-runTest 10
+./gradlew --stop
+./gradlew $KAPT_TASK
+runTest 10 "kapt"
+
 printData totals
 printData taskTotals
