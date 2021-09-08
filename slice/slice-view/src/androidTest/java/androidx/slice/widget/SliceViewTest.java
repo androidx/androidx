@@ -730,7 +730,7 @@ public class SliceViewTest {
     private PendingIntent getIntent(String action) {
         Intent intent = new Intent(action);
         intent.setClassName(mContext.getPackageName(), SliceRenderActivity.class.getName());
-        return PendingIntent.getActivity(mContext, 0, intent, 0);
+        return PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_IMMUTABLE);
     }
 
     private void assertEquivalent(androidx.slice.core.SliceAction desired,
