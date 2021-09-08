@@ -318,7 +318,11 @@ package androidx.wear.compose.material {
 
   @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeToDismissBoxDefaults {
     method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
+    method public Object getBackgroundKey();
+    method public Object getContentKey();
     property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
+    property public final Object BackgroundKey;
+    property public final Object ContentKey;
     field public static final androidx.wear.compose.material.SwipeToDismissBoxDefaults INSTANCE;
   }
 
