@@ -97,6 +97,11 @@ interface XAnnotated {
     /**
      * Returns `true` if this element has one of the [annotations].
      */
+    fun hasAnyOf(vararg annotations: ClassName) = annotations.any(this::hasAnnotation)
+
+    /**
+     * Returns `true` if this element has one of the [annotations].
+     */
     fun hasAnyOf(vararg annotations: KClass<out Annotation>) = annotations.any(this::hasAnnotation)
 
     @Deprecated(
