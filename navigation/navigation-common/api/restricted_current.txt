@@ -30,6 +30,19 @@ package androidx.navigation {
   public interface FloatingWindow {
   }
 
+  public final class NamedNavArgument {
+    method public operator String component1();
+    method public operator androidx.navigation.NavArgument component2();
+    method public androidx.navigation.NavArgument getArgument();
+    method public String getName();
+    property public final androidx.navigation.NavArgument argument;
+    property public final String name;
+  }
+
+  public final class NamedNavArgumentKt {
+    method @androidx.navigation.NavDestinationDsl public static androidx.navigation.NamedNavArgument navArgument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> builder);
+  }
+
   public final class NavAction {
     ctor public NavAction(@IdRes int destinationId, optional androidx.navigation.NavOptions? navOptions, optional android.os.Bundle? defaultArguments);
     ctor public NavAction(@IdRes int destinationId, optional androidx.navigation.NavOptions? navOptions);

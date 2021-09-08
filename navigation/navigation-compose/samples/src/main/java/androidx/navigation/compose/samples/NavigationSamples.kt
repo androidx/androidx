@@ -48,8 +48,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
-import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
@@ -114,7 +114,6 @@ fun NavScaffold() {
     }
 }
 
-@Sampled
 @Composable
 fun NavWithArgs() {
     val navController = rememberNavController()
