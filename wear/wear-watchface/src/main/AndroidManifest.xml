@@ -21,6 +21,11 @@
       <action
           android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
     </intent>
+    <intent>
+      <!-- Needed to have visibility on launcher items to handle app shortcuts in complications. -->
+      <action android:name="android.intent.action.MAIN" />
+      <category android:name="android.intent.category.LAUNCHER" />
+    </intent>
   </queries>
   <application>
     <uses-library android:name="com.google.android.wearable" android:required="false" />

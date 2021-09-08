@@ -48,7 +48,7 @@ public class WatchFaceService extends ListenableWatchFaceService {
 
     public static final int COMPLICATION_ID = 1;
     public static final ComplicationType[] COMPLICATION_TYPES = {
-        ComplicationType.SHORT_TEXT, ComplicationType.RANGED_VALUE
+        ComplicationType.SHORT_TEXT, ComplicationType.RANGED_VALUE, ComplicationType.SMALL_IMAGE
     };
     public static final RectF COMPLICATION_BOUNDS = new RectF(.3f, 0.7f, .7f, .9f);
 
