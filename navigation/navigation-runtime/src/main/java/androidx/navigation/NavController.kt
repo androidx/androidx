@@ -644,6 +644,49 @@ public open class NavController(
     }
 
     /**
+     * Clears any saved state associated with [route] that was previously saved
+     * via [popBackStack] when using a `saveState` value of `true`.
+     *
+     * @param route The route of the destination previously used with [popBackStack] with a
+     * `saveState` value of `true`
+     *
+     * @return true if the saved state of the stack associated with [route] was cleared.
+     */
+    @MainThread
+    public fun clearBackStack(
+        route: String
+    ): Boolean = clearBackStack(createRoute(route).hashCode())
+
+    /**
+     * Clears any saved state associated with [destinationId] that was previously saved
+     * via [popBackStack] when using a `saveState` value of `true`.
+     *
+     * @param destinationId The ID of the destination previously used with [popBackStack] with a
+     * `saveState`value of `true`
+     *
+     * @return true if the saved state of the stack associated with [destinationId] was cleared.
+     */
+    @MainThread
+    public fun clearBackStack(@IdRes destinationId: Int): Boolean {
+        val cleared = clearBackStackInternal(destinationId)
+        // Only return true if the clear succeeded and we've dispatched
+        // the change to a new destination
+        return cleared && dispatchOnDestinationChanged()
+    }
+
+    @MainThread
+    private fun clearBackStackInternal(@IdRes destinationId: Int): Boolean {
+        navigatorState.values.forEach { state ->
+            state.isNavigating = true
+        }
+        val restored = restoreStateInternal(destinationId, null, null, null)
+        navigatorState.values.forEach { state ->
+            state.isNavigating = false
+        }
+        return restored && popBackStackInternal(destinationId, inclusive = true, saveState = false)
+    }
+
+    /**
      * Attempts to navigate up in the navigation hierarchy. Suitable for when the
      * user presses the "Up" button marked with a left (or start)-facing arrow in the upper left
      * (or starting) corner of the app UI.
@@ -1559,7 +1602,7 @@ public open class NavController(
         val finalArgs = node.addInDefaultArgs(args)
         // Now determine what new destinations we need to add to the back stack
         if (navOptions?.shouldRestoreState() == true && backStackMap.containsKey(node.id)) {
-            navigated = restoreStateInternal(node, finalArgs, navOptions, navigatorExtras)
+            navigated = restoreStateInternal(node.id, finalArgs, navOptions, navigatorExtras)
         } else {
             val currentBackStackEntry = currentBackStackEntry
             val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
@@ -1596,15 +1639,15 @@ public open class NavController(
     }
 
     private fun restoreStateInternal(
-        node: NavDestination,
+        id: Int,
         args: Bundle?,
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
     ): Boolean {
-        if (!backStackMap.containsKey(node.id)) {
+        if (!backStackMap.containsKey(id)) {
             return false
         }
-        val backStackId = backStackMap[node.id]
+        val backStackId = backStackMap[id]
         // Clear out the state we're going to restore so that it isn't restored a second time
         backStackMap.values.removeAll { it == backStackId }
         val backStackState = backStackStates.remove(backStackId)
@@ -1633,7 +1676,6 @@ public open class NavController(
                 entryList.first().destination.navigatorName
             )
             var lastNavigatedIndex = 0
-            var lastDestination = node
             navigator.navigateInternal(entryList, navOptions, navigatorExtras) { entry ->
                 navigated = true
                 // If this destination is part of the restored back stack,
@@ -1643,12 +1685,11 @@ public open class NavController(
                 val restoredEntries = if (entryIndex != -1) {
                     entries.subList(lastNavigatedIndex, entryIndex + 1).also {
                         lastNavigatedIndex = entryIndex + 1
-                        lastDestination = entry.destination
                     }
                 } else {
                     emptyList()
                 }
-                addEntryToBackStack(lastDestination, args, entry, restoredEntries)
+                addEntryToBackStack(entry.destination, args, entry, restoredEntries)
             }
         }
         return navigated

@@ -91,6 +91,8 @@ package androidx.navigation {
   public class NavController {
     ctor public NavController(android.content.Context context);
     method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener listener);
+    method @MainThread public final boolean clearBackStack(String route);
+    method @MainThread public final boolean clearBackStack(@IdRes int destinationId);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
     method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int destinationId);
     method public final androidx.navigation.NavBackStackEntry getBackStackEntry(String route);
