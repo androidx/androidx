@@ -643,6 +643,43 @@ class NavHostTest {
         assertThat(model.wasCleared).isTrue()
     }
 
+    @Test
+    fun testGetGraphViewModelAfterRecompose() {
+        lateinit var navController: NavHostController
+        lateinit var model: TestViewModel
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            // this causes a recompose
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            // this causes the NavHost to be recomposed with different builder so the graph
+            // instance is different
+            navBackStackEntry?.destination
+            NavHost(navController, first) {
+                composable(first) { }
+                navigation(second, "subGraph") {
+                    composable(second) {
+                        model = viewModel(remember { navController.getBackStackEntry("subGraph") })
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+        }
+
+        assertThat(model.wasCleared).isFalse()
+
+        composeTestRule.waitForIdle()
+
+        assertThat(model.wasCleared).isTrue()
+    }
+
     private fun createNavController(context: Context): TestNavHostController {
         val navController = TestNavHostController(context)
         val navigator = TestNavigator()
