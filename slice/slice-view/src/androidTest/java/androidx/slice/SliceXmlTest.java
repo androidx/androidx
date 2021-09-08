@@ -64,7 +64,8 @@ public class SliceXmlTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testThrowForAction() throws IOException {
-        PendingIntent pi = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        PendingIntent pi = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Slice inner = new Slice.Builder(Uri.parse("context://pkg/slice/inner")).build();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
@@ -99,7 +100,8 @@ public class SliceXmlTest {
 
     @Test
     public void testNoThrowForAction() throws IOException {
-        PendingIntent pi = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        PendingIntent pi = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Slice inner = new Slice.Builder(Uri.parse("context://pkg/slice/inner")).build();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
@@ -134,7 +136,8 @@ public class SliceXmlTest {
 
     @Test
     public void testSerialization() throws Exception {
-        PendingIntent pi = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        PendingIntent pi = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
         // Create a slice containing all the types in a hierarchy.
@@ -175,7 +178,8 @@ public class SliceXmlTest {
 
     @Test
     public void testBackCompatSerialization() throws Exception {
-        PendingIntent pi = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        PendingIntent pi = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
         // Create a slice containing all the types in a hierarchy.

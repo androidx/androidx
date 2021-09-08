@@ -509,7 +509,7 @@ public class SliceMetadataTest {
         String intentAction = mContext.getPackageName() + ".actionToggle";
         mContext.registerReceiver(receiver, new IntentFilter(intentAction));
         PendingIntent broadcast = PendingIntent.getBroadcast(mContext, 0,
-                new Intent(intentAction), 0);
+                new Intent(intentAction), PendingIntent.FLAG_MUTABLE);
 
         SliceAction toggle = new SliceAction(broadcast, "toggle", true /* isChecked */);
 
@@ -614,7 +614,7 @@ public class SliceMetadataTest {
         String intentAction = mContext.getPackageName() + ".action";
         mContext.registerReceiver(receiver, new IntentFilter(intentAction));
         PendingIntent broadcast = PendingIntent.getBroadcast(mContext, 0,
-                new Intent(intentAction), 0);
+                new Intent(intentAction), PendingIntent.FLAG_MUTABLE);
 
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, INFINITY);
@@ -870,7 +870,7 @@ public class SliceMetadataTest {
     private PendingIntent getIntent(String action) {
         Intent intent = new Intent(action);
         intent.setClassName(mContext.getPackageName(), SliceRenderActivity.class.getName());
-        return PendingIntent.getActivity(mContext, 0, intent, 0);
+        return PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_IMMUTABLE);
     }
 
     private void assertEquivalent(androidx.slice.core.SliceAction desired,

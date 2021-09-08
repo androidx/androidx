@@ -85,7 +85,8 @@ public class SliceTestProvider extends androidx.slice.SliceProvider {
                 Builder builder = new Builder(sliceUri);
                 Slice subSlice = new Slice.Builder(builder).build();
                 PendingIntent broadcast = PendingIntent.getBroadcast(getContext(), 0,
-                        new Intent(getContext().getPackageName() + ".action"), 0);
+                        new Intent(getContext().getPackageName() + ".action"),
+                        PendingIntent.FLAG_IMMUTABLE);
                 return builder.addAction(broadcast, subSlice, "action").build();
             case "/int":
                 return new Slice.Builder(sliceUri).addInt(0xff121212, "int").build();
@@ -110,7 +111,8 @@ public class SliceTestProvider extends androidx.slice.SliceProvider {
             @NonNull String callingPackage) {
         if (getContext().getPackageName().equals(callingPackage)) {
             return PendingIntent.getBroadcast(getContext(), 0,
-                    new Intent(getContext().getPackageName() + ".permission"), 0);
+                    new Intent(getContext().getPackageName() + ".permission"),
+                    PendingIntent.FLAG_IMMUTABLE);
         }
         return super.onCreatePermissionRequest(sliceUri, callingPackage);
     }
