@@ -1452,12 +1452,12 @@ as to which `@IntDef` defined the value of `1`. The annotations are extracted
 and packaged separately to be read by Android Studio and lint which enforces the
 types in application code.
 
-*   Libraries _must_ `@hide` all `@IntDef`, `@StringDef`, and `@LongDef`
+*   Libraries *must* `@hide` all `@IntDef`, `@StringDef`, and `@LongDef`
     declarations.
-*   Libraries _must_ expose constants used to define the `@IntDef` etc at the
+*   Libraries *must* expose constants used to define the `@IntDef` etc at the
     same Java visibility as the hidden `@IntDef`
-*   Libraries _should_ also use @RestrictTo to create a warning when the type
-    used incorrectly.
+*   Libraries *must* use `@RestrictTo` to create a warning when the type is used
+    incorrectly.
 
 Here is a complete example of an `@IntDef`
 
