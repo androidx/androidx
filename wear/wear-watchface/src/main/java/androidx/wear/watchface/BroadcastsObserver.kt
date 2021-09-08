@@ -20,6 +20,7 @@ import android.content.Intent
 import androidx.annotation.RestrictTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /** @hide */
@@ -32,7 +33,7 @@ public class BroadcastsObserver(
 ) : BroadcastsReceiver.BroadcastEventObserver {
 
     override fun onActionTimeTick() {
-        if (!watchState.isAmbient.value) {
+        if (!watchState.isAmbient.value!!) {
             watchFaceHostApi.invalidate()
         }
     }
@@ -69,10 +70,8 @@ public class BroadcastsObserver(
 
     private fun updateBatteryLowAndNotChargingStatus(value: Boolean) {
         val isBatteryLowAndNotCharging =
-            watchState.isBatteryLowAndNotCharging as ObservableWatchData.MutableObservableWatchData
-        if (!isBatteryLowAndNotCharging.hasValue() ||
-            value != isBatteryLowAndNotCharging.value
-        ) {
+            watchState.isBatteryLowAndNotCharging as MutableStateFlow
+        if (!isBatteryLowAndNotCharging.hasValue() || value != isBatteryLowAndNotCharging.value) {
             isBatteryLowAndNotCharging.value = value
             watchFaceHostApi.invalidate()
         }

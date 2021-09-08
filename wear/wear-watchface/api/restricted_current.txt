@@ -80,7 +80,7 @@ package androidx.wear.watchface {
     method @UiThread public int getAccessibilityTraversalIndex();
     method public int getBoundsType();
     method public androidx.wear.watchface.CanvasComplicationFactory getCanvasComplicationFactory();
-    method public androidx.wear.watchface.ObservableWatchData<androidx.wear.complications.data.ComplicationData> getComplicationData();
+    method public kotlinx.coroutines.flow.StateFlow<androidx.wear.complications.data.ComplicationData> getComplicationData();
     method @UiThread public androidx.wear.complications.ComplicationSlotBounds getComplicationSlotBounds();
     method public android.os.Bundle getConfigExtras();
     method @UiThread public androidx.wear.complications.DefaultComplicationDataSourcePolicy getDefaultDataSourcePolicy();
@@ -98,7 +98,7 @@ package androidx.wear.watchface {
     property @UiThread public final int accessibilityTraversalIndex;
     property public final int boundsType;
     property public final androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory;
-    property public final androidx.wear.watchface.ObservableWatchData<androidx.wear.complications.data.ComplicationData> complicationData;
+    property public final kotlinx.coroutines.flow.StateFlow<androidx.wear.complications.data.ComplicationData> complicationData;
     property @UiThread public final androidx.wear.complications.ComplicationSlotBounds complicationSlotBounds;
     property public final android.os.Bundle configExtras;
     property @UiThread public final androidx.wear.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;
@@ -191,49 +191,28 @@ package androidx.wear.watchface {
     method public long getDigitalPreviewReferenceTimeMillis();
     method public boolean getHasBurnInProtection();
     method public boolean getHasLowBitAmbient();
-    method public androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Integer> getInterruptionFilter();
-    method public androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Boolean> isAmbient();
-    method public androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging();
+    method public kotlinx.coroutines.flow.MutableStateFlow<java.lang.Integer> getInterruptionFilter();
+    method public kotlinx.coroutines.flow.MutableStateFlow<java.lang.Boolean> isAmbient();
+    method public kotlinx.coroutines.flow.MutableStateFlow<java.lang.Boolean> isBatteryLowAndNotCharging();
     method public boolean isHeadless();
-    method public androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Boolean> isVisible();
+    method public kotlinx.coroutines.flow.MutableStateFlow<java.lang.Boolean> isVisible();
     method public void setAnalogPreviewReferenceTimeMillis(long analogPreviewReferenceTimeMillis);
     method public void setChinHeight(@Px int value);
     method public void setDigitalPreviewReferenceTimeMillis(long digitalPreviewReferenceTimeMillis);
     method public void setHasBurnInProtection(boolean hasBurnInProtection);
     method public void setHasLowBitAmbient(boolean hasLowBitAmbient);
     method public void setHeadless(boolean isHeadless);
-    method public void setInterruptionFilter(androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Integer> interruptionFilter);
+    method public void setInterruptionFilter(kotlinx.coroutines.flow.MutableStateFlow<java.lang.Integer> interruptionFilter);
     property public final long analogPreviewReferenceTimeMillis;
     property @Px public final int chinHeight;
     property public final long digitalPreviewReferenceTimeMillis;
     property public final boolean hasBurnInProtection;
     property public final boolean hasLowBitAmbient;
-    property public final androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Integer> interruptionFilter;
-    property public final androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Boolean> isAmbient;
-    property public final androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging;
+    property public final kotlinx.coroutines.flow.MutableStateFlow<java.lang.Integer> interruptionFilter;
+    property public final kotlinx.coroutines.flow.MutableStateFlow<java.lang.Boolean> isAmbient;
+    property public final kotlinx.coroutines.flow.MutableStateFlow<java.lang.Boolean> isBatteryLowAndNotCharging;
     property public final boolean isHeadless;
-    property public final androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData<java.lang.Boolean> isVisible;
-  }
-
-  public abstract sealed class ObservableWatchData<T> {
-    method @UiThread public final void addObserver(androidx.wear.watchface.Observer<T> observer);
-    method @UiThread public T getValue();
-    method @UiThread public final T getValueOr(T default);
-    method @UiThread public final boolean hasValue();
-    method @UiThread public final void removeObserver(androidx.wear.watchface.Observer<T> observer);
-    method @UiThread protected void setValue(T v);
-    property @UiThread public T value;
-  }
-
-  public static final class ObservableWatchData.MutableObservableWatchData<T> extends androidx.wear.watchface.ObservableWatchData<T> {
-    ctor public ObservableWatchData.MutableObservableWatchData(T? initialValue);
-    ctor public ObservableWatchData.MutableObservableWatchData();
-    method @UiThread public void setValue(T v);
-    property @UiThread public T value;
-  }
-
-  public interface Observer<T> {
-    method public void onChanged(T);
+    property public final kotlinx.coroutines.flow.MutableStateFlow<java.lang.Boolean> isVisible;
   }
 
   public final class RenderBufferTextureKt {
@@ -492,25 +471,25 @@ package androidx.wear.watchface {
   }
 
   public final class WatchState {
-    ctor public WatchState(androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis, @Px int chinHeight, boolean isHeadless);
+    ctor public WatchState(kotlinx.coroutines.flow.StateFlow<java.lang.Integer> interruptionFilter, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isAmbient, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isBatteryLowAndNotCharging, kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis, @Px int chinHeight, boolean isHeadless);
     method public long getAnalogPreviewReferenceTimeMillis();
     method @Px public int getChinHeight();
     method public long getDigitalPreviewReferenceTimeMillis();
     method public boolean getHasBurnInProtection();
     method public boolean getHasLowBitAmbient();
-    method public androidx.wear.watchface.ObservableWatchData<java.lang.Integer> getInterruptionFilter();
-    method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient();
+    method public kotlinx.coroutines.flow.StateFlow<java.lang.Integer> getInterruptionFilter();
+    method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isAmbient();
     method public boolean isHeadless();
-    method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible();
+    method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isVisible();
     property public final long analogPreviewReferenceTimeMillis;
     property @Px public final int chinHeight;
     property public final long digitalPreviewReferenceTimeMillis;
     property public final boolean hasBurnInProtection;
     property public final boolean hasLowBitAmbient;
-    property public final androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter;
-    property public final androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient;
+    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Integer> interruptionFilter;
+    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isAmbient;
     property public final boolean isHeadless;
-    property public final androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible;
+    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean> isVisible;
   }
 
 }

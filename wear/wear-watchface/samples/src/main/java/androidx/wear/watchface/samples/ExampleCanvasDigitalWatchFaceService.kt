@@ -58,6 +58,11 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import kotlin.math.max
 import kotlin.math.min
@@ -644,13 +649,18 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
 
         // createWatchFace is called on a worker thread but the observers should be called from the
         // UiThread.
-        getUiThreadHandler().post {
-            upperComplication.complicationData.addObserver {
+        val uiScope = CoroutineScope(getUiThreadHandler().asCoroutineDispatcher())
+
+        uiScope.launch {
+            upperComplication.complicationData.collect {
                 // Force bounds recalculation, because this can affect the size of the central time
                 // display.
                 renderer.oldBounds.set(0, 0, 0, 0)
             }
-            lowerComplication.complicationData.addObserver {
+        }
+
+        uiScope.launch {
+            lowerComplication.complicationData.collect() {
                 // Force bounds recalculation, because this can affect the size of the central time
                 // display.
                 renderer.oldBounds.set(0, 0, 0, 0)
@@ -799,19 +809,21 @@ class ExampleDigitalWatchCanvasRenderer(
             }
         )
 
-        watchState.isAmbient.addObserver {
-            if (it) {
-                ambientEnterAnimator.start()
-            } else {
-                ambientExitAnimator.start()
-            }
+        CoroutineScope(Dispatchers.Main.immediate).launch {
+            watchState.isAmbient.collect {
+                if (it!!) {
+                    ambientEnterAnimator.start()
+                } else {
+                    ambientExitAnimator.start()
+                }
 
-            // Trigger recomputation of bounds.
-            oldBounds.set(0, 0, 0, 0)
-            val antiAlias = !(it && watchState.hasLowBitAmbient)
-            digitTextHoursPaint.setAntiAlias(antiAlias)
-            digitTextMinutesPaint.setAntiAlias(antiAlias)
-            digitTextSecondsPaint.setAntiAlias(antiAlias)
+                // Trigger recomputation of bounds.
+                oldBounds.set(0, 0, 0, 0)
+                val antiAlias = !(it && watchState.hasLowBitAmbient)
+                digitTextHoursPaint.isAntiAlias = antiAlias
+                digitTextMinutesPaint.isAntiAlias = antiAlias
+                digitTextSecondsPaint.isAntiAlias = antiAlias
+            }
         }
     }
 

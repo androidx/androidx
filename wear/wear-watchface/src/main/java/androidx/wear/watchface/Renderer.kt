@@ -272,7 +272,7 @@ public sealed class Renderer @WorkerThread constructor(
      */
     @UiThread
     public open fun shouldAnimate(): Boolean =
-        watchState.isVisible.value && !watchState.isAmbient.value
+        watchState.isVisible.value!! && !watchState.isAmbient.value!!
 
     /**
      * Schedules a call to either [CanvasRenderer.render] or [GlesRenderer.render] to draw the next
@@ -350,7 +350,7 @@ public sealed class Renderer @WorkerThread constructor(
                 }
                 ) ?: return
             try {
-                if (Build.VERSION.SDK_INT >= 30 || watchState.isVisible.value) {
+                if (Build.VERSION.SDK_INT >= 30 || watchState.isVisible.value!!) {
                     renderAndComposite(canvas, zonedDateTime)
                 } else {
                     canvas.drawColor(Color.BLACK)

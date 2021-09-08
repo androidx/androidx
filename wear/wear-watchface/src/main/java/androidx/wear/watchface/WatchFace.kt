@@ -44,7 +44,6 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.TraceEvent
-import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -56,6 +55,12 @@ import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.security.InvalidParameterException
 import java.time.Instant
 import java.time.ZoneId
@@ -546,8 +551,8 @@ public class WatchFaceImpl @UiThread constructor(
     private var inOnSetStyle = false
     internal var initComplete = false
 
-    private val ambientObserver = Observer<Boolean> {
-        TraceEvent("WatchFaceImpl.ambientObserver").use {
+    private fun ambient() {
+        TraceEvent("WatchFaceImpl.ambient").use {
             // It's not safe to draw until initComplete because the ComplicationSlotManager init
             // may not have completed.
             if (initComplete) {
@@ -557,7 +562,7 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    private val interruptionFilterObserver = Observer<Int> {
+    private fun interruptionFilter(it: Int) {
         // We are in mute mode in any of the following modes. The specific mode depends on the
         // device's implementation of "Do Not Disturb".
         val inMuteMode = it == NotificationManager.INTERRUPTION_FILTER_NONE ||
@@ -569,8 +574,8 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    private val visibilityObserver = Observer<Boolean> { isVisible ->
-        TraceEvent("WatchFaceImpl.visibilityObserver").use {
+    private fun visibility(isVisible: Boolean) {
+        TraceEvent("WatchFaceImpl.visibility").use {
             if (isVisible) {
                 registerReceivers()
                 watchFaceHostApi.invalidate()
@@ -589,7 +594,7 @@ public class WatchFaceImpl @UiThread constructor(
 
     // Only installed if Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
     @SuppressLint("NewApi")
-    private val batteryLowAndNotChargingObserver = Observer<Boolean> {
+    private fun batteryLowAndNotCharging(it: Boolean) {
         // To save power we request a lower hardware display frame rate when the battery is low
         // and not charging.
         if (renderer.surfaceHolder.surface.isValid) {
@@ -621,12 +626,39 @@ public class WatchFaceImpl @UiThread constructor(
             WatchFace.registerEditorDelegate(componentName, WFEditorDelegate())
         }
 
-        watchState.isAmbient.addObserver(ambientObserver)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !watchState.isHeadless) {
-            watchState.isBatteryLowAndNotCharging.addObserver(batteryLowAndNotChargingObserver)
+        val mainScope = CoroutineScope(Dispatchers.Main.immediate)
+
+        mainScope.launch {
+            watchState.isAmbient.collect {
+                ambient()
+            }
         }
-        watchState.interruptionFilter.addObserver(interruptionFilterObserver)
-        watchState.isVisible.addObserver(visibilityObserver)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !watchState.isHeadless) {
+            mainScope.launch {
+                watchState.isBatteryLowAndNotCharging.collect {
+                    if (it != null) {
+                        batteryLowAndNotCharging(it)
+                    }
+                }
+            }
+        }
+
+        mainScope.launch {
+            watchState.interruptionFilter.collect {
+                if (it != null) {
+                    interruptionFilter(it)
+                }
+            }
+        }
+
+        mainScope.launch {
+            watchState.isVisible.collect {
+                if (it != null) {
+                    visibility(it)
+                }
+            }
+        }
     }
 
     internal fun invalidateIfNotAnimating() {
@@ -707,8 +739,7 @@ public class WatchFaceImpl @UiThread constructor(
             val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
             level * 100 / scale.toFloat()
         } ?: 100.0f
-        val isBatteryLowAndNotCharging =
-            watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
+        val isBatteryLowAndNotCharging = watchState.isBatteryLowAndNotCharging as MutableStateFlow
         isBatteryLowAndNotCharging.value =
             (batteryPercent < INITIAL_LOW_BATTERY_THRESHOLD) && !isCharging
     }
@@ -725,12 +756,6 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun onDestroy() {
         pendingUpdateTime.cancel()
         renderer.onDestroy()
-        watchState.isAmbient.removeObserver(ambientObserver)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !watchState.isHeadless) {
-            watchState.isBatteryLowAndNotCharging.removeObserver(batteryLowAndNotChargingObserver)
-        }
-        watchState.interruptionFilter.removeObserver(interruptionFilterObserver)
-        watchState.isVisible.removeObserver(visibilityObserver)
         if (!watchState.isHeadless) {
             WatchFace.unregisterEditorDelegate(componentName)
         }
@@ -790,7 +815,7 @@ public class WatchFaceImpl @UiThread constructor(
         }
         // Watch faces may wish to run an animation while entering ambient mode and we let them
         // defer entering ambient mode.
-        if (watchState.isAmbient.value && !renderer.shouldAnimate()) {
+        if (watchState.isAmbient.value!! && !renderer.shouldAnimate()) {
             newDrawMode = DrawMode.AMBIENT
         } else if (muteMode) {
             newDrawMode = DrawMode.MUTE
@@ -1049,3 +1074,13 @@ public class WatchFaceImpl @UiThread constructor(
         writer.decreaseIndent()
     }
 }
+
+internal fun <Boolean> StateFlow<Boolean?>.getValueOr(default: Boolean): Boolean {
+    return if (hasValue()) {
+        value!!
+    } else {
+        default
+    }
+}
+
+internal fun <T> StateFlow<T>.hasValue(): Boolean = value != null

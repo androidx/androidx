@@ -31,12 +31,12 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.utility.TraceEvent
-import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
+import kotlinx.coroutines.flow.MutableStateFlow
 
 private fun getComponentName(context: Context) = ComponentName(
     context.packageName,
@@ -262,8 +262,7 @@ public class ComplicationSlotsManager(
         complication.dataDirty = complication.dataDirty ||
             (complication.renderer.getData() != data)
         complication.renderer.loadData(data, true)
-        (complication.complicationData as MutableObservableWatchData<ComplicationData>).value =
-            data
+        (complication.complicationData as MutableStateFlow<ComplicationData>).value = data
     }
 
     /**
@@ -272,16 +271,14 @@ public class ComplicationSlotsManager(
     internal fun setComplicationDataUpdateSync(complicationSlotId: Int, data: ComplicationData) {
         val complication = complicationSlots[complicationSlotId] ?: return
         complication.renderer.loadData(data, false)
-        (complication.complicationData as MutableObservableWatchData<ComplicationData>).value =
-            data
+        (complication.complicationData as MutableStateFlow<ComplicationData>).value = data
     }
 
     @UiThread
     internal fun clearComplicationData() {
         for ((_, complication) in complicationSlots) {
             complication.renderer.loadData(NoDataComplicationData(), false)
-            (complication.complicationData as MutableObservableWatchData).value =
-                NoDataComplicationData()
+            (complication.complicationData as MutableStateFlow).value = NoDataComplicationData()
         }
     }
 
