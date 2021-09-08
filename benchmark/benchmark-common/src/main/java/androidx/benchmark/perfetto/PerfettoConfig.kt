@@ -133,7 +133,7 @@ private val LINUX_SYS_STATS_DATASOURCE = TraceConfig.DataSource(
 )
 
 /**
- * Global config for perfetto.
+ * Config for perfetto.
  *
  * Eventually, this should be more configurable.
  *
@@ -151,6 +151,7 @@ fun perfettoConfig(
         ftraceDataSource(atraceApps),
         PROCESS_STATS_DATASOURCE,
         LINUX_SYS_STATS_DATASOURCE,
+        TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline"))
     ),
 )
 

@@ -107,18 +107,18 @@ public class MetricResult(
         return result
     }
 
-    internal companion object {
+    companion object {
         internal fun lerp(a: Double, b: Double, ratio: Double): Double {
             return (a * (1 - ratio) + b * (ratio))
         }
 
-        internal fun getPercentile(data: List<Double>, percentile: Int): Double {
-            val idealIndex = percentile.coerceIn(0, 100) / 100.0 * (data.size - 1)
+        fun getPercentile(sortedData: List<Double>, percentile: Int): Double {
+            val idealIndex = percentile.coerceIn(0, 100) / 100.0 * (sortedData.size - 1)
             val firstIndex = idealIndex.toInt()
             val secondIndex = firstIndex + 1
 
-            val firstValue = data[firstIndex]
-            val secondValue = data.getOrElse(secondIndex) { firstValue }
+            val firstValue = sortedData[firstIndex]
+            val secondValue = sortedData.getOrElse(secondIndex) { firstValue }
             return lerp(firstValue, secondValue, idealIndex - firstIndex)
         }
     }

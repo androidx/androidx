@@ -70,17 +70,6 @@ internal object PerfettoTraceProcessor {
         return json
     }
 
-    data class Slice(
-        val name: String,
-        val ts: Long,
-        val dur: Long
-    )
-
-    private fun String.unquote(): String {
-        require(this.first() == '"' && this.last() == '"')
-        return this.substring(1, length - 1)
-    }
-
     /**
      * Query a trace for a list of slices - name, timestamp, and duration.
      */
@@ -93,36 +82,20 @@ internal object PerfettoTraceProcessor {
                 "slice.name = '$it'"
             }
 
-        val queryResult = rawQuery(
-            absoluteTracePath = absoluteTracePath,
-            query = """
+        return Slice.parseListFromQueryResult(
+            queryResult = rawQuery(
+                absoluteTracePath = absoluteTracePath,
+                query = """
                 SELECT slice.name,ts,dur
                 FROM slice
                 JOIN thread_track ON thread_track.id = slice.track_id
                 WHERE $whereClause
             """.trimMargin()
+            )
         )
-        val resultLines = queryResult.split("\n")
-
-        if (resultLines.first() != "\"name\",\"ts\",\"dur\"") {
-            throw IllegalStateException("query failed!")
-        }
-
-        // results are in CSV with a header row, and strings wrapped with quotes
-        return resultLines
-            .filter { it.isNotBlank() } // drop blank lines
-            .drop(1) // drop the header row
-            .map {
-                val columns = it.split(",")
-                Slice(
-                    name = columns[0].unquote(),
-                    ts = columns[1].toLong(),
-                    dur = columns[2].toLong()
-                )
-            }
     }
 
-    private fun rawQuery(
+    internal fun rawQuery(
         absoluteTracePath: String,
         query: String
     ): String {
