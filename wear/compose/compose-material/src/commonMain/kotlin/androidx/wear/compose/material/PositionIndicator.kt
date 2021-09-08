@@ -25,6 +25,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -123,6 +124,31 @@ public fun PositionIndicator(
 ) = PositionIndicator(
     state = ScalingLazyColumnStateAdapter(
         state = scalingLazyListState
+    ),
+    indicatorHeight = 50.dp,
+    indicatorWidth = 4.dp,
+    paddingRight = 5.dp,
+    modifier = modifier,
+    reverseDirection = reverseDirection
+)
+
+/**
+ * Creates an [PositionIndicator] based on the values in a [LazyListState] object that
+ * a [LazyColumn] uses.
+ *
+ * @param lazyListState the [LazyListState] to use as the basis for the
+ * PositionIndicatorState.
+ * @param modifier The modifier to be applied to the component
+ */
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+public fun PositionIndicator(
+    lazyListState: LazyListState,
+    modifier: Modifier = Modifier,
+    reverseDirection: Boolean = false
+) = PositionIndicator(
+    state = LazyColumnStateAdapter(
+        state = lazyListState
     ),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
@@ -386,7 +412,79 @@ internal class ScalingLazyColumnStateAdapter(
         val firstItemOffset = firstItem.offset - state.layoutInfo.viewportStartOffset
         val decimalFirstItemIndex =
             if (firstItemOffset < 0)
-                firstItem.index.toFloat() + abs(firstItemOffset) / firstItem.size.toFloat()
+                firstItem.index.toFloat() +
+                    abs(firstItemOffset.toFloat()) / firstItem.size.toFloat()
+            else firstItem.index.toFloat()
+        return decimalFirstItemIndex
+    }
+}
+
+/**
+ * An implementation of [PositionIndicatorState] to display the amount and position of a
+ * [LazyColumn] component via its [LazyListState].
+ *
+ * @param state the [LazyListState] to adapt.
+ *
+ * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+ */
+internal class LazyColumnStateAdapter(
+    private val state: LazyListState
+) : PositionIndicatorState {
+    override val positionFraction: Float
+        get() {
+            return if (state.layoutInfo.visibleItemsInfo.isEmpty()) {
+                0.0f
+            } else {
+                val decimalFirstItemIndex = decimalFirstItemIndex()
+                val decimalLastItemIndex = decimalLastItemIndex()
+                val decimalLastItemIndexDistanceFromEnd = state.layoutInfo.totalItemsCount -
+                    decimalLastItemIndex
+
+                if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
+                    0.0f
+                } else {
+                    decimalFirstItemIndex /
+                        (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
+                }
+            }
+        }
+
+    override fun sizeFraction(scrollableContainerSizePx: Float) =
+        if (state.layoutInfo.totalItemsCount == 0) {
+            1.0f
+        } else {
+            val decimalFirstItemIndex = decimalFirstItemIndex()
+            val decimalLastItemIndex = decimalLastItemIndex()
+
+            (decimalLastItemIndex - decimalFirstItemIndex) /
+                state.layoutInfo.totalItemsCount.toFloat()
+        }
+
+    override fun hashCode(): Int {
+        return state.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return (other as? LazyColumnStateAdapter)?.state == state
+    }
+
+    private fun decimalLastItemIndex(): Float {
+        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val lastItem = state.layoutInfo.visibleItemsInfo.last()
+        val lastItemVisibleSize = state.layoutInfo.viewportEndOffset - lastItem.offset
+        val decimalLastItemIndex = lastItem.index.toFloat() +
+            lastItemVisibleSize.toFloat() / lastItem.size.toFloat()
+        return decimalLastItemIndex
+    }
+
+    private fun decimalFirstItemIndex(): Float {
+        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val firstItem = state.layoutInfo.visibleItemsInfo.first()
+        val firstItemOffset = firstItem.offset - state.layoutInfo.viewportStartOffset
+        val decimalFirstItemIndex =
+            if (firstItemOffset < 0)
+                firstItem.index.toFloat() +
+                    abs(firstItemOffset.toFloat()) / firstItem.size.toFloat()
             else firstItem.index.toFloat()
         return decimalFirstItemIndex
     }
