@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.BuiltInTypeConverters
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
@@ -32,6 +33,7 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_RECEIVE_1_PARAM
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.solver.types.CustomTypeConverterWrapper
+import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.CustomTypeConverter
 import java.util.LinkedHashSet
 
@@ -61,7 +63,19 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                     }
                 }
                 reportDuplicates(context, converters)
-                ProcessResult(classes, converters.map(::CustomTypeConverterWrapper))
+                val builtInStates = it
+                    .getAsAnnotationBox<BuiltInTypeConverters>("builtInTypeConverters")
+                    .let {
+                        BuiltInConverterFlags(
+                            enums = it.value.enums,
+                            uuid = it.value.uuid
+                        )
+                    }
+                ProcessResult(
+                    classes = classes,
+                    converters = converters.map(::CustomTypeConverterWrapper),
+                    builtInConverterFlags = builtInStates
+                )
             } ?: ProcessResult.EMPTY
         }
 
@@ -166,15 +180,26 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
      */
     open class ProcessResult(
         val classes: LinkedHashSet<XType>,
-        val converters: List<CustomTypeConverterWrapper>
+        val converters: List<CustomTypeConverterWrapper>,
+        val builtInConverterFlags: BuiltInConverterFlags
     ) {
-        object EMPTY : ProcessResult(LinkedHashSet(), emptyList())
+        object EMPTY : ProcessResult(
+            classes = LinkedHashSet(),
+            converters = emptyList(),
+            builtInConverterFlags = BuiltInConverterFlags.DEFAULT
+        )
 
         operator fun plus(other: ProcessResult): ProcessResult {
             val newClasses = LinkedHashSet<XType>()
             newClasses.addAll(classes)
             newClasses.addAll(other.classes)
-            return ProcessResult(newClasses, converters + other.converters)
+            return ProcessResult(
+                classes = newClasses,
+                converters = converters + other.converters,
+                builtInConverterFlags = other.builtInConverterFlags.withNext(
+                    builtInConverterFlags
+                )
+            )
         }
     }
 }

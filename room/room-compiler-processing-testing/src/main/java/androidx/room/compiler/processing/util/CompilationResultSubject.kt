@@ -238,7 +238,7 @@ class CompilationResultSubject internal constructor(
      * @see hasWarning
      * @see hasNote
      */
-    fun hasError(expected: String): DiagnosticMessageSubject {
+    fun hasError(expected: String): DiagnosticMessagesSubject {
         shouldSucceed = false
         return hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.ERROR,
@@ -255,7 +255,7 @@ class CompilationResultSubject internal constructor(
      * @see hasWarningContaining
      * @see hasNoteContaining
      */
-    fun hasErrorContaining(expected: String): DiagnosticMessageSubject {
+    fun hasErrorContaining(expected: String): DiagnosticMessagesSubject {
         shouldSucceed = false
         return hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.ERROR,
@@ -374,21 +374,19 @@ class CompilationResultSubject internal constructor(
         expected: String,
         acceptPartialMatch: Boolean,
         buildErrorMessage: () -> String
-    ): DiagnosticMessageSubject {
+    ): DiagnosticMessagesSubject {
         val diagnostics = compilationResult.diagnosticsOfKind(kind)
-        var diagnostic = diagnostics.firstOrNull {
-            it.msg == expected
-        }
-        if (diagnostic == null && acceptPartialMatch) {
-            diagnostic = diagnostics.firstOrNull {
+        val matches = diagnostics.filter {
+            if (acceptPartialMatch) {
                 it.msg.contains(expected)
+            } else {
+                it.msg == expected
             }
         }
-        diagnostic?.let {
-            return DiagnosticMessageSubject.assertThat(it)
+        if (matches.isEmpty()) {
+            failWithActual(simpleFact(buildErrorMessage()))
         }
-        failWithActual(simpleFact(buildErrorMessage()))
-        error("unreachable")
+        return DiagnosticMessagesSubject.assertThat(matches)
     }
 
     /**

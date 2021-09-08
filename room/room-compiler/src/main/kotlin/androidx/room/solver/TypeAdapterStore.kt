@@ -99,8 +99,10 @@ import androidx.room.solver.types.StatementValueBinder
 import androidx.room.solver.types.StringColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.solver.types.UuidColumnTypeAdapter
+import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.MapInfo
 import androidx.room.vo.ShortcutQueryParameter
+import androidx.room.vo.isEnabled
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableListMultimap
@@ -121,7 +123,9 @@ class TypeAdapterStore private constructor(
      */
     private val columnTypeAdapters: List<ColumnTypeAdapter>,
 
-    private val typeConverterStore: TypeConverterStore
+    private val typeConverterStore: TypeConverterStore,
+
+    private val builtInConverterFlags: BuiltInConverterFlags
 ) {
 
     companion object {
@@ -129,14 +133,18 @@ class TypeAdapterStore private constructor(
             return TypeAdapterStore(
                 context = context,
                 columnTypeAdapters = store.columnTypeAdapters,
-                typeConverterStore = store.typeConverterStore
+                typeConverterStore = store.typeConverterStore,
+                builtInConverterFlags = store.builtInConverterFlags
             )
         }
 
-        fun create(context: Context, vararg extras: Any): TypeAdapterStore {
+        fun create(
+            context: Context,
+            builtInConverterFlags: BuiltInConverterFlags,
+            vararg extras: Any
+        ): TypeAdapterStore {
             val adapters = arrayListOf<ColumnTypeAdapter>()
             val converters = arrayListOf<TypeConverter>()
-
             fun addAny(extra: Any?) {
                 when (extra) {
                     is TypeConverter -> converters.add(extra)
@@ -169,7 +177,8 @@ class TypeAdapterStore private constructor(
                 .forEach(::addTypeConverter)
             return TypeAdapterStore(
                 context = context, columnTypeAdapters = adapters,
-                typeConverterStore = TypeConverterStore(converters)
+                typeConverterStore = TypeConverterStore(converters),
+                builtInConverterFlags = builtInConverterFlags
             )
         }
     }
@@ -351,8 +360,10 @@ class TypeAdapterStore private constructor(
     private fun createDefaultTypeAdapter(type: XType): ColumnTypeAdapter? {
         val typeElement = type.typeElement
         return when {
-            typeElement?.isEnum() == true -> EnumColumnTypeAdapter(typeElement)
-            type.isUUID() -> UuidColumnTypeAdapter(type)
+            builtInConverterFlags.enums.isEnabled() &&
+                typeElement?.isEnum() == true -> EnumColumnTypeAdapter(typeElement)
+            builtInConverterFlags.uuid.isEnabled() &&
+                type.isUUID() -> UuidColumnTypeAdapter(type)
             else -> null
         }
     }
