@@ -16,8 +16,10 @@
 
 package androidx.wear.compose.integration.demos
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.BasicCurvedText
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Text
@@ -96,5 +98,37 @@ fun TimeTextWithLeadingAndTrailingText() {
                 style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
             )
         }
+    )
+}
+
+@OptIn(ExperimentalWearMaterialApi::class)
+@Composable
+fun TimeTextWithPadding() {
+    TimeText(
+        leadingLinearContent = {
+            Text(
+                text = "Leading content",
+                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
+            )
+        },
+        leadingCurvedContent = {
+            BasicCurvedText(
+                text = "Leading content",
+                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
+            )
+        },
+        trailingLinearContent = {
+            Text(
+                text = "Trailing content",
+                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
+            )
+        },
+        trailingCurvedContent = {
+            BasicCurvedText(
+                text = "Trailing content",
+                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
+            )
+        },
+        contentPadding = PaddingValues(8.dp)
     )
 }

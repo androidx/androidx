@@ -136,6 +136,9 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void CurvedText(androidx.wear.compose.foundation.CurvedRowScope, String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long background, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle style, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
   }
 
+  public final class DefaultTimeSourceKt {
+  }
+
   @kotlin.RequiresOptIn(message="This Wear Material API is experimental and is likely to change or to be removed in" + " the future.") public @interface ExperimentalWearMaterialApi {
   }
 
@@ -397,12 +400,18 @@ package androidx.wear.compose.material {
     method public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
   }
 
+  @androidx.wear.compose.material.ExperimentalWearMaterialApi public interface TimeSource {
+    method @androidx.compose.runtime.Composable public String getCurrentTime();
+    property @androidx.compose.runtime.Composable public abstract String currentTime;
+  }
+
   @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class TimeTextDefaults {
-    method @androidx.compose.runtime.Composable public void CurvedTextSeparator(androidx.wear.compose.foundation.CurvedRowScope, optional androidx.wear.compose.foundation.CurvedTextStyle curvedTextStyle, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
+    method @androidx.compose.runtime.Composable public void CurvedTextSeparator(androidx.wear.compose.foundation.CurvedRowScope, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.CurvedTextStyle curvedTextStyle, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
     method @androidx.compose.runtime.Composable public void TextSeparator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding);
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.CurvedTextStyle timeCurvedTextStyle(optional long color, optional long background, optional long fontSize);
     method @androidx.compose.runtime.Composable public String timeFormat();
+    method public androidx.wear.compose.material.TimeSource timeSource(String timeFormat);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.text.TextStyle timeTextStyle(optional long color, optional long background, optional long fontSize);
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material.TimeTextDefaults INSTANCE;
@@ -411,10 +420,7 @@ package androidx.wear.compose.material {
   }
 
   public final class TimeTextKt {
-    method @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static void TimeText(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<java.lang.Long> timeMillis, optional String timeFormat, optional androidx.compose.ui.text.TextStyle timeTextStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingLinearContent, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit>? leadingCurvedContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingLinearContent, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit>? trailingCurvedContent, optional kotlin.jvm.functions.Function0<kotlin.Unit> textLinearSeparator, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit> textCurvedSeparator);
-  }
-
-  public final class TimeUpdateControllerKt {
+    method @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static void TimeText(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.TimeSource timeSource, optional androidx.compose.ui.text.TextStyle timeTextStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingLinearContent, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit>? leadingCurvedContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingLinearContent, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit>? trailingCurvedContent, optional kotlin.jvm.functions.Function0<kotlin.Unit> textLinearSeparator, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedRowScope,kotlin.Unit> textCurvedSeparator);
   }
 
   @androidx.compose.runtime.Stable public interface ToggleButtonColors {

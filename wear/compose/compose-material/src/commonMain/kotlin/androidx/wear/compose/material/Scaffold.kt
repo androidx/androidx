@@ -58,7 +58,6 @@ public fun Scaffold(
     modifier: Modifier = Modifier,
     vignette: @Composable (() -> Unit)? = null,
     positionIndicator: @Composable (() -> Unit)? = null,
-    // TODO(b/196386195): Replace this with default TimeText when it has been committed
     timeText: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
