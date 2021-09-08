@@ -2036,10 +2036,13 @@ package androidx.appcompat.widget {
     method public void recycle();
   }
 
-  public class Toolbar extends android.view.ViewGroup {
+  public class Toolbar extends android.view.ViewGroup implements androidx.core.view.MenuHost {
     ctor public Toolbar(android.content.Context);
     ctor public Toolbar(android.content.Context, android.util.AttributeSet?);
     ctor public Toolbar(android.content.Context, android.util.AttributeSet?, int);
+    method @MainThread public void addMenuProvider(androidx.core.view.MenuProvider);
+    method @MainThread public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
+    method @MainThread public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean canShowOverflowMenu();
     method public void collapseActionView();
     method public void dismissPopupMenus();
@@ -2075,9 +2078,11 @@ package androidx.appcompat.widget {
     method public boolean hasExpandedActionView();
     method public boolean hideOverflowMenu();
     method public void inflateMenu(@MenuRes int);
+    method @MainThread public void invalidateMenu();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isOverflowMenuShowPending();
     method public boolean isOverflowMenuShowing();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isTitleTruncated();
+    method @MainThread public void removeMenuProvider(androidx.core.view.MenuProvider);
     method public void setCollapseContentDescription(@StringRes int);
     method public void setCollapseContentDescription(CharSequence?);
     method public void setCollapseIcon(@DrawableRes int);
