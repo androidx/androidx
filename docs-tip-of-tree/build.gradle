@@ -179,6 +179,7 @@ dependencies {
     docs(project(":media2:media2-widget"))
     docs(project(":media:media"))
     docs(project(":mediarouter:mediarouter"))
+    docs(project(":mediarouter:mediarouter-testing"))
     docs(project(":navigation:navigation-common"))
     docs(project(":navigation:navigation-common-ktx"))
     docs(project(":navigation:navigation-compose"))

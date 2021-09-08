@@ -33,6 +33,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
+import androidx.mediarouter.testing.MediaRouterTestHelper;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -122,7 +123,7 @@ public class MediaRouter2Test {
                 mRouter.removeCallback(callback);
             }
             mCallbacks.clear();
-            MediaRouter.reset();
+            MediaRouterTestHelper.resetMediaRouter();
         });
         MediaRouter2TestActivity.finishActivity();
     }
