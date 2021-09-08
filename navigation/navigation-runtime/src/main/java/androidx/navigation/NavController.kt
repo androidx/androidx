@@ -1011,6 +1011,12 @@ public open class NavController(
     public open fun setGraph(graph: NavGraph, startDestinationArgs: Bundle?) {
         if (_graph != graph) {
             _graph?.let { previousGraph ->
+                // Clear all saved back stacks by iterating through a copy of the saved keys,
+                // thus avoiding any concurrent modification exceptions
+                val savedBackStackIds = ArrayList(backStackMap.keys)
+                savedBackStackIds.forEach { id ->
+                    clearBackStackInternal(id)
+                }
                 // Pop everything from the old graph off the back stack
                 popBackStackInternal(previousGraph.id, true)
             }
