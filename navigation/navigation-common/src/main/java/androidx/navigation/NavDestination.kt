@@ -570,7 +570,6 @@ public open class NavDestination(
                 result = 31 * result + value.defaultArguments!!.get(it).hashCode()
             }
         }
-        result = 31 * result + actions.hashCode()
         arguments.keys.forEach {
             result = 31 * result + it.hashCode()
             result = 31 * result + arguments[it].hashCode()
