@@ -519,6 +519,7 @@ includeProject(":media2:media2-session", "media2/media2-session", [BuildType.MAI
 includeProject(":media2:media2-widget", "media2/media2-widget", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media:media", "media/media", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":mediarouter:mediarouter", "mediarouter/mediarouter", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":mediarouter:mediarouter-testing", "mediarouter/mediarouter-testing", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":navigation:navigation-benchmark", "navigation/navigation-benchmark", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-common", "navigation/navigation-common", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigation:navigation-common-ktx", "navigation/navigation-common-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
