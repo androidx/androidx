@@ -21,7 +21,7 @@ import androidx.fragment.app.Fragment
  * See #[FragmentStrictMode.Policy.Builder.detectRetainInstanceUsage].
  */
 class GetRetainInstanceUsageViolation internal constructor(fragment: Fragment) :
-    RetainInstanceUsageViolation(fragment) {
-    override val message: String
-        get() = "Attempting to get retain instance for fragment $fragment"
-}
+    RetainInstanceUsageViolation(
+        fragment,
+        "Attempting to get retain instance for fragment $fragment"
+    )

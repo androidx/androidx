@@ -21,7 +21,7 @@ import androidx.fragment.app.Fragment
  * See [FragmentStrictMode.Policy.Builder.detectTargetFragmentUsage].
  */
 class GetTargetFragmentRequestCodeUsageViolation internal constructor(fragment: Fragment) :
-    TargetFragmentUsageViolation(fragment) {
-    override val message: String
-        get() = "Attempting to get target request code from fragment $fragment"
-}
+    TargetFragmentUsageViolation(
+        fragment,
+        "Attempting to get target request code from fragment $fragment"
+    )

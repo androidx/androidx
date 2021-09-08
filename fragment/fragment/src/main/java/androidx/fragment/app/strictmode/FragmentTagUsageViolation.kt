@@ -23,13 +23,12 @@ import androidx.fragment.app.Fragment
  */
 class FragmentTagUsageViolation internal constructor(
     fragment: Fragment,
-    val parentContainer: ViewGroup?
-) : Violation(fragment) {
     /**
      * Gets the parent container that the [Fragment] causing the Violation
      * would have been added to.
      */
-    override val message: String
-        get() = "Attempting to use <fragment> tag to add fragment $fragment to container " +
-            "$parentContainer"
-}
+    val parentContainer: ViewGroup?
+) : Violation(
+    fragment,
+    "Attempting to use <fragment> tag to add fragment $fragment to container $parentContainer"
+)

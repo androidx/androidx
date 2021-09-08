@@ -491,7 +491,6 @@ package androidx.fragment.app.strictmode {
 
   public final class FragmentReuseViolation extends androidx.fragment.app.strictmode.Violation {
     method public String getPreviousFragmentId();
-    property public String message;
     property public final String previousFragmentId;
   }
 
@@ -528,33 +527,27 @@ package androidx.fragment.app.strictmode {
 
   public final class FragmentTagUsageViolation extends androidx.fragment.app.strictmode.Violation {
     method public android.view.ViewGroup? getParentContainer();
-    property public String message;
     property public final android.view.ViewGroup? parentContainer;
   }
 
   public final class GetRetainInstanceUsageViolation extends androidx.fragment.app.strictmode.RetainInstanceUsageViolation {
-    property public String message;
   }
 
   public final class GetTargetFragmentRequestCodeUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
-    property public String message;
   }
 
   public final class GetTargetFragmentUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
-    property public String message;
   }
 
   public abstract class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {
   }
 
   public final class SetRetainInstanceUsageViolation extends androidx.fragment.app.strictmode.RetainInstanceUsageViolation {
-    property public String message;
   }
 
   public final class SetTargetFragmentUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
     method public int getRequestCode();
     method public androidx.fragment.app.Fragment getTargetFragment();
-    property public String message;
     property public final int requestCode;
     property public final androidx.fragment.app.Fragment targetFragment;
   }
@@ -562,7 +555,6 @@ package androidx.fragment.app.strictmode {
   public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
     method public boolean isVisibleToUser();
     property public final boolean isVisibleToUser;
-    property public String message;
   }
 
   public abstract class TargetFragmentUsageViolation extends androidx.fragment.app.strictmode.Violation {
@@ -576,7 +568,6 @@ package androidx.fragment.app.strictmode {
   public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
     method public android.view.ViewGroup getContainer();
     property public final android.view.ViewGroup container;
-    property public String message;
   }
 
 }
