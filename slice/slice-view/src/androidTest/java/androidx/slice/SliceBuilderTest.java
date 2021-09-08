@@ -243,6 +243,6 @@ public class SliceBuilderTest {
     private PendingIntent getIntent(String action) {
         Intent intent = new Intent(action);
         intent.setClassName(mContext.getPackageName(), SliceRenderActivity.class.getName());
-        return PendingIntent.getActivity(mContext, 0, intent, 0);
+        return PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_IMMUTABLE);
     }
 }
