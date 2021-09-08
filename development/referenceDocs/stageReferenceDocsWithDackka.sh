@@ -1,6 +1,31 @@
 #!/bin/bash
 #
-# Script to fetch generated API references docs from the Android build server and stage them.
+# Script to fetch generated API references docs and stage them.
+#
+# Examples:
+#
+# Stage refdocs from a given build ID (to the default staging DB):
+#
+#   ./stageReferenceDocsWithDackka.sh --buildId 1234567
+#
+# Stage locally-generated refdocs (to the default staging DB) *:
+#
+#   /stageReferenceDocsWithDackka.sh --buildId 0
+#   --sourceDir=/dir/to/androidx-main/out/androidx/docs-public/build
+#
+# Stage ToT refdocs from a given build ID, to a specified DB, using a specific
+# date string for the generated CL:
+#
+#   ./stageReferenceDocsWithDackka.sh --buildId 1234567 --db androidx-docs
+#   --dateStr "April 29, 2021" --useToT
+#
+# ===
+#
+# * buildId still needs to be specified when staging locally-generated refdocs,
+#   but the value is unused and ignored.
+#
+# ===
+#
 
 source gbash.sh || exit
 
