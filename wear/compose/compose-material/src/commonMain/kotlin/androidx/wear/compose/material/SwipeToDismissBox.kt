@@ -73,8 +73,8 @@ fun SwipeToDismissBox(
     state: SwipeToDismissBoxState,
     modifier: Modifier = Modifier,
     scrimColor: Color = MaterialTheme.colors.surface,
-    backgroundKey: Any = DefaultBackgroundKey,
-    contentKey: Any = DefaultContentKey,
+    backgroundKey: Any = SwipeToDismissBoxDefaults.BackgroundKey,
+    contentKey: Any = SwipeToDismissBoxDefaults.ContentKey,
     content: @Composable BoxScope.(isBackground: Boolean) -> Unit
 ) {
     // Will be updated in onSizeChanged, initialise to any value other than zero
@@ -92,6 +92,9 @@ fun SwipeToDismissBox(
             )
     ) {
         val offsetPx = state.offset.value.roundToInt()
+        // This temporary variable added to workaround an error
+        // thrown by the compose runtime - see b/199136503, avoids "Invalid Start Index" exception.
+        val pxModifier = Modifier.offset { IntOffset(offsetPx, 0) }.fillMaxSize()
         repeat(2) {
             val isBackground = it == 0
             // TODO(b/193606660): Add animations that follow after swipe confirmation.
@@ -101,18 +104,19 @@ fun SwipeToDismissBox(
                 } else {
                     if (isBackground) SwipeConfirmedBackgroundAlpha else SwipeConfirmedContentAlpha
                 }
-            val contentModifier =
-                if (isBackground)
-                    Modifier.fillMaxSize()
-                else
-                    Modifier.offset { IntOffset(offsetPx, 0) }.fillMaxSize()
+            val contentModifier = if (isBackground) Modifier.fillMaxSize() else pxModifier
             key(if (isBackground) backgroundKey else contentKey) {
                 if (!isBackground || offsetPx > 0) {
                     Box(contentModifier) {
+                        // We use the repeat loop above and call content at this location
+                        // for both background and foreground so that any persistence
+                        // within the content composable has the same call stack which is used
+                        // as part of the hash identity for saveable state.
                         content(isBackground)
                         Box(
                             modifier = Modifier
-                                .matchParentSize().background(scrimColor.copy(alpha = scrimAlpha))
+                                .matchParentSize()
+                                .background(scrimColor.copy(alpha = scrimAlpha))
                         )
                     }
                 }
@@ -186,7 +190,24 @@ fun rememberSwipeToDismissBoxState(
  */
 @ExperimentalWearMaterialApi
 public object SwipeToDismissBoxDefaults {
+    /**
+     * The default animation that will be used to animate to a new state after the swipe gesture.
+     */
     public val AnimationSpec = SwipeableDefaults.AnimationSpec
+
+    /**
+     * The default background key to identify the content displayed by the content block
+     * when isBackground == true. Specifying a background key instead of using the default
+     * allows remembered state to be correctly moved between background and foreground.
+     */
+    public val BackgroundKey: Any = "background"
+
+    /**
+     * The default content key to identify the content displayed by the content block
+     * when isBackground == false. Specifying a background key instead of using the default
+     * allows remembered state to be correctly moved between background and foreground.
+     */
+    public val ContentKey: Any = "content"
 }
 
 /**

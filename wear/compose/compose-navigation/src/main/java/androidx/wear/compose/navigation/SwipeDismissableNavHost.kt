@@ -39,6 +39,7 @@ import androidx.navigation.get
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.SwipeDismissTarget
 import androidx.wear.compose.material.SwipeToDismissBox
+import androidx.wear.compose.material.SwipeToDismissBoxDefaults
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 /**
@@ -141,6 +142,8 @@ public fun SwipeDismissableNavHost(
     SwipeToDismissBox(
         state = state,
         modifier = Modifier,
+        backgroundKey = previous?.id ?: SwipeToDismissBoxDefaults.BackgroundKey,
+        contentKey = current?.id ?: SwipeToDismissBoxDefaults.ContentKey,
         content = { isBackground ->
             BoxedStackEntryContent(if (isBackground) previous else current, stateHolder, modifier)
         },
