@@ -16,10 +16,6 @@
 
 package androidx.car.app.sample.showcase.common.navigation.routing;
 
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
@@ -41,15 +37,15 @@ public final class ArrivedDemoScreen extends Screen implements DefaultLifecycleO
     @NonNull
     @Override
     public Template onGetTemplate() {
-        Resources resources = getCarContext().getResources();
-        Bitmap bitmap = BitmapFactory.decodeResource(resources, R.drawable.test_image_square);
-
         return new NavigationTemplate.Builder()
                 .setNavigationInfo(
                         new MessageInfo.Builder("Arrived!")
                                 .setText("Google Bellevue Office\n1120 112th Ave NE")
                                 .setImage(
-                                        new CarIcon.Builder(IconCompat.createWithBitmap(bitmap))
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        getCarContext(),
+                                                        R.drawable.ic_local_gas_station_white_48dp))
                                                 .build())
                                 .build())
                 .setActionStrip(RoutingDemoModels.getActionStrip(getCarContext(), this::finish))
