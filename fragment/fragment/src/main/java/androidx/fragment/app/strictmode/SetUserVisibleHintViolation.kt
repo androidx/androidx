@@ -22,12 +22,12 @@ import androidx.fragment.app.Fragment
  */
 class SetUserVisibleHintViolation internal constructor(
     fragment: Fragment,
-    val isVisibleToUser: Boolean
-) : Violation(fragment) {
     /**
      * Indicates what the `isVisibleToUser` field for the [Fragment] causing the
      * Violation was being set to.
      */
-    override val message: String
-        get() = "Attempting to set user visible hint to $isVisibleToUser for fragment $fragment"
-}
+    val isVisibleToUser: Boolean
+) : Violation(
+    fragment,
+    "Attempting to set user visible hint to $isVisibleToUser for fragment $fragment"
+)

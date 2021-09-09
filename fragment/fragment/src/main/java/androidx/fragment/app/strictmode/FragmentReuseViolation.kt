@@ -22,11 +22,11 @@ import androidx.fragment.app.Fragment
  */
 class FragmentReuseViolation internal constructor(
     fragment: Fragment,
-    val previousFragmentId: String
-) : Violation(fragment) {
     /**
      * Gets the unique ID of the previous instance of the [Fragment] causing the Violation.
      */
-    override val message: String
-        get() = "Attempting to reuse fragment $fragment with previous ID $previousFragmentId"
-}
+    val previousFragmentId: String
+) : Violation(
+    fragment,
+    "Attempting to reuse fragment $fragment with previous ID $previousFragmentId"
+)

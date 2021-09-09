@@ -23,13 +23,13 @@ import androidx.fragment.app.Fragment
  */
 class WrongFragmentContainerViolation internal constructor(
     fragment: Fragment,
-    val container: ViewGroup
-) : Violation(fragment) {
     /**
      * Gets the container that the [Fragment] causing the Violation was
      * being added to.
      */
-    override val message: String
-        get() = "Attempting to add fragment $fragment to container $container which is not a " +
-            "FragmentContainerView"
-}
+    val container: ViewGroup
+) : Violation(
+    fragment,
+    "Attempting to add fragment $fragment to container $container which is not a " +
+        "FragmentContainerView"
+)
