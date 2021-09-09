@@ -64,6 +64,7 @@ private fun DisplayDemo(
         is ComposableDemo -> {
             SwipeToDismissBox(
                 state = swipeDismissStateWithNavigation(onNavigateBack),
+                hasBackground = parentDemo != null,
                 backgroundKey = parentDemo?.title ?: SwipeToDismissBoxDefaults.BackgroundKey,
                 contentKey = demo.title,
             ) { isBackground ->
@@ -92,6 +93,7 @@ internal fun DisplayDemoList(
 ) {
     SwipeToDismissBox(
         state = swipeDismissStateWithNavigation(onNavigateBack),
+        hasBackground = parentDemo != null,
         backgroundKey = parentDemo?.title ?: SwipeToDismissBoxDefaults.BackgroundKey,
         contentKey = category.title,
     ) { isBackground ->

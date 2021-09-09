@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertIsOff
@@ -104,6 +105,31 @@ class SwipeToDismissBoxTest {
         }
 
         rule.onNodeWithText(BACKGROUND_MESSAGE).assertDoesNotExist()
+    }
+
+    @Test
+    fun does_not_dismiss_if_has_background_is_false() {
+        var dismissed = false
+        rule.setContentWithTheme {
+            val state = rememberSwipeToDismissBoxState()
+            LaunchedEffect(state.currentValue) {
+                dismissed =
+                    state.currentValue == SwipeDismissTarget.Dismissal
+            }
+            SwipeToDismissBox(
+                state = state,
+                modifier = Modifier.testTag(TEST_TAG),
+                hasBackground = false,
+            ) {
+                Text(CONTENT_MESSAGE, color = MaterialTheme.colors.onPrimary)
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+
+        rule.runOnIdle {
+            assertEquals(false, dismissed)
+        }
     }
 
     @Test
@@ -225,12 +251,15 @@ class SwipeToDismissBoxTest {
             }
         }
 
-        // Advance the clock by half the length of time configured for the swipe gesture,
-        // so that the background ought to be revealed.
-        rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight(durationMillis = LONG_SWIPE) }
-        rule.waitForIdle()
-        rule.mainClock.advanceTimeBy(milliseconds = LONG_SWIPE / 2)
+        // Click down and drag across 1/4 of the screen to start a swipe,
+        // but don't release the finger, so that the screen can be inspected
+        // (note that swipeRight would release the finger and does not pause time midway).
+        rule.onNodeWithTag(TEST_TAG).performTouchInput(
+            {
+                down(Offset(x = 0f, y = height / 2f))
+                moveTo(Offset(x = width / 4f, y = height / 2f))
+            }
+        )
 
         rule.onNodeWithText(expectedMessage).assertExists()
     }

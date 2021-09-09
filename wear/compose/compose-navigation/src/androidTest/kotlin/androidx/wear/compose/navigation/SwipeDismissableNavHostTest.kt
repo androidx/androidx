@@ -22,7 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -99,15 +101,22 @@ class SwipeDismissableNavHostTest {
     @Test
     fun displays_previous_screen_during_swipe_gesture() {
         rule.setContentWithTheme {
-            SwipeDismissWithNavigation()
+            WithTouchSlop(0f) {
+                SwipeDismissWithNavigation()
+            }
         }
 
-        // Click to move to next destination then pause during a long swipe to dismiss.
+        // Click to move to next destination.
         rule.onNodeWithText(START).performClick()
-        rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
-        rule.mainClock.advanceTimeBy(milliseconds = LONG_SWIPE / 2)
+        // Click and drag to being a swipe gesture, but do not release the finger.
+        rule.onNodeWithTag(TEST_TAG).performTouchInput(
+            {
+                down(Offset(x = 0f, y = height / 2f))
+                moveTo(Offset(x = width / 4f, y = height / 2f))
+            }
+        )
 
+        // As the finger is still 'down', the background should be visible.
         rule.onNodeWithText(START).assertExists()
     }
 
