@@ -47,7 +47,11 @@ if impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateAll
 else
   zipKotlinMetadata
   echo build failed
-  EXIT_VALUE=1
+  if echo "$BUILD_NUMBER" | grep "P"; then
+    echo androidx_incremental ignoring presubmit failure
+  else
+    EXIT_VALUE=1
+  fi
 fi
 
 # Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
