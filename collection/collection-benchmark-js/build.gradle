@@ -1,0 +1,52 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+def githubBuild = project.properties['androidx.github.build'] ?: false
+if (githubBuild) {
+    task setupJsBenchmark(type: Exec) {
+        inputs.file("package.json")
+        inputs.file("package-lock.json")
+
+        commandLine 'npm', 'install'
+
+        outputs.dir("node_modules")
+    }
+
+    task linkCollectionPackage(type: Exec) {
+        def compileTaskName = ':collection:collection2:compileKotlinJs'
+        dependsOn compileTaskName
+
+        // Store where the node module is located. Subject to future changes.
+        def npmPackageDir = ''
+        tasks.getByPath(compileTaskName).outputs.files.each {
+            def matcher = it.toString() =~ /(.+)\/kotlin$/
+            if (matcher) {
+                npmPackageDir = matcher.group(1)
+            }
+        }
+
+        outputs.dir(npmPackageDir)
+
+        // Symlink the built module to the working dir's node_modules/. This enables
+        // our benchmark code to use Collection KMP.
+        commandLine 'npm', 'link', npmPackageDir
+    }
+
+    task runJsBenchmark(type: Exec) {
+        dependsOn linkCollectionPackage
+        commandLine 'node', 'src/js/main.js'
+    }
+}
