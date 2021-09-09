@@ -546,9 +546,8 @@ public class CameraXActivity extends AppCompatActivity {
         contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
         contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
         contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
-        return MediaStoreOutputOptions.builder()
-                .setContentResolver(getContentResolver())
-                .setCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        return new MediaStoreOutputOptions.Builder(getContentResolver(),
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
                 .setContentValues(contentValues)
                 .build();
     }
@@ -560,7 +559,7 @@ public class CameraXActivity extends AppCompatActivity {
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
                 videoFileName + ".mp4");
         Log.d(TAG, "VideoOutputFileOptions file: " + videoFile.getAbsolutePath());
-        return FileOutputOptions.builder().setFile(videoFile).build();
+        return new FileOutputOptions.Builder(videoFile).build();
     }
 
     @NonNull

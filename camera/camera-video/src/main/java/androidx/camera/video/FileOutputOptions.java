@@ -17,6 +17,7 @@
 package androidx.camera.video;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
 
@@ -30,42 +31,68 @@ import java.io.File;
  * <p>To use a {@link android.os.ParcelFileDescriptor} as an output desination instead of a
  * {@link File}, use {@link FileDescriptorOutputOptions}.
  */
-@AutoValue
-public abstract class FileOutputOptions extends OutputOptions {
+public final class FileOutputOptions extends OutputOptions {
 
-    FileOutputOptions() {
+    private final FileOutputOptionsInternal mFileOutputOptionsInternal;
+
+    FileOutputOptions(@NonNull FileOutputOptionsInternal fileOutputOptionsInternal) {
         super(OPTIONS_TYPE_FILE);
+        Preconditions.checkNotNull(fileOutputOptionsInternal,
+                "FileOutputOptionsInternal can't be null.");
+        mFileOutputOptionsInternal = fileOutputOptionsInternal;
     }
 
-    /** Returns a builder for this FileOutputOptions. */
+    /** Gets the File instance */
     @NonNull
-    public static Builder builder() {
-        return new AutoValue_FileOutputOptions.Builder()
-                .setFileSizeLimit(FILE_SIZE_UNLIMITED);
+    public File getFile() {
+        return mFileOutputOptionsInternal.getFile();
     }
 
     /**
      * Gets the limit for the file length in bytes.
      */
     @Override
-    public abstract long getFileSizeLimit();
+    public long getFileSizeLimit() {
+        return mFileOutputOptionsInternal.getFileSizeLimit();
+    }
 
-    /** Gets the File instance */
+    @Override
     @NonNull
-    public abstract File getFile();
+    public String toString() {
+        return mFileOutputOptionsInternal.toString().replaceFirst(
+                mFileOutputOptionsInternal.getClass().getSuperclass().getSimpleName(),
+                getClass().getSimpleName());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return mFileOutputOptionsInternal.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return mFileOutputOptionsInternal.hashCode();
+    }
 
     /** The builder of the {@link FileOutputOptions}. */
-    @AutoValue.Builder
-    @SuppressWarnings("StaticFinalBuilder")
-    public abstract static class Builder implements
-            OutputOptions.Builder<FileOutputOptions, Builder> {
-        Builder() {
-        }
+    public static final class Builder implements OutputOptions.Builder<FileOutputOptions, Builder> {
+        private final FileOutputOptionsInternal.Builder mInternalBuilder =
+                new AutoValue_FileOutputOptions_FileOutputOptionsInternal.Builder()
+                        .setFileSizeLimit(OutputOptions.FILE_SIZE_UNLIMITED);
 
-        /** Defines the file used to store the result. */
-        @SuppressWarnings("StreamFiles") // FileDescriptor API is in FileDescriptorOutputOptions
-        @NonNull
-        public abstract Builder setFile(@NonNull File file);
+        /**
+         * Creates a builder of the {@link FileOutputOptions} with a file object.
+         *
+         * <p>The file object can be created with a path using the {@link File} APIs. The path
+         * must be seekable and writable.
+         *
+         * @param file the file object.
+         * @see File
+         */
+        public Builder(@NonNull File file) {
+            Preconditions.checkNotNull(file, "File can't be null.");
+            mInternalBuilder.setFile(file);
+        }
 
         /**
          * Sets the limit for the file length in bytes. Zero or negative values are considered
@@ -81,11 +108,36 @@ public abstract class FileOutputOptions extends OutputOptions {
          */
         @Override
         @NonNull
-        public abstract Builder setFileSizeLimit(long bytes);
+        public Builder setFileSizeLimit(long fileSizeLimitBytes) {
+            mInternalBuilder.setFileSizeLimit(fileSizeLimitBytes);
+            return this;
+        }
 
         /** Builds the {@link FileOutputOptions} instance. */
         @Override
         @NonNull
-        public abstract FileOutputOptions build();
+        public FileOutputOptions build() {
+            return new FileOutputOptions(mInternalBuilder.build());
+        }
+    }
+
+    @AutoValue
+    abstract static class FileOutputOptionsInternal {
+        @NonNull
+        abstract File getFile();
+
+        abstract long getFileSizeLimit();
+
+        @AutoValue.Builder
+        abstract static class Builder {
+            @NonNull
+            abstract Builder setFile(@NonNull File file);
+
+            @NonNull
+            abstract Builder setFileSizeLimit(long fileSizeLimitBytes);
+
+            @NonNull
+            abstract FileOutputOptionsInternal build();
+        }
     }
 }

@@ -297,7 +297,6 @@ class VideoRecordingTest(
         // Arrange.
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
         @Suppress("UNCHECKED_CAST")
         val mockListener = mock(Consumer::class.java) as Consumer<VideoRecordEvent>
         instrumentation.runOnMainSync {
@@ -307,7 +306,7 @@ class VideoRecordingTest(
 
         // Act.
         videoCapture.output
-            .prepareRecording(outputOptions)
+            .prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(
                 CameraXExecutors.directExecutor(),
                 mockListener
@@ -403,10 +402,8 @@ class VideoRecordingTest(
 
     private fun startVideoRecording(videoCapture: VideoCapture<Recorder>, file: File):
         ActiveRecording {
-            val outputOptions = FileOutputOptions.builder().setFile(file).build()
-
             val activeRecording = videoCapture.output
-                .prepareRecording(outputOptions)
+                .prepareRecording(FileOutputOptions.Builder(file).build())
                 .withEventListener(
                     CameraXExecutors.directExecutor(),
                     videoRecordEventListener
