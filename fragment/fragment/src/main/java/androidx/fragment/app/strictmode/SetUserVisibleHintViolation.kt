@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.fragment.app.strictmode
 
-package androidx.fragment.app.strictmode;
+import androidx.fragment.app.Fragment
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
-/** See #{@link FragmentStrictMode.Policy.Builder#detectRetainInstanceUsage()}. */
-public abstract class RetainInstanceUsageViolation extends Violation {
-
-    RetainInstanceUsageViolation(@NonNull Fragment fragment) {
-        super(fragment);
-    }
+/**
+ * See [FragmentStrictMode.Policy.Builder.detectSetUserVisibleHint].
+ */
+class SetUserVisibleHintViolation internal constructor(
+    fragment: Fragment,
+    val isVisibleToUser: Boolean
+) : Violation(fragment) {
+    /**
+     * Indicates what the `isVisibleToUser` field for the [Fragment] causing the
+     * Violation was being set to.
+     */
+    override val message: String
+        get() = "Attempting to set user visible hint to $isVisibleToUser for fragment $fragment"
 }

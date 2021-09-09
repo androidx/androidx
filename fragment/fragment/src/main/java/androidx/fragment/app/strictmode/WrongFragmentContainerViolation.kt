@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.fragment.app.strictmode
 
-package androidx.fragment.app.strictmode;
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
-/** See #{@link FragmentStrictMode.Policy.Builder#detectTargetFragmentUsage()}. */
-public final class GetTargetFragmentUsageViolation extends TargetFragmentUsageViolation {
-
-    GetTargetFragmentUsageViolation(@NonNull Fragment fragment) {
-        super(fragment);
-    }
-
-    @NonNull
-    @Override
-    public String getMessage() {
-        return "Attempting to get target fragment from fragment " + mFragment;
-    }
+/**
+ * See [FragmentStrictMode.Policy.Builder.detectWrongFragmentContainer].
+ */
+class WrongFragmentContainerViolation internal constructor(
+    fragment: Fragment,
+    val container: ViewGroup
+) : Violation(fragment) {
+    /**
+     * Gets the container that the [Fragment] causing the Violation was
+     * being added to.
+     */
+    override val message: String
+        get() = "Attempting to add fragment $fragment to container $container which is not a " +
+            "FragmentContainerView"
 }
