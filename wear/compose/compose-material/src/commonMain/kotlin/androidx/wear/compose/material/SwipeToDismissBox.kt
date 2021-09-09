@@ -62,6 +62,8 @@ import kotlin.math.roundToInt
  * remembered state to be correctly moved between background and foreground.
  * @Param contentKey Optional [key] which identifies the content currently composed in the
  * [content] block when isBackground == false. See [backgroundKey].
+ * @Param hasBackground Optional [Boolean] used to indicate if the content has no background,
+ * in which case the swipe gesture is disabled (since there is no parent destination).
  * @param content Slot for content, with the isBackground parameter enabling content to be
  * displayed behind the foreground content - the background is normally hidden,
  * is shown behind a scrim during the swipe gesture,
@@ -75,6 +77,7 @@ fun SwipeToDismissBox(
     scrimColor: Color = MaterialTheme.colors.surface,
     backgroundKey: Any = SwipeToDismissBoxDefaults.BackgroundKey,
     contentKey: Any = SwipeToDismissBoxDefaults.ContentKey,
+    hasBackground: Boolean = true,
     content: @Composable BoxScope.(isBackground: Boolean) -> Unit
 ) {
     // Will be updated in onSizeChanged, initialise to any value other than zero
@@ -86,6 +89,7 @@ fun SwipeToDismissBox(
             .onSizeChanged { maxWidth = it.width.toFloat() }
             .swipeable(
                 state = state,
+                enabled = hasBackground,
                 anchors = anchors(maxWidth),
                 thresholds = { _, _ -> FractionalThreshold(SwipeThreshold) },
                 orientation = Orientation.Horizontal
@@ -106,7 +110,7 @@ fun SwipeToDismissBox(
                 }
             val contentModifier = if (isBackground) Modifier.fillMaxSize() else pxModifier
             key(if (isBackground) backgroundKey else contentKey) {
-                if (!isBackground || offsetPx > 0) {
+                if (!isBackground || (hasBackground && offsetPx > 0)) {
                     Box(contentModifier) {
                         // We use the repeat loop above and call content at this location
                         // for both background and foreground so that any persistence
@@ -234,8 +238,6 @@ private fun anchors(maxWidth: Float): Map<Float, SwipeDismissTarget> =
         maxWidth to SwipeDismissTarget.Dismissal
     )
 
-private val DefaultBackgroundKey = "background"
-private val DefaultContentKey = "content"
 private val SwipeStartedBackgroundAlpha = 0.5f
 private val SwipeConfirmedBackgroundAlpha = 0.0f
 private val SwipeStartedContentAlpha = 0.0f

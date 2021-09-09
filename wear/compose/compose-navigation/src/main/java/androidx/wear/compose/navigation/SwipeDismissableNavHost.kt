@@ -142,11 +142,12 @@ public fun SwipeDismissableNavHost(
     SwipeToDismissBox(
         state = state,
         modifier = Modifier,
+        hasBackground = previous != null,
         backgroundKey = previous?.id ?: SwipeToDismissBoxDefaults.BackgroundKey,
         contentKey = current?.id ?: SwipeToDismissBoxDefaults.ContentKey,
         content = { isBackground ->
             BoxedStackEntryContent(if (isBackground) previous else current, stateHolder, modifier)
-        },
+        }
     )
 }
 
