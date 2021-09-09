@@ -113,7 +113,9 @@ public final class CameraX {
     @GuardedBy("MIN_LOG_LEVEL_LOCK")
     private static final SparseArray<Integer> sMinLogLevelReferenceCountMap = new SparseArray<>();
 
-    CameraX(@NonNull Context context, @Nullable CameraXConfig.Provider configProvider) {
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public CameraX(@NonNull Context context, @Nullable CameraXConfig.Provider configProvider) {
         if (configProvider != null) {
             mCameraXConfig = configProvider.getCameraXConfig();
         } else {

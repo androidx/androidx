@@ -47,8 +47,11 @@ import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
 import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -80,14 +83,19 @@ import java.util.concurrent.Executor;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ProcessCameraProvider implements LifecycleCameraProvider {
-    static final Object INSTANCE_LOCK = new Object();
-    @GuardedBy("INSTANCE_LOCK")
-    private static final ProcessCameraProvider sAppInstance = new ProcessCameraProvider();
-    @GuardedBy("INSTANCE_LOCK")
-    private static CameraXConfig.Provider sCameraXConfigProvider = null;
 
-    private final LifecycleCameraRepository
-            mLifecycleCameraRepository = new LifecycleCameraRepository();
+    private static final ProcessCameraProvider sAppInstance = new ProcessCameraProvider();
+
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private CameraXConfig.Provider mCameraXConfigProvider = null;
+    @GuardedBy("mLock")
+    private ListenableFuture<CameraX> mCameraXInitializeFuture;
+    @GuardedBy("mLock")
+    private ListenableFuture<Void> mCameraXShutdownFuture = Futures.immediateFuture(null);
+
+    private final LifecycleCameraRepository mLifecycleCameraRepository =
+            new LifecycleCameraRepository();
     private CameraX mCameraX;
     private Context mContext;
 
@@ -155,16 +163,47 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      */
     @NonNull
     public static ListenableFuture<ProcessCameraProvider> getInstance(@NonNull Context context) {
-        synchronized (INSTANCE_LOCK) {
-            Preconditions.checkNotNull(context);
-            return Futures.transform(CameraX.getOrCreateInstance(context, sCameraXConfigProvider),
-                    cameraX -> {
-                        synchronized (INSTANCE_LOCK) {
-                            sAppInstance.setCameraX(cameraX);
-                            sAppInstance.setContext(ContextUtil.getApplicationContext(context));
-                            return sAppInstance;
+        Preconditions.checkNotNull(context);
+        return Futures.transform(sAppInstance.getOrCreateCameraXInstance(context),
+                cameraX -> {
+                    sAppInstance.setCameraX(cameraX);
+                    sAppInstance.setContext(ContextUtil.getApplicationContext(context));
+                    return sAppInstance;
+                }, CameraXExecutors.directExecutor());
+    }
+
+    private ListenableFuture<CameraX> getOrCreateCameraXInstance(@NonNull Context context) {
+        synchronized (mLock) {
+            if (mCameraXInitializeFuture != null) {
+                return mCameraXInitializeFuture;
+            }
+
+            CameraX cameraX = new CameraX(context, mCameraXConfigProvider);
+
+            mCameraXInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                synchronized (mLock) {
+                    ListenableFuture<Void> future =
+                            FutureChain.from(mCameraXShutdownFuture).transformAsync(
+                                    input -> cameraX.getInitializeFuture(),
+                                    CameraXExecutors.directExecutor());
+
+                    Futures.addCallback(future, new FutureCallback<Void>() {
+                        @Override
+                        public void onSuccess(@Nullable Void result) {
+                            completer.set(cameraX);
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            completer.setException(t);
                         }
                     }, CameraXExecutors.directExecutor());
+                }
+
+                return "ProcessCameraProvider-initializeCameraX";
+            });
+
+            return mCameraXInitializeFuture;
         }
     }
 
@@ -200,12 +239,17 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      */
     @ExperimentalCameraProviderConfiguration
     public static void configureInstance(@NonNull CameraXConfig cameraXConfig) {
-        synchronized (INSTANCE_LOCK) {
-            Preconditions.checkNotNull(cameraXConfig);
-            Preconditions.checkState(sCameraXConfigProvider == null, "CameraX has already been "
-                    + "configured. To use a different configuration, shutdown() must be called.");
+        sAppInstance.configureInstanceInternal(cameraXConfig);
+    }
 
-            sCameraXConfigProvider = () -> cameraXConfig;
+    private void configureInstanceInternal(@NonNull CameraXConfig cameraXConfig) {
+        synchronized (mLock) {
+            Preconditions.checkNotNull(cameraXConfig);
+            Preconditions.checkState(mCameraXConfigProvider == null, "CameraX has "
+                    + "already been configured. To use a different configuration, shutdown() must"
+                    + " be called.");
+
+            mCameraXConfigProvider = () -> cameraXConfig;
         }
     }
 
@@ -227,11 +271,19 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @RestrictTo(Scope.TESTS)
     @NonNull
     public ListenableFuture<Void> shutdown() {
-        synchronized (INSTANCE_LOCK) {
-            sCameraXConfigProvider = null;
-            mLifecycleCameraRepository.clear();
-            return CameraX.shutdown();
+        mLifecycleCameraRepository.clear();
+
+        ListenableFuture<Void> shutdownFuture = mCameraX != null ? mCameraX.getShutdownFuture() :
+                Futures.immediateFuture(null);
+
+        synchronized (mLock) {
+            mCameraXConfigProvider = null;
+            mCameraXInitializeFuture = null;
+            mCameraXShutdownFuture = shutdownFuture;
         }
+        mCameraX = null;
+        mContext = null;
+        return shutdownFuture;
     }
 
     private void setCameraX(CameraX cameraX) {
