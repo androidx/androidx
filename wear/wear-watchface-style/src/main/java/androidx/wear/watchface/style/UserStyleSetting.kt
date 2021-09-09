@@ -502,7 +502,7 @@ public sealed class UserStyleSetting private constructor(
             override fun toWireFormat(): BooleanOptionWireFormat =
                 BooleanOptionWireFormat(id.value)
 
-            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+            internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 BooleanUserStyleSetting::class.java
 
             override fun toString(): String = if (id.value[0] == 1.toByte()) "true" else "false"
@@ -847,7 +847,7 @@ public sealed class UserStyleSetting private constructor(
                 icon = wireFormat.mIcon
             }
 
-            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+            internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 ComplicationSlotsUserStyleSetting::class.java
 
             internal override fun estimateWireSizeInBytesAndValidateIconDimensions(
@@ -1037,7 +1037,7 @@ public sealed class UserStyleSetting private constructor(
                 value = ByteBuffer.wrap(wireFormat.mId).double
             }
 
-            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+            internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 DoubleRangeUserStyleSetting::class.java
 
             /** @hide */
@@ -1234,7 +1234,7 @@ public sealed class UserStyleSetting private constructor(
                 icon = wireFormat.mIcon
             }
 
-            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+            internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 ListUserStyleSetting::class.java
 
             internal override fun estimateWireSizeInBytesAndValidateIconDimensions(
@@ -1423,7 +1423,7 @@ public sealed class UserStyleSetting private constructor(
                 value = ByteBuffer.wrap(wireFormat.mId).long
             }
 
-            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+            internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 LongRangeUserStyleSetting::class.java
 
             /** @hide */
@@ -1533,7 +1533,7 @@ public sealed class UserStyleSetting private constructor(
                 wireFormat: CustomValueOptionWireFormat
             ) : super(Id(wireFormat.mId))
 
-            override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+            internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 CustomValueUserStyleSetting::class.java
 
             /** @hide */
