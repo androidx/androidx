@@ -207,23 +207,7 @@ class KspFieldElementTest {
             sources = emptyList(),
             classpath = classpath
         ) { invocation ->
-            if (invocation.isKsp) {
-                // TODO: https://github.com/google/ksp/issues/159
-                // KSP has a bug in java package private modifier from .class files
-                // for now, revert them to make the test happy
-                assertModifiers(
-                    invocation = invocation,
-                    inputs = inputs.map {
-                        it.copy(
-                            expected = it.expected.mapValues { (_, modifier) ->
-                                modifier ?: PUBLIC
-                            }
-                        )
-                    }.toTypedArray()
-                )
-            } else {
-                assertModifiers(invocation, inputs)
-            }
+            assertModifiers(invocation, inputs)
         }
     }
 
