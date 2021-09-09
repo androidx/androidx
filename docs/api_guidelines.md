@@ -1515,6 +1515,10 @@ dependency on coroutines.
 Java libraries should prefer `ListenableFuture` and the
 [`CallbackToFutureAdapter`](https://developer.android.com/reference/androidx/concurrent/futures/CallbackToFutureAdapter)
 implementation provided by the `androidx.concurrent:concurrent-futures` library.
+Functions and methods that return `ListenableFuture` should be suffixed by,
+`Async` to reserve the shorter, unmodified name for a `suspend` method or
+extension function in Kotlin that returns the value normally in accordance with
+structured concurrency.
 
 Libraries **must not** use `java.util.concurrent.CompletableFuture`, as it has a
 large API surface that permits arbitrary mutation of the future's value and has
