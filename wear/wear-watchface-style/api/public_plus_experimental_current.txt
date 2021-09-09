@@ -90,7 +90,6 @@ package androidx.wear.watchface.style {
 
   public static final class UserStyleSetting.BooleanUserStyleSetting.BooleanOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     method public static androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption from(boolean value);
-    method public Class<? extends androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettingClass$metalava_module();
     method public boolean getValue();
     property public final boolean value;
     field public static final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption.Companion Companion;
@@ -134,7 +133,6 @@ package androidx.wear.watchface.style {
     method public java.util.Collection<androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay> getComplicationSlotOverlays();
     method public CharSequence getDisplayName();
     method public android.graphics.drawable.Icon? getIcon();
-    method public Class<? extends androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettingClass$metalava_module();
     property public final java.util.Collection<androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay> complicationSlotOverlays;
     property public final CharSequence displayName;
     property public final android.graphics.drawable.Icon? icon;
@@ -147,7 +145,6 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     ctor public UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption(byte[] customValue);
     method public byte[] getCustomValue();
-    method public Class<? extends androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettingClass$metalava_module();
     property public final byte[] customValue;
   }
 
@@ -163,7 +160,6 @@ package androidx.wear.watchface.style {
 
   public static final class UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     ctor public UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption(double value);
-    method public Class<? extends androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettingClass$metalava_module();
     method public double getValue();
     property public final double value;
   }
@@ -187,7 +183,6 @@ package androidx.wear.watchface.style {
     ctor public UserStyleSetting.ListUserStyleSetting.ListOption(androidx.wear.watchface.style.UserStyleSetting.Option.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, android.graphics.drawable.Icon? icon);
     method public CharSequence getDisplayName();
     method public android.graphics.drawable.Icon? getIcon();
-    method public Class<? extends androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettingClass$metalava_module();
     property public final CharSequence displayName;
     property public final android.graphics.drawable.Icon? icon;
   }
@@ -204,7 +199,6 @@ package androidx.wear.watchface.style {
 
   public static final class UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     ctor public UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption(long value);
-    method public Class<? extends androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettingClass$metalava_module();
     method public long getValue();
     property public final long value;
   }
