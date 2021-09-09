@@ -20,6 +20,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.CallSuper
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 
@@ -43,6 +44,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
      */
     abstract val glanceAppWidget: GlanceAppWidget
 
+    @CallSuper
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -54,6 +56,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         }
     }
 
+    @CallSuper
     override fun onAppWidgetOptionsChanged(
         context: Context,
         appWidgetManager: AppWidgetManager,
