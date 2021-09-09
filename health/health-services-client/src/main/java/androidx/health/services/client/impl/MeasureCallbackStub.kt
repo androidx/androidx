@@ -16,13 +16,17 @@
 
 package androidx.health.services.client.impl
 
+import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.health.services.client.MeasureCallback
+import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataType
+import androidx.health.services.client.impl.event.MeasureCallbackEvent
 import androidx.health.services.client.impl.ipc.internal.ListenerKey
-import androidx.health.services.client.impl.response.AvailabilityResponse
 import androidx.health.services.client.impl.response.DataPointsResponse
+import androidx.health.services.client.proto.EventsProto
+import androidx.health.services.client.proto.EventsProto.MeasureCallbackEvent.EventCase
 import com.google.common.util.concurrent.MoreExecutors
 import java.util.HashMap
 import java.util.concurrent.Executor
@@ -42,14 +46,23 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
     public var executor: Executor = MoreExecutors.directExecutor()
         private set
 
-    override fun onAvailabilityChanged(response: AvailabilityResponse) {
-        executor.execute {
-            callback.onAvailabilityChanged(response.dataType, response.availability)
-        }
+    override fun onMeasureCallbackEvent(event: MeasureCallbackEvent) {
+        executor.execute { triggerListener(event.proto) }
     }
 
-    override fun onData(response: DataPointsResponse) {
-        executor.execute { callback.onData(response.dataPoints) }
+    private fun triggerListener(proto: EventsProto.MeasureCallbackEvent) {
+        when (proto.eventCase) {
+            EventCase.DATA_POINT_RESPONSE -> {
+                val dataPointsResponse = DataPointsResponse(proto.dataPointResponse)
+                callback.onData(dataPointsResponse.dataPoints)
+            }
+            EventCase.AVAILABILITY_RESPONSE ->
+                callback.onAvailabilityChanged(
+                    DataType(proto.availabilityResponse.dataType),
+                    Availability.fromProto(proto.availabilityResponse.availability)
+                )
+            null, EventCase.EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
+        }
     }
 
     /**
@@ -101,4 +114,8 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
         private val dataType: DataType,
         private val measureCallback: MeasureCallback
     )
+
+    private companion object {
+        const val TAG = "MeasureCallbackStub"
+    }
 }

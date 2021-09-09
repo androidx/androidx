@@ -16,16 +16,25 @@
 
 package androidx.health.services.client.data
 
+import androidx.health.services.client.proto.DataProto.UserActivityState as UserActivityStateProto
+
 /** Types of user activity states. */
 public enum class UserActivityState(public val id: Int) {
     USER_ACTIVITY_UNKNOWN(0),
     USER_ACTIVITY_EXERCISE(1),
     USER_ACTIVITY_PASSIVE(2),
-    USER_ACTIVITY_INACTIVE(3),
-    USER_ACTIVITY_ASLEEP(4);
+    USER_ACTIVITY_ASLEEP(3);
+
+    /** @hide */
+    public fun toProto(): UserActivityStateProto =
+        UserActivityStateProto.forNumber(id) ?: UserActivityStateProto.USER_ACTIVITY_STATE_UNKNOWN
 
     public companion object {
         @JvmStatic
         public fun fromId(id: Int): UserActivityState? = values().firstOrNull { it.id == id }
+
+        /** @hide */
+        public fun fromProto(proto: UserActivityStateProto): UserActivityState =
+            fromId(proto.number) ?: USER_ACTIVITY_UNKNOWN
     }
 }

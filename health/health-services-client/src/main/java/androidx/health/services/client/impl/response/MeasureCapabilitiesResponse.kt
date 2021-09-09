@@ -16,41 +16,32 @@
 
 package androidx.health.services.client.impl.response
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.MeasureCapabilities
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.ResponsesProto
 
 /**
  * Response containing the [MeasureCapabilities] of the device.
  *
  * @hide
  */
-public data class MeasureCapabilitiesResponse(
+public class MeasureCapabilitiesResponse(
     /** [MeasureCapabilities] supported by this device. */
-    val measureCapabilities: MeasureCapabilities,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val measureCapabilities: MeasureCapabilities,
+) : ProtoParcelable<ResponsesProto.MeasureCapabilitiesResponse>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(measureCapabilities, flags)
+    override val proto: ResponsesProto.MeasureCapabilitiesResponse by lazy {
+        ResponsesProto.MeasureCapabilitiesResponse.newBuilder()
+            .setCapabilities(measureCapabilities.proto)
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<MeasureCapabilitiesResponse> =
-            object : Parcelable.Creator<MeasureCapabilitiesResponse> {
-                override fun createFromParcel(source: Parcel): MeasureCapabilitiesResponse? {
-                    val parcelable =
-                        source.readParcelable<MeasureCapabilities>(
-                            MeasureCapabilities::class.java.classLoader
-                        )
-                            ?: return null
-                    return MeasureCapabilitiesResponse(parcelable)
-                }
-
-                override fun newArray(size: Int): Array<MeasureCapabilitiesResponse?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<MeasureCapabilitiesResponse> = newCreator { bytes ->
+            val proto = ResponsesProto.MeasureCapabilitiesResponse.parseFrom(bytes)
+            MeasureCapabilitiesResponse(MeasureCapabilities(proto.capabilities))
+        }
     }
 }

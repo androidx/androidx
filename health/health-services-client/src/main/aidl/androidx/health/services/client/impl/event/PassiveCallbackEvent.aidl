@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.health.services.client.impl.response;
+package androidx.health.services.client.impl.event;
 
 /** @hide */
-parcelable HeartRateAlertParamsResponse;
+parcelable PassiveCallbackEvent;

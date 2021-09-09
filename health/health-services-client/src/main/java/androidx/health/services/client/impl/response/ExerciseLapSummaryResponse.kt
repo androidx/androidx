@@ -16,39 +16,30 @@
 
 package androidx.health.services.client.impl.response
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.ExerciseLapSummary
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.ResponsesProto
 
 /**
  * Response containing [ExerciseLapSummary] when it's updated.
  *
  * @hide
  */
-public data class ExerciseLapSummaryResponse(val exerciseLapSummary: ExerciseLapSummary) :
-    Parcelable {
-    override fun describeContents(): Int = 0
+public class ExerciseLapSummaryResponse(public val exerciseLapSummary: ExerciseLapSummary) :
+    ProtoParcelable<ResponsesProto.ExerciseLapSummaryResponse>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(exerciseLapSummary, flags)
+    override val proto: ResponsesProto.ExerciseLapSummaryResponse by lazy {
+        ResponsesProto.ExerciseLapSummaryResponse.newBuilder()
+            .setLapSummary(exerciseLapSummary.proto)
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseLapSummaryResponse> =
-            object : Parcelable.Creator<ExerciseLapSummaryResponse> {
-                override fun createFromParcel(source: Parcel): ExerciseLapSummaryResponse? {
-                    val parcelable =
-                        source.readParcelable<ExerciseLapSummary>(
-                            ExerciseLapSummary::class.java.classLoader
-                        )
-                            ?: return null
-                    return ExerciseLapSummaryResponse(parcelable)
-                }
-
-                override fun newArray(size: Int): Array<ExerciseLapSummaryResponse?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<ExerciseLapSummaryResponse> = newCreator { bytes ->
+            val proto = ResponsesProto.ExerciseLapSummaryResponse.parseFrom(bytes)
+            ExerciseLapSummaryResponse(ExerciseLapSummary(proto.lapSummary))
+        }
     }
 }

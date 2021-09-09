@@ -16,84 +16,86 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.MilestoneMarkerSummary.SummaryMetricsEntry
 import java.time.Duration
 import java.time.Instant
 
 /**
  * The summary of metrics and state from the previously achieved milestone marker [ExerciseGoal].
  */
-public data class MilestoneMarkerSummary(
+@Suppress("ParcelCreator")
+public class MilestoneMarkerSummary(
     /** Returns the time at which this milestone marker started being tracked. */
-    val startTime: Instant,
+    public val startTime: Instant,
 
     /** Returns the time at which this milestone marker was reached. */
-    val endTime: Instant,
+    public val endTime: Instant,
 
     /**
      * Returns the total elapsed time for which the exercise was active during this milestone, i.e.
      * started but not paused.
      */
-    val activeDuration: Duration,
+    public val activeDuration: Duration,
 
     /** The [AchievedExerciseGoal] that triggered this milestone summary. */
-    val achievedGoal: AchievedExerciseGoal,
+    public val achievedGoal: AchievedExerciseGoal,
 
     /**
      * Returns the [DataPoint] for each aggregated metric keyed by [DataType] tracked between
      * [startTime] and [endTime] i.e. during the duration of this milestone.
      */
-    val summaryMetrics: Map<DataType, DataPoint>,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val summaryMetrics: Map<DataType, AggregateDataPoint>,
+) : ProtoParcelable<DataProto.MilestoneMarkerSummary>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeLong(startTime.toEpochMilli())
-        dest.writeLong(endTime.toEpochMilli())
-        dest.writeLong(activeDuration.toMillis())
-        dest.writeParcelable(achievedGoal, flags)
+    internal constructor(
+        proto: DataProto.MilestoneMarkerSummary
+    ) : this(
+        Instant.ofEpochMilli(proto.startTimeEpochMs),
+        Instant.ofEpochMilli(proto.endTimeEpochMs),
+        Duration.ofMillis(proto.activeDurationMs),
+        AchievedExerciseGoal(proto.achievedGoal),
+        proto
+            .summaryMetricsList
+            .map { DataType(it.dataType) to AggregateDataPoint.fromProto(it.aggregateDataPoint) }
+            .toMap()
+    )
 
-        dest.writeInt(summaryMetrics.size)
-        for ((dataType, dataPoint) in summaryMetrics) {
-            dest.writeParcelable(dataType, flags)
-            dest.writeParcelable(dataPoint, flags)
-        }
+    /** @hide */
+    override val proto: DataProto.MilestoneMarkerSummary by lazy {
+        DataProto.MilestoneMarkerSummary.newBuilder()
+            .setStartTimeEpochMs(startTime.toEpochMilli())
+            .setEndTimeEpochMs(endTime.toEpochMilli())
+            .setActiveDurationMs(activeDuration.toMillis())
+            .setAchievedGoal(achievedGoal.proto)
+            .addAllSummaryMetrics(
+                summaryMetrics
+                    .map {
+                        SummaryMetricsEntry.newBuilder()
+                            .setDataType(it.key.proto)
+                            .setAggregateDataPoint(it.value.proto)
+                            .build()
+                    }
+                    .sortedBy { entry ->
+                        entry.dataType.name
+                    } // Sorting to ensure equals() works correctly.
+            )
+            .build()
     }
+
+    override fun toString(): String =
+        "MilestoneMarkerSummary(" +
+            "startTime=$startTime, " +
+            "endTime=$endTime, " +
+            "achievedGoal=$achievedGoal, " +
+            "summaryMetrics=$summaryMetrics)"
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<MilestoneMarkerSummary> =
-            object : Parcelable.Creator<MilestoneMarkerSummary> {
-                override fun createFromParcel(source: Parcel): MilestoneMarkerSummary? {
-                    val startTime = Instant.ofEpochMilli(source.readLong())
-                    val endTime = Instant.ofEpochMilli(source.readLong())
-                    val activeDuration = Duration.ofMillis(source.readLong())
-                    val achievedGoal: AchievedExerciseGoal =
-                        source.readParcelable(AchievedExerciseGoal::class.java.classLoader)
-                            ?: return null
-
-                    val summaryMetrics = HashMap<DataType, DataPoint>()
-                    repeat(source.readInt()) {
-                        val dataType: DataType =
-                            source.readParcelable(DataType::class.java.classLoader) ?: return null
-                        val dataPoint: DataPoint =
-                            source.readParcelable(DataPoint::class.java.classLoader) ?: return null
-                        summaryMetrics[dataType] = dataPoint
-                    }
-
-                    return MilestoneMarkerSummary(
-                        startTime = startTime,
-                        endTime = endTime,
-                        activeDuration = activeDuration,
-                        achievedGoal = achievedGoal,
-                        summaryMetrics = summaryMetrics
-                    )
-                }
-
-                override fun newArray(size: Int): Array<MilestoneMarkerSummary?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<MilestoneMarkerSummary> = newCreator { bytes ->
+            val proto = DataProto.MilestoneMarkerSummary.parseFrom(bytes)
+            MilestoneMarkerSummary(proto)
+        }
     }
 }

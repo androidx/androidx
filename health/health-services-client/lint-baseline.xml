@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+
+    <issue
+        id="BanKeepAnnotation"
+        message="Uses @Keep annotation"
+        errorLine1="@Keep"
+        errorLine2="~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/data/AggregateDataPoints.kt"
+            line="25"
+            column="1"/>
+    </issue>
 
     <issue
         id="BanKeepAnnotation"
@@ -8,7 +19,7 @@
         errorLine2="~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/data/DataPoints.kt"
-            line="27"
+            line="28"
             column="1"/>
     </issue>
 
@@ -19,184 +30,8 @@
         errorLine2="    ~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/data/DataPoints.kt"
-            line="56"
+            line="64"
             column="5"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class AchievedExerciseGoal("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/AchievedExerciseGoal.kt"
-            line="23"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class AutoPauseAndResumeConfigRequest("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/request/AutoPauseAndResumeConfigRequest.kt"
-            line="27"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class AvailabilityResponse("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/response/AvailabilityResponse.kt"
-            line="29"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class BackgroundRegistrationRequest("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/request/BackgroundRegistrationRequest.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class BackgroundUnregistrationRequest(val packageName: String) : Parcelable {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/request/BackgroundUnregistrationRequest.kt"
-            line="27"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class CapabilitiesRequest(val packageName: String) : Parcelable {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/request/CapabilitiesRequest.kt"
-            line="27"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class DataPoint"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/DataPoint.kt"
-            line="31"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class DataPointsResponse(val dataPoints: List&lt;DataPoint>) : Parcelable {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/response/DataPointsResponse.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class DataType("
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/DataType.kt"
-            line="32"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class DataTypeCondition("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/DataTypeCondition.kt"
-            line="23"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class Event("
-        errorLine2="                  ~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/event/Event.kt"
-            line="25"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class EventRequest(val packageName: String, val event: Event) : Parcelable {"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/request/EventRequest.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseCapabilities("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseCapabilities.kt"
-            line="27"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseCapabilitiesResponse("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/response/ExerciseCapabilitiesResponse.kt"
-            line="29"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseConfig"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseConfig.kt"
-            line="26"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseGoal"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseGoal.kt"
-            line="26"
-            column="19"/>
     </issue>
 
     <issue
@@ -211,222 +46,13 @@
     </issue>
 
     <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseInfo("
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseInfo.kt"
-            line="23"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseInfoResponse(val exerciseInfo: ExerciseInfo) : Parcelable {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/response/ExerciseInfoResponse.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseLapSummary("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseLapSummary.kt"
-            line="25"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseLapSummaryResponse(val exerciseLapSummary: ExerciseLapSummary) :"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/response/ExerciseLapSummaryResponse.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseTypeCapabilities("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseTypeCapabilities.kt"
-            line="23"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseUpdate("
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseUpdate.kt"
-            line="25"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseUpdateResponse(val exerciseUpdate: ExerciseUpdate) : Parcelable {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/response/ExerciseUpdateResponse.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class MeasureCapabilities("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/MeasureCapabilities.kt"
-            line="26"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class MeasureCapabilitiesResponse("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/response/MeasureCapabilitiesResponse.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class MeasureRegistrationRequest("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/request/MeasureRegistrationRequest.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class MeasureUnregistrationRequest("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/request/MeasureUnregistrationRequest.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class MilestoneMarkerSummary("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/MilestoneMarkerSummary.kt"
-            line="27"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class PassiveMonitoringCapabilities("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/PassiveMonitoringCapabilities.kt"
-            line="26"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class PassiveMonitoringCapabilitiesResponse("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/response/PassiveMonitoringCapabilitiesResponse.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class PassiveMonitoringUpdate("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/PassiveMonitoringUpdate.kt"
-            line="29"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class PassiveMonitoringUpdateResponse("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/response/PassiveMonitoringUpdateResponse.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class StartExerciseRequest("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/request/StartExerciseRequest.kt"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class UserActivityInfo("
-        errorLine2="                  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/UserActivityInfo.kt"
-            line="34"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class Value"
-        errorLine2="                  ~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/Value.kt"
-            line="24"
-            column="19"/>
-    </issue>
-
-    <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
         errorLine1="        @Synchronized"
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/health/services/client/impl/ExerciseUpdateListenerStub.kt"
-            line="55"
+            line="74"
             column="9"/>
     </issue>
 
@@ -437,7 +63,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/health/services/client/impl/ExerciseUpdateListenerStub.kt"
-            line="63"
+            line="82"
             column="9"/>
     </issue>
 
@@ -448,7 +74,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/health/services/client/impl/MeasureCallbackStub.kt"
-            line="63"
+            line="76"
             column="9"/>
     </issue>
 
@@ -459,7 +85,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/health/services/client/impl/MeasureCallbackStub.kt"
-            line="86"
+            line="99"
             column="9"/>
     </issue>
 
@@ -475,36 +101,91 @@
     </issue>
 
     <issue
-        id="VisibleForTests"
-        message="This method should only be accessed from tests or within private scope"
-        errorLine1="        get() = ServiceBackedMeasureClient.getClient(applicationContext)"
-        errorLine2="                                           ~~~~~~~~~">
+        id="SyntheticAccessor"
+        message="Access to `private` field `mCurrentVersion` of class `Client` requires synthetic accessor"
+        errorLine1="                        mCurrentVersion ="
+        errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/services/client/impl/ServiceBackedHealthServicesClient.kt"
-            line="46"
-            column="44"/>
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="69"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mConnectionConfiguration` of class `Client` requires synthetic accessor"
+        errorLine1="                        return mConnectionConfiguration;"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="83"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mCurrentVersion` of class `Client` requires synthetic accessor"
+        errorLine1="                            mCurrentVersion ="
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="139"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mCurrentVersion` of class `Client` requires synthetic accessor"
+        errorLine1="                            if (mCurrentVersion &lt; minApiVersion) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="141"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mCurrentVersion` of class `Client` requires synthetic accessor"
+        errorLine1="                                            mCurrentVersion, minApiVersion));"
+        errorLine2="                                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="144"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mConnectionManager` of class `Client` requires synthetic accessor"
+        errorLine1="                                mConnectionManager.scheduleForExecution("
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="146"
+            column="33"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` method `createQueueOperation` of class `Client` requires synthetic accessor"
-        errorLine1="                                                createQueueOperation("
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                                        createQueueOperation(operation, settableFuture));"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="133"
-            column="49"/>
+            line="147"
+            column="41"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
-        message="Access to `private` method `getTypeToCapabilityMap` of class `Companion` requires synthetic accessor"
-        errorLine1="                    val typeToCapabilitiesFromParcel = getTypeToCapabilityMap(parcel)"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~">
+        message="Access to `private` method `getService` of class `Client` requires synthetic accessor"
+        errorLine1="                operation.execute(getService(binder), settableFuture);"
+        errorLine2="                                  ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseCapabilities.kt"
-            line="83"
-            column="56"/>
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="266"
+            column="35"/>
     </issue>
 
     <issue
@@ -514,52 +195,8 @@
         errorLine2="                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/data/ExerciseType.kt"
-            line="114"
+            line="121"
             column="27"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `writeSupportedDataTypes` of class `Companion` requires synthetic accessor"
-        errorLine1="        writeSupportedDataTypes(supportedGoals, dest, flags)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseTypeCapabilities.kt"
-            line="36"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `writeSupportedDataTypes` of class `Companion` requires synthetic accessor"
-        errorLine1="        writeSupportedDataTypes(supportedMilestones, dest, flags)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseTypeCapabilities.kt"
-            line="37"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `readSupportedDataTypes` of class `Companion` requires synthetic accessor"
-        errorLine1="                    val supportedGoals = readSupportedDataTypes(source) ?: return null"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseTypeCapabilities.kt"
-            line="51"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `readSupportedDataTypes` of class `Companion` requires synthetic accessor"
-        errorLine1="                    val supportedMilestones = readSupportedDataTypes(source) ?: return null"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/ExerciseTypeCapabilities.kt"
-            line="52"
-            column="47"/>
     </issue>
 
     <issue
@@ -569,7 +206,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ExerciseUpdateListenerStub.kt"
-            line="60"
+            line="79"
             column="51"/>
     </issue>
 
@@ -580,52 +217,19 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/MeasureCallbackStub.kt"
-            line="79"
+            line="92"
             column="39"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` constructor of class `Value` requires synthetic accessor"
-        errorLine1="                            return Value(format, listOf(), parcel.readLong())"
-        errorLine2="                                   ~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/Value.kt"
-            line="142"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` constructor of class `Value` requires synthetic accessor"
-        errorLine1="                            return Value(format, listOf(parcel.readDouble()), /* longValue= */ 0)"
-        errorLine2="                                   ~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/Value.kt"
-            line="144"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` constructor of class `Value` requires synthetic accessor"
-        errorLine1="                            return Value(format, doubleArray.toList(), /* longValue= */ 0)"
-        errorLine2="                                   ~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/data/Value.kt"
-            line="148"
-            column="36"/>
     </issue>
 
     <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;operation&quot;, in androidx.health.services.client.impl.ipc.Client.executeWithVersionCheck) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            ServiceOperation&lt;R> operation, int minApiVersion) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~">
+        errorLine1="            RemoteFutureOperation&lt;S, R> operation, int minApiVersion) {"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="115"
-            column="44"/>
+            line="130"
+            column="52"/>
     </issue>
 
     <issue
@@ -697,33 +301,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        Integer readVersion(IBinder binder) throws RemoteException;"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="53"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        Integer readVersion(IBinder binder) throws RemoteException;"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="53"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            ClientConfiguration clientConfiguration,"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="65"
+            line="61"
             column="13"/>
     </issue>
 
@@ -734,47 +316,58 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="66"
+            line="62"
             column="13"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            VersionGetter versionGetter) {"
-        errorLine2="            ~~~~~~~~~~~~~">
+        errorLine1="            ServiceGetter&lt;S> serviceGetter,"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="67"
+            line="63"
             column="13"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(ServiceOperation&lt;R> operation) {"
+        errorLine1="            RemoteOperation&lt;S, Integer> remoteVersionGetter) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="64"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(RemoteOperation&lt;S, R> operation) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="107"
+            line="102"
             column="19"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(ServiceOperation&lt;R> operation) {"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(RemoteOperation&lt;S, R> operation) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="107"
+            line="102"
             column="47"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected &lt;R> ListenableFuture&lt;R> executeWithVersionCheck("
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(RemoteFutureOperation&lt;S, R> operation) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
@@ -785,11 +378,33 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ServiceOperation&lt;R> operation, int minApiVersion) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(RemoteFutureOperation&lt;S, R> operation) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="115"
+            line="114"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> executeWithVersionCheck("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="129"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            RemoteFutureOperation&lt;S, R> operation, int minApiVersion) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="130"
             column="13"/>
     </issue>
 
@@ -800,29 +415,62 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="173"
+            line="184"
             column="19"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, ServiceOperation&lt;R> registerListenerOperation) {"
+        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> registerListenerOperation) {"
         errorLine2="            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="174"
+            line="185"
             column="13"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, ServiceOperation&lt;R> registerListenerOperation) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> registerListenerOperation) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="174"
+            line="185"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> registerListener("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="205"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> registerListenerOperation) {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="206"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> registerListenerOperation) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="206"
             column="38"/>
     </issue>
 
@@ -833,29 +481,62 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="193"
+            line="223"
             column="19"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, ServiceOperation&lt;R> unregisterListenerOperation) {"
+        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> unregisterListenerOperation) {"
         errorLine2="            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="194"
+            line="224"
             column="13"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, ServiceOperation&lt;R> unregisterListenerOperation) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> unregisterListenerOperation) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="194"
+            line="224"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> unregisterListener("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="241"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> unregisterListenerOperation) {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="242"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> unregisterListenerOperation) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="242"
             column="38"/>
     </issue>
 
@@ -866,7 +547,7 @@
         errorLine2="              ~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="203"
+            line="249"
             column="15"/>
     </issue>
 
@@ -1198,6 +879,17 @@
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/QueueOperation.java"
             line="51"
             column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void execute(S service, SettableFuture&lt;R> resultFuture) throws RemoteException;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/RemoteFutureOperation.java"
+            line="44"
+            column="29"/>
     </issue>
 
     <issue

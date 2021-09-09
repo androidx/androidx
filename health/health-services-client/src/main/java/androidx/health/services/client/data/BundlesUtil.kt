@@ -17,64 +17,53 @@
 package androidx.health.services.client.data
 
 import android.os.Bundle
-import java.util.Objects
+import androidx.annotation.RestrictTo
+import androidx.health.services.client.proto.DataProto
+import com.google.protobuf.ByteString
 
-/** Utility methods for working with Bundles. */
-internal object BundlesUtil {
+/**
+ * Utility methods for working with Bundles.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public object BundlesUtil {
 
-    /**
-     * Compares two Bundles recursively and returns `true` if they are equal.
-     *
-     * Equality in this case means that both bundles contain the same set of keys and their
-     * corresponding values are all equal (using the [Object.equals] method).
-     */
     @JvmStatic
-    fun equals(a: Bundle?, b: Bundle?): Boolean {
-        if (a == b) {
-            return true
-        } else if (a == null || b == null) {
-            return false
-        } else if (a.size() != b.size()) {
-            return false
-        }
-        for (key in a.keySet()) {
-            val aValue = a[key]
-            val bValue = b[key]
-            if (aValue is Bundle && bValue is Bundle) {
-                if (!equals(aValue as Bundle?, bValue as Bundle?)) {
-                    return false
-                }
-            } else if (aValue == null) {
-                if (bValue != null || !b.containsKey(key)) {
-                    return false
-                }
-            } else if (!Objects.deepEquals(aValue, bValue)) {
-                return false
+    internal fun toProto(bundle: Bundle): DataProto.Bundle {
+        val builder = DataProto.Bundle.newBuilder()
+
+        for (key in bundle.keySet()) {
+            when (val value = bundle.get(key)) {
+                is Boolean -> builder.putBools(key, value)
+                is String -> builder.putStrings(key, value)
+                is Int -> builder.putInts(key, value)
+                is Long -> builder.putLongs(key, value)
+                is Float -> builder.putFloats(key, value)
+                is Double -> builder.putDoubles(key, value)
+                is Byte -> builder.putBytes(key, value.toInt())
+                is ByteArray -> builder.putByteArrays(key, ByteString.copyFrom(value))
+                is Bundle -> if (value != bundle) builder.putBundles(key, toProto(value))
             }
         }
-        return true
+
+        return builder.build()
     }
 
-    /** Calculates a hashCode for a Bundle, examining all keys and values. */
     @JvmStatic
-    fun hashCode(b: Bundle?): Int {
-        if (b == null) {
-            return 0
-        }
-        val keySet = b.keySet()
-        val hashCodes = IntArray(keySet.size * 2)
-        var i = 0
-        for (key in keySet) {
-            hashCodes[i++] = Objects.hashCode(key)
-            val value = b[key]
-            val valueHashCode: Int =
-                if (value is Bundle) {
-                    hashCode(value as Bundle?)
-                } else {
-                    Objects.hashCode(value)
-                }
-            hashCodes[i++] = valueHashCode
-        }
-        return hashCodes.contentHashCode()
+    internal fun fromProto(proto: DataProto.Bundle): Bundle {
+        val bundle = Bundle()
+
+        proto.boolsMap.forEach { bundle.putBoolean(it.key, it.value) }
+        proto.stringsMap.forEach { bundle.putString(it.key, it.value) }
+        proto.intsMap.forEach { bundle.putInt(it.key, it.value) }
+        proto.longsMap.forEach { bundle.putLong(it.key, it.value) }
+        proto.floatsMap.forEach { bundle.putFloat(it.key, it.value) }
+        proto.doublesMap.forEach { bundle.putDouble(it.key, it.value) }
+        proto.bytesMap.forEach { bundle.putByte(it.key, it.value.toByte()) }
+        proto.byteArraysMap.forEach { bundle.putByteArray(it.key, it.value.toByteArray()) }
+        proto.bundlesMap.forEach { bundle.putBundle(it.key, fromProto(it.value)) }
+
+        return bundle
     }
 }

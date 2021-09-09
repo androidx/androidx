@@ -16,35 +16,28 @@
 
 package androidx.health.services.client.impl.response
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.ExerciseInfo
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.ResponsesProto
 
 /**
  * Response containing [ExerciseInfo] when changed.
  *
  * @hide
  */
-public data class ExerciseInfoResponse(val exerciseInfo: ExerciseInfo) : Parcelable {
-    override fun describeContents(): Int = 0
+public class ExerciseInfoResponse(public val exerciseInfo: ExerciseInfo) :
+    ProtoParcelable<ResponsesProto.ExerciseInfoResponse>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(exerciseInfo, flags)
+    override val proto: ResponsesProto.ExerciseInfoResponse by lazy {
+        ResponsesProto.ExerciseInfoResponse.newBuilder().setExerciseInfo(exerciseInfo.proto).build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseInfoResponse> =
-            object : Parcelable.Creator<ExerciseInfoResponse> {
-                override fun createFromParcel(source: Parcel): ExerciseInfoResponse? {
-                    val parcelable: ExerciseInfo =
-                        source.readParcelable(ExerciseInfo::class.java.classLoader) ?: return null
-                    return ExerciseInfoResponse(parcelable)
-                }
-
-                override fun newArray(size: Int): Array<ExerciseInfoResponse?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<ExerciseInfoResponse> = newCreator { bytes ->
+            val proto = ResponsesProto.ExerciseInfoResponse.parseFrom(bytes)
+            ExerciseInfoResponse(ExerciseInfo(proto.exerciseInfo))
+        }
     }
 }

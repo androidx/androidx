@@ -16,8 +16,15 @@
 
 package androidx.health.services.client.data
 
+import androidx.health.services.client.proto.DataProto
+
 /** Enumerates the state of an exercise. */
 public enum class ExerciseState(public val id: Int) {
+    /**
+     * The exercise is being prepared, GPS and HeartRate sensors will be turned on if requested in
+     * the [WarmUpConfig].
+     */
+    PREPARING(15),
     /**
      * The exercise is actively being started, but we don't yet have sensor stability or GPS fix.
      *
@@ -109,6 +116,18 @@ public enum class ExerciseState(public val id: Int) {
     AUTO_ENDED(12),
 
     /**
+     * The exercise is being automatically ended due to lack of client's permissions to receive data
+     * for the exercise.
+     */
+    AUTO_ENDING_PERMISSION_LOST(16),
+
+    /**
+     * The exercise has been automatically ended due to lack of client's permissions to receive data
+     * for the exercise.
+     */
+    AUTO_ENDED_PERMISSION_LOST(17),
+
+    /**
      * The exercise is being ended because it has been superseded by a new exercise being started by
      * another client. Sensors are actively being flushed.
      *
@@ -149,11 +168,30 @@ public enum class ExerciseState(public val id: Int) {
     public val isEnded: Boolean
         get() = ENDED_STATES.contains(this)
 
+    /**
+     * Returns true if this [ExerciseState] corresponds to one of the ending states and false
+     * otherwise. This method returns false if the exercise has ended, to check whether it has ended
+     * call [isEnded].
+     */
+    public val isEnding: Boolean
+        get() = ENDING_STATES.contains(this)
+
+    /** @hide */
+    internal fun toProto(): DataProto.ExerciseState =
+        DataProto.ExerciseState.forNumber(id) ?: DataProto.ExerciseState.EXERCISE_STATE_UNKNOWN
+
     public companion object {
         private val RESUMING_STATES = setOf(USER_RESUMING, AUTO_RESUMING)
         private val PAUSED_STATES = setOf(USER_PAUSED, AUTO_PAUSED)
-        private val ENDED_STATES = setOf(USER_ENDED, AUTO_ENDED, TERMINATED)
+        private val ENDED_STATES =
+            setOf(USER_ENDED, AUTO_ENDED, AUTO_ENDED_PERMISSION_LOST, TERMINATED)
+        private val ENDING_STATES =
+            setOf(USER_ENDING, AUTO_ENDING, AUTO_ENDING_PERMISSION_LOST, TERMINATING)
 
         @JvmStatic public fun fromId(id: Int): ExerciseState? = values().firstOrNull { it.id == id }
+
+        /** @hide */
+        @JvmStatic
+        public fun fromProto(proto: DataProto.ExerciseState): ExerciseState? = fromId(proto.number)
     }
 }
