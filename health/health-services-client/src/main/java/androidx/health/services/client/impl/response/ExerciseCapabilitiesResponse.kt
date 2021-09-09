@@ -16,9 +16,10 @@
 
 package androidx.health.services.client.impl.response
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.ExerciseCapabilities
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.ResponsesProto
 
 /**
  * Response containing the [ExerciseCapabilities] of the Health Services exercise client on the
@@ -26,32 +27,22 @@ import androidx.health.services.client.data.ExerciseCapabilities
  *
  * @hide
  */
-public data class ExerciseCapabilitiesResponse(
+public class ExerciseCapabilitiesResponse(
     /** [ExerciseCapabilities] supported by this device. */
-    val exerciseCapabilities: ExerciseCapabilities,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val exerciseCapabilities: ExerciseCapabilities,
+) : ProtoParcelable<ResponsesProto.ExerciseCapabilitiesResponse>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(exerciseCapabilities, flags)
+    override val proto: ResponsesProto.ExerciseCapabilitiesResponse by lazy {
+        ResponsesProto.ExerciseCapabilitiesResponse.newBuilder()
+            .setCapabilities(exerciseCapabilities.proto)
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseCapabilitiesResponse> =
-            object : Parcelable.Creator<ExerciseCapabilitiesResponse> {
-                override fun createFromParcel(source: Parcel): ExerciseCapabilitiesResponse? {
-                    val parcelable =
-                        source.readParcelable<ExerciseCapabilities>(
-                            ExerciseCapabilities::class.java.classLoader
-                        )
-                            ?: return null
-                    return ExerciseCapabilitiesResponse(parcelable)
-                }
-
-                override fun newArray(size: Int): Array<ExerciseCapabilitiesResponse?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<ExerciseCapabilitiesResponse> = newCreator { bytes ->
+            val proto = ResponsesProto.ExerciseCapabilitiesResponse.parseFrom(bytes)
+            ExerciseCapabilitiesResponse(ExerciseCapabilities(proto.capabilities))
+        }
     }
 }

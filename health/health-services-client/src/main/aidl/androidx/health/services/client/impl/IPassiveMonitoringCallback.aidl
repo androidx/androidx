@@ -16,7 +16,7 @@
 
 package androidx.health.services.client.impl;
 
-import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResponse;
+import androidx.health.services.client.impl.event.PassiveCallbackEvent;
 
 /**
  * Interface to get passive monitoring updates.
@@ -24,6 +24,5 @@ import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResp
  * @hide
  */
 oneway interface IPassiveMonitoringCallback {
-    /** Called when a new passive monitoring update response is available. */
-    void onPassiveMonitoringUpdate(in PassiveMonitoringUpdateResponse response) = 0;
+    void onPassiveCallbackEvent(in PassiveCallbackEvent event) = 0;
 }

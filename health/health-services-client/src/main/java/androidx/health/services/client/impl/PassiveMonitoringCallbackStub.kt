@@ -16,8 +16,12 @@
 
 package androidx.health.services.client.impl
 
+import android.util.Log
 import androidx.health.services.client.PassiveMonitoringCallback
+import androidx.health.services.client.impl.event.PassiveCallbackEvent
 import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResponse
+import androidx.health.services.client.proto.EventsProto.PassiveCallbackEvent.EventCase.EVENT_NOT_SET
+import androidx.health.services.client.proto.EventsProto.PassiveCallbackEvent.EventCase.PASSIVE_UPDATE_RESPONSE
 
 /**
  * A stub implementation for IPassiveMonitoringCallback.
@@ -28,7 +32,19 @@ internal class PassiveMonitoringCallbackStub
 internal constructor(private val callback: PassiveMonitoringCallback) :
     IPassiveMonitoringCallback.Stub() {
 
-    override fun onPassiveMonitoringUpdate(response: PassiveMonitoringUpdateResponse) {
-        callback.onPassiveMonitoringUpdate(response.passiveMonitoringUpdate)
+    override fun onPassiveCallbackEvent(event: PassiveCallbackEvent) {
+        val proto = event.proto
+
+        when (proto.eventCase) {
+            PASSIVE_UPDATE_RESPONSE -> {
+                val response = PassiveMonitoringUpdateResponse(proto.passiveUpdateResponse)
+                callback.onPassiveMonitoringUpdate(response.passiveMonitoringUpdate)
+            }
+            null, EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
+        }
+    }
+
+    private companion object {
+        const val TAG = "PassiveCallbackStub"
     }
 }

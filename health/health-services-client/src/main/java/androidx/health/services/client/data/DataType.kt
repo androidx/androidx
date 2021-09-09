@@ -16,8 +16,12 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.data.DataType.TimeType
+import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_INTERVAL
+import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_SAMPLE
+import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_UNKNOWN
 
 /**
  * A data type is a representation of health data managed by Health Services.
@@ -29,14 +33,24 @@ import android.os.Parcelable
  * Note: the data type defines only the representation and format of the data, and not how it's
  * being collected, the sensor being used, or the parameters of the collection.
  */
-public data class DataType(
+@Suppress("ParcelCreator")
+public class DataType(
     /** Returns the name of this [DataType], e.g. `"Steps"`. */
-    val name: String,
+    public val name: String,
     /** Returns the [TimeType] of this [DataType]. */
-    val timeType: TimeType,
+    public val timeType: TimeType,
     /** Returns the expected format for a [Value] of this [DataType]. */
-    val format: Int,
-) : Parcelable {
+    public val format: Int,
+) : ProtoParcelable<DataProto.DataType>() {
+    /** @hide */
+    public constructor(
+        proto: DataProto.DataType
+    ) : this(
+        proto.name,
+        TimeType.fromProto(proto.timeType)
+            ?: throw IllegalStateException("Invalid TimeType: ${proto.timeType}"),
+        proto.format
+    )
 
     /**
      * Whether the `DataType` corresponds to a measurement spanning an interval, or a sample at a
@@ -44,51 +58,60 @@ public data class DataType(
      */
     public enum class TimeType {
         INTERVAL,
-        SAMPLE
+        SAMPLE;
+
+        /** @hide */
+        internal fun toProto(): DataProto.DataType.TimeType =
+            when (this) {
+                INTERVAL -> TIME_TYPE_INTERVAL
+                SAMPLE -> TIME_TYPE_SAMPLE
+            }
+
+        internal companion object {
+            /** @hide */
+            internal fun fromProto(proto: DataProto.DataType.TimeType): TimeType? =
+                when (proto) {
+                    TIME_TYPE_INTERVAL -> INTERVAL
+                    TIME_TYPE_SAMPLE -> SAMPLE
+                    TIME_TYPE_UNKNOWN -> null
+                }
+        }
     }
 
-    override fun describeContents(): Int = 0
+    override fun toString(): String = "DataType(name=$name, timeType=$timeType, format=$format)"
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        with(dest) {
-            writeString(name)
-            writeString(timeType.name)
-            writeInt(format)
-        }
+    /** @hide */
+    override val proto: DataProto.DataType by lazy {
+        DataProto.DataType.newBuilder()
+            .setName(name)
+            .setTimeType(timeType.toProto())
+            .setFormat(format)
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<DataType> =
-            object : Parcelable.Creator<DataType> {
-                override fun createFromParcel(parcel: Parcel): DataType? {
-                    return DataType(
-                        parcel.readString() ?: return null,
-                        TimeType.valueOf(parcel.readString() ?: return null),
-                        parcel.readInt()
-                    )
-                }
+        public val CREATOR: Parcelable.Creator<DataType> = newCreator {
+            val proto = DataProto.DataType.parseFrom(it)
+            DataType(proto)
+        }
 
-                override fun newArray(size: Int): Array<DataType?> {
-                    return arrayOfNulls(size)
-                }
-            }
-
-        /** Current altitude expressed in meters in `double` format. */
+        /**
+         * A measure of the gain in elevation expressed in meters in `double` format. Elevation
+         * losses are not counted in this metric (so it will only be positive or 0).
+         */
         @JvmField
-        public val ALTITUDE: DataType = DataType("Altitude", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
+        public val ELEVATION_GAIN: DataType =
+            DataType("Elevation Gain", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
+
+        /** Absolute elevation between each reading expressed in meters in `double` format. */
+        @JvmField
+        public val ABSOLUTE_ELEVATION: DataType =
+            DataType("Absolute Elevation", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
 
         /** A distance delta between each reading expressed in meters in `double` format. */
         @JvmField
         public val DISTANCE: DataType = DataType("Distance", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
-
-        /**
-         * A duration delta during an exercise over which the user was traveling down a decline,
-         * expressed in seconds in `long` format.
-         */
-        @JvmField
-        public val DECLINE_TIME: DataType =
-            DataType("Decline Time", TimeType.INTERVAL, Value.FORMAT_LONG)
 
         /**
          * A distance delta traveled over declining ground between each reading expressed in meters
@@ -99,27 +122,28 @@ public data class DataType(
             DataType("Decline Distance", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
 
         /**
-         * A duration delta during an exercise over which the user was traveling across flat ground,
-         * expressed in seconds in `long` format.
+         * A duration delta representing the amount of time the user spent traveling over declining
+         * ground during the interval, expressed in seconds in `long` format.
          */
         @JvmField
-        public val FLAT_TIME: DataType = DataType("Flat Time", TimeType.INTERVAL, Value.FORMAT_LONG)
+        public val DECLINE_DURATION: DataType =
+            DataType("Decline Duration", TimeType.INTERVAL, Value.FORMAT_LONG)
 
         /**
          * A distance delta traveled over flat ground between each reading expressed in meters in
          * `double` format.
          */
         @JvmField
-        public val FLAT_DISTANCE: DataType =
-            DataType("Flat Distance", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
+        public val FLAT_GROUND_DISTANCE: DataType =
+            DataType("Flat Ground Distance", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
 
         /**
-         * A duration delta during an exercise over which the user was traveling up an incline,
-         * expressed in seconds in `long` format.
+         * A duration delta representing the amount of time the user spent traveling over flat
+         * ground during the interval, expressed in seconds in `long` format.
          */
         @JvmField
-        public val INCLINE_TIME: DataType =
-            DataType("Incline Time", TimeType.INTERVAL, Value.FORMAT_LONG)
+        public val FLAT_GROUND_DURATION: DataType =
+            DataType("Flat Ground Duration", TimeType.INTERVAL, Value.FORMAT_LONG)
 
         /**
          * A distance delta traveled over inclining ground between each reading expressed in meters
@@ -129,21 +153,24 @@ public data class DataType(
         public val INCLINE_DISTANCE: DataType =
             DataType("Incline Distance", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
 
-        /** An elevation delta between each reading expressed in meters in `double` format. */
+        /**
+         * A duration delta representing the amount of time the user spent traveling over inclining
+         * ground during the interval, expressed in seconds in `long` format.
+         */
         @JvmField
-        public val ELEVATION: DataType =
-            DataType("Elevation", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
-
-        /** Absolute elevation between each reading expressed in meters in `double` format. */
-        @JvmField
-        public val ABSOLUTE_ELEVATION: DataType =
-            DataType("Absolute Elevation", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
+        public val INCLINE_DURATION: DataType =
+            DataType("Incline Duration", TimeType.INTERVAL, Value.FORMAT_LONG)
 
         /** Number of floors climbed between each reading in `double` format */
         @JvmField
         public val FLOORS: DataType = DataType("Floors", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
 
-        /** Current heart rate, in beats per minute in `double` format. */
+        /**
+         * Current heart rate, in beats per minute in `double` format.
+         *
+         * Accuracy for a [DataPoint] of type [DataType.HEART_RATE_BPM] is represented by
+         * [HrAccuracy].
+         */
         @JvmField
         public val HEART_RATE_BPM: DataType =
             DataType("HeartRate", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
@@ -153,6 +180,9 @@ public data class DataType(
          * index [DataPoints.LOCATION_DATA_POINT_LATITUDE_INDEX], longitude at index
          * [DataPoints.LOCATION_DATA_POINT_LONGITUDE_INDEX] and if available, altitude at index
          * [DataPoints.LOCATION_DATA_POINT_ALTITUDE_INDEX]
+         *
+         * Accuracy for a [DataPoint] of type [DataType.LOCATION] is represented by
+         * [LocationAccuracy].
          */
         @JvmField
         public val LOCATION: DataType =
@@ -210,146 +240,18 @@ public data class DataType(
         /** Current pace. In millisec/km in `double` format. */
         @JvmField public val PACE: DataType = DataType("Pace", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
 
-        /** The aggregate distance over a period of time expressed in meters in `double` format. */
-        @JvmField
-        public val AGGREGATE_DISTANCE: DataType =
-            DataType("Aggregate Distance", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
-
-        /**
-         * The aggregate flat distance over a period of time expressed in meters in `double` format.
-         */
-        @JvmField
-        public val AGGREGATE_FLAT_DISTANCE: DataType =
-            DataType("Aggregate Flat Distance", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
-
-        /**
-         * The aggregate incline distance over a period of time expressed in meters in `double`
-         * format.
-         */
-        @JvmField
-        public val AGGREGATE_INCLINE_DISTANCE: DataType =
-            DataType("Aggregate Incline Distance", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
-
-        /**
-         * The aggregate incline distance over a period of time expressed in meters in `double`
-         * format.
-         */
-        @JvmField
-        public val AGGREGATE_DECLINE_DISTANCE: DataType =
-            DataType("Aggregate Decline Distance", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
-
-        /**
-         * The aggregate duration for an exercise when the user was traveling on flat ground,
-         * expressed in seconds in `long` format.
-         */
-        @JvmField
-        public val AGGREGATE_FLAT_TIME: DataType =
-            DataType("Aggregate Flat Time", TimeType.INTERVAL, Value.FORMAT_LONG)
-
-        /**
-         * The aggregate duration for an exercise when the user was traveling up an incline,
-         * expressed in seconds in `long` format.
-         */
-        @JvmField
-        public val AGGREGATE_INCLINE_TIME: DataType =
-            DataType("Aggregate Incline Time", TimeType.INTERVAL, Value.FORMAT_LONG)
-
-        /**
-         * The aggregate duration for an exercise when the user was traveling down a decline,
-         * expressed in seconds in `long` format.
-         */
-        @JvmField
-        public val AGGREGATE_DECLINE_TIME: DataType =
-            DataType("Aggregate Decline Time", TimeType.INTERVAL, Value.FORMAT_LONG)
-
-        /**
-         * The aggregate total calories (including basal rate and activity) expended over a period
-         * of time in `double` format.
-         */
-        @JvmField
-        public val AGGREGATE_CALORIES_EXPENDED: DataType =
-            DataType("Aggregate Calories", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
-
-        /** The aggregate step count over a period of time in `long` format. */
-        @JvmField
-        public val AGGREGATE_STEP_COUNT: DataType =
-            DataType("Aggregate Steps", TimeType.INTERVAL, Value.FORMAT_LONG)
-
-        /** The aggregate walking step count over a period of time in `long` format. */
-        @JvmField
-        public val AGGREGATE_WALKING_STEP_COUNT: DataType =
-            DataType("Aggregate Walking Steps", TimeType.INTERVAL, Value.FORMAT_LONG)
-
-        /** The aggregate running step count over a period of time in `long` format. */
-        @JvmField
-        public val AGGREGATE_RUNNING_STEP_COUNT: DataType =
-            DataType("Aggregate Running Steps", TimeType.INTERVAL, Value.FORMAT_LONG)
-
-        /** The aggregate swimming stroke count over a period of time in `long` format. */
-        @JvmField
-        public val AGGREGATE_SWIMMING_STROKE_COUNT: DataType =
-            DataType("Aggregate Swimming Strokes", TimeType.INTERVAL, Value.FORMAT_LONG)
-
-        /** The aggregate elevation over a period of time in meters in `double` format. */
-        @JvmField
-        public val AGGREGATE_ELEVATION: DataType =
-            DataType("Aggregate Elevation", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
-
-        /** The number of floors climbed over a period of time in `double` format */
-        @JvmField
-        public val AGGREGATE_FLOORS: DataType =
-            DataType("Aggregate Floors", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
-
-        /** The average pace over a period of time in millisec/km in `double` format. */
-        @JvmField
-        public val AVERAGE_PACE: DataType =
-            DataType("Average Pace", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
-
-        /** The average speed over a period of time in meters/second in `double` format. */
-        @JvmField
-        public val AVERAGE_SPEED: DataType =
-            DataType("Average Speed", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
-
-        /** The average heart rate over a period of time in beats/minute in `double` format. */
-        @JvmField
-        public val AVERAGE_HEART_RATE_BPM: DataType =
-            DataType("Average Heart Rate BPM", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
-
-        /** The maximum altitude over a period of time in meters in `double` format. */
-        @JvmField
-        public val MAX_ALTITUDE: DataType =
-            DataType("Max Altitude", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
-
-        /** The minimum altitude over a period of time in meters in `double` format. */
-        @JvmField
-        public val MIN_ALTITUDE: DataType =
-            DataType("Min Altitude", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
-
-        /** The maximum pace over a period of time in millisec/km in `double` format. */
-        @JvmField
-        public val MAX_PACE: DataType = DataType("Max Pace", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
-
-        /** The maximum speed over a period of time in meters/second in `double` format. */
-        @JvmField
-        public val MAX_SPEED: DataType = DataType("Max Speed", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
-
-        /** The maximum instantaneous heart rate in beats/minute in `double` format. */
-        @JvmField
-        public val MAX_HEART_RATE_BPM: DataType =
-            DataType("Max Heart Rate", TimeType.SAMPLE, Value.FORMAT_DOUBLE)
-
         /**
          * The duration during which the user was resting during an Exercise in seconds in `long`
          * format.
          */
         @JvmField
         public val RESTING_EXERCISE_DURATION: DataType =
-            DataType("Resting Exercise Duration", TimeType.SAMPLE, Value.FORMAT_LONG)
+            DataType("Resting Exercise Duration", TimeType.INTERVAL, Value.FORMAT_LONG)
 
         /** The duration of the time the Exercise was ACTIVE in seconds in `long` format. */
         @JvmField
         public val ACTIVE_EXERCISE_DURATION: DataType =
-            DataType("Active Exercise Duration", TimeType.SAMPLE, Value.FORMAT_LONG)
+            DataType("Active Exercise Duration", TimeType.INTERVAL, Value.FORMAT_LONG)
 
         /** Count of swimming laps ins `long` format. */
         @JvmField
@@ -359,5 +261,45 @@ public data class DataType(
         /** The current rep count of the exercise in `long` format. */
         @JvmField
         public val REP_COUNT: DataType = DataType("Rep Count", TimeType.INTERVAL, Value.FORMAT_LONG)
+
+        /**
+         * The total step count over a day in `long` format, where the previous day ends and a new
+         * day begins at 12:00 AM local time. Each DataPoint of this type will cover the interval
+         * from the start of day to now. In the event of time-zone shifts, the interval might be
+         * greater than 24hrs.
+         */
+        @JvmField
+        public val DAILY_STEPS: DataType =
+            DataType("Daily Steps", TimeType.INTERVAL, Value.FORMAT_LONG)
+
+        /**
+         * The total number floors climbed over a day in `double` format, where the previous day
+         * ends and a new day begins at 12:00 AM local time. Each DataPoint of this type will cover
+         * the interval from the start of day to now. In the event of time-zone shifts, the interval
+         * might be greater than 24hrs.
+         */
+        @JvmField
+        public val DAILY_FLOORS: DataType =
+            DataType("Daily Floors", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
+
+        /**
+         * The total number calories over a day in `double` format, where the previous day ends and
+         * a new day begins at 12:00 AM local time. Each DataPoint of this type will cover the
+         * interval from the start of day to now. In the event of time-zone shifts, the interval
+         * might be greater than 24hrs.
+         */
+        @JvmField
+        public val DAILY_CALORIES: DataType =
+            DataType("Daily Calories", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
+
+        /**
+         * The total distance over a day in `double` format, where the previous day ends and a new
+         * day begins at 12:00 AM local time. Each DataPoint of this type will cover the interval
+         * from the start of day to now. In the event of time-zone shifts, the interval might be
+         * greater than 24hrs.
+         */
+        @JvmField
+        public val DAILY_DISTANCE: DataType =
+            DataType("Daily Distance", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
     }
 }

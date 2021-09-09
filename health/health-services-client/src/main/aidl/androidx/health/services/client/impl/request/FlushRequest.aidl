@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.health.services.client.impl.response;
+package androidx.health.services.client.impl.request;
 
 /** @hide */
-parcelable AutoExerciseCapabilitiesResponse;
+parcelable FlushRequest;

@@ -17,12 +17,12 @@
 package androidx.health.services.client.impl.ipc;
 
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.RemoteException;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.VisibleForTesting;
 import androidx.health.services.client.impl.ipc.internal.BaseQueueOperation;
 import androidx.health.services.client.impl.ipc.internal.ConnectionConfiguration;
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager;
@@ -37,39 +37,37 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 
 /**
- * SDK client for establishing connection to a cross process service.
+ * Client for establishing connection to a cross process service.
  *
  * <p>Extend this class to create a new client. Each client should represent one connection to AIDL
  * interface. For user instruction see: go/wear-dd-wcs-sdk
  *
+ * @param <S> type of the service interface
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
-public abstract class Client {
-
-    /** Interface abstracting extraction of the API version from the binder. */
-    public interface VersionGetter {
-        /** Returns the API version. */
-        Integer readVersion(IBinder binder) throws RemoteException;
-    }
+public abstract class Client<S extends IInterface> {
 
     private static final int UNKNOWN_VERSION = -1;
 
     private final ConnectionConfiguration mConnectionConfiguration;
     private final ConnectionManager mConnectionManager;
-    private final ServiceOperation<Integer> mApiVersionOperation;
+    private final ServiceGetter<S> mServiceGetter;
+    private final RemoteOperation<S, Integer> mRemoteVersionGetter;
 
-    @VisibleForTesting volatile int mCurrentVersion = UNKNOWN_VERSION;
+    private volatile int mCurrentVersion = UNKNOWN_VERSION;
 
     public Client(
             ClientConfiguration clientConfiguration,
             ConnectionManager connectionManager,
-            VersionGetter versionGetter) {
+            ServiceGetter<S> serviceGetter,
+            RemoteOperation<S, Integer> remoteVersionGetter) {
         QueueOperation versionOperation =
                 new QueueOperation() {
                     @Override
                     public void execute(IBinder binder) throws RemoteException {
-                        mCurrentVersion = versionGetter.readVersion(binder);
+                        mCurrentVersion =
+                                remoteVersionGetter.execute(serviceGetter.getService(binder));
                     }
 
                     @Override
@@ -82,7 +80,7 @@ public abstract class Client {
 
                     @Override
                     public ConnectionConfiguration getConnectionConfiguration() {
-                        return Client.this.getConnectionConfiguration();
+                        return mConnectionConfiguration;
                     }
                 };
         this.mConnectionConfiguration =
@@ -92,30 +90,47 @@ public abstract class Client {
                         clientConfiguration.getBindAction(),
                         versionOperation);
         this.mConnectionManager = connectionManager;
-        this.mApiVersionOperation =
-                (binder, resultFuture) -> resultFuture.set(versionGetter.readVersion(binder));
+        this.mServiceGetter = serviceGetter;
+        this.mRemoteVersionGetter = remoteVersionGetter;
     }
 
     /**
-     * Executes given operation against a IPC service defined by {@code clientConfiguration}.
+     * Executes given {@code operation} against the service.
      *
-     * @param operation Operation that will be executed against the service
-     * @param <R> Type of returned variable
-     * @return {@link ListenableFuture<R>} with the result of the operation or an exception if the
+     * @see #execute(RemoteFutureOperation)
+     */
+    protected <R> ListenableFuture<R> execute(RemoteOperation<S, R> operation) {
+        return execute((service, resultFuture) -> resultFuture.set(operation.execute(service)));
+    }
+
+    /**
+     * Executes given {@code operation} against the service and the result future.
+     *
+     * @param operation operation that will be executed against the service and the result future
+     * @param <R> type of the result value returned in the future
+     * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails.
      */
-    protected <R> ListenableFuture<R> execute(ServiceOperation<R> operation) {
+    protected <R> ListenableFuture<R> execute(RemoteFutureOperation<S, R> operation) {
         SettableFuture<R> settableFuture = SettableFuture.create();
-        mConnectionManager.scheduleForExecution(
-                createQueueOperation(operation, mConnectionConfiguration, settableFuture));
+        mConnectionManager.scheduleForExecution(createQueueOperation(operation, settableFuture));
         return settableFuture;
     }
 
+    /**
+     * Executes given {@code operation} against the service and the result future with version
+     * check.
+     *
+     * @param operation operation that will be executed against the service and the result future
+     * @param <R> type of the result value returned in the future
+     * @return {@link ListenableFuture} with the result of the operation or an exception if the
+     *     execution fails or if the remote service version is lower than {@code minApiVersion}
+     */
     protected <R> ListenableFuture<R> executeWithVersionCheck(
-            ServiceOperation<R> operation, int minApiVersion) {
+            RemoteFutureOperation<S, R> operation, int minApiVersion) {
         if (mCurrentVersion == UNKNOWN_VERSION) {
             SettableFuture<R> settableFuture = SettableFuture.create();
-            ListenableFuture<Integer> versionFuture = execute(mApiVersionOperation);
+            ListenableFuture<Integer> versionFuture = execute(mRemoteVersionGetter);
             Futures.addCallback(
                     versionFuture,
                     new FutureCallback<Integer>() {
@@ -126,14 +141,10 @@ public abstract class Client {
                             if (mCurrentVersion < minApiVersion) {
                                 settableFuture.setException(
                                         getApiVersionCheckFailureException(
-                                                mCurrentVersion, minApiVersion));
+                                            mCurrentVersion, minApiVersion));
                             } else {
-                                getConnectionManager()
-                                        .scheduleForExecution(
-                                                createQueueOperation(
-                                                        operation,
-                                                        getConnectionConfiguration(),
-                                                        settableFuture));
+                                mConnectionManager.scheduleForExecution(
+                                        createQueueOperation(operation, settableFuture));
                             }
                         }
 
@@ -158,45 +169,80 @@ public abstract class Client {
     }
 
     /**
-     * Registers a listener by executing the provided {@link ServiceOperation}.
+     * Registers a listener by executing the provided {@link RemoteOperation
+     * registerListenerOperation}.
      *
      * <p>The provided {@code registerListenerOperation} will be stored for every unique {@code
      * listenerKey} and re-executed when connection is lost.
      *
-     * @param listenerKey Key based on which listeners will be distinguished.
-     * @param registerListenerOperation Method that registers the listener, can by any {@link
-     *     ServiceOperation}.
-     * @param <R> Type of return value returned in the future.
-     * @return {@link ListenableFuture<R>} with the result of the operation or an exception if the
-     *     execution fails.
+     * @param listenerKey key based on which listeners will be distinguished
+     * @param registerListenerOperation {@link RemoteOperation} to register the listener
+     * @param <R> return type of {@code registerListenerOperation}
+     * @return {@link ListenableFuture} with the result of the operation or an exception if the
+     *     execution fails
      */
     protected <R> ListenableFuture<R> registerListener(
-            ListenerKey listenerKey, ServiceOperation<R> registerListenerOperation) {
+            ListenerKey listenerKey, RemoteOperation<S, R> registerListenerOperation) {
+        return registerListener(
+                listenerKey,
+                (service, resultFuture) ->
+                        resultFuture.set(registerListenerOperation.execute(service)));
+    }
+
+    /**
+     * Registers a listener by executing the provided {@link RemoteFutureOperation
+     * registerListenerOperation}.
+     *
+     * <p>The provided {@code registerListenerOperation} will be stored for every unique {@code
+     * listenerKey} and re-executed when connection is lost.
+     *
+     * @param listenerKey key based on which listeners will be distinguished
+     * @param registerListenerOperation {@link RemoteFutureOperation} to register the listener
+     * @param <R> return type of {@code registerListenerOperation}
+     * @return {@link ListenableFuture} with the result of the operation or an exception if the
+     *     execution fails
+     */
+    protected <R> ListenableFuture<R> registerListener(
+            ListenerKey listenerKey, RemoteFutureOperation<S, R> registerListenerOperation) {
         SettableFuture<R> settableFuture = SettableFuture.create();
         mConnectionManager.registerListener(
-                listenerKey,
-                createQueueOperation(
-                        registerListenerOperation, mConnectionConfiguration, settableFuture));
+                listenerKey, createQueueOperation(registerListenerOperation, settableFuture));
         return settableFuture;
     }
 
     /**
-     * Unregisters a listener by executing the provided {@link ServiceOperation}.
+     * Unregisters a listener by executing the provided {@link RemoteOperation
+     * unregisterListenerOperation}.
      *
-     * @param listenerKey Key based on which listeners will be distinguished.
-     * @param unregisterListenerOperation Method that unregisters the listener, can by any {@link
-     *     ServiceOperation}.
-     * @param <R> Type of return value returned in the future.
-     * @return {@link ListenableFuture<R>} with the result of the operation or an exception if the
-     *     execution fails.
+     * @param listenerKey key based on which listeners will be distinguished
+     * @param unregisterListenerOperation {@link RemoteOperation} to unregister the listener
+     * @param <R> return type of {@code unregisterListenerOperation}
+     * @return {@link ListenableFuture} with the result of the operation or an exception if the
+     *     execution fails
      */
     protected <R> ListenableFuture<R> unregisterListener(
-            ListenerKey listenerKey, ServiceOperation<R> unregisterListenerOperation) {
+            ListenerKey listenerKey, RemoteOperation<S, R> unregisterListenerOperation) {
+        return unregisterListener(
+                listenerKey,
+                (service, resultFuture) ->
+                        resultFuture.set(unregisterListenerOperation.execute(service)));
+    }
+
+    /**
+     * Unregisters a listener by executing the provided {@link RemoteFutureOperation
+     * unregisterListenerOperation}.
+     *
+     * @param listenerKey key based on which listeners will be distinguished
+     * @param unregisterListenerOperation {@link RemoteFutureOperation} to unregister the listener
+     * @param <R> return type of {@code unregisterListenerOperation}
+     * @return {@link ListenableFuture} with the result of the operation or an exception if the
+     *     execution fails
+     */
+    protected <R> ListenableFuture<R> unregisterListener(
+            ListenerKey listenerKey, RemoteFutureOperation<S, R> unregisterListenerOperation) {
         SettableFuture<R> settableFuture = SettableFuture.create();
         mConnectionManager.unregisterListener(
-                listenerKey,
-                createQueueOperation(
-                        unregisterListenerOperation, getConnectionConfiguration(), settableFuture));
+                listenerKey, createQueueOperation(unregisterListenerOperation, settableFuture));
         return settableFuture;
     }
 
@@ -212,14 +258,12 @@ public abstract class Client {
         return mConnectionManager;
     }
 
-    private static <R> QueueOperation createQueueOperation(
-            ServiceOperation<R> operation,
-            ConnectionConfiguration connectionConfiguration,
-            SettableFuture<R> settableFuture) {
-        return new BaseQueueOperation(connectionConfiguration) {
+    private <R> QueueOperation createQueueOperation(
+            RemoteFutureOperation<S, R> operation, SettableFuture<R> settableFuture) {
+        return new BaseQueueOperation(mConnectionConfiguration) {
             @Override
             public void execute(IBinder binder) throws RemoteException {
-                operation.execute(binder, settableFuture);
+                operation.execute(getService(binder), settableFuture);
             }
 
             @Override
@@ -233,5 +277,14 @@ public abstract class Client {
                 return this;
             }
         };
+    }
+
+    private S getService(IBinder binder) {
+        return mServiceGetter.getService(binder);
+    }
+
+    /** Interface for obtaining the service instance from the binder. */
+    protected interface ServiceGetter<S> {
+        S getService(IBinder binder);
     }
 }

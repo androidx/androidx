@@ -17,8 +17,9 @@
 package androidx.health.services.client.data
 
 import android.content.Intent
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.PassiveMonitoringUpdate as PassiveMonitoringUpdateProto
 
 /**
  * Represents an update from Passive tracking.
@@ -26,13 +27,21 @@ import android.os.Parcelable
  * Provides [DataPoint] s associated with the Passive tracking, in addition to data related to the
  * user's [UserActivityState].
  */
-public data class PassiveMonitoringUpdate(
+@Suppress("ParcelCreator")
+public class PassiveMonitoringUpdate(
     /** List of [DataPoint] s from Passive tracking. */
-    val dataPoints: List<DataPoint>,
+    public val dataPoints: List<DataPoint>,
 
     /** The [UserActivityInfo] of the user from Passive tracking. */
-    val userActivityInfoUpdates: List<UserActivityInfo>,
-) : Parcelable {
+    public val userActivityInfoUpdates: List<UserActivityInfo>,
+) : ProtoParcelable<PassiveMonitoringUpdateProto>() {
+
+    internal constructor(
+        proto: DataProto.PassiveMonitoringUpdate
+    ) : this(
+        proto.dataPointsList.map { DataPoint(it) },
+        proto.userActivityInfoUpdatesList.map { UserActivityInfo(it) }
+    )
 
     /**
      * Puts the state as an extra into a given [Intent]. The state can then be obtained from the
@@ -42,40 +51,28 @@ public data class PassiveMonitoringUpdate(
         intent.putExtra(EXTRA_KEY, this)
     }
 
-    override fun describeContents(): Int = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(dataPoints.size)
-        dest.writeTypedArray(dataPoints.toTypedArray(), flags)
-
-        dest.writeInt(userActivityInfoUpdates.size)
-        dest.writeTypedArray(userActivityInfoUpdates.toTypedArray(), flags)
+    /** @hide */
+    override val proto: PassiveMonitoringUpdateProto by lazy {
+        PassiveMonitoringUpdateProto.newBuilder()
+            .addAllDataPoints(dataPoints.map { it.proto })
+            .addAllUserActivityInfoUpdates(userActivityInfoUpdates.map { it.proto })
+            .build()
     }
+
+    override fun toString(): String =
+        "PassiveMonitoringUpdate(" +
+            "dataPoints=$dataPoints, " +
+            "userActivityInfoUpdates=$userActivityInfoUpdates)"
 
     public companion object {
         private const val EXTRA_KEY = "hs.passive_monitoring_update"
+        @Suppress("ActionValue") public const val ACTION_DATA: String = "hs.passivemonitoring.DATA"
 
         @JvmField
-        public val CREATOR: Parcelable.Creator<PassiveMonitoringUpdate> =
-            object : Parcelable.Creator<PassiveMonitoringUpdate> {
-                override fun createFromParcel(source: Parcel): PassiveMonitoringUpdate? {
-                    val dataPointsArray: Array<DataPoint?> = arrayOfNulls(source.readInt())
-                    source.readTypedArray(dataPointsArray, DataPoint.CREATOR)
-
-                    val userActivityInfoArray: Array<UserActivityInfo?> =
-                        arrayOfNulls(source.readInt())
-                    source.readTypedArray(userActivityInfoArray, UserActivityInfo.CREATOR)
-
-                    return PassiveMonitoringUpdate(
-                        dataPointsArray.filterNotNull().toList(),
-                        userActivityInfoArray.filterNotNull().toList(),
-                    )
-                }
-
-                override fun newArray(size: Int): Array<PassiveMonitoringUpdate?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<PassiveMonitoringUpdate> = newCreator { bytes ->
+            val proto = PassiveMonitoringUpdateProto.parseFrom(bytes)
+            PassiveMonitoringUpdate(proto)
+        }
 
         /**
          * Creates a [PassiveMonitoringUpdate] from an [Intent]. Returns null if no

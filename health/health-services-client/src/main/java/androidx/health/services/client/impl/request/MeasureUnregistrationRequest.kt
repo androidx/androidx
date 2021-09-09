@@ -16,41 +16,33 @@
 
 package androidx.health.services.client.impl.request
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.RequestsProto
 
 /**
  * Request for measure unregistration.
  *
  * @hide
  */
-public data class MeasureUnregistrationRequest(
-    val packageName: String,
-    val dataType: DataType,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+public class MeasureUnregistrationRequest(
+    public val packageName: String,
+    public val dataType: DataType,
+) : ProtoParcelable<RequestsProto.MeasureUnregistrationRequest>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(packageName)
-        dest.writeParcelable(dataType, flags)
+    override val proto: RequestsProto.MeasureUnregistrationRequest by lazy {
+        RequestsProto.MeasureUnregistrationRequest.newBuilder()
+            .setPackageName(packageName)
+            .setDataType(dataType.proto)
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<MeasureUnregistrationRequest> =
-            object : Parcelable.Creator<MeasureUnregistrationRequest> {
-                override fun createFromParcel(source: Parcel): MeasureUnregistrationRequest? {
-                    val packageName = source.readString() ?: return null
-                    val dataType =
-                        source.readParcelable<DataType>(DataType::class.java.classLoader)
-                            ?: return null
-                    return MeasureUnregistrationRequest(packageName, dataType)
-                }
-
-                override fun newArray(size: Int): Array<MeasureUnregistrationRequest?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<MeasureUnregistrationRequest> = newCreator { bytes ->
+            val proto = RequestsProto.MeasureUnregistrationRequest.parseFrom(bytes)
+            MeasureUnregistrationRequest(proto.packageName, DataType(proto.dataType))
+        }
     }
 }

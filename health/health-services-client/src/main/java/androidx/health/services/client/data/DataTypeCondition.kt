@@ -16,20 +16,44 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
 
 /** A condition which is considered met when a data type value passes a defined threshold. */
-public data class DataTypeCondition(
-    val dataType: DataType,
-    val threshold: Value,
-    val comparisonType: ComparisonType,
-) : Parcelable {
+@Suppress("ParcelCreator")
+public class DataTypeCondition(
+    public val dataType: DataType,
+    public val threshold: Value,
+    public val comparisonType: ComparisonType,
+) : ProtoParcelable<DataProto.DataTypeCondition>() {
+
+    internal constructor(
+        proto: DataProto.DataTypeCondition
+    ) : this(
+        DataType(proto.dataType),
+        Value(proto.threshold),
+        ComparisonType.fromProto(proto.comparisonType)
+            ?: throw IllegalStateException("Invalid ComparisonType: ${proto.comparisonType}")
+    )
+
     init {
         require(dataType.format == threshold.format) {
-            "provided data type must have sample time type."
+            "provided data type and threshold must have the same formats."
         }
     }
+
+    /** @hide */
+    override val proto: DataProto.DataTypeCondition by lazy {
+        DataProto.DataTypeCondition.newBuilder()
+            .setDataType(dataType.proto)
+            .setThreshold(threshold.proto)
+            .setComparisonType(comparisonType.toProto())
+            .build()
+    }
+
+    override fun toString(): String =
+        "DataTypeCondition(" +
+            "dataType=$dataType, threshold=$threshold, comparisonType=$comparisonType)"
 
     /** Checks whether or not the condition is satisfied by a given [DataPoint]. */
     public fun isSatisfied(dataPoint: DataPoint): Boolean {
@@ -51,31 +75,11 @@ public data class DataTypeCondition(
         }
     }
 
-    override fun describeContents(): Int = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(dataType, flags)
-        dest.writeParcelable(threshold, flags)
-        dest.writeInt(comparisonType.id)
-    }
-
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<DataTypeCondition> =
-            object : Parcelable.Creator<DataTypeCondition> {
-                override fun createFromParcel(source: Parcel): DataTypeCondition? {
-                    val dataType =
-                        source.readParcelable<DataType>(DataType::class.java.classLoader)
-                            ?: return null
-                    val threshold =
-                        source.readParcelable<Value>(Value::class.java.classLoader) ?: return null
-                    val comparisonType = ComparisonType.fromId(source.readInt()) ?: return null
-                    return DataTypeCondition(dataType, threshold, comparisonType)
-                }
-
-                override fun newArray(size: Int): Array<DataTypeCondition?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<DataTypeCondition> = newCreator {
+            val proto = DataProto.DataTypeCondition.parseFrom(it)
+            DataTypeCondition(proto)
+        }
     }
 }

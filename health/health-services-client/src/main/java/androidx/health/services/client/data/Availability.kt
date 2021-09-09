@@ -16,14 +16,30 @@
 
 package androidx.health.services.client.data
 
+import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.Availability.AvailabilityCase
+import androidx.health.services.client.proto.DataProto.Availability.DataTypeAvailability as DataTypeAvailabilityProto
+
 /** Availability of a [DataType]. */
-public enum class Availability(public val id: Int) {
-    UNKNOWN(0),
-    AVAILABLE(1),
-    ACQUIRING(2),
-    UNAVAILABLE(3);
+public interface Availability {
+    public val id: Int
+
+    /** @hide */
+    public fun toProto(): DataProto.Availability =
+        DataProto.Availability.newBuilder()
+            .setDataTypeAvailability(DataTypeAvailabilityProto.DATA_TYPE_AVAILABILITY_UNKNOWN)
+            .build()
 
     public companion object {
-        @JvmStatic public fun fromId(id: Int): Availability? = values().firstOrNull { it.id == id }
+        /** @hide */
+        @JvmStatic
+        public fun fromProto(proto: DataProto.Availability): Availability =
+            when (proto.availabilityCase) {
+                AvailabilityCase.DATA_TYPE_AVAILABILITY ->
+                    DataTypeAvailability.fromProto(proto.dataTypeAvailability)
+                AvailabilityCase.LOCATION_AVAILABILITY ->
+                    LocationAvailability.fromProto(proto.locationAvailability)
+                null, AvailabilityCase.AVAILABILITY_NOT_SET -> DataTypeAvailability.UNKNOWN
+            }
     }
 }

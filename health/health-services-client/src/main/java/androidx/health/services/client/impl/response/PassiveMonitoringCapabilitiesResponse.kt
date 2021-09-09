@@ -16,43 +16,35 @@
 
 package androidx.health.services.client.impl.response
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.PassiveMonitoringCapabilities
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.ResponsesProto
 
 /**
  * Response containing the [PassiveMonitoringCapabilities] of the device.
  *
  * @hide
  */
-public data class PassiveMonitoringCapabilitiesResponse(
+public class PassiveMonitoringCapabilitiesResponse(
     /** [PassiveMonitoringCapabilities] supported by this device. */
-    val passiveMonitoringCapabilities: PassiveMonitoringCapabilities,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val passiveMonitoringCapabilities: PassiveMonitoringCapabilities,
+) : ProtoParcelable<ResponsesProto.PassiveMonitoringCapabilitiesResponse>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(passiveMonitoringCapabilities, flags)
+    override val proto: ResponsesProto.PassiveMonitoringCapabilitiesResponse by lazy {
+        ResponsesProto.PassiveMonitoringCapabilitiesResponse.newBuilder()
+            .setCapabilities(passiveMonitoringCapabilities.proto)
+            .build()
     }
 
     public companion object {
         @JvmField
         public val CREATOR: Parcelable.Creator<PassiveMonitoringCapabilitiesResponse> =
-            object : Parcelable.Creator<PassiveMonitoringCapabilitiesResponse> {
-                override fun createFromParcel(
-                    source: Parcel
-                ): PassiveMonitoringCapabilitiesResponse? {
-                    val parcelable =
-                        source.readParcelable<PassiveMonitoringCapabilities>(
-                            PassiveMonitoringCapabilities::class.java.classLoader
-                        )
-                            ?: return null
-                    return PassiveMonitoringCapabilitiesResponse(parcelable)
-                }
-
-                override fun newArray(size: Int): Array<PassiveMonitoringCapabilitiesResponse?> {
-                    return arrayOfNulls(size)
-                }
+            newCreator { bytes ->
+                val proto = ResponsesProto.PassiveMonitoringCapabilitiesResponse.parseFrom(bytes)
+                PassiveMonitoringCapabilitiesResponse(
+                    PassiveMonitoringCapabilities(proto.capabilities)
+                )
             }
     }
 }
