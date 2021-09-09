@@ -137,12 +137,17 @@ class NavControllerTest {
     @Test
     fun testSetGraphTwice() {
         val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
         navController.setGraph(R.navigation.nav_start_destination)
+        navController.navigate(R.id.second_test)
         val navigator = navController.navigatorProvider[TestNavigator::class]
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.start_test)
+            .isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size)
-            .isEqualTo(1)
+            .isEqualTo(2)
+        val originalBackStackEntry = navigator.backStack.last()
+        val originalViewModel = ViewModelProvider(originalBackStackEntry)
+            .get<TestAndroidViewModel>()
 
         // Now set a new graph, overriding the first
         navController.setGraph(R.navigation.nav_nested_start_destination)
@@ -150,6 +155,68 @@ class NavControllerTest {
             .isEqualTo(R.id.nested_test)
         assertThat(navigator.backStack.size)
             .isEqualTo(1)
+        assertThat(originalViewModel.isCleared).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSetGraphTwiceSameGraph() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        navController.setGraph(R.navigation.nav_start_destination)
+        navController.navigate(R.id.second_test)
+        val navigator = navController.navigatorProvider[TestNavigator::class]
+        assertThat(navController.currentDestination?.id)
+            .isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size)
+            .isEqualTo(2)
+        val originalBackStackEntry = navigator.backStack.last()
+        val originalViewModel = ViewModelProvider(originalBackStackEntry)
+            .get<TestAndroidViewModel>()
+
+        // Now set the graph a second time, using the same graph
+        navController.setGraph(R.navigation.nav_start_destination)
+        // Setting the same graph shouldn't change the back stack
+        assertThat(navController.currentDestination?.id)
+            .isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size)
+            .isEqualTo(2)
+        val newBackStackEntry = navigator.backStack.last()
+        val newViewModel = ViewModelProvider(newBackStackEntry).get<TestAndroidViewModel>()
+        assertThat(newBackStackEntry.id).isSameInstanceAs(originalBackStackEntry.id)
+        assertThat(newViewModel).isSameInstanceAs(originalViewModel)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSetGraphTwiceWithSavedBackStack() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        navController.setGraph(R.navigation.nav_start_destination)
+        navController.navigate(R.id.second_test)
+        val navigator = navController.navigatorProvider[TestNavigator::class]
+        assertThat(navController.currentDestination?.id)
+            .isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size)
+            .isEqualTo(2)
+        val originalBackStackEntry = navigator.backStack.last()
+        val originalViewModel = ViewModelProvider(originalBackStackEntry)
+            .get<TestAndroidViewModel>()
+
+        navController.popBackStack(R.id.second_test, inclusive = true, saveState = true)
+        assertThat(navController.currentDestination?.id)
+            .isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size)
+            .isEqualTo(1)
+        assertThat(originalViewModel.isCleared).isFalse()
+
+        // Now set a new graph, overriding the first
+        navController.setGraph(R.navigation.nav_nested_start_destination)
+        assertThat(navController.currentDestination?.id)
+            .isEqualTo(R.id.nested_test)
+        assertThat(navigator.backStack.size)
+            .isEqualTo(1)
+        assertThat(originalViewModel.isCleared).isTrue()
     }
 
     @UiThreadTest
