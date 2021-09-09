@@ -91,54 +91,50 @@ public class ScalingLazyListState : ScrollableState {
                 // Go Up
                 val centralItemIndex = centralItem.index
                 var nextItemBottomNoPadding = centerItemInfo.offset - gapBetweenItemsPx.value!!
-                (centralItemIndex - 1 downTo 0).forEach { ix ->
+                val minIndex =
+                    lazyListState.layoutInfo.visibleItemsInfo.minOf { it.index }
+                (centralItemIndex - 1 downTo minIndex).forEach { ix ->
                     val currentItem =
-                        lazyListState.layoutInfo.visibleItemsInfo.find { it.index == ix }
-                    if (currentItem != null) {
-                        val itemInfo = createItemInfo(
-                            nextItemBottomNoPadding - currentItem.size,
-                            currentItem,
-                            verticalAdjustment,
-                            viewportHeightPx.value!!,
-                            scalingParams.value!!,
-                        )
-                        // If the item is visible in the viewport insert it at the start of the
-                        // list
-                        if ((itemInfo.offset + itemInfo.size) > verticalAdjustment) {
-                            // Insert the item info at the front of the list
-                            visibleItemsInfo.add(0, itemInfo)
-                        }
-                        nextItemBottomNoPadding = itemInfo.offset - gapBetweenItemsPx.value!!
+                        lazyListState.layoutInfo.visibleItemsInfo.find { it.index == ix }!!
+                    val itemInfo = createItemInfo(
+                        nextItemBottomNoPadding - currentItem.size,
+                        currentItem,
+                        verticalAdjustment,
+                        viewportHeightPx.value!!,
+                        scalingParams.value!!,
+                    )
+                    // If the item is visible in the viewport insert it at the start of the
+                    // list
+                    if ((itemInfo.offset + itemInfo.size) > verticalAdjustment) {
+                        // Insert the item info at the front of the list
+                        visibleItemsInfo.add(0, itemInfo)
                     }
+                    nextItemBottomNoPadding = itemInfo.offset - gapBetweenItemsPx.value!!
                 }
                 // Go Down
                 var nextItemTopNoPadding =
                     centerItemInfo.offset + centerItemInfo.size +
                         gapBetweenItemsPx.value!!
-                (
-                    centralItemIndex + 1 until
-                        (centralItemIndex + lazyListState.layoutInfo.visibleItemsInfo.size)
+                val maxIndex =
+                    lazyListState.layoutInfo.visibleItemsInfo.maxOf { it.index }
+                (centralItemIndex + 1..maxIndex).forEach { ix ->
+                    val currentItem =
+                        lazyListState.layoutInfo.visibleItemsInfo.find { it.index == ix }!!
+                    val itemInfo = createItemInfo(
+                        nextItemTopNoPadding,
+                        currentItem,
+                        verticalAdjustment,
+                        viewportHeightPx.value!!,
+                        scalingParams.value!!,
                     )
-                    .forEach { ix ->
-                        val currentItem =
-                            lazyListState.layoutInfo.visibleItemsInfo.find { it.index == ix }
-                        if (currentItem != null) {
-                            val itemInfo = createItemInfo(
-                                nextItemTopNoPadding,
-                                currentItem,
-                                verticalAdjustment,
-                                viewportHeightPx.value!!,
-                                scalingParams.value!!,
-                            )
-                            // If the item is visible in the viewport insert it at the end of the
-                            // list
-                            if ((itemInfo.offset - verticalAdjustment) < viewportHeightPx.value!!) {
-                                visibleItemsInfo.add(itemInfo)
-                            }
-                            nextItemTopNoPadding =
-                                itemInfo.offset + itemInfo.size + gapBetweenItemsPx.value!!
-                        }
+                    // If the item is visible in the viewport insert it at the end of the
+                    // list
+                    if ((itemInfo.offset - verticalAdjustment) < viewportHeightPx.value!!) {
+                        visibleItemsInfo.add(itemInfo)
                     }
+                    nextItemTopNoPadding =
+                        itemInfo.offset + itemInfo.size + gapBetweenItemsPx.value!!
+                }
             }
             DefaultScalingLazyListLayoutInfo(
                 visibleItemsInfo = visibleItemsInfo,
