@@ -197,7 +197,14 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
-        checkFileHasAudioAndVideo(Uri.fromFile(file))
+        val uri = Uri.fromFile(file)
+        checkFileHasAudioAndVideo(uri)
+
+        // Check the output Uri from the finalize event match the Uri from the given file.
+        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
+        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
+        val finalize = captor.value as VideoRecordEvent.Finalize
+        assertThat(finalize.outputResults.outputUri).isEqualTo(uri)
 
         file.delete()
     }
