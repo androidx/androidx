@@ -23,5 +23,6 @@ abstract class Violation internal constructor(
     /**
      * Gets the [Fragment] causing the Violation.
      */
-    val fragment: Fragment
-) : RuntimeException()
+    val fragment: Fragment,
+    violationMessage: String? = null
+) : RuntimeException(violationMessage)

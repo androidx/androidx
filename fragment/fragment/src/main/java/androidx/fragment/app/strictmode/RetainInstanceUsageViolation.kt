@@ -20,5 +20,7 @@ import androidx.fragment.app.Fragment
 /**
  * See [FragmentStrictMode.Policy.Builder.detectRetainInstanceUsage].
  */
-abstract class RetainInstanceUsageViolation internal constructor(fragment: Fragment) :
-    Violation(fragment)
+abstract class RetainInstanceUsageViolation internal constructor(
+    fragment: Fragment,
+    message: String? = null
+) : Violation(fragment, message)
