@@ -17,7 +17,9 @@
 
 package androidx.glance.appwidget
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.util.DisplayMetrics
 import android.util.TypedValue
@@ -25,8 +27,32 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
+import androidx.glance.action.Action
+import androidx.glance.action.ActionModifier
+import androidx.glance.action.LaunchActivityAction
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.unit.Dp
+
+private fun applyAction(
+    rv: RemoteViews,
+    action: Action,
+    context: Context
+) {
+    when (action) {
+        is LaunchActivityAction -> {
+            val intent = Intent(context, action.activityClass)
+            val pendingIntent: PendingIntent =
+                PendingIntent.getActivity(
+                    context,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_MUTABLE
+                )
+            rv.setOnClickPendingIntent(R.id.glanceView, pendingIntent)
+        }
+        else -> throw IllegalArgumentException("Unrecognized action type.")
+    }
+}
 
 private fun applyPadding(
     rv: RemoteViews,
@@ -50,6 +76,7 @@ private fun applyPadding(
 internal fun applyModifiers(context: Context, rv: RemoteViews, modifiers: Modifier) {
     modifiers.foldOut(Unit) { modifier, _ ->
         when (modifier) {
+            is ActionModifier -> applyAction(rv, modifier.action, context)
             is PaddingModifier -> applyPadding(rv, modifier, context.resources)
         }
     }
