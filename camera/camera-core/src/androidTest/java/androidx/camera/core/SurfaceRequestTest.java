@@ -30,6 +30,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.testing.GarbageCollectionUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Consumer;
@@ -58,26 +59,8 @@ public final class SurfaceRequestTest {
             SurfaceRequest.TransformationInfo.of(new Rect(), 0, Surface.ROTATION_0);
     private static final Consumer<SurfaceRequest.Result> NO_OP_RESULT_LISTENER = ignored -> {
     };
-    private static final long FINALIZE_TIMEOUT_MILLIS = 200L;
-    private static final int NUM_GC_ITERATIONS = 10;
     private static final Surface MOCK_SURFACE = mock(Surface.class);
     private final List<SurfaceRequest> mSurfaceRequests = new ArrayList<>();
-
-    private static void runFinalization() throws TimeoutException, InterruptedException {
-        ReferenceQueue<Object> finalizeAwaitQueue = new ReferenceQueue<>();
-        PhantomReference<Object> finalizeSignal;
-        // Ensure finalization occurs multiple times
-        for (int i = 0; i < NUM_GC_ITERATIONS; ++i) {
-            finalizeSignal = new PhantomReference<>(new Object(), finalizeAwaitQueue);
-            Runtime.getRuntime().gc();
-            Runtime.getRuntime().runFinalization();
-            if (finalizeAwaitQueue.remove(FINALIZE_TIMEOUT_MILLIS) == null) {
-                throw new TimeoutException(
-                        "Finalization failed on iteration " + (i + 1) + " of " + NUM_GC_ITERATIONS);
-            }
-            finalizeSignal.clear();
-        }
-    }
 
     @After
     public void tearDown() {
@@ -264,7 +247,7 @@ public final class SurfaceRequestTest {
             // Null out the original reference to the SurfaceRequest. DeferrableSurface should be
             // the only reference remaining.
             request = null;
-            runFinalization();
+            GarbageCollectionUtil.runFinalization();
             boolean requestFinalized = (referenceQueue.poll() != null);
 
             // Assert.
@@ -295,7 +278,7 @@ public final class SurfaceRequestTest {
             // Null out the original reference to the DeferrableSurface. SurfaceRequest should be
             // the only reference remaining.
             deferrableSurface = null;
-            runFinalization();
+            GarbageCollectionUtil.runFinalization();
             boolean deferrableSurfaceFinalized = (referenceQueue.poll() != null);
 
             // Assert.

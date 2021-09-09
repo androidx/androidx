@@ -18,6 +18,7 @@ package androidx.camera.video;
 
 import android.Manifest;
 
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
@@ -138,11 +139,16 @@ public final class PendingRecording {
      * found in that event's {@link VideoRecordEvent.Finalize#getError()} method. The returned
      * {@link ActiveRecording} will be in a finalized state, and all controls will be no-ops.
      *
+     * <p>If the returned {@link ActiveRecording} is garbage collected, the recording will be
+     * automatically stopped. A reference to the active recording must be maintained as long as
+     * the recording needs to be active.
+     *
      * @throws IllegalStateException if the associated Recorder currently has an unfinished
      * active recording, or if the recording has {@link #withAudioEnabled()} audio} but
      * {@link android.Manifest.permission#RECORD_AUDIO} is not granted.
      */
     @NonNull
+    @CheckResult
     public ActiveRecording start() {
         return mRecorder.start(this);
     }
