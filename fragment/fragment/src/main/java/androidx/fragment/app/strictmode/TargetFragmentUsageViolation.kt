@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.fragment.app.strictmode
 
-package androidx.fragment.app.strictmode;
+import androidx.fragment.app.Fragment
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
-/** See #{@link FragmentStrictMode.Policy.Builder#detectTargetFragmentUsage()}. */
-public final class GetTargetFragmentRequestCodeUsageViolation extends TargetFragmentUsageViolation {
-
-    GetTargetFragmentRequestCodeUsageViolation(@NonNull Fragment fragment) {
-        super(fragment);
-    }
-
-    @NonNull
-    @Override
-    public String getMessage() {
-        return "Attempting to get target request code from fragment " + mFragment;
-    }
-}
+/**
+ * See [FragmentStrictMode.Policy.Builder.detectTargetFragmentUsage].
+ */
+abstract class TargetFragmentUsageViolation internal constructor(fragment: Fragment) :
+    Violation(fragment)
