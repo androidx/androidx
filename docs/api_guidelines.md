@@ -1406,16 +1406,19 @@ language `private` or `default` visibility).
 #### `RestrictTo.Scope` and inter- versus intra-library API surfaces {#private-api-types}
 
 To maintain binary compatibility between different versions of libraries,
-restricted API surfaces that are used between libraries (inter-library APIs)
-must follow the same Semantic Versioning rules as public APIs. Inter-library
-APIs should be annotated with the `@RestrictTo(LIBRARY_GROUP)` source
-annotation.
+restricted API surfaces that are used between libraries within Jetpack
+(inter-library APIs) must follow the same Semantic Versioning rules as public
+APIs. Inter-library APIs should be annotated with the
+`@RestrictTo(LIBRARY_GROUP)` source annotation and `@hide` docs annotation.
 
 Restricted API surfaces used within a single library (intra-library APIs), on
 the other hand, may be added or removed without any compatibility
-considerations. It is safe to assume that developers _never_ call these APIs,
+considerations. It is safe to assume that developers *never* call these APIs,
 even though it is technically feasible. Intra-library APIs should be annotated
-with the `@RestrictTo(LIBRARY)` source annotation.
+with the `@RestrictTo(LIBRARY)` source annotation and `@hide` docs annotation.
+
+In all cases, correctness and compatibility tracking are handled by AndroidX's
+build system and lint checks.
 
 The following table shows the visibility of a hypothetical API within Maven
 coordinate `androidx.concurrent:concurrent` when annotated with a variety of
