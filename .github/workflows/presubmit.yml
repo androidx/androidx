@@ -16,10 +16,10 @@ jobs:
         run: |
           set -x
           GRADLEW_FLAGS="-Dorg.gradle.internal.http.connectionTimeout=60000 \
-            -Dorg.gradle.internal.http.socketTimeout=60000                   \
-            -Dorg.gradle.internal.repository.max.retries=20                  \
-            -Dorg.gradle.internal.repository.initial.backoff=500             \
-            -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=512m"                 \
+            -Dorg.gradle.internal.http.socketTimeout=60000                  \
+            -Dorg.gradle.internal.repository.max.retries=20                 \
+            -Dorg.gradle.internal.repository.initial.backoff=500            \
+            -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=512m"         \
             --stacktrace"
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
       - name: "Compute actions/checkout arguments"
