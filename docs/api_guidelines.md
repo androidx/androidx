@@ -1171,10 +1171,45 @@ must conform to the following guidelines:
 Please see Jetpack's [open-source policy page](open_source.md) for more details
 on using third-party libraries.
 
+### Types of dependencies {#dependencies-types}
+
+AndroidX allows dependencies to be specified as `api` or `implementation` with a
+"pinned" Maven spec (ex. `androidx.core:core:1.0.0`) or a "tip-of-tree" project
+spec (ex. `project(":core:core")`).
+
+Projects used in Playground, the experimental GitHub workflow, should use a
+"recent" project or artifact spec (ex. `projectOrArtifact(":core:core")`) which
+will default to tip-of-tree when used outside of the Playground workflow or a
+pinned `SNAPSHOT` artifact otherwise.
+
+Regardless of which dependency spec is used, all projects are built against
+tip-of-tree dependencies in CI to prevent regressions and enforce Jetpack's
+compatible-at-head policy.
+
+#### `api` versus `implementation` {#dependencies-api-vs-impl}
+
+`api`-type dependencies will appear in clients' auto-complete as though they had
+added the dependency directly to their project, and Studio will run any lint
+checks bundled with `api`-type dependencies.
+
+Dependencies whose APIs are exposed in a library's API surface **must** be
+included as `api`-type. For example, if your library's API surface includes
+`AccessibilityNodeInfoCompat` then you will use an `api`-type dependency on the
+`androidx.core:core` library.
+
+NOTE Libraries that provide client-facing lint checks, including
+`annotation-experimental`, **must** be included as `api`-type to ensure that
+lint checks are run in the clients' dependent projects.
+
+`implementation`-type dependencies will be included in the classpath, but will
+not be made available at design time (ex. in auto-complete) unless the client
+explicitly adds them.
+
 ### System health {#dependencies-health}
 
-Libraries should consider the system health implications of their dependencies,
-including:
+Generally, Jetpack libraries should avoid dependencies that negatively impact
+developers without providing substantial benefit. Libraries should consider the
+system health implications of their dependencies, including:
 
 -   Large dependencies where only a small portion is needed (e.g. APK bloat)
 -   Dependencies that slow down build times through annotation processing or
