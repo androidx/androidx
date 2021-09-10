@@ -235,11 +235,3 @@ jobs:
           name: artifacts_${{ env.artifact-id }}
           path: |
             ~/dist
-            !~/dist/androidTest.zip
-      - name: "Upload test APKs"
-        continue-on-error: false
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: integrationTests_${{ env.artifact-id }}
-          path: ~/dist/androidTest.zip
