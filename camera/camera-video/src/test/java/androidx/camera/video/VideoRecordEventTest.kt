@@ -30,8 +30,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import java.io.File
 
 private const val INVALID_FILE_PATH = "/invalid/file/path"
-private val TEST_OUTPUT_OPTION =
-    FileOutputOptions.builder().setFile(File(INVALID_FILE_PATH)).build()
+private val TEST_OUTPUT_OPTION = FileOutputOptions.Builder(File(INVALID_FILE_PATH)).build()
 private val TEST_RECORDING_STATE =
     RecordingStats.of(0, 0, AudioStats.of(AudioStats.AUDIO_STATE_ACTIVE, null))
 private val TEST_OUTPUT_RESULT = OutputResults.of(Uri.EMPTY)

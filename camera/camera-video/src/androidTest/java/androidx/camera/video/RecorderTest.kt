@@ -179,9 +179,8 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -220,11 +219,10 @@ class RecorderTest {
             put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
         }
 
-        val outputOptions = MediaStoreOutputOptions.builder()
-            .setContentResolver(contentResolver)
-            .setCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-            .setContentValues(contentValues)
-            .build()
+        val outputOptions = MediaStoreOutputOptions.Builder(
+            contentResolver,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        ).setContentValues(contentValues).build()
 
         var uri: Uri = Uri.EMPTY
         val activeRecording = recorder.prepareRecording(outputOptions)
@@ -264,11 +262,8 @@ class RecorderTest {
             file,
             ParcelFileDescriptor.MODE_READ_WRITE
         ).use { pfd ->
-            val outputOptions = FileDescriptorOutputOptions.builder()
-                .setParcelFileDescriptor(pfd)
-                .build()
-
-            val activeRecording = recorder.prepareRecording(outputOptions)
+            val activeRecording = recorder
+                .prepareRecording(FileDescriptorOutputOptions.Builder(pfd).build())
                 .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
                 .withAudioEnabled()
                 .start()
@@ -299,12 +294,8 @@ class RecorderTest {
             file,
             ParcelFileDescriptor.MODE_READ_WRITE
         ).use { pfd ->
-            val outputOptions = FileDescriptorOutputOptions.builder()
-                .setParcelFileDescriptor(pfd)
-                .build()
-
             assertThrows(IllegalStateException::class.java) {
-                recorder.prepareRecording(outputOptions)
+                recorder.prepareRecording(FileDescriptorOutputOptions.Builder(pfd).build())
             }
         }
 
@@ -317,9 +308,8 @@ class RecorderTest {
         invokeSurfaceRequest()
 
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -354,9 +344,8 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
 
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -387,14 +376,11 @@ class RecorderTest {
         invokeSurfaceRequest()
 
         val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
-        val outputOptions1 = FileOutputOptions.builder().setFile(file1).build()
-
         val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
-        val outputOptions2 = FileOutputOptions.builder().setFile(file2).build()
 
         // Start and stop a recording to ensure recorder is idling
         val inOrder = inOrder(videoRecordEventListener)
-        val activeRecording1 = recorder.prepareRecording(outputOptions1)
+        val activeRecording1 = recorder.prepareRecording(FileOutputOptions.Builder(file1).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -411,7 +397,7 @@ class RecorderTest {
             .accept(any(VideoRecordEvent.Finalize::class.java))
 
         // First recording is now finalized. Try starting second recording paused.
-        val activeRecording2 = recorder.prepareRecording(outputOptions2)
+        val activeRecording2 = recorder.prepareRecording(FileOutputOptions.Builder(file2).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -436,11 +422,10 @@ class RecorderTest {
         invokeSurfaceRequest()
 
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
         val inOrder = inOrder(videoRecordEventListener)
         // Start
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -524,7 +509,6 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
         @Suppress("UNCHECKED_CAST")
         val streamStateObserver =
@@ -538,7 +522,7 @@ class RecorderTest {
         )
 
         // Start
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -561,7 +545,7 @@ class RecorderTest {
     fun start_throwsExceptionWhenActive() {
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
+        val outputOptions = FileOutputOptions.Builder(file).build()
 
         val activeRecording = recorder.prepareRecording(outputOptions).start()
 
@@ -578,9 +562,8 @@ class RecorderTest {
     fun start_beforeSurfaceRequested() {
         clearInvocations(videoRecordEventListener)
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -605,11 +588,10 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
         recorder.onSourceStateChanged(VideoOutput.SourceState.INACTIVE)
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -630,9 +612,8 @@ class RecorderTest {
     fun pause_beforeSurfaceRequested() {
         clearInvocations(videoRecordEventListener)
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -659,9 +640,8 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -697,9 +677,8 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -723,9 +702,8 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -754,9 +732,8 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -779,9 +756,8 @@ class RecorderTest {
     fun stop_beforeSurfaceRequested() {
         clearInvocations(videoRecordEventListener)
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -801,11 +777,10 @@ class RecorderTest {
     fun stop_fromAutoCloseable() {
         clearInvocations(videoRecordEventListener)
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
         val inOrder = inOrder(videoRecordEventListener)
         // Recording will be stopped by AutoCloseable.close() upon exiting use{} block
-        val pendingRecording = recorder.prepareRecording(outputOptions)
+        val pendingRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
         pendingRecording.withEventListener(
             CameraXExecutors.directExecutor(),
             videoRecordEventListener
@@ -828,10 +803,8 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder
-            .prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -858,10 +831,10 @@ class RecorderTest {
     fun stop_whenActiveRecordingIsGarbageCollected() {
         clearInvocations(videoRecordEventListener)
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
         val inOrder = inOrder(videoRecordEventListener)
-        var activeRecording: ActiveRecording? = recorder.prepareRecording(outputOptions)
+        var activeRecording: ActiveRecording? = recorder
+            .prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -893,9 +866,8 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .withAudioEnabled()
             .start()
@@ -948,9 +920,8 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
 
-        val activeRecording = recorder.prepareRecording(outputOptions)
+        val activeRecording = recorder.prepareRecording(FileOutputOptions.Builder(file).build())
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .start()
 
@@ -982,14 +953,12 @@ class RecorderTest {
     @Test
     fun cannotStartMultiplePendingRecordingsWhileInitializing() {
         val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
-        val outputOptions1 = FileOutputOptions.builder().setFile(file1).build()
         val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
-        val outputOptions2 = FileOutputOptions.builder().setFile(file2).build()
         try {
             // We explicitly do not invoke the surface request so the recorder is initializing.
-            recorder.prepareRecording(outputOptions1).start().use {
+            recorder.prepareRecording(FileOutputOptions.Builder(file1).build()).start().use {
                 assertThrows<IllegalStateException> {
-                    recorder.prepareRecording(outputOptions2).start()
+                    recorder.prepareRecording(FileOutputOptions.Builder(file2).build()).start()
                 }
             }
         } finally {
@@ -1005,13 +974,11 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
-        val outputOptions1 = FileOutputOptions.builder().setFile(file1).build()
         val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
-        val outputOptions2 = FileOutputOptions.builder().setFile(file2).build()
 
         val inOrder = inOrder(videoRecordEventListener)
         try {
-            recorder.prepareRecording(outputOptions1)
+            recorder.prepareRecording(FileOutputOptions.Builder(file1).build())
                 .withEventListener(
                     CameraXExecutors.directExecutor(),
                     videoRecordEventListener
@@ -1022,7 +989,7 @@ class RecorderTest {
                         .accept(any(VideoRecordEvent.Status::class.java))
                 }
 
-            recorder.prepareRecording(outputOptions2)
+            recorder.prepareRecording(FileOutputOptions.Builder(file2).build())
                 .withEventListener(
                     CameraXExecutors.directExecutor(),
                     videoRecordEventListener
@@ -1108,8 +1075,7 @@ class RecorderTest {
     private fun runFileSizeLimitTest(fileSizeLimit: Long) {
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder()
-            .setFile(file)
+        val outputOptions = FileOutputOptions.Builder(file)
             .setFileSizeLimit(fileSizeLimit)
             .build()
 

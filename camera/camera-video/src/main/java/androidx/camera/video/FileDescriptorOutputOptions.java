@@ -19,6 +19,7 @@ package androidx.camera.video;
 import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
 
@@ -31,49 +32,71 @@ import com.google.auto.value.AutoValue;
  * <p>To use a {@link java.io.File} as an output destination instead of a file descriptor, use
  * {@link FileOutputOptions}.
  */
-@AutoValue
-public abstract class FileDescriptorOutputOptions extends OutputOptions {
+public final class FileDescriptorOutputOptions extends OutputOptions {
 
-    FileDescriptorOutputOptions() {
+    private final FileDescriptorOutputOptionsInternal mFileDescriptorOutputOptionsInternal;
+
+    FileDescriptorOutputOptions(
+            @NonNull FileDescriptorOutputOptionsInternal fileDescriptorOutputOptionsInternal) {
         super(OPTIONS_TYPE_FILE_DESCRIPTOR);
+        Preconditions.checkNotNull(fileDescriptorOutputOptionsInternal,
+                "FileDescriptorOutputOptionsInternal can't be null.");
+        mFileDescriptorOutputOptionsInternal = fileDescriptorOutputOptionsInternal;
     }
 
-    /** Returns a builder for this FileDescriptorOutputOptions. */
+    /**
+     * Gets the file descriptor instance.
+     *
+     * @return the file descriptor used as the output destination.
+     */
     @NonNull
-    public static Builder builder() {
-        return new AutoValue_FileDescriptorOutputOptions.Builder()
-                .setFileSizeLimit(FILE_SIZE_UNLIMITED);
+    public ParcelFileDescriptor getParcelFileDescriptor() {
+        return mFileDescriptorOutputOptionsInternal.getParcelFileDescriptor();
     }
 
     /**
      * Gets the limit for the file length in bytes.
      */
     @Override
-    public abstract long getFileSizeLimit();
+    public long getFileSizeLimit() {
+        return mFileDescriptorOutputOptionsInternal.getFileSizeLimit();
+    }
 
-    /**
-     * Gets the file descriptor instance.
-     * @return the file descriptor used as the output destination.
-     */
+    @Override
     @NonNull
-    public abstract ParcelFileDescriptor getParcelFileDescriptor();
+    public String toString() {
+        return mFileDescriptorOutputOptionsInternal.toString().replaceFirst(
+                mFileDescriptorOutputOptionsInternal.getClass().getSuperclass().getSimpleName(),
+                getClass().getSimpleName());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return mFileDescriptorOutputOptionsInternal.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return mFileDescriptorOutputOptionsInternal.hashCode();
+    }
 
     /** The builder of the {@link FileDescriptorOutputOptions}. */
-    @AutoValue.Builder
-    @SuppressWarnings("StaticFinalBuilder")
-    public abstract static class Builder implements
+    public static final class Builder implements
             OutputOptions.Builder<FileDescriptorOutputOptions, Builder> {
-        Builder() {
-        }
+        private final FileDescriptorOutputOptionsInternal.Builder mInternalBuilder =
+                new AutoValue_FileDescriptorOutputOptions_FileDescriptorOutputOptionsInternal
+                        .Builder()
+                        .setFileSizeLimit(FILE_SIZE_UNLIMITED);
 
         /**
-         * Defines the file descriptor used to store the result.
+         * Creates a builder of the {@link FileDescriptorOutputOptions} with a file descriptor.
          *
          * @param fileDescriptor the file descriptor to use as the output destination.
          */
-        @NonNull
-        public abstract Builder setParcelFileDescriptor(
-                @NonNull ParcelFileDescriptor fileDescriptor);
+        public Builder(@NonNull ParcelFileDescriptor fileDescriptor) {
+            Preconditions.checkNotNull(fileDescriptor, "File descriptor can't be null.");
+            mInternalBuilder.setParcelFileDescriptor(fileDescriptor);
+        }
 
         /**
          * Sets the limit for the file length in bytes. Zero or negative values are considered
@@ -89,11 +112,34 @@ public abstract class FileDescriptorOutputOptions extends OutputOptions {
          */
         @Override
         @NonNull
-        public abstract Builder setFileSizeLimit(long bytes);
+        public Builder setFileSizeLimit(long fileSizeLimitBytes) {
+            mInternalBuilder.setFileSizeLimit(fileSizeLimitBytes);
+            return this;
+        }
 
         /** Builds the {@link FileDescriptorOutputOptions} instance. */
         @Override
         @NonNull
-        public abstract FileDescriptorOutputOptions build();
+        public FileDescriptorOutputOptions build() {
+            return new FileDescriptorOutputOptions(mInternalBuilder.build());
+        }
+    }
+
+    @AutoValue
+    abstract static class FileDescriptorOutputOptionsInternal {
+        @NonNull
+        abstract ParcelFileDescriptor getParcelFileDescriptor();
+        abstract long getFileSizeLimit();
+
+        @AutoValue.Builder
+        abstract static class Builder {
+            @NonNull
+            abstract Builder setParcelFileDescriptor(
+                    @NonNull ParcelFileDescriptor parcelFileDescriptor);
+            @NonNull
+            abstract Builder setFileSizeLimit(long fileSizeLimitBytes);
+            @NonNull
+            abstract FileDescriptorOutputOptionsInternal build();
+        }
     }
 }
